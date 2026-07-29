@@ -1,12 +1,87 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1168" height="736" viewBox="0 0 1168 736" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif">
 <defs>
-<clipPath id="opAppsClip"><rect x="232" y="118" width="632" height="618"/></clipPath>
+<clipPath id="opAppsClip"><rect x="232" y="74" width="632" height="662"/></clipPath>
 <linearGradient id="logoG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f93ff"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
 </defs>
 <style>
 @keyframes opAppsScroll { from { transform: translateY(0); } to { transform: translateY(-2516px); } }
 .op-apps-scroll { animation: opAppsScroll 68s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .op-apps-scroll { animation: none; } }
+
+.fa-off, .fa-on { animation-duration: 8s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.fa-off { animation-name: fa2faOff; }
+.fa-on { animation-name: fa2faOn; }
+@keyframes fa2faOff { 0% { opacity: 1; } 44% { opacity: 1; } 46% { opacity: 0; } 96% { opacity: 0; } 98% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes fa2faOn { 0% { opacity: 0; } 44% { opacity: 0; } 46% { opacity: 1; } 96% { opacity: 1; } 98% { opacity: 0; } 100% { opacity: 0; } }
+.web-n5, .web-n6, .web-n7, .web-n8, .dom-n6, .dom-n7, .web-bar, .dom-bar { animation-duration: 12s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.web-n5 { animation-name: webLabel5; }
+.web-n6 { animation-name: webLabel6; }
+.web-n7 { animation-name: webLabel7; }
+.web-n8 { animation-name: webLabel8; }
+.web-bar { animation-name: webBar; }
+.dom-n6 { animation-name: domLabel6; }
+.dom-n7 { animation-name: domLabel7; }
+.dom-bar { animation-name: domBar; }
+@keyframes webLabel5 { 0% { opacity: 1; } 12% { opacity: 1; } 12.5% { opacity: 0; } 87% { opacity: 0; } 87.5% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes webLabel6 { 0% { opacity: 0; } 12% { opacity: 0; } 12.5% { opacity: 1; } 24.5% { opacity: 1; } 25% { opacity: 0; } 74.5% { opacity: 0; } 75% { opacity: 1; } 87% { opacity: 1; } 87.5% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes webLabel7 { 0% { opacity: 0; } 24.5% { opacity: 0; } 25% { opacity: 1; } 37% { opacity: 1; } 37.5% { opacity: 0; } 62% { opacity: 0; } 62.5% { opacity: 1; } 74.5% { opacity: 1; } 75% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes webLabel8 { 0% { opacity: 0; } 37% { opacity: 0; } 37.5% { opacity: 1; } 62.5% { opacity: 1; } 63% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes webBar { 0% { width: 112px; fill: #155dfc; } 12.5% { width: 134.4px; fill: #155dfc; } 25% { width: 156.8px; fill: #f59e0b; } 37.5% { width: 179.2px; fill: #ef4444; } 62.5% { width: 179.2px; fill: #ef4444; } 75% { width: 156.8px; fill: #f59e0b; } 87.5% { width: 134.4px; fill: #155dfc; } 100% { width: 112px; fill: #155dfc; } }
+@keyframes domLabel6 { 0% { opacity: 1; } 37% { opacity: 1; } 37.5% { opacity: 0; } 62.5% { opacity: 0; } 63% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes domLabel7 { 0% { opacity: 0; } 37% { opacity: 0; } 37.5% { opacity: 1; } 62.5% { opacity: 1; } 63% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes domBar { 0% { width: 134.4px; } 37% { width: 134.4px; } 37.5% { width: 156.8px; } 62.5% { width: 156.8px; } 63% { width: 134.4px; } 100% { width: 134.4px; } }
+
+.db-n4, .db-n5, .db-n6, .db-n7, .db-n8, .db-bar { animation-duration: 12s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.db-n4 { animation-name: dbLabel4; }
+.db-n5 { animation-name: dbLabel5; }
+.db-n6 { animation-name: dbLabel6; }
+.db-n7 { animation-name: dbLabel7; }
+.db-n8 { animation-name: dbLabel8; }
+.db-bar { animation-name: dbBar; }
+@keyframes dbLabel4 { 0% { opacity: 1; } 9.6% { opacity: 1; } 10% { opacity: 0; } 89.6% { opacity: 0; } 90% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes dbLabel5 { 0% { opacity: 0; } 9.6% { opacity: 0; } 10% { opacity: 1; } 19.6% { opacity: 1; } 20% { opacity: 0; } 79.6% { opacity: 0; } 80% { opacity: 1; } 89.6% { opacity: 1; } 90% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes dbLabel6 { 0% { opacity: 0; } 19.6% { opacity: 0; } 20% { opacity: 1; } 29.6% { opacity: 1; } 30% { opacity: 0; } 69.6% { opacity: 0; } 70% { opacity: 1; } 79.6% { opacity: 1; } 80% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes dbLabel7 { 0% { opacity: 0; } 29.6% { opacity: 0; } 30% { opacity: 1; } 39.6% { opacity: 1; } 40% { opacity: 0; } 59.6% { opacity: 0; } 60% { opacity: 1; } 69.6% { opacity: 1; } 70% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes dbLabel8 { 0% { opacity: 0; } 39.6% { opacity: 0; } 40% { opacity: 1; } 60% { opacity: 1; } 60.4% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes dbBar { 0% { width: 44.8px; } 10% { width: 56px; } 20% { width: 67.2px; } 30% { width: 78.4px; } 40% { width: 89.6px; } 60% { width: 89.6px; } 70% { width: 78.4px; } 80% { width: 67.2px; } 90% { width: 56px; } 100% { width: 44.8px; } }
+.ip-shared, .ip-dedicated { animation-duration: 11s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.ip-shared { animation-name: ipShared; }
+.ip-dedicated { animation-name: ipDedicated; }
+@keyframes ipShared { 0% { opacity: 1; } 44% { opacity: 1; } 48% { opacity: 0; } 92% { opacity: 0; } 96% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes ipDedicated { 0% { opacity: 0; } 44% { opacity: 0; } 48% { opacity: 1; } 92% { opacity: 1; } 96% { opacity: 0; } 100% { opacity: 0; } }
+.storage-1, .storage-2, .storage-3, .storage-4, .storage-bar,
+.inode-1, .inode-2, .inode-3, .inode-4, .inode-bar { animation-duration: 12s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.storage-1 { animation-name: web5Like1; }
+.storage-2 { animation-name: web5Like2; }
+.storage-3 { animation-name: web5Like3; }
+.storage-4 { animation-name: web5Like4; }
+.storage-bar { animation-name: storageBar; }
+.inode-1 { animation-name: web5Like1; }
+.inode-2 { animation-name: web5Like2; }
+.inode-3 { animation-name: web5Like3; }
+.inode-4 { animation-name: web5Like4; }
+.inode-bar { animation-name: inodeBar; }
+@keyframes web5Like1 { 0% { opacity: 1; } 12% { opacity: 1; } 12.5% { opacity: 0; } 87% { opacity: 0; } 87.5% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes web5Like2 { 0% { opacity: 0; } 12% { opacity: 0; } 12.5% { opacity: 1; } 24.5% { opacity: 1; } 25% { opacity: 0; } 74.5% { opacity: 0; } 75% { opacity: 1; } 87% { opacity: 1; } 87.5% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes web5Like3 { 0% { opacity: 0; } 24.5% { opacity: 0; } 25% { opacity: 1; } 37% { opacity: 1; } 37.5% { opacity: 0; } 62% { opacity: 0; } 62.5% { opacity: 1; } 74.5% { opacity: 1; } 75% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes web5Like4 { 0% { opacity: 0; } 37% { opacity: 0; } 37.5% { opacity: 1; } 62.5% { opacity: 1; } 63% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes storageBar { 0% { width: 20.384px; } 12.5% { width: 27.33px; } 25% { width: 34.27px; } 37.5% { width: 42.11px; } 62.5% { width: 42.11px; } 75% { width: 34.27px; } 87.5% { width: 27.33px; } 100% { width: 20.384px; } }
+@keyframes inodeBar { 0% { width: 20.16px; } 12.5% { width: 25.76px; } 25% { width: 31.36px; } 37.5% { width: 38.08px; } 62.5% { width: 38.08px; } 75% { width: 31.36px; } 87.5% { width: 25.76px; } 100% { width: 20.16px; } }
+.cpu-0, .cpu-04, .cpu-06, .cpu-15, .cpu-38, .cpu-80, .cpu-bar { animation-duration: 12s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.cpu-0 { animation-name: cpu0; }
+.cpu-04 { animation-name: cpu04; }
+.cpu-06 { animation-name: cpu06; }
+.cpu-15 { animation-name: cpu15; }
+.cpu-38 { animation-name: cpu38; }
+.cpu-80 { animation-name: cpu80; }
+.cpu-bar { animation-name: cpuBar; }
+@keyframes cpu0 { 0% { opacity: 1; } 7.1% { opacity: 1; } 7.5% { opacity: 0; } 92.1% { opacity: 0; } 92.5% { opacity: 1; } 100% { opacity: 1; } }
+@keyframes cpu04 { 0% { opacity: 0; } 7.1% { opacity: 0; } 7.5% { opacity: 1; } 14.6% { opacity: 1; } 15% { opacity: 0; } 84.6% { opacity: 0; } 85% { opacity: 1; } 92.1% { opacity: 1; } 92.5% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes cpu06 { 0% { opacity: 0; } 14.6% { opacity: 0; } 15% { opacity: 1; } 22.1% { opacity: 1; } 22.5% { opacity: 0; } 77.1% { opacity: 0; } 77.5% { opacity: 1; } 84.6% { opacity: 1; } 85% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes cpu15 { 0% { opacity: 0; } 22.1% { opacity: 0; } 22.5% { opacity: 1; } 29.6% { opacity: 1; } 30% { opacity: 0; } 69.6% { opacity: 0; } 70% { opacity: 1; } 77.1% { opacity: 1; } 77.5% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes cpu38 { 0% { opacity: 0; } 29.6% { opacity: 0; } 30% { opacity: 1; } 37.1% { opacity: 1; } 37.5% { opacity: 0; } 62.1% { opacity: 0; } 62.5% { opacity: 1; } 69.6% { opacity: 1; } 70% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes cpu80 { 0% { opacity: 0; } 37.1% { opacity: 0; } 37.5% { opacity: 1; } 62.5% { opacity: 1; } 62.9% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes cpuBar { 0% { width: 0px; } 7.5% { width: 0.896px; } 15% { width: 1.344px; } 22.5% { width: 3.36px; } 30% { width: 8.512px; } 37.5% { width: 17.92px; } 62.5% { width: 17.92px; } 70% { width: 8.512px; } 77.5% { width: 3.36px; } 85% { width: 1.344px; } 92.5% { width: 0.896px; } 100% { width: 0px; } }
 </style>
 <rect x="0" y="0" width="1168" height="737" rx="0" fill="#ffffff" stroke="none" stroke-width="1" />
 <rect x="0" y="0" width="208" height="737" rx="0" fill="#f9fafb" stroke="none" stroke-width="1" />
@@ -68,15 +143,13 @@
 <text x="254" y="34" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#1e2939" text-anchor="start">Dashboard</text>
 <g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="1110.0" cy="28.0" r="4.5"/><path d="M1113.3 31.3 l4.2 4.2"/></g>
 <g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1143.5 23 l2.4 4.8 5.1000000000000005 .05 -4.050000000000001 3.5999999999999996 .1 5.25 -4.95-3.0 -4.95 3.0 .1-5.25 -4.050000000000001-3.5999999999999996 5.1000000000000005-.05 z"/></g>
-<text x="232" y="88" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#6a7282" text-anchor="start">Want a quick guided tour of OpenPanel?</text>
-<text x="464" y="88" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#155dfc" text-anchor="start">Take the tour</text>
-<text x="542" y="88" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#6a7282" text-anchor="start">·  Skip</text>
 <text x="1092" y="88" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#6a7282" text-anchor="end">Icon position:</text>
 <rect x="1100" y="78" width="20" height="16" rx="4" fill="#e8eefe" stroke="#a9c2fd" stroke-width="1" />
 <text x="1110" y="90" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="700" fill="#155dfc" text-anchor="middle">T</text>
 <rect x="1124" y="78" width="20" height="16" rx="4" fill="#ffffff" stroke="#e5e7eb" stroke-width="1" />
 <path d="M1130 82 h4 M1130 86 h6 M1130 90 h4" stroke="#6a7282" stroke-width="1.2" stroke-linecap="round"/>
 <g clip-path="url(#opAppsClip)">
+<g transform="translate(0,-44)">
 <g class="op-apps-scroll">
 <g id="opAppsBlock">
 <rect x="232" y="118" width="632" height="40" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1" />
@@ -253,7 +326,7 @@
 <path d="M840 1546 l4-4 4 4" stroke="#6a7282" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <rect x="232" y="1568" width="632" height="158" rx="0" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1" />
 <rect x="292.0" y="1585" width="38" height="38" rx="10" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1" />
-<g stroke="#155dfc" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></g>
+<g stroke="#155dfc" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="1598.0" width="16" height="12" rx="2"/><path d="M303.0 1599.0 l8 6 l8 -6"/></g>
 <text x="311.0" y="1638" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6a7282" text-anchor="middle">Email Accounts</text>
 <rect x="450.0" y="1585" width="38" height="38" rx="10" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1" />
 <g stroke="#155dfc" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="466.2" cy="1600.8" r="3.2"/><circle cx="472.2" cy="1600.8" r="3.2"/><path d="M461.0 1612.0 c0-6.0 10.0-6.0 10.0 0 M469.0 1612.0 c0-6.0 10.0-6.0 10.0 0"/></g>
@@ -265,7 +338,7 @@
 <g stroke="#155dfc" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M778.0 1612.0 h14 M785.0 1609.0 v-12 M781.0 1598.0 l4-4 4 4"/></g>
 <text x="785.0" y="1638" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6a7282" text-anchor="middle">Email Deliverability</text>
 <rect x="292.0" y="1659" width="38" height="38" rx="10" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1" />
-<g stroke="#155dfc" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></g>
+<g stroke="#155dfc" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="1672.0" width="16" height="12" rx="2"/><path d="M303.0 1673.0 l8 6 l8 -6"/><path d="M321 1663.5 l0.9 2.1 l2.1 0.9 l-2.1 0.9 l-0.9 2.1 l-0.9 -2.1 l-2.1 -0.9 l2.1 -0.9 z"/></g>
 <text x="311.0" y="1712" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6a7282" text-anchor="middle">Default Address</text>
 <rect x="450.0" y="1659" width="38" height="38" rx="10" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1" />
 <g stroke="#155dfc" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="467.0" cy="1672.0" rx="6.800000000000001" ry="2"/><path d="M461.0 1672.0 v6 a6.800000000000001 2 0 0 0 13.600000000000001 0 v-6"/><path d="M475.0 1670.0 v6 M472.0 1673.0 l3 3 3-3"/></g>
@@ -363,7 +436,7 @@
 <g stroke="#155dfc" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="469.0" cy="2492.0" r="9.0"/><path d="M460.0 2492.0 h18 M469.0 2483.0 c-6.800000000000001 4.0 -6.800000000000001 12.0 0 18 c6.800000000000001-8.0 6.800000000000001-16.0 0-18"/></g>
 <text x="469.0" y="2526" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6a7282" text-anchor="middle">Change Language</text>
 <rect x="608.0" y="2473" width="38" height="38" rx="10" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1" />
-<g stroke="#155dfc" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></g>
+<g stroke="#155dfc" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M627 2481 c-3.5 0 -6 2.8 -6 6.2 v3.3 l-2 3 h16 l-2 -3 v-3.3 c0 -3.4 -2.5 -6.2 -6 -6.2 z"/><path d="M624 2494.5 a3 3 0 0 0 6 0"/></g>
 <text x="627.0" y="2526" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6a7282" text-anchor="middle">Email Notifications</text>
 <rect x="766.0" y="2473" width="38" height="38" rx="10" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1" />
 <g stroke="#155dfc" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="778.0 " y="2490.0" width="14" height="10" rx="1.5"/><path d="M780.5 2490.0 v-3 a2.8000000000000003 2.8000000000000003 0 0 1 5.6000000000000005 0 v3"/></g>
@@ -384,14 +457,24 @@
 <use href="#opAppsBlock" y="2516"/>
 </g>
 </g>
+</g>
 <rect x="888" y="74" width="256" height="92" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1" />
 <text x="906" y="100" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e2939" text-anchor="start">Two-Factor Authentication</text>
 <text x="906" y="119" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#6a7282" text-anchor="start">2FA is </text>
+<g class="fa-off">
 <text x="940" y="119" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#1e2939" text-anchor="start">disabled</text>
 <text x="990" y="119" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#6a7282" text-anchor="start">for your account.</text>
 <rect x="902" y="130" width="228" height="24" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1" />
 <g stroke="#6a7282" stroke-width="1.3" fill="none" stroke-linecap="round"><rect x="964.0" y="139" width="9" height="7" rx="1.5"/><path d="M966.0 139 v-2 a2.5 2.5 0 0 1 5 0 v2"/></g>
 <text x="1022.0" y="146" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#6a7282" text-anchor="middle">Click to enable</text>
+</g>
+<g class="fa-on">
+<text x="940" y="119" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#16a34a" text-anchor="start">enabled</text>
+<text x="985" y="119" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#6a7282" text-anchor="start">for your account.</text>
+<rect x="902" y="130" width="228" height="24" rx="6" fill="#eafbf0" stroke="#86e0ab" stroke-width="1" />
+<path d="M965.5 142.5 l2.8 2.8 l5.7 -6.3" stroke="#16a34a" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1022.0" y="146" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="600" fill="#16a34a" text-anchor="middle">2FA Enabled</text>
+</g>
 <rect x="888" y="178" width="256" height="168" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1" />
 <rect x="888" y="186" width="3" height="20" rx="1.5" fill="#155dfc" stroke="none" stroke-width="1" />
 <text x="906" y="202" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1e2939" text-anchor="start">Information</text>
@@ -400,9 +483,15 @@
 <text x="906" y="248" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
 <text x="1022.0" y="232" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">Plan</text>
 <text x="1022.0" y="248" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="start">Developer plus</text>
-<text x="906" y="270" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">IP address</text>
 <text x="1022.0" y="270" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">Last login IP</text>
+<g class="ip-shared">
+<text x="906" y="270" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">Shared IP address</text>
 <text x="906" y="286" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="start">192.0.2.37</text>
+</g>
+<g class="ip-dedicated">
+<text x="906" y="270" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">Dedicated IP address</text>
+<text x="906" y="286" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="start">185.7.32.91</text>
+</g>
 <text x="1022.0" y="286" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="start">198.51.100.24</text>
 <rect x="1102.0" y="277" width="15" height="10" rx="1.5" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1" />
 <rect x="1102.0" y="277" width="15" height="3.3" rx="0" fill="#111" stroke="none" stroke-width="1" />
@@ -417,18 +506,27 @@
 <line x1="902" y1="394" x2="1130" y2="394" stroke="#eaecef" stroke-width="1"/>
 <g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="905" y="408" width="13" height="10" rx="2"/><path d="M905 411.5 h13"/></g>
 <text x="928" y="416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#1e2939" text-anchor="start">Websites</text>
-<text x="1128" y="416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end">5/10</text>
+<text x="1128" y="416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="web-n5">5/10</text>
+<text x="1128" y="416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="web-n6">6/10</text>
+<text x="1128" y="416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="web-n7">7/10</text>
+<text x="1128" y="416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="web-n8">8/10</text>
 <rect x="904" y="424" width="224" height="5" rx="2.5" fill="#e9ebef" stroke="none" stroke-width="1" />
-<rect x="904" y="424" width="112.0" height="5" rx="2.5" fill="#155dfc" stroke="none" stroke-width="1" />
+<rect x="904" y="424" width="112.0" height="5" rx="2.5" fill="#155dfc" stroke="none" stroke-width="1" class="web-bar" />
 <g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="911.5" cy="451.625" r="6.5"/><path d="M905 451.625 h13 M911.5 445.125 c-4 3-4 11 0 13 c4-3 4-11 0-13"/></g>
 <text x="928" y="454.125" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#1e2939" text-anchor="start">Domains</text>
-<text x="1128" y="454.125" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end">6/10</text>
+<text x="1128" y="454.125" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="dom-n6">6/10</text>
+<text x="1128" y="454.125" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="dom-n7">7/10</text>
 <rect x="904" y="462.125" width="224" height="5" rx="2.5" fill="#e9ebef" stroke="none" stroke-width="1" />
-<rect x="904" y="462.125" width="134.4" height="5" rx="2.5" fill="#155dfc" stroke="none" stroke-width="1" />
+<rect x="904" y="462.125" width="134.4" height="5" rx="2.5" fill="#155dfc" stroke="none" stroke-width="1" class="dom-bar" />
 <g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="911.5" cy="485.75" rx="6.0" ry="2"/><path d="M906 485.75 v8 a6.0 2 0 0 0 11 0 v-8"/></g>
 <text x="928" y="492.25" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#1e2939" text-anchor="start">Databases</text>
-<text x="1128" y="492.25" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end">0/20</text>
+<text x="1128" y="492.25" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="db-n4">4/20</text>
+<text x="1128" y="492.25" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="db-n5">5/20</text>
+<text x="1128" y="492.25" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="db-n6">6/20</text>
+<text x="1128" y="492.25" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="db-n7">7/20</text>
+<text x="1128" y="492.25" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="db-n8">8/20</text>
 <rect x="904" y="500.25" width="224" height="5" rx="2.5" fill="#e9ebef" stroke="none" stroke-width="1" />
+<rect x="904" y="500.25" width="44.8" height="5" rx="2.5" fill="#155dfc" stroke="none" stroke-width="1" class="db-bar" />
 <g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="905" y="522.875" width="13" height="10" rx="2"/><path d="M905.5 523.875 l6.5 5.1000000000000005 l6.5-5.1000000000000005"/></g>
 <text x="928" y="530.375" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#1e2939" text-anchor="start">Email accounts</text>
 <text x="1128" y="530.375" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end">4/500</text>
@@ -441,22 +539,40 @@
 <rect x="904" y="576.5" width="13.44" height="5" rx="2.5" fill="#155dfc" stroke="none" stroke-width="1" />
 <g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M905 601.625 v8 h13 v-4 h-6 l-2-2 h-4 z"/></g>
 <text x="928" y="606.625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#1e2939" text-anchor="start">Storage</text>
-<text x="1128" y="606.625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end">9.1%</text>
+<text x="1128" y="606.625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="storage-1">9.1%</text>
+<text x="1128" y="606.625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="storage-2">12.2%</text>
+<text x="1128" y="606.625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="storage-3">15.3%</text>
+<text x="1128" y="606.625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="storage-4">18.8%</text>
 <rect x="904" y="614.625" width="224" height="5" rx="2.5" fill="#e9ebef" stroke="none" stroke-width="1" />
-<rect x="904" y="614.625" width="20.384" height="5" rx="2.5" fill="#155dfc" stroke="none" stroke-width="1" />
-<text x="904" y="630.625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="start">4.67 GB</text>
+<rect x="904" y="614.625" width="20.384" height="5" rx="2.5" fill="#155dfc" stroke="none" stroke-width="1" class="storage-bar" />
+<text x="904" y="630.625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="start" class="storage-1">4.67 GB</text>
+<text x="904" y="630.625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="start" class="storage-2">6.0 GB</text>
+<text x="904" y="630.625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="start" class="storage-3">7.5 GB</text>
+<text x="904" y="630.625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="start" class="storage-4">9.2 GB</text>
 <text x="1128" y="630.625" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="end">49 GB</text>
 <g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M906 636.75 h11 v11 h-11 z"/><path d="M909 640.75 h5 M909 643.75 h4"/></g>
 <text x="928" y="644.75" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#1e2939" text-anchor="start">Inodes</text>
-<text x="1128" y="644.75" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end">9%</text>
+<text x="1128" y="644.75" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="inode-1">9%</text>
+<text x="1128" y="644.75" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="inode-2">11.5%</text>
+<text x="1128" y="644.75" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="inode-3">14%</text>
+<text x="1128" y="644.75" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="inode-4">17%</text>
 <rect x="904" y="652.75" width="224" height="5" rx="2.5" fill="#e9ebef" stroke="none" stroke-width="1" />
-<rect x="904" y="652.75" width="20.16" height="5" rx="2.5" fill="#155dfc" stroke="none" stroke-width="1" />
-<text x="904" y="668.75" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="start">90,360</text>
+<rect x="904" y="652.75" width="20.16" height="5" rx="2.5" fill="#155dfc" stroke="none" stroke-width="1" class="inode-bar" />
+<text x="904" y="668.75" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="start" class="inode-1">90,360</text>
+<text x="904" y="668.75" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="start" class="inode-2">115,000</text>
+<text x="904" y="668.75" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="start" class="inode-3">140,000</text>
+<text x="904" y="668.75" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="start" class="inode-4">170,000</text>
 <text x="1128" y="668.75" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="end">1.00M</text>
 <g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="907" y="675.875" width="9" height="9" rx="1.5"/><path d="M910 673.875 v2 M913 673.875 v2 M910 684.875 v2 M913 684.875 v2 M905 678.875 h2 M905 681.875 h2 M916 678.875 h2 M916 681.875 h2"/></g>
 <text x="928" y="682.875" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#1e2939" text-anchor="start">CPU usage</text>
-<text x="1128" y="682.875" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end">0%</text>
+<text x="1128" y="682.875" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="cpu-0">0%</text>
+<text x="1128" y="682.875" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="cpu-04">0.4%</text>
+<text x="1128" y="682.875" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="cpu-06">0.6%</text>
+<text x="1128" y="682.875" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="cpu-15">1.5%</text>
+<text x="1128" y="682.875" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="cpu-38">3.8%</text>
+<text x="1128" y="682.875" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1e2939" text-anchor="end" class="cpu-80">8.0%</text>
 <rect x="904" y="690.875" width="224" height="5" rx="2.5" fill="#e9ebef" stroke="none" stroke-width="1" />
+<rect x="904" y="690.875" width="0" height="5" rx="2.5" fill="#155dfc" stroke="none" stroke-width="1" class="cpu-bar" />
 <text x="904" y="706.875" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="start">0.0 cores</text>
 <text x="1128" y="706.875" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="end">5.0 cores</text>
 </svg>

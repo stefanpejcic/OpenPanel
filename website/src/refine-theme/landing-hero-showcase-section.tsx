@@ -73,13 +73,13 @@ export const LandingHeroShowcaseSection = ({}) => {
                 <div
                     className={clsx(
                         "rounded-3xl",
-                        "overflow-y-auto",
+                        "overflow-x-auto",
+                        "overflow-y-hidden",
                         "flex",
                         "w-full",
                         "gap-2",
                         "scrollbar-hidden",
                         "snap snap-x snap-mandatory",
-                        "snap-mandatory",
                     )}
                 >
                     <div
@@ -110,30 +110,24 @@ export const LandingHeroShowcaseSection = ({}) => {
                                 "ease-out",
                             )}
                             style={{
-                                width: `calc(100% / 3)`,
+                                width: `calc(100% / ${apps.length})`,
                                 minWidth: "244px",
                                 transform: `translateX(calc((100% + 8px) * ${apps.findIndex(
                                     (f) => f.name === activeApp.name,
                                 )})) translateZ(0px)`,
                             }}
                         />
-                        {apps.map((app, index) => (
+                        {apps.map((app) => (
                             <button
                                 key={app.name}
                                 type="button"
                                 onClick={(event) => {
                                     setActiveApp(app);
-                                    // if index i >= 2
-                                    // then scroll to the right
-                                    event.currentTarget.parentElement?.parentElement?.scrollTo(
-                                        {
-                                            left:
-                                                index >= 2
-                                                    ? index * (244 + 8)
-                                                    : 0,
-                                            behavior: "smooth",
-                                        },
-                                    );
+                                    event.currentTarget.scrollIntoView({
+                                        behavior: "smooth",
+                                        inline: "nearest",
+                                        block: "nearest",
+                                    });
                                 }}
                                 className={clsx(
                                     "z-[1]",
