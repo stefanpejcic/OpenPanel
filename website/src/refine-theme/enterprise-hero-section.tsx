@@ -134,11 +134,12 @@ export const EnterpriseHeroSection = ({
             >
                 <CommonThemedImage
                     className={clsx(
-                        "landing-md:h-[360px] landing-md:w-[326px]",
-                        "landing-md:h-[360px] landing-md:w-[326px]",
+                        "w-full h-auto",
+                        "landing-md:w-[460px]",
+                        "rounded-xl landing-lg:rounded-2xl",
                     )}
-                    srcDark="/img/hero.png"
-                    srcLight="/img/hero.png"
+                    srcDark="/img/landing/openpanel-illustration-dark.svg"
+                    srcLight="/img/landing/openpanel-illustration-light.svg"
                     alt="OpenPanel Enterprise dashboard preview"
                 />
             </div>
