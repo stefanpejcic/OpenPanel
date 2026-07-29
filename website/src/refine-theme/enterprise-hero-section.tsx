@@ -7,7 +7,6 @@ import {
     ENTERPRISE_TRIAL_URL,
     gtagReportConversion,
 } from "./enterprise-get-in-touch-button";
-import { CommonThemedImage } from "./common-themed-image";
 
 export const EnterpriseHeroSection = ({
     className,
@@ -18,12 +17,11 @@ export const EnterpriseHeroSection = ({
         <div
             className={clsx(
                 "flex flex-col",
-                "landing-md:grid landing-md:grid-cols-12",
                 "not-prose",
                 className,
             )}
         >
-            <div className={clsx("flex flex-col", "col-start-1 col-end-8")}>
+            <div className={clsx("flex flex-col")}>
                 <h1
                     className={clsx(
                         "max-w-xl landing-md:max-w-[408px] landing-lg:max-w-non landing-lg:whitespace-nowrap",
@@ -122,26 +120,6 @@ export const EnterpriseHeroSection = ({
                         No credit card required · Cancel anytime
                     </p>
                 </div>
-            </div>
-            <div
-                className={clsx(
-                    "flex",
-                    "justify-end",
-                    "col-start-8",
-                    "col-end-13",
-                    "mt-12 landing-sm:mt-16 landing-md:mt-0",
-                )}
-            >
-                <CommonThemedImage
-                    className={clsx(
-                        "w-full h-auto",
-                        "landing-md:w-[460px]",
-                        "rounded-xl landing-lg:rounded-2xl",
-                    )}
-                    srcDark="/img/landing/openpanel-illustration-dark.svg"
-                    srcLight="/img/landing/openpanel-illustration-light.svg"
-                    alt="OpenPanel Enterprise dashboard preview"
-                />
             </div>
         </div>
     );

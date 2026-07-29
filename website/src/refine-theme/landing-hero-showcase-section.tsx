@@ -40,18 +40,199 @@ const ShowcaseDevOps = ({ className }: { className?: string }) => {
     return <LandingHeroShowcaseOpenCliTerminal className={className} />;
 };
 
-export const LandingHeroShowcaseSection = ({}) => {
-    const [activeApp, setActiveApp] = React.useState(apps[0]);
+const LandingHeroShowcaseFrame = ({ app }: { app: (typeof apps)[number] }) => {
     const { colorMode } = useColorMode();
 
-    const ShowcaseComponent = React.useMemo(() => {
-        return activeApp.showcase;
-    }, [activeApp.name]);
+    const ShowcaseComponent = app.showcase;
 
     const isFrameDark =
-        activeApp.name === "OpenAdmin" || activeApp.name === "OpenPanel"
+        app.name === "OpenAdmin" || app.name === "OpenPanel"
             ? colorMode === "dark"
-            : !!activeApp.dark;
+            : !!app.dark;
+
+    return (
+        <>
+            <div
+                className={clsx(
+                    "rounded-lg",
+                    "landing-md:rounded-xl",
+                    "landing-lg:rounded-2xl",
+                    "overflow-hidden",
+                    "shadow-sm shadow-gray-200 dark:shadow-none",
+                    "relative",
+                    "group/showcase-inner",
+                    isFrameDark ? "bg-gray-900" : "bg-gray-0",
+                )}
+            >
+                <div
+                    className={clsx(
+                        "w-full",
+                        "h-auto",
+                        "aspect-[1168/736]",
+                        "transition-colors",
+                        "duration-150",
+                        "ease-in-out",
+                        isFrameDark ? "bg-gray-900" : "bg-gray-0",
+                    )}
+                />
+                <ShowcaseComponent
+                    className={clsx(
+                        "animate-showcase-reveal",
+                        "absolute",
+                        "left-0",
+                        "top-0",
+                        "w-full",
+                        "rounded-lg",
+                        "landing-md:rounded-xl",
+                        "landing-lg:rounded-2xl",
+                        "overflow-hidden",
+                    )}
+                />
+                <div
+                    key={app.name}
+                    className={clsx(
+                        "hidden",
+                        "landing-lg:block",
+                        "landing-lg:opacity-0",
+                        "landing-lg:translate-y-24",
+                        "landing-lg:group-hover/showcase-inner:opacity-100 landing-lg:group-hover/showcase-inner:translate-y-0",
+                        "duration-300",
+                        "ease-in-out",
+                        "transition-[opacity,transform,background-color,color]",
+                        "absolute",
+                        "left-0",
+                        "bottom-0",
+                        "right-0",
+                        "w-full",
+                        "h-24",
+                        "opacity-0",
+                        isFrameDark &&
+                            "bg-[linear-gradient(0deg,_#14141F_30%,_transparent_90%,_transparent_100%)]",
+                        !isFrameDark &&
+                            "bg-[linear-gradient(0deg,_#FFFFFF_30%,_transparent_90%,_transparent_100%)]",
+                        "rounded-bl-lg rounded-br-lg",
+                        "landing-md:rounded-bl-xl landing-md:rounded-br-xl",
+                        "landing-lg:rounded-bl-2xl landing-lg:rounded-br-2xl",
+                    )}
+                />
+                <div
+                    className={clsx(
+                        "flex",
+                        "items-center",
+                        "justify-center",
+                        "landing-lg:-mb-4",
+                    )}
+                >
+                    <a
+                        href={app.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={clsx(
+                            "hidden",
+                            "landing-lg:flex",
+                            "landing-lg:opacity-0",
+                            "landing-lg:translate-y-8",
+                            "landing-lg:group-hover/showcase-inner:opacity-100 landing-lg:group-hover/showcase-inner:translate-y-0",
+                            "duration-150",
+                            "delay-75",
+                            "ease-in-out",
+                            "transition-all",
+                            "landing-lg:mt-[-144px]",
+                            "hover:no-underline",
+                            "z-[3]",
+                            "py-2 landing-sm:py-4",
+                            "pl-4 pr-4 landing-sm:pl-6 landing-sm:pr-4",
+                            "rounded-[32px] landing-sm:rounded-[48px]",
+                            "items-center",
+                            "justify-center",
+                            "gap-2",
+                            "bg-refine-blue dark:bg-refine-cyan-alt",
+                            "bg-opacity-10 dark:bg-opacity-10",
+                            "landing-lg:bg-opacity-100 dark:landing-lg:bg-opacity-100",
+                            "text-refine-blue dark:text-refine-cyan-alt",
+                            "landing-lg:text-gray-0 dark:landing-lg:text-gray-900",
+                            "hover:brightness-125",
+                            "landing-lg:hover:scale-105 landing-lg:hover:brightness-100",
+                            "hover:text-refine-blue dark:hover:text-refine-cyan-alt",
+                            "landing-lg:hover:text-gray-0 dark:landing-lg:hover:text-gray-900",
+                            "landing-lg:border-8 landing-lg:border-solid",
+                            isFrameDark
+                                ? "landing-lg:border-gray-900"
+                                : "landing-lg:border-gray-0",
+                        )}
+                    >
+                        <span
+                            className={clsx(
+                                "text-xs landing-sm:text-base",
+                                "font-semibold",
+                            )}
+                        >
+                            {app.label}
+                        </span>
+                        <LandingArrowRightIcon />
+                    </a>
+                </div>
+            </div>
+            <div
+                className={clsx(
+                    "flex",
+                    "items-center",
+                    "justify-center",
+                    "landing-lg:-mb-4",
+                )}
+            >
+                <a
+                    href={app.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={clsx(
+                        "landing-lg:opacity-0",
+                        "duration-150",
+                        "delay-75",
+                        "ease-in-out",
+                        "transition-all",
+                        "hover:no-underline",
+                        "z-[3]",
+                        "py-2 landing-sm:py-4",
+                        "pl-4 pr-4 landing-sm:pl-6 landing-sm:pr-4",
+                        "rounded-[32px] landing-sm:rounded-[48px]",
+                        "flex",
+                        "landing-lg:hidden",
+                        "items-center",
+                        "justify-center",
+                        "gap-2",
+                        "bg-refine-blue dark:bg-refine-cyan-alt",
+                        "bg-opacity-10 dark:bg-opacity-10",
+                        "landing-lg:bg-opacity-100 dark:landing-lg:bg-opacity-100",
+                        "text-refine-blue dark:text-refine-cyan-alt",
+                        "landing-lg:text-gray-0 dark:landing-lg:text-gray-900",
+                        "hover:brightness-125",
+                        "landing-lg:hover:scale-105 landing-lg:hover:brightness-100",
+                        "hover:text-refine-blue dark:hover:text-refine-cyan-alt",
+                        "landing-lg:hover:text-gray-0 dark:landing-lg:hover:text-gray-900",
+                        "landing-lg:border-8 landing-lg:border-solid",
+                        isFrameDark
+                            ? "landing-lg:border-gray-900"
+                            : "landing-lg:border-gray-0",
+                    )}
+                >
+                    <span
+                        className={clsx(
+                            "text-xs landing-sm:text-base",
+                            "font-semibold",
+                        )}
+                    >
+                        {app.label}
+                    </span>
+                    <LandingArrowRightIcon />
+                </a>
+            </div>
+        </>
+    );
+};
+
+export const LandingHeroShowcaseSection = ({}) => {
+    const [activeApp, setActiveApp] = React.useState(apps[0]);
 
     return (
         <div
@@ -169,185 +350,33 @@ export const LandingHeroShowcaseSection = ({}) => {
                     </div>
                 </div>
             </div>
-            <div
-                className={clsx(
-                    "rounded-lg",
-                    "landing-md:rounded-xl",
-                    "landing-lg:rounded-2xl",
-                    "overflow-hidden",
-                    "shadow-sm shadow-gray-200 dark:shadow-none",
-                    "relative",
-                    "group/showcase-inner",
-                    isFrameDark ? "bg-gray-900" : "bg-gray-0",
-                )}
-            >
-                <div
-                    className={clsx(
-                        "w-full",
-                        "h-auto",
-                        "aspect-[1168/736]",
-                        "transition-colors",
-                        "duration-150",
-                        "ease-in-out",
-                        isFrameDark ? "bg-gray-900" : "bg-gray-0",
-                    )}
-                />
-                <ShowcaseComponent
-                    className={clsx(
-                        "animate-showcase-reveal",
-                        "absolute",
-                        "left-0",
-                        "top-0",
-                        "w-full",
-                        "rounded-lg",
-                        "landing-md:rounded-xl",
-                        "landing-lg:rounded-2xl",
-                        "overflow-hidden",
-                    )}
-                />
-                <div
-                    key={activeApp.name}
-                    className={clsx(
-                        "hidden",
-                        "landing-lg:block",
-                        "landing-lg:opacity-0",
-                        "landing-lg:translate-y-24",
-                        "landing-lg:group-hover/showcase-inner:opacity-100 landing-lg:group-hover/showcase-inner:translate-y-0",
-                        "duration-300",
-                        "ease-in-out",
-                        "transition-[opacity,transform,background-color,color]",
-                        "absolute",
-                        "left-0",
-                        "bottom-0",
-                        "right-0",
-                        "w-full",
-                        "h-24",
-                        "opacity-0",
-                        isFrameDark &&
-                            "bg-[linear-gradient(0deg,_#14141F_30%,_transparent_90%,_transparent_100%)]",
-                        !isFrameDark &&
-                            "bg-[linear-gradient(0deg,_#FFFFFF_30%,_transparent_90%,_transparent_100%)]",
-                        "rounded-bl-lg rounded-br-lg",
-                        "landing-md:rounded-bl-xl landing-md:rounded-br-xl",
-                        "landing-lg:rounded-bl-2xl landing-lg:rounded-br-2xl",
-                    )}
-                />
-                <div
-                    className={clsx(
-                        "flex",
-                        "items-center",
-                        "justify-center",
-                        "landing-lg:-mb-4",
-                    )}
-                >
-                    <a
-                        href={activeApp.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={clsx(
-                            "hidden",
-                            "landing-lg:flex",
-                            "landing-lg:opacity-0",
-                            "landing-lg:translate-y-8",
-                            "landing-lg:group-hover/showcase-inner:opacity-100 landing-lg:group-hover/showcase-inner:translate-y-0",
-                            "duration-150",
-                            "delay-75",
-                            "ease-in-out",
-                            "transition-all",
-                            "landing-lg:mt-[-144px]",
-                            "hover:no-underline",
-                            "z-[3]",
-                            "py-2 landing-sm:py-4",
-                            "pl-4 pr-4 landing-sm:pl-6 landing-sm:pr-4",
-                            "rounded-[32px] landing-sm:rounded-[48px]",
-                            "items-center",
-                            "justify-center",
-                            "gap-2",
-                            "bg-refine-blue dark:bg-refine-cyan-alt",
-                            "bg-opacity-10 dark:bg-opacity-10",
-                            "landing-lg:bg-opacity-100 dark:landing-lg:bg-opacity-100",
-                            "text-refine-blue dark:text-refine-cyan-alt",
-                            "landing-lg:text-gray-0 dark:landing-lg:text-gray-900",
-                            "hover:brightness-125",
-                            "landing-lg:hover:scale-105 landing-lg:hover:brightness-100",
-                            "hover:text-refine-blue dark:hover:text-refine-cyan-alt",
-                            "landing-lg:hover:text-gray-0 dark:landing-lg:hover:text-gray-900",
-                            "landing-lg:border-8 landing-lg:border-solid",
-                            isFrameDark
-                                ? "landing-lg:border-gray-900"
-                                : "landing-lg:border-gray-0",
-                        )}
-                    >
-                        <span
-                            className={clsx(
-                                "text-xs landing-sm:text-base",
-                                "font-semibold",
-                            )}
-                        >
-                            {activeApp.label}
-                        </span>
-                        <LandingArrowRightIcon />
-                    </a>
-                </div>
-            </div>
-            <div
-                className={clsx(
-                    "flex",
-                    "items-center",
-                    "justify-center",
-                    "landing-lg:-mb-4",
-                )}
-            >
-                <a
-                    href={activeApp.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={clsx(
-                        "landing-lg:opacity-0",
-                        "duration-150",
-                        "delay-75",
-                        "ease-in-out",
-                        "transition-all",
-                        "hover:no-underline",
-                        "z-[3]",
-                        "py-2 landing-sm:py-4",
-                        "pl-4 pr-4 landing-sm:pl-6 landing-sm:pr-4",
-                        "rounded-[32px] landing-sm:rounded-[48px]",
-                        "flex",
-                        "landing-lg:hidden",
-                        "items-center",
-                        "justify-center",
-                        "gap-2",
-                        "bg-refine-blue dark:bg-refine-cyan-alt",
-                        "bg-opacity-10 dark:bg-opacity-10",
-                        "landing-lg:bg-opacity-100 dark:landing-lg:bg-opacity-100",
-                        "text-refine-blue dark:text-refine-cyan-alt",
-                        "landing-lg:text-gray-0 dark:landing-lg:text-gray-900",
-                        "hover:brightness-125",
-                        "landing-lg:hover:scale-105 landing-lg:hover:brightness-100",
-                        "hover:text-refine-blue dark:hover:text-refine-cyan-alt",
-                        "landing-lg:hover:text-gray-0 dark:landing-lg:hover:text-gray-900",
-                        "landing-lg:border-8 landing-lg:border-solid",
-                        isFrameDark
-                            ? "landing-lg:border-gray-900"
-                            : "landing-lg:border-gray-0",
-                    )}
-                >
-                    <span
-                        className={clsx(
-                            "text-xs landing-sm:text-base",
-                            "font-semibold",
-                        )}
-                    >
-                        {activeApp.label}
-                    </span>
-                    <LandingArrowRightIcon />
-                </a>
-            </div>
+            <LandingHeroShowcaseFrame app={activeApp} />
         </div>
     );
 };
 
+export const LandingHeroShowcaseOpenPanel = ({}) => {
+    const openPanelApp = apps.find((app) => app.name === "OpenPanel")!;
+
+    return (
+        <div
+            className={clsx(
+                "bg-gray-50 dark:bg-gray-800",
+                "flex",
+                "flex-col",
+                "w-full",
+                "rounded-2xl landing-sm:rounded-[32px]",
+                "gap-2 landing-sm:gap-4",
+                "p-2 landing-sm:p-4",
+                "relative",
+                "group/showcase",
+                "landing-lg:overflow-hidden",
+            )}
+        >
+            <LandingHeroShowcaseFrame app={openPanelApp} />
+        </div>
+    );
+};
 
 const apps = [
     {
