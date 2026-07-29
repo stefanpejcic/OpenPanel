@@ -2,15 +2,20 @@ import React from "react";
 import clsx from "clsx";
 import { useColorMode } from "@docusaurus/theme-common";
 import { LandingArrowRightIcon } from "./icons/landing-arrow-right";
-import { ShowcaseWrapper } from "../components/landing/showcase-wrapper";
 import { LandingHeroShowcaseOpenCliTerminal } from "./landing-hero-showcase-opencli-terminal";
 
 const ShowcaseCRM = ({ className }: { className?: string }) => {
+    const { colorMode } = useColorMode();
+    const src =
+        colorMode === "dark"
+            ? "/img/landing/openpanel-illustration-dark.svg"
+            : "/img/landing/openpanel-illustration-light.svg";
+
     return (
-        <ShowcaseWrapper
-            className={className}
-            render="/img/user_light.png"
-            highlights={[]}
+        <img
+            src={src}
+            alt="OpenPanel dashboard illustration"
+            className={clsx(className, "w-full")}
         />
     );
 };
@@ -44,7 +49,7 @@ export const LandingHeroShowcaseSection = ({}) => {
     }, [activeApp.name]);
 
     const isFrameDark =
-        activeApp.name === "OpenAdmin"
+        activeApp.name === "OpenAdmin" || activeApp.name === "OpenPanel"
             ? colorMode === "dark"
             : !!activeApp.dark;
 
