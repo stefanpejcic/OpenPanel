@@ -1045,24 +1045,41 @@ Customize options:
 
 
 
-## Applications
+## NodeJS
 
-The **`pm2`** module allows users to setup and manage containerized Python and NodeJS applications.
+The **`pm2`** module allows users to setup and manage containerized NodeJS applications. This module also controls the [Python](#python) module below - the two can not be enabled/disabled separately.
 
 When enabled:
-* Users can access the [**Websites > WP Manager** page](/docs/panel/applications/wordpress/).
-* Users can [manage Python and NodeJS applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
-* NodeJS and Python are available on the Autoinstaller page.
-* Users can [setup NodeJS and Python applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application).
+* Users can [manage NodeJS applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
+* NodeJS is available on the Autoinstaller page.
+* Users can [setup NodeJS applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application).
 
 When disabled:
-* NodeJS and Python are not available on the Autoinstaller page.
-* NodeJS and Python applications can not be managed via Openpanel.
+* NodeJS is not available on the Autoinstaller page.
+* NodeJS applications can not be managed via Openpanel.
+
+Customize options:
+* To **customize docker service template for new Node.JS applications** edit `/etc/openpanel/docker/compose/nodejs.yml` file.
+* To **customize headers for Nginx proxy of new NodeJS applications** edit `/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt` file.
+* To **add a custom Google PageSpeed Insights API Key** refer to: [*How-to Guides > Google PageSpeed Insights API Key*](/docs/articles/websites/google-pagespeed-insights-api-key/)
+
+
+## Python
+
+The **`pm2`** module allows users to setup and manage containerized Python applications. This module also controls the [NodeJS](#nodejs) module above - the two can not be enabled/disabled separately.
+
+When enabled:
+* Users can [manage Python applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
+* Python is available on the Autoinstaller page.
+* Users can [setup Python applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application).
+
+When disabled:
+* Python is not available on the Autoinstaller page.
+* Python applications can not be managed via Openpanel.
 
 Customize options:
 * To **customize docker service template for new Python applications** edit `/etc/openpanel/docker/compose/python.yml` file.
-* To **customize docker service template for new Node.JS applications** edit `/etc/openpanel/docker/compose/nodejs.yml` file.
-* To **customize headers for Nginx proxy of new python/node application** edit `/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt` file.
+* To **customize headers for Nginx proxy of new Python applications** edit `/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt` file.
 * To **add a custom Google PageSpeed Insights API Key** refer to: [*How-to Guides > Google PageSpeed Insights API Key*](/docs/articles/websites/google-pagespeed-insights-api-key/)
 
 
@@ -1074,9 +1091,6 @@ The **`usage`** module allows users to view resource usage for their services.
 
 When enabled:
 * Users can access the [**Advanced > Resource Usage** page](/docs/panel/advanced/resource_usage/).
-* Users can [manage Python and NodeJS applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
-* NodeJS and Python are available on the Autoinstaller page.
-* Users can [setup NodeJS and Python applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application).
 
 When disabled:
 * Users can not access the *Advanced > Resource Usage* page.
