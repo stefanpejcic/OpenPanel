@@ -5,9 +5,9 @@
         "real_name": "admin"
     },
     {
-        "name": "Docker",
+        "name": "Podman",
         "type": "system",
-        "real_name": "docker"
+        "real_name": "podman"
     },
     {
         "name": "OpenPanel UI",

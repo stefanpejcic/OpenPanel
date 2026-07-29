@@ -162,8 +162,7 @@ services:
       INFO: 1
       VERSION: 1
     volumes:
-      - /run/user/${USER_ID}/docker.sock:/var/run/docker.sock:ro
-      #- /run/user/${USER_ID}/podman/podman.sock:/var/run/docker.sock:ro
+      - /run/user/${USER_ID}/podman/podman.sock:/var/run/docker.sock:ro
     deploy:
       resources:
         limits:

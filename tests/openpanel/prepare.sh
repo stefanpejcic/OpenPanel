@@ -57,10 +57,20 @@ opencli email-server install
 opencli locale $(curl -s "https://api.github.com/repos/stefanpejcic/openpanel-translations/contents" | jq -r '.[] | select(.type=="dir") | .name' | tr '\n' ' ')
 
 # DNS
-cd /root && podman-compose up -d bind9
+if podman container exists openpanel_dns; then
+  podman start openpanel_dns >/dev/null 2>&1 || cd /root && podman-compose up -d --force-recreate bind9
+else
+  cd /root && podman-compose up -d bind9
+fi
 
 # ENABLE FTP
-cd /root && podman-compose up -d openadmin_ftp
+if podman container exists openadmin_ftp; then
+  podman start openadmin_ftp >/dev/null 2>&1 || cd /root && podman-compose up -d --force-recreate openadmin_ftp
+else
+  cd /root && podman-compose up -d openadmin_ftp
+fi
+
+csf -r
 
 # RESTART USER-PANEL TO APPLY ALL CHANGES!
 podman restart openpanel
