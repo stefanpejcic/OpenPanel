@@ -20,16 +20,6 @@
         "real_name": "caddy"
     },
     {
-        "name": "Dovecot & Postfix",
-        "type": "docker",
-        "real_name": "openadmin_mailserver"
-    },
-    {
-        "name": "Roundcube (Webmail)",
-        "type": "docker",
-        "real_name": "openadmin_roundcube"
-    },
-    {
         "name": "MySQL (Database)",
         "type": "docker",
         "real_name": "openpanel_mysql"

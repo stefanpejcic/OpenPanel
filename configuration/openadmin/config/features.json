@@ -296,12 +296,20 @@
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#website-builder"
   },
   {
-    "name": "pm2",
-    "title": "Python&NodeJS Applications",
-    "description": "If enabled, containerized NodeJS and Python applications can be setup from the Autoinstaller.",
-    "link": "/pm2",
+    "name": "python",
+    "title": "Python Applications",
+    "description": "If enabled, containerized Python applications can be setup from the Autoinstaller.",
+    "link": "/python",
     "type": "enterprise",
-    "help_link": "https://openpanel.com/docs/admin/settings/modules/#applications"
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#python"
+  },
+  {
+    "name": "nodejs",
+    "title": "NodeJS Applications",
+    "description": "If enabled, containerized NodeJS applications can be setup from the Autoinstaller.",
+    "link": "/nodejs",
+    "type": "enterprise",
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#nodejs"
   },
   {
     "name": "autoinstaller",
