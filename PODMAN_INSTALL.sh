@@ -376,10 +376,8 @@ clone_repos() {
     rm -rf "$tmp_extract"
     mkdir -p "$tmp_extract"
     curl -sSL https://github.com/stefanpejcic/openpanel-configuration/archive/refs/heads/main.tar.gz -o /tmp/main.tar.gz && tar -xzf /tmp/main.tar.gz -C "$tmp_extract" --strip-components=1
-    local src_dir
-    src_dir=$(find "$tmp_extract" -mindepth 1 -maxdepth 1 -type d | head -n1)
     mkdir -p "$ETC_DIR"
-    cp -a "${src_dir}/." "$ETC_DIR"
+    cp -a "${tmp_extract}/." "$ETC_DIR"
     rm -rf /tmp/main.tar.gz "$tmp_extract"
     [[ -f "$CONFIG_FILE" ]] || die 1 "Config file ${CONFIG_FILE} is missing after downloading configuration from Github."
 
