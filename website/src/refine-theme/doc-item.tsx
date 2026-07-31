@@ -3,22 +3,15 @@ import { DocProvider } from "@docusaurus/plugin-content-docs/client";
 import DocItemMetadata from "@theme/DocItem/Metadata";
 import DocItemLayout from "@theme/DocItem/Layout";
 
-import { TutorialUIPackageProvider } from "../context/TutorialUIPackageContext/index";
-import { TutorialChecklistProvider } from "../context/TutorialChecklistContext";
-
 export const DocItem = (props) => {
     const MDXComponent = props.content;
 
     return (
         <DocProvider content={props.content}>
-            <TutorialUIPackageProvider>
-                <TutorialChecklistProvider>
-                    <DocItemMetadata />
-                    <DocItemLayout>
-                        <MDXComponent />
-                    </DocItemLayout>
-                </TutorialChecklistProvider>
-            </TutorialUIPackageProvider>
+            <DocItemMetadata />
+            <DocItemLayout>
+                <MDXComponent />
+            </DocItemLayout>
         </DocProvider>
     );
 };

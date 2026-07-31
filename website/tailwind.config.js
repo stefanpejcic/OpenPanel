@@ -306,8 +306,6 @@ module.exports = {
                     "linear-gradient(180deg, #14141F 0%, #474E6B 100%)",
                 "landing-packages-text-dark":
                     "linear-gradient(180deg, #FFF 0%, rgba(255, 255, 255, 0.50) 100%)",
-                "hackathon-button-bg":
-                    "linear-gradient(90deg, rgba(255, 76, 166, 0.3) 0%, rgba(128, 0, 255, 0.3) 50%, rgba(0, 128, 255, 0.3) 100%);",
                 "refine-week-supabase-timeline-item-bg":
                     "linear-gradient(360deg, rgba(62, 207, 142, 0) 0%, rgba(62, 207, 142, 0.25) 50%, rgba(62, 207, 142, 0) 100%)",
                 "refine-week-supabase-timeline-item-bg-lg":
@@ -498,8 +496,6 @@ module.exports = {
                     "playground-slide-up 45s linear infinite",
                 "playground-slide-up-mobile":
                     "playground-slide-up-mobile 45s linear infinite",
-                "hackathon-button-bg":
-                    "hackathon-button-bg 2s ease-in-out infinite alternate",
                 "walkthrough-bounce":
                     "walkthrough-bounce 3s ease-in-out infinite",
                 "top-announcement-glow":
@@ -581,14 +577,6 @@ module.exports = {
                     },
                     "100%": {
                         transform: "translateY(4%)",
-                    },
-                },
-                "hackathon-button-bg": {
-                    "0%": {
-                        backgroundPosition: "0% 0%",
-                    },
-                    "100%": {
-                        backgroundPosition: "100% 0%",
                     },
                 },
                 "landing-hero-beat": {

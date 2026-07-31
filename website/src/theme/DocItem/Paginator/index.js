@@ -2,8 +2,6 @@ import React from "react";
 import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import DocPaginator from "@theme/DocPaginator";
 
-import { useCurrentTutorial } from "../../../hooks/use-current-tutorial";
-
 /**
  * This extra component is needed, because <DocPaginator> should remain generic.
  * DocPaginator is used in non-docs contexts too: generated-index pages...
@@ -11,14 +9,6 @@ import { useCurrentTutorial } from "../../../hooks/use-current-tutorial";
 
 export default function DocItemPaginator() {
     const { metadata } = useDoc();
-    const tutorialData = useCurrentTutorial();
 
-    const isTutorial = !!tutorialData;
-
-    const previous = isTutorial
-        ? tutorialData.pagination.previous
-        : metadata.previous;
-    const next = isTutorial ? tutorialData.pagination.next : metadata.next;
-
-    return <DocPaginator previous={previous} next={next} />;
+    return <DocPaginator previous={metadata.previous} next={metadata.next} />;
 }

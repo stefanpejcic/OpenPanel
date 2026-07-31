@@ -8,7 +8,6 @@ import {
     TwoTonedCloudIcon,
 } from "../icons/popover";
 import { CloudIcon } from "../icons/cloud";
-import { HackathonAltIcon } from "../icons/hackathon-alt";
 
 type MobileNavItemProps = {
     label: string;
@@ -51,10 +50,6 @@ export const MobileNavItem: React.FC<MobileNavItemProps> = ({
             <div
                 className={clsx("text-gray-800 dark:text-white font-semibold")}
             >
-                {label === "Hackathon" && (
-                    <HackathonAltIcon className="inline text-[#F93] -mt-1 mr-1.5" />
-                )}
-
                 <div className={clsx("flex items-center gap-2")}>
                     <div>{label}</div>
                     {Icon && <Icon />}

@@ -1,8 +1,0 @@
-{
-  "include": ["src", "types", "refine.config.js"],
-  "extends": "../../tsconfig.build.json",
-  "compilerOptions": {
-    "rootDir": "./src",
-    "baseUrl": "."
-  }
-}

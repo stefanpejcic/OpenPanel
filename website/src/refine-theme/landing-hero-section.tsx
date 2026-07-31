@@ -4,7 +4,10 @@ import { LandingHeroGithubStars } from "./landing-hero-github-stars";
 import { LandingHeroVersion } from "./landing-hero-version";
 import { LandingStartActionIcon } from "./icons/landing-start-action";
 
-import { LandingHeroAnimation } from "./landing-hero-animation";
+import {
+    LandingHeroAnimation,
+    LandingHeroAnimationBeam,
+} from "./landing-hero-animation";
 import { LandingCopyCommandButton } from "./landing-copy-command-button";
 import Link from "@docusaurus/Link";
 import { LandingHeroShowcaseSection } from "./landing-hero-showcase-section";
@@ -22,12 +25,12 @@ const HERO_VARIANTS = [
             "OpenPanel is a multi-user web hosting panel designed around lightweight containers. Each user gets their own fully isolated environment, complete with a separate MySQL server, PHP version, Redis instance, and full root access.",
         badge: "version" as const,
     },
-    // open-source
+    // enterprise upsell — targets hosting businesses outgrowing Community's 3-user cap
     {
-        heading: "Open Source",
+        heading: "Built to Scale",
         tagline:
-            "OpenPanel is open source and community-driven, and you can self-host it anywhere you like, on your own hardware or any cloud provider. No per-account fees, no vendor lock-in — containers do the isolation work for you, at no cost at all, ever.",
-        badge: "stars" as const,
+            "Growing past a handful of hosting accounts? Enterprise unlocks unlimited users, mailboxes, and FTP accounts, plus centralized container management across your whole fleet — everything a real hosting business needs.",
+        badge: "version" as const,
     },
     // competitive vs cPanel/Plesk
     {
@@ -146,6 +149,18 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                     )}
                 >
                     <LandingHeroAnimation />
+                </div>
+                <div
+                    className={clsx(
+                        "hidden landing-md:block",
+                        "absolute",
+                        "bottom-0",
+                        "right-0",
+                        "w-[404px]",
+                        "landing-lg:w-[690px]",
+                    )}
+                >
+                    <LandingHeroAnimationBeam />
                 </div>
             </div>
             <LandingHeroShowcaseSection />

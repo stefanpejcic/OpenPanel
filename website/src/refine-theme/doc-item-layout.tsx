@@ -5,8 +5,6 @@ import DocItemPaginator from "@theme/DocItem/Paginator";
 import DocVersionBanner from "@theme/DocVersionBanner";
 import clsx from "clsx";
 import React from "react";
-import { useDocTOCwithTutorial } from "../components/tutorial-toc/index";
-import { useCurrentTutorial } from "../hooks/use-current-tutorial";
 import { DocBreadcrumbs } from "./doc-breadcrumbs";
 import { SourceCodeBadge } from "./doc-sourcecode-badge";
 import { SwizzleBadge } from "./doc-swizzle-badge";
@@ -17,8 +15,6 @@ import { DocSurveyWidget } from "./doc-survey-widget";
 import { FULL_WIDTH_TABLE_VARIABLE_NAME } from "./common-table";
 
 export const DocItemLayout = ({ children }) => {
-    const docTOC = useDocTOCwithTutorial();
-    const tutorial = useCurrentTutorial();
     const {
         frontMatter: { swizzle, source },
     } = useDoc();
@@ -67,7 +63,7 @@ export const DocItemLayout = ({ children }) => {
                 <div className={clsx("max-w-screen-content w-full")}>
                     <DocVersionBanner />
                     <div className={clsx("flex flex-col", "mb-6 sm:mb-10")}>
-                        {tutorial?.isTutorial ? null : <DocBreadcrumbs />}
+                        <DocBreadcrumbs />
                         <div
                             className={clsx(
                                 "flex",
@@ -81,13 +77,7 @@ export const DocItemLayout = ({ children }) => {
                             {source && <SourceCodeBadge path={source} />}
                         </div>
                     </div>
-                    {tutorial?.isTutorial ? (
-                        <div className={clsx("my-4", "xl:hidden block")}>
-                            {docTOC.tutorialTOC}
-                        </div>
-                    ) : (
-                        <DocTOCMobile />
-                    )}
+                    <DocTOCMobile />
                     <div className={clsx("refine-prose")}>
                         <DocItemContent>{children}</DocItemContent>
                     </div>
@@ -98,21 +88,7 @@ export const DocItemLayout = ({ children }) => {
                     <DocSurveyWidget className={clsx("mx-auto", "mt-10")} />
                 </div>
             </div>
-            {tutorial?.isTutorial ? (
-                <div
-                    className={clsx(
-                        "mt-16",
-                        "hidden xl:block",
-                        "sticky top-[120px]",
-                        "w-[280px]",
-                        "px-3",
-                    )}
-                >
-                    {docTOC.tutorialTOC}
-                </div>
-            ) : (
-                <DocTOC />
-            )}
+            <DocTOC />
         </>
     );
 };

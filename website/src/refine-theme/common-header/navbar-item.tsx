@@ -40,20 +40,7 @@ export const NavbarItem: React.FC<NavbarItemProps> = ({ item }) => {
                 "text-sm leading-6 font-normal text-gray-900 dark:text-gray-300",
                 "transition-colors duration-150 ease-in-out",
                 "no-underline",
-                item.label === "Hackathon"
-                    ? [
-                          "py-1",
-                          "px-2",
-                          "rounded-lg",
-                          "bg-hackathon-button-bg",
-                          "animate-hackathon-button-bg",
-                          "bg-refine-bg",
-                          "text-gray-0",
-                          "bg-[length:200%_100%]",
-                          "text-[14px]",
-                          "hover:text-gray-0",
-                      ]
-                    : ["hover:text-gray-900 dark:hover:text-white"],
+                "hover:text-gray-900 dark:hover:text-white",
             )}
         >
             {item.label}

@@ -8,7 +8,7 @@
 require("dotenv").config();
 
 const redirectJson = require("./redirects.json");
-const tutorialData = require("./tutorial-units");
+const copyPageButtonStyles = require("./src/copy-page-button-styles");
 
 /** @type {import('@docusaurus/types/src/index').DocusaurusConfig} */
 const siteConfig = {
@@ -147,15 +147,6 @@ const siteConfig = {
             },
         ],
         [
-            "docusaurus-plugin-copy",
-            {
-                id: "Copy Workers",
-                path: "static/workers",
-                context: "workers",
-                include: ["**/*.{js}"],
-            },
-        ],
-        [
             "docusaurus-plugin-generate-llms-txt",
             {
                 outputFile: "llms-full.txt",
@@ -171,6 +162,19 @@ const siteConfig = {
                 ignoreFiles: [/\/changelog\//],
             },
         ],
+        [
+            "docusaurus-plugin-copy-page-button",
+            {
+                placement: "article",
+                customStyles: {
+                    button: { className: copyPageButtonStyles.button },
+                    dropdown: { className: copyPageButtonStyles.dropdown },
+                    dropdownItem: {
+                        className: copyPageButtonStyles.dropdownItem,
+                    },
+                },
+            },
+        ],
         async function tailwindcss() {
             return {
                 name: "docusaurus-tailwindcss",
@@ -181,8 +185,6 @@ const siteConfig = {
                 },
             };
         },
-        "./plugins/docgen.js",
-        "./plugins/checklist.js",
         ...(process.env.DISABLE_BLOG
             ? []
             : [["./plugins/related-posts-plugin.js", { relatedCount: 3 }]]),
@@ -372,11 +374,6 @@ const siteConfig = {
         ],
         contactEmail: "info@openpanel.com",
         /** ---- */
-        /** Live Preview */
-        LIVE_PREVIEW_URL:
-            process.env.LIVE_PREVIEW_URL ?? "http://localhost:3030/preview",
-        /** ---- */
-        tutorial: tutorialData,
     },
     webpack: {
         jsLoader: (isServer) => ({

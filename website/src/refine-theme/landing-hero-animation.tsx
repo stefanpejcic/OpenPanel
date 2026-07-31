@@ -368,62 +368,64 @@ export const LandingHeroAnimation = React.memo(function HeroAnimation() {
                         />
                     </div>
                 </div>
-                <LandingHeroBeamSvg
-                    className={clsx(
-                        "z-[0]",
-                        "absolute",
-                        "left-1/2",
-                        "top-1/2",
-                        "-translate-x-1/2",
-                        "translate-y-0",
-                        "landing-lg:translate-y-16",
-                        "dark:animate-landing-hero-beam-line",
-                    )}
-                />
-                <LandingHeroBeamGlowSvg
-                    className={clsx(
-                        "z-[0]",
-                        "absolute",
-                        "left-1/2",
-                        "top-1/2",
-                        "-translate-x-1/2",
-                        "translate-y-0",
-                        "landing-lg:translate-y-16",
-                        "blur-sm",
-                        "dark:animate-landing-hero-beam-glow",
-                    )}
-                    style={{
-                        fillOpacity: 0,
-                        filter: "drop-shadow(rgba(71, 235, 235,0.1) 0px 0px 0px) drop-shadow(rgba(71, 235, 235,0.15) 0px 0px 10px)",
-                    }}
-                />
-                <div
-                    className={clsx(
-                        "-mt-6",
-                        "pt-6",
-                        "px-6",
-                        "overflow-hidden",
-                        "absolute",
-                        "left-1/2",
-                        "-translate-x-1/2",
-                        "top-1/2",
-                        "landing-lg:top-[calc(50%+64px)]",
-                        "translate-y-64",
-                        "z-[1]",
-                    )}
-                >
-                    <div
-                        className={clsx(
-                            "-mt-px landing-lg:mt-0",
-                            "relative",
-                            "w-40",
-                            "h-px",
-                            "bg-landing-hero-beam-bottom-light dark:bg-landing-hero-beam-bottom",
-                            "animate-landing-hero-beam-bottom",
-                        )}
-                    ></div>
-                </div>
             </div>
         </div>
     );
 });
+
+// Rendered as a separate, independently bottom-anchored sibling of
+// LandingHeroAnimation (see landing-hero-section.tsx) so the connecting
+// ray/glow tracks down to the row's actual bottom edge — and stays flush
+// against the section below — regardless of how tall the row grows from a
+// longer tagline. The icon grid above it stays fixed/top-anchored and never
+// moves; only this beam needs to reach a variable-length gap.
+export const LandingHeroAnimationBeam = () => (
+    <div className={clsx("relative", "w-full", "h-64")}>
+        <LandingHeroBeamSvg
+            className={clsx(
+                "z-[0]",
+                "absolute",
+                "left-1/2",
+                "bottom-0",
+                "-translate-x-1/2",
+                "dark:animate-landing-hero-beam-line",
+            )}
+        />
+        <LandingHeroBeamGlowSvg
+            className={clsx(
+                "z-[0]",
+                "absolute",
+                "left-1/2",
+                "bottom-0",
+                "-translate-x-1/2",
+                "blur-sm",
+                "dark:animate-landing-hero-beam-glow",
+            )}
+            style={{
+                fillOpacity: 0,
+                filter: "drop-shadow(rgba(71, 235, 235,0.1) 0px 0px 0px) drop-shadow(rgba(71, 235, 235,0.15) 0px 0px 10px)",
+            }}
+        />
+        <div
+            className={clsx(
+                "-mb-px",
+                "overflow-hidden",
+                "absolute",
+                "left-1/2",
+                "-translate-x-1/2",
+                "bottom-0",
+                "z-[1]",
+            )}
+        >
+            <div
+                className={clsx(
+                    "relative",
+                    "w-40",
+                    "h-px",
+                    "bg-landing-hero-beam-bottom-light dark:bg-landing-hero-beam-bottom",
+                    "animate-landing-hero-beam-bottom",
+                )}
+            ></div>
+        </div>
+    </div>
+);
