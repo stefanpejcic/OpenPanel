@@ -8,7 +8,6 @@
 require("dotenv").config();
 
 const redirectJson = require("./redirects.json");
-const copyPageButtonStyles = require("./src/copy-page-button-styles");
 
 /** @type {import('@docusaurus/types/src/index').DocusaurusConfig} */
 const siteConfig = {
@@ -165,14 +164,10 @@ const siteConfig = {
         [
             "docusaurus-plugin-copy-page-button",
             {
-                placement: "article",
-                customStyles: {
-                    button: { className: copyPageButtonStyles.button },
-                    dropdown: { className: copyPageButtonStyles.dropdown },
-                    dropdownItem: {
-                        className: copyPageButtonStyles.dropdownItem,
-                    },
-                },
+                // Rendered manually in doc-header.tsx instead, in the
+                // "Get Support" button's old slot.
+                injectButton: false,
+                generateMarkdownRoutes: true,
             },
         ],
         async function tailwindcss() {

@@ -1,7 +1,8 @@
 import SearchBar from "@theme/SearchBar";
+import CopyPageButton from "docusaurus-plugin-copy-page-button/react";
 import clsx from "clsx";
 import React, { useState } from "react";
-import { CommonGithubStarButton } from "./common-github-star-button";
+import copyPageButtonStyles from "../copy-page-button-styles";
 import { CommonHamburgerIcon } from "./common-hamburger-icon";
 import { CommonThemeToggle } from "./common-theme-toggle";
 import { DocSidebarModal } from "./doc-sidebar-modal";
@@ -40,7 +41,21 @@ const Desktop = () => {
 
                 <DocVersionDropdown />
 
-                <CommonGithubStarButton />
+                <CopyPageButton
+                    generateMarkdownRoutes
+                    customStyles={{
+                        button: {
+                            className: copyPageButtonStyles.button,
+                            style: { marginBottom: 0 },
+                        },
+                        dropdown: {
+                            className: copyPageButtonStyles.dropdown,
+                        },
+                        dropdownItem: {
+                            className: copyPageButtonStyles.dropdownItem,
+                        },
+                    }}
+                />
 
                 <CommonThemeToggle
                     className={clsx("scale-75", "sm:scale-100")}
