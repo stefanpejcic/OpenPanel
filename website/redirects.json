@@ -1,4 +1,8 @@
 {
   "redirects": [
+    {
+      "from": "/beta",
+      "to": "/enterprise"
+    }
   ]
 }

@@ -9,7 +9,7 @@ The OpenAdmin offers an administrator-level interface where you can efficiently 
 Minimum Requirements:
 
 - A blank full virtual machine or bare metal server
-- Minimum of 1GB RAM and 5GB storage (4GB RAM and 50GB is recommended)
+- Minimum of 1GB RAM and 20GB storage (4GB RAM and 50GB is recommended)
 - AMD64(x86_64) or ARM(AArch64) architecture
 - IPv4 address
 
@@ -2173,9 +2173,8 @@ To create a new hosting package, click the **'Create New'** button and configure
 * **Mailbox quota** – Max mailbox size for email accounts that user can set on this plan.
 * **Feature Set** – Name of the feature set that defines available services in the OpenPanel UI.
 
-
-  </TabItem>
-  <TabItem value="CLI-plan-new" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-plan-new" label="With OpenCLI">
     
 To create a new plan run the following command:
 
@@ -20438,7 +20437,7 @@ Released on March 14, 2025
 - fixed bug with saving php version using opencli php-domain command.
 - fixed bug with missing mysqli extension in php docker images.
 - fixed bug with missing php.ini files.
-- fixed bug with */json/page_speed/<path:domain>* page to refresh PageSpeed data from SiteManager.
+- fixed bug with `/json/page_speed/<path:domain>` page to refresh PageSpeed data from SiteManager.
 - fixed bug with fetching DB size from WP-CLI.
 - fixed bug detecting php version on WP Autoinstaller.
 - fixed bug with setting php limits on */php/limits* page.
@@ -22707,7 +22706,7 @@ Released on March 20, 2026
 - [invalid literal for int() with base 10: '#' error in OpenPanel UI on /process-manager #878](https://github.com/stefanpejcic/OpenPanel/issues/878)
 - Fixed bug on adding custom SSL that reloaded caddy webserver twice.
 - Fixed `Using a path in a site address is deprecated; please use the 'handle' directive instead","address":"http://localhost/check"} ` warning on caddy reload.
-- [FileManager: Error renaming files with spaces in the name on versions <1.4.74 #885](https://github.com/stefanpejcic/OpenPanel/issues/885)
+- [FileManager: Error renaming files with spaces in the name on versions \<1.4.74 #885](https://github.com/stefanpejcic/OpenPanel/issues/885)
 - Fixed bug on *OpenPanel > Emails > Manage* that tried to set quota for email account on every action: password change, send/receive suspend..
 - Fixed bug with activity page links showing on 'Login History' page when `activity` module is disabled.
 - Fixed bug on *OpenAdmin > Settings > General* page that always updated dev_mode regardless of previous value.
@@ -23450,6 +23449,14 @@ Released on July 28, 2026
 
 ---
 
+// File: changelog/1.7.67
+
+Not yet released.
+
+### 🐛 Bug Fixes
+
+---
+
 // File: changelog/1.8.0
 
 Not yet released.
@@ -23481,8 +23488,17 @@ Not yet released.
 - Added `filemanager_files_per_page` setting to limit number of files shown per page in File Manager.
 - Added captcha settings on *OpenAdmin > Settings > OpenPanel*.
 - On *OpenPanel > Domains > SSL* certificate files can be be set instead of paths to ssl files.
+- OpenAdmin build now contains static assets.
+- Containers now auto-start on reboot.
+- Main server IP is now reachable from user containers.
 
 ### 🐛 Bug Fixes
+- [Clipboard js not working on http only on https #1033](https://github.com/stefanpejcic/OpenPanel/issues/1033)
+- [Bug in file manager with wget perserving file name from uri #1036](https://github.com/stefanpejcic/OpenPanel/issues/1036)
+- [Error when trying to start roundcube, dovecot & postfix - Bug in OpenAdmin UI #1041](https://github.com/stefanpejcic/OpenPanel/issues/1041)
+- [Bug in OpenPanel UI on /php/domains #1032](https://github.com/stefanpejcic/openpanel/issues/1032)
+- [Error deleting database stefan_psql: database "stefan_psql" is being accessed by other users DETAIL: There is 1 other session using the database. #1028 ](https://github.com/stefanpejcic/openpanel/issues/1028)
+- [Bug in OpenAdmin UI on import backup #1030](https://github.com/stefanpejcic/OpenPanel/issues/1030)
 
 ---
 
@@ -23495,6 +23511,7 @@ Not yet released.
 | Version| Release date | 
 |---|---|
 |__[2.0.1](/docs/changelog/2.0.1)__| August 06, 2026 |
+|__[1.7.67](/docs/changelog/1.7.67)__|  |
 |__[2.0.0](/docs/changelog/2.0.0)__|  |
 
 ### Latest

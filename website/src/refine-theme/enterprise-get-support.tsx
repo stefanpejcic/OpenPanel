@@ -169,7 +169,7 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            Premium features for your hosting business: Emails, FTP, Podman, OpenLitespeed, Varnish Caching, and much more.
+                            Premium features for your hosting business: Emails, FTP, Container Manager, OpenLitespeed, Varnish Caching, and much more.
                         </p>
                     </div>
                 </div>

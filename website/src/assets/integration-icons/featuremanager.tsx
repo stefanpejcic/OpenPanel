@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SVGProps } from "react";
 
-const PostgreSQL = (props: SVGProps<SVGSVGElement>) => (
+const SvgFeatureManager = (props: SVGProps<SVGSVGElement>) => (
     <svg
         width={24}
         height={24}
@@ -13,10 +13,9 @@ const PostgreSQL = (props: SVGProps<SVGSVGElement>) => (
         xmlns="http://www.w3.org/2000/svg"
         {...props}
     >
-  <path d="M4 6a8 3 0 1 0 16 0a8 3 0 1 0 -16 0" />
-  <path d="M4 6v6a8 3 0 0 0 16 0v-6" />
-  <path d="M4 12v6a8 3 0 0 0 16 0v-6" />
+  <path d="M14 12a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+  <path d="M2 12a6 6 0 0 1 6 -6h8a6 6 0 0 1 6 6a6 6 0 0 1 -6 6h-8a6 6 0 0 1 -6 -6" />
 </svg>
 );
 
-export default PostgreSQL;
+export default SvgFeatureManager;

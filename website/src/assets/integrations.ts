@@ -47,6 +47,13 @@ import {
     AccountCog,
     Apache,
     Nginx,
+    Mail,
+    Backup,
+    Resellers,
+    Migration,
+    FeatureManager,
+    DynamicDns,
+    DnsCluster,
 } from "./integration-icons";
 
 export const integrations: IntegrationsType = {
@@ -110,6 +117,22 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
+            name: "Email Hosting",
+            icon: Mail,
+            description:
+                "Create and manage email accounts, aliases and forwarders, spam filters, and webmail access, with tools to monitor and improve deliverability.",
+            url: "/docs/panel/emails/",
+            status: "stable",
+        },
+        {
+            name: "Backups",
+            icon: Backup,
+            description:
+                "Users configure their own backup schedules, choose exactly what to back up, and restore from a wide range of supported destinations.",
+            url: "/docs/panel/files/backups/",
+            status: "stable",
+        },
+        {
             name: "FTP",
             icon: Folder,
             description:
@@ -168,7 +191,7 @@ export const integrations: IntegrationsType = {
             name: "Object Caching",
             icon: Cache,
             description:
-                "Implement object caching using dedicated REDIS and Memcached instances. Set memory limits, start/stop services, and view logs efficiently.",
+                "Implement object caching using dedicated REDIS, Valkey and Memcached instances. Set memory limits, start/stop services, and view logs efficiently.",
             url: "/docs/panel/caching/",
             status: "stable",
         },
@@ -202,6 +225,14 @@ export const integrations: IntegrationsType = {
             description:
                 "Easily edit DNS zone files for your domains and add various records such as A, AAAA, CNAME, MX, TXT, etc., through the OpenPanel interface.",
             url: "/docs/panel/domains/dns/",
+            status: "stable",
+        },
+        {
+            name: "Dynamic DNS",
+            icon: DynamicDns,
+            description:
+                "Keep DNS records automatically in sync with changing IP addresses using a secure token URL, ideal for home servers and routers.",
+            url: "/docs/panel/domains/dynamic-dns/",
             status: "stable",
         },
         {
@@ -245,6 +276,30 @@ export const integrations: IntegrationsType = {
                 "Install OpenPanel in minutes. Provision new servers to your cluster with a single command.",
             url: "/docs/admin/intro/#installation",
             status: "stable",
+        },
+        {
+            name: "cPanel Migration",
+            icon: Migration,
+            description:
+                "Create an OpenPanel account directly from a full cPanel account backup, making it easy to move existing customers over.",
+            url: "/docs/admin/advanced/cpanel/",
+            status: "enterprise",
+        },
+        {
+            name: "Feature Manager",
+            icon: FeatureManager,
+            description:
+                "Enable or disable specific features across the OpenPanel UI to customize the control panel experience per user role or hosting plan.",
+            url: "/docs/admin/plans/feature-manager/",
+            status: "enterprise",
+        },
+        {
+            name: "DNS Clustering",
+            icon: DnsCluster,
+            description:
+                "Synchronize DNS records from one OpenPanel server to other machines running BIND9, keeping DNS in sync across a cluster.",
+            url: "/docs/admin/domains/dns-cluster/",
+            status: "enterprise",
         },
         {
             name: "Resource usage management",
@@ -383,6 +438,14 @@ export const integrations: IntegrationsType = {
                 "Seamlessly upgrade or downgrade a customer's package to another of your hosting packages.",
             url: "/docs/admin/accounts/users/#statistics",
             status: "stable",
+        },
+        {
+            name: "Reseller accounts",
+            icon: Resellers,
+            description:
+                "Create Reseller users that act as sub-administrators, managing their own set of user accounts within limits defined by the root administrator.",
+            url: "/docs/admin/accounts/resellers/",
+            status: "enterprise",
         },
         {
             name: "Dedicated IP address",

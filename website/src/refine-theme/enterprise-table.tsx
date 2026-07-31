@@ -933,6 +933,15 @@ const tableData = [
                 },
             },
             {
+                description: "Dynamic DNS",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "Domain Redirects",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,

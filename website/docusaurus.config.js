@@ -189,7 +189,6 @@ const siteConfig = {
             ? []
             : [["./plugins/related-posts-plugin.js", { relatedCount: 3 }]]),
         "./plugins/clarity.js",
-        "./plugins/example-redirects.js",
         "./plugins/og-images.js",
     ],
     themeConfig: {

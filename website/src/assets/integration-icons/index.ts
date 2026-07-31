@@ -44,6 +44,13 @@ export { default as AccountCog } from "./accountcog";
 export { default as Cache } from "./cache";
 export { default as Nginx } from "./nginx";
 export { default as Apache } from "./apache";
+export { default as Mail } from "./mail";
+export { default as Backup } from "./backup";
+export { default as Resellers } from "./resellers";
+export { default as Migration } from "./migration";
+export { default as FeatureManager } from "./featuremanager";
+export { default as DynamicDns } from "./dynamicdns";
+export { default as DnsCluster } from "./dnscluster";
 
 
 export { default as Redis } from "./redis";
