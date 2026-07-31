@@ -30,7 +30,7 @@ for f in basic.txt default.txt; do
   # wget -qO- https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json | jq -r '.[].name' > "/etc/openpanel/openpanel/features/$f"
   #
   # PODMAN:
-  wget -qO- https://gist.githubusercontent.com/stefanpejcic/acf42a0d36635fffbeb7f8ce81840abe/raw/2c6d78c37cf20cbe5e0467ea8e4beb52948f5d4f/features.json | jq -r '.[].name' > "/etc/openpanel/openpanel/features/$f"
+  wget -qO- https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json | jq -r '.[].name' > "/etc/openpanel/openpanel/features/$f"
 done
 
 # ENABLE ALL MODULES
