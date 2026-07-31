@@ -77,7 +77,8 @@ export const EnterpriseHeroSection = ({
                         href={ENTERPRISE_PURCHASE_URL}
                         target="_self"
                         rel="noopener noreferrer"
-                        onClick={() => {
+                        onClick={(e) => {
+                            e.preventDefault();
                             if (
                                 typeof window !== "undefined" &&
                                 typeof window.gtag !== "undefined"
@@ -87,7 +88,7 @@ export const EnterpriseHeroSection = ({
                                     "purchase_click_hero_cyberpanel",
                                 );
                             }
-                            gtagReportConversion();
+                            gtagReportConversion(ENTERPRISE_PURCHASE_URL);
                         }}
                         className={clsx(
                             "text-sm font-semibold",

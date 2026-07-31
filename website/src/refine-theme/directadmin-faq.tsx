@@ -126,15 +126,19 @@ const faq = [
         answer: "We aim to introduce new features and fixes in a continuous delivery manner, sometimes as frequently as weekly updates.",
     },
     {
-        question: "Do you provide custom development services for turnkey projects?",
-        answer: "No, we do not offer any type of turnkey development services.",
+        question: "What operating systems does OpenPanel Enterprise support?",
+        answer: "OpenPanel Enterprise supports Ubuntu, Debian, AlmaLinux, Rocky Linux, and CentOS.",
     },
     {
-        question: "What is the scope of the professional services you provide?",
-        answer: "Our professional services cover collaborative tasks with internal teams such as onboarding assistance, trainings and customizing your OpenPanel instance to match your brand.",
+        question: "Does OpenPanel run on ARM (AArch64) servers?",
+        answer: "Yes, OpenPanel Enterprise runs on both standard x86_64 servers and ARM (AArch64) CPUs.",
     },
     {
-        question: "Can I request specific features or customizations?",
-        answer: "We prioritize feature requests on the product roadmap and also support teams in developing custom integrations and components.",
+        question: "Does OpenPanel Enterprise integrate with billing software?",
+        answer: "Yes, OpenPanel Enterprise integrates with WHMCS, Blesta, FOSSBilling, and Paymenter.org for automated provisioning.",
+    },
+    {
+        question: "Is there a refund if I'm not satisfied?",
+        answer: "Refunds are available within 7 days of purchase, but only for licenses that haven't been activated yet. Once a license is activated on a server, the sale is final.",
     },
 ];

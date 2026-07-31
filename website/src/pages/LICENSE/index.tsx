@@ -8,7 +8,7 @@ const License: React.FC = () => {
     return (
         <CommonLayout description="The OpenPanel End User License Agreement (EULA) covering license grant, restrictions, ownership, and purchase terms.">
             <Head title="LICENSE | OpenPanel">
-                <html data-page="support" data-customized="true" />
+                <html data-page="license" data-customized="true" />
             </Head>
             <div className="refine-prose">
                 <CommonHeader hasSticky={true} />

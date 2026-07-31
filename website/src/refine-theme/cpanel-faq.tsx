@@ -123,7 +123,7 @@ const faq = [
     },
     {
         question: "How often does Enterprise edition receive updates?",
-        answer: "We aim to introduce new features and fixes in a continuous delivery manner, sometimes as frequently as weely updates.",
+        answer: "We aim to introduce new features and fixes in a continuous delivery manner, sometimes as frequently as weekly updates.",
     },
     {
         question: "What happens after my trial ends?",

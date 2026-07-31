@@ -1,4 +1,5 @@
 import Head from "@docusaurus/Head";
+import Link from "@docusaurus/Link";
 import clsx from "clsx";
 import React from "react";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
@@ -8,6 +9,7 @@ import { EnterpriseGetInTouchCta } from "@site/src/refine-theme/enterprise-get-i
 import { EnterpriseFaq } from "@site/src/refine-theme/cyberpanel-faq";
 import { EnterpriseTable } from "@site/src/refine-theme/cyberpanel-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
+import { ENTERPRISE_TRIAL_URL } from "@site/src/refine-theme/enterprise-get-in-touch-button";
 
 const Enterprise: React.FC = () => {
     const title = "OpenPanel vs CyberPanel: Alternative Hosting Panel Compared";
@@ -59,7 +61,30 @@ const Enterprise: React.FC = () => {
                                 sectionWidth,
                                 "landing-lg:max-w-[792px]",
                             )}
+                            question="Try Enterprise free for 30 days?"
+                            subtext="No credit card required."
+                            buttonLabel="Start free trial"
+                            buttonHref={ENTERPRISE_TRIAL_URL}
+                            eventName="trial_click_cta_cyberpanel"
                         />
+                        <div
+                            className={clsx(
+                                sectionPadding,
+                                sectionWidth,
+                                "text-center",
+                            )}
+                        >
+                            <Link
+                                to="mailto:info@openpanel.com"
+                                className={clsx(
+                                    "text-sm",
+                                    "dark:text-gray-400 text-gray-600",
+                                )}
+                            >
+                                Have questions first? Contact us at
+                                info@openpanel.com
+                            </Link>
+                        </div>
                     </div>
                     <LandingFooter />
                 </div>

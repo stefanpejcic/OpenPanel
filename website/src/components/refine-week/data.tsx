@@ -42,7 +42,7 @@ export const data = {
         title: "blesta",
         description:
             "Setup <strong>Blesta & OpenPanel</strong> account provisioning in just 5 minutes.",
-        date: "February 14 - February 20, 2023",
+        date: "February 14 - February 20, 2026",
         timeline: [
             {
                 date: "February 14, Monday",
@@ -103,7 +103,7 @@ export const data = {
                 image2x: "/week-of-refine/supabase-timeline-5-2x.jpg",
             },
             {
-                date: "Februrary 19, Saturday",
+                date: "February 19, Saturday",
                 title: "Test Provisioning",
                 description: `
                 Create a test order in Blesta to verify that automatic 
@@ -151,7 +151,7 @@ export const data = {
                 image2x: "/week-of-refine/supabase-timeline-1-2x.jpg",
             },
             {
-                date: "Februrary 15, Tuesday",
+                date: "February 15, Tuesday",
                 title: "Whitelist on Firewall",
                 description: `WHMCS server needs to be able to connect to OpenAdmin on port 2087, whitelist both servers: <strong className="font-bold">csf -a SERVER_IP</strong>.`,
                 link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#whitelist-on-openpanel",
@@ -159,7 +159,7 @@ export const data = {
                 image2x: "/week-of-refine/supabase-timeline-2-2x.jpg",
             },
             {
-                date: "Februrary 16, Wednesday",
+                date: "February 16, Wednesday",
                 title: "Install OpenPanel Module",
                 description: `SSH to your WHMCS server and inside <strong className="font-bold">path_to_whmcs/modules/servers</strong> run this command to download the module: <strong className="font-bold">git clone https://github.com/stefanpejcic/openpanel-whmcs-module.git openpanel</strong>.`,
                 link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#install-openpanel-whmc-module",
@@ -167,7 +167,7 @@ export const data = {
                 image2x: "/week-of-refine/supabase-timeline-3-2x.jpg",
             },
             {
-                date: "Februrary 17, Thursday",
+                date: "February 17, Thursday",
                 title: "Setup Server",
                 description: `From WHMCS <strong className="font-bold">System Settings > Products & Services > Servers</strong> click on <strong className="font-bold">Create New Server</strong> and under module select <strong className="font-bold">openpanel</strong>  then add server IP, username and password for the OpenAdmin.`,
                 link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#whmcs-module-setup",
@@ -176,7 +176,7 @@ export const data = {
                 enabledTime: "2023-06-21 12:30",
             },
             {
-                date: "Februrary 18, Friday",
+                date: "February 18, Friday",
                 title: "Create Hosting Plans",
                 description: `Create a new group, then create new plans under this group. When creating products, make sure to select <strong className="font-bold">openpanel</strong> for Module and the newly created group`,
                 link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#create-hosting-package-1",
@@ -184,7 +184,7 @@ export const data = {
                 image2x: "/week-of-refine/supabase-timeline-5-2x.jpg",
             },
             {
-                date: "Februrary 19, Saturday",
+                date: "February 19, Saturday",
                 title: "Test",
                 description: `Create a new order on WHMCS to test if the OpenAdmin API account provisioning is functioning properly.`,
                 link: "",
@@ -228,7 +228,7 @@ export const data = {
                 image2x: "/week-of-refine/supabase-timeline-1-2x.jpg",
             },
             {
-                date: "Februrary 15, Tuesday",
+                date: "February 15, Tuesday",
                 title: "Whitelist on Firewall",
                 description: `FOSSBilling server needs to be able to connect to OpenAdmin on port 2087, whitelist both servers: <strong className="font-bold">csf -a SERVER_IP</strong>.`,
                 link: "https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/#openpanel",
@@ -236,15 +236,15 @@ export const data = {
                 image2x: "/week-of-refine/supabase-timeline-2-2x.jpg",
             },
             {
-                date: "Februrary 16, Wednesday",
+                date: "February 16, Wednesday",
                 title: "Install OpenPanel Server Manager",
-                description: `SSH to your WHMCS server and inside the directory where FOSSBilling is installed run this command to download the module: <strong className="font-bold">wget -O library/Server/Manager/OpenPanel.php https://raw.githubusercontent.com/stefanpejcic/FOSSBilling-OpenPanel/main/OpenPanel.php</strong>.`,
+                description: `SSH to your FOSSBilling server and inside the directory where FOSSBilling is installed run this command to download the module: <strong className="font-bold">wget -O library/Server/Manager/OpenPanel.php https://raw.githubusercontent.com/stefanpejcic/FOSSBilling-OpenPanel/main/OpenPanel.php</strong>.`,
                 link: "https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/#download-openpanel-server-manager",
                 image: "/week-of-refine/supabase-timeline-3.jpg",
                 image2x: "/week-of-refine/supabase-timeline-3-2x.jpg",
             },
             {
-                date: "Februrary 17, Thursday",
+                date: "February 17, Thursday",
                 title: "Setup Server",
                 description: `From FOSSBilling <strong className="font-bold">System > Hosting Plans</strong> click on <strong className="font-bold">New Server</strong> and under server manager select <strong className="font-bold">openpanel</strong>  then add server IP, username and password for the OpenAdmin.`,
                 link: "https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/#add-openpanel-server",
@@ -253,7 +253,7 @@ export const data = {
                 enabledTime: "2023-06-21 12:30",
             },
             {
-                date: "Februrary 18, Friday",
+                date: "February 18, Friday",
                 title: "Create Hosting Plans",
                 description: `From FOSSBilling <strong className="font-bold">System > Hosting plans and servers</strong> click on <strong className="font-bold">New hosting plan</strong> and set the plan name to match that from <strong className="font-bold">OpenAdmin</strong>.`,
                 link: "https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/#add-hosting-plan-for-openpanel",
@@ -261,7 +261,7 @@ export const data = {
                 image2x: "/week-of-refine/supabase-timeline-5-2x.jpg",
             },
             {
-                date: "Februrary 18, Friday",
+                date: "February 18, Friday",
                 title: "Assign Server to Product",
                 description: `From FOSSBilling <strong className="font-bold">Products >  Products & Services</strong> click on <strong className="font-bold">Edit</strong> for a plan and set it to match <strong className="font-bold">plan on openadmin</strong>.`,
                 link: "https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/#assign-openpanel-server-to-product",
@@ -269,7 +269,7 @@ export const data = {
                 image2x: "/week-of-refine/supabase-timeline-5-2x.jpg",
             },
             {
-                date: "Februrary 19, Saturday",
+                date: "February 19, Saturday",
                 title: "Test",
                 description: `Create a new order on FOSSBilling to test if the OpenAdmin API account provisioning is functioning properly.`,
                 link: "",

@@ -39,7 +39,7 @@ When paying by credit card we do not collect and store any payment information s
 
 - Copy front credit card (last 4 digits, exp. date, and visible, all other data should be hidden).
 
-We delete these data as soon as you delete your user account with us or once the statutory retention period of 7 years for tax purposes expires. You can delete your user account with us by sending an e-mail to [privacy@openpanel.com](mailto:privacy@openpanel.com) with your deletion request. The legal basis for this processing is Art. 6.1(b) GDPR.
+We delete these data as soon as you delete your user account with us or once the statutory retention period of 7 years for tax purposes expires. You can delete your user account with us by sending an e-mail to [info@openpanel.com](mailto:info@openpanel.com) with your deletion request. The legal basis for this processing is Art. 6.1(b) GDPR.
 
 ### Contact
 

@@ -1196,6 +1196,15 @@ const tableData = [
                 },
             },
             {
+                description: "Dynamic DNS",
+                plesk: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "Edit zone file",
                 plesk: <CrossIcon />,
                 openpanel: <CheckIcon />,

@@ -65,7 +65,7 @@ const Stats: React.FC = () => {
   return (
     <CommonLayout description="Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community.">
       <Head title="Usage Statistics | OpenPanel">
-        <html data-page="docs" data-customized="true" />
+        <html data-page="statistics" data-customized="true" />
       </Head>
 
       <div className="refine-prose">

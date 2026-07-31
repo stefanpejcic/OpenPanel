@@ -22,4 +22,14 @@ export const weekOfRefineCards: CardProps[] = [
             "bg-week-of-refine-supabase-card-light dark:bg-week-of-refine-supabase-card",
         link: "/whmcs-module",
     },
+    {
+        title: "Blesta",
+        dateRange: "February 14, 2023",
+        description:
+            "Blesta module for OpenPanel.",
+        logo: StrapiWithText,
+        bgLinearGradient:
+            "bg-week-of-refine-strapi-card-light dark:bg-week-of-refine-strapi-card",
+        link: "/blesta-module",
+    },
 ];

@@ -51,7 +51,7 @@ export const EnterpriseHeroSection = ({
                     "dark:text-gray-400 text-gray-600",
                 )}
             >
-                OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.{" "}
+                Built on Podman for true per-user isolation, with no extension license fees or per-domain add-ons, and a fixed price that never changes.{" "}
             </p>
             <div
                 className={clsx(
@@ -77,7 +77,8 @@ export const EnterpriseHeroSection = ({
                         href={ENTERPRISE_PURCHASE_URL}
                         target="_self"
                         rel="noopener noreferrer"
-                        onClick={() => {
+                        onClick={(e) => {
+                            e.preventDefault();
                             if (
                                 typeof window !== "undefined" &&
                                 typeof window.gtag !== "undefined"
@@ -87,7 +88,7 @@ export const EnterpriseHeroSection = ({
                                     "purchase_click_hero_plesk",
                                 );
                             }
-                            gtagReportConversion();
+                            gtagReportConversion(ENTERPRISE_PURCHASE_URL);
                         }}
                         className={clsx(
                             "text-sm font-semibold",

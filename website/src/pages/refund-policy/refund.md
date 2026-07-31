@@ -37,7 +37,7 @@ To submit a refund request, contact our support team via [this support ticket](h
 - Confirmation that the license has not been activated.
 - A brief reason for the request.
 
-We reserve the right to verify activation status before approving any refund. Approved refunds will be returned to the original payment method (PayPal, or Stripe) within 5–10 business days.
+We reserve the right to verify activation status before approving any refund. Approved refunds will be returned to the original payment method (PayPal or Stripe) within 5–10 business days.
 
 ## Chargebacks & Disputes
 

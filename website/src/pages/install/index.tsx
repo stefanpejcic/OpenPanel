@@ -93,10 +93,8 @@ const Install: React.FC = () => {
                                         }
                                         id={key}
                                         name={key}
-                                        min={key === "admin-port" ? 1000 : undefined}
-                                        max={key === "admin-port" ? 30000 : undefined}
-                                        min={key === "user-port" ? 1000 : undefined}
-                                        max={key === "user-port" ? 30000 : undefined}
+                                        min={key === "admin-port" || key === "user-port" ? 1000 : undefined}
+                                        max={key === "admin-port" || key === "user-port" ? 30000 : undefined}
                                         {...(typeof config.value === "boolean"
                                             ? { checked: config.value }
                                             : { value: config.value })}

@@ -1195,6 +1195,15 @@ const tableData = [
                     openpanel: "icon",
                 },
             },
+            {
+                description: "Dynamic DNS",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
 
             {
                 description: "Edit zone file",

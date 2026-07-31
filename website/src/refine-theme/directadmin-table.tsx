@@ -1185,6 +1185,15 @@ const tableData = [
                 },
             },
             {
+                description: "Dynamic DNS",
+                directadmin: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    directadmin: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "Edit zone file",
                 directadmin: <CheckIcon />,
                 openpanel: <CheckIcon />,

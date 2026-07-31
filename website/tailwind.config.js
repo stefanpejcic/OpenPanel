@@ -94,6 +94,11 @@ module.exports = {
                         "day-indicator-start": "#4945FF",
                         "day-indicator-stop": "#4D88FF",
                     },
+                    blesta: {
+                        "cover-shadow": "rgba(14, 165, 184, 0.25)",
+                        "day-indicator-start": "#0EA5B8",
+                        "day-indicator-stop": "#3ED9C9",
+                    },
                 },
             },
             fontFamily: {
