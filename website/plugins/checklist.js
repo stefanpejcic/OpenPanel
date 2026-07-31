@@ -99,7 +99,7 @@ function plugin() {
                 },
             };
         },
-        async contentLoaded({ allContent, actions }) {
+        async allContentLoaded({ allContent, actions }) {
             if (!process.env.DISABLE_CHECKLISTS) {
                 console.log("Composing Refine tutorial checklists...");
 

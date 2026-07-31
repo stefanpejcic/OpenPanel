@@ -1,6 +1,7 @@
 import {
     useScrollPositionBlocker,
-    useTabs,
+    useTabsContextValue,
+    TabsProvider,
 } from "@docusaurus/theme-common/internal";
 import useIsBrowser from "@docusaurus/useIsBrowser";
 import clsx from "clsx";
@@ -143,24 +144,26 @@ function TabContent({ lazy, children, selectedValue, smallTabs }) {
 }
 
 function TabsComponent(props) {
-    const tabs = useTabs(props);
+    const tabs = useTabsContextValue(props);
 
     const { wrapContent = true } = props;
 
     return (
-        <div
-            className={clsx(
-                "tabs-container",
-                "rounded-lg",
-                "border-gray-300 dark:border-gray-700",
-                wrapContent ? "border" : "border-0",
-                "mb-6",
-                "refine-wider-container",
-            )}
-        >
-            <TabList {...props} {...tabs} />
-            <TabContent {...props} {...tabs} />
-        </div>
+        <TabsProvider value={tabs}>
+            <div
+                className={clsx(
+                    "tabs-container",
+                    "rounded-lg",
+                    "border-gray-300 dark:border-gray-700",
+                    wrapContent ? "border" : "border-0",
+                    "mb-6",
+                    "refine-wider-container",
+                )}
+            >
+                <TabList {...props} {...tabs} />
+                <TabContent {...props} {...tabs} />
+            </div>
+        </TabsProvider>
     );
 }
 

@@ -224,7 +224,7 @@ export default function pluginOgImages(context: {
 }): Plugin<void> {
     return {
         name: "openpanel-plugin-og-images",
-        async contentLoaded({ allContent }) {
+        async allContentLoaded({ allContent }) {
             const docsContent = allContent[
                 "docusaurus-plugin-content-docs"
             ] as ContentPluginType | undefined;

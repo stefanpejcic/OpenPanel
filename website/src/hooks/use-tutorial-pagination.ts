@@ -1,5 +1,5 @@
 import React from "react";
-import { useDocsVersion } from "@docusaurus/theme-common/internal";
+import { useDocsVersion } from "@docusaurus/plugin-content-docs/client";
 import { useTutorialUIPackage } from "./use-tutorial-ui-package";
 
 type Props = {

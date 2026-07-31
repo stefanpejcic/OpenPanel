@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "@docusaurus/Link";
-import { useBlogPost } from "@docusaurus/theme-common/internal";
+import { useBlogPost } from "@docusaurus/plugin-content-blog/client";
 import { blogPostContainerID } from "@docusaurus/utils-common";
 import MDXContent from "@theme/MDXContent";
 import BlogPostItemContainer from "@theme/BlogPostItem/Container";

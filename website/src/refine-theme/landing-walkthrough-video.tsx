@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { ArrowRightIcon } from "./icons/arrow-right";
 import { RedoIcon } from "./icons/redo";
 import { AnimatePresence, motion, useInView } from "framer-motion";
-import Highlight, { defaultProps } from "prism-react-renderer";
+import { Highlight } from "prism-react-renderer";
 import { usePrismTheme } from "@docusaurus/theme-common";
 
 const WalkthroughCodeWindow = ({ code }: { code: string }) => {
@@ -53,7 +53,6 @@ const WalkthroughCodeWindow = ({ code }: { code: string }) => {
                 )}
             >
                 <Highlight
-                    {...defaultProps}
                     theme={theme}
                     code={`${code ?? ""}`.trim()}
                     language="tsx"

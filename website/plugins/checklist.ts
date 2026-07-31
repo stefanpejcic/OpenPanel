@@ -90,7 +90,7 @@ export default function plugin(): Plugin {
                 },
             };
         },
-        async contentLoaded({ allContent, actions }): Promise<void> {
+        async allContentLoaded({ allContent, actions }): Promise<void> {
             if (!process.env.DISABLE_CHECKLISTS) {
                 console.log("Composing Refine tutorial checklists...");
 

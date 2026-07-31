@@ -1,4 +1,4 @@
-import { useDoc, useDocsVersion } from "@docusaurus/theme-common/internal";
+import { useDoc, useDocsVersion } from "@docusaurus/plugin-content-docs/client";
 import DocItemContent from "@theme/DocItem/Content";
 import DocItemFooter from "@theme/DocItem/Footer";
 import DocItemPaginator from "@theme/DocItem/Paginator";

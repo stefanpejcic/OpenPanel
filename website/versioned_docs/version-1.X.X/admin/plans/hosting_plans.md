@@ -91,9 +91,8 @@ To create a new hosting package, click the **'Create New'** button and configure
 * **Mailbox quota** – Max mailbox size for email accounts that user can set on this plan.
 * **Feature Set** – Name of the feature set that defines available services in the OpenPanel UI.
 
-
-  </TabItem>
-  <TabItem value="CLI-plan-new" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-plan-new" label="With OpenCLI">
     
 To create a new plan run the following command:
 

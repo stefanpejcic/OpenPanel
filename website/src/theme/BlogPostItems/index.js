@@ -1,5 +1,5 @@
 import React from "react";
-import { BlogPostProvider } from "@docusaurus/theme-common/internal";
+import { BlogPostProvider } from "@docusaurus/plugin-content-blog/client";
 import TagsList from "@theme/TagsList";
 
 import BlogPostItem from "@theme/BlogPostItem";
@@ -9,7 +9,6 @@ export default function BlogPostItems({
     items,
     tags,
     component: BlogPostItemComponent = BlogPostItem,
-    isAuthorPage,
     isTagsPage,
 }) {
     return (
@@ -18,11 +17,9 @@ export default function BlogPostItems({
                 "px-4",
                 "blog-md:px-7",
                 "blog-2xl:px-0",
-                !isAuthorPage &&
-                    !isTagsPage &&
-                    "blog-sm:pb-16 blog-md:pb-8 blog-2xl:pb-12 pb-10",
-                !isAuthorPage && !isTagsPage && "blog-md:pt-16 blog-2xl:pt-20",
-                (isAuthorPage || isTagsPage) && "py-8",
+                !isTagsPage && "blog-sm:pb-16 blog-md:pb-8 blog-2xl:pb-12 pb-10",
+                !isTagsPage && "blog-md:pt-16 blog-2xl:pt-20",
+                isTagsPage && "py-8",
                 "max-w-[512px]",
                 "blog-md:max-w-screen-blog-md",
                 "blog-2xl:max-w-screen-blog-md",
@@ -30,7 +27,7 @@ export default function BlogPostItems({
                 "mx-auto",
             )}
         >
-            {!isAuthorPage && !isTagsPage && (
+            {!isTagsPage && (
                 <>
                     <div
                         className={clsx(
@@ -76,7 +73,7 @@ export default function BlogPostItems({
                     "grid-cols-1 blog-md:grid-cols-3",
                     "gap-4 blog-lg:gap-12",
                     "pt-6",
-                    isAuthorPage ? "blog-md:pt-0" : "blog-md:pt-12",
+                    "blog-md:pt-12",
                 )}
             >
                 {items.map(({ content: BlogPostContent }) => (

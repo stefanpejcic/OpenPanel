@@ -1,10 +1,11 @@
 import React from "react";
 import clsx from "clsx";
 import { ShowcaseIndicator } from "./showcase-indicator";
-import Highlight, { defaultProps } from "prism-react-renderer";
-import theme from "prism-react-renderer/themes/nightOwl";
+import { Highlight, themes } from "prism-react-renderer";
 import dedent from "dedent";
 import { motion, useInView } from "framer-motion";
+
+const theme = themes.nightOwl;
 
 type HighlightProps = {
     render: string;
@@ -152,7 +153,6 @@ const HighlightItem = React.memo(function HighlightBase({
                     )}
                 >
                     <Highlight
-                        {...defaultProps}
                         theme={theme}
                         code={dedent(`${code ?? ""}`).trim()}
                         language="tsx"

@@ -1,6 +1,6 @@
 import React from "react";
 // @ts-expect-error no types
-import { useDoc } from "@docusaurus/theme-common/internal";
+import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import {
     Antd,
     Chakra,

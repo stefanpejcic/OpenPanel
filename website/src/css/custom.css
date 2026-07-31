@@ -687,11 +687,6 @@ html[data-page="index"] {
     @apply font-semibold text-white;
 }
 
-#__docusaurus .sticky-author-card {
-    position: sticky;
-    top: calc(var(--ifm-navbar-height) + 1rem);
-}
-
 #__docusaurus .all-tags-button {
     background: linear-gradient(90deg, #3fdcf7 2.01%, #1890ff 99.51%);
 }

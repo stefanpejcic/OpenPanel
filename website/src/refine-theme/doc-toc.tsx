@@ -1,4 +1,4 @@
-import { useDoc } from "@docusaurus/theme-common/internal";
+import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import clsx from "clsx";
 import React from "react";
 // import { useDocTOCwithTutorial } from "../components/tutorial-toc/index";

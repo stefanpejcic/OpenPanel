@@ -9,7 +9,7 @@ import DocPaginator from "@theme/DocPaginator";
 import DocVersionBanner from "@theme/DocVersionBanner";
 import { DocVersionBadge } from "./doc-version-badge";
 import { DocBreadcrumbs } from "./doc-breadcrumbs";
-import { useDocsVersion } from "@docusaurus/theme-common/internal";
+import { useDocsVersion } from "@docusaurus/plugin-content-docs/client";
 import clsx from "clsx";
 
 function DocCategoryGeneratedIndexPageMetadata({ categoryGeneratedIndex }) {

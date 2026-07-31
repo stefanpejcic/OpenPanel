@@ -1,7 +1,7 @@
 import React from "react";
 import Head from "@docusaurus/Head";
 import { PageMetadata } from "@docusaurus/theme-common";
-import { useDoc } from "@docusaurus/theme-common/internal";
+import { useDoc } from "@docusaurus/plugin-content-docs/client";
 
 // Keep in sync with permalinkToOgImagePath() and OG_WIDTH/OG_HEIGHT in plugins/og-images.ts
 function permalinkToOgImagePath(permalink) {

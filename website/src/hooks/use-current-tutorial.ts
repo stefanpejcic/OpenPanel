@@ -1,7 +1,7 @@
 // @ts-expect-error no types
-import { useDoc } from "@docusaurus/theme-common/internal";
+import { useDoc } from "@docusaurus/plugin-content-docs/client";
 // @ts-expect-error no types
-import { useDocsVersion } from "@docusaurus/theme-common/internal";
+import { useDocsVersion } from "@docusaurus/plugin-content-docs/client";
 
 import useTutorialPagination from "./use-tutorial-pagination";
 

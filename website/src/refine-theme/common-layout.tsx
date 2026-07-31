@@ -1,7 +1,6 @@
 import React from "react";
 import ErrorBoundary from "@docusaurus/ErrorBoundary";
 import { PageMetadata } from "@docusaurus/theme-common";
-import { useKeyboardNavigation } from "@docusaurus/theme-common/internal";
 import ErrorPageContent from "@theme/ErrorPageContent";
 import LayoutProvider from "@theme/Layout/Provider";
 import SkipToContent from "@theme/SkipToContent";
@@ -11,8 +10,6 @@ import { VideoModal15K } from "../components/video-modal-15k";
 
 export const CommonLayout = (props: any) => {
     const { children, title, description } = props;
-
-    useKeyboardNavigation();
 
     return (
         <LayoutProvider>

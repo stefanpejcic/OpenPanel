@@ -1,10 +1,8 @@
 import React, { useMemo, useRef } from "react";
 import clsx from "clsx";
 import Link from "@docusaurus/Link";
-import {
-    useSidebarBreadcrumbs,
-    useHomePageRoute,
-} from "@docusaurus/theme-common/internal";
+import { useSidebarBreadcrumbs } from "@docusaurus/plugin-content-docs/client";
+import { useHomePageRoute } from "@docusaurus/theme-common/internal";
 import { translate } from "@docusaurus/Translate";
 import { HomeIcon } from "./icons/home";
 import { ChevronRightIcon } from "./icons/chevron-right";

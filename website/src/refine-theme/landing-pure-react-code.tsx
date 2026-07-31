@@ -2,9 +2,7 @@ import clsx from "clsx";
 import React, { FC, memo, useRef } from "react";
 import { useColorMode } from "@docusaurus/theme-common";
 import BrowserOnly from "@docusaurus/BrowserOnly";
-import Highlight, { defaultProps } from "prism-react-renderer";
-import nightOwlDark from "prism-react-renderer/themes/nightOwl";
-import nightOwlLight from "prism-react-renderer/themes/nightOwlLight";
+import { Highlight, themes } from "prism-react-renderer";
 import { LandingSectionCtaButton } from "./landing-section-cta-button";
 import { useInView } from "framer-motion";
 type Props = {
@@ -142,11 +140,10 @@ const HighlightCode = memo(function HighlightCodeBase() {
     const { colorMode } = useColorMode();
     const isDarkTheme = colorMode === "dark";
 
-    const theme = isDarkTheme ? nightOwlDark : nightOwlLight;
+    const theme = isDarkTheme ? themes.nightOwl : themes.nightOwlLight;
 
     return (
         <Highlight
-            {...defaultProps}
             theme={theme}
             code={`${code ?? ""}`.trim()}
             language="tsx"

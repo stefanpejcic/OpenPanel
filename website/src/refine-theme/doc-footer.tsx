@@ -1,7 +1,8 @@
 import React from "react";
 import clsx from "clsx";
 import { ThemeClassNames } from "@docusaurus/theme-common";
-import { useDoc } from "@docusaurus/theme-common/internal";
+import { useDateTimeFormat } from "@docusaurus/theme-common/internal";
+import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import LastUpdated from "@theme/LastUpdated";
 import EditThisPage from "@theme/EditThisPage";
 import TagsListInline from "@theme/TagsListInline";
@@ -21,12 +22,17 @@ function TagsRow(props) {
     );
 }
 
-function EditMetaRow({
-    editUrl,
-    lastUpdatedAt,
-    lastUpdatedBy,
-    formattedLastUpdatedAt,
-}) {
+function EditMetaRow({ editUrl, lastUpdatedAt, lastUpdatedBy }) {
+    const dateTimeFormat = useDateTimeFormat({
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        timeZone: "UTC",
+    });
+    const formattedLastUpdatedAt = lastUpdatedAt
+        ? dateTimeFormat.format(new Date(lastUpdatedAt))
+        : undefined;
+
     return (
         <div
             className={clsx(
@@ -65,13 +71,7 @@ function EditMetaRow({
 
 export const DocFooter = () => {
     const { metadata } = useDoc();
-    const {
-        editUrl,
-        lastUpdatedAt,
-        formattedLastUpdatedAt,
-        lastUpdatedBy,
-        tags,
-    } = metadata;
+    const { editUrl, lastUpdatedAt, lastUpdatedBy, tags } = metadata;
 
     const canDisplayTagsRow = tags.length > 0;
     const canDisplayEditMetaRow = !!(editUrl || lastUpdatedAt || lastUpdatedBy);
@@ -89,7 +89,6 @@ export const DocFooter = () => {
                     editUrl={editUrl}
                     lastUpdatedAt={lastUpdatedAt}
                     lastUpdatedBy={lastUpdatedBy}
-                    formattedLastUpdatedAt={formattedLastUpdatedAt}
                 />
             )}
         </footer>

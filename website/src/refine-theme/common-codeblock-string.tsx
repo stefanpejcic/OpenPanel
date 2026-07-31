@@ -8,7 +8,7 @@ import {
 } from "@docusaurus/theme-common/internal";
 import Line from "@theme/CodeBlock/Line";
 import clsx from "clsx";
-import Highlight, { defaultProps } from "prism-react-renderer";
+import { Highlight } from "prism-react-renderer";
 import React from "react";
 import { CommonCodeBlockContainer } from "./common-codeblock-container";
 import { CommonCopyButton } from "./common-copy-button";
@@ -112,7 +112,6 @@ export const CodeBlockString = ({
             {title && <CodeBlockTitle icon={icon}>{title}</CodeBlockTitle>}
             <div className={clsx("relative", "pt-3", "pb-0", "not-prose")}>
                 <Highlight
-                    {...defaultProps}
                     theme={prismTheme}
                     code={code}
                     language={language ?? "text"}

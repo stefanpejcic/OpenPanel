@@ -1,10 +1,10 @@
 import Link from "@docusaurus/Link";
 import { useLocation } from "@docusaurus/router";
+import { isSamePath } from "@docusaurus/theme-common/internal";
 import {
     isActiveSidebarItem,
-    isSamePath,
     useDocsSidebar,
-} from "@docusaurus/theme-common/internal";
+} from "@docusaurus/plugin-content-docs/client";
 import clsx from "clsx";
 import React from "react";
 import { HEADER_HEIGHT } from "./doc-header";

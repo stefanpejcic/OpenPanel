@@ -2,7 +2,7 @@ import React, { HTMLAttributes, useState } from "react";
 import snarkdown from "snarkdown";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 // @ts-expect-error no types
-import { useDoc } from "@docusaurus/theme-common/internal";
+import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import { useHistory, useLocation } from "@docusaurus/router";
 import clsx from "clsx";
 

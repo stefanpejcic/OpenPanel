@@ -65,7 +65,6 @@ const siteConfig = {
                           },
                           lastVersion: "current",
                           admonitions: {
-                              tag: ":::",
                               keywords: [
                                   "additional",
                                   "note",
@@ -95,7 +94,21 @@ const siteConfig = {
                               return modifiedSidebarItems;
                           },
                       },
-                blog: false,
+                blog: process.env.DISABLE_BLOG
+                    ? false
+                    : {
+                          blogTitle: "Blog",
+                          blogDescription:
+                              "A resource for OpenPanel, front-end ecosystem, and web development",
+                          routeBasePath: "/blog",
+                          postsPerPage: "ALL",
+                          blogSidebarTitle: "All posts",
+                          blogSidebarCount: 0,
+                          feedOptions: {
+                              type: "all",
+                              copyright: `Copyright © ${new Date().getFullYear()} OpenPanel.`,
+                          },
+                      },
                 theme: {
                     customCss: [
                         require.resolve("./src/refine-theme/css/colors.css"),
@@ -172,32 +185,15 @@ const siteConfig = {
         "./plugins/checklist.js",
         ...(process.env.DISABLE_BLOG
             ? []
-            : [
-                  [
-                      "./plugins/blog-plugin.js",
-                      {
-                          blogTitle: "Blog",
-                          blogDescription:
-                              "A resource for OpenPanel, front-end ecosystem, and web development",
-                          routeBasePath: "/blog",
-                          postsPerPage: 12,
-                          blogSidebarTitle: "All posts",
-                          blogSidebarCount: 0,
-                          feedOptions: {
-                              type: "all",
-                              copyright: `Copyright © ${new Date().getFullYear()} OpenPanel.`,
-                          },
-                      },
-                  ],
-              ]),
+            : [["./plugins/related-posts-plugin.js", { relatedCount: 3 }]]),
         "./plugins/clarity.js",
         "./plugins/example-redirects.js",
         "./plugins/og-images.js",
     ],
     themeConfig: {
         prism: {
-            theme: require("prism-react-renderer/themes/github"),
-            darkTheme: require("prism-react-renderer/themes/vsDark"),
+            theme: require("prism-react-renderer").themes.github,
+            darkTheme: require("prism-react-renderer").themes.vsDark,
             magicComments: [
                 // Remember to extend the default highlight class name as well!
                 {
@@ -390,6 +386,12 @@ const siteConfig = {
                     parser: {
                         syntax: "typescript",
                         tsx: true,
+                    },
+                    transform: {
+                        react: {
+                            runtime: "automatic",
+                            throwIfNamespace: false,
+                        },
                     },
                     target: "es2017",
                 },
