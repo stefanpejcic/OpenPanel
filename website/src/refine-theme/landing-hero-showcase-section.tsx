@@ -360,7 +360,12 @@ export const LandingHeroShowcaseSection = ({}) => {
                                     "landing-sm:text-sm",
                                 )}
                             >
-                                {app.name}
+                                <span className="landing-md:hidden">
+                                    {app.name}
+                                </span>
+                                <span className="hidden landing-md:inline">
+                                    {app.nameLarge}
+                                </span>
                             </button>
                         ))}
                     </div>
@@ -423,6 +428,10 @@ export const LandingHeroShowcaseOpenPanelCommunity = ({}) => {
 const apps = [
     {
         name: "OpenAdmin",
+        // Shown instead of `name` on the tab button from landing-md up;
+        // below that (still landing-sm+, where this switcher is visible
+        // at all) `name` is used as before.
+        nameLarge: "Admin panel",
         link: "https://demo.openpanel.com:2087/login",
         showcase: ShowcaseHR,
         dark: true,
@@ -430,12 +439,14 @@ const apps = [
     },
     {
         name: "OpenPanel",
+        nameLarge: "User panel",
         link: "https://demo.openpanel.com:2083/login",
         showcase: ShowcaseCRM,
         label: "User panel demo",
     },
     {
         name: "OpenCLI",
+        nameLarge: "Terminal Commands",
         link: "https://dev.openpanel.com/cli/commands.html",
         showcase: ShowcaseDevOps,
         dark: true,
