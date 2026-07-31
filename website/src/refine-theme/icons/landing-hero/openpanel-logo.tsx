@@ -1,6 +1,6 @@
 import React from "react";
 
-export const LandingHeroViteIcon = (props: React.SVGProps<SVGSVGElement>) => (
+export const LandingHeroOpenPanelLogoIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
         width={24}
         height={64}

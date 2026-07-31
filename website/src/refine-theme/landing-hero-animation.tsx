@@ -7,18 +7,38 @@ import {
 } from "./icons/landing-hero-beam";
 import { LandingHeroCenterSvg } from "./icons/landing-hero-center";
 import { LandingHeroGridSvg } from "./icons/landing-hero-grid";
-import { LandingHeroAntdIcon } from "./icons/landing-hero/antd";
-import { LandingHeroOpenRestyIcon } from "./icons/landing-hero/openresty";
-import { LandingHeroAuth0Icon } from "./icons/landing-hero/auth0";
-import { LandingHeroChakraUIIcon } from "./icons/landing-hero/chakra";
-import { LandingHeroGoogleIcon } from "./icons/landing-hero/google";
-import { LandingHeroMaterialUIIcon } from "./icons/landing-hero/material-ui";
-import { LandingHeroNestjsIcon } from "./icons/landing-hero/nestjs";
-import { LandingHeroNextjsIcon } from "./icons/landing-hero/nextjs";
-import { LandingHeroOktaIcon } from "./icons/landing-hero/okta";
-import { LandingHeroRemixIcon } from "./icons/landing-hero/remix";
-import { LandingHeroSupabaseIcon } from "./icons/landing-hero/supabase";
-import { LandingHeroViteIcon } from "./icons/landing-hero/vite";
+import { LandingHeroRestApiIcon } from "./icons/landing-hero/rest-api";
+import { LandingHeroMcpIcon } from "./icons/landing-hero/mcp";
+import { LandingHeroWordPressIcon } from "./icons/landing-hero/wordpress";
+import { LandingHeroPythonIcon } from "./icons/landing-hero/python";
+import { LandingHeroNodeJSIcon } from "./icons/landing-hero/nodejs";
+import { LandingHeroWebsiteBuilderIcon } from "./icons/landing-hero/website-builder";
+import { LandingHeroContainersIcon } from "./icons/landing-hero/containers";
+import { LandingHeroCaddyIcon } from "./icons/landing-hero/caddy";
+import { LandingHeroOpenLiteSpeedIcon } from "./icons/landing-hero/openlitespeed";
+import { LandingHeroApacheIcon } from "./icons/landing-hero/apache";
+import { LandingHeroNginxIcon } from "./icons/landing-hero/nginx";
+import { LandingHeroMariaDBIcon } from "./icons/landing-hero/mariadb";
+import { LandingHeroPostgreSQLIcon } from "./icons/landing-hero/postgresql";
+import { LandingHeroMySQLIcon } from "./icons/landing-hero/mysql";
+import { LandingHeroPerconaIcon } from "./icons/landing-hero/percona";
+import { LandingHeroLlmsTxtIcon } from "./icons/landing-hero/llms-txt";
+import { LandingHeroTailwindCSSIcon } from "./icons/landing-hero/tailwindcss";
+import { LandingHeroAlpineJSIcon } from "./icons/landing-hero/alpinejs";
+import { LandingHeroTremorIcon } from "./icons/landing-hero/tremor";
+import { LandingHeroGoIcon } from "./icons/landing-hero/go";
+import { LandingHeroBashIcon } from "./icons/landing-hero/bash";
+import { LandingHeroVarnishIcon } from "./icons/landing-hero/varnish";
+import { LandingHeroMemcachedIcon } from "./icons/landing-hero/memcached";
+import { LandingHeroRedisIcon } from "./icons/landing-hero/redis";
+import { LandingHeroValkeyIcon } from "./icons/landing-hero/valkey";
+import { LandingHeroWHMCSIcon } from "./icons/landing-hero/whmcs";
+import { LandingHeroBlestaIcon } from "./icons/landing-hero/blesta";
+import { LandingHeroFossBillingIcon } from "./icons/landing-hero/fossbilling";
+import { LandingHeroPaymenterIcon } from "./icons/landing-hero/paymenter";
+import { LandingHeroPasskeysIcon } from "./icons/landing-hero/passkeys";
+import { LandingHeroTwoFaIcon } from "./icons/landing-hero/two-fa";
+import { LandingHeroPasswordsIcon } from "./icons/landing-hero/passwords";
 import { LandingHeroAnimationItem } from "./landing-hero-animation-item";
 
 type ItemType = {
@@ -28,200 +48,418 @@ type ItemType = {
     rayClassName?: string;
 };
 
-const platformItems: ItemType[] = [
-    {
-        name: "OpenPanel",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroViteIcon
-                {...props}
-                className={clsx(
-                    "text-gray-1000 dark:text-gray-0",
-                    props.className,
-                )}
-                style={{ marginLeft: '1.5em' }}
-            />
-        ),
-        color: "#ffa800",
-    },
-    {
-        name: "OpenAdmin",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroViteIcon
-                {...props}
-                className={clsx(
-                    "text-gray-1000 dark:text-gray-0",
-                    props.className,
-                )}
-                style={{ marginLeft: '1.5em' }}
-            />
-        ),
-        color: "#ffffff",
-        rayClassName: "!text-gray-1000 dark:!text-gray-0",
-    },
-    {
-        name: "OpenCLI",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroViteIcon
-                {...props}
-                className={clsx(
-                    "text-gray-1000 dark:text-gray-0",
-                    props.className,
-                )}
-                style={{ marginLeft: '1.5em' }}
-            />
-        ),
-        color: "#ffffff",
-        rayClassName: "!text-gray-1000 dark:!text-gray-0",
-    },
-];
+type GroupOption = {
+    section: string;
+    items: ItemType[];
+};
 
-const uiItems: ItemType[] = [
-    {
-        name: "WordPress",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroMaterialUIIcon
-                {...props}
-                className={clsx(
-                    "text-gray-1000 dark:text-gray-0",
-                    props.className,
-                )}
-                style={{ marginLeft: '1em' }}
-            />
-        ),
-        color: "#007FFF",
-    },
-    {
-        name: "NodeJS",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroAntdIcon
-                {...props}
-                className={clsx(
-                    "text-gray-1000 dark:text-gray-0",
-                    props.className,
-                )}
-                style={{ marginLeft: '1em' }}
-            />
-        ),
-        color: "#148EFF",
-    },
-    {
-        name: "Python",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroChakraUIIcon
-                {...props}
-                className={clsx(
-                    "text-gray-1000 dark:text-gray-0",
-                    props.className,
-                )}
-                style={{ marginLeft: '1em' }}
-            />
-        ),
-        color: "#29C6B7",
-    },
-];
+const mono = (props: React.SVGProps<SVGSVGElement>) =>
+    clsx("text-gray-1000 dark:text-gray-0", props.className);
 
-const backendItems: ItemType[] = [
-    {
-        name: "Nginx",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroSupabaseIcon
-                {...props}
-                className={clsx(
-                    "text-gray-1000 dark:text-gray-0",
-                    props.className,
-                )}
-                style={{ marginLeft: '1.5em' }}
-            />
-        ),
-        color: "#3ECF8E",
-    },
-    {
-        name: "Apache",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroNestjsIcon
-                {...props}
-                className={clsx(
-                    "text-gray-1000 dark:text-gray-0",
-                    props.className,
-                )}
-                style={{ marginLeft: '1.5em' }}
-            />
-        ),
-        color: "#E0234E",
-    },
-    {
-        name: "OpenResty",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroOpenRestyIcon
-                {...props}
-                className={clsx(
-                    "text-gray-1000 dark:text-gray-0",
-                    props.className,
-                )}
-                style={{ marginLeft: '1.5em' }}
-            />
-        ),
-        color: "#FD366E",
-    },
-];
+// ---- combo A groups ----
 
-const authItems: ItemType[] = [
-    {
-        name: "CorazaWAF",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroGoogleIcon
-                {...props}
-                className={clsx(
-                    "text-gray-1000 dark:text-gray-0",
-                    props.className,
-                )}
-                style={{ marginLeft: '1em' }}
-            />
-        ),
-        color: "#EA4335",
-    },
-    {
-        name: "Docker",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroAuth0Icon
-                {...props}
-                className={clsx(
-                    "text-gray-1000 dark:text-gray-0",
-                    props.className,
-                )}
-                style={{ marginLeft: '1em' }}
-            />
-        ),
-        color: "#EB5424",
-    },
-    {
-        name: "BIND9",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <div className={clsx("p-5", props.className)}>
-                <LandingHeroOktaIcon
+const aiFeatures: GroupOption = {
+    section: "AI features",
+    items: [
+        {
+            name: "MCP",
+            icon: (props) => (
+                <LandingHeroMcpIcon
                     {...props}
-                    className={clsx(
-                        "w-6",
-                        "h-6",
-                        "text-gray-1000 dark:text-gray-0",
-                        props.className,
-                    )}
-                   
+                    className={mono(props)}
+                    style={{ marginLeft: "1.5em" }}
                 />
-            </div>
-        ),
-        color: "#ffffff",
-        rayClassName: "!text-gray-1000 dark:!text-gray-0",
-    },
-];
+            ),
+            color: "#8B5CF6",
+        },
+        {
+            name: "llms.txt",
+            icon: (props) => (
+                <LandingHeroLlmsTxtIcon
+                    {...props}
+                    className={mono(props)}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#64748B",
+        },
+        {
+            name: "REST API",
+            icon: (props) => (
+                <LandingHeroRestApiIcon
+                    {...props}
+                    className={mono(props)}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#3B82F6",
+        },
+    ],
+};
+
+const frontend: GroupOption = {
+    section: "Frontend",
+    items: [
+        {
+            name: "TailwindCSS",
+            icon: (props) => (
+                <LandingHeroTailwindCSSIcon
+                    {...props}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#38BDF8",
+        },
+        {
+            name: "AlpineJS",
+            icon: (props) => (
+                <LandingHeroAlpineJSIcon
+                    {...props}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#77C1D2",
+        },
+        {
+            name: "TremorUI",
+            icon: (props) => (
+                <LandingHeroTremorIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#6366F1",
+        },
+    ],
+};
+
+const backend: GroupOption = {
+    section: "Backend",
+    items: [
+        {
+            name: "Go",
+            icon: (props) => (
+                <LandingHeroGoIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#00ACD7",
+        },
+        {
+            name: "Python",
+            icon: (props) => (
+                <LandingHeroPythonIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#3776AB",
+        },
+        {
+            name: "Bash",
+            icon: (props) => (
+                <LandingHeroBashIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#4EAA25",
+        },
+    ],
+};
+
+const billingIntegrations: GroupOption = {
+    section: "Billing",
+    items: [
+        {
+            name: "WHMCS",
+            icon: (props) => (
+                <LandingHeroWHMCSIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#3CB371",
+        },
+        {
+            name: "Blesta",
+            icon: (props) => (
+                <LandingHeroBlestaIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#6AB31D",
+        },
+        {
+            name: "FOSSBilling",
+            icon: (props) => (
+                <LandingHeroFossBillingIcon
+                    {...props}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#22C55E",
+        },
+        {
+            name: "paymenter.org",
+            icon: (props) => (
+                <LandingHeroPaymenterIcon
+                    {...props}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#4060FF",
+        },
+    ],
+};
+
+const authentication: GroupOption = {
+    section: "authentication",
+    items: [
+        {
+            name: "Passkeys",
+            icon: (props) => (
+                <LandingHeroPasskeysIcon
+                    {...props}
+                    className={mono(props)}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#8B5CF6",
+        },
+        {
+            name: "2FA",
+            icon: (props) => (
+                <LandingHeroTwoFaIcon
+                    {...props}
+                    className={mono(props)}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#EC4899",
+        },
+        {
+            name: "REST API",
+            icon: (props) => (
+                <LandingHeroRestApiIcon
+                    {...props}
+                    className={mono(props)}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#3B82F6",
+        },
+        {
+            name: "Passwords",
+            icon: (props) => (
+                <LandingHeroPasswordsIcon
+                    {...props}
+                    className={mono(props)}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#F59E0B",
+        },
+    ],
+};
+
+// ---- combo B groups ----
+
+const applications: GroupOption = {
+    section: "applications",
+    items: [
+        {
+            name: "WordPress",
+            icon: (props) => (
+                <LandingHeroWordPressIcon
+                    {...props}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#21759B",
+        },
+        {
+            name: "Python",
+            icon: (props) => (
+                <LandingHeroPythonIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#3776AB",
+        },
+        {
+            name: "NodeJS",
+            icon: (props) => (
+                <LandingHeroNodeJSIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#339933",
+        },
+        {
+            name: "Website Builder",
+            icon: (props) => (
+                <LandingHeroWebsiteBuilderIcon
+                    {...props}
+                    className={mono(props)}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#F59E0B",
+        },
+        {
+            name: "Containers",
+            icon: (props) => (
+                <LandingHeroContainersIcon
+                    {...props}
+                    className={mono(props)}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#2496ED",
+        },
+    ],
+};
+
+const caching: GroupOption = {
+    section: "Caching",
+    items: [
+        {
+            name: "Varnish",
+            icon: (props) => (
+                <LandingHeroVarnishIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#0072BC",
+        },
+        {
+            name: "Memcached",
+            icon: (props) => (
+                <LandingHeroMemcachedIcon
+                    {...props}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#C83737",
+        },
+        {
+            name: "Redis",
+            icon: (props) => (
+                <LandingHeroRedisIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#DC382D",
+        },
+        {
+            name: "Valkey",
+            icon: (props) => (
+                <LandingHeroValkeyIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#FFD43B",
+        },
+    ],
+};
+
+const webservers: GroupOption = {
+    section: "webservers",
+    items: [
+        {
+            name: "Caddy",
+            icon: (props) => (
+                <LandingHeroCaddyIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#1F88C0",
+        },
+        {
+            name: "OpenLiteSpeed",
+            icon: (props) => (
+                <LandingHeroOpenLiteSpeedIcon
+                    {...props}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#75D1DF",
+        },
+        {
+            name: "Apache",
+            icon: (props) => (
+                <LandingHeroApacheIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#D22128",
+        },
+        {
+            name: "Nginx",
+            icon: (props) => (
+                <LandingHeroNginxIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#009639",
+        },
+    ],
+};
+
+const databases: GroupOption = {
+    section: "databases",
+    items: [
+        {
+            name: "MariaDB",
+            icon: (props) => (
+                <LandingHeroMariaDBIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#1F7A8C",
+        },
+        {
+            name: "PostgreSQL",
+            icon: (props) => (
+                <LandingHeroPostgreSQLIcon
+                    {...props}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#336791",
+        },
+        {
+            name: "MySQL",
+            icon: (props) => (
+                <LandingHeroMySQLIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#00758F",
+        },
+        {
+            name: "Percona",
+            icon: (props) => (
+                <LandingHeroPerconaIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#FF6D01",
+        },
+    ],
+};
+
+// The whole animation shows one of exactly two combos, chosen once per page
+// load — not 4 independently-randomized corners. Combo A's position 2 has
+// its own further random choice between AI features and Billing
+// Integrations. Starts on combo B (the original/default layout) so server
+// and client render the same markup on hydration, then randomizes
+// client-side only — same pattern as HERO_VARIANTS in
+// landing-hero-section.tsx.
+function usePositions() {
+    const [combo, setCombo] = React.useState<"A" | "B">("B");
+    const [comboAPosition2, setComboAPosition2] = React.useState<
+        "ai" | "billing"
+    >("ai");
+
+    React.useEffect(() => {
+        const chosenCombo = Math.random() < 0.5 ? "A" : "B";
+        setCombo(chosenCombo);
+        if (chosenCombo === "A") {
+            setComboAPosition2(Math.random() < 0.5 ? "ai" : "billing");
+        }
+    }, []);
+
+    if (combo === "A") {
+        return {
+            position1: frontend,
+            position2: backend,
+            position3: comboAPosition2 === "ai" ? aiFeatures : billingIntegrations,
+            position4: authentication,
+        };
+    }
+
+    return {
+        position1: applications,
+        position2: caching,
+        position3: webservers,
+        position4: databases,
+    };
+}
 
 export const LandingHeroAnimation = React.memo(function HeroAnimation() {
     const ref = React.useRef<HTMLDivElement>(null);
     const inView = useInView(ref);
-    const [activePlatform, setActivePlatform] = React.useState(0);
-    const [activeUI, setActiveUI] = React.useState(0);
-    const [activeBackend, setActiveBackend] = React.useState(0);
-    const [activeAuth, setActiveAuth] = React.useState(0);
+
+    const { position1, position2, position3, position4 } = usePositions();
+
+    const [active1, setActive1] = React.useState(0);
+    const [active2, setActive2] = React.useState(0);
+    const [active3, setActive3] = React.useState(0);
+    const [active4, setActive4] = React.useState(0);
 
     React.useEffect(() => {
         if (inView) {
@@ -234,17 +472,15 @@ export const LandingHeroAnimation = React.memo(function HeroAnimation() {
                 if (t2) clearTimeout(t2);
                 if (t3) clearTimeout(t3);
 
-                setActivePlatform((prev) => (prev + 1) % platformItems.length);
+                setActive1((prev) => (prev + 1) % position1.items.length);
                 t1 = setTimeout(() => {
-                    setActiveUI((prev) => (prev + 1) % uiItems.length);
+                    setActive2((prev) => (prev + 1) % position2.items.length);
                 }, 2000);
                 t2 = setTimeout(() => {
-                    setActiveBackend(
-                        (prev) => (prev + 1) % backendItems.length,
-                    );
+                    setActive3((prev) => (prev + 1) % position3.items.length);
                 }, 4000);
                 t3 = setTimeout(() => {
-                    setActiveAuth((prev) => (prev + 1) % authItems.length);
+                    setActive4((prev) => (prev + 1) % position4.items.length);
                 }, 6000);
             }, 8000);
 
@@ -255,7 +491,7 @@ export const LandingHeroAnimation = React.memo(function HeroAnimation() {
                 if (t3) clearTimeout(t3);
             };
         }
-    }, [inView]);
+    }, [inView, position1, position2, position3, position4]);
 
     return (
         <div ref={ref} className={clsx()}>
@@ -309,27 +545,25 @@ export const LandingHeroAnimation = React.memo(function HeroAnimation() {
                         <LandingHeroAnimationItem
                             vertical="top"
                             horizontal="left"
-                            section="products"
-                            {...platformItems[activePlatform]}
+                            section={position1.section}
+                            {...position1.items[active1]}
                             previousName={
-                                platformItems[
-                                    (activePlatform -
-                                        1 +
-                                        platformItems.length) %
-                                        platformItems.length
-                                ].name ?? platformItems[activePlatform].name
+                                position1.items[
+                                    (active1 - 1 + position1.items.length) %
+                                        position1.items.length
+                                ].name ?? position1.items[active1].name
                             }
                         />
                         <LandingHeroAnimationItem
                             vertical="top"
                             horizontal="right"
-                            section="technology"
-                            {...uiItems[activeUI]}
+                            section={position2.section}
+                            {...position2.items[active2]}
                             previousName={
-                                uiItems[
-                                    (activeUI - 1 + uiItems.length) %
-                                        uiItems.length
-                                ].name ?? uiItems[activeUI].name
+                                position2.items[
+                                    (active2 - 1 + position2.items.length) %
+                                        position2.items.length
+                                ].name ?? position2.items[active2].name
                             }
                         />
                     </div>
@@ -345,25 +579,25 @@ export const LandingHeroAnimation = React.memo(function HeroAnimation() {
                         <LandingHeroAnimationItem
                             vertical="bottom"
                             horizontal="left"
-                            section="web servers"
-                            {...backendItems[activeBackend]}
+                            section={position3.section}
+                            {...position3.items[active3]}
                             previousName={
-                                backendItems[
-                                    (activeBackend - 1 + backendItems.length) %
-                                        backendItems.length
-                                ].name ?? backendItems[activeBackend].name
+                                position3.items[
+                                    (active3 - 1 + position3.items.length) %
+                                        position3.items.length
+                                ].name ?? position3.items[active3].name
                             }
                         />
                         <LandingHeroAnimationItem
                             vertical="bottom"
                             horizontal="right"
-                            section="Tools"
-                            {...authItems[activeAuth]}
+                            section={position4.section}
+                            {...position4.items[active4]}
                             previousName={
-                                authItems[
-                                    (activeAuth - 1 + authItems.length) %
-                                        authItems.length
-                                ].name ?? authItems[activeAuth].name
+                                position4.items[
+                                    (active4 - 1 + position4.items.length) %
+                                        position4.items.length
+                                ].name ?? position4.items[active4].name
                             }
                         />
                     </div>

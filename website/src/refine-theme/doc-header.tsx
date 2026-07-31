@@ -42,7 +42,6 @@ const Desktop = () => {
                 <DocVersionDropdown />
 
                 <CopyPageButton
-                    generateMarkdownRoutes
                     customStyles={{
                         button: {
                             className: copyPageButtonStyles.button,

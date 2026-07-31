@@ -1,6 +1,5 @@
 import React from "react";
 import clsx from "clsx";
-import { LandingHeroGithubStars } from "./landing-hero-github-stars";
 import { LandingHeroVersion } from "./landing-hero-version";
 import { LandingStartActionIcon } from "./icons/landing-start-action";
 
@@ -23,21 +22,18 @@ const HERO_VARIANTS = [
         heading: "Next Generation",
         tagline:
             "OpenPanel is a multi-user web hosting panel designed around lightweight containers. Each user gets their own fully isolated environment, complete with a separate MySQL server, PHP version, Redis instance, and full root access.",
-        badge: "version" as const,
     },
     // enterprise upsell — targets hosting businesses outgrowing Community's 3-user cap
     {
         heading: "Built to Scale",
         tagline:
             "Growing past a handful of hosting accounts? Enterprise unlocks unlimited users, mailboxes, and FTP accounts, plus centralized container management across your whole fleet — everything a real hosting business needs.",
-        badge: "version" as const,
     },
     // competitive vs cPanel/Plesk
     {
         heading: "No Lock-In",
         tagline:
             "Tired of cPanel or Plesk license fees eating into your margins? OpenPanel gives you the same multi-user hosting workflow you already know, built on containers instead of legacy shared Linux accounts, and it costs you nothing, ever.",
-        badge: "version" as const,
     },
 ];
 
@@ -84,11 +80,7 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                         "landing-lg:py-8",
                     )}
                 >
-                    {variant.badge === "stars" ? (
-                        <LandingHeroGithubStars />
-                    ) : (
-                        <LandingHeroVersion />
-                    )}
+                    <LandingHeroVersion />
                     <div className={clsx("flex", "flex-col", "gap-6")}>
                         <h1
                             className={clsx(

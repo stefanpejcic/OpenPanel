@@ -167,7 +167,12 @@ const siteConfig = {
                 // Rendered manually in doc-header.tsx instead, in the
                 // "Get Support" button's old slot.
                 injectButton: false,
-                generateMarkdownRoutes: true,
+                // TEMP disabled: postBuild crashes with EISDIR on some
+                // route (reads a path that's actually a directory). Copy/
+                // view/open-in-AI still work via client-side extraction
+                // without this — it only adds pre-generated /page.md
+                // routes. Needs real investigation, not just disabling.
+                generateMarkdownRoutes: false,
             },
         ],
         async function tailwindcss() {
