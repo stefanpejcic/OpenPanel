@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-# Inodes
+# Inodes Explorer
 
 Inode usage is a critical aspect of managing your hosting environment. Inodes are data structures that store information about files and directories on your server. Monitoring and optimizing inode usage is vital to prevent issues related to inode limits.
 

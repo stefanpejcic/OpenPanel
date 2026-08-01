@@ -12,6 +12,11 @@ This section is for advanced users only. Exercise caution while making changes, 
 
 Available pages:
 
-- [CronJobs](/docs/panel/advanced/cronjobs)
+- [Services](/docs/panel/advanced/services)
+- [Cron Jobs](/docs/panel/advanced/cronjobs)
+- [IP Blocker](/docs/panel/advanced/ip-blocker)
 - [Process Manager](/docs/panel/advanced/process_manager)
-- [Server Settings](/docs/panel/advanced/server_settings)
+- [WebServer Settings](/docs/panel/advanced/webserver_settings)
+- [WAF](/docs/panel/advanced/waf)
+- [Resource Usage](/docs/panel/advanced/resource_usage)
+- [Server Information](/docs/panel/advanced/server_info)

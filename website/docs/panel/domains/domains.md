@@ -17,22 +17,23 @@ From this interface, you can view:
 
 ## Available Actions
 
-Depending on the features enabled on your server, the following actions are available per domain:
+Depending on the features enabled on your server, the following actions are available from the **Actions** dropdown menu per domain:
 
 * **Edit DNS Zone** — if the DNS feature is enabled
 * **Manage WAF** — if the WAF feature is enabled
-* **Change Document Root**
-* **Edit VirtualHosts**
-* **Redirect** — if the Redirect feature is enabled
+* **Change Document Root** — if the docroot feature is enabled
+* **Edit VirtualHosts** — if the VHosts editor is enabled
 * **Capitalize** — if the Capitalize feature is enabled
-* **Suspend / Unsuspend Domain**
-* **Delete Domain**
+* **Suspend / Unsuspend** — if the Suspend feature is enabled
+* **Delete**
+
+In addition, if the **Redirects** feature is enabled, a dedicated **Redirect** column lets you create, edit, or delete a redirect directly from the table without opening the dropdown menu.
 
 ## Create a New Domain
 
 To add a new domain:
 
-1. Click the **"Add Domain"** button.
+1. Click the **"New Domain"** button.
 2. Enter the domain name.
 3. Click **"Add Domain"** to save.
 
@@ -44,8 +45,8 @@ Once added, the system will automatically attempt to issue a free [Let’s Encry
 
 To delete a domain:
 
-1. Click the **"Delete Domain"** option from the domain's dropdown menu.
-2. A confirmation page will appear. Click **"Delete"** to proceed.
+1. Click the **"Delete"** option from the domain's dropdown menu.
+2. A confirmation page will appear. Click **"Delete Domain"** to proceed.
 
 > If the domain is linked to active applications (e.g. [PM2](/docs/panel/applications/pm2) or [WP Manager](/docs/panel/applications/wordpress)), deletion will be blocked until those applications are removed.
 > This prevents accidental removal of domains tied to running websites.
@@ -90,6 +91,6 @@ To edit this file:
 
 1. Click **"Edit VirtualHosts"** from the domain’s dropdown menu.
 2. A new page will open with the Vhost file content.
-3. Make your changes and click **"Save"**.
+3. Make your changes and click **"Save Changes"**.
 
 Once saved, OpenPanel will automatically restart the webserver to apply changes.

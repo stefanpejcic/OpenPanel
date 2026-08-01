@@ -19,12 +19,24 @@ Enable or disable the Varnish service globally.
 
 ---
 
+## Varnish Cache
+
+While the service is running, real-time cache performance and efficiency metrics are displayed, including Hit Ratio, Hits, Misses, Pass, Requests, Backend Requests, Backend Failures and an overall Efficiency Score.
+
+---
+
 ## Domains
 
 Control Varnish caching on a per-domain basis.
 
 - Each domain has a toggle showing its current status.  
 - Click the toggle to enable or disable Varnish caching for that specific domain.
+
+---
+
+## Container
+
+While the service is running, real-time resource usage (CPU, memory, network and block I/O) is displayed. Click **Edit limits** to adjust the container's resource limits from the Docker/Containers page.
 
 ---
 

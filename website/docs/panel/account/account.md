@@ -5,6 +5,10 @@ sidebar_position: 1
 # Account
 OpenPanel offers a unique feature that allows you to change your username, unlike standard control panels that require hosting support for such modifications.  
 
+:::info
+Username changes must be enabled by the Administrator (`permit_username_change_by_user`, disabled by default). If the username field is not shown on this page, ask your hosting provider to enable it.
+:::
+
 ![account.png](/img/panel/v2/account.png)
 
 On this page, you can:  
@@ -18,7 +22,7 @@ To update your email address:
 
 ### Changing Username  
 To change your username:  
-1. Enter your desired username in the username field.  
+1. Enter your desired username in the username field. It must be 3-20 characters long and contain only letters and numbers (no spaces, hyphens, or underscores).
 2. Click **Update** to apply the changes.  
 
 ### Changing Password  

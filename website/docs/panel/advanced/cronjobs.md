@@ -13,7 +13,7 @@ On the CronJobs page you can view currently scheduled tasks, create new, edit or
 
 ## Add
 
-To create a new cronjob click on the 'Create CronJob' button and in the new form set the script to be executed, choose a container to execute the script and the desired schedule.
+To create a new cronjob click on the 'Create New' button and in the new form set the script to be executed, choose a container to execute the script and the desired schedule.
 
 ![cronjobs_new.png](/img/panel/v2/cronjobs.png)
 
@@ -23,10 +23,10 @@ The first field allows you to choose the container which is going to be running 
 
 The second field allows you to set a predefined (common) schedule:
 
-- Every 30s
-- Every minute
-- Every 5 minutes
-- Every 30 minutes
+- Every 30 Seconds
+- Every Minute
+- Every 5 Minutes
+- Every 30 Minutes
 - Hourly
 - Daily
 - Weekly
@@ -64,7 +64,7 @@ When you're done click on the 'Save' button to update the crontab file with your
 
 ## Delete
 
-To delete a cronjob, click on the 'Delete' button next to it. This action will open a modal asking you to confirm the deletion.
+To delete a cronjob, click on the 'Delete' button next to it. The cron job is removed immediately, with no confirmation step, so make sure you selected the right job before clicking.
 
 ![cronjobs_delete.gif](/img/panel/v2/cron_delete.gif)
 
@@ -72,9 +72,9 @@ To delete a cronjob, click on the 'Delete' button next to it. This action will o
 
 Each cron job execution is recorded in JSON format.
 
-To view the logs, click the *“View Logs”* button. This will open a new tab displaying all cron job logs.
+To view the logs, click the *“View Logs”* button (or the per-job *“Logs”* button in a job's row). This opens an inline log panel at the top of the table, where you can filter by job name and choose how many lines to display, and refresh the results.
 
-To filter logs by a specific job name (comment), append the following parameter to the URL:
+To filter logs by a specific job name (comment) directly through the API endpoint, append the following parameter to the URL:
 `?job=` followed by the job name. Example: `/cronjobs/log?job=whmcs-cron`
 
 ## File Editor

@@ -22,7 +22,7 @@ Enabling the REDIS service container will initiate the Redis container service o
 
 Upon initialization the Redis container has default memory limits set, it is advisable to set memory limits appropriate to your use case and needs.
 
-You can set these limits on the /containers interface which is accessible through the user panel navigation on Docker/containers .
+While the service is running, real-time resource usage (CPU, memory, network and block I/O) is displayed on this page. Click **Edit limits** to set new limits on the /containers interface, which is accessible through the user panel navigation on Docker/containers.
 
 ![redis_limits.png](/img/panel/v2/redislimits.png)
 

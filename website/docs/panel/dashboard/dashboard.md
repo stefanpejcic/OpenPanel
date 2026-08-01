@@ -9,48 +9,37 @@ The OpenPanel interface is the central hub of your user account, providing acces
 The OpenPanel dashboard interface is divided in two sections:
 
 - Features: listing all available options
-- Widgets: 2FA, Information, Statistics, Usage and How-to guides
+- Widgets: 2FA, Information, Usage and How-to guides
 
 ## Information
 
 This section displays general server information:
 
 - Username
+- Plan name
 - Shared or Dedicated IP address
 - Last login IP address
 - Nameservers (if configured)
 
-## Statistics
-
-This widget displays the current usage (soft limits):
-
-- Number of websites
-- Number of domain names
-- Number of emails accounts
-- Number of FTP accounts
-- Number of MySQL databases
-- Current disk usage
-- Current inodes usage
-- Current CPU % usage
-- Current RAM usage
-
 ## Usage
 
-This widget displays the current usage (hard-limits):
+This widget displays your current usage against your plan's limits, for each item enabled on your plan:
 
+- Websites
+- Domains
+- Databases (MySQL and/or PostgreSQL)
+- Email accounts
+- FTP accounts
 - Storage
 - Inodes
 - CPU Usage
 - Memory Usage
-- Number of running Containers
-- Block I/O
-- Network I/O
-- Number of running PIDs
-- Time when the data was last updated
+
+CPU and Memory usage are fetched live from the server. For a more detailed, dedicated view of CPU and RAM usage (and historical charts), see the **Resource Usage** and **Resource Usage History** pages under the Advanced menu, if enabled by your Administrator.
 
 ## How-to Guides
 
-If enabled, the How-to guides section will display links to articles from the hosting providers knowledgebase RSS feed or the official OpenPanel documentation.
+If enabled by the Administrator, the How-to guides section will display links to Knowledge Base articles configured by your hosting provider, or to the official OpenPanel documentation by default.
 
 ## Favorites
 

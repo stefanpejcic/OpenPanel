@@ -148,20 +148,17 @@ The mechanism used for pruning old backups is not very sophisticated and applies
 
 ## Source
 
-By default, everything will be backed up. In case you need to backup only a specific data, set `BACKUP_SOURCES`.
-
-Available options are:
+By default, everything will be backed up. In case you need to backup only a specific data, set `BACKUP_SOURCES`. On the **Backups > Settings** page this is presented as a dropdown with the following options:
 
 | Setting | Description |
 |----------|----------|
-| **All**    |  Backups content of all docker volumes: website files, mysql/mariadb databases, minecraft, postgre databases, vhosts files. |
-| **Files**    |  Backups only website files inside `/var/www/html/` directory. |
+| **Everything**    |  Backups content of all docker volumes: website files, mysql/mariadb databases, postgre databases, vhosts files, cron jobs. |
+| **Website Files**    |  Backups only website files inside `/var/www/html/` directory. |
 | **Emails**    |  Backups only email files inside `/var/mail/` directory. |
-| **MySQL Databases**    |  Backups only MySQL/MariaDB databases. |
-| **Postgres Databases**    |  Backups only PostgreSQL databases. |
-| **MsSQL Databases**    |  Backups only MsSQL databases. |
 | **VirtualHosts**    |  Backups only Apache/Nginx VirtualHosts for domains. |
-| **Minecraft Data**    |  Backups only `/data` folder from Minecraft container. |
+| **MySQL Databases**    |  Backups only MySQL/MariaDB databases. |
+| **PostgreSQL Databases**    |  Backups only PostgreSQL databases. |
+| **Cron Jobs**    |  Backups only the `crons.ini` file. |
 
 
 ## Schedule
@@ -434,6 +431,20 @@ To do this, ensure the Docker feature is enabled. Then:
 ```bash
 backup
 ```
+
+## Restore & Download
+
+The **Restore & Download** page (`/backups/list`) lets you browse the backup files that already exist on your configured destination, restore them back onto your account, or download them to your computer. This currently works only for the **SSH/SFTP** destination.
+
+1. Click **Reindex Destination** to connect to the remote destination and list the available backup archives. Reindexing runs in the background and the page updates automatically once it finishes.
+2. Each indexed backup shows its filename, detected contents (`html`, `vhosts`, `mail`, `mysql`, `postgres`, `crons`) and the databases found inside it.
+3. Click **Restore** on a backup to open the restore modal, then choose what to restore:
+   - **Everything** – restores files and all databases from the archive.
+   - **Specific database only** – restores a single database selected from the archive (only shown when the archive contains databases).
+   - **Files only (no databases)** – restores website files, vhosts, mail and cron jobs without touching any database.
+
+   Restoring overwrites existing data and cannot be undone.
+4. Click **Download** on a backup to fetch the archive from the destination and download it to your browser.
 
 ## Troubleshooting
 

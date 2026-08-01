@@ -9,10 +9,10 @@ Easily create a new MySQL database in just a few clicks. Databases are essential
 Navigate to **OpenPanel > MySQL > Create Database**:
 
 1. **Enter a Database Name**  
-   Type your desired name into the input field. Make sure the name is unique and follows MySQL naming rules (e.g., avoid spaces or special characters).
+   Type your desired name into the input field. Only letters, numbers, and underscores are allowed, and the name must be between 1 and 63 characters long.
 
 2. **Generate a Random Name** *(Optional)*  
-   If you're unsure about a name, click the button next to the input field to automatically generate a secure and unique database name.
+   If you're unsure about a name, click the shuffle button next to the input field to automatically generate a random database name.
 
 3. **Click 'Create Database'**  
    Once the name is entered or generated, click the **Create Database** button to initialize your new MySQL database.

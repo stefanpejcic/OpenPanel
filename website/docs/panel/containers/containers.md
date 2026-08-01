@@ -26,6 +26,8 @@ You can allocate portions of these total resources to individual services.
 
 ## Container Table
 
+Use the **Show Columns** dropdown above the table to toggle optional columns (Block I/O, Net I/O, PIDs) on or off. Name, CPU Usage, Memory Usage, Status and Actions are shown by default.
+
 Each row in the table represents a containerized service and displays:
 
 - **Name** – Name of the Docker service, along with the image used and its tag (version).
@@ -37,10 +39,11 @@ Each row in the table represents a containerized service and displays:
   - **Graph** – Real-time usage as a percentage of the allocated memory.  
   - **Usage** – RAM used by the service from its allocated amount.  
   - **Allocated** – Memory (in GB) allocated to the service.
+- **Status** – A badge showing whether the service is currently **Enabled** (running) or **Disabled** (stopped).
 - **Actions**  
-  - Shows whether the service is **Enabled** or **Disabled**.  
-  - Clicking the status toggles it.  
-  - If the service is running, a **Terminal** link appears — click it to open a web terminal (`docker exec`) for that container.
+  - If the service is **stopped**, a **Start** button is shown to start it (with a **Pull & Start** option to pull the latest image first).  
+  - If the service is **running**, **Stop**, **Terminal** and **Logs** buttons are shown. Click **Terminal** to open a web terminal (`docker exec`) for that container, or **Logs** to jump to its log output.  
+  - **Edit** and **Delete** links are only available for services you added yourself — core services (webserver, database, mail, etc.) cannot be edited or deleted from this page.
 
 ## Editing Resources
 
@@ -51,7 +54,7 @@ To change CPU or Memory limits for a service:
 3. Adjust the value in the input field.
 4. Click **Save**.
 
-> OpenPanel will check whether you have available resources to make this change. If valid, the container will restart automatically with the new limits.
+> The change is applied immediately to the running container (no restart required). Setting the value to `0` removes the limit and falls back to the maximum allowed by your hosting plan.
 
 ## Adding New Services
 
@@ -64,11 +67,11 @@ To add a new Docker service (container), fill in the **Add Service** form with t
 - **Image** – Docker image to use.  
   - Example: `nginx:latest`, `redis:7.2`  
 
-- **Environment Variables** – Optional. Provide variables in `KEY=value` format, one per line.  
+- **Environment Variables** – Optional. Provide variables in `KEY: value` format, one per line.  
   - Example:  
     ```
-    REDIS_PASSWORD=secret
-    DEBUG=true
+    REDIS_PASSWORD: secret
+    DEBUG: true
     ```
 
 - **CPU Limit** – Maximum CPU allocation for the container. Must be a positive number.  
@@ -77,8 +80,11 @@ To add a new Docker service (container), fill in the **Add Service** form with t
 - **RAM Limit** – Maximum memory allocation. Must be a number followed by `M` or `G`.  
   - Example: `512M`, `1.5G`  
 
-- **Network** – Docker network to attach the container to.  
-  - Example: `backend_network`  
+- **Volumes (optional)** – Attach storage to the container.  
+  - **Mount Docker socket** – Checkbox that mounts the host's Docker/Podman socket read-only into the container.  
+  - **Volume rows** – For each volume, select an existing Docker volume, enter the mount path inside the container, and optionally mark it **Read-only**. Click **Add** to add more rows.
+
+- **Network** – Select the Docker network to attach the container to, from the networks already defined in your `docker-compose.yml`.  
 
 - **Healthcheck (optional)** – YAML block defining container health checks.  
   - Example:  
@@ -94,7 +100,7 @@ To add a new Docker service (container), fill in the **Add Service** form with t
 - **Service Name** – Must be unique and follow format rules.  
 - **CPU Limit** – Must be a positive number.  
 - **RAM Limit** – Must end with `M` or `G`.  
-- **Environment Variables** – Must be in `KEY=value` format.  
+- **Environment Variables** – Must be in `KEY: value` format.  
 - **Healthcheck** – Must be valid YAML.  
 
 Each service automatically uses an **uppercase prefix** for environment variable keys.  

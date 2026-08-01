@@ -11,4 +11,4 @@ The Login History page displays a list of up to the last 20 logins in a table fo
 ![login_history.png](/img/panel/v2/loginhistory.png)
 
 
-The purpose of this page is to help you determine if your account has been compromised. If you notice an IP address that you do not recognize, check the [Activity logs](/docs/panel/analytics/account_activity) for that IP to review the actions it performed on your account. If you notice any suspicious activity, immediately [change your account password](/docs/panel/account/login#password-reset) and contact your hosting provider.
+The purpose of this page is to help you determine if your account has been compromised. If you notice an IP address that you do not recognize, check the [Activity logs](/docs/panel/account/account_activity) for that IP to review the actions it performed on your account. If you notice any suspicious activity, immediately [change your account password](/docs/panel/account/account#changing-password) and contact your hosting provider.

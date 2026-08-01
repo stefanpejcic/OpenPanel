@@ -10,15 +10,15 @@ The Web Application Firewall (WAF) interface allows OpenPanel users to toggle Co
 
 ## Manage domain
 
-Clicking a domain name opens the rule management page where you can disable individual rules for that domain.
+Clicking the **Manage Rules** button next to a domain opens the rule management page where you can disable individual rules for that domain.
 
 ![waf.png](/img/panel/v2/waf_rules.png)
 
-Rules can be disabled by ID (`SecRuleRemoveById`):
+Rules can be disabled by ID, in the **Disabled IDs** field (`SecRuleRemoveById`):
 
 ![waf.png](/img/panel/v2/waf_rulesID.png)
 
-Or by tag name (`SecRuleRemoveByTag`):
+Or by tag name, in the **Disabled Tags** field (`SecRuleRemoveByTag`):
 
 ![waf.png](/img/panel/v2/waf_rulesTag.png)
 
@@ -42,7 +42,7 @@ Coraza logs all checked requests, not just blocked ones. The key columns are:
   ```
   932370, 941100, 941160, 949110, 980170
   ```
-  These are the IDs you can paste into the *Disable by ID* field for that domain.
+  These are the IDs you can paste into the *Disabled IDs* field for that domain.
 **`messages.tags`** — the tags associated with triggered rules, for example:
   ```
   application-multi, language-shell, platform-windows, attack-rce, paranoia-level/1, OWASP_CRS, OWASP_CRS/ATTACK-RCE, capec/1000/152/248/88

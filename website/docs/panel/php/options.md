@@ -52,18 +52,3 @@ Administrators can customize the available options:
 - **For all new users**: Edit `/etc/openpanel/php/options.txt`
 - **For a specific user**: Edit `/home/USERNAME/php.ini/options.txt`
 
----
-
-## Important Notes
-
-Some PHP options cannot be configured from this page. Instead, they must be set on the [**PHP Limits** page](/docs/panel/php/options):
-
-- `max_execution_time`
-- `max_input_time`
-- `max_input_vars`
-- `memory_limit`
-- `post_max_size`
-- `upload_max_filesize`
-
-These limits are enforced at the container level and require a different configuration method.
-

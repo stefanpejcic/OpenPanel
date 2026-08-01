@@ -23,14 +23,17 @@ If you're unsure about the security implications or need assistance, consult wit
 
 Remote MySQL access is disabled by default.
 
-To enable remote access to your databases, click on the "Enable Remote MySQL Access" button in the "Databases > Remote MySQL" page.
+To enable remote access to your databases, click on the "Enable Remote Database Access" button in the "MySQL > Remote Access" page.
 
-Once enabled, you will be provided with an IP address and a port that you can utilize to establish a secure connection to the MySQL service from a remote server.
+Once enabled, the page shows two sets of connection details:
+
+- **Remote** - the server IP and port to use when connecting **from a remote server** over the internet.
+- **Local** - the internal hostname and default port (`3306`) to use when connecting **from a local server** inside the same account.
 
 ![databases_remote_mysql_enabled.png](/img/panel/v2/databases_remoten.png)
 
 :::info
-The displayed port is randomly generated and unique to your MySQL instance. Avoid using the standard port `3306` for remote access, as it will not function.
+The remote port is unique to your MySQL instance. Avoid using the standard port `3306` for remote access, as it will not function.
 :::
 
 ---
@@ -97,8 +100,20 @@ define('DB_HOST', 'IP_ADDRESS:PORT');
 
 ---
 
+## Per-User Access
+
+While remote access is enabled, the page also shows a **Per-User Access** table that lets you control which hosts each MySQL user is allowed to connect from:
+
+- **Add Access** – Click the "Add Access" button and fill in a **Username** (existing or new), an **Allowed Host** (e.g. `%` for any host, `localhost`, or a specific IP such as `192.168.1.10`), and a **Password**. If the username already exists, the new host automatically inherits that user's existing database privileges. Click **Grant Access** to save.
+- **Edit** – Click **Edit** next to a host entry to change which host it applies to, then click **Save**.
+- **Delete** – Click **Delete** next to a host entry and confirm within a few seconds to revoke access from that host.
+
+System usernames (e.g. `root`, `mysql`, `phpmyadmin`) cannot be added, edited, or deleted here.
+
+---
+
 ## Disable remote MySQL access
 
-If you wish to disable access, simply click on the "Disable Remote MySQL Access" button, and it will immediately deactivate remote access in your MySQL configuration. Please be aware that this action will also necessitate a MySQL service restart to apply the new setting.
+If you wish to disable access, simply click on the "Disable Remote Database Access" button, and it will immediately deactivate remote access in your MySQL configuration. Please be aware that this action will also necessitate a MySQL service restart to apply the new setting.
 
 ![databases_remote_mysql_disabled.png](/img/panel/v2/databases_remotedis.png)

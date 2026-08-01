@@ -36,6 +36,18 @@ Configure and optimize Elasticsearch settings to tailor it to your website's nee
 
 [Elasticsearch settings and usage](/docs/panel/caching/elasticsearch)
 
+## OpenSearch
+
+OpenSearch is an open-source, distributed search and analytics suite for large volumes of data, fully compatible with Elasticsearch. It's ideal for full-text search, log analytics and real-time data exploration.
+
+[OpenSearch settings and usage](/docs/panel/caching/opensearch)
+
+## Varnish
+
+Varnish is a reverse caching proxy used as an HTTP accelerator for content-heavy dynamic websites and APIs. It can be enabled globally and toggled per domain.
+
+[Varnish settings and usage](/docs/panel/caching/varnish)
+
 ## Opcache
 OPcache is a valuable tool for enhancing PHP performance. It works by storing precompiled script code in shared memory, eliminating the need for PHP to reload and analyze scripts with each request. In simpler terms, OPcache caches previously executed PHP code, reducing CPU load and improving website performance.
 

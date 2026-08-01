@@ -32,12 +32,18 @@ For additional information on how the GrapeJS website builder works we recommend
 
 ## Backup & Restore
 
-To back up a static website created with OpenPanel's Website Builder, simply archive the directory in **File Manager**, making sure to include the `index.html` and `style.css` files.
+Open the website from **Site Manager** and go to the **Backups** tab.
 
-To restore the website, extract the archived files back into the same directory using **File Manager**, replacing any existing files if necessary.
+To create a backup, click **Generate Backup**. This archives the website files (`index.html`, `style.css` and any other files in the directory).
+
+To restore a previous backup, click **Display Backups**, pick a backup date, then click **Start Restore** and confirm.
 
 ---
 
 ## Delete Website
 
-To delete a website, first open it from **Site Manager** page and then click on **Remove** tab. Then click on 'Delete website' and finally 'Confirm Delete'.
+To delete a website, first open it from **Site Manager** page and then click on **Remove** tab.
+
+To stop managing the website without deleting any files, click **Detach website** and then **Confirm Detach**.
+
+To permanently delete the website and its files, click **Delete website** and then **Confirm Delete**.

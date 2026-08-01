@@ -6,7 +6,7 @@ sidebar_position: 2
 
 The **Process Manager** interface allows you to monitor all currently running processes on your server. You can search, view detailed command information, and terminate (kill) individual processes directly from the OpenPanel interface.
 
-Processes are **sorted by CPU usage**, making it easy to identify and act on resource-intensive tasks.
+Processes are listed sorted by PID by default, and every column (including CPU %) can be sorted by clicking its header - making it easy to identify and act on resource-intensive tasks.
 
 ## Key Features
 
@@ -19,7 +19,7 @@ Processes are **sorted by CPU usage**, making it easy to identify and act on res
   - TTY (Terminal)
   - Total Execution Time
   - Full Command (expandable)
-- 🛑 **Kill Processes:** Force-stop any non-critical process.
+- 🛑 **Terminate Processes:** Force-stop any non-critical process using the **Terminate** button.
 
 :::danger
 ⚠️ **Warning:** Stopping core services like `MySQL`, `PHP-FPM`, or `Nginx/Apache` will cause your websites to go offline. Only terminate processes you are certain about.
@@ -32,7 +32,7 @@ Processes are **sorted by CPU usage**, making it easy to identify and act on res
 1. **Go to** `Advanced > Process Manager` in the OpenPanel sidebar.
 2. Use the **search box** to find a specific process by PID, command, or container name.
 3. Click **"View full command"** to expand long-running command strings.
-4. Click the **Kill** button to immediately terminate the process.
+4. Click the **Terminate** button to immediately kill the process.
 
 ## Interface Details
 
@@ -44,18 +44,18 @@ Each row in the table provides:
 | **UID** | User ID of the process owner |
 | **PID** | Unique Process ID |
 | **PPID** | Parent Process ID |
-| **CPU %** | CPU usage percentage |
+| **CPU** | CPU usage percentage |
 | **STIME** | Process start time |
 | **TTY** | Associated terminal (`?` means detached/background) |
 | **TIME** | Total CPU time consumed |
 | **CMD** | The command being executed |
-| **Action** | Button to kill the process |
+| **Action** | **Terminate** button that kills the process |
 
 ---
 
 ## Kill Process Behavior
 
-When you click **Kill**, the following happens:
+When you click **Terminate**, the following happens:
 
 1. A notification appears: _“Terminating PID: xxxx...”_
 2. A `POST` request is sent to the backend with the `PID` to terminate.

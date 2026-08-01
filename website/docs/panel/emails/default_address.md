@@ -10,7 +10,7 @@ When a catch-all is configured, mail sent to `anything@yourdomain.com` that does
 
 ## Setting a Catch-all
 
-1. Go to **OpenPanel > Emails > Default Email Address**.
+1. Go to **OpenPanel > Emails > Default Address**.
 2. Select the domain to configure.
 3. Enter the **Destination address**: any valid email address, local or external.
 4. Click **Save**.

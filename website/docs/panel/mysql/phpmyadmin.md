@@ -8,7 +8,7 @@ phpMyAdmin is an advanced MySQL database management tool and is recommended only
 
 ## Manage
 
-To access phpMyAdmin, go to **Databases > phpMyAdmin** in the sidebar, or from **Databases** page click on the 'Open phpMyAdmin' icon next to the database name.
+To access phpMyAdmin, go to **MySQL > phpMyAdmin** in the sidebar, or from the **Databases** page click on the phpMyAdmin icon next to the database name (this opens phpMyAdmin directly on that database).
 
 
 :::danger

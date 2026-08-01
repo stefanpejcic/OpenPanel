@@ -14,10 +14,10 @@ The **Address Importer** page allows you to create multiple email accounts at on
 ### File Format Requirements
 
 * Supported delimiters: `,` (comma) or `;` (semicolon)
-* Required columns: `username`, `password`
+* Required columns: `email` (the full address, e.g. `alice@example.com`), `password`
 * Optional column: `quota`
 
-  * If included, the quota should specify a unit: `K`, `M`, `G`, or `T`.
+  * If included, the quota should specify a unit: `B`, `K`, `M`, `G`, or `T`.
   * If no unit is specified, the default is **MB**.
 
 ### Example File
@@ -44,6 +44,6 @@ After uploading the file:
 
 ### Final Step
 
-Click **Start Upload** to begin the import process. A log will appear below the table to show the progress and status of the operation.
+Click **Start Import** to begin the import process. A log will appear below the table to show the progress and status of the operation.
 
 Once completed, all valid email accounts will be successfully imported.

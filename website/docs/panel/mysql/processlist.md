@@ -10,4 +10,4 @@ Checking the currently running queries is useful for identifying slow queries th
 
 ![databases_show_processes.png](/img/panel/v2/databases_processes.png)
 
-You can also restart the MySQL service from this page and refresh the process list table.
+Click **Refresh Processes** to reload the table with the current list of active processes.

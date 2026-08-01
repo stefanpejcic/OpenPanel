@@ -22,7 +22,7 @@ Enabling the Memcached service will start the service using the default Memcache
 
 Upon initialization the Memcached container has default memory limits set, it is advisable to set memory limits appropriate to your use case and needs.
 
-You can set these limits on the /containers interface which is accessible through the user panel navigation on Docker/containers .
+While the service is running, real-time resource usage (CPU, memory, network and block I/O) is displayed on this page. Click **Edit limits** to set new limits on the /containers interface, which is accessible through the user panel navigation on Docker/containers.
 
 :::info
 Changing the memory limit will necessitate the service to restart to apply the new restrictions, resulting in the removal of all existing cache data.

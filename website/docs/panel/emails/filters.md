@@ -10,7 +10,7 @@ Each email address can have its own set of filters. Filters are applied in order
 
 ## Creating a Filter
 
-1. Go to **OpenPanel > Emails > Email Filters**.
+1. Go to **OpenPanel > Emails > Filters**.
 2. Select the email address you want to manage filters for.
 3. Click **Add filter** and give the filter a name.
 4. Configure one or more **conditions** — the fields and values that must match.
@@ -43,9 +43,11 @@ When conditions are met, one or more actions are executed:
 |---|---|
 | **Deliver to folder** | Move the message into a specific mailbox folder |
 | **Redirect to email** | Forward the message to another address |
+| **Forward to email (keep copy)** | Forward the message to another address while keeping a copy in the mailbox |
 | **Discard message** | Silently delete the message |
 | **Reject with message** | Bounce the message with a custom reason |
 | **Mark as read** | Mark the message as seen |
 | **Flag / star** | Add a flag to the message |
+| **Auto-responder (vacation)** | Send an automatic reply with a custom subject and message, limited to once every N days per sender |
 | **Stop processing** | Skip any remaining filters |
 

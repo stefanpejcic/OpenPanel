@@ -13,7 +13,7 @@ To import tables into a database, navigate to **OpenPanel > MySQL > Import**:
    Choose the target database into which you want to import the tables.
 
 2. **Select a File**  
-   Click the **Select** button to choose a `.sql` export file from your device.
+   Click the **Select** button to choose a `.sql` (or `.sql.gz`) export file from your device.
 
 3. **Upload**  
    Click the **Upload** button and wait for the import process to complete.

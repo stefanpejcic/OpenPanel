@@ -9,10 +9,10 @@ Easily create a new MySQL user in just a few clicks. Users are used for interact
 Navigate to **OpenPanel > MySQL > Create User**:
 
 1. **Enter a Username**  
-   Type your desired username into the input field. Make sure the name is unique and follows MySQL naming rules (e.g., avoid spaces or special characters).
+   Type your desired username into the input field. Only letters, numbers, and underscores are allowed, and the name must be between 1 and 31 characters long.
 
 2. **Enter a Password**  
-   Type your desired password in the second input field. To generate a strong random password, click the button next to the input field.
+   Type your desired password in the second input field (between 8 and 30 characters, and strong enough to pass the password strength check). To generate a strong random password, click the shuffle button next to the input field.
 
 3. **Click 'Create User'**  
    Once you enter or generate username and password, click the **Create User** button to create your new MySQL user.

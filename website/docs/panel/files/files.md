@@ -97,11 +97,15 @@ To initiate the move process, click on the 'MOve' button in the modal. A progres
 
 To extract an uploaded archive (`.zip`, `.tar`, `.tar.gz`), select the file, and then click on the 'Extract' button in the menu.
 
-In the modal, set the name of the folder where files will be extracted, and click on **Confirm** to start the process.
+In the modal, set the archive name and the destination folder where files will be extracted, and click on **Extract** to start the process.
 
 ## Compress to Archive
 
 To create an archive of files, first, select the desired files or folders, and then click on the **Compress** button. The new modal will display a list of all selected file names and allow you to set the archive name and extension (`.zip`, `.tar`, or `.tar.gz`).
+
+## Change Permissions
+
+To change permissions for files or folders, select the desired items and click on the **Permissions** button. In the modal, enter the octal permission value (e.g. `755`) and click **Confirm** to apply it to all selected items.
 
 ## Empty Folder
 

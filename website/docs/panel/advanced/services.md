@@ -16,7 +16,7 @@ To manage a service, select it's name from the select options.
 On the single service page you can view:
 
 - current service status
-- resource usage (CPU%, Memory%, Disk I/O, PIDs..)
+- resource usage (CPU Usage, Memory Usage, Memory %, Network I/O, Block I/O, PIDs..)
 - container name (to be used to connect to service from other containers)
 - manage options: enable/disable
 - container logs

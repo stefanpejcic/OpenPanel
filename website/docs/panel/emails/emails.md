@@ -4,16 +4,16 @@ sidebar_position: 1
 
 # Email Accounts
 
-If the **Emails** module is enabled on the server and your user account has access, you'll see a table listing all current email domains, the total number of domains, a search bar, and an option to add a new domain.
+If the **Emails** module is enabled on the server and your user account has access, you'll see a table listing all current email accounts, the total number of accounts, a search bar, and an option to add a new account.
 
 - The total number of email accounts is displayed at the top left.  
 - A search bar is available on the top right for quick filtering.
 
 From this interface, you can view all your email accounts and their details:
 
-* **Email Address**  
-* **Storage Used**: size in GB  
-* **Manage**: Options for Webmail, Account Management, and Device Connections
+* **Account @ Domain**: the full email address
+* **Storage Used**: quota usage with a percentage indicator (unit depends on the mailbox's allocated quota: KiB, MiB, GiB, or TiB)
+* **Options**: buttons for Webmail, Manage, and Connect Devices
 
 ---
 

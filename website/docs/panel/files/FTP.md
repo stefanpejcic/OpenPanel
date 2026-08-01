@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# FTP
+# FTP Accounts
 
 OpenPanel accounts can create FTP sub-users that share the FTP service with all other FTP users on the server. Connect using the server IP address and port `21`.
 
@@ -14,21 +14,21 @@ FTP is available in the [OpenPanel Enterprise](/enterprise/) edition. Administra
 
 ## View Users
 
-Go to **OpenPanel > Files > FTP** to see all FTP accounts, the directory each account is restricted to, and connection details including the server IP.
+Go to **OpenPanel > Files > FTP Accounts** to see all FTP accounts, the directory each account is restricted to, and connection details including the server IP.
 
 ## Create User
 
-1. Go to **OpenPanel > Files > FTP** and click **Add Account**.
+1. Go to **OpenPanel > Files > FTP Accounts** and click **New Account**.
 2. Fill in the form:
 
    | Field | Description |
    |---|---|
-   | **Domain** | Select one of your domains |
    | **Username** | The local part of the FTP username: the full username will be `username@domain.com` |
+   | **Domain** | Select one of your domains |
    | **Password** | Password for the FTP account |
-   | **Path** | Directory the account is restricted to: must start with `/var/www/html/` |
+   | **Path (folder)** | Directory the account is restricted to: must start with `/var/www/html/` |
 
-3. Click **Add Account** to create the user.
+3. Click **Create Account** to create the user.
 
 :::info
 FTP usernames may only contain letters, numbers, and the characters `-`, `_`, `@`, `.`. [FTP username requirements](/docs/articles/accounts/forbidden-usernames/#ftp)
@@ -36,21 +36,21 @@ FTP usernames may only contain letters, numbers, and the characters `-`, `_`, `@
 
 ## Change Password
 
-1. Go to **OpenPanel > Files > FTP** and click **Change Password** next to the account.
-2. Enter the new password and click **Change Password**.
+1. Go to **OpenPanel > Files > FTP Accounts** and click **Change Password** next to the account.
+2. Enter the new password, confirm it, and click **Update**.
 
 :::info
-FTP passwords must contain at least one uppercase letter (`A-Z`), lowercase letter (`a-z`), digit (`0-9`), and special character. [FTP password requirements](/docs/articles/accounts/forbidden-usernames/#ftp)
+FTP passwords must be 8-30 characters long and contain at least one uppercase letter (`A-Z`), lowercase letter (`a-z`), digit (`0-9`), and special character. [FTP password requirements](/docs/articles/accounts/forbidden-usernames/#ftp)
 :::
 
 ## Change Path
 
-1. Go to **OpenPanel > Files > FTP** and click **Change Path** next to the account.
-2. Enter the new directory path and click **Change Path**. The path must start with `/var/www/html/`.
+1. Go to **OpenPanel > Files > FTP Accounts** and click **Change Path** next to the account.
+2. Enter the new directory path and click **Update**. The path must start with `/var/www/html/`.
 
 ## Delete User
 
-Go to **OpenPanel > Files > FTP** and click **Delete** next to the account, then confirm the deletion.
+Go to **OpenPanel > Files > FTP Accounts** and click **Delete** next to the account, then confirm the deletion.
 
 ## Download Client Configuration
 
@@ -63,4 +63,4 @@ Both files are pre-filled with the correct server IP, port, username, and remote
 
 ## View Active Connections
 
-Go to **OpenPanel > Files > FTP** and click **View Connections** to see all currently active FTP sessions for your account.
+Go to **OpenPanel > Files > FTP Accounts** and click **View Connections** to see all currently active FTP sessions for your account.

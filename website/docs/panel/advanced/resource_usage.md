@@ -18,7 +18,7 @@ The gauge shows the current CPU usage as a percentage. It helps you quickly asse
 
 ### Historical Data
 
-To view past CPU usage data, click the Arrow button on the top right corner of the CPU gauge block.
+To view past CPU usage data, click the **View Usage History** button in the top right corner of the page.
 
 This will open the Historical Resource Usage page that allows you to track historical CPU and memory usage, enabling you to make informed decisions and analyze your server's performance over time.
 
@@ -26,35 +26,29 @@ This will open the Historical Resource Usage page that allows you to track histo
 
 ## RAM Usage
 
-The RAM Usage section provides insights into your server's memory consumption. It displays the current memory usage, memory limit, and historical data.
+The RAM Usage section provides insights into your server's memory consumption. It displays the current memory usage and historical data.
 
 ### Current RAM Usage
 
-The gauge illustrates the current RAM usage, including the percentage used and the actual memory usage in relation to the memory limit.
+The gauge illustrates the current RAM usage as a percentage, along with:
 
-- Current Memory usage
-- Memory Usage
-- Memory Limit
+- Used Memory (amount used and percentage)
+- Total Memory
+- Available Memory
 
 ### Historical Data
 
-Access historical RAM usage data by clicking the Arrow button on the top right corner of the RAM gauge block.
+Access historical RAM usage data by clicking the same **View Usage History** button used for CPU history - both metrics are tracked together.
 
 This will open the Historical Resource Usage page that allows you to track historical CPU and memory usage, enabling you to make informed decisions and analyze your server's performance over time.
 
 ![resource_usage_history.png](/img/panel/v2/usage_history.png)
 
-## Network I/O
+## Historical Data Table
 
-The Network I/O section provides insights into network input and output for your server.
+Below the charts, the Historical Resource Usage page lists every recorded data point in a table with the following columns: Date, CPU %, CPU Total, Memory %, Memory Used/Total, Bandwidth Usage, and Warning.
 
-## Block I/O
-
-Monitor block input and output operations in the Block I/O section.
-
-## Process IDs (PIDs)
-
-The PIDs section displays the number of running processes on your server.
+Results are paginated; toggle **Show all data** to display every recorded entry on a single page instead.
 
 ---
 

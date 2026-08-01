@@ -135,6 +135,6 @@ The OpenPanel interface records the following account activities:
 * Changed locale (language)
 
 
-You can search for these actions by IP, username, date, or specific action.
+You can search for these actions by IP, username, date, or specific action. Searching for a term automatically shows every matching entry in the log, not just the current page.
 
-By default only 25 actions will be shown per page, you can navigate pages using the pagination links or click on 'Show all activity' to display all actions.
+By default only 100 actions will be shown per page, you can navigate pages using the pagination links.

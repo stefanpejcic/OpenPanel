@@ -15,18 +15,18 @@ To modify an existing record, click on the 'Edit' button next to it. This will m
 
 ## Create record
 
-To create a new DNS record, click on the 'Add Record' button.
+To create a new DNS record, click on the 'New Record' button.
 
 This will add a new row at the top of the table where you can enter the record.
 
-Supported DNS types: `A`, `AAAA`, `CAA`, `CNAME`, `MX`, `SRV`, `TXT`
+Supported DNS types: `A`, `AAAA`, `CAA`, `CNAME`, `MX`, `SRV`, `TLSA`, `TXT`
 
 ## Delete record
 
 To remove an existing DNS record, click the delete button next to it. The button text will change to 'Confirm', and on the second click, it will permanently delete the record.
 
 ## Export Zone
-To export a DNS zone, click on the 'Export Zone' button. The button text will change to 'Confirm', and on the second click, the zone will be exported.
+To export a DNS zone, click on the 'Export Zone' button. The zone file will be downloaded immediately.
 
 ## Reset Zone
 

@@ -10,7 +10,7 @@ Containerized [Node.js](https://nodejs.org) and [Python](https://python.org/) ap
 
 ## Create an Application
 
-To create a new Python or Node.js application, navigate to **OpenPanel > AutoInstaller** and select **Python** or **NodeJS**.
+To create a new Python or Node.js application, navigate to **OpenPanel > AutoInstaller** and click **Setup Node.js Application** or **Setup Python Application**, depending on which type of application you want to create.
 
 ![screenshot](/img/docs-content/HmZh5ZMJ-new-tab.png)
 
@@ -21,7 +21,7 @@ On the next page, you can configure the following settings:
 * **Domain Name / Subfolder** – The domain (and optional subfolder) where the application will be publicly accessible.
 * **Startup File** – The file executed at startup with the `node` or `py` command.
 * **Custom Startup Command** – Use a custom startup command instead of the default `node` or `py`.
-* **Type** – Choose between Node.js or Python.
+* **Type** – Fixed to Node.js or Python, depending on which install page you opened.
 * **Version** – Select any available version from Docker Hub.
 * **Run Install** – Run `npm install` or `pip install` before starting the application.
 * **CPU Cores** – Number of CPU cores allocated to the application.
