@@ -158,7 +158,7 @@ const Text = () => {
                 "left-[50%]",
                 "translate-x-[-50%]",
                 "bg-top-announcement-text",
-                "h-full w-full lg:w-[780px]",
+                "h-full w-full",
                 "flex items-center justify-center",
                 "text-white",
                 "text-xs sm:text-sm",
