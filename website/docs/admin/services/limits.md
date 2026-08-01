@@ -12,7 +12,7 @@ To update limits, enter new values in the fields for the appropriate service.
 
 > **Note:** The service must be stopped and restarted for the new limits to take effect.
 
-**Available Services**:
+**Available Services** (by default):
 
 - openpanel
 - caddy
@@ -21,6 +21,9 @@ To update limits, enter new values in the fields for the appropriate service.
 - redis
 - bind9
 - ftp
+- phpmyadmin
+
+This list reflects the CPU/RAM entries currently present in `/root/.env` — the page is built dynamically from that file, so any additional `*_CPU`/`*_RAM` (or `*_CPUS`/`*_RAM`) pairs added there will also appear as editable services.
 
 ---
 

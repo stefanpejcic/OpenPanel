@@ -51,7 +51,7 @@ Updated load to 10
 
 Configure email address to be used for receiving system notifications and alerts.
 
-Enter your email address in the **Email for notifications** field. Leave it empty to disable email alerts.
+Enter your email address in the **Email address** field. Leave it empty to disable email alerts.
 
 If email address is set, daily usage report will be sent to the address, schedule is configurable from 'Advanced > System Cron Jobs'.
 
@@ -74,7 +74,7 @@ Receive notifications when services are down or unresponsive. Services are check
 - **OpenAdmin:** Notification if OpenAdmin UI fails.
 - **Caddy:** Notification if webserver is not responding.
 - **MySQL:** Notification if database is unreachable.
-- **Docker:** Notification if Docker service is down.
+- **Podman:** Notification if Podman service is down.
 - **BIND9:** Notification if DNS service is down or unresponsive.
 - **Sentinel Firewall:** Notification if Sentinel (CSF) is disabled.
 
@@ -96,11 +96,13 @@ Get alerts when resource usage exceeds thresholds (checked every 5 minutes):
 
 Receive notifications when specific server-level actions are detected:
 
-* Server rebooted
-* Website under attack
-* User reaches plan limit
-* OpenAdmin accessed from a new IP address
-* New OpenPanel update available
+* **Server reboot:** Triggered when the server is restarted.
+* **Unusual traffic or SYN flood:** Fires when suspicious traffic or DDoS attacks are detected. When enabled, an additional **Website traffic** section appears where you can set the **Max total connections** and **Max connections per IP** thresholds (on ports 80/443) that trigger the notification.
+* **Out of Memory (OOM) errors:** Checks journal logs for system services and user processes killed by OOM in the last 24 hours.
+* **DNS issue detected:** Triggered when the panel domain or nameservers are misconfigured or not resolving to this server. Disable if using external nameservers or a Cloudflare proxy.
+* **OpenAdmin login from new IP:** Triggered when the OpenAdmin panel is accessed from an unrecognized IP address.
+* **SSH login from new IP:** Triggered when root SSH access is detected from an unknown IP address. The IP can be whitelisted in the SSH Allowlist section below.
+* **New update available:** Triggered when a new version of OpenPanel is available for update.
 
 ---
 
@@ -144,9 +146,9 @@ Specify IP addresses (or CIDRs) that will be exempt from SSH login checks.
 
 ## SMTP Settings
 
-By default, email alerts are sent from `noreply@openpanel.com`.
+No SMTP server is configured by default — email notifications will **not** be sent until you set one up here.
 
-To use your own SMTP server for email delivery, configure the following:
+To configure an SMTP server for email delivery, configure the following:
 
 <Tabs>
   <TabItem value="openadmin-notifications-smtp" label="With OpenAdmin" default>

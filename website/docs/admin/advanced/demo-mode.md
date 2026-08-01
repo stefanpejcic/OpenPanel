@@ -14,5 +14,9 @@ To disable it, run the following command in your terminal:
 opencli config update demo_mode off
 ```
 
-Make sure to configure your demo content and secure the server before enabling this mode. 📘 [Learn more](https://dev.openpanel.com/cli/config.html#Demo-mode)
+Make sure to configure your demo content and secure the server before enabling this mode. 📘 [Learn more](https://dev.openpanel.com/cli/config.html#demo-mode)
+
+:::info
+This page is currently not linked in the OpenAdmin sidebar. It can still be reached directly at `/server/demo-mode`.
+:::
 

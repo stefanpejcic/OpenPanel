@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # Cron jobs
 
-**OpenAdmin > Advanced > System Cron Jobs** lets Administrators view the scheduled cron tasks used by OpenPanel, modify their schedules, or enable/disable logging to the file `/etc/openpanel/openadmin/cron.log`.
+**OpenAdmin > Advanced > System Cron Jobs** lets Administrators view the scheduled cron tasks used by OpenPanel, modify their schedules, or enable/disable logging to the file `/var/log/openpanel-cron.log`.
 
 ![screenshot](/img/admin/openadmin_cronjobs.png)
 

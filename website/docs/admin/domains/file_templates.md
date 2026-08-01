@@ -12,6 +12,8 @@ This interface allows you to edit the VirtualHosts templates and default landing
 - Apache VirtualHost: Template used for creating VirtualHosts of domains added by users with Apache webserver.
 - Nginx VirtualHost: Template used for creating VirtualHosts of domains added by users with Nginx webserver.
 - OpenResty VirtualHost: Template used for creating VirtualHosts of domains added by users with OpenResty webserver.
+- Varnish Template: The `default.vcl` template applied to Varnish instances created for new user accounts.
+- Caddy VHosts: The template applied to all newly added domains for the front-facing Caddy webserver.
 
 ## Default Page
 
@@ -122,14 +124,6 @@ This is the template used for creating VirtualHosts of domains added by users **
     ServerAlias www.<DOMAIN_NAME>
     DocumentRoot <DOCUMENT_ROOT>
 
-    # <!-- BEGIN EXPOSED RESOURCES PROTECTION -->
-    <Directory <DOCUMENT_ROOT>>
-        <FilesMatch "\.(git|composer\.(json|lock)|auth\.json|config\.php|wp-config\.php|vendor)">
-            Require all denied
-        </FilesMatch>
-    </Directory>
-    # <!-- END EXPOSED RESOURCES PROTECTION -->
-
     <Directory <DOCUMENT_ROOT>>
         Options Indexes FollowSymLinks
         AllowOverride All
@@ -207,19 +201,12 @@ server {
     server_name <DOMAIN_NAME> www.<DOMAIN_NAME>;
     access_log off;
 
-    # <!-- BEGIN EXPOSED RESOURCES PROTECTION -->
-     location ~* ^/(\.git|composer\.(json|lock)|auth\.json|config\.php|wp-config\.php|vendor) {
-       deny all;
-       return 403;
-     }
-    # <!-- END EXPOSED RESOURCES PROTECTION -->
-
     root <DOCUMENT_ROOT>;
 
     location / {
         real_ip_header    X-Forwarded-For;
         set_real_ip_from   172.17.0.0/16;
-        try_files $uri $uri/ /index.php$is_args?$args;
+        try_files $uri $uri/ /index.php?$args;
         index index.php index.html /default_page.html;
         autoindex on;
     }
@@ -275,7 +262,7 @@ server {
     location / {
         real_ip_header    X-Forwarded-For;
         set_real_ip_from   172.17.0.0/16;
-        try_files $uri $uri/ /index.php$is_args?$args;
+        try_files $uri $uri/ /index.php?$args;
         index index.php index.html /default_page.html;
         autoindex on;
     }
@@ -336,13 +323,6 @@ server {
     server_name <DOMAIN_NAME> www.<DOMAIN_NAME>;
     access_log off;
 
-    # <!-- BEGIN EXPOSED RESOURCES PROTECTION -->
-     location ~* ^/(\.git|composer\.(json|lock)|auth\.json|config\.php|wp-config\.php|vendor) {
-       deny all;
-       return 403;
-     }
-    # <!-- END EXPOSED RESOURCES PROTECTION -->
-
     root <DOCUMENT_ROOT>;
 
     location /hello {
@@ -355,7 +335,7 @@ server {
     location / {
         real_ip_header    X-Forwarded-For;
         set_real_ip_from   172.17.0.0/16;
-        try_files $uri $uri/ /index.php$is_args?$args;
+        try_files $uri $uri/ /index.php?$args;
         index index.php index.html /default_page.html;
         autoindex on;
     }
@@ -418,7 +398,7 @@ server {
     location / {
         real_ip_header    X-Forwarded-For;
         set_real_ip_from   172.17.0.0/16;
-        try_files $uri $uri/ /index.php$is_args?$args;
+        try_files $uri $uri/ /index.php?$args;
         index index.php index.html /default_page.html;
         autoindex on;
     }
@@ -483,7 +463,7 @@ backend default {
 # Define an access control list to restrict cache purging.
 acl purge {
     "localhost";
-    "172.17.0.0/16";
+    "172.16.0.0/12";
 }
 
 sub vcl_hit {
@@ -637,6 +617,9 @@ sub vcl_backend_response {
     set beresp.http.x-url = bereq.url;
     set beresp.http.x-host = bereq.http.host;
 
+    # https://support.torproject.org/onionservices/onion-location/
+    set beresp.http.Onion-Location = beresp.http.Onion-Location;
+
     # If we dont get a Cache-Control header from the backend
     # we default to 1h cache for all objects
     if (!beresp.http.Cache-Control) {
@@ -651,10 +634,18 @@ sub vcl_backend_response {
         set beresp.ttl = 1d;
     }
 
-	# Remove the Set-Cookie header when a specific Wordfence cookie is set
+    set beresp.grace = 6h;
+    set beresp.keep = 24h;
+
+    # Compress cacheable dynamic responses the backend didn't already gzip
+    if (beresp.http.content-type ~ "text|application/javascript|application/json|application/xml|image/svg") {
+        set beresp.do_gzip = true;
+    }
+
+    # Remove the Set-Cookie header when a specific Wordfence cookie is set
     if (beresp.http.Set-Cookie ~ "wfvt_|wordfence_verifiedHuman") {
-	    unset beresp.http.Set-Cookie;
-	 }
+        unset beresp.http.Set-Cookie;
+    }
 
     if (beresp.http.Set-Cookie) {
         set beresp.http.X-Cacheable = "NO:Got Cookies";
@@ -699,6 +690,109 @@ To revert to the original Varnish template:
 1. Click **Restore Default** to reload the version from GitHub.
 2. Don’t forget to click **Save Files** afterward to confirm the reset.
 
+## Caddy VHosts
+
+This is the template applied to **all** newly added domains for the front-facing Caddy webserver (Caddy handles TLS termination and reverse-proxies traffic to the domain's Apache/Nginx/OpenResty container, and enforces Coraza WAF when enabled).
+
+The variables `<DOMAIN_NAME>`, `<SSL_PORT>`, and `<NON_SSL_PORT>` are automatically replaced by OpenPanel during domain creation. Do not modify the comments in the file, as they are used as markers for Dedicated IP and Varnish Caching.
+
+```bash
+# HTTP block (port 80) - Handles HTTP traffic
+http://<DOMAIN_NAME>, http://www.<DOMAIN_NAME> {
+
+  # compress
+  encode zstd gzip
+
+  # logging
+  import domain_log <DOMAIN_NAME>
+
+  route {
+
+    # redirects
+    import /etc/openpanel/caddy/redirects.conf
+
+    # modsecurity
+    coraza_waf {
+        load_owasp_crs
+        directives `
+            Include /etc/openpanel/caddy/coraza_rules.conf
+            Include /etc/openpanel/caddy/coreruleset/crs-setup.conf.example
+            Include /etc/openpanel/caddy/coreruleset/rules/*.conf
+            SecRuleEngine Off
+            SecAuditEngine RelevantOnly
+            SecRuleRemoveById 007
+            SecRuleRemoveByTag example
+            SecAuditLog /var/log/caddy/coraza_waf/<DOMAIN_NAME>.log
+            SecAuditLogParts AHFZ
+            SecAuditLogFormat json
+        `
+    }
+
+    # Handle HTTP traffic (port 80)
+    reverse_proxy http://127.0.0.1:<NON_SSL_PORT> {
+      header_up Host {host}
+    }
+  }
+}
 
 
+# HTTPS block (port 443) - Handles HTTPS traffic
+https://<DOMAIN_NAME>, https://www.<DOMAIN_NAME> {
 
+  # compress
+  encode zstd gzip
+
+  # logging
+  import domain_log <DOMAIN_NAME>
+
+  route {
+
+    # redirects
+    import /etc/openpanel/caddy/redirects.conf
+
+    # modsecurity
+    coraza_waf {
+        load_owasp_crs
+        directives `
+            Include /etc/openpanel/caddy/coraza_rules.conf
+            Include /etc/openpanel/caddy/coreruleset/crs-setup.conf.example
+            Include /etc/openpanel/caddy/coreruleset/rules/*.conf
+            SecRuleEngine Off
+            SecAuditEngine RelevantOnly
+            SecRuleRemoveById 007
+            SecRuleRemoveByTag example
+            SecAuditLog /var/log/caddy/coraza_waf/<DOMAIN_NAME>.log
+            SecAuditLogParts AHFZ
+            SecAuditLogFormat json
+        `
+    }
+
+    # Handle HTTPS traffic (port 443)
+    reverse_proxy https://127.0.0.1:<SSL_PORT> {
+      transport http {
+        tls_insecure_skip_verify
+      }
+      header_up Host {host}
+    }
+
+#    # Terminate TLS and pass to Varnish
+#    reverse_proxy http://127.0.0.1:<NON_SSL_PORT> {
+#      header_up Host {host}
+#    }
+
+  }
+
+  # SSL (only when SSL certificate is requested)
+  tls {
+    on_demand
+  }
+}
+```
+
+- Edit the code in the editor.
+- When finished, click **Save Files** to apply your changes.
+
+To revert to the original Caddy template:
+
+1. Click **Restore Default** to reload the version from GitHub.
+2. Don’t forget to click **Save Files** afterward to confirm the reset.

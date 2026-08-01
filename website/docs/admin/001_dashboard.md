@@ -6,11 +6,14 @@ sidebar_position: 2
 
 The dashboard page is the hub of the OpenAdmin interface and provides the overview of the current server performance and usage.
 
+For administrator accounts, the dashboard also displays a quick summary bar with counts for **Nodes**, **Containers**, **Users**, **Domains**, **Websites**, **Packages**, and **Emails** (each showing current usage against the license's limit, if any). Reseller accounts instead see their own **OpenPanel Accounts** and **Disk Space Used** usage against the limits set by the administrator.
+
 The dashboard page contains widgets:
 
 - **User Activity** widget: Displays real-time combined activity log of all OpenPanel users.
 - **Latest News** widget: Displays blog articles from the OpenPanel blog.
-- **System Information** widget: Displays Information about your server configuration: Hostname, OS, OpenPanel version, Kernel, CPU type, Uptime, NUmber of Running Processes and available Package Updates.
+- **System Information** widget: Displays Information about your server configuration: Hostname, IPv4 address, OS, OpenPanel version, Server Time, Kernel, CPU type, Uptime, Number of Running Processes and available Package Updates.
+- **Resource Usage** widget: Displays a CPU % and RAM % chart for the last hour, with a link to view the full resource usage history.
 
 ## Usage
 
@@ -38,6 +41,7 @@ The **Latest News** widget displays news from [OpenPanel Blog](https://openpanel
 The **System Information** widget displays information about your server:
 
 - Hostname
+- IPv4 address
 - OS
 - OpenPanel version
 - Server Time
@@ -47,15 +51,15 @@ The **System Information** widget displays information about your server:
 - Number of running processes
 - Available Package updates
 
-## Try Enterprise
+## Resource Usage
 
-The **Try Enterprise** widget is displayed on Community Edition only and displays features for Enterprise edition and options to upgrade.
+The **Resource Usage** widget displays a chart of CPU % and RAM % usage over the last hour. Click **View history** to open the full Resource Usage history page (**Advanced > Resource Usage**).
 
 ## Found a Bug
 
 By default, every page in both the OpenPanel and OpenAdmin UIs includes a **"Found a bug? Let us know"** link at the bottom. This link allows users to report issues directly to our [GitHub Issues](https://github.com/stefanpejcic/OpenPanel/issues) page and includes basic information to help reproduce the problem.
 
-For the OpenPanel UI, administrators can disable this link by going to **OpenAdmin > Settings > OpenPanel** and toggling off the **"Display link to report bugs"** option.
+For the OpenPanel UI, administrators can disable this link by going to **Settings > OpenPanel Settings** and toggling off the **"Display link to report bugs"** option.
 
 ## Dark Mode
 

@@ -13,19 +13,20 @@ Domains page displays all domains currently hosted on server.
   <TabItem value="openadmin-domains-list" label="With OpenAdmin" default>
 
 
-To list all current domains navigate to Domains page:
-
+To list all current domains navigate to Domains page. The table shows these columns by default:
 
 | Field           | Description                                                       |
 |-----------------|-------------------------------------------------------------------|
 | **Domain**      | The domain name.                                                  |
 | **Status**      | Indicates whether the domain is active or suspended.              |
 | **PHP Version** | The PHP version configured for the domain.                        |
-| **SSL**         | Shows whether SSL is enabled for the domain.                      |
-| **WAF**         | Indicates if Coraza WAF is enabled or disabled for the domain.    |
+| **SSL**         | Shows whether SSL is Automatic, Custom, or None for the domain.   |
+| **WAF**         | Toggle to enable/disable Coraza WAF for the domain.                |
 | **Owner**       | The user who added or owns the domain.                            |
-| **Analytics**   | View analytics data and reports for the domain.                   |
 
+Click **Show Columns** to also display **ID**, **Docroot**, and **HTTP Strict Transport Security (HSTS)** — HSTS can be toggled on/off directly from that column, the same way WAF can. Column visibility is remembered for your browser.
+
+Use the search box (**Search by user/domain...**) to filter the list by domain name or owning username.
 
   </TabItem>
   <TabItem value="CLI-domains-list" label="With OpenCLI">
@@ -91,6 +92,16 @@ Domain pejcci.rs added successfully
   </TabItem>
 </Tabs>
 
+## Domain actions
+
+Each row in the Domains table has an actions menu (the `⋮` button) with the following options:
+
+- **Edit DNS Zone** — opens the [DNS Zone Editor](/docs/admin/domains/dns) for this domain. Only shown if the **dns** module is enabled.
+- **Suspend domain** / **Unsuspend domain** — toggles the domain's status.
+- **Manage SSL** — opens the SSL page for the domain. Not shown for suspended domains.
+- **Edit VHosts** — opens the VirtualHost config editor for the domain.
+- **Edit Caddyfile** — opens the Caddy config editor for the domain.
+- **Delete domain** — permanently deletes the domain, see [Delete domain](#delete-domain) below.
 
 ## Move domain
 
@@ -98,4 +109,10 @@ This is currently not possible.
 
 ## Delete domain
 
-Domains can currently be deleted only [from the user interface](/docs/panel/domains/#delete-a-domain).
+Domains can be deleted directly from OpenAdmin:
+
+1. Open the domain's actions menu (`⋮`) in the Domains table and click **Delete domain**.
+2. A confirmation dialog lists what will be removed: VHost configuration files, Caddyfile entries, SSL certificates, and email accounts & redirects. Website files and the docroot directory are **not** deleted.
+3. Type the domain name to confirm, then click **Delete Permanently**.
+
+> Domains with attached websites cannot be deleted — remove all websites from Site Manager first. If the domain is added again later, default configurations are recreated.

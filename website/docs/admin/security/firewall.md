@@ -8,7 +8,7 @@ OpenPanel supports [Sentinel Firewall](https://sentinelfirewall.org/) - a fork o
 
 ## CSF
 
-Firewall (CSF) UI is displayed on **OpenAdmin > Firewall**.
+Firewall (CSF) UI is displayed on **OpenAdmin > Security > Firewall**.
 
 For instructions on how to use the CSF UI, please refer to [Sentinel Firewall official documentation](https://sentinelfirewall.org/docs/usage/introduction/).
 

@@ -28,6 +28,17 @@ Displays the total number of email accounts currently active on the server. This
 - Set Webmail domain - Configure domain to be used for webmail service. Webmail will be available on this domain and /webmail on every user domain will redirect to this domain.
 
 
+## Storage
+
+Configure where email data (mailboxes) is stored on disk.
+
+- **Email storage location** – Choose between:
+  - **docker volume (legacy)** – emails are stored in each user's home directory, e.g. `/home/<username>/docket-data/volumes/<username>_mail_data/_data/<domain>/<email>/`. This is **not recommended**, since adding or removing a domain will require the mail server to restart.
+  - **custom path** – store all mailboxes under a single custom path on the host, e.g. `/var/mail/`.
+- **Custom path** – Only shown when *custom path* is selected. Example values: `/var/mail/`, `/email`, `/storage`.
+
+The storage location is locked (cannot be changed) once email accounts already exist. Click **Save Storage** to apply the change.
+
 ## Enable Services
 
 Administrators can set and configure different services based on their needs.
@@ -36,6 +47,7 @@ Configure services for the MailServer stack:
 
 | Service                                | Description                                                                 |
 |----------------------------------------|-----------------------------------------------------------------------------|
+| **Postfwd**                             | Postfwd policy weight daemon used for Postfix policy/rate checks.            |
 | **Amavis**                             | Amavis content filter (used for ClamAV & SpamAssassin).                      |
 | **DNS block lists**                    | Enables DNS block lists in Postscreen.                                       |
 | **Rspamd**                              | Enable or disable Rspamd.                                                    |

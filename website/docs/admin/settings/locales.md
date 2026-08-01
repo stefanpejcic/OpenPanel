@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 9
 ---
 
 # Locales (Languages)
@@ -54,7 +54,7 @@ opencli locale $(curl -s "https://api.github.com/repos/stefanpejcic/openpanel-tr
 <Tabs>
   <TabItem value="openadmin-default-locale" label="With OpenAdmin" default>
 
-To make a specific locale the default, go to **OpenAdmin > Settings > Locales** and click the **Set Default** button next to the desired locale.
+To make a specific locale the default, go to **OpenAdmin > Settings > Locales** and click the **Set as Default** button next to the desired locale.
 
   </TabItem>
   <TabItem value="CLI-default-locale" label="From Terminal">

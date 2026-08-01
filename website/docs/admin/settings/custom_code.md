@@ -1,10 +1,14 @@
 ---
-sidebar_position: 6
+sidebar_position: 10
 ---
 
 # Custom Code
 
 The Custom Code section, accessible via OpenAdmin > Settings > Custom Code, allows you to inject and manage custom code that extends or modifies the behavior and appearance of the OpenPanel UI.
+
+:::info
+Custom CSS, Custom JS, Code in Header, Code in Footer, How-to Articles, and Custom Section below require an active **Enterprise** license (and a non-reseller account) to edit. The remaining options on this page (PageSpeed API Key, WordPress Plugins/Themes Sets, Forbidden Usernames, Restricted Domains, After Update, Before Startup) are available on all license types.
+:::
 
 ## Custom CSS
 Inject your own CSS styles that will be applied across all pages of the OpenPanel UI. 

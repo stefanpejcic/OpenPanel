@@ -1,8 +1,12 @@
 ---
-sidebar_position: 3
+sidebar_position: 5
 ---
 
 # API Access
+
+:::info
+The API Access page is only available with an **Enterprise** license. It is also disabled while HTTP Basic Authentication is enabled for OpenAdmin — disable Basic Authentication first to use API Access.
+:::
 
 Use the API Access page to test API calls, view request/response examples, monitor API logs, and experiment with endpoints in a simple interface.
 

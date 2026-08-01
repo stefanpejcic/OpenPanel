@@ -32,12 +32,20 @@ Customize the appearance of OpenPanel to match your brand:
 
 [Guide on how to properly configure nameservers](/docs/articles/domains/how-to-configure-nameservers-in-openpanel)
 
+## Users
+
+Settings for OpenPanel user accounts:
+
+- **Allow Users to Change Username:** If allowed, users can change their username from the *Account > Settings* page.
+- **Allow Subdomain Sharing:** If allowed, users can add subdomains for domains that another user owns.
+
 ## Display
 
 Additional display settings include:
 
 - **Avatar Type:** Choose between Gravatar, Letter, or Icon for user avatars.
 - **Charts Mode for Resource Usage:** Select to show 1 chart, 2 charts, or no charts on the Resource Usage page.
+- **Minimum Password Strength:** A value between 1-100 setting the minimum password strength required for all password input fields in OpenPanel (account, FTP, Emails, Databases, etc).
 - **Check Passwords Against Weakpass.com:** When enabled, user passwords during account creation and reset are verified against Weakpass.com’s list of compromised passwords.
 - **Enable Password Reset:** Allow users to reset passwords via the login form (not recommended for security reasons).
 - **Display 2FA Widget:** Show a message on users' dashboards encouraging them to enable Two-Factor Authentication for enhanced security.
@@ -50,6 +58,7 @@ Additional display settings include:
 
 Configure the following settings for the File Manager:
 
+- **Files per Page:** Number of files/folders displayed per page in the File Manager.
 - **Max File Size for Viewer:** Maximum file size (in MB) allowed to be opened in the Viewer. Recommended maximum is 20 MB.
 - **Max File Size for Editor:** Maximum file size (in MB) allowed to be opened in the Code Editor. Recommended maximum is 10 MB.
 - **Max File Size for Upload:** Maximum file size (in MB) allowed to be uploaded via the File Manager. Recommended maximum is 2000 MB.
@@ -57,9 +66,30 @@ Configure the following settings for the File Manager:
 - **Auto-Purge Trash After:** Number of days files remain in the user’s trash bin before automatic deletion. Setting to 0 disables auto-purge. Recommended setting is 30 days.
 - **Max Time for Compress Process:** Maximum number of minutes before aborting archive compression processes. Recommended to keep this to a few minutes.
 - **Max Time for Extract Process:** Maximum number of minutes before aborting archive extraction processes. Recommended to keep this to a few minutes.
+- **Max Time for Download Process:** Maximum number of minutes before aborting file download processes. Recommended to keep this to a few minutes.
 - **Enable View and Edit Options for (textual) Extensions:** Specify file extensions allowed to be opened and edited in the File Manager (should be textual file types).
 - **Enable View Option for (base64 image) Extensions:** Specify image file extensions that can be displayed using base64 encoding in the Viewer.
 - **Enable Extract and Archive Options for (archives) Extensions:** Specify archive file extensions that can be extracted using the File Manager.
+
+## Databases
+
+Settings for user's databases:
+
+- **Max Startup Time for MySQL:** Maximum number of seconds to wait for MySQL to initialize before timing out.
+- **Max File Size for MySQL Import:** Maximum file size (in GB) allowed for a MySQL import.
+- **Restricted MySQL (system) Users:** List of MySQL usernames that users are not allowed to access/manage.
+- **Restricted MySQL (system) Databases:** List of MySQL databases that users are not allowed to access/manage.
+
+## Captcha
+
+Protect login and signup forms with a captcha provider:
+
+- **Captcha Provider:** Choose between Disabled, Google reCAPTCHA, Cloudflare Turnstile, or Custom.
+- Depending on the provider selected, enter the corresponding **site key** and **secret key** (or custom site key for the Custom provider).
+
+:::info
+This requires the [captcha plugin](https://github.com/stefanpejcic/captcha/) to be installed — these settings have no effect until it is installed.
+:::
 
 ## Statistics
 
@@ -75,3 +105,4 @@ Configure the following settings related to user login attempts, session managem
 - **Resource Usage Items to Display per Page:** Number of resource usage records shown per page when viewing user or system resource statistics.
 - **Resource Usage Items to Log per User:** Number of resource usage entries recorded and stored per user for historical analysis.
 - **Domains per Page:** Number of domain entries displayed per page in domain management lists.
+- **Terminal Commands Timeout (in Seconds):** Maximum number of seconds a Docker Terminal command can run before being timed out.

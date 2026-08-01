@@ -13,15 +13,15 @@ OpenPanel has a single user role named **User** that can only manage their docke
 <Tabs>
   <TabItem value="openadmin-users" label="OpenAdmin" default>
   
-  To access all OpenPanel users, navigate to  Users.
+  To access all OpenPanel users, navigate to **Accounts > Users**.
   
   The Users page displays a table with user information and buttons to manage it.
   
   ![openadmin users page](/img/admin/openadmin_users_list.gif)
   
-  Additional Columns can be displayed using the 'Show Columns' button.
+  Additional columns can be displayed using the 'Show Columns' button.
 
-  Suspended users are highlighted in red, and no actions can be performed on a suspended user.
+  Suspended users are highlighted in red.
 
   </TabItem>
   <TabItem value="CLI-users" label="OpenCLI">
@@ -69,7 +69,9 @@ curl -X GET http://PANEL:2087/api/users -H "Authorization: Bearer JWT_TOKEN_HERE
 <Tabs>
   <TabItem value="openadmin-users-new" label="OpenAdmin" default>
 
-To create a new user, click on the 'New User' button on the Users page. A new section will be displayed with a form where you can set the email address, username, generate a strong password, and assign a hosting plan for the user.
+To create a new user, click on the **Create New** button on the Users page. A form is displayed where you can set the username, email address (optionally sending the user a welcome email with their login credentials), and generate a strong password.
+
+You can also choose the webserver for the account (and optionally enable Varnish Cache), the database type (MySQL or MariaDB), assign a reseller as the account's owner (Enterprise license only, and only when creating the user as a Super Admin/Admin), and select a hosting plan to assign to the user.
 
 ![add new user openadmin](/img/admin/2025-06-09_08-20.png)
 
@@ -117,13 +119,13 @@ Example response:
   </TabItem>
 </Tabs>
 
-- The OpenPanel username must be 3 to 16 characters long and can only contain letters and numbers.
-- The OpenPanel password must be 6 to 30 characters long and can include any characters except for single quotes (`'`) and double quotes (`"`).
+- The OpenPanel username must be 3 to 20 characters long and can only contain letters and numbers.
+- The OpenPanel password must be 6 to 30 characters long and cannot contain an apostrophe (`'`).
 
 
 ## Single User
 
-To view detailed information about a user, and edit their settings, click on their username in the users table.
+To view detailed information about a user, and edit their settings, click on their username in the users table. The user page is organized into tabs: Statistics, Services, Storage, Overview, Permissions, Activity, Login Log, Edit, Transfer (Enterprise license only), Suspend (replaced by a single Unsuspend action if the account is already suspended), and Delete.
 
 
 ### Statistics 
@@ -148,16 +150,17 @@ Clicking on 'Load Docker Usage History' will display a table with past resource 
 
 ### Services
 
-Services tab displays all user services (docker containers):
+Services tab displays all user services (docker containers). Columns can be toggled with the 'Show Columns' button and include:
 
 - Service name
 - Docker Image name and tag
+- Published ports
+- Environment variables (sensitive values such as passwords are masked and can be revealed on click)
 - Current CPU usage
-- Allocated CPU for the service
 - Current Memory usage
-- Allocated Memory for the service
-- Current status: Enabled or Disabled
-- Terminal link to run docker exec commands in that service.
+- Actions, including a terminal link to run docker exec commands in that service.
+
+An 'Edit Services' button also lets Administrators edit the raw service configuration.
 
 ![docker services](/img/admin/docker_services.png)
 
@@ -177,16 +180,22 @@ Overview page displays detailed user information and allows Administrator to set
 
 Displayed information:
 
-- User ID
+- Username
 - Email Address
+- User ID
 - IP Address
 - Geo Location for the IP
 - Server Name
 - Docker Context
 - 2FA status
+- Reseller (if the user is owned by a reseller)
 - Setup Time
 - Custom Message for user
 
+
+### Permissions
+
+The Permissions tab lets Administrators view and, for individual users, override which OpenPanel features/pages are enabled. By default a user's permissions follow their hosting plan's defaults; switching to **Custom** mode allows enabling or disabling individual features for that user only, independent of the plan. Plan-wide feature defaults are managed separately in Feature Manager.
 
 ### Activity
 
@@ -198,16 +207,35 @@ Displays [users activity log](/docs/panel/account/account_activity/).
 
 ![user activity](/img/admin/login_log.png)
 
+### Login Log
+
+Displays a log of successful logins for the user, separate from the general Activity log:
+
+- Date
+- Country
+- IP Address
+
 ### Edit
 From the Edit tab, Administrators can edit user information:
 
 - Username
 - Email address
-- Password
+- Password (leave empty to keep the current password)
 - IP address
+- Reseller (change the account's owner/reseller)
 - Hosting Package
 
+Click **Save** to apply the changes.
+
 ![user edit](/img/admin/edit_user.png)
+
+### Transfer
+
+:::info
+Transfer is an Enterprise-only feature.
+:::
+
+The Transfer tab lets Administrators migrate the user account, along with all its containers and data, to another OpenPanel server over SSH. You provide the remote server's address/port and root SSH credentials, and can optionally enable "Live Transfer" so that once the migration completes, the account is automatically suspended on the current server and its domains' DNS is updated to point to the new server.
 
 ### Suspend
 
@@ -216,7 +244,7 @@ From the Edit tab, Administrators can edit user information:
 
 Suspending an account will immediately disable the user's access to the OpenPanel. This action involves pausing the user's Docker container and revoking access to their email, website, and other associated services. Please be aware of the immediate impact before proceeding.
 
-To suspend a user click on the Suspend link on that user page and type the username to confirm, then click on 'Suspend account' button.
+To suspend a user, open the "Suspend" tab on that user's page and type the username to confirm, then click the **Suspend account** button.
 
 ![suspend user](/img/admin/openadmin_suspend_user.gif)
 
@@ -243,7 +271,7 @@ opencli user-suspend filip
 <Tabs>
   <TabItem value="openadmin-user-unsuspend" label="With OpenAdmin" default>
 
-To unsuspend a user click on the Unsuspend button for that user.
+For a suspended user, the row of tabs on the user's page is replaced with a single **Unsuspend** button. Click it to restore access for the user.
 
   </TabItem>
   <TabItem value="CLI-user-unsuspend" label="With OpenCLI">
@@ -268,7 +296,7 @@ opencli user-unsuspend filip
 <Tabs>
   <TabItem value="openadmin-users-reset" label="OpenAdmin" default>
 
-To reset password for a user, click on "Edit" tab and set the new password in the Password field then click Save.
+To reset password for a user, click on the "Edit" tab and set the new password in the Password field (leave it empty to keep the current password) then click **Save**.
 
 ![add new user openadmin](/img/admin/reset_password.png)
 
@@ -308,7 +336,7 @@ curl -X PATCH http://PANEL:2087/api/users/USERNAME_HERE -H "Content-Type: applic
 <Tabs>
   <TabItem value="openadmin-user-username" label="With OpenAdmin" default>
 
-To Rename a user, click on the 'Edit Information' link for the user, then change the address in 'Username' field and click on 'Save changes'.
+To rename a user, click on the "Edit" tab for the user, then change the 'Username' field and click **Save**.
 
 
   </TabItem>
@@ -335,7 +363,7 @@ User 'stefan' successfully renamed to 'pejcic'.
 <Tabs>
   <TabItem value="openadmin-user-plan" label="With OpenAdmin" default>
 
-To change a package for a user, click on the 'Edit' link for the user, then select the new package and click on 'Save changes'.
+To change a package for a user, click on the "Edit" tab for the user, then select the new hosting plan and click **Save**.
 
   </TabItem>
   <TabItem value="CLI-user-plan" label="With OpenCLI">
@@ -354,7 +382,7 @@ opencli user-change_plan <USERNAME> '<NEW_PLAN_NAME>'
 <Tabs>
   <TabItem value="openadmin-user-email" label="With OpenAdmin" default>
 
-To change email address for a user, click on the 'Edit Information' link for the user, then change the address in 'Email address' field and click on 'Save changes'.
+To change email address for a user, click on the "Edit" tab for the user, then change the 'Email' field and click **Save**.
 
   </TabItem>
   <TabItem value="CLI-user-email" label="With OpenCLI">
@@ -378,7 +406,7 @@ Email for user stefan updated to stefan@pejcic.rs.
 
 ### Login to OpenPanel
 
-To auto-login to a OpenPanel account, click on the **OpenPanel** button in top-right corner of the page.
+To auto-login to a user's OpenPanel account, click on the **Impersonate** button in the top-right corner of the user's page.
  
 
 ### Delete User
@@ -387,7 +415,7 @@ To auto-login to a OpenPanel account, click on the **OpenPanel** button in top-r
 <Tabs>
   <TabItem value="openadmin-user-delete" label="With OpenAdmin" default>
 
-To delete a user click on the delete button for that user, then type 'delete' in the confirmation modal and finally click on the 'Terminate' button.
+To delete a user, open the "Delete" tab for that user, type the username to confirm, then click **Delete account permanently**.
 
 
   </TabItem>

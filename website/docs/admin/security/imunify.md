@@ -20,9 +20,11 @@ opencli imunify install
 
 This command installs the latest PHP version, the *imunify360-agent*, and configures access through OpenAdmin.
 
+If ImunifyAV is not installed, opening the ImunifyAV page in OpenAdmin shows a **Not Configured** message with instructions to run this command.
+
 ## Start
 
-To start the Imunify graphical interface, use:
+OpenAdmin automatically attempts to start the ImunifyAV service the first time you open its page. If the service is still not running afterwards, a **Not Running** message is shown, prompting you to start it manually from the terminal:
 
 ```bash
 opencli imunify start
@@ -30,7 +32,7 @@ opencli imunify start
 
 ## Login
 
-Access the Imunify GUI from **OpenAdmin > Security > Imunify**.
+Access the ImunifyAV GUI from **OpenAdmin > Security > ImunifyAV**. OpenAdmin automatically logs you in using a generated token; if token generation fails, a warning is shown and you'll need to log in manually using the server's SSH username and password.
 
 ## Manage
 

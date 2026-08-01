@@ -31,7 +31,7 @@ The rule set table includes the following columns:
 
 - **Status** – Indicates whether the rule set is currently enabled or disabled.
 
-- **Actions** – Options to View rule details or Disable the rule set.
+- **Actions** – **View** to inspect the rule set's contents, and a toggle button whose label switches between **Enable** and **Disable** depending on the rule set's current status.
 
 Properly configuring WAF rules helps maintain a balance between strong protection and minimizing false positives.
 

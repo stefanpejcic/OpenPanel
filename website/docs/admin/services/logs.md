@@ -12,7 +12,7 @@ The *OpenAdmin > Services > View Log Files* feature enables Administrators to ac
 
 Navigate to *Services > View Log Files*
 
-Select the log file you would like to view and optionally number of lines from the file.
+Select the log file you would like to view from the dropdown, which groups entries under **OpenAdmin Logs**, **OpenPanel Logs**, and **Other Logs**, and optionally choose the number of lines to display: 20, 100, 500, 1000 (default), 2000, or ALL.
 
 After selecting a log file, two new buttons appear under the log content: 
 - *Delete* - will empty the file contents

@@ -214,7 +214,7 @@ When disabled:
 
 ## Email Aliases
 
-The **`email_import`** module allows users to forwards mail from a non-existing address to one or more destinations.
+The **`email_aliases`** module allows users to forwards mail from a non-existing address to one or more destinations.
 
 When enabled:
 * Users can access the [**Email Aliases** page](/docs/panel/emails/aliases/)
@@ -315,7 +315,7 @@ When disabled:
 
 ## MySQL Show Processes
 
-The **`mysql`** module allows users to create and manage mysql databases.
+The **`mysql_processlist`** module allows users to view the MySQL process list.
 
 When enabled:
 * Users can access the [**MySQL > Process List** page](/docs/panel/mysql/processlist/) to view all active processes.
@@ -392,6 +392,16 @@ Customize options:
 
 
 
+
+## PostgreSQL
+
+The **`postgresql`** module allows users to create and manage PostgreSQL databases and users.
+
+When enabled:
+* Users can access the *PostgreSQL* section.
+
+When disabled:
+* Users do not have access to the *PostgreSQL* section.
 
 ## Remote PostgreSQL
 
@@ -577,7 +587,7 @@ Customize options:
 
 ## Backups
 
-The **`backups`** module allows users to m=configure their own backups: what to backup, destination, retention, schedule, etc.
+The **`backups`** module allows users to configure their own backups: what to backup, destination, retention, schedule, etc.
 
 When enabled:
 * Users can access the [**Files > Backups** page](/docs/panel/files/backups/).
@@ -586,6 +596,16 @@ When enabled:
 When disabled:
 * Users do not have access to the *Files > Backups* page.
 * [Administrators need to configure backups for the user](/docs/articles/backups/configuring-backups/#1-admin-configured).
+
+## Backup Wizard
+
+The **`backup_wizard`** module allows users to generate and download a full account backup.
+
+When enabled:
+* Users can access the *Backup Wizard* to generate and download a full backup of their account.
+
+When disabled:
+* Users can not access the Backup Wizard.
 
 
 
@@ -685,7 +705,7 @@ When disabled:
 
 ## Inodes Explorer
 
-The **`disk_usage`** module allows users to view disk usage per-directory.
+The **`inodes`** module allows users to view inode usage per-directory.
 
 When enabled:
 * Users can access the [**Files > Inodes Explorer** page](/docs/panel/files/inodes/).
@@ -756,25 +776,11 @@ When disabled:
 * Website Builder is not available in Autoinstaller.
 * Static websites can not be managed via Openpanel.
 
-## Mautic
-
-The **`mautic`** module allows users to install and manage Mautic from OpenPanel. 
-
-> **NOTE:** This module is no longer actively maintained and should not be used in production (*BETA* tag).
-
-When enabled:
-* Users can [manage Mautic websites using Site Manager](/docs/panel/applications/).
-* Mautic is available on the AutoInstaller page.
-* Users can [install Mautic using the AutoInstaller](/docs/articles/websites/how-to-install-mautic-with-openpanel/).
-
-When disabled:
-* Mautic is not available in Autoinstaller.
-
 ## ClamAV
 
-The **`malware_scanner`** module starts a ClamAV service and allows users to scan files. 
+The **`malware_scan`** module starts a ClamAV service and allows users to scan files.
 
-> **NOTE:** This module is no longer actively maintained and should not be used in production (*DEPRECATED* tag).
+> **NOTE:** This module is tagged *BETA*.
 
 When enabled:
 * Users can access the [**Files > Malware Scanner** page](/docs/panel/files/malware-scanner/).
@@ -830,6 +836,16 @@ When disabled:
 Customize options:
 * To **enable HSTS for a domain** refer to:  [*How-to Guides > How to Enable HSTS on a Domain in OpenPanel*](/docs/articles/domains/how-to-enable-hsts-on-a-domain-in-openpanel/)
 * To **customize default pages** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/)
+
+## SSL
+
+The **`ssl`** module allows users to view SSL configuration for their domains and add custom certificates.
+
+When enabled:
+* Users can access the [**Domains > SSL** page](/docs/panel/domains/ssl/) to view SSL status and add custom certificates.
+
+When disabled:
+* Users can not access the *Domains > SSL* page.
 
 
 ## Suspend Domains
@@ -1043,11 +1059,23 @@ When disabled:
 Customize options:
 * To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP Settings > Available Options** or edit */etc/openpanel/php/options.txt* file.
 
+## PHP Extensions
+
+> **NOTE:** This module is tagged *BETA*.
+
+The **`php_extensions`** module allows users to manage extensions for their PHP versions.
+
+When enabled:
+* Users can access the [**PHP > Extensions** page](/docs/panel/php/extensions/).
+
+When disabled:
+* Users can not access the *PHP > Extensions* page.
+
 
 
 ## NodeJS
 
-The **`pm2`** module allows users to setup and manage containerized NodeJS applications. This module also controls the [Python](#python) module below - the two can not be enabled/disabled separately.
+The **`nodejs`** module allows users to setup and manage containerized NodeJS applications. It is toggled independently from the [Python](#python) module below.
 
 When enabled:
 * Users can [manage NodeJS applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
@@ -1066,7 +1094,7 @@ Customize options:
 
 ## Python
 
-The **`pm2`** module allows users to setup and manage containerized Python applications. This module also controls the [NodeJS](#nodejs) module above - the two can not be enabled/disabled separately.
+The **`python`** module allows users to setup and manage containerized Python applications. It is toggled independently from the [NodeJS](#nodejs) module above.
 
 When enabled:
 * Users can [manage Python applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
@@ -1113,3 +1141,13 @@ When enabled:
 
 When disabled:
 * Users can not use the OpenPanel API.
+
+## MCP
+
+The **`mcp`** module allows users to use the Model Context Protocol (MCP) to perform panel actions.
+
+When enabled:
+* Users can access the [**Account > MCP** page](/docs/panel/account/mcp/).
+
+When disabled:
+* Users can not access the *Account > MCP* page.

@@ -1,11 +1,11 @@
 ---
-sidebar_position: 4
+sidebar_position: 8
 ---
 
 # Update Preferences
 
 
-The Update Preferences page in OpenPanel allows you to manage and control how updates are applied. It is organized into three sections: Current Version, Auto Updates, and Update Logs.
+The Update Preferences page in OpenPanel allows you to manage and control how updates are applied. It is organized into sections: Current Version, Auto Updates, Update Logs, and Rollback.
 
 ## Current Version
 This section displays information about the version of OpenPanel currently installed on your system, as well as the latest available version.
@@ -32,6 +32,9 @@ Choosing the appropriate auto-update setting ensures that OpenPanel remains as s
 
 ## Update Logs
 The Update Logs section provides a record of all updates that have been applied to OpenPanel.
+
+## Rollback
+The Rollback section lets you revert the OpenPanel UI to an earlier version by selecting it from the list of available versions. Be sure to also disable automatic updates when rolling back, otherwise OpenPanel may automatically update again.
 
 ## Control Updates
 For more information about updates, check:

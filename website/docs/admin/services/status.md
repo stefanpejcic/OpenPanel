@@ -9,11 +9,11 @@ The Service Status section allows you to view and control the status of system s
 This table provides key details for each service:
 
 * **Service** – Display name of the service.
-* **Status** – Indicates if the service is active or inactive.
-* **Version** – Current version (if available).
+* **Status** – Indicates if the service is active (running) or inactive.
+* **Version** – Reserved for the service's current version; not populated in the current release.
 * **Real Name** – Internal service name or container name (e.g., admin for OpenAdmin).
-* **Type** – Identifies whether the service is a system process or a container.
-* **Port** – Lists the ports used by the service.
+* **Type** – Identifies whether the service is a `system` process or a `docker` container (shown in the table as "container").
+* **Port** – Reserved for the ports used by the service; not populated in the current release.
 * **Monitoring** – Shows whether the service is actively being monitored and logged.
 * **Action** – Options to start, stop, or restart the service.
 
@@ -24,8 +24,8 @@ You can customize which services appear and are manageable from this section by 
 Services are configured in JSON format:
 
 * **name** – Display name for the service.
-* **type** – Either `system` or `container`.
+* **type** – Either `system` or `docker` (services of type `docker` are labeled "container" in the table).
 * **real_name** – Internal service or container identifier.
 
-Default OpenPanel services are actively monitored by SentinelAI, which will try to diagnose and restart failed services automatically. If you manually stop a service, remember to disable this monitoring feature via the [OpenAdmin Notifications](/docs/admin/notifications/) page.
+Core services (as listed under the **Monitoring** column) are tracked and, when one of them becomes unresponsive, an alert is sent to administrators. If you intentionally stop a monitored service, remember to disable the corresponding alert via the [OpenAdmin Notifications](/docs/admin/notifications/) page to avoid unnecessary alerts.
 

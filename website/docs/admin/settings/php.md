@@ -6,6 +6,10 @@ sidebar_position: 6
 
 Manage the default PHP version and configuration files for new user accounts.
 
+### Default Version
+
+The default PHP version used for new user accounts is not set on this page — it is configurable from the [Edit User Defaults](/docs/admin/settings/defaults/) page.
+
 ### Available Options
 
 These options determine which PHP settings users can modify from their **OpenPanel > PHP Options** page.

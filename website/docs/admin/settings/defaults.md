@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Defaults
 
-From **OpenAdmin > Settings > Defaults** Administrators can edit values for the `docker-compose.yml` and `.env` files used for new users.
+From **OpenAdmin > Settings > Edit User Defaults** Administrators can edit values for the `docker-compose.yml` and `.env` files used for new users.
 
 ![defaults basic](/img/docs-content/KFRzLrGY-admin-defaults.png)
 
