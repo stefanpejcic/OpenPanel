@@ -17,7 +17,7 @@ jobs:
         shell: bash
         run: |
           # Fetch tags, get names, filter by semver N.N.N, sort descending, pick biggest
-          TAGS_JSON=$(curl -s "https://hub.docker.com/v2/repositories/openpanel/openpanel-ui/tags?page_size=100")
+          TAGS_JSON=$(curl -s "https://hub.docker.com/v2/repositories/openpanel/openpanel/tags?page_size=100")
           VERSIONS=$(echo "$TAGS_JSON" | jq -r '.results[].name' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -Vr)
           PANEL_VERSION=$(echo "$VERSIONS" | head -n1)
 
@@ -42,11 +42,11 @@ jobs:
           sed -i -E "s/(const \[version, setVersion\] = useState\(')[^']*(')/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-github-stars.tsx
           sed -i -E "s/(const latestVersion = filteredTags.length > 0 \? filteredTags\[0\] : ')[^']*(';  \/\/ new verzija tag)/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-github-stars.tsx
 
-      - name: Update fallback PANEL_VERSION in install.sh
+      - name: Update fallback PANEL_VERSION in PODMAN_install.sh
         shell: bash
         run: |
           PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
-          sed -i -E 's/(readonly DEFAULT_PANEL_VERSION=")[^"]+(")/\1'"$PANEL_VERSION"'\2/' install.sh
+          sed -i -E 's/(readonly DEFAULT_PANEL_VERSION=")[^"]+(")/\1'"$PANEL_VERSION"'\2/' PODMAN_install.sh
 
       - name: Update in README.md
         shell: bash
