@@ -16,6 +16,7 @@ const siteConfig = {
     url: "https://openpanel.com",
     baseUrl: "/",
     onBrokenLinks: 'ignore',
+    onBrokenAnchors: 'ignore',
     projectName: "openpanel",
     organizationName: "stefanpejcic",
     trailingSlash: true,
