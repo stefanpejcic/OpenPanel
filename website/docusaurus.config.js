@@ -104,6 +104,7 @@ const siteConfig = {
                           postsPerPage: "ALL",
                           blogSidebarTitle: "All posts",
                           blogSidebarCount: 0,
+                          onUntruncatedBlogPosts: 'ignore',
                           feedOptions: {
                               type: "all",
                               copyright: `Copyright © ${new Date().getFullYear()} OpenPanel.`,
