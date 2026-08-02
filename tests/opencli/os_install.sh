@@ -359,17 +359,17 @@ run_openadmin_playwright_tests() {
   local ADMIN_URL=""
 
   while true; do
-    status=$(/usr/bin/curl -s -o /dev/null -w "%{http_code}" "http://${ip}:2087/login")
-    if [[ "$status" != "000" ]]; then
-      ADMIN_URL="http://${ip}:2087"
-      os_log "$os" "OpenAdmin available over HTTP: $ADMIN_URL (http $status)"
-      break
-    fi
-
     status=$(/usr/bin/curl -k -s -o /dev/null -w "%{http_code}" "https://${ip}:2087/login")
     if [[ "$status" != "000" ]]; then
       ADMIN_URL="https://${ip}:2087"
       os_log "$os" "OpenAdmin available over HTTPS: $ADMIN_URL (http $status)"
+      break
+    fi
+
+    status=$(/usr/bin/curl -s -o /dev/null -w "%{http_code}" "http://${ip}:2087/login")
+    if [[ "$status" != "000" ]]; then
+      ADMIN_URL="http://${ip}:2087"
+      os_log "$os" "OpenAdmin available over HTTP: $ADMIN_URL (http $status)"
       break
     fi
 
