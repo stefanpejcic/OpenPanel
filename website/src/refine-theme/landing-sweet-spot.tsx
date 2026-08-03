@@ -425,7 +425,7 @@ const list = [
             <path d="M146.755 51.243l38.54-15.245.03 27.519-3.779 1.478-34.791-13.752" fill="#9A2928" />
         </svg>
         ),
-        iconText: "Caching",
+        iconText: "Object Caching",
         image1Dark:
             "/img/ilustrations/redis_dark.png",
         image1Light:
@@ -451,7 +451,7 @@ const list = [
             </g>
         </svg>
         ),
-        iconText: "PHP versions",
+        iconText: "Multiple PHP versions",
         image1Dark:
             "/img/ilustrations/php_dark.png",
         image1Light:
@@ -464,7 +464,7 @@ const list = [
             "dark:bg-landing-sweet-spot-glow-blue-dark bg-landing-sweet-spot-glow-blue-light",
     },
     {
-        title: "CSF, CorazaWAF and ImunifyAV",
+        title: "WAF & Malware Scanner",
         description: `OpenPanel fully supports ConfigServer Sentinel Firewall (CSF) and comes with built-in WAF.`,
         icon: (props: { active: boolean }) => (
              <AuthenticationIcon
