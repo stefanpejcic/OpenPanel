@@ -6,7 +6,7 @@ sidebar_position: 1
 
 From this page Administrators can configure the domain to access both OpenPanel and OpenAdmin interfaces, as well as ports for those services.
 
-![openadmin general panel settings](/img/admin/adminpanel_general_settings.png)
+![openadmin general panel settings](/img/admin/2.0/openadmin_general_settings.png)
 
 ## Domain
 
