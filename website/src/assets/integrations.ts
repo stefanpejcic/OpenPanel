@@ -573,7 +573,7 @@ export const integrations: IntegrationsType = {
             icon: Ports,
             description:
                 "Administrators have the flexibility to customize the default port (e.g., change from 2083) and alter the directory path (e.g., from /openpanel) to cater to specific preferences.",
-            url: "/docs/admin/settings/openpanel/",
+            url: "/docs/admin/settings/general/#ports",
             status: "enterprise",
         },
         {
@@ -581,7 +581,7 @@ export const integrations: IntegrationsType = {
             icon: Domain,
             description:
                 "Administrators can set different domains for the OpenPanel and OpenAdmin services.",
-            url: "/docs/admin/settings/openpanel/",
+            url: "/docs/admin/settings/general/#domain",
             status: "enterprise",
         },
     ],
