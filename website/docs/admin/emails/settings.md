@@ -6,6 +6,8 @@ sidebar_position: 3
 
 The Email Settings section allows you to configure various parameters for the MailServer stack to ensure efficient and secure email management. 
 
+![openadmin domains add](/img/admin/2.0/openadmin_emails_settings.png)
+
 :::info
 Emails are only available on [OpenPanel Enterprise edition](/enterprise)
 :::
