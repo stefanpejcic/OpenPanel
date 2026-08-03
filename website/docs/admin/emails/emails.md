@@ -8,6 +8,8 @@ The Emails > Accounts page provides an overview of all email accounts managed th
 
 Use this interface to review usage, access webmail, and manage individual or multiple email accounts.
 
+![openadmin domains add](/img/admin/2.0/openadmin_emails_table.png)
+
 The table includes the following information:
 
 - **Email** – The full email address of the account.
