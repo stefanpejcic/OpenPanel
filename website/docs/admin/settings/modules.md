@@ -6,6 +6,8 @@ sidebar_position: 4
 
 Modules extend the OpenPanel UI by adding new features and pages. To make a feature available to a user or plan, it must first be activated as a module.
 
+![openadmin_modules_settings](/img/admin/2.0/openadmin_modules_settings.png)
+
 - Modules are **core features** that are already available on installation and are developed by OpenPanel.
 - Plugins are custom features that need to be installed and are developed by third-party developers.
 
