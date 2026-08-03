@@ -107,6 +107,8 @@ Domain pejcci.rs added successfully
 
 Each row in the Domains table has an actions menu (the `⋮` button) with the following options:
 
+![openadmin domains actions](/img/admin/2.0/openadmin_domains_actions.png)
+
 - **Edit DNS Zone** — opens the [DNS Zone Editor](/docs/admin/domains/dns) for this domain. Only shown if the **dns** module is enabled.
 - **Suspend domain** / **Unsuspend domain** — toggles the domain's status.
 - **Manage SSL** — opens the SSL page for the domain. Not shown for suspended domains.
