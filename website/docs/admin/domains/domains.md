@@ -13,7 +13,11 @@ Domains page displays all domains currently hosted on server.
   <TabItem value="openadmin-domains-list" label="With OpenAdmin" default>
 
 
-To list all current domains navigate to Domains page. The table shows these columns by default:
+To list all current domains navigate to Domains page. 
+
+![openadmin domains page](/img/admin/2.0/openadmin_domains_table.png)
+
+The table shows these columns by default:
 
 | Field           | Description                                                       |
 |-----------------|-------------------------------------------------------------------|
@@ -39,10 +43,14 @@ opencli domains-all
 
 Example output:
 ```bash
-opencli domains-all
-stefan.openpanel.org
-pejcic.rs
-nesto.com
+root@server:~# opencli domains-all
+openpanel.com
+openpanel.org
+community.openpanel.org
+api.openpanel.com
+support.openpanel.org
+ip.openpanel.com
+my.openpanel.com
 ```
 
   </TabItem>
@@ -55,6 +63,9 @@ nesto.com
   <TabItem value="openadmin-domain-new" label="With OpenAdmin" default>
 
   Click on 'Add Domain' button, insert the domain and select the user to add it, then click on 'Add Domain'.
+
+![openadmin domains add](/img/admin/2.0/openadmin_domains_add.png)
+
 
   </TabItem>
   <TabItem value="CLI-domain-new" label="With OpenCLI">
