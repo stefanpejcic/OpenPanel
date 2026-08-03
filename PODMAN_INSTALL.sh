@@ -386,7 +386,6 @@ clone_repos() {
     [[ "$architecture" == "aarch64" ]] && admin_binary="openadmin-arm64"
     echo "Downloading openadmin to /usr/local/admin/$admin_binary"
     mkdir -p /usr/local/admin/
-    git clone --branch main --single-branch https://github.com/stefanpejcic/openadmin.git /usr/local/admin >/dev/null 2>&1
     curl -sSL "https://github.com/stefanpejcic/openadmin/releases/download/${PANEL_VERSION%%-beta}/$admin_binary" -o "/usr/local/admin/$admin_binary"
     [[ -f "/usr/local/admin/$admin_binary" ]] || die 1 "Failed to download OpenAdmin binary ${admin_binary} from Github."
     chmod +x "/usr/local/admin/$admin_binary"
