@@ -57,7 +57,7 @@ const Assets: React.FC = () => {
                     <div className="grid grid-cols-2 gap-4">
                         {assets.map((asset, index) => (
                             <div key={index} className="flex items-center space-x-4">
-                                <div className="bg-[#f8f9fa] p-4 rounded-lg" dangerouslySetInnerHTML={{ __html: asset.svgCode.replace(/fill="currentColor"/g, `fill="${asset.color}"`) }} />
+                                <div className="bg-[#f8f9fa] p-4 rounded-lg [&_svg]:w-[250px] [&_svg]:h-[250px]" dangerouslySetInnerHTML={{ __html: asset.svgCode.replace(/fill="currentColor"/g, `fill="${asset.color}"`) }} />
                                 <div>
                                     Icon color: <input 
                                         type="color" 
