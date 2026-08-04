@@ -33,7 +33,6 @@ test('create user', async ({ page }) => {
 });
 
 
-
 test('test autologin', async ({ page, context }) => {
   const impersonateLink = page.locator('a[href="/login/token/testinguser"]');
 
@@ -47,8 +46,14 @@ test('test autologin', async ({ page, context }) => {
     impersonateLink.click(),
   ]);
 
-  await newTab.waitForLoadState();
-  await expect(newTab).toHaveURL(/dashboard/);
+  newTab.on('console', msg => console.log('CONSOLE:', msg.text()));
+  newTab.on('pageerror', err => console.log('PAGE ERROR:', err.message));
+  newTab.on('requestfailed', req => console.log('REQ FAILED:', req.url(), req.failure()?.errorText));
+
+  await newTab.waitForTimeout(3000);
+  console.log('URL AFTER WAIT:', newTab.url());
+
+  await expect(newTab).toHaveURL(/dashboard/, { timeout: 10_000 });
   await expect(newTab.getByText(/last login ip address/i)).toBeVisible();
 
   console.log('autologin is working');

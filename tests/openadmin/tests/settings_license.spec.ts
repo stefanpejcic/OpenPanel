@@ -5,8 +5,8 @@ import { test, expect } from '@playwright/test';
 // on a real license; we don't have a real key to round-trip safely.
 
 test('license page loads with key field and actions', async ({ page }) => {
-  await page.goto('/license');
-  await expect(page).toHaveURL(/license);
+  await page.goto(`/license`);
+  await expect(page).toHaveURL(/license/);
 
   await expect(page.locator('#license-key')).toBeVisible();
   await expect(page.locator('#save_license_btn')).toBeVisible();
