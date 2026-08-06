@@ -13,16 +13,16 @@ The result: VPS-level isolation on shared hosting infrastructure, without the VP
 <!--end: description-->
 
 ```
-╔════════════════════════════════════════════════════════════════╗
-║                     🖥️  OPENPANEL SERVER                       ║
-╠════════════════════════════════════════════════════════════════╣
-║  • 🎛️ OpenPanel - user control panel                           ║
-║  • ⚙️ OpenAdmin - administration panel                         ║
-║  • 🌐 Caddy – Reverse Proxy & SSL                              ║
-║  • 🔍 BIND9 – DNS Server                                       ║
-║  • 🔍 phpMyAdmin – shared by all users                         ║
-║  • 🗄️ MySQL – User Management & Metadata                       ║
-╚════════════════════════════════════════════════════════════════╝
+                   ╔════════════════════════════════════════════════════════════════╗
+                   ║                     🖥️  OPENPANEL SERVER                       ║
+                   ╠════════════════════════════════════════════════════════════════╣
+                   ║  • 🎛️ OpenPanel - user control panel                           ║
+                   ║  • ⚙️ OpenAdmin - administration panel                         ║
+                   ║  • 🌐 Caddy – Reverse Proxy & SSL                              ║
+                   ║  • 🔍 BIND9 – DNS Server                                       ║
+                   ║  • 🔍 phpMyAdmin – shared by all users                         ║
+                   ║  • 🗄️ MySQL – User Management & Metadata                       ║
+                   ╚════════════════════════════════════════════════════════════════╝
                                                    │   
         ┌──────────────────────────────────────────┼──────────────────────────────────────────┐
         │                                          │                                          │
