@@ -1,59 +1,65 @@
-name: Merge remote repos to main
-
+name: Sync remote repos to main
 on:
   schedule:
     - cron: '0 2 * * *'   # daily at 02:00 UTC
   workflow_dispatch:
 
 jobs:
-  update-version:
+  update-submodules:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
 
-      - name: Replace folders in OpenPanel repo
-        shell: bash
+      - name: Configure git
         run: |
-         
-          # Clean existing folders
-          git rm -r --cached tests translations configuration opencli integrations/fossbilling integrations/paymenter.org integrations/whmcs integrations/cpanel-import integrations/cyberpanel-import integrations/virtualizor || true
-          rm -rf tests translations configuration opencli integrations/fossbilling integrations/paymenter.org integrations/whmcs integrations/cpanel-import integrations/cyberpanel-import integrations/virtualizor
-
-          # Clone replacements
-          git clone --depth=1 https://github.com/stefanpejcic/openpanel-tests tests-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/openpanel-translations translations-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/openpanel-configuration configuration-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/opencli opencli-tmp
-          
-          git clone --depth=1 https://github.com/stefanpejcic/cPanel-to-OpenPanel cpanel-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/CyberPanel-to-OpenPanel cyberpanel-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/openpanel-whmcs-module whmcs-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/openpanel-virtualizor virtualizor-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/openpanel-paymenter.org paymenter-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/FOSSBilling-OpenPanel fossbilling-tmp
-
-          # Move contents only (not the .git folder)
-          mv tests-tmp tests
-          mv translations-tmp translations
-          mv configuration-tmp configuration
-          mv opencli-tmp opencli
-          
-          mv cpanel-tmp integrations/cpanel-import
-          mv cyberpanel-tmp integrations/cyberpanel-import
-          mv whmcs-tmp integrations/whmcs
-          mv virtualizor-tmp integrations/virtualizor
-          mv paymenter-tmp integrations/paymenter.org
-          mv fossbilling-tmp integrations/fossbilling
-
-          rm -rf tests/.git translations/.git configuration/.git configuration/.github opencli/.git opencli/.github  integrations/cpanel-import/.git integrations/cyberpanel-import/.git integrations/whmcs/.git /integrations/virtualizor/.git integrations/paymenter.org/.git integrations/fossbilling/.git
-
           git config user.name "stefanpejcic"
           git config user.email "stefan@pejcic.rs"
 
-          git add translations configuration opencli integrations tests
+      - name: Ensure submodules exist
+        shell: bash
+        run: |
+          declare -A repos=(
+            ["tests"]="https://github.com/stefanpejcic/openpanel-tests"
+            ["translations"]="https://github.com/stefanpejcic/openpanel-translations"
+            ["configuration"]="https://github.com/stefanpejcic/openpanel-configuration"
+            ["opencli"]="https://github.com/stefanpejcic/opencli"
+            ["openadmin"]="https://github.com/stefanpejcic/openadmin"
+            ["integrations/cpanel-import"]="https://github.com/stefanpejcic/cPanel-to-OpenPanel"
+            ["integrations/cyberpanel-import"]="https://github.com/stefanpejcic/CyberPanel-to-OpenPanel"
+            ["integrations/whmcs"]="https://github.com/stefanpejcic/openpanel-whmcs-module"
+            ["integrations/virtualizor"]="https://github.com/stefanpejcic/openpanel-virtualizor"
+            ["integrations/paymenter.org"]="https://github.com/stefanpejcic/openpanel-paymenter.org"
+            ["integrations/fossbilling"]="https://github.com/stefanpejcic/FOSSBilling-OpenPanel"
+          )
+
+          for path in "${!repos[@]}"; do
+            url="${repos[$path]}"
+            if git config --file .gitmodules --get-regexp "^submodule\..*\.path$" 2>/dev/null | grep -q "$path\$"; then
+              echo "Submodule already exists: $path"
+            else
+              echo "Adding submodule: $path -> $url"
+              # Remove any leftover non-submodule folder first
+              git rm -r --cached "$path" 2>/dev/null || true
+              rm -rf "$path"
+              git submodule add -f "$url" "$path"
+            fi
+          done
+
+      - name: Update submodules to latest upstream commits
+        shell: bash
+        run: |
+          git submodule update --remote --merge
+
+      - name: Commit and push if changed
+        shell: bash
+        run: |
+          git add .gitmodules tests translations configuration opencli openadmin integrations
           if ! git diff --cached --quiet; then
-            git commit -m "chore: sync folders from upstream"
+            git commit -m "chore: update submodule references to latest upstream"
             git push origin main
           else
             echo "No changes to commit."
