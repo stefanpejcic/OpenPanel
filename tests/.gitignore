@@ -1,7 +1,0 @@
-test-results
-package.json
-package-lock.json
-node_modules
-.auth
-*.env
-*.totp-secret.tmp

@@ -1,6 +1,0 @@
-{
-	"log-driver": "local",
-	"log-opts": {
-		"max-size": "5m"
-         }
-}

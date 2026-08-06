@@ -1,5 +1,0 @@
-php
-js
-pdf
-exe
-py

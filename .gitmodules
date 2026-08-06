@@ -1,3 +1,44 @@
 [submodule "integrations/virtualizor"]
 	path = integrations/virtualizor
 	url = https://github.com/stefanpejcic/openpanel-virtualizor
+	branch = main
+[submodule "openadmin"]
+	path = openadmin
+	url = https://github.com/stefanpejcic/openadmin
+	branch = main
+[submodule "integrations/whmcs"]
+	path = integrations/whmcs
+	url = https://github.com/stefanpejcic/openpanel-whmcs-module
+	branch = main
+[submodule "configuration"]
+	path = configuration
+	url = https://github.com/stefanpejcic/openpanel-configuration
+	branch = main
+[submodule "integrations/cpanel-import"]
+	path = integrations/cpanel-import
+	url = https://github.com/stefanpejcic/cPanel-to-OpenPanel
+	branch = podman
+[submodule "tests"]
+	path = tests
+	url = https://github.com/stefanpejcic/openpanel-tests
+	branch = main
+[submodule "integrations/fossbilling"]
+	path = integrations/fossbilling
+	url = https://github.com/stefanpejcic/FOSSBilling-OpenPanel
+	branch = main
+[submodule "integrations/paymenter.org"]
+	path = integrations/paymenter.org
+	url = https://github.com/stefanpejcic/openpanel-paymenter.org
+	branch = main
+[submodule "translations"]
+	path = translations
+	url = https://github.com/stefanpejcic/openpanel-translations
+	branch = main
+[submodule "integrations/cyberpanel-import"]
+	path = integrations/cyberpanel-import
+	url = https://github.com/stefanpejcic/CyberPanel-to-OpenPanel
+	branch = podman
+[submodule "opencli"]
+	path = opencli
+	url = https://github.com/stefanpejcic/opencli
+	branch = podman

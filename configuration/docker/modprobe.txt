@@ -1,4 +1,0 @@
-ip_tables
-iptable_filter
-iptable_nat
-br_netfilter
