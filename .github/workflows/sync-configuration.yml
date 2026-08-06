@@ -16,8 +16,8 @@ jobs:
 
       - name: Configure git
         run: |
-          git config user.name "stefanpejcic"
-          git config user.email "stefan@pejcic.rs"
+          git config --global user.name "stefanpejcic"
+          git config --global user.email "stefan@pejcic.rs"
 
       - name: Ensure submodules exist
         shell: bash
