@@ -82,9 +82,10 @@ jobs:
 
       - name: Place binaries into build context
         run: |
-          cp artifacts/openpanel-amd64 openpanel/encoded-amd64
-          cp artifacts/openpanel-arm64 openpanel/encoded-arm64
-          chmod +x openpanel/encoded-amd64 openpanel/encoded-arm64
+          mkdir -p openpanel/encoded-amd64 openpanel/encoded-arm64
+          cp artifacts/openpanel-amd64 openpanel/encoded-amd64/openpanel
+          cp artifacts/openpanel-arm64 openpanel/encoded-arm64/openpanel
+          chmod +x openpanel/encoded-amd64/openpanel openpanel/encoded-arm64/openpanel
 
       - name: Set image tag
         id: vars
