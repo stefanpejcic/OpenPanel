@@ -659,6 +659,9 @@ setup_firewall() {
 
     echo "Installing Sentinel Firewall..."
 
+    mkdir -p /usr/local/admin/modules/security/
+    wget --timeout=3 --tries=3 --inet4-only -O /usr/local/admin/modules/security/csf.pl https://raw.githubusercontent.com/stefanpejcic/openadmin/refs/heads/main/modules/security/csf.pl  >/dev/null 2>&1
+
     wget --timeout=3 --tries=3 --inet4-only https://raw.githubusercontent.com/sentinelfirewall/sentinel/main/csf.tgz >/dev/null 2>&1
     tar -xzf csf.tgz; rm csf.tgz
     ( cd csf && sh install.sh >/dev/null 2>&1 )
