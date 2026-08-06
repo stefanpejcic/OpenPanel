@@ -11,7 +11,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: false
           fetch-depth: 0
 
       - name: Configure git
@@ -106,8 +106,16 @@ jobs:
       - name: Update submodules to latest upstream commits
         shell: bash
         run: |
-          git submodule sync
-          git submodule update --remote --merge
+          git submodule sync --recursive
+      
+          git submodule foreach --recursive '
+            git fetch --all --prune
+          '
+      
+          rm -rf integrations/cpanel-import integrations/cyberpanel-import
+      
+          git submodule update --init --recursive --remote --merge
+
 
       - name: Sync OpenCLI binary needed in Dockerfile
         shell: bash
