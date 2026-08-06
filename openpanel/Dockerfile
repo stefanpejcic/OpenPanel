@@ -10,6 +10,7 @@ WORKDIR /
 # Runtime dependencies
 RUN apk add --no-cache \
     bash \
+    grep \
     procps \
     coreutils \
     wget \
