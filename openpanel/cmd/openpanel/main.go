@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	defaultListenAddr = ":5000"
+	defaultListenAddr = ":2083"
 	// defaultStaticOverrideDir is where an admin can drop replacement
 	// copies of the few user-editable static files (custom.css, custom.js,
 	// robots.txt, security.txt); everything else is served from the
