@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. 1.2.3)"
+        required: true
+        type: string
+      beta:
+        description: "Tag as beta build"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  IMAGE_NAME: openpanel/openpanel
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.0"
+
+      - name: Build binary
+        env:
+          GOOS: linux
+          GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: 0
+        working-directory: openpanel
+        run: go build -buildvcs=false -o openpanel-${{ matrix.arch }} ./cmd/openpanel
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openpanel-${{ matrix.arch }}
+          path: openpanel/openpanel-${{ matrix.arch }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version }}
+          name: ${{ inputs.version }}
+          files: |
+            artifacts/openpanel-amd64
+            artifacts/openpanel-arm64
+
+  docker:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Place binaries into build context
+        run: |
+          cp artifacts/openpanel-amd64 openpanel/encoded-amd64
+          cp artifacts/openpanel-arm64 openpanel/encoded-arm64
+          chmod +x openpanel/encoded-amd64 openpanel/encoded-arm64
+
+      - name: Set image tag
+        id: vars
+        run: |
+          if [ "${{ inputs.beta }}" = "true" ]; then
+            echo "tag=${{ inputs.version }}-beta" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: openpanel
+          file: openpanel/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          no-cache: true
+          tags: ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.tag }}
