@@ -8,7 +8,7 @@
 
 ## What is OpenPanel?
 <!--start: description-->
-**OpenPanel** is a web hosting control panel that uses Contianers to give every hosting user a completely isolated environment. Unlike traditional control panels that share a single Apache, MySQL, or PHP runtime across all users, OpenPanel provisions a dedicated Podman context per user: each with their own web server container, database container, PHP-FPM containers, private network, and storage volume.
+**OpenPanel** is a web hosting control panel that uses contianers to give every hosting user a completely isolated environment. Unlike traditional control panels that share a single Apache, MySQL, or PHP runtime across all users, OpenPanel provisions a dedicated Podman context per user: each with their own web server container, database container, PHP-FPM containers, private network, and storage volume.
 The result: VPS-level isolation on shared hosting infrastructure, without the VPS price tag.
 <!--end: description-->
 
