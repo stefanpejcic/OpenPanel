@@ -1,6 +1,6 @@
 # OpenPanel - Web Hosting Control Panel
 
-**OpenPanel** is a web hosting control panel built around Contianers. Every user gets a fully isolated environment: dedicated web server, dedicated database, private network, and scoped file storage - delivering VPS-grade security on shared hardware.
+**OpenPanel** is a web hosting control panel built around contianers. Every user gets a fully isolated environment: dedicated web server, dedicated database, private network, and scoped file storage - delivering VPS-grade security on shared hardware.
 
 ![openpanel screenshot](https://openpanel.com/img/landing/openpanel-illustration-dark.svg)
 
