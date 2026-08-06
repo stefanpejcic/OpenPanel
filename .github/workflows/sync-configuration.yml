@@ -1,4 +1,4 @@
-name: Sync remote repos to main
+name: Sync all repos to main
 on:
   schedule:
     - cron: '0 2 * * *'   # daily at 02:00 UTC
@@ -35,21 +35,51 @@ jobs:
             ["integrations/fossbilling"]="https://github.com/stefanpejcic/FOSSBilling-OpenPanel"
           )
 
+          # Paths that track the podman branch instead of main
+          podman_paths=("integrations/cpanel-import" "integrations/cyberpanel-import")
+
+          is_podman_path() {
+            local target="$1"
+            for p in "${podman_paths[@]}"; do
+              [ "$p" == "$target" ] && return 0
+            done
+            return 1
+          }
+
           for path in "${!repos[@]}"; do
             url="${repos[$path]}"
-            if git config --file .gitmodules --get-regexp "^submodule\..*\.path$" 2>/dev/null | awk '{print $2}' | grep -qx "$path"; then
+            exists=false
+            if [ -f .gitmodules ]; then
+              if git config --file .gitmodules --get-regexp "^submodule\..*\.path$" 2>/dev/null \
+                  | awk '{print $2}' | grep -qx "$path"; then
+                exists=true
+              fi
+            fi
+
+            if [ "$exists" = true ]; then
               echo "Submodule already exists: $path"
             else
               echo "Adding submodule: $path -> $url"
-              # Remove any leftover non-submodule folder first
               git rm -r --cached "$path" 2>/dev/null || true
               rm -rf "$path"
-              git submodule add -f "$url" "$path"
+              if is_podman_path "$path"; then
+                git submodule add -f -b podman "$url" "$path"
+              else
+                git submodule add -f "$url" "$path"
+              fi
             fi
           done
 
-          # opencli is special-cased: track the podman branch, not the default
-          if git config --file .gitmodules --get-regexp "^submodule\..*\.path$" 2>/dev/null | awk '{print $2}' | grep -qx "opencli"; then
+          # opencli special-cased: track the podman branch
+          opencli_exists=false
+          if [ -f .gitmodules ]; then
+            if git config --file .gitmodules --get-regexp "^submodule\..*\.path$" 2>/dev/null \
+                | awk '{print $2}' | grep -qx "opencli"; then
+              opencli_exists=true
+            fi
+          fi
+
+          if [ "$opencli_exists" = true ]; then
             echo "Submodule already exists: opencli"
           else
             echo "Adding submodule: opencli -> podman branch"
@@ -58,10 +88,25 @@ jobs:
             git submodule add -f -b podman https://github.com/stefanpejcic/opencli opencli
           fi
 
+      - name: Ensure correct tracking branches
+        shell: bash
+        run: |
+          git config -f .gitmodules submodule.configuration.branch main
+          git config -f .gitmodules submodule.tests.branch main
+          git config -f .gitmodules submodule.translations.branch main
+          git config -f .gitmodules submodule.openadmin.branch main
+          git config -f .gitmodules submodule.opencli.branch podman
+          git config -f .gitmodules submodule.integrations/cpanel-import.branch podman
+          git config -f .gitmodules submodule.integrations/cyberpanel-import.branch podman
+          git config -f .gitmodules submodule.integrations/whmcs.branch main
+          git config -f .gitmodules submodule.integrations/virtualizor.branch main
+          git config -f .gitmodules submodule.integrations/paymenter.org.branch main
+          git config -f .gitmodules submodule.integrations/fossbilling.branch main
 
       - name: Update submodules to latest upstream commits
         shell: bash
         run: |
+          git submodule sync
           git submodule update --remote --merge
 
       - name: Commit and push if changed
