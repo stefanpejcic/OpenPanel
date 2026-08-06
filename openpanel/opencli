@@ -1,0 +1,240 @@
+#!/bin/bash
+################################################################################
+# Script Name: /usr/local/bin/opencli
+# Description: Makes all OpenCLI commands available on the terminal.
+# Usage: opencli <COMMAND-NAME> <ATTRIBUTES>
+# Author: Stefan Pejcic
+# Created: 15.11.2023
+# Last Modified: 20.04.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+################################################################################
+
+readonly OPENCLI_VERSION="202.607.009"
+readonly LOG_FILE="/var/log/openpanel/admin/opencli.log"
+readonly SCRIPTS_DIR="/usr/local/opencli"
+readonly HOOKS_DIR="/etc/openpanel/openpanel/hooks"
+debug_flag=""
+
+show_about() {
+    cat <<EOF
+About:
+  Documentation:                    https://openpanel.com/docs/category/opencli/
+  Version:                          ${OPENCLI_VERSION}
+  Author:                           Stefan Pejcic <stefan@pejcic.rs>
+  License:                          MIT
+
+EOF
+}
+
+show_history() {
+    [[ -f "$LOG_FILE" ]] || { echo "Warning: log file $LOG_FILE not found."; return; }
+
+    echo "Recently used commands:"
+    tail -n 100 "$LOG_FILE" | grep -o 'opencli [^ ]*' | sort | uniq | tail -n 5 | sed 's/^/  /'
+    echo ""
+
+    echo "Most commonly used commands:"
+    awk -F ' \\| ' 'NF>=2 {print $2}' "$LOG_FILE" | sort | uniq -c | sort -rn | head -n 5 | awk '{$1=""; print "  " $0}'
+    echo ""
+}
+
+show_usage() {
+    cat <<EOF
+
+Usage: opencli <COMMAND> [additional_arguments]
+
+Suggested commands:
+  opencli faq                       Display frequently asked questions and answers.
+  opencli --help                    List all available OpenCLI commands and their usage.
+
+EOF
+}
+
+log_command() {
+    [[ -n "$LOG_FILE" ]] || return 0
+    echo "$(date +"%Y-%m-%d %H:%M:%S") | opencli $1" >> "$LOG_FILE" 2>/dev/null
+}
+
+run_hook() {
+    local hook_type="$1"
+    local command="$2"
+    shift 2
+
+    local hook_file_base="${HOOKS_DIR}/${hook_type}_${command}"
+    local hook_file=""
+
+    if [[ -f "${hook_file_base}.sh" ]]; then
+        hook_file="${hook_file_base}.sh"
+    elif [[ -f "${hook_file_base}" ]]; then
+        hook_file="${hook_file_base}"   # legacy pre-1.3
+    else
+        return 0
+    fi
+
+    case "$hook_type" in
+        pre) bash ${debug_flag:+"$debug_flag"} "$hook_file" "$@" </dev/null >/dev/null 2>&1 ;;
+        post) nohup bash "$hook_file" "$@" </dev/null >/dev/null 2>&1 & ;;
+    esac
+}
+
+handle_special_commands() {
+    local command="$1"; shift
+    case "$command" in
+        error) python3 "${SCRIPTS_DIR}/error.py" "$@"; exit 0 ;; #TODO: handle Python to Go port
+        locale) bash ${debug_flag:+"$debug_flag"} <(curl -4sSL "https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh") "$@"; exit 0 ;;
+    esac
+}
+
+execute_command() {
+    local command="$1"; shift
+    local binary_path="${SCRIPTS_DIR}/${command//-//}.sh"
+
+    [[ -f "$binary_path" ]] || { echo "Error: Command '$command' not found." >&2; show_usage; show_history; show_about; exit 1; }
+
+    log_command "$command"
+    run_hook "pre"  "$command" "$@"
+    bash ${debug_flag:+"$debug_flag"} "$binary_path" "$@"
+    run_hook "post" "$command" "$@"
+}
+
+generate_commands() {
+    readonly ALIAS_FILE="${SCRIPTS_DIR}/aliases.txt"
+    readonly GREEN='\033[0;32m'
+    readonly RESET='\033[0m'
+    
+    readonly SEARCH_QUERY="${1:-}"
+    readonly EXCLUDE_PATTERNS=( ".git/*" ".github/*" "ftp/users.sh" "db.sh" "dev.sh" "enterprise.sh" "progress_bar.sh" "lib/*" )
+    
+    declare -a exclude_args=()
+
+    [[ -d "$SCRIPTS_DIR" ]] || { echo "Error: Scripts directory '$SCRIPTS_DIR' not found." >&2; exit 1; }
+    [[ -w "$ALIAS_FILE" ]] || touch "$ALIAS_FILE" 2>/dev/null || { echo "Error: Cannot write to alias file '$ALIAS_FILE'." >&2; exit 1; }
+    [[ -z "$SEARCH_QUERY" ]] && : > "$ALIAS_FILE"
+    
+    extract_script_info() {
+        local script="$1"
+        local -n info_ref="$2"
+        info_ref[description]=$(grep -E "^# Description:" "$script" 2>/dev/null | sed 's/^# Description: //' || true)
+        info_ref[usage]=$(grep -E "^# Usage:" "$script" 2>/dev/null | sed 's/^# Usage: //' || true)
+        info_ref[docs]=$(grep -E "^# Docs:" "$script" 2>/dev/null | sed 's/^# Docs: //' || true)
+    }
+    
+    generate_alias_name() {
+        local script="$1"
+        local script_name dir_name alias_name
+    
+        script_name=$(basename "$script")
+        script_name="${script_name%.sh}"
+        script_name="${script_name%.py}"
+    
+        dir_name=$(dirname "$script")
+        dir_name="${dir_name##*/}"
+    
+        if [[ "$dir_name" == "opencli" ]]; then
+            alias_name="$script_name"
+        else
+            alias_name="${dir_name}-${script_name}"
+        fi
+    
+        echo "$alias_name"
+    }
+    
+    display_command_info() {
+        local full_alias="$1"
+        local script="$2"
+        
+        if [[ -n "$SEARCH_QUERY" && "$full_alias" != *"$SEARCH_QUERY"* ]]; then
+            return
+        fi
+    
+        local -A script_info
+        extract_script_info "$script" script_info
+    
+        echo -e "${GREEN}${full_alias}${RESET}"
+        if [[ -n "${script_info[description]:-}" ]]; then
+            echo "Description: ${script_info[description]}"
+        fi
+        if [[ -n "${script_info[usage]:-}" ]]; then
+            echo "Usage: ${script_info[usage]}"
+        fi
+        if [[ -n "${script_info[docs]:-}" ]]; then
+            echo "Docs: ${script_info[docs]}"
+        fi
+        echo "------------------------"
+    }
+    
+    exclude_args=()
+    for pattern in "${EXCLUDE_PATTERNS[@]}"; do
+        exclude_args+=("!" "-path" "${SCRIPTS_DIR}/${pattern}")
+    done
+    
+    declare -a commands_list=()
+    
+    while IFS= read -r -d '' script; do
+        [[ -r "$script" ]] || continue
+
+        alias_name=$(generate_alias_name "$script")
+        full_alias="opencli ${alias_name}"
+        
+        display_command_info "$full_alias" "$script"
+        commands_list+=("$full_alias")
+    
+    done < <(find "$SCRIPTS_DIR" -type f -name "*.sh" "${exclude_args[@]}" -print0)
+    
+    special_commands=("opencli error|Displays information for specific error ID received in OpenPanel UI.|opencli error <ID_HERE>" "opencli locale|Install locales (Languages) for OpenPanel UI.|opencli locale <CODE>")
+
+    for cmd in "${special_commands[@]}"; do
+        IFS="|" read -r name desc usage <<< "$cmd"
+        if [[ -z "$SEARCH_QUERY" || "$name" == *"$SEARCH_QUERY"* ]]; then
+            echo -e "${GREEN}${name}${RESET}"
+            echo "Description: ${desc}"
+            echo "Usage: ${usage}"
+            echo "------------------------"
+        fi
+        commands_list+=("$name")
+    done
+    
+    if [[ -z "$SEARCH_QUERY" && ${#commands_list[@]} -gt 0 ]]; then
+        printf '%s\n' "${commands_list[@]}" | sort > "$ALIAS_FILE"
+    fi
+}
+
+main() {
+    # validation
+    [[ $EUID -ne 0 ]] && { echo "OpenCLI scripts must be run as root user." >&2; exit 1; }
+    [[ $# -lt 1 ]] && { show_usage; show_history; show_about; exit 1; }
+
+    # debug
+    [[ "$1" == "-x" ]] && { debug_flag="-x"; shift; }
+
+    # help
+    case "$1" in help|-h|--help) generate_commands; exit 0 ;; esac
+    case "$2" in help|-h|--help) generate_commands "$1"; exit 0 ;; esac
+
+    # run
+    local command="$1"; shift
+    [[ "$command" == "-v" ]] && command="--version"
+    handle_special_commands "$command" "$@"
+    execute_command "$command" "$@"
+}
+
+main "$@"
