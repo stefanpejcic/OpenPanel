@@ -1,0 +1,3 @@
+[submodule "integrations/virtualizor"]
+	path = integrations/virtualizor
+	url = https://github.com/stefanpejcic/openpanel-virtualizor
