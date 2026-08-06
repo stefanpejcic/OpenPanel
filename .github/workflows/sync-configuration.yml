@@ -109,10 +109,19 @@ jobs:
           git submodule sync
           git submodule update --remote --merge
 
+      - name: Sync OpenCLI binary needed in Dockerfile
+        shell: bash
+        run: |
+          curl -fsSL \
+            https://raw.githubusercontent.com/stefanpejcic/opencli/refs/heads/podman/opencli \
+            -o openpanel/opencli
+
+          chmod +x openpanel/opencli
+
       - name: Commit and push if changed
         shell: bash
         run: |
-          git add .gitmodules tests translations configuration opencli openadmin integrations
+          git add .gitmodules tests translations configuration opencli openadmin integrations openpanel/opencli
           if ! git diff --cached --quiet; then
             git commit -m "chore: update submodule references to latest upstream"
             git push origin main
