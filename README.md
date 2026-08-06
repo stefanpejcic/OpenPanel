@@ -2,6 +2,8 @@
 
 **OpenPanel** is a web hosting control panel built on Docker. Every user gets a fully isolated environment: dedicated web server, dedicated database, private network, and scoped file storage - delivering VPS-grade security on shared hardware.
 
+![openpanel screenshot](https://openpanel.com/img/landing/openpanel-illustration-dark.svg)
+
 > Available as a free community edition and a fully-supported commercial version.
 
 ## What is OpenPanel?
