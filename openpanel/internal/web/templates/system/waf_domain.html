@@ -1,0 +1,235 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/system/waf_domain.html -->
+
+<form method="post" action="/server/waf">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+                <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WAF"}}</h1></div>
+                <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Manage WAF settings for a domain."}}</p>
+        </div>
+
+        <div class="mt-2 gap-2 sm:mt-0 flex sm:inline">
+            <button class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 border-transparent text-white dark:text-gray-900 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-500 dark:hover:bg-indigo-600 disabled:bg-indigo-100 disabled:text-gray-400 disabled:dark:bg-indigo-800 disabled:dark:text-indigo-400" type="submit">{{.T.Get "Save"}}</button>
+        </div>
+    </div>
+
+  <div class="m-8">
+
+<div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+    <div>
+        <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Status"}}</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Enable/disable WAF for"}} <span class="punycode">{{.Domain}}</span></p>
+    </div>
+    <div class="md:col-span-2" x-data="{ enabled: {{if eq .Status "On"}}true{{else}}false{{end}} }">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+
+            <div class="col-span-full">
+                <div class="relative w-full mt-2">
+                    <div class="row form-selectgroup form-selectgroup-boxes d-flex">
+                        <div class="mt-4 grid grid-cols-1 gap-4">
+                                <label class="inline-flex items-center me-5 cursor-pointer">
+        <input type="hidden" name="domain_name" value="{{.Domain}}">
+        <input type="hidden" name="modsec_action" :value="enabled ? 'Off' : 'On'">
+
+        <button type="submit"
+            @click.prevent="enabled = !enabled; $event.target.form.submit()"
+            :aria-checked="enabled"
+            :class="enabled ? 'bg-indigo-600 dark:bg-indigo-600' : 'bg-gray-200 dark:bg-gray-950'"
+            class="group relative isolate inline-flex shrink-0 cursor-pointer items-center rounded-full p-0.5 shadow-inner ring-1 ring-inset transition-all ring-black/5 dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 h-5 w-9">
+            <span :class="enabled ? 'translate-x-4' : 'translate-x-0'"
+                class="pointer-events-none relative inline-block transform appearance-none rounded-full border-none shadow-lg outline-none transition-all duration-150 ease-in-out bg-white dark:bg-gray-50 h-4 w-4">
+            </span>
+        </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+
+<div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+    <div>
+        <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get " Disabled IDs"}}</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get " Disable rules by ID"}} <a href="https://coraza.io/docs/seclang/directives/#secruleremovebyid" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">SecRuleRemoveByID<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
+    </div>
+    <div class="md:col-span-2">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+
+<div class="col-span-full">
+    <div class="relative w-full mt-2">
+        <div class="row form-selectgroup form-selectgroup-boxes d-flex">
+            <div class="mt-4 grid grid-cols-1 gap-4">
+                <input id="removed_rules" name="removed_rules" class="flex min-h-[3rem] w-full rounded border px-3 py-1.5 shadow-sm outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-300 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" placeholder="{{.T.Get "Enter rule IDs, space-separated"}}" autocomplete="off" value="{{join .RemovedRules " "}}"/>
+                <div id="suggestions" class="hidden mt-1 p-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded shadow-lg"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("removed_rules").addEventListener("click", function() {
+        fetch("/server/waf/type/ids", {
+            method: "GET",
+            headers: {
+                'X-CSRF-Token': csrf_token
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const validIds = new Set(data);
+
+                this.addEventListener("input", function(event) {
+                    let currentValue = event.target.value.trim();
+                    let suggestionsDiv = document.getElementById('suggestions');
+
+                    suggestionsDiv.innerHTML = '';
+
+                    if (currentValue) {
+                        let words = currentValue.split(' ');
+                        let lastWord = words[words.length - 1];
+                        let existingIds = new Set(words);
+                        let filteredIds = Array.from(validIds).filter(id => id.startsWith(lastWord) && !existingIds.has(id));
+                        filteredIds.forEach(id => {
+                            let suggestionItem = document.createElement('div');
+                            suggestionItem.classList.add('cursor-pointer', 'px-4', 'py-1');
+                            suggestionItem.textContent = id;
+
+                            suggestionItem.addEventListener('click', function() {
+                                let inputValue = document.getElementById('removed_rules').value.trim();
+                                let words = inputValue.split(' ');
+                                words.pop();
+                                words.push(id);
+                                document.getElementById('removed_rules').value = words.join(' ') + ' ';
+                                suggestionsDiv.innerHTML = '';
+                                suggestionsDiv.classList.add('hidden');
+                            });
+
+                            suggestionsDiv.appendChild(suggestionItem);
+                        });
+
+                        if (filteredIds.length > 0) {
+                            suggestionsDiv.classList.remove('hidden');
+                        } else {
+                            suggestionsDiv.classList.add('hidden');
+                        }
+                    } else {
+                        suggestionsDiv.classList.add('hidden');
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching valid IDs:', error);
+            });
+    });
+</script>
+
+
+        </div>
+    </div>
+
+</div>
+<div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+
+<div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+    <div>
+        <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Disabled Tags"}}</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Disable rules by tag name"}} <a href="https://coraza.io/docs/seclang/directives/#secruleremovebytag" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">SecRuleRemoveByTag<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
+    </div>
+    <div class="md:col-span-2">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+
+
+<div class="col-span-full">
+    <div class="relative w-full mt-2">
+        <div class="row form-selectgroup form-selectgroup-boxes d-flex">
+            <div class="mt-4 grid grid-cols-1 gap-4">
+                <input id="removed_tags" name="removed_tags" class="flex min-h-[3rem] w-full rounded border px-3 py-1.5 shadow-sm outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-300 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" placeholder="{{.T.Get "Enter tags, space-separated"}}" autocomplete="off" value="{{join .RemovedTags " "}}"/>
+                <div id="tags_suggestions" class="hidden mt-1 p-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded shadow-lg"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("removed_tags").addEventListener("click", function() {
+        fetch("/server/waf/type/tags", {
+            method: "GET",
+            headers: {
+                'X-CSRF-Token': csrf_token
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const validIds = new Set(data);
+
+                this.addEventListener("input", function(event) {
+                    let currentValue = event.target.value.trim();
+                    let suggestionsDiv = document.getElementById('tags_suggestions');
+
+                    suggestionsDiv.innerHTML = '';
+
+                    if (currentValue) {
+                        let words = currentValue.split(' ');
+                        let lastWord = words[words.length - 1];
+                        let existingIds = new Set(words);
+                        let filteredIds = Array.from(validIds).filter(id => id.startsWith(lastWord) && !existingIds.has(id));
+
+                        filteredIds.forEach(id => {
+                            let suggestionItem = document.createElement('div');
+                            suggestionItem.classList.add('cursor-pointer', 'px-4', 'py-1');
+                            suggestionItem.textContent = id;
+
+                            suggestionItem.addEventListener('click', function() {
+                                let inputValue = document.getElementById('removed_tags').value.trim();
+                                let words = inputValue.split(' ');
+                                words.pop();
+                                words.push(id);
+                                document.getElementById('removed_tags').value = words.join(' ') + ' ';
+                                suggestionsDiv.innerHTML = '';
+                                suggestionsDiv.classList.add('hidden');
+                            });
+
+                            suggestionsDiv.appendChild(suggestionItem);
+                        });
+
+                        if (filteredIds.length > 0) {
+                            suggestionsDiv.classList.remove('hidden');
+                        } else {
+                            suggestionsDiv.classList.add('hidden');
+                        }
+                    } else {
+                        suggestionsDiv.classList.add('hidden');
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching valid Tags:', error);
+            });
+    });
+</script>
+
+
+
+        </div>
+    </div>
+
+</div>
+<div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+
+
+</div>
+
+</form>
+
+<!-- END templates/system/waf_domain.html -->
+{{end}}

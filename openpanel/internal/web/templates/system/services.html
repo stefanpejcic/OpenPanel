@@ -1,0 +1,258 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/system/services.html -->
+
+<!-- page header -->
+<div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">
+            {{if .Services}}{{.T.Get "Choose Service"}}{{else}}{{.T.Get "Manage Service"}}{{end}}
+        </h1>
+        <p class="text-sm text-gray-500">
+            {{if .Services}}{{.T.Get "Select system service to manage."}}{{else}}{{.T.Get "Manage service and view real-time resource usage."}}{{end}}
+        </p>
+    </div>
+
+    {{if not .Services}}
+    <form method="post" class="mt-2 sm:mt-0">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <input type="hidden" name="action" value="{{.ActionValue}}">
+        <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+            {{.ActionLabel}}
+        </button>
+    </form>
+    {{end}}
+</div>
+
+<!-- body -->
+<div class="m-6 space-y-10">
+
+    {{if .Services}}
+    <!-- service selector -->
+    <div class="sm:mx-auto sm:max-w-2xl">
+        <form method="GET">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            <select id="service-select" name="version" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" onchange="if(this.value) window.location.href='/services/'+this.value">
+                <option value="" disabled selected>{{.T.Get "Select service"}}</option>
+                {{range .Services}}
+                    <option value="{{.}}">{{.}}</option>
+                {{end}}
+            </select>
+        </form>
+    </div>
+
+    {{else}}
+    <!-- status -->
+    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+        <div>
+            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Status"}}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Current service status."}}</p>
+        </div>
+        <div class="flex items-center gap-2 mt-1.5"
+            data-status-poll
+            data-status-key="{{.StatusKey}}"
+            data-status-map='{{.StatusMapJSON}}'
+            data-fetch-url="{{.RequestPath}}"
+        >
+            <div class="flex gap-0.5">
+                <div class="service-status-bar h-3.5 w-1 rounded-sm bg-{{.StatusColor}} dark:bg-{{.StatusColor}}"></div>
+                <div class="service-status-bar h-3.5 w-1 rounded-sm bg-{{.StatusColor}} dark:bg-{{.StatusColor}}"></div>
+                <div class="service-status-bar h-3.5 w-1 rounded-sm bg-{{.StatusColor}} dark:bg-{{.StatusColor}}"></div>
+            </div>
+            <p class="service-status-label text-lg font-semibold text-gray-900 dark:text-gray-50">{{.StatusLabel}}</p>
+        </div>
+    </div>
+
+    <div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+
+    <!-- service name -->
+    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+        <div>
+            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Service"}}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Name for accessing the service from other containers."}}</p>
+        </div>
+        <div class="rounded-lg border p-4 shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 hover:bg-gray-50 hover:dark:bg-gray-900">
+            <p class="text-sm text-gray-500">{{.T.Get "Name:"}}</p>
+            <p class="mt-3 text-3xl font-semibold text-gray-900 dark:text-gray-50">{{.Service}}</p>
+        </div>
+    </div>
+
+    {{if .IsRunning}}
+    <div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+
+    <!-- container stats -->
+    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+        <div>
+            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container"}}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Current real-time resource usage for the service."}}</p>
+            {{if index .UserAllowed "docker"}}
+            <a href="/containers?s={{.Service}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap sm:w-fit mt-1">{{.T.Get "Edit limits"}}</a>
+            {{end}}
+        </div>
+        <div
+            x-data="containerStats()"
+            x-init="fetchStats()"
+            class="grid grid-cols-1 gap-4 sm:max-w-3xl sm:grid-cols-2 md:col-span-2"
+        >
+            <template x-for="[label, value] in Object.entries(stats)" :key="label">
+                <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                    <span class="text-sm capitalize text-gray-600 dark:text-gray-400" x-text="label"></span>
+                    <span class="font-medium min-w-0" :class="{ truncate: label === 'ID' }" x-text="value"></span>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('containerStats', () => ({
+            serviceName: '{{.Service}}',
+            stats: { ID:'--', Name:'--', 'CPU Usage':'--', 'Memory Usage':'--', 'Memory %':'--', 'Network I/O':'--', 'Block I/O':'--', PIDs:'--' },
+
+            async fetchStats() {
+                try {
+                    const s = await window.fetchServiceData(this.serviceName);
+
+                    if (s) {
+                        this.stats = {
+                            ID: s.ID,
+                            Name: s.Name,
+                            'CPU Usage': s.CPUPerc,
+                            'Memory Usage': s.MemUsage,
+                            'Memory %': s.MemPerc,
+                            'Network I/O': s.NetIO,
+                            'Block I/O': s.BlockIO,
+                            PIDs: s.PIDs
+                        };
+                    } else {
+                        Object.keys(this.stats).forEach(k => this.stats[k] = 'N/A');
+                    }
+                } catch {
+                    Object.keys(this.stats).forEach(k => this.stats[k] = 'Error');
+                }
+            }
+        }));
+    });
+    </script>
+    {{end}}
+
+    {{template "servicelog" .}}
+    {{end}}
+
+</div>
+
+<!-- END templates/system/services.html -->
+{{end}}
+
+{{define "servicelog"}}
+{{if .Service}}
+<!-- START templates/partials/_service_log.html -->
+
+<div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
+  <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+</div>
+<section aria-labelledby="logs" x-data="logViewer()" x-init="checkLogHealth()">
+  <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+
+    <div>
+      <h2 id="logs" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Logs"}}</h2>
+      <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "View logs for the service."}}</p>
+    </div>
+
+    <div class="space-y-6 md:col-span-2">
+      <div
+        class="p-4 relative w-full rounded-lg border text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 overflow-hidden">
+        <div class="flex justify-between items-center">
+          <button @click="fetchLogs" x-text="buttonText" :disabled="loading" id="service-log" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap sm:w-fit"></button>
+
+          <span class="text-sm text-gray-500">podman --url unix:///hostfs/run/user/$(id -u {{.UserContext}})/podman/podman.sock logs {{.Service}}</span>
+        </div>
+
+        <div
+          x-show="showLogs"
+          x-transition
+          class="p-4 mt-4 border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-full max-h-64 overflow-y-auto"
+          id="log-container"
+        >
+          <pre id="log-content" x-text="logContent"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('logViewer', () => ({
+        showLogs: false,
+        logContent: '',
+        logFetched: false,
+        buttonText: "{{.T.Get "View container log"}}",
+        loading: false,
+
+        async checkLogHealth() {
+          try {
+            const response = await fetch(`/json/containers/log/{{.Service}}`, {
+              headers: { 'X-CSRF-TOKEN': csrf_token },
+            });
+            if (!response.ok) return;
+            const data = await response.text();
+            this.logContent = data;
+            this.logFetched = true;
+            if (typeof reportHealthIssues !== 'function' || !data) return;
+            const errorLines = data.split('\n').filter(function (line) {
+              return /\b(error|fatal|failed|denied|refused|exception|panic|critical)\b/i.test(line);
+            });
+            if (errorLines.length) {
+              reportHealthIssues('service-log:{{.Service}}', [{
+                id: 'log-errors:{{.Service}}',
+                severity: 'warning',
+                message: "{{.T.Get "Service"}} {{.Service}} {{.T.Get "log contains"}} " + errorLines.length + " {{.T.Get "error line(s). Check the log."}}",
+              }], 24);
+            }
+          } catch (error) {
+            // background check, ignore failures
+          }
+        },
+
+        async fetchLogs() {
+          // reuse the log already fetched for the health check instead of requesting it again
+          if (this.logFetched) {
+            this.logContent = this.logContent || "{{.T.Get "No logs available."}}";
+            this.buttonText = "{{.T.Get "Click to refresh"}}";
+            this.showLogs = true;
+            this.logFetched = false;
+            return;
+          }
+
+          this.loading = true;
+          this.buttonText = "{{.T.Get "Loading..."}}";
+
+          try {
+            const response = await fetch(`/json/containers/log/{{.Service}}`, {
+              headers: { 'X-CSRF-TOKEN': csrf_token },
+            });
+
+            if (!response.ok) throw new Error('Request failed');
+
+            const data = await response.text();
+            this.logContent = data || "{{.T.Get "No logs available."}}";
+            this.buttonText = "{{.T.Get "Click to refresh"}}";
+          } catch (error) {
+            this.logContent = "{{.T.Get "No logs."}}";
+            this.buttonText = "{{.T.Get "Click to retry"}}";
+          } finally {
+            this.showLogs = true;
+            this.loading = false;
+          }
+        },
+      }));
+    });
+  </script>
+
+</section>
+
+<!-- END templates/partials/_service_log.html -->
+{{end}}
+{{end}}

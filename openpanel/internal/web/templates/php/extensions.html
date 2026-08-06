@@ -1,0 +1,276 @@
+{{define "content"}}
+<!-- START templates/php/extensions.html -->
+
+{{if .Version}}
+
+<input type="hidden" id="global-csrf-token" name="csrf_token" value="{{.CSRFToken}}"/>
+
+<section aria-label="PHP Extensions Header" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Enable or disable PHP extensions for this version, or install new ones. Toggling restarts the PHP-FPM service."}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        <div class="relative w-full sm:max-w-[250px] sm:[&>input]:h-[30px]">
+            <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                </svg>
+            </div>
+        </div>
+        <button type="button" id="open-install-modal" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800 mt-2 sm:mt-0">{{.T.Get "Install"}}</button>
+    </div>
+</div>
+<!-- END page header -->
+
+<div id="install-progress-banner" class="hidden p-4 bg-blue-50 dark:bg-blue-950 text-sm text-blue-700 dark:text-blue-300 border-b border-gray-200 dark:border-gray-800"></div>
+
+{{if .RecentlyRemoved}}
+<div class="px-4 sm:px-6 lg:px-8 py-3 bg-amber-50 dark:bg-amber-950/40 border-b border-gray-200 dark:border-gray-800 text-sm text-amber-800 dark:text-amber-300">
+    <span class="font-medium">{{.T.Get "Recently active extensions no longer installed:"}}</span>
+    <span class="inline-flex flex-wrap gap-2 ml-2 align-middle">
+    {{range .RecentlyRemoved}}
+        <button type="button" class="quick-install-ext inline-flex items-center rounded-full border border-amber-300 dark:border-amber-700 bg-white dark:bg-gray-950 px-2.5 py-1 text-xs font-medium text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40" data-extension="{{.}}" title="{{$.T.Get "Click to install again"}}">{{.}} &#8635;</button>
+    {{end}}
+    </span>
+</div>
+{{end}}
+
+<!-- table -->
+<div class="overflow-x-auto">
+    <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+        <table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+            <thead>
+                <tr class="bg-gray-50 dark:bg-gray-900 sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
+                    <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Extension"}}</th>
+                    <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Status"}}</th>
+                    <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Action"}}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                {{$csrf := .CSRFToken}}
+                {{range .Extensions}}
+                    {{if or (eq .State "active") (eq .State "disabled")}}
+                    <tr x-show="searchQuery === '' || '{{.Name}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Name}}</td>
+                        <td class="whitespace-nowrap p-4 text-sm">
+                            {{if eq .State "active"}}
+                                <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400">{{$.T.Get "Enabled"}}</span>
+                            {{else}}
+                                <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400">{{$.T.Get "Disabled"}}</span>
+                            {{end}}
+                        </td>
+                        <td class="whitespace-nowrap p-4 text-sm">
+                            <form method="post" class="inline">
+                                <input type="hidden" name="csrf_token" value="{{$csrf}}"/>
+                                <input type="hidden" name="extension" value="{{.Name}}"/>
+                                <input type="hidden" name="enable" value="{{if eq .State "active"}}0{{else}}1{{end}}"/>
+                                <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-1.5 text-center text-xs font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                                    {{if eq .State "active"}}{{$.T.Get "Disable"}}{{else}}{{$.T.Get "Enable"}}{{end}}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {{end}}
+                {{else}}
+                <tr><td colspan="3" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.T.Get "No extensions installed yet for this PHP version."}}</td></tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- END table -->
+</section>
+
+<!-- Install extension modal -->
+<div id="install-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+    <div class="bg-white dark:bg-gray-950 rounded border border-gray-200 dark:border-gray-800 w-full overflow-y-auto h-full p-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-2">{{.T.Get "Install PHP extensions"}}</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-500 mb-4">{{.T.Get "Select extensions to install for PHP"}} {{.Version}}.</p>
+        <div id="available-extensions-list" class="grid grid-cols-2 sm:grid-cols-4 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 mb-4">
+            <p class="text-sm text-gray-500">{{.T.Get "Loading..."}}</p>
+        </div>
+        <div class="flex justify-end gap-2">
+            <button type="button" id="cancel-install-modal" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Cancel"}}</button>
+            <button type="button" id="confirm-install" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800">{{.T.Get "Install selected"}}</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    var version = {{toJSON .Version}};
+    var extensionsHistory = {{toJSON .ExtensionsHistory}} || [];
+    var modal = document.getElementById('install-modal');
+    var openBtn = document.getElementById('open-install-modal');
+    var cancelBtn = document.getElementById('cancel-install-modal');
+    var confirmBtn = document.getElementById('confirm-install');
+    var listEl = document.getElementById('available-extensions-list');
+    var banner = document.getElementById('install-progress-banner');
+    var csrfToken = document.getElementById('global-csrf-token').value;
+    var pollTimer = null;
+
+    function showBanner(message) {
+        banner.textContent = message;
+        banner.classList.remove('hidden');
+    }
+
+    function loadAvailableExtensions() {
+        listEl.innerHTML = '<p class="text-sm text-gray-500">{{.T.Get "Loading..."}}</p>';
+        fetch('/php/php' + version + '/available-extensions')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var extensions = (data.extensions || []).filter(function(e) { return !e.installed; });
+                if (extensions.length === 0) {
+                    listEl.innerHTML = '<p class="text-sm text-gray-500">{{.T.Get "All supported extensions are already installed."}}</p>';
+                    return;
+                }
+                listEl.innerHTML = '';
+                extensions.forEach(function(ext) {
+                    var label = document.createElement('label');
+                    label.className = 'flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 py-1';
+                    var checkedAttr = extensionsHistory.indexOf(ext.name.toLowerCase()) !== -1 ? ' checked' : '';
+                    label.innerHTML = '<input type="checkbox" value="' + ext.name + '" class="ext-checkbox h-4 w-4 rounded border-gray-300"' + checkedAttr + '> ' + ext.name;
+                    listEl.appendChild(label);
+                });
+            })
+            .catch(function() {
+                listEl.innerHTML = '<p class="text-sm text-red-500">{{.T.Get "Failed to load available extensions."}}</p>';
+            });
+    }
+
+    openBtn.addEventListener('click', function() {
+        modal.classList.remove('hidden');
+        loadAvailableExtensions();
+    });
+    cancelBtn.addEventListener('click', function() {
+        modal.classList.add('hidden');
+    });
+
+    function startInstall(names) {
+        if (names.length === 0) {
+            return;
+        }
+        var formData = new FormData();
+        names.forEach(function(name) { formData.append('extensions[]', name); });
+        formData.append('csrf_token', csrfToken);
+
+        showBanner('{{.T.Get "Installing extensions..."}}');
+
+        fetch('/php/php' + version + '/install-extensions', { method: 'POST', body: formData })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    showBanner(data.error);
+                    return;
+                }
+                pollInstallStatus(data.install_id);
+            })
+            .catch(function() {
+                showBanner('{{.T.Get "Failed to start installation."}}');
+            });
+    }
+
+    confirmBtn.addEventListener('click', function() {
+        var checked = Array.prototype.slice.call(document.querySelectorAll('.ext-checkbox:checked')).map(function(c) { return c.value; });
+        modal.classList.add('hidden');
+        startInstall(checked);
+    });
+
+    Array.prototype.slice.call(document.querySelectorAll('.quick-install-ext')).forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            startInstall([btn.getAttribute('data-extension')]);
+        });
+    });
+
+    function pollInstallStatus(installId) {
+        if (pollTimer) { clearInterval(pollTimer); }
+        pollTimer = setInterval(function() {
+            fetch('/php/php' + version + '/install-extensions/status?install_id=' + installId)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    showBanner(data.message || data.status);
+                    if (data.status === 'done' || data.status === 'error') {
+                        clearInterval(pollTimer);
+                        if (data.status === 'done') {
+                            setTimeout(function() { window.location.reload(); }, 1500);
+                        }
+                    }
+                })
+                .catch(function() {
+                    clearInterval(pollTimer);
+                });
+        }, 2000);
+    }
+
+    fetch('/php/php' + version + '/install-extensions/status')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.container_busy) {
+                showBanner('{{.T.Get "An extension install is in progress for this PHP version..."}}');
+            }
+        })
+        .catch(function() {});
+})();
+</script>
+
+{{else}}
+
+<!-- page header -->
+<section aria-label="PHP Extensions Select Header" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PHP Extensions"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Enable, disable, or install PHP extensions per PHP version."}}</p>
+    </div>
+</div>
+
+<!-- form -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <form class="mt-8" method="GET" id="php_version_form">
+        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+            <div class="col-span-full mb-5">
+                <label for="php_version" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Select PHP version:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                <div class="flex rounded-lg shadow-sm">
+                    <select id="php_version" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 mt-2" onchange="updateFormAction()" required>
+                        <option value="" disabled selected>{{.T.Get "Select PHP Version"}}</option>
+                        {{range .InstalledVersions}}
+                        <option value="{{.}}">PHP {{.}}</option>
+                        {{end}}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+        <div class="md:flex items-center md:justify-end md:space-x-4">
+            <a href="/php/domains" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full sm:w-fit">{{.T.Get "Back to PHP versions"}}</a>
+            <button class="relative hidden inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800 mt-2 w-full sm:w-auto sm:mt-0" type="submit" id="submit_version">{{.T.Get "Manage Extensions"}}</button>
+        </div>
+    </form>
+</div>
+<!-- END form -->
+
+<script>
+    function updateFormAction() {
+        var version = document.getElementById('php_version').value;
+        var form = document.getElementById('php_version_form');
+        var submitButton = document.getElementById('submit_version');
+        if (version) {
+            form.action = '/php/php' + version + '/extensions';
+            submitButton.classList.remove('hidden');
+        } else {
+            submitButton.classList.add('hidden');
+        }
+    }
+</script>
+
+</section>
+
+{{end}}
+
+<!-- END templates/php/extensions.html -->
+{{end}}

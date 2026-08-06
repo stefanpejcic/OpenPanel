@@ -1,0 +1,75 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/user/locale.html -->
+
+<!-- page header -->
+<section aria-label="Locale / Language" x-data="{ searchQuery: '' }">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Change Language"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Change locale for your account."}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+    </div>
+</div>
+<!-- END page header -->
+
+
+
+
+<!-- form -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <form class="mt-8" method="GET">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+
+            <div class="col-span-full">
+
+
+<select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" id="locale-select" aria-label="Select Language">
+                                            <option selected disabled>{{.T.Get "Choose Language"}}</option>
+                                            {{$current := .Current}}
+                                            {{range .Locales}}<option value="{{.}}" {{if and $current (eq $current .)}}selected{{end}}>{{.}} {{if and $current (eq $current .)}}({{$.T.Get "Current"}}){{end}}</option>{{end}}
+                                        </select>
+
+<script>
+
+function change_locales() {
+    var localeSelect = document.getElementById('locale-select');
+
+    if (localeSelect) {
+        localeSelect.addEventListener('change', function () {
+            var selectedLocale = localeSelect.value;
+            if (selectedLocale) {
+                fetch('/account/language', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRF-Token': csrf_token
+                    },
+                    body: 'locale=' + encodeURIComponent(selectedLocale)
+                }).then(function(response) {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        window.location.reload();
+                    }
+                });
+            }
+        });
+    }
+}
+
+change_locales();
+</script>
+
+    </form>
+</div>
+
+</section>
+
+<!-- END templates/user/locale.html -->
+{{end}}

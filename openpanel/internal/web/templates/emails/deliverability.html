@@ -1,0 +1,120 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/emails/deliverability.html -->
+
+<section aria-label="Email Deliverability Header" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="flex items-center gap-x-3">
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email Deliverability"}}</h1>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Check SPF, DKIM and DMARC DNS records for your domains."}}</p>
+        </div>
+        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+            <div class="relative w-full sm:w-64">
+                <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
+                <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                        <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Domain"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">SPF</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">DKIM</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">DMARC</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-right text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Options"}}</th>
+                    </tr>
+                </thead>
+                <tbody id="deliverabilityTableBody" class="divide-y divide-gray-200 dark:divide-gray-800">
+                {{if not .Domains}}
+                    <tr>
+                        <td colspan="5" class="p-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                            {{.T.Get "No domains yet."}}
+                        </td>
+                    </tr>
+                {{else}}
+                    {{range .Domains}}
+                    {{$d := .}}
+                    <tr data-domain="{{$d.DomainURL}}"
+                        x-show="searchQuery === '' || {{toJSON $d.DomainURL}}.toLowerCase().includes(searchQuery.toLowerCase())"
+                        class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            <span class="punycode font-medium text-gray-900 dark:text-gray-50">{{$d.DomainURL}}</span>
+                        </td>
+                        <td class="whitespace-nowrap p-4 text-sm spf-cell"><span class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400">{{$.T.Get "Checking..."}}</span></td>
+                        <td class="whitespace-nowrap p-4 text-sm dkim-cell"><span class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400">{{$.T.Get "Checking..."}}</span></td>
+                        <td class="whitespace-nowrap p-4 text-sm dmarc-cell"><span class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400">{{$.T.Get "Checking..."}}</span></td>
+                        <td class="whitespace-nowrap p-4 text-sm text-right">
+                            <a href="/emails/deliverability/{{$d.DomainURL}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">
+                                <i class="bi bi-search"></i> {{$.T.Get "Details"}}
+                            </a>
+                        </td>
+                    </tr>
+                    {{end}}
+                {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<script>
+function deliverabilityBadge(status) {
+    const map = {
+        ok: ['bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400', 'OK'],
+        missing: ['bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400', 'Missing'],
+        mismatch: ['bg-orange-300 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400', 'Mismatch'],
+        wrong_ip: ['bg-orange-300  text-amber-800 dark:bg-amber-900/40 dark:text-amber-400', 'Wrong IP'],
+    };
+    const [cls, label] = map[status] || ['bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300', status];
+    return `<span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${cls}">${label}</span>`;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    fetch('/emails/deliverability?output=json')
+        .then(response => response.json())
+        .then(data => {
+            const badDomains = [];
+            (data.domains || []).forEach(function (result) {
+                const row = document.querySelector(`tr[data-domain="${result.domain}"]`);
+                if (!row) return;
+                row.querySelector('.spf-cell').innerHTML = deliverabilityBadge(result.spf.status);
+                row.querySelector('.dkim-cell').innerHTML = deliverabilityBadge(result.dkim.status);
+                row.querySelector('.dmarc-cell').innerHTML = deliverabilityBadge(result.dmarc.status);
+
+                const hasProblem = ['missing', 'mismatch', 'wrong_ip'].includes(result.spf.status)
+                    || ['missing', 'mismatch', 'wrong_ip'].includes(result.dkim.status)
+                    || ['missing', 'mismatch', 'wrong_ip'].includes(result.dmarc.status);
+                if (hasProblem) badDomains.push(result.domain);
+            });
+
+            if (typeof reportHealthIssues === 'function' && badDomains.length) {
+                let issue;
+                if (badDomains.length === 1) {
+                    issue = { id: 'deliverability:' + badDomains[0], severity: 'warning', message: {{toJSON (.T.Get "Domain")}} + " " + badDomains[0] + " " + {{toJSON (.T.Get "has SPF/DKIM/DMARC problems.")}} };
+                } else if (badDomains.length === 2) {
+                    issue = { id: 'deliverability:' + badDomains.join(','), severity: 'warning', message: {{toJSON (.T.Get "Domains")}} + " " + badDomains.join(', ') + " " + {{toJSON (.T.Get "have SPF/DKIM/DMARC problems.")}} };
+                } else {
+                    issue = { id: 'deliverability:multiple', severity: 'warning', message: badDomains.length + " " + {{toJSON (.T.Get "domains have SPF/DKIM/DMARC problems.")}} };
+                }
+                reportHealthIssues('emails-deliverability', [issue], 24);
+            }
+        })
+        .catch(function (err) {
+            console.error('Failed to load deliverability status', err);
+        });
+});
+</script>
+
+<!-- END templates/emails/deliverability.html -->
+{{end}}

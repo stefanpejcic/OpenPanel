@@ -1,0 +1,69 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/psql/processlist.html -->
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PostgreSQL Processes"}}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-500">
+            {{.T.Get "List of all current processes running on the PostgreSQL server, providing insights into ongoing queries, operations, and their associated details for better performance monitoring."}}
+        </p>
+    </header>
+</div>
+
+<section aria-label="Processes Table" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
+        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
+            <input x-model="searchQuery" type="search" placeholder="{{.T.Get "Search"}}" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8"/>
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table id="processlist-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Datname"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Pid"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Usename"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Client_addr"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Xact_start"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Query_start"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Wait_event_type"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Wait_event"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "State"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Query"}}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                    {{range split .ProcesslistOutput "\n"}}
+                    {{$cols := split . "|"}}
+                    {{if ge (len $cols) 22}}
+                    <tr x-show="searchQuery === '' || {{toJSON (index $cols 1)}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON (index $cols 5)}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON (index $cols 20)}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900 text-sm">
+                        <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{trimSpace (index $cols 1)}}</td>
+                        <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{trimSpace (index $cols 2)}}</td>
+                        <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{trimSpace (index $cols 5)}}</td>
+                        <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{trimSpace (index $cols 7)}}</td>
+                        <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{trimSpace (index $cols 11)}}</td>
+                        <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{trimSpace (index $cols 12)}}</td>
+                        <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{trimSpace (index $cols 14)}}</td>
+                        <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{trimSpace (index $cols 15)}}</td>
+                        <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{trimSpace (index $cols 16)}}</td>
+                        <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{trimSpace (index $cols 20)}}</td>
+                    </tr>
+                    {{end}}
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- END templates/psql/processlist.html -->
+{{end}}

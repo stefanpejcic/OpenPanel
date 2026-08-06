@@ -1,0 +1,2180 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/manager/wp/single.html -->
+
+<script>let toastDisplayed = false;</script>
+
+<!-- top area -->
+<div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+
+    <div class="group">
+        <div class="flex items-center gap-x-3">
+            <img alt="{{.CurrentDomain}} Favicon" loading="lazy" width="5" height="5" decoding="async" class="h-4 w-4 rounded-full object-cover shadow-lg shadow-indigo-500/50 ring-2 ring-white dark:ring-gray-700" style="color:transparent" src="/json/favicon/{{.CurrentDomain}}">
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.CurrentDomain}}</h1>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-500 domain_link hover:underline"><a href="http://{{.CurrentDomain}}" class="hover:underline" target="_blank">https://{{.CurrentDomain}}</a></p>
+    </div>
+
+    <!-- action buttons -->
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex relative"
+         x-data="{ wpUserDropdownOpen: false, wpAdminUsers: [], wpUsersLoading: false, wpUsersError: null,
+                    loadAdminUsers() {
+                        if (this.wpAdminUsers.length > 0) return;
+                        this.wpUsersLoading = true;
+                        this.wpUsersError = null;
+                        fetch('/wp-cli/users?domain={{.CurrentDomain}}&docroot={{.Docroot}}&role=administrator', {
+                            headers: { 'X-CSRF-Token': csrf_token }
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            this.wpUsersLoading = false;
+                            if (data.users) { this.wpAdminUsers = data.users; }
+                            else { this.wpUsersError = data.error || {{toJSON (.T.Get "Failed to load users")}}; }
+                        })
+                        .catch(e => { this.wpUsersLoading = false; this.wpUsersError = String(e); });
+                    }
+                  }">
+
+        {{template "temp_link" .}}
+
+        <div class="relative inline-flex w-full mt-2 sm:mt-0">
+            <button type="button" class="relative inline-flex items-center justify-center rounded-l border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800" id="login_button"><span id="login_button_text" class="flex gap-1">{{.T.Get "Login as Admin"}}</span></button>
+            <button type="button" @click="wpUserDropdownOpen = !wpUserDropdownOpen; if (wpUserDropdownOpen) loadAdminUsers()" class="relative inline-flex items-center justify-center rounded-r border-l border-gray-700 px-2 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-black bg-black text-white hover:bg-gray-800" title="{{.T.Get "Choose admin user"}}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" :class="{ 'rotate-180': wpUserDropdownOpen }" class="transition-transform">
+                    <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </button>
+
+            <div x-show="wpUserDropdownOpen" @click.outside="wpUserDropdownOpen = false" x-cloak x-transition
+                 class="absolute right-0 top-full mt-1 w-56 rounded border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-950 z-20">
+                <div class="p-2 max-h-64 overflow-y-auto">
+                    <template x-if="wpUsersLoading">
+                        <p class="text-sm text-gray-500 dark:text-gray-400 px-2 py-1">{{.T.Get "Loading admin users..."}}</p>
+                    </template>
+                    <template x-if="wpUsersError">
+                        <p class="text-sm text-red-500 px-2 py-1" x-text="wpUsersError"></p>
+                    </template>
+                    <template x-if="!wpUsersLoading && !wpUsersError && wpAdminUsers.length === 0">
+                        <p class="text-sm text-gray-500 dark:text-gray-400 px-2 py-1">{{.T.Get "No administrator users found."}}</p>
+                    </template>
+                    <template x-for="user in wpAdminUsers" :key="user.id">
+                        <button type="button"
+                            @click="wpUserDropdownOpen = false; loginAsAdminUser(user.username)"
+                            class="w-full text-left rounded px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800">
+                            <span x-text="user.username"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END action buttons -->
+
+</div>
+<!-- END top area -->
+
+<script>
+    var loginButton = document.getElementById('login_button');
+    var buttonText = document.getElementById('login_button_text');
+
+    function loginAsAdminUser(adminUsername) {
+        loginButton.disabled = true;
+        buttonText.innerHTML = '<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Generating..';
+
+        showToast(`Generating auto-login link..`, 'loading', true);
+
+        var phpVersion = document.getElementById('php-version').textContent.trim();
+        var url = '/wp-cli/login?domain={{.CurrentDomain}}&docroot={{.Docroot}}&php_version=' + encodeURIComponent(phpVersion);
+        if (adminUsername) {
+            url += '&admin_user=' + encodeURIComponent(adminUsername);
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                loginButton.disabled = false;
+                buttonText.innerHTML = {{toJSON (.T.Get "Login as Admin")}} + `</span>`;
+
+                if (xhr.status === 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response && response.login_link) {
+                            showToast({{toJSON (.T.Get "Auto-login link:")}} + " " + response.login_link, 'success');
+                            window.open(response.login_link, '_blank');
+                        } else if (response && response.error) {
+                            showToast(`${response.error}`, 'warning');
+                        } else {
+                            showToast({{toJSON (.T.Get "Unexpected response from WP-CLI.")}}, 'error');
+                        }
+                    } catch (e) {
+                        showToast({{toJSON (.T.Get "Error parsing backend response.")}}, 'error');
+                    }
+                } else {
+                    showToast({{toJSON (.T.Get "Failed to get login link. Server returned status")}} + " " + xhr.status, 'error');
+                }
+            }
+        };
+
+        xhr.send();
+    }
+
+    loginButton.addEventListener('click', function () {
+        loginAsAdminUser(null);
+    });
+</script>
+
+
+<div class="m-6 grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4">
+
+    <!-- left section: tabs -->
+    <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
+
+<div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3"
+     x-data="{ activeTab: 'dashboard' }">
+
+    <!-- tabs -->
+    <div class="border-b border-gray-200 dark:border-gray-700">
+        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist"
+            class="grid grid-cols-9 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+
+            <li role="presentation">
+                <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
+                   @click="activeTab = 'dashboard'"
+                   :class="activeTab === 'dashboard' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M2 10h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1m9-9h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m0 9a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1zm0-10a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM2 9a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2zm7 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2zM0 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.354.854a.5.5 0 1 0-.708-.708L3 3.793l-.646-.647a.5.5 0 1 0-.708.708l1 1a.5.5 0 0 0 .708 0z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Overview"}}</span>
+                </a>
+            </li>
+
+            <li role="presentation">
+                <a href="#" id="settings-tab" data-tabs-target="#settings" role="tab" aria-controls="settings" aria-selected="false"
+                   @click="activeTab = 'settings'"
+                   :class="activeTab === 'settings' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M0 10.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H3V1.5a.5.5 0 0 0-1 0V10H.5a.5.5 0 0 0-.5.5M2.5 12a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5m3-6.5A.5.5 0 0 0 6 6h1.5v8.5a.5.5 0 0 0 1 0V6H10a.5.5 0 0 0 0-1H6a.5.5 0 0 0-.5.5M8 1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2A.5.5 0 0 0 8 1m3 9.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H14V1.5a.5.5 0 0 0-1 0V10h-1.5a.5.5 0 0 0-.5.5m2.5 1.5a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Options"}}</span>
+                </a>
+            </li>
+
+            <li role="presentation">
+                <a href="#" id="maintenance-tab" data-tabs-target="#maintenance" role="tab" aria-controls="maintenance" aria-selected="false"
+                   @click="activeTab = 'maintenance'"
+                   :class="activeTab === 'maintenance' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5m5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Maintenance"}}</span>
+                </a>
+            </li>
+
+            <li role="presentation">
+                <a href="#" id="security-tab" data-tabs-target="#security" role="tab" aria-controls="security" aria-selected="false"
+                   @click="activeTab = 'security'"
+                   :class="activeTab === 'security' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 14.933a1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Security"}}</span>
+                </a>
+            </li>
+
+            <li role="presentation">
+                <a href="#" id="updates-tab" data-tabs-target="#updates" role="tab" aria-controls="updates" aria-selected="false"
+                   @click="activeTab = 'updates'"
+                   :class="activeTab === 'updates' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a7 7 0 1 1 2.898 5.673c-.167-.121-.216-.406-.002-.62l1.8-1.8a3.5 3.5 0 0 0 4.572-.328l1.414-1.415a.5.5 0 0 0 0-.707l-.707-.707 1.559-1.563a.5.5 0 1 0-.708-.706l-1.559 1.562-1.414-1.414 1.56-1.562a.5.5 0 1 0-.707-.706l-1.56 1.56-.707-.706a.5.5 0 0 0-.707 0L5.318 5.975a3.5 3.5 0 0 0-.328 4.571l-1.8 1.8c-.58.58-.62 1.6.121 2.137A8 8 0 1 0 0 8a.5.5 0 0 0 1 0"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Updates"}}</span>
+                </a>
+            </li>
+
+            <li role="presentation">
+                <a href="#debugging" id="debugging-tab" data-tabs-target="#debugging" role="tab" aria-controls="debugging" aria-selected="false"
+                   @click="activeTab = 'debugging'"
+                   :class="activeTab === 'debugging' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Debugging"}}</span>
+                </a>
+            </li>
+
+            <li role="presentation">
+                <a href="#" id="backups-tab" data-tabs-target="#backups" role="tab" aria-controls="backups" aria-selected="false"
+                   @click="activeTab = 'backups'"
+                   :class="activeTab === 'backups' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Backups"}}</span>
+                </a>
+            </li>
+
+            <li role="presentation">
+                <a href="#clone" id="clone-tab-desktop" data-tabs-target="#clone" role="tab" aria-controls="clone" aria-selected="false"
+                   @click="activeTab = 'clone'"
+                   :class="activeTab === 'clone' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Clone"}}</span>
+                </a>
+            </li>
+
+            <li role="presentation">
+                <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
+                   @click="activeTab = 'remove'"
+                   :class="activeTab === 'remove' ? 'bg-white text-red-600 shadow-sm dark:bg-gray-900 dark:text-red-400' : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Remove"}}</span>
+                </a>
+            </li>
+
+        </ul>
+    </div>
+    <!-- END tabs -->
+
+    <!-- tabs -->
+    <div id="wp-tab-content p-4">
+        <!-- DASHBOARD -->
+        <div class="hidden p-4 rounded" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+
+            <!-- screenshot -->
+            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
+                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+                        {{template "screenshot" .}}
+                    </div>
+                </div>
+                <div class="grid h-full space-y-2 pb-2 gap-2 grid-cols-2 sm:grid-cols-1">
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "WordPress:"}}</h2>
+                            <a id="updates-button" data-tabs-target="#updates" type="button" role="tab" aria-controls="updates" aria-selected="false" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
+                            </a>
+                        </div>
+                        <h3 class="inline-block  text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl"> <span id="wp-version">{{.Container.Version}}</span><span id="wp-version-release-nag"><span></h3>
+                    </div>
+
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800" x-data="{ phpEditOpen: false }">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "PHP:"}}</h2>
+                            {{if and .UserAllowed.php (not .IsSubdirectory)}}
+                            <button type="button" @click="phpEditOpen = !phpEditOpen" data-tooltip-target="tooltip-php-link" data-tooltip-placement="left" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5"><path fill-rule="evenodd" d="M0 10.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H3V1.5a.5.5 0 0 0-1 0V10H.5a.5.5 0 0 0-.5.5M2.5 12a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5m3-6.5A.5.5 0 0 0 6 6h1.5v8.5a.5.5 0 0 0 1 0V6H10a.5.5 0 0 0 0-1H6a.5.5 0 0 0-.5.5M8 1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2A.5.5 0 0 0 8 1m3 9.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H14V1.5a.5.5 0 0 0-1 0V10h-1.5a.5.5 0 0 0-.5.5m2.5 1.5a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5"></path></svg>
+                            </button>
+                            <div id="tooltip-php-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                {{.T.Get "Click to change"}}
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                            {{end}}
+                        </div>
+
+                        <h3 x-show="!phpEditOpen" class="inline-block  text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl" id="php-version">...</h3>
+
+                        {{if .IsSubdirectory}}
+                        <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">{{.T.Get "Inherits PHP version from %(domain)s" "domain" .MainDomain}}</p>
+                        {{else if .UserAllowed.php}}
+                        <form x-show="phpEditOpen" x-cloak method="POST" action="/php/domains" class="mt-1">
+                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                            <input type="hidden" name="domain_url" value="{{.MainDomain}}">
+                            <input type="hidden" name="old_php_version" value="{{.CurrentPHPVersion}}">
+                            <input type="hidden" name="redirect_to" value="/website?domain={{.CurrentDomain}}">
+                            <div x-data="{ current: {{toJSON .CurrentPHPVersion}}, selected: {{toJSON .CurrentPHPVersion}} }" class="flex rounded-lg">
+                                <select x-model="selected" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="new_php_version">
+                                    {{range .AvailablePHPVersions}}
+                                        <option value="{{.}}" {{if eq . $.CurrentPHPVersion}}selected disabled{{end}}>{{.}}</option>
+                                    {{end}}
+                                </select>
+                                <div class="input-group-append flex">
+                                    <button type="submit" :disabled="selected === current" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                                        {{.T.Get "Change"}}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        {{end}}
+                    </div>
+
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 id='db-type-text' class="text-gray-600 dark:text-gray-400">{{.T.Get "MySQL:"}}</h2>
+                            {{if .UserAllowed.containers}}
+                            <a href="/containers" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5"><path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path></svg>
+                            </a>
+                            {{end}}
+                        </div>
+                        <h3 class="inline-block  text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl" id="mysql-version">...</h3>
+                    </div>
+
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Created:"}}</h2>
+                        </div>
+                        <h3 class="inline-block  text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl" id="created_date" data-relative-date="{{.Container.CreatedDate}}">{{.Container.CreatedDate}}</h3>
+                    </div>
+                </div>
+            </div>
+            <!-- END screenshot -->
+
+            <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-4">
+
+                <!-- files info -->
+                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class=" font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
+                        <a
+                            type="button"
+                            {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}
+                            target="_blank"
+                            data-tooltip-target="tooltip-filemanager-link" data-tooltip-placement="left"
+                            class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                        >
+                            <svg class="hi-mini hi-archive-box inline-block size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M2 3a1 1 0 00-1 1v1a1 1 0 001 1h16a1 1 0 001-1V4a1 1 0 00-1-1H2z"></path>
+                        <path fill-rule="evenodd" d="M2 7.5h16l-.811 7.71a2 2 0 01-1.99 1.79H4.802a2 2 0 01-1.99-1.79L2 7.5zM7 11a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        </a>
+                        <div id="tooltip-filemanager-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                        {{.T.Get "Open folder in File Manager"}}
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Folder:"}}</span>
+                            <span class="font-medium truncate"><a class="domain_link relative font-medium hover:underline" {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}>{{.Docroot}}</a></span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Folder Size:"}}</span>
+                            <span class="font-medium" id="filesSize">{{.T.Get "Calculating.."}}</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- END files info -->
+
+                <!-- database info -->
+                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class=" font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
+                        {{if .UserAllowed.mysql}}
+                        <a
+                            type="button"
+                            id="db-link"
+                            href="/mysql"
+                            target="_blank"
+                            data-tooltip-target="tooltip-db-link" data-tooltip-placement="left"
+                            class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <div id="tooltip-db-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                            {{.T.Get "Manage MySQL databases"}}
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                        {{end}}
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Size:"}}</span>
+                            <span class="font-medium" id="databaseSize">{{.T.Get "Calculating.."}}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Host:"}}</span>
+                            <span class="font-medium" id="database-host">{{.T.Get "localhost"}}
+                                    <div id="tooltip-no-db-size" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Remote MySQL host detected in wp-config.php file. Database size unavailable."}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Name:"}}</span>
+                            <span class="font-medium">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql" class="hover:underline">
+                                <span id="database-name"></span>
+                                </a>
+                            {{else}}
+                                <span id="database-name"></span>
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Table prefix:"}}</span>
+                            <span class="font-medium" id="database-table-prefix"></span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database User:"}}</span>
+                            <span class="font-medium">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql/users" class="hover:underline">
+                                <span id="database-user"></span>
+                                </a>
+                            {{else}}
+                                <span id="database-user"></span>
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Password:"}}</span>
+                            <span class="font-medium" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealPassword()"></span>
+                        </div>
+
+                        {{if .UserAllowed.phpmyadmin}}
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "phpMyAdmin:"}}</span>
+                            <span class="font-medium flex items-center gap-1.5"><a
+                                        type="button"
+                                        id="phpmyadmin-link"
+                                        href="/phpmyadmin"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                            <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open database in phpMyAdmin"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
+                                    <a
+                                        type="button"
+                                        id="phpmyadmin-link-manual"
+                                        href="/phpmyadmin/link"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link-manual" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-right-end-on-rectangle inline-block size-5">
+                                            <path fill-rule="evenodd" d="M6 3.75A2.75 2.75 0 0 1 8.75 1h4.5A2.75 2.75 0 0 1 16 3.75v12.5A2.75 2.75 0 0 1 13.25 19h-4.5A2.75 2.75 0 0 1 6 16.25v-1a.75.75 0 0 1 1.5 0v1c0 .69.56 1.25 1.25 1.25h4.5c.69 0 1.25-.56 1.25-1.25V3.75c0-.69-.56-1.25-1.25-1.25h-4.5c-.69 0-1.25.56-1.25 1.25v1a.75.75 0 0 1-1.5 0v-1Z" clip-rule="evenodd"></path>
+                                            <path fill-rule="evenodd" d="M1 10a.75.75 0 0 1 .75-.75h9.546l-1.048-.943a.75.75 0 1 1 1.004-1.114l2.5 2.25a.75.75 0 0 1 0 1.114l-2.5 2.25a.75.75 0 1 1-1.004-1.114l1.048-.943H1.75A.75.75 0 0 1 1 10Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link-manual" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open phpMyAdmin login form"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div></span>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+                <!-- END database info -->
+                <script>
+                    function revealPassword() {
+                        var passwordSpan = document.getElementById("database-password");
+                        if (passwordSpan.style.filter === "blur(5px)") {
+                            passwordSpan.style.filter = "none";
+                        } else {
+                            passwordSpan.style.filter = "blur(5px)";
+                        }
+                    }
+                </script>
+
+            </dl>
+        </div>
+        <!-- end DASHBOARD -->
+
+        <!-- SETTINGS -->
+        <div class="hidden p-4 rounded" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+
+            <form id="GeneralForm">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "URL"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Site and Homepage URLs"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="siteurl">{{.T.Get "Site URL"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="siteurl" name="siteurl" type="url" autocomplete="url" disabled />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="home">{{.T.Get "Homepage URL"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="home" name="home" type="text" disabled />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Site Name"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Site Name and Description"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="blogname">{{.T.Get "Site Name"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="blogname" name="blogname" type="text" />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="blogdescription">{{.T.Get "Blog Description"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="blogdescription" name="blogdescription" type="text" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email Settings"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Email address to receive admin emails"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="admin_email">{{.T.Get "Administrator Email"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="admin_email" autocomplete="email" name="admin_email" />
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "You will receive confirmation email on this address, and need to confirm."}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "New Registrations"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Enable or disable registration of new users"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="users_can_register">{{.T.Get "User Registration"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                <div class="relative w-full mt-2 space-4">
+                                    <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" type="checkbox" role="switch" id="users_can_register" name="users_can_register"> {{.T.Get "No, registrations are disabled (default)"}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "SEO Visibility"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Search Engine visibility"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="blog_public">{{.T.Get "Website Visibility"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                <div class="relative w-full mt-2  space-4">
+                                    <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" type="checkbox" role="switch" id="blog_public" name="blog_public"> {{.T.Get "I would like my blog to be visible to everyone, including search engines (default)"}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Pingbacks"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Enable or disable pingbacks from other websites"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="default_ping_status">{{.T.Get "Pingbacks and Trackbacks"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                <div class="relative w-full mt-2 space-4">
+                                <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" type="checkbox" role="switch" id="default_ping_status" name="default_ping_status"> {{.T.Get "Allow pingbacks and trackbacks from other blogs (default)"}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="flex items-center justify-end space-x-4">
+                    <button type="button" id="saveGeneralBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Update Settings"}}</button>
+                </div>
+            </form>
+
+            <script>
+                function updateLabelText(checkboxId, labelId, checkedText, uncheckedText) {
+                    var el = document.getElementById(checkboxId);
+                    var label = document.getElementById(labelId);
+                    if (!el) return;
+                    el.addEventListener('change', function () {
+                        if (label) label.textContent = this.checked ? checkedText : uncheckedText;
+                    });
+                }
+
+                function updateFormFields(data) {
+                    document.getElementById('siteurl').value = data.site_url;
+                    document.getElementById('home').value = data.home_url;
+                    document.getElementById('blogname').value = data.site_name;
+                    document.getElementById('blogdescription').value = data.tagline;
+                    document.getElementById('users_can_register').checked = data.registration_enabled === true;
+                    document.getElementById('admin_email').value = data.admin_email;
+                    document.getElementById('default_ping_status').checked = data.pingbacks_enabled === true;
+                    document.getElementById('blog_public').checked = data.seo_indexing_enabled === true;
+                }
+
+                let wpOptionsCache = null;
+
+                document.getElementById('settings-tab').addEventListener('click', function() {
+                    if (wpOptionsCache) {
+                        updateFormFields(wpOptionsCache);
+                        return;
+                    }
+
+                    var phpVersion = document.getElementById('php-version').textContent.trim();
+                    var params = new URLSearchParams({
+                        php_version: phpVersion,
+                        website: {{toJSON .CurrentDomain}},
+                        docroot: {{toJSON .Docroot}}
+                    });
+
+                    fetch("/wordpress/wp-cli/site_info?" + params.toString(), {
+                        method: "GET",
+                        headers: { 'X-CSRF-TOKEN': csrf_token }
+                    })
+                        .then(response => response.json())
+                        .then(response => {
+                            if ("error" in response) {
+                                console.error("Error:", response.error);
+                                showToast(`${response.error}`, 'warning');
+                            } else {
+                                wpOptionsCache = response;
+                                updateFormFields(response);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Request failed:", error);
+                            showToast({{toJSON (.T.Get "Failed to get options. Server returned status")}} + " " + error, 'error');
+                        });
+                });
+            </script>
+
+        </div>
+        <!-- END SETTINGS -->
+
+        <!-- SECURITY -->
+        <div class="hidden p-4 rounded" id="security" role="tabpanel" aria-labelledby="security-tab">
+
+            {{template "wp_vulnerabilities" .}}
+
+            <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+            {{template "wp_secure" .}}
+
+            <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+            {{template "wp_googlesafebrowsing" .}}
+
+            <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Shuffle Salts"}}</h2>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+
+                            <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "WordPress salts are random strings stored in wp-config.php file that are used for the password hashing process. By periodically changing your keys and salts, you make it even harder for hackers to get their hands on your salts."}}</p>
+                            <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Note: changing salts will automatically log out all logged-in users and force them to log in again."}}</p>
+
+                            <div class="relative w-full mt-2">
+                                <button type="button" id="shuffleSalts" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">{{.T.Get "Shuffle Salts"}}</button>
+
+                                <script>
+                                    var suffleSaltsButton = document.getElementById('shuffleSalts');
+                                    var selectedDomain = {{toJSON .CurrentDomain}};
+
+                                    suffleSaltsButton.addEventListener('click', function () {
+                                        suffleSaltsButton.disabled = true;
+                                        suffleSaltsButton.innerHTML = '<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Generating..';
+
+                                        fetch(`/wp-cli/shuffle-salts?domain=${selectedDomain}`, {
+                                            method: "POST",
+                                            headers: { 'X-CSRF-TOKEN': csrf_token }
+                                        })
+                                            .then(response => response.json())
+                                            .then(response => {
+                                                if (response.message) {
+                                                    showToast(`${response.message}`, 'success');
+                                                    suffleSaltsButton.innerHTML = `Shuffle Salts`;
+                                                } else if (response.error) {
+                                                    showToast(`${response.message}`, 'error');
+                                                    suffleSaltsButton.innerHTML = `Retry`;
+                                                }
+                                            })
+                                            .catch(error => {
+                                                showToast(`${error}`, 'error');
+                                                suffleSaltsButton.innerHTML = `Retry`;
+                                            });
+                                        suffleSaltsButton.disabled = false;
+                                    });
+                                </script>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Check Integrity"}}</h2>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+
+                        <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "If you suspect that this site is infected by malware, check the integrity of WordPress core files or Plugins by verifying them against their reference checksums from wordpress.org."}}</p>
+
+                        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+                            <button type="button" id="verifyChecksums" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Check WP Core"}}</button>
+                            <button type="button" id="verifyPluginsChecksums" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Check All Plugins"}}</button>
+                        </div>
+
+                        <div id="checksumResults" class="mt-4"></div>
+
+                        <script>
+                        var selectedDomain = {{toJSON .CurrentDomain}};
+
+                        var verifyChecksumsButton = document.getElementById('verifyChecksums');
+                        var verifyPluginsChecksumsButton = document.getElementById('verifyPluginsChecksums');
+
+                        function escapeHtml(text) {
+                            return text
+                                .replace(/&/g, "&amp;")
+                                .replace(/</g, "&lt;")
+                                .replace(/>/g, "&gt;")
+                                .replace(/"/g, "&quot;")
+                                .replace(/'/g, "&#039;");
+                        }
+
+                        verifyChecksumsButton.addEventListener('click', function () {
+                            showToast({{toJSON (.T.Get "Checking integrity of WP Core files... Please wait.")}}, 'loading');
+
+                            verifyPluginsChecksumsButton.disabled = true;
+                            verifyChecksumsButton.disabled = true;
+                            verifyChecksumsButton.innerHTML = '<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Verifying..';
+
+                            fetch(`/wp-cli/verify-checksum?domain=${selectedDomain}`, {
+                                method: "POST",
+                                headers: { 'X-CSRF-TOKEN': csrf_token }
+                            })
+                                .then(response => response.json().then(data => ({ ok: response.ok, data })))
+                                .then(({ ok, data }) => {
+                                    if (ok && data.message) {
+                                        showToast(data.message, 'success');
+                                        verifyChecksumsButton.innerHTML = `Check WP Core`;
+                                        verifyChecksumsButton.disabled = false;
+                                        verifyPluginsChecksumsButton.disabled = false;
+                                        document.getElementById('checksumResults').innerHTML = `<pre>${escapeHtml(data.output || '')}</pre>`;
+                                    } else {
+                                        showToast(data.error || data.message, 'error');
+                                        verifyChecksumsButton.innerHTML = `Retry`;
+                                        verifyChecksumsButton.disabled = false;
+                                        verifyPluginsChecksumsButton.disabled = false;
+                                        document.getElementById('checksumResults').innerHTML = `<pre>${escapeHtml(data.output || '')}\n${escapeHtml(data.stderr || '')}</pre>`;
+                                    }
+                                })
+                                .catch(error => {
+                                    showToast({{toJSON (.T.Get "An error occurred while verifying checksums.")}}, 'error');
+                                    verifyChecksumsButton.innerHTML = `Retry`;
+                                    verifyChecksumsButton.disabled = false;
+                                    verifyPluginsChecksumsButton.disabled = false;
+                                    document.getElementById('checksumResults').innerHTML = `<pre>${escapeHtml(String(error))}</pre>`;
+                                });
+                        });
+
+                        verifyPluginsChecksumsButton.addEventListener('click', function () {
+                            showToast({{toJSON (.T.Get "Checking integrity for all WordPress plugins... Please wait.")}}, 'loading');
+
+                            verifyPluginsChecksumsButton.disabled = true;
+                            verifyChecksumsButton.disabled = true;
+                            verifyPluginsChecksumsButton.innerHTML = '<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Verifying..';
+
+                            fetch(`/wp-cli/verify-checksum?domain=${selectedDomain}&type=plugins`, {
+                                method: "POST",
+                                headers: { 'X-CSRF-TOKEN': csrf_token }
+                            })
+                                .then(response => response.json().then(data => ({ ok: response.ok, data })))
+                                .then(({ ok, data }) => {
+                                    if (ok && data.message) {
+                                        showToast(data.message, 'success');
+                                        verifyPluginsChecksumsButton.innerHTML = `Check All Plugins`;
+                                        verifyPluginsChecksumsButton.disabled = false;
+                                        verifyChecksumsButton.disabled = false;
+                                        document.getElementById('checksumResults').innerHTML = `<pre>${escapeHtml(data.output || '')}</pre>`;
+                                    } else {
+                                        showToast(data.error || data.message, 'error');
+                                        verifyPluginsChecksumsButton.innerHTML = `Retry`;
+                                        verifyPluginsChecksumsButton.disabled = false;
+                                        verifyChecksumsButton.disabled = false;
+                                        document.getElementById('checksumResults').innerHTML = `<pre>${escapeHtml(data.output || '')}\n${escapeHtml(data.stderr || '')}</pre>`;
+                                    }
+                                })
+                                .catch(error => {
+                                    showToast({{toJSON (.T.Get "An error occurred while verifying plugins checksums.")}}, 'error');
+                                    verifyPluginsChecksumsButton.innerHTML = `Retry`;
+                                    verifyPluginsChecksumsButton.disabled = false;
+                                    verifyChecksumsButton.disabled = false;
+                                    document.getElementById('checksumResults').innerHTML = `<pre>${escapeHtml(String(error))}</pre>`;
+                                });
+                        });
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Reinstall"}}</h2>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+
+                        <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "If checksums fail to match, you can quickly reinstall WordPress core files or all plugins without affecting your site content."}}</p>
+
+                        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+                            <button type="button" id="reinstallCore" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path></svg>{{.T.Get "Reinstall WP Core files"}}</button>
+                            <button type="button" id="reinstallPlugins" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path></svg>{{.T.Get "Reinstall All Plugins"}}</button>
+                        </div>
+
+                        <script>
+                        var reinstallCoreButton = document.getElementById('reinstallCore');
+                        var reinstallPluginsButton = document.getElementById('reinstallPlugins');
+
+                        reinstallCoreButton.addEventListener('click', function () {
+                            reinstallCoreButton.disabled = true;
+                            reinstallPluginsButton.disabled = true;
+                            reinstallCoreButton.innerHTML = '<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Downloading..';
+
+                            showToast({{toJSON (.T.Get "Downloading WP core files... Please wait.")}}, 'loading');
+
+                            fetch(`/wp-cli/download?domain=${selectedDomain}`, {
+                                method: "POST",
+                                headers: { 'X-CSRF-TOKEN': csrf_token }
+                            })
+                                .then(response => response.json())
+                                .then(response => {
+                                    if (response.message) {
+                                        showToast(`${response.message}`, 'success');
+                                        reinstallCoreButton.innerHTML = `Reinstall WP Core files`;
+                                    } else if (response.error) {
+                                        showToast(`${response.message}`, 'error');
+                                        reinstallCoreButton.innerHTML = `Retry`;
+                                    }
+                                })
+                                .catch(error => {
+                                    showToast(`${error}`, 'error');
+                                });
+                            reinstallCoreButton.disabled = false;
+                            reinstallPluginsButton.disabled = false;
+                        });
+
+                        reinstallPluginsButton.addEventListener('click', function () {
+                            reinstallCoreButton.disabled = true;
+                            reinstallPluginsButton.disabled = true;
+                            reinstallPluginsButton.innerHTML = '<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Downloading..';
+
+                            showToast({{toJSON (.T.Get "Downloading and re-installing all plugins... Please wait.")}}, 'loading');
+
+                            fetch(`/wp-cli/download?domain=${selectedDomain}&type=plugins`, {
+                                method: "POST",
+                                headers: { 'X-CSRF-TOKEN': csrf_token }
+                            })
+                                .then(response => response.json())
+                                .then(response => {
+                                    if (response.message) {
+                                        showToast(`${response.message}`, 'success');
+                                        reinstallPluginsButton.innerHTML = `Reinstall All Plugins`;
+                                    } else if (response.error) {
+                                        showToast(`${response.message}`, 'error');
+                                        reinstallPluginsButton.innerHTML = `Retry`;
+                                    }
+                                })
+                                .catch(error => {
+                                    showToast(`${error}`, 'error');
+                                });
+                            reinstallCoreButton.disabled = false;
+                            reinstallPluginsButton.disabled = false;
+                        });
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- END SECURITY -->
+
+        <!-- MAINTENANCE -->
+        <div class="hidden p-4 rounded" id="maintenance" role="tabpanel" aria-labelledby="maintenance-tab">
+
+            <form id="wp-maintenance-mode">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Status"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Current Maintenance Mode status"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <div class="relative w-full mt-2">
+                                    <span id="current_maintenance_mode_status">{{.T.Get "Checking..."}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Action"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Enable/Disable Maintenance Mode"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <div class="relative w-full mt-2">
+                                    <button type="button" id="runMaintenance_action" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">{{.T.Get "Enable/Disable Maintenance Mode"}}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                {{if .UserAllowed.filemanager}}
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Template"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Edit maintenance mode code"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <div class="relative w-full mt-2">
+                                    <a href="/file-manager/edit-file/{{replace .Docroot "/var/www/html/" ""}}/wp-content/maintenance.php?new=true" target="_blank" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap w-100">{{.T.Get "Click to Edit"}}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+
+            </form>
+
+            <script>
+            document.getElementById('maintenance-tab').addEventListener('click', function() {
+                var phpVersion = document.getElementById('php-version').textContent.trim();
+                var params = new URLSearchParams({
+                    php_version: phpVersion,
+                    domain: {{toJSON .CurrentDomain}},
+                    docroot: {{toJSON .Docroot}}
+                });
+
+                fetch("/wp-cli/maintenance-mode?" + params.toString(), {
+                    method: "GET",
+                    headers: { 'X-CSRF-TOKEN': csrf_token }
+                })
+                    .then(response => response.json())
+                    .then(response => {
+                        let statusHTML = '<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-100 text-gray-900 ring-gray-400/30">{{.T.Get "Unknown"}}</span>';
+                        let button = document.getElementById('runMaintenance_action');
+
+                        if (response.status === "enabled") {
+                            statusHTML = '<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded px-2 py-1 text-xs font-medium ring-1 ring-inset bg-orange-50 text-orange-900 ring-orange-600/30 dark:bg-orange-400/10 dark:text-orange-500 dark:ring-orange-400/20">{{.T.Get "Enabled"}}</span>';
+                            button.textContent = {{toJSON (.T.Get "Click to Disable")}};
+                            button.dataset.action = "disable";
+                        } else if (response.status === "disabled") {
+                            statusHTML = '<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20">{{.T.Get "Disabled"}}</span>';
+                            button.textContent = {{toJSON (.T.Get "Click to Enable")}};
+                            button.dataset.action = "enable";
+                        } else {
+                            button.textContent = {{toJSON (.T.Get "Unknown")}};
+                            button.dataset.action = "";
+                        }
+
+                        document.getElementById('current_maintenance_mode_status').innerHTML = statusHTML;
+                    })
+                    .catch(error => {
+                        let errorstatusHTML = '<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-100 text-gray-900 ring-gray-400/30">{{.T.Get "Unknown"}}</span>';
+                        document.getElementById('current_maintenance_mode_status').innerHTML = errorstatusHTML;
+                        console.error({{toJSON (.T.Get "Error checking maintenance mode")}}, error);
+                    });
+            });
+
+            document.getElementById('runMaintenance_action').addEventListener('click', function() {
+                let action = this.dataset.action;
+                if (!action || !['enable', 'disable'].includes(action)) {
+                    showToast({{toJSON (.T.Get "Invalid action")}}, 'danger');
+                    return;
+                }
+
+                let toastMessage;
+                if (action === 'enable') {
+                    toastMessage = {{toJSON (.T.Get "Maintenance mode is now enabled.")}};
+                } else if (action === 'disable') {
+                    toastMessage = {{toJSON (.T.Get "Maintenance mode is now disabled.")}};
+                }
+
+                fetch(`/wp-cli/maintenance-mode?domain={{.CurrentDomain}}`, {
+                    method: "POST",
+                    headers: { 'X-CSRF-TOKEN': csrf_token, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subcmd: action, domain: {{toJSON .CurrentDomain}} })
+                })
+                    .then(response => response.json().then(data => {
+                        if (!response.ok) throw data;
+                        return data;
+                    }))
+                    .then(response => {
+                        showToast(toastMessage, 'success');
+                        document.getElementById('maintenance-tab').click();
+                    })
+                    .catch(error => {
+                        showToast({{toJSON (.T.Get "Failed to change maintenance mode")}} + ": " + (error?.error || error), 'error');
+                    });
+            });
+            </script>
+
+        </div>
+        <!-- END MAINTENANCE -->
+
+        <!-- UPDATES -->
+        <div class="hidden p-4 rounded" id="updates" role="tabpanel" aria-labelledby="updates-tab">
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Version"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Current WP version."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="flex gap-0">
+                        <div id="wp-version-current" class="w-full p-2 rounded-l-lg">
+                            <label class="flex justify-end text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="wp-version-4-updates">{{.T.Get "Installed WordPress version:"}}</label>
+                            <div class="flex justify-end relative w-full mt-2">
+                                <h3 class="inline-block text-3xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400" id="wp-version-4-updates">{{.Container.Version}}</h3>
+                            </div>
+                        </div>
+                        <div class="w-full bg-blue-500 p-2 justify-start rounded-r-lg">
+                            <label class="flex justify-start text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="latest-wp-version">{{.T.Get "Latest WordPress version:"}}</label>
+                            <div class="flex justify-start relative w-full mt-2 gap-2">
+                                <h3 class="inline-block text-3xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400" id="latest-wp-version"></h3>
+                                <button type="button" id="updateButton" class="hidden text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm  ml-3 px-3 py-1 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">{{.T.Get "Update now"}}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.getElementById('updates-tab').addEventListener('click', function () {
+                    fetchupdatesInfo();
+                });
+            </script>
+
+            <script>
+                function updateupdatesCheckboxes(response) {
+                    document.getElementById('WP_AUTO_UPDATE_PLUGINS_TRUE').checked = response.WP_AUTO_UPDATE_PLUGINS === 'true';
+                    document.getElementById('WP_AUTO_UPDATE_PLUGINS_FALSE').checked = response.WP_AUTO_UPDATE_PLUGINS === 'false';
+                    document.getElementById('WP_AUTO_UPDATE_THEMES_TRUE').checked = response.WP_AUTO_UPDATE_THEMES === 'true';
+                    document.getElementById('WP_AUTO_UPDATE_THEMES_FALSE').checked = response.WP_AUTO_UPDATE_THEMES === 'false';
+                    document.getElementById('WP_AUTO_UPDATE_CORE_YES').checked = response.WP_AUTO_UPDATE_CORE === 'true';
+                    document.getElementById('WP_AUTO_UPDATE_CORE_MINOR').checked = response.WP_AUTO_UPDATE_CORE === 'minor';
+                    document.getElementById('WP_AUTO_UPDATE_CORE_NO').checked = response.WP_AUTO_UPDATE_CORE === 'false';
+                }
+
+                function fetchupdatesInfo() {
+                    var selectedDomain = {{toJSON .CurrentDomain}};
+                    var selectedPath = {{toJSON .Docroot}};
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', `/wordpress/wp-cli/update_info?domain=${selectedDomain}&docroot=${selectedPath}`, true);
+                    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            updateupdatesCheckboxes(response);
+                        } else {
+                            console.error('Error fetching updates info:', xhr.statusText);
+                        }
+                    };
+                    xhr.onerror = function () {
+                        console.error('Network error while fetching updates info');
+                    };
+                    xhr.send();
+                }
+            </script>
+
+            <form id="UpdatesForm">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="website" value="{{.CurrentDomain}}">
+                <input type="hidden" name="docroot" value="{{.Docroot}}">
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Core"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Update preferences for WP core."}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium">{{.T.Get "Update WordPress automatically:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                <div class="relative w-full mt-2">
+                                    <div class="form-check">
+                                        <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_CORE_NO" name="WP_AUTO_UPDATE_CORE" value="false"> <label class="form-check-label" for="WP_AUTO_UPDATE_CORE_NO">{{.T.Get "No, I will update manually when needed"}}</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_CORE_MINOR" name="WP_AUTO_UPDATE_CORE" value="minor"> <label class="form-check-label" for="WP_AUTO_UPDATE_CORE_MINOR">{{.T.Get "Yes, but only minor (security) updates"}}</label> <span class="badge rounded-pill bg-warning text-dark">{{.T.Get "Recommended"}}</span>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_CORE_YES" name="WP_AUTO_UPDATE_CORE" value="true"> <label class="form-check-label" for="WP_AUTO_UPDATE_CORE_YES">{{.T.Get "Yes, all (minor and major) updates"}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Plugins"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Update preferences for WP plugins."}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium">{{.T.Get "Update plugins automatically:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                <div class="relative w-full mt-2">
+                                    <div class="form-check">
+                                        <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_PLUGINS_TRUE" name="WP_AUTO_UPDATE_PLUGINS" value="true"> <label class="form-check-label" for="WP_AUTO_UPDATE_PLUGINS_TRUE">{{.T.Get "Yes, all plugins will be automatically updated"}}</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_PLUGINS_FALSE" name="WP_AUTO_UPDATE_PLUGINS" value="false"> <label class="form-check-label" for="WP_AUTO_UPDATE_PLUGINS_FALSE">{{.T.Get "No, I will update manually when needed"}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Themes"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Update preferences for WP themes."}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium">{{.T.Get "Update themes automatically:"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <div class="form-check">
+                                        <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_THEMES_TRUE" name="WP_AUTO_UPDATE_THEMES" value="true"> <label class="form-check-label" for="WP_AUTO_UPDATE_THEMES_TRUE">{{.T.Get "Yes, all themes will be automatically updated"}}</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_THEMES_FALSE" name="WP_AUTO_UPDATE_THEMES" value="false">
+                                        <label class="form-check-label" for="WP_AUTO_UPDATE_THEMES_FALSE">{{.T.Get "No, I will update manually when needed"}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="flex items-center justify-end space-x-4">
+                    <button type="button" id="saveUpdatesBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Update Preferences"}}</button>
+                </div>
+            </form>
+
+            <script>
+                document.getElementById('saveUpdatesBtn').addEventListener('click', function() {
+                    var formData = new URLSearchParams(new FormData(document.getElementById('UpdatesForm'))).toString();
+
+                    showToast({{toJSON (.T.Get "Saving update preferences... Please wait.")}}, 'loading');
+
+                    fetch("/wordpress/wp-cli/update_update_preferences?" + formData, {
+                        method: "GET",
+                        headers: { 'X-CSRF-TOKEN': csrf_token }
+                    })
+                        .then(response => response.json())
+                        .then(response => {
+                            if (response.message) {
+                                showToast(`${response.message}`, 'success');
+                            } else if (response.error) {
+                                showToast(`${response.message}`, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            showToast(`${error}`, 'error');
+                        });
+                });
+
+                document.getElementById('saveGeneralBtn').addEventListener('click', function() {
+                    var selectedDomain = {{toJSON .CurrentDomain}};
+                    var docroot = {{toJSON .Docroot}};
+
+                    var formData = new URLSearchParams({
+                        siteurl: document.getElementById('siteurl').value,
+                        home: document.getElementById('home').value,
+                        blogname: document.getElementById('blogname').value,
+                        blogdescription: document.getElementById('blogdescription').value,
+                        users_can_register: document.getElementById('users_can_register').checked ? 1 : 0,
+                        admin_email: document.getElementById('admin_email').value,
+                        default_ping_status: document.getElementById('default_ping_status').checked ? 'open' : 'closed',
+                        blog_public: document.getElementById('blog_public').checked ? 1 : 0
+                    });
+
+                    showToast({{toJSON (.T.Get "Saving general settings... Please wait.")}}, 'loading');
+
+                    fetch(`/wordpress/wp-cli/update_site_information?website=${selectedDomain}&docroot=${docroot}&` + formData.toString(), {
+                        method: "GET",
+                        headers: { 'X-CSRF-TOKEN': csrf_token }
+                    })
+                        .then(response => response.json())
+                        .then(response => {
+                            if (response.message) {
+                                showToast(`${response.message}`, 'success');
+                            } else if (response.error) {
+                                showToast(`${response.message}`, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            showToast(`${error}`, 'error');
+                        });
+                });
+            </script>
+
+        </div>
+        <!-- END UPDATES -->
+
+        <!-- DEBUG -->
+        <div class="hidden p-4 rounded" id="debugging" role="tabpanel" aria-labelledby="debugging-tab">
+
+            <script>
+                function updateCheckboxes(response) {
+                    document.getElementById('WP_DEBUG').checked = response.WP_DEBUG === 'true';
+                    document.getElementById('WP_DEBUG_LOG').checked = response.WP_DEBUG_LOG === 'true';
+                    document.getElementById('WP_DEBUG_DISPLAY').checked = response.WP_DEBUG_DISPLAY === 'true';
+                    document.getElementById('SCRIPT_DEBUG').checked = response.SCRIPT_DEBUG === 'true';
+                    document.getElementById('SAVEQUERIES').checked = response.SAVEQUERIES === 'true';
+                }
+
+                function fetchDebugInfo() {
+                    var selectedDomain = {{toJSON .CurrentDomain}};
+                    var docroot = {{toJSON .Docroot}};
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', `/wordpress/wp-cli/debug_info?website=${selectedDomain}&docroot=${docroot}`, true);
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            updateCheckboxes(response);
+                        } else {
+                            console.error('Error fetching debug info:', xhr.statusText);
+                            showToast({{toJSON (.T.Get "Error fetching debug info. Refresh the page.")}}, 'warning');
+                        }
+                    };
+                    xhr.onerror = function () {
+                        console.error('Network error while fetching debug info');
+                    };
+                    xhr.setRequestHeader('X-CSRF-Token', csrf_token);
+                    xhr.send();
+                }
+
+                document.getElementById('debugging-tab').addEventListener('click', function () {
+                    fetchDebugInfo();
+                });
+            </script>
+
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "The options below allow you to manage the native WordPress debugging tools, enabling and disabling these tools in the wp-config.php file. It is not recommended to use these options on production websites since they are meant for development and test installations. Refer to"}} <a href="https://wordpress.org/support/article/debugging-in-wordpress/" target="_blank"  class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500" rel="noopener noreferrer">{{.T.Get "Debugging in WordPress"}} <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg></a> {{.T.Get "article for more information on these options."}}</p>
+
+            <form id="updateDebugForm">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="website" value="{{.CurrentDomain}}">
+                <input type="hidden" name="docroot" value="{{.Docroot}}">
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WP_DEBUG"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "WordPress debug mode."}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="WP_DEBUG">{{.T.Get "WP_DEBUG"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" type="checkbox" role="switch" id="WP_DEBUG" name="WP_DEBUG"> {{.T.Get "Enable WP_DEBUG mode"}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WP_DEBUG_LOG"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Save all errors to the debug.log file inside the wp-content directory."}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="WP_DEBUG_LOG">{{.T.Get "WP_DEBUG_LOG"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" type="checkbox" role="switch" id="WP_DEBUG_LOG" name="WP_DEBUG_LOG"> {{.T.Get "Enable WP_DEBUG_LOG"}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WP_DEBUG_DISPLAY"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Show debug messages inside the HTML pages"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="WP_DEBUG_DISPLAY">{{.T.Get "WP_DEBUG_DISPLAY"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" type="checkbox" role="switch" id="WP_DEBUG_DISPLAY" name="WP_DEBUG_DISPLAY"> {{.T.Get "Enable WP_DEBUG_DISPLAY"}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "SCRIPT_DEBUG"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Force WordPress to use the non-minified versions of core CSS and JavaScript files. This is useful when you are testing changes made to .js and .css files."}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="SCRIPT_DEBUG">{{.T.Get "SCRIPT_DEBUG"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" type="checkbox" role="switch" id="SCRIPT_DEBUG" name="SCRIPT_DEBUG"> {{.T.Get "Enable SCRIPT_DEBUG"}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "SAVEQUERIES"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Save database queries to an array that can be displayed to help analyze them."}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="SAVEQUERIES">{{.T.Get "SAVEQUERIES"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" type="checkbox" role="switch" id="SAVEQUERIES" name="SAVEQUERIES"> {{.T.Get "Enable SAVEQUERIES"}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="flex items-center justify-end space-x-4">
+                    <button type="button" id="saveSettingsBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Debugging"}}</button>
+                </div>
+            </form>
+
+            <script>
+                document.getElementById('saveSettingsBtn').addEventListener('click', function() {
+                    var formData = new URLSearchParams(new FormData(document.getElementById('updateDebugForm'))).toString();
+
+                    showToast({{toJSON (.T.Get "Saving debugging options... Please wait.")}}, 'loading');
+
+                    fetch("/wordpress/wp-cli/update_debug?" + formData, {
+                        method: "GET",
+                        headers: { 'X-CSRF-TOKEN': csrf_token }
+                    })
+                        .then(response => response.json())
+                        .then(response => {
+                            if (response.message) {
+                                showToast(`${response.message}`, 'success');
+                            } else if (response.error) {
+                                showToast(`${response.message}`, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            showToast(`${error}`, 'error');
+                        });
+                });
+            </script>
+
+        </div>
+        <!-- END DEBUG -->
+
+        <!-- CLONE -->
+        <div class="hidden p-4 rounded" id="clone" role="tabpanel" aria-labelledby="clone-tab">
+
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Clone a WordPress instance with configured themes and plugins."}}</p>
+
+            <form id="CloneForm">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="source_domain" value="{{.CurrentDomain}}">
+                <input type="hidden" name="source_folder" value="{{.Docroot}}">
+                <input type="hidden" name="wordpress_version" value="{{.Container.Version}}">
+                <input type="hidden" name="admin_email" value="{{.Container.AdminEmail}}">
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Location"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Please choose the URL to install the software"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="source_domain">{{.T.Get "Source"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="source_domain" name="source_domain" type="text" value="{{.CurrentDomain}}" disabled />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="target_domain">{{.T.Get "Target"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                <div class="relative w-full mt-2">
+                                    <div class="flex">
+                                        <select class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" name="target_domain" id="target_domain">
+                                            <option selected disabled value="">{{.T.Get "Select a domain"}}</option>
+                                            {{range .Domains}}
+                                                <option class="punycode" docroot="{{.Docroot}}" value="{{.DomainURL}}">{{.DomainURL}}</option>
+                                            {{end}}
+                                        </select>
+                                        <div class="input-group-append flex">
+                                            <input type="text" name="subdirectory" id="subdirectory" placeholder="subfolder" class="relative block w-full appearance-none rounded-r-md border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                                        </div>
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Make sure that the domain or the subdomain selected as a target is not being used by an existing website. During cloning, website data that exists on the destination may be overwritten and irrevocably lost."}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Database name and user to use for the clone (optional)"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="target_db">{{.T.Get "Database Name"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="target_db" name="target_db" type="text" minlength="6" maxlength="30" title="{{.T.Get "Database name must be between 6 and 30 characters."}}" />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="target_db_user">{{.T.Get "Database user"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="target_db_user" name="target_db_user" type="text" minlength="6" maxlength="30" title="{{.T.Get "Username must be between 6 and 30 characters."}}" />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="target_db_user_password">{{.T.Get "User password"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="target_db_user_password" name="target_db_user_password" type="password" minlength="8" maxlength="30" title="{{.T.Get "Password must be between 8 and 30 characters."}}" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="flex items-center justify-end space-x-4">
+                    <button type="button" id="startCloneBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Clone website"}}</button>
+                </div>
+            </form>
+
+            <script>
+                document.getElementById('startCloneBtn').addEventListener('click', function() {
+                    var btn = this;
+                    btn.disabled = true;
+                    btn.textContent = {{toJSON (.T.Get "Cloning...")}};
+                    var formData = new URLSearchParams(new FormData(document.getElementById('CloneForm')));
+                    var sourceDb = document.getElementById('database-name').textContent;
+                    var sourceDbUser = document.getElementById('database-user').textContent;
+                    formData.append('source_db', sourceDb);
+                    formData.append('source_db_user', sourceDbUser);
+                    showToast({{toJSON (.T.Get "Cloning process started... Please wait.")}}, 'loading');
+
+                    fetch("/wordpress/clone", {
+                        method: "POST",
+                        headers: { 'X-CSRF-TOKEN': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData.toString()
+                    })
+                        .then(response => response.json().then(data => {
+                            if (!response.ok) throw data;
+                            return data;
+                        }))
+                        .then(response => {
+                            if (response.status === 'success') {
+                                showToast(`Cloned to ${response.target} successfully!`, 'success');
+                                btn.textContent = {{toJSON (.T.Get "Clone Complete")}};
+                            } else {
+                                showToast(`Error cloning site`, 'error');
+                                btn.disabled = false;
+                                btn.textContent = {{toJSON (.T.Get "Try Again")}};
+                            }
+                        })
+                        .catch(error => {
+                            showToast(`${error?.error || error}`, 'error');
+                            btn.disabled = false;
+                            btn.textContent = {{toJSON (.T.Get "Retry Clone")}};
+                        });
+                });
+            </script>
+
+        </div>
+        <!-- END CLONE -->
+
+        <!-- BACKUPS -->
+        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create a Backup"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Generate a backup of files and/or database."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <div class="flex items-center">
+                                    <input checked id="backupDatabase" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Backup Database"}} <b id="db-size-for-backup"></b></label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input checked id="backupFiles" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Backup Files"}} <b id="files-size-for-backup"></b></label>
+                                </div>
+                                <button id="runBackup" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100"><i class="bi bi-download mr-2"></i> {{.T.Get "Generate Backup"}}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div></div></div>
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore from Backups"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Restore files and/or database from a backup."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button id="restore-btn-or" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100" type="button">
+                                    {{.T.Get "Display Backups"}}
+                                </button>
+
+                                <div id="restore-section" class="hidden">
+                                    <p>{{.T.Get "Select a backup date:"}}</p>
+                                    <select class="peer w-full cursor-pointer appearance-none truncate rounded border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="restoreBackupDate"></select>
+
+                                    <div id="restoreStatus" class="mt-3"></div>
+
+                                    <button data-selected-domain="{{.CurrentDomain}}" type="button" id="confirmRestore" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                        <i class="bi bi-arrow-counterclockwise mr-2"></i> {{.T.Get "Start Restore"}}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- END BACKUPS -->
+
+        <!-- REMOVE -->
+        <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
+
+            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Detach"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the"}} {{.Container.Type}} {{.T.Get "website from WP Manager."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                    <i class="bi bi-x mr-2"></i> {{.T.Get "Detach WordPress"}}
+                                </button>
+                                <div x-show="open">
+                                    <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the"}} {{.Container.Type}} {{.T.Get "website from this manager without actually deleting any files."}}</p>
+                                    <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "All website data such as files, crons and database remains."}}</p>
+                                    <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
+                                        <button @click="confirmDetach('{{.Container.ID}}')" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400 w-100" type="button">
+                                        {{.T.Get "Confirm Detach"}}
+                                        </button>
+                                        <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                        {{.T.Get "Cancel"}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div></div></div>
+
+            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Uninstall"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Permanently delete WordPress files & database."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                    <i class="bi bi-trash3 mr-2"></i> {{.T.Get "Uninstall WordPress"}}
+                                </button>
+                                <div x-show="open">
+                                    <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Delete the"}} {{.Container.Type}} {{.T.Get "website and all its files and database."}}</p>
+                                    <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "All WordPress data will be permanently deleted. There is no coming back after you press delete."}}</p>
+                                    <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
+                                        <button onclick="confirmRemoveforWP('{{.Container.ID}}')" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400 w-100" type="button">
+                                        {{.T.Get "Confirm Uninstall"}}
+                                        </button>
+                                        <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                        {{.T.Get "Cancel"}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function confirmRemoveforWP(Id) {
+                    showToast({{toJSON (.T.Get "WordPress uninstall process started. Please wait.")}}, 'loading');
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', '/wordpress/remove', true);
+                    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4) {
+                            window.location.href = '/wordpress';
+                        }
+                    };
+                    xhr.send('id=' + Id + '&csrf_token=' + encodeURIComponent(csrf_token));
+                }
+
+                function confirmDetach(Id) {
+                    showToast({{toJSON (.T.Get "WordPress detach process started. Please wait.")}}, 'loading');
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', '/wordpress/detach', true);
+                    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                window.location.href = '/wordpress';
+                            } else {
+                                showToast({{toJSON (.T.Get "An error occurred while detaching WordPress. Please try again.")}}, 'error');
+                            }
+                        }
+                    };
+                    xhr.send('id=' + Id + '&csrf_token=' + encodeURIComponent(csrf_token));
+                }
+            </script>
+        </div>
+        <!-- END REMOVE -->
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const select = document.getElementById('wp-tab');
+                const tabContent = document.querySelectorAll('#wp-tab-content > div');
+
+                const showTab = (tabId) => {
+                    tabContent.forEach(tab => tab.classList.add('hidden'));
+                    const selectedTab = document.getElementById(tabId);
+                    if (selectedTab) selectedTab.classList.remove('hidden');
+                };
+
+                select.addEventListener('change', (e) => {
+                    const selectedValue = e.target.value;
+                    showTab(selectedValue);
+                });
+
+                showTab(select.value);
+            });
+        </script>
+
+    </div>
+    <!-- END tabs -->
+
+</div>
+<!-- END TABS AREA -->
+
+    </div>
+    <!-- END left section -->
+
+    <!-- right sidebar: speed, visitors, waf, cache -->
+    <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-1">
+        {{template "pagespeed_panel" .}}
+        {{template "visitors" .}}
+        {{template "waf_panel" .}}
+        {{template "wp_cache" .}}
+    </div>
+    <!-- END right sidebar -->
+
+</div>
+
+
+<script>
+function GetWPdbSize(databaseName) {
+    const databaseSizeSpan = document.getElementById("databaseSize");
+    const databaseSizeSpanForBackup = document.getElementById("db-size-for-backup");
+    fetch(`/json/database-size?database=${encodeURIComponent(databaseName)}`)
+        .then(response => response.json())
+        .then(data => {
+            databaseSizeSpan.textContent = data.size;
+            databaseSizeSpanForBackup.textContent = `( ~ ${data.size} )`;
+        })
+        .catch(error => {
+            console.error("An error occurred fetching DB size from MySQL:", error);
+            showToast({{toJSON (.T.Get "An error occurred fetching DB size.")}}, 'warning');
+        });
+}
+
+function GetWPSiteInfo() {
+    var domainParam = new URLSearchParams(window.location.search).get('domain');
+
+    fetch("/website/wp_info/" + domainParam, {
+        method: "GET",
+        headers: { 'X-CSRF-TOKEN': csrf_token }
+    })
+        .then(response => response.json())
+        .then(data => {
+            var databaseHost = data.database_info.database_host;
+            var databaseName = data.database_info.database_name;
+            var databasePassword = data.database_info.database_password;
+            var databaseTablePrefix = data.database_info.database_table_prefix;
+            var databaseUser = data.database_info.database_user;
+            var mysqlVersion = data.mysql_version;
+            var phpVersion = data.php_version;
+            var wpVersion = data.wp_version;
+
+            var versionRegex = /^\d+\.\d+(\.\d+)?$/;
+            const cleanWp = (wpVersion || "").toString().trim().replace(/\s+/g, '');
+
+            if (versionRegex.test(cleanWp)) {
+                document.getElementById('wp-version').textContent = cleanWp;
+                document.getElementById('wp-version-4-updates').textContent = cleanWp;
+            } else {
+                console.warn("Invalid WordPress version format received from the container:", wpVersion);
+            }
+
+            if (versionRegex.test(mysqlVersion)) {
+                document.getElementById('mysql-version').textContent = mysqlVersion;
+            } else {
+                console.warn("Invalid MySQL version format received from the container:", mysqlVersion);
+            }
+
+            document.getElementById('php-version').textContent = phpVersion;
+
+            if (databaseHost === "localhost" || databaseHost === "mysql" || databaseHost === "mariadb" || databaseHost === "127.0.0.1") {
+                document.getElementById('database-host').innerHTML = `${databaseHost}`;
+                if (databaseHost === "mariadb") {
+                    document.getElementById('db-type-text').innerHTML = {{toJSON (.T.Get "MariaDB:")}};
+                }
+            } else {
+                document.getElementById('database-host').innerHTML = `${databaseHost} <span class="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 text-sm font-medium me-2 px-2.5 py-0.5 rounded" data-tooltip-target="tooltip-no-db-size" data-tooltip-placement="left">REMOTE</span>`;
+            }
+
+            document.getElementById('database-name').textContent = databaseName;
+            document.getElementById('database-password').textContent = databasePassword;
+            document.getElementById('database-table-prefix').textContent = databaseTablePrefix;
+            document.getElementById('database-user').textContent = databaseUser;
+
+            if (databaseHost === "localhost" || databaseHost === "mysql" || databaseHost === "mariadb" || databaseHost === "127.0.0.1") {
+                GetWPdbSize(databaseName);
+            } else {
+                console.warn("Remote MySQL database detected, database size is not available. Database host from wp-config.php file:", databaseHost);
+                document.getElementById('db-size-row')?.classList.add('hidden');
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+
+    document.querySelectorAll('#action_description p').forEach(el => el.style.display = 'none');
+
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('mouseenter', function() {
+            var descriptionId = this.dataset.bsDescription + '-description';
+            var el = document.getElementById(descriptionId);
+            if (el) el.style.display = '';
+        });
+        btn.addEventListener('mouseleave', function() {
+            var descriptionId = this.dataset.bsDescription + '-description';
+            var el = document.getElementById(descriptionId);
+            if (el) el.style.display = 'none';
+        });
+    });
+};
+
+GetWPSiteInfo();
+</script>
+
+<script>
+function attachupdatebtnlistener() {
+    const updateButton = document.getElementById("updateButton");
+    var domainName = {{toJSON .CurrentDomain}};
+    var docroot = {{toJSON .Docroot}};
+    var updatesTab = document.getElementById('updates-tab');
+
+    if (updateButton) {
+        updateButton.addEventListener("click", async (ev) => {
+            ev.preventDefault();
+
+            updateButton.disabled = true;
+            showToast({{toJSON (.T.Get "Update in progress...")}}, 'loading');
+            try {
+                const response = await fetch(`/wordpress/wp-cli/update_now?website=` + domainName + `&docroot=` + docroot, {
+                    method: 'GET',
+                });
+                const jsonResponse = await response.json();
+                if (jsonResponse.message === {{toJSON (.T.Get "WordPress updated successfully")}}) {
+                    showToast({{toJSON (.T.Get "WordPress updated successfully.")}}, 'success');
+
+                    GetWPSiteInfo();
+
+                    await fetch(`/wordpress/reload_data`, { method: 'GET' });
+                    checkWordPressVersionStatus();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast({{toJSON (.T.Get "Update failed.")}}, 'error');
+            }
+
+            updateButton.disabled = false;
+            updateButton.classList.remove('hidden');
+
+            if (updatesTab) {
+                updatesTab.click();
+            } else {
+                console.error("Element with id 'updates-tab' not found.");
+            }
+        });
+    }
+}
+
+attachupdatebtnlistener();
+</script>
+
+<script>
+function GetWPfilesSize() {
+    const filesSizeSpan = document.getElementById("filesSize");
+    const filesSizeSpanForBackup = document.getElementById("files-size-for-backup");
+    const destinationPath = {{toJSON (replace .Docroot "/var/www/html/" "")}};
+
+    fetch(`/json/directory-size?folder=${encodeURIComponent(destinationPath)}`)
+        .then(response => response.json())
+        .then(data => {
+            filesSizeSpan.textContent = data.size;
+            filesSizeSpanForBackup.textContent = `( ~ ${data.size} )`;
+        })
+        .catch(error => {
+            console.error("An error occurred fetching file size from container:", error);
+            showToast({{toJSON (.T.Get "An error occurred fetching folder size from the container.")}}, 'warning');
+        });
+}
+
+const restoreButton = document.getElementById("restore-btn-or");
+const restoreBackupDateSelect = document.getElementById("restoreBackupDate");
+const confirmRestoreButton = document.getElementById("confirmRestore");
+
+const restoreDomain = {{toJSON .CurrentDomain}};
+var docroot = {{toJSON .Docroot}};
+let restoreConfirmed = false;
+
+if (restoreButton) {
+    restoreButton.addEventListener("click", function () {
+        document.getElementById("restore-section").classList.remove("hidden");
+        document.getElementById("restore-btn-or").classList.add("hidden");
+        fetch(`/wordpress/backup/get_dates/${restoreDomain}?docroot=${docroot}`)
+            .then(response => response.json())
+            .then(data => {
+                restoreBackupDateSelect.innerHTML = "";
+
+                if (data.length > 0) {
+                    data.forEach(dateInfo => {
+                        const { date, hasDbBackup, hasFilesBackup } = dateInfo;
+                        const option = document.createElement("option");
+                        option.value = date;
+                        option.textContent = `${date} (${getBackupTypeLabel(hasDbBackup, hasFilesBackup)})`;
+                        restoreBackupDateSelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement("option");
+                    option.textContent = "No backups available";
+                    option.disabled = true;
+                    restoreBackupDateSelect.appendChild(option);
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching backup dates:", error);
+            });
+    });
+}
+
+if (confirmRestoreButton) {
+    var docroot = {{toJSON .Docroot}};
+    confirmRestoreButton.addEventListener("click", function () {
+        if (!restoreConfirmed) {
+            confirmRestoreButton.textContent = {{toJSON (.T.Get "Click again to confirm")}};
+            confirmRestoreButton.classList.remove(
+                "outline-blue-500", "dark:outline-blue-500", "bg-blue-600", "dark:bg-blue-700",
+                "hover:bg-blue-700", "dark:hover:bg-blue-600", "disabled:bg-blue-300",
+                "disabled:dark:bg-blue-950", "disabled:dark:text-blue-400"
+            );
+            confirmRestoreButton.classList.add(
+                "outline-red-500", "dark:outline-red-500", "bg-red-600", "dark:bg-red-700",
+                "hover:bg-red-700", "dark:hover:bg-red-600", "disabled:bg-red-300",
+                "disabled:dark:bg-red-950", "disabled:dark:text-red-400"
+            );
+            restoreConfirmed = true;
+        } else {
+            const selectedDate = restoreBackupDateSelect.value;
+            showToast({{toJSON (.T.Get "Restoring backup... Please wait.")}}, 'warning');
+
+            fetch(`/wordpress/backup/restore/${restoreDomain}?docroot=${docroot}&backup_date=${selectedDate}`)
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    }
+                    throw new Error({{toJSON (.T.Get "Restore request failed.")}});
+                })
+                .then(result => {
+                    showToast(`${result}`, 'success');
+
+                    setTimeout(() => {
+                        restoreConfirmed = false;
+                        confirmRestoreButton.textContent = {{toJSON (.T.Get "Start Restore")}};
+                        confirmRestoreButton.classList.remove(
+                            "outline-red-500", "dark:outline-red-500", "bg-red-600", "dark:bg-red-700",
+                            "hover:bg-red-700", "dark:hover:bg-red-600", "disabled:bg-red-300",
+                            "disabled:dark:bg-red-950", "disabled:dark:text-red-400"
+                        );
+                        confirmRestoreButton.classList.add(
+                            "outline-blue-500", "dark:outline-blue-500", "bg-blue-600", "dark:bg-blue-700",
+                            "hover:bg-blue-700", "dark:hover:bg-blue-600", "disabled:bg-blue-300",
+                            "disabled:dark:bg-blue-950", "disabled:dark:text-blue-400"
+                        );
+                    }, 5000);
+                })
+                .catch(error => {
+                    console.error("Error during restore:", error);
+                    showToast(`${error.message}`, 'error');
+                });
+        }
+    });
+}
+
+function getBackupTypeLabel(hasDbBackup, hasFilesBackup) {
+    if (hasDbBackup && hasFilesBackup) {
+        return {{toJSON (.T.Get "Database and Files Backup")}};
+    } else if (hasDbBackup) {
+        return {{toJSON (.T.Get "Database Backup")}};
+    } else if (hasFilesBackup) {
+        return {{toJSON (.T.Get "Files Backup")}};
+    }
+    return {{toJSON (.T.Get "Unknown Backup Type")}};
+}
+
+const runBackupButton = document.getElementById("runBackup");
+const backupDatabaseCheckbox = document.getElementById("backupDatabase");
+const backupFilesCheckbox = document.getElementById("backupFiles");
+
+if (runBackupButton) {
+    runBackupButton.addEventListener("click", function () {
+        const backupDatabase = backupDatabaseCheckbox.checked;
+        const backupFiles = backupFilesCheckbox.checked;
+
+        if (!backupDatabase && !backupFiles) {
+            showToast({{toJSON (.T.Get "No options selected to backup. Please ensure that at least one of the Database or Files is selected.")}}, 'error');
+            return;
+        }
+
+        runBackupButton.disabled = true;
+        const originalButtonText = runBackupButton.innerHTML;
+        runBackupButton.innerHTML = `<i class="bi bi-arrow-repeat animate-spin mr-2"></i> {{.T.Get "Generating Backup..."}}`;
+
+        showToast({{toJSON (.T.Get "Generating website backup.. Please wait.")}}, 'loading');
+
+        fetch(`/wordpress/backup/run/${restoreDomain}?docroot=${docroot}&backup_database=${backupDatabase}&backup_files=${backupFiles}`)
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                }
+                throw new Error({{toJSON (.T.Get "Backup request failed.")}});
+            })
+            .then(result => {
+                showToast(`${result}`, 'success');
+            })
+            .catch(error => {
+                showToast(`${error.message}`, 'error');
+                console.error("Error during backup:", error);
+            })
+            .finally(() => {
+                runBackupButton.disabled = false;
+                runBackupButton.innerHTML = originalButtonText;
+            });
+    });
+}
+
+GetWPfilesSize();
+</script>
+
+<script>
+function checkWordPressVersionStatus() {
+    fetch('https://api.wordpress.org/core/stable-check/1.0/')
+        .then(response => response.json())
+        .then(data => {
+            const versionStatuses = data;
+
+            const versionNag = document.querySelector('#wp-version-release-nag');
+            const span = document.querySelector('#wp-version');
+            const updateButton = document.getElementById("updateButton");
+            const latestVersionSpan = document.querySelector('#latest-wp-version');
+            const currentVersionColor = document.getElementById("wp-version-current");
+
+            if (!span || !versionNag) return;
+
+            const latestVersion = Object.keys(versionStatuses).find(
+                version => versionStatuses[version] === 'latest'
+            );
+
+            if (latestVersionSpan && latestVersion) {
+                latestVersionSpan.textContent = latestVersion;
+            }
+
+            const version = span.textContent.trim();
+            const status = versionStatuses[version];
+
+            let badgeClass = '';
+            let badgeText = '';
+
+            switch (status) {
+                case 'latest':
+                    badgeClass = 'bg-green-500 text-white dark:bg-green-900 dark:text-green-300';
+                    badgeText = 'Latest';
+                    updateButton?.classList.add('hidden');
+                    currentVersionColor?.classList.add('bg-gray-200');
+                    currentVersionColor?.classList.add('dark:bg-gray-700');
+                    break;
+                case 'outdated':
+                    badgeClass = 'bg-orange-500 text-white dark:bg-yellow-900 dark:text-yellow-300';
+                    badgeText = 'Outdated';
+                    updateButton?.classList.remove('hidden');
+                    currentVersionColor?.classList.add('bg-blue-200');
+                    currentVersionColor?.classList.add('dark:bg-blue-600');
+                    break;
+                case 'insecure':
+                    badgeClass = 'bg-red-500 text-white dark:bg-red-900 dark:text-red-300';
+                    badgeText = 'Insecure';
+                    updateButton?.classList.remove('hidden');
+                    currentVersionColor?.classList.add('bg-red-500');
+                    break;
+                default:
+                    badgeClass = 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+                    currentVersionColor?.classList.add('bg-gray-200');
+                    currentVersionColor?.classList.add('dark:bg-gray-700');
+                    badgeText = 'Unknown';
+            }
+
+            versionNag.innerHTML = `
+                <span class="${badgeClass} text-sm font-medium me-2 px-2.5 py-0.5">
+                    ${badgeText}
+                </span>
+            `;
+        })
+        .catch(error => {
+            console.error('Error fetching WordPress versions:', error);
+        });
+}
+
+window.addEventListener('load', () => {
+    checkWordPressVersionStatus();
+});
+</script>
+
+<!-- END templates/manager/wp/single.html -->
+{{end}}

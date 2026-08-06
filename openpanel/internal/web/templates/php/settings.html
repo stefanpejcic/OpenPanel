@@ -1,0 +1,147 @@
+{{define "content"}}
+<!-- START templates/php/settings.html -->
+
+<!-- page header -->
+<section aria-label="PHP Header" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PHP version for domains"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Changing the PHP version will stop all the processes on your site. It takes about 10 seconds to complete."}}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Be sure to check your script and plugin requirements to know which PHP version works best for your website."}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        <div class="relative w-full sm:max-w-[250px] sm:[&>input]:h-[30px]">
+            <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END page header -->
+
+<!-- version counters -->
+<dl class="m-6 flex flex-wrap items-center gap-x-12 gap-y-8">
+{{range .VersionCounts}}
+    <div>
+        <dt class="text-sm text-gray-500 dark:text-gray-500">{{.Label}}</dt>
+        <dd class="mt-1.5 flex items-center gap-2">
+            <div class="flex gap-0.5">
+                {{if eq .Level "good"}}
+                <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
+                {{else if eq .Level "secure"}}
+                <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
+                {{else}}
+                <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
+                {{end}}
+            </div>
+            <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                PHP {{.Version}}
+                <span class="font-medium text-gray-400 dark:text-gray-600">
+                    - <a href="#" @click.prevent="searchQuery = '{{.Version}}'" class="hover:underline">{{.Count}} {{$.T.Get "domains"}}</a>
+                </span>
+            </p>
+        </dd>
+    </div>
+{{end}}
+</dl>
+{{if gt .OutdatedDomains 0}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues === 'function') {
+        reportHealthIssues('php-domains', [{"id": "php-outdated:{{.OutdatedDomains}}", "severity": {{if ge .OutdatedDomains 5}}"error"{{else}}"warning"{{end}}, "message": {{toJSON (printf "%d domains are running an outdated/unsupported PHP version." .OutdatedDomains)}}}], 24);
+    }
+});
+</script>
+{{end}}
+<!-- END version counters -->
+
+<!-- domains table -->
+<div class="overflow-x-auto">
+    <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+        <table id="php-domains-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+            <thead class="">
+                <tr class="bg-gray-50 dark:bg-gray-900 sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
+                    <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Domain"}}</th>
+                    <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Current PHP Version"}}</th>
+                    <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Change version"}}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                {{if not .Domains}}
+                <tr>
+                    <td colspan="3" class="p-6 text-center">{{.T.Get "No domains yet."}}</td>
+                </tr>
+                {{else}}
+                {{$csrf := .CSRFToken}}
+                {{$available := .AvailablePHPVersions}}
+                {{range .Domains}}
+                <tr x-show="searchQuery === '' || '{{.DomainURL}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.PHPVersion}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                        <span class="punycode">{{.DomainURL}}</span>
+                    </td>
+                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                        <div>
+                            <dd class="flex items-center gap-2">
+                                <div class="flex gap-0.5">
+                                    {{if eq .Level "good"}}
+                                    <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
+                                    <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
+                                    <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
+                                    {{else if eq .Level "secure"}}
+                                    <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                                    <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                                    <div class="h-3.5 w-1 rounded-sm bg-gray-500 dark:bg-gray-500"></div>
+                                    {{else if eq .Level "unsupported"}}
+                                    <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
+                                    <div class="h-3.5 w-1 rounded-sm bg-gray-500 dark:bg-gray-500"></div>
+                                    <div class="h-3.5 w-1 rounded-sm bg-gray-500 dark:bg-gray-500"></div>
+                                    {{else}}
+                                    <div class="h-3.5 w-1 rounded-sm bg-gray-500 dark:bg-gray-500"></div>
+                                    <div class="h-3.5 w-1 rounded-sm bg-gray-500 dark:bg-gray-500"></div>
+                                    <div class="h-3.5 w-1 rounded-sm bg-gray-500 dark:bg-gray-500"></div>
+                                    {{end}}
+                                </div>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.PHPVersion}}</p>
+                            </dd>
+                        </div>
+                    </td>
+                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                        <form method="POST">
+                            <input type="hidden" name="csrf_token" value="{{$csrf}}"/>
+                            <input type="hidden" name="domain_url" value="{{.DomainURL}}">
+                            <input type="hidden" name="old_php_version" value="{{.PHPVersion}}">
+                            <div x-data="{ current: '{{.PHPVersion}}', selected: '{{.PHPVersion}}' }" class="flex rounded-lg">
+                                <select x-model="selected" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="new_php_version" id="new_php_version">
+                                    {{$rowVersion := .PHPVersion}}
+                                    {{range $available}}
+                                    <option value="{{.}}" {{if eq . $rowVersion}}selected disabled{{end}}>{{.}}</option>
+                                    {{end}}
+                                </select>
+                                <div class="input-group-append flex">
+                                    <button type="submit" :disabled="selected === current" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                                        {{$.T.Get "Change"}}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                {{end}}
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+</section>
+
+<!-- END templates/php/settings.html -->
+{{end}}

@@ -1,0 +1,16 @@
+{
+  "include": ["modules"],
+
+  "typeCheckingMode": "off",
+
+  "reportMissingImports": "error",
+  "reportUndefinedVariable": "error",
+
+  "reportOptionalMemberAccess": "none",
+  "reportGeneralTypeIssues": "none",
+  "reportArgumentType": "none",
+  "reportCallIssue": "none",
+  "reportAttributeAccessIssue": "none",
+  "reportPossiblyUnboundVariable": "none",
+  "reportRedeclaration": "none"
+}

@@ -1,0 +1,91 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/user/stats.html -->
+
+<!-- js -->
+      <script src="/static/vendor/raphael/raphael.min.js"></script>
+      <script src="/static/vendor/justgage/justgage.min.js"></script>
+<!-- END js  -->
+
+
+<section aria-label="Domains Header" x-data="{ searchQuery: '' }">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="flex items-center gap-x-3">
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Resource Usage"}}</h1>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View current resource usage for all websites and services."}}</p>
+        </div>
+        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+            <a href="/server/usage/history" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "View Usage History"}}</a>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="p-6 mx-auto text-center">
+        {{if .HasStats}}
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
+
+                <!-- CPU Card -->
+                <div class="w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 relative !p-2">
+                    <div class="mb-6 flex items-center justify-between gap-4">
+                        <h2 class="text-l font-extrabold"><i class="bi bi-cpu"></i> {{.T.Get "CPU"}}</h2>
+                    </div>
+                    <div class="grid mx-auto max-w-screen-xl justify-center text-center lg:w-full md:w-5/6 xl:shadow-small-blue">
+                        <div id="cpuGauge"></div>
+                        <p>{{.T.Get "Current CPU usage:"}} {{.Stats.CPU.Usage.Human}} ({{.Stats.CPU.Usage.Pct}}%)</p>
+                        <p>{{.T.Get "Total CPU allocation:"}} {{.Stats.CPU.Total.Human}} ({{.Stats.CPU.Total.Pct}}%)</p>
+                    </div>
+                </div>
+
+                <!-- RAM Card -->
+                <div class="w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 relative !p-2">
+                    <div class="mb-6 flex items-center justify-between gap-4">
+                        <h2 class="text-l font-extrabold"><i class="bi bi-memory"></i> {{.T.Get "RAM"}}</h2>
+                    </div>
+                    <div class="grid mx-auto max-w-screen-xl justify-center text-center lg:w-full md:w-5/6 xl:shadow-small-blue">
+                        <div id="ramGauge"></div>
+                        <p>{{.T.Get "Used Memory:"}} {{.Stats.Memory.Used.Human}} ({{.Stats.Memory.UsagePct}}%)</p>
+                        <p>{{.T.Get "Total Memory:"}} {{.Stats.Memory.Total.Human}}</p>
+                        <p>{{.T.Get "Available Memory:"}} {{.Stats.Memory.Available.Human}}</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0">
+                <p class="mt-4">{{.T.Get "Last refreshed at"}} {{.Stats.Timestamp}}</p>
+            </div>
+
+            <script>
+                function createGauge(elementId, value, title) {
+                    return new JustGage({
+                        id: elementId,
+                        value: parseFloat(value),
+                        min: 0,
+                        max: 100,
+                        title: title
+                    });
+                }
+
+                function updateGauges() {
+                    const cpuPercentage = "{{.Stats.CPU.Usage.Pct}}";
+                    const ramPercentage = "{{.Stats.Memory.UsagePct}}";
+                    createGauge('cpuGauge', cpuPercentage, 'CPU Usage %');
+                    createGauge('ramGauge', ramPercentage, 'RAM Usage %');
+                }
+
+                updateGauges();
+            </script>
+
+        {{else}}
+            <p class="text-gray-500 dark:text-gray-400">{{.T.Get "No resource usage data available yet."}}</p>
+        {{end}}
+    </div>
+</section>
+
+
+<!-- END templates/user/stats.html -->
+{{end}}

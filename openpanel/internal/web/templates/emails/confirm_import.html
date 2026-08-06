@@ -1,0 +1,208 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/emails/confirm_import.html -->
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Import Emails"}}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "Import email accounts from .xls or .csv files."}}</p>
+    </header>
+</div>
+
+<!-- form -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <form class="mt-8" id="addDomainForm" method="POST" action="/emails/import/confirm">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+
+            <div class="col-span-full mb-3">
+            {{if .InvalidUsers}}
+<div class="mb-6 flex flex-col overflow-hidden rounded p-4 text-sm text-red-800 dark:text-white bg-red-50 dark:bg-red-900"><div class="flex items-start"><span class="font-semibold">{{.T.Get "⚠️ The following addresses will be skipped:"}}</span></div><div class="overflow-y-auto mt-2">
+                    <ul class="text-sm">
+                        {{range .InvalidUsers}}
+                            <li>
+                                {{.Email}} —
+                                {{if not .DomainValid}} {{$.T.Get "domain does not exist"}}{{end}}
+                                {{if .EmailExists}} {{$.T.Get "address already exists"}}{{end}}
+                            </li>
+                        {{end}}
+                    </ul>
+    </div></div>
+            {{end}}
+            </div>
+
+
+            {{if .ValidUsers}}
+            <div class="col-span-full mb-3">
+
+                     <label for="domain" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "The following users will be imported:"}}</label>
+                    <table class="mt-2 w-full text-sm border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-200">
+                            <th class="px-2 py-1 border">{{.T.Get "Email"}}</th>
+                            <th class="px-2 py-1 border">{{.T.Get "Password"}}</th>
+                            <th class="px-2 py-1 border">{{.T.Get "Quota"}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range .ValidUsers}}
+                            <tr>
+                                <td class="px-2 py-1 border">{{.Email}}</td>
+                                <td class="px-2 py-1 border">{{.Password}}</td>
+                                <td class="px-2 py-1 border">{{if .Quota}}{{.Quota}}{{else}}—{{end}}</td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+
+            </div>
+            {{else}}
+            {{.T.Get "No Accounts to Import"}}
+            {{end}}
+
+
+        </div>
+
+        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+<div class="md:flex items-center md:justify-end md:space-x-4">
+    <a href="/emails/import" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">
+        {{.T.Get "Back to Upload"}}
+    </a>
+    {{if .ValidUsers}}
+    <button type="submit" id="installButton" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Start Import"}}<svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+        </svg>
+    </button>
+    {{end}}
+</div>
+
+    </form>
+</div>
+<!-- END form -->
+
+
+<!-- .CrawlerStatusCard.active spin animation now lives globally in base.html -->
+
+<!-- progress text -->
+<div class="sm:mx-auto p-6 m-6">
+<pre id="statusMessage" class="overflow-auto hidden max-h-64 p-4 bg-gray-800 text-white rounded">
+</pre>
+<div>
+<!-- END progress text -->
+
+
+<!-- js for submit and validation -->
+<script>
+const addDomainForm = document.getElementById("addDomainForm");
+
+addDomainForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const installButton = event.target.querySelector("#installButton");
+
+    document.getElementById("toAddActive").classList.add("active");
+
+    const button = document.getElementById("installButton");
+    button.disabled = true;
+    button.innerText = {{toJSON (.T.Get "Importing...")}};
+
+    const statusMessageDiv = document.getElementById("statusMessage");
+    statusMessageDiv.classList.remove("hidden");
+    statusMessageDiv.innerText = "";
+
+    const formData = new FormData(addDomainForm);
+
+    let toastDisplayed = false;
+
+    const toastMessage = {{toJSON (.T.Get "Starting import. Please wait for the process to finish.")}};
+    showToast(toastMessage, 'loading');
+
+    fetch("/emails/import/confirm", {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+            const toastMessage = {{toJSON (.T.Get "Network response from backend was not ok. Please contact support.")}};
+            showToast(toastMessage, 'error');
+            toastDisplayed = true;
+            throw new Error("Network response was not ok.");
+        }
+        return response.body;
+    })
+    .then(stream => {
+        const reader = stream.getReader();
+        const decoder = new TextDecoder();
+        return new ReadableStream({
+            start(controller) {
+                function read() {
+                    reader.read().then(({ done, value }) => {
+                        if (done) {
+                            controller.close();
+                            return;
+                        }
+                        const text = decoder.decode(value);
+
+                        if (
+                            !(
+                                text.toLowerCase().includes("working outside of request context") ||
+                                text.toLowerCase().includes("an active http request") ||
+                                text.toLowerCase().includes("consult the documentation")
+                            )
+                        ) {
+                            statusMessageDiv.innerText += text;
+                            statusMessageDiv.scrollTop = statusMessageDiv.scrollHeight;
+                        }
+
+                        if (text.toLowerCase().includes("import complete") && !toastDisplayed) {
+                            const toastMessage = {{toJSON (.T.Get "Import process completed.")}};
+                            showToast(toastMessage, 'success');
+                            toastDisplayed = true;
+                            document.getElementById("toAddActive").classList.remove("active");
+
+                            statusMessageDiv.style.display = "flex";
+                            button.disabled = false;
+                            button.innerText = {{toJSON (.T.Get "Start Import")}};
+                        } else if (text.toLowerCase().includes("error") && !toastDisplayed) {
+                            const toastMessage = {{toJSON (.T.Get "Error occurred during import.")}} + " " + {{toJSON (.T.Get "Please check the output below.")}};
+                            showToast(toastMessage, 'warning');
+                            toastDisplayed = true;
+                            document.getElementById("toAddActive").classList.remove("active");
+
+                            statusMessageDiv.style.display = "flex";
+                            button.disabled = false;
+                            button.innerText = {{toJSON (.T.Get "Retry Import")}};
+                        }
+
+                        read();
+                    }).catch(err => {
+                        console.error("Error reading stream", err);
+                    });
+                }
+                read();
+            }
+        });
+    })
+    .catch(error => {
+        console.error("Fetch error: ", error);
+        if (!toastDisplayed) {
+            const toastMessage = {{toJSON (.T.Get "A network error occurred. Please try again.")}};
+            showToast(toastMessage, 'error');
+            toastDisplayed = true;
+            document.getElementById("toAddActive").classList.remove("active");
+            statusMessageDiv.style.display = "flex";
+            button.disabled = false;
+            button.innerText = {{toJSON (.T.Get "Retry Import")}};
+        }
+    });
+});
+</script>
+<!-- END js for submit and validation -->
+
+
+<!-- END templates/emails/confirm_import.html -->
+{{end}}

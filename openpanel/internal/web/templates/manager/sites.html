@@ -1,0 +1,290 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/manager/sites.html -->
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Site Manager"}}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Manage"}}{{if .UserAllowed.wordpress}} WordPress,{{end}}{{if .UserAllowed.drupal}} Drupal,{{end}}{{if .UserAllowed.python}} Python,{{end}}{{if .UserAllowed.nodejs}} Node.js, {{end}}{{.T.Get "and other websites."}}</p>
+    </header>
+</div>
+
+{{if .Groups}}
+<section aria-label="Websites Table" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
+        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
+            <input
+                id="sites-search-input"
+                x-model="searchQuery"
+                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
+                placeholder="{{.T.Get "Search"}}"
+                type="search"
+            />
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-2 sm:flex-row">
+            <a class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 text-center font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-2 py-1.5 text-base sm:w-fit sm:text-sm" href="/auto-installer">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>
+                {{.T.Get "New"}}
+            </a>
+        </div>
+    </div>
+    <div class="overflow-x-auto relative overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 h-screen">
+        <div class="whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table id="sites-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Type"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Site Name"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Admin Email"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Created"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Version"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Speed"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+
+                {{range $group := .Groups}}
+                    <tr x-show="searchQuery === '' || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+                        <th class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="7">
+                            {{if eq $group.Type "wordpress"}}WordPress
+                            {{else if eq $group.Type "drupal"}}Drupal
+                            {{else if contains $group.Type "nodejs"}}NodeJS Containers
+                            {{else if contains $group.Type "bun"}}Bun Applications
+                            {{else if contains $group.Type "python"}}Python Containers
+                            {{else if contains $group.Type "ruby"}}Ruby Applications
+                            {{else if contains $group.Type "java"}}Java Applications
+                            {{else if contains $group.Type "mautic"}}Mautic
+                            {{else if contains $group.Type "fossbilling"}}FOSSBilling
+                            {{else if eq $group.Type "websitebuilder"}}Website Builder
+                            {{else if eq $group.Type "flarum"}}Flarum
+                            {{else}}{{title $group.Type}}
+                            {{end}}
+                            <span class="ml-2 font-medium text-gray-600 dark:text-gray-400">{{len $group.Sites}}</span>
+                        </th>
+                    </tr>
+
+                    {{range $site := $group.Sites}}
+                    <tr id="site-row-{{$site.SiteName}}" x-show="searchQuery === '' || {{toJSON $site.SiteName}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $site.AdminEmail}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-gray-50 hover:dark:bg-gray-900">
+
+                        <td class="p-4 text-sm text-gray-600 dark:text-gray-400 text-center align-middle">
+                            {{$typeLower := lower $site.Type}}
+                            {{if eq $typeLower "wordpress"}}
+<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-wordpress" viewBox="0 0 16 16">
+  <path d="M12.633 7.653c0-.848-.305-1.435-.566-1.892l-.08-.13c-.317-.51-.594-.958-.594-1.48 0-.63.478-1.218 1.152-1.218q.03 0 .058.003l.031.003A6.84 6.84 0 0 0 8 1.137 6.86 6.86 0 0 0 2.266 4.23c.16.005.313.009.442.009.717 0 1.828-.087 1.828-.087.37-.022.414.521.044.565 0 0-.371.044-.785.065l2.5 7.434 1.5-4.506-1.07-2.929c-.369-.022-.719-.065-.719-.065-.37-.022-.326-.588.043-.566 0 0 1.134.087 1.808.087.718 0 1.83-.087 1.83-.087.37-.022.413.522.043.566 0 0-.372.043-.785.065l2.48 7.377.684-2.287.054-.173c.27-.86.469-1.495.469-2.046zM1.137 8a6.86 6.86 0 0 0 3.868 6.176L1.73 5.206A6.8 6.8 0 0 0 1.137 8"/>
+  <path d="M6.061 14.583 8.121 8.6l2.109 5.78q.02.05.049.094a6.85 6.85 0 0 1-4.218.109m7.96-9.876q.046.328.047.706c0 .696-.13 1.479-.522 2.458l-2.096 6.06a6.86 6.86 0 0 0 2.572-9.224z"/>
+  <path fill-rule="evenodd" d="M0 8c0-4.411 3.589-8 8-8s8 3.589 8 8-3.59 8-8 8-8-3.589-8-8m.367 0c0 4.209 3.424 7.633 7.633 7.633S15.632 12.209 15.632 8C15.632 3.79 12.208.367 8 .367 3.79.367.367 3.79.367 8"/>
+</svg>
+</a>
+                            {{else if eq $typeLower "drupal"}}
+<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48" class="mx-auto">
+    <path fill="#0077c0" d="M32.6 8.3C29.5 5.4 26.5 2.5 24 0c-2.5 2.5-5.5 5.4-8.6 8.3C11.2 12.2 7 16.3 7 23.1 7 35.2 14.5 44 24 44s17-8.8 17-20.9c0-6.8-4.2-10.9-8.4-14.8z"/>
+    <path fill="#fff" d="M24.3 38.3c-3.6.1-6.4-1.4-8.1-4-1.5-2.3-1.7-5.3-.5-7.9 1-2.1 2.7-3.6 4.3-5.1.5-.4.9-.8 1.3-1.2l.3-.3.3.3c1 1 2.1 2 3.1 3 1.4 1.3 2.8 2.6 3.9 4.1 1.8 2.4 2 5.5.7 8-1.3 2.4-3.4 3.9-5.3 4.1z"/>
+    <ellipse cx="29.3" cy="22.4" fill="#fff" rx="2.4" ry="3.7" transform="rotate(-33.1 29.3 22.4)"/>
+</svg>
+</a>
+                            {{else if eq $typeLower "mautic"}}
+<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-app-indicator" viewBox="303.933 0.589 349.779 349.779">
+<g id="brandmark"><g><path d="M478.822,350.368c-96.277,0-174.89-78.318-174.89-174.89c0-96.572,78.612-174.89,174.89-174.89
+c23.26,0,45.931,4.417,67.129,13.543c5.889,2.65,8.833,9.422,6.478,15.605c-2.649,5.888-9.421,8.833-15.604,6.477
+c-18.549-7.655-37.98-11.482-58.002-11.482c-83.323,0-151.041,67.718-151.041,151.041S395.5,326.813,478.822,326.813
+c83.323,0,151.041-67.718,151.041-151.041c0-17.96-2.944-35.332-9.127-51.819c-2.355-6.183,0.883-12.955,7.066-15.31
+c6.183-2.355,12.954,0.883,15.31,7.066c7.066,19.138,10.6,39.453,10.6,60.063C653.712,271.756,575.395,350.368,478.822,350.368z"/></g>
+<g><polygon points="555.373,157.519 528.286,185.783 543.302,249.085 577.455,249.085        "/></g>
+<polygon points="544.186,73.901 553.606,83.323 478.822,162.523 414.932,96.866 378.128,249.085 412.282,249.085 432.598,164.584
+478.822,214.932 577.75,107.171 587.172,116.888 596.593,63.596   "/></g>
+</svg>
+</a>
+                            {{else if contains $typeLower "nodejs"}}
+<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-javascript" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M14 0a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zM9.053 7.596v3.127l-.007 1.752q0 .498-.186.752t-.556.263q-.342 0-.528-.234-.185-.234-.185-.684v-.175H6.37v.185q0 .665.253 1.113.255.45.703.674.44.225 1.016.225.88 0 1.406-.498.527-.498.527-1.485l.007-1.752V7.596zm3.808-.108q-.585 0-1.006.244a1.67 1.67 0 0 0-.634.674 2.1 2.1 0 0 0-.225.996q0 .753.293 1.182.303.42.967.732l.469.215q.438.186.625.43.185.244.185.635 0 .478-.166.703-.156.224-.527.224-.361.001-.547-.244-.186-.243-.205-.752h-1.162q.02.996.498 1.524.479.527 1.386.527.909 0 1.417-.518.507-.517.507-1.484 0-.81-.332-1.289t-1.045-.79l-.449-.196q-.39-.166-.556-.381-.166-.214-.166-.576 0-.4.165-.596.177-.195.508-.195.361 0 .508.234.156.234.176.703h1.123q-.03-.976-.498-1.484-.47-.518-1.309-.518"/>
+</svg>
+</a>
+                            {{else if contains $typeLower "python"}}
+<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-app-indicator" viewBox="0 0 16 16">
+  <path d="M5.5 2A3.5 3.5 0 0 0 2 5.5v5A3.5 3.5 0 0 0 5.5 14h5a3.5 3.5 0 0 0 3.5-3.5V8a.5.5 0 0 1 1 0v2.5a4.5 4.5 0 0 1-4.5 4.5h-5A4.5 4.5 0 0 1 1 10.5v-5A4.5 4.5 0 0 1 5.5 1H8a.5.5 0 0 1 0 1z"/>
+  <path d="M16 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+</svg>
+</a>
+                            {{else if eq $typeLower "websitebuilder"}}
+<a href="/website-builder/edit?domain={{$site.SiteName}}" title="{{$.T.Get "Open Website Builder"}}" target="_blank">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-brush-fill" viewBox="0 0 16 16">
+  <path d="M15.825.12a.5.5 0 0 1 .132.584c-1.53 3.43-4.743 8.17-7.095 10.64a6.1 6.1 0 0 1-2.373 1.534c-.018.227-.06.538-.16.868-.201.659-.667 1.479-1.708 1.74a8.1 8.1 0 0 1-3.078.132 4 4 0 0 1-.562-.135 1.4 1.4 0 0 1-.466-.247.7.7 0 0 1-.204-.288.62.62 0 0 1 .004-.443c.095-.245.316-.38.461-.452.394-.197.625-.453.867-.826.095-.144.184-.297.287-.472l.117-.198c.151-.255.326-.54.546-.848.528-.739 1.201-.925 1.746-.896q.19.012.348.048c.062-.172.142-.38.238-.608.261-.619.658-1.419 1.187-2.069 2.176-2.67 6.18-6.206 9.117-8.104a.5.5 0 0 1 .596.04"/>
+</svg>
+</a>
+                            {{else}}
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-app-indicator" viewBox="0 0 16 16">
+  <path d="M5.5 2A3.5 3.5 0 0 0 2 5.5v5A3.5 3.5 0 0 0 5.5 14h5a3.5 3.5 0 0 0 3.5-3.5V8a.5.5 0 0 1 1 0v2.5a4.5 4.5 0 0 1-4.5 4.5h-5A4.5 4.5 0 0 1 1 10.5v-5A4.5 4.5 0 0 1 5.5 1H8a.5.5 0 0 1 0 1z"/>
+  <path d="M16 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+</svg>
+                            {{end}}
+                        </td>
+
+                        <th scope="row" class="flex items-center text-start px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            <img class="w-5 h-5 rounded-full" src="/json/favicon/{{$site.SiteName}}" alt="{{$site.SiteName}} Favicon" title="{{$site.SiteName}} Favicon">
+                            <div class="pl-3">
+                                <div class="text-left text-base font-semibold">{{$site.SiteName}}</div>
+                                <div class="font-normal text-gray-500">
+<a class="domain_link text-sm inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400" href="https://{{$site.SiteName}}" target="_blank">
+https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg>
+</a>
+                                </div>
+                            </div>
+                        </th>
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{$site.AdminEmail}}</td>
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" x-data="{ rawDate: {{toJSON $site.CreatedDate}}, date: new Date({{toJSON $site.CreatedDate}}), relative: '' }" x-init="relative = formatRelativeDay(date)">
+                            <span x-text="relative" :title="rawDate"></span>
+                        </td>
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            {{if $site.Version}}<span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">{{$site.Version}}</span>{{end}}
+                        </td>
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div class="speed_data" data-site-name="{{$site.SiteName}}" id="speed_data_{{replace $site.SiteName "." "_"}}"></div>
+                        </td>
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            {{if $site.IsStatic}}
+                            <a {{if $.UserAllowed.filemanager}}href="/files/{{$site.SiteName}}"{{end}} type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{$.T.Get "Manage"}}</a>
+                            {{else}}
+                            <a href="/website?domain={{$site.SiteName}}" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{$.T.Get "Manage"}}</a>
+                            {{end}}
+                        </td>
+                    </tr>
+                    {{end}}
+                {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+const i18n = {
+    mobile: {{toJSON (.T.Get "Mobile")}},
+    desktop: {{toJSON (.T.Get "Desktop")}},
+    firstContentfulPaint: {{toJSON (.T.Get "First Contentful Paint:")}},
+    speedIndex: {{toJSON (.T.Get "Speed Index:")}},
+    timeToInteractive: {{toJSON (.T.Get "Time to Interactive:")}},
+    measuredAt: {{toJSON (.T.Get "Measured at")}},
+    update: {{toJSON (.T.Get "Update")}}
+};
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".speed_data").forEach(div => {
+        const siteName = div.dataset.siteName;
+        const url = `/json/page_speed/${siteName}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.desktop_speed && data.mobile_speed) {
+                    const desktopScore = Math.round(data.desktop_speed.performance_score * 100);
+                    const mobileScore = Math.round(data.mobile_speed.performance_score * 100);
+
+                    let strokeColor = "stroke-green-500 dark:stroke-green-500";
+                    if (desktopScore < 60) {
+                        strokeColor = "stroke-red-500 dark:stroke-red-500";
+                    } else if (desktopScore >= 60 && desktopScore < 80) {
+                        strokeColor = "stroke-yellow-500 dark:stroke-yellow-500";
+                    } else if (desktopScore >= 80 && desktopScore < 90) {
+                        strokeColor = "stroke-blue-500 dark:stroke-blue-500";
+                    }
+
+                    div.innerHTML = `
+                        <div class="relative group">
+                            <div class="flex gap-2 cursor-pointer">
+                                <div class="flex items-center gap-x-2.5">
+                                    <div class="relative" role="progressbar" aria-label="progress bar" aria-valuenow="${desktopScore}" aria-valuemin="0" aria-valuemax="100" data-max="100" data-value="${desktopScore}">
+                                        <svg width="28" height="28" viewBox="0 0 28 28" class="-rotate-90 transform" aria-hidden="true">
+                                            <circle r="12.5" cx="14" cy="14" stroke-width="3" fill="transparent" class="transition-colors ease-linear stroke-gray-100 dark:stroke-gray-500/30"></circle>
+                                            <circle r="12.5" cx="14" cy="14" stroke-width="3" stroke-dasharray="78.53981633974483 78.53981633974483" stroke-dashoffset="${78.54 - (78.54 * desktopScore / 100)}" fill="transparent" class="${strokeColor} transform-gpu transition-all duration-300 ease-in-out" ></circle>
+                                        </svg>
+                                        <div class="absolute inset-0 flex items-center justify-center"><span class="text-[11px] font-semibold">${desktopScore}</span></div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-0">
+                                    <span class="text-gray-900 dark:text-gray-50">
+                                        <span class="text-gray-500 dark:text-gray-500">${i18n.mobile}: </span>
+                                        <span class="font-medium">${data.mobile_speed.first_contentful_paint}</span>
+                                    </span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-500">${i18n.desktop} ${data.desktop_speed.first_contentful_paint}</span>
+                                </div>
+                            </div>
+                            <div data-popover id="popover-${siteName}" role="tooltip" class="absolute z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 inline-block w-128 text-sm text-gray-500 bg-white border border-gray-200 rounded-lg shadow-xs dark:text-gray-400 dark:bg-gray-800 dark:border-gray-600 p-3">
+<table class="w-full text-xs">
+    <thead>
+        <tr>
+            <td class="relative p-2"></td>
+            <td class="text-end"><span class="relative font-medium text-slate-500 dark:text-slate-400">${i18n.desktop}</span></td>
+            <td class="text-end"><span class="relative font-medium text-slate-500 dark:text-slate-400">${i18n.mobile}</span></td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="relative text-start p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">${i18n.firstContentfulPaint}</span></td>
+            <td class="text-end"><b>${data.desktop_speed.first_contentful_paint}</b></td>
+            <td class="text-end"><b>${data.mobile_speed.first_contentful_paint}</b></td>
+        </tr>
+        <tr>
+            <td class="relative text-start p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">${i18n.speedIndex}</span></td>
+            <td class="text-end"><b>${data.desktop_speed.speed_index}</b></td>
+            <td class="text-end"><b>${data.mobile_speed.speed_index}</b></td>
+        </tr>
+        <tr>
+            <td class="relative text-start p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">${i18n.timeToInteractive}</span></td>
+            <td class="text-end"><b>${data.desktop_speed.interactive}</b></td>
+            <td class="text-end"><b>${data.mobile_speed.interactive}</b></td>
+        </tr>
+        <tr>
+            <td colspan="2" class="relative p-2">
+                <span class="relative font-medium text-slate-500 dark:text-slate-400">${i18n.measuredAt} ${data.timestamp}</span>
+            </td>
+            <td class="relative p-2">
+                <form method="POST" action="${url}">
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                    <button class="relative inline-flex items-center text-xs justify-center rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" type="submit"><i class="bi bi-arrow-counterclockwise"></i>${i18n.update}</button>
+                </form>
+            </td>
+        </tr>
+    </tbody>
+</table>
+                              </div>
+                        </div>`;
+                } else {
+                    div.innerHTML = "";
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching speed data:", error);
+                div.innerHTML = "";
+            });
+    });
+});
+</script>
+
+</section>
+{{else}}
+
+<div class="mt-8 inset-x-0 flex h-64 flex-col items-center justify-center">
+    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No websites yet"}}</p>
+    <p class="mt-2 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Create your first website to get started"}}</p>
+    {{if .UserAllowed.autoinstaller}}
+    <a href="/auto-installer" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>
+        {{.T.Get "New website"}}
+    </a>
+    {{end}}
+</div>
+{{end}}
+
+<!-- END templates/manager/sites.html -->
+{{end}}

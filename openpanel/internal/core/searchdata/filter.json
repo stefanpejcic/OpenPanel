@@ -1,0 +1,602 @@
+[
+    {
+        "description": "Check SPF, DKIM and DMARC DNS records for your domains.",
+        "link": "/emails/deliverability",
+        "module": "email_deliverability",
+        "name": "Email Deliverability"
+    },
+    {
+        "description": "Delete Email Accounts.",
+        "link": "/emails/delete",
+        "module": "emails",
+        "name": "Delete Email Accounts"
+    },
+    {
+        "description": "Manage Sieve email filters.",
+        "link": "/emails/filter",
+        "module": "email_filters",
+        "name": "Manage Filters"
+    },
+    {
+        "description": "Manage aliases (forward from non-existing address).",
+        "link": "/emails/aliases",
+        "module": "email_aliases",
+        "name": "Email Aliases"
+    },
+    {
+        "description": "Import email addresses from file.",
+        "link": "/emails/import",
+        "module": "email_import",
+        "name": "Address Importer"
+    },
+    {
+        "description": "Create default (catch-all) email addresses.",
+        "link": "/emails/default",
+        "module": "email_default",
+        "name": "Default Address"
+    },
+    {
+      "description": "Remove a PostgreSQL User from Database.", 
+      "link": "/postgresql/remove", 
+      "module": "postgresql", 
+      "name": "Remove PostgreSQL User from Database"
+    },
+    {
+      "description": "Assign a PostgreSQL User to Database.", 
+      "link": "/postgresql/assign", 
+      "module": "postgresql", 
+      "name": "Assign PostgreSQL User to Database"
+    },
+    {
+      "description": "Create a new PostgreSQL database user.", 
+      "link": "/postgresql/user", 
+      "module": "postgresql", 
+      "name": "Create Database user"
+    },
+    {
+      "description": "Create a new PostgreSQL Database.", 
+      "link": "/postgresql/new", 
+      "module": "mypostgresqlsql", 
+      "name": "Create Database"
+    },
+    {
+      "description": "Set a new MySQL root password.", 
+      "link": "/mysql/root-password", 
+      "module": "mysql", 
+      "name": "Change MySQL root password"
+    },
+    {
+      "description": "Remove a MySQL User from Database.", 
+      "link": "/mysql/remove", 
+      "module": "mysql", 
+      "name": "Remove User from Database"
+    },
+    {
+      "description": "One-click install for WordPress, NodeJS, Python...", 
+      "link": "/auto-installer", 
+      "module": "autoinstaller", 
+      "name": "AutoInstaller"
+    },
+    {
+      "description": "Assign a MySQL User to Database.", 
+      "link": "/mysql/assign", 
+      "module": "mysql", 
+      "name": "Assign User to Database"
+    },
+    {
+      "description": "Create a new MySQL database user.", 
+      "link": "/mysql/user", 
+      "module": "mysql", 
+      "name": "Create Database user"
+    },
+    {
+      "description": "Create a new MySQL Database.", 
+      "link": "/mysql/new", 
+      "module": "mysql", 
+      "name": "Create Database"
+    },
+    {
+      "description": "Download files from URL.", 
+      "link": "/file-manager/upload?method=download", 
+      "module": "filemanager", 
+      "name": "Download from URL"
+    },
+    {
+      "description": "Upload files from device.", 
+      "link": "/file-manager/upload?method=upload", 
+      "module": "filemanager", 
+      "name": "Upload files"
+    },
+    {
+      "description": "Manage your WordPress websites.",
+      "link": "/wordpress",
+      "module": "wordpress",
+      "name": "WordPress Manager"
+    },
+    {
+      "description": "Manage your Drupal websites.",
+      "link": "/drupal",
+      "module": "drupal",
+      "name": "Drupal Manager"
+    },
+    {
+      "description": "Install Drupal CMS.",
+      "link": "/drupal/install",
+      "module": "drupal",
+      "name": "Install Drupal"
+    },
+    {
+      "description": "Manage your files and folders.", 
+      "link": "/files", 
+      "module": "filemanager", 
+      "name": "File Manager"
+    }, 
+    {
+      "description": "Manage FTP sub-accounts.", 
+      "link": "/ftp", 
+      "module": "ftp", 
+      "name": "FTP Accounts"
+    }, 
+    {
+      "description": "Configure backups: Destination, retention, schedule, etc.",
+      "link": "/backups",
+      "module": "backups",
+      "name": "Backups"
+    },
+    {
+      "description": "Generate and download a full backup of your account: files, databases, emails, DNS, SSL and more.",
+      "link": "/backup-wizard",
+      "module": "backup_wizard",
+      "name": "Backup Wizard"
+    },
+    {
+      "description": "Change backup settings: schedule, exclude, etc.", 
+      "link": "/backups/settings", 
+      "module": "backups", 
+      "name": "Backup Settings"
+    }, 
+    {
+      "description": "Select destination: S3, WebDAV, Azure, Dropbox or SSH.", 
+      "link": "/backups/destinations", 
+      "module": "backups", 
+      "name": "Backup Destinations"
+    }, 
+    {
+      "description": "Explore your account disk usage.", 
+      "link": "/disk-usage/", 
+      "module": "disk_usage", 
+      "name": "Disk Usage"
+    }, 
+    {
+      "description": "Explore your account inodes usage.", 
+      "link": "/inodes-explorer/", 
+      "module": "inodes", 
+      "name": "Inodes Explorer"
+    }, 
+    {
+      "description": "Create and manage MySQL databases.", 
+      "link": "/mysql", 
+      "module": "mysql", 
+      "name": "MySQL Databases"
+    }, 
+    {
+        "description": "Create and manage MySQL Users.", 
+        "link": "/mysql/users", 
+        "module": "mysql", 
+        "name": "MySQL Users"
+    },
+    {
+        "description": "Create MySQL database, new user and grant all privileges.", 
+        "link": "/mysql/wizard", 
+        "module": "mysql", 
+        "name": "MySQL Database Wizard"
+    },
+    {
+      "description": "phpMyAdmin configuration.", 
+      "link": "/mysql/phpmyadmin", 
+      "module": "phpmyadmin",
+      "name": "phpMyAdmin"
+    },
+    {
+      "description": "Import a file into a MySQL database.", 
+      "link": "/mysql/import", 
+      "module": "mysql_import", 
+      "name": "Import MySQL"
+    },
+    {
+      "description": "Allow remote access to all MySQL databases.", 
+      "link": "/mysql/remote-mysql", 
+      "module": "remote_mysql", 
+      "name": "Remote MySQL Access"
+    },
+    {
+      "description": "Create and manage PostgreSQL databases.", 
+      "link": "/postgresql", 
+      "module": "postgresql", 
+      "name": "PostgreSQL Databases"
+    }, 
+    {
+        "description": "Create and manage PostgreSQL Users.", 
+        "link": "/postgresql/users", 
+        "module": "postgresql", 
+        "name": "PostgreSQL Users"
+    },
+    {
+        "description": "Create PostgreSQL database, new user and grant all privileges.", 
+        "link": "/postgresql/wizard", 
+        "module": "postgresql", 
+        "name": "PostgreSQL Database Wizard"
+    },
+    {
+      "description": "pgAdmin configuration.",
+      "link": "/postgresql/pgadmin",
+      "module": "pgadmin",
+      "name": "pgAdmin"
+    },
+    {
+      "description": "Allow remote access to all PostgreSQL databases.", 
+      "link": "/postgresql/remote-postgresql", 
+      "module": "remote_postgresql", 
+      "name": "Remote PostgreSQL"
+    }, 
+    {
+      "description": "Manage your domain names.", 
+      "link": "/domains", 
+      "module": "domains", 
+      "name": "Domain Names"
+    },
+    {
+      "description": "Add a domain name.", 
+      "link": "/domains/new", 
+      "module": "domains", 
+      "name": "Add Domain"
+    }, 
+    {
+      "description": "View generated statistics reports for domains.", 
+      "link": "/domains/log", 
+      "module": "domains", 
+      "name": "Domain Visitors"
+    }, 
+    {
+      "description": "Create and manage redirects.", 
+      "link": "/domains", 
+      "module": "redirects", 
+      "name": "Redirects"
+    }, 
+    {
+      "description": "Manage SSL Configuration for domains.", 
+      "link": "/domains/ssl", 
+      "module": "ssl", 
+      "name": "SSL"
+    }, 
+    {
+      "description": "Suspend a domain to temporary disable website.",
+      "link": "/domains/suspend",
+      "module": "domain_suspend",
+      "name": "Suspend Domain"
+    },
+    {
+      "description": "Unsuspend a domain to enable website.",
+      "link": "/domains/unsuspend",
+      "module": "domain_suspend",
+      "name": "Unsuspend Domain"
+    },
+    {
+      "description": "Change document root (folder) for a domain.", 
+      "link": "/domains/docroot", 
+      "module": "docroot", 
+      "name": "Change Docroot"
+    }, 
+    {
+      "description": "View RAM & CPU resource usage.", 
+      "link": "/server/usage", 
+      "module": "usage", 
+      "name": "Resource Usage"
+    }, 
+    {
+      "description": "Create and Schedule tasks.", 
+      "link": "/cronjobs", 
+      "module": "crons", 
+      "name": "CronJobs"
+    }, 
+    {
+      "description": "Block IP addresses from accessing websites.", 
+      "link": "/security/ip-blocker", 
+      "module": "ip_blocker", 
+      "name": "IP Blocker"
+    }, 
+    {
+      "description": "Manage system services.", 
+      "link": "/services/", 
+      "module": "services", 
+      "name": "Services"
+    }, 
+    {
+      "description": "Edit your DNS zone files.", 
+      "link": "/domains/edit-dns-zone", 
+      "module": "domains", 
+      "name": "DNS Zone Editor"
+    }, 
+    {
+      "description": "Use REDIS caching.", 
+      "link": "/cache/redis", 
+      "module": "redis", 
+      "name": "REDIS"
+    }, 
+    {
+      "description": "Use Memcached caching.", 
+      "link": "/cache/memcached", 
+      "module": "memcached", 
+      "name": "Memcached"
+    }, 
+    {
+      "description": "Enable/Disable WAF for domains.", 
+      "link": "/server/waf", 
+      "module": "waf", 
+      "name": "Coraza WAF"
+    },
+    {
+      "description": "View server & OpenPanel information", 
+      "link": "/server/info", 
+      "module": "info", 
+      "name": "Server Information"
+    },
+    {
+      "description": "Change password or email address.", 
+      "link": "/account", 
+      "module": "account", 
+      "name": "Password & Security"
+    },
+    {
+        "description": "Change locale for your account.", 
+        "link": "/account/language", 
+        "module": "locale", 
+        "name": "Change Language"
+    },
+    {
+      "description": "Enable/Disable 2FA.", 
+      "link": "/account/2fa", 
+      "module": "twofa", 
+      "name": "Two-Factor Authentication (2FA)"
+    },
+    {
+      "description": "Configure Passkeys for security.", 
+      "link": "/account/passkeys", 
+      "module": "passkeys", 
+      "name": "Passkeys"
+    },
+    {
+      "description": "Change password or email address.", 
+      "link": "/account/notifications", 
+      "module": "notifications", 
+      "name": "Notification Preferences"
+    },
+    {
+      "description": "View and manage Favorites.", 
+      "link": "/account/favorites", 
+      "module": "favorites", 
+      "name": "Favorites"
+    },
+    {
+      "description": "View and manage active sessions.", 
+      "link": "/account/sessions", 
+      "module": "sessions", 
+      "name": "Active Sessions"
+    },
+    {
+      "description": "View account activity logs.", 
+      "link": "/account/activity",
+      "module": "activity", 
+      "name": "Account Activity"
+    },
+    {
+      "description": "View last 20 logins for your account.", 
+      "link": "/account/login-history", 
+      "module": "login_history", 
+      "name": "Login History"
+    },
+    {
+        "description": "Setup a containerized NodeJS application.",
+        "link": "/nodejs/install",
+        "module": "nodejs",
+        "name": "Install NodeJS Application"
+    },
+    {
+        "description": "Setup a containerized Python application.",
+        "link": "/python/install",
+        "module": "python",
+        "name": "Install Python Application"
+    },
+    {
+        "description": "Show current mysql process list.", 
+        "link": "/mysql/processlist", 
+        "module": "mysql", 
+        "name": "Show MySQL Processes"
+    },
+    {
+        "description": "Show current postgres process list.", 
+        "link": "/postgresql/processlist", 
+        "module": "postgresql", 
+        "name": "Show PostgreSQL Processes"
+    },
+    {
+        "description": "Change PHP version for domain.", 
+        "link": "/php/domains",
+        "module": "php",  
+        "name": "PHP versions"
+    },
+    {
+        "description": "Default PHP version.", 
+        "link": "/php/default",
+        "module": "php",  
+        "name": "Default PHP version"
+    },
+    {
+        "description": "Edit PHP.INI file.", 
+        "link": "/php/php_ini_editor",
+        "module": "php_ini",  
+        "name": "PHP.INI file"
+    },
+    {
+        "description": "Edit options for PHP versions.",
+        "link": "/php/options",
+        "module": "php_options",
+        "name": "PHP Options"
+    },
+    {
+        "description": "Enable, disable, or install PHP extensions.",
+        "link": "/php/extensions",
+        "module": "php_extensions",
+        "name": "PHP Extensions"
+    },
+    {
+        "description": "Edit MySQL Configuration.", 
+        "module": "mysql_conf",
+        "link": "/mysql/configuration", 
+        "name": "Edit MySQL Configuration"
+    },
+    {
+        "description": "Edit PostgreSQL Configuration.", 
+        "module": "postgresql_conf",
+        "link": "/postgresql/configuration", 
+        "name": "Edit PostgreSQL Configuration"
+    },
+    {
+        "description": "Edit Webserver Configuration.", 
+        "link": "/server/webserver_conf", 
+        "module": "webserver_conf",
+        "name": "Webserver Configuration"
+    }, 
+    {
+      "description": "Manage SSH access.", 
+      "link": "/ssh", 
+      "module": "ssh",
+      "name": "SSH"
+    },
+    {
+      "description": "Search files for malicious programs.", 
+      "link": "/malware-scanner", 
+      "module": "malware_scan",
+      "name": "ClamAV Malware Scanner"
+    },
+    {
+      "description": "Elasticsearch full-text search engine.", 
+      "link": "/cache/elasticsearch", 
+      "module": "elasticsearch",
+      "name": "Elasticsearch"
+    },
+    {
+      "description": "Opensearch full-text search engine.", 
+      "link": "/cache/opensearch", 
+      "module": "opensearch",
+      "name": "Opensearch"
+    },
+    {
+      "description": "Varnish Caching",
+      "link": "/cache/varnish",
+      "module": "varnish",
+      "name": "Varnish"
+    },
+    {
+      "description": "Monitor and terminate active processes.", 
+      "link": "/process-manager", 
+      "module": "process_manager",
+      "name": "Process Manager"
+    },
+    {
+      "description": "Reset permissions for files and folders.", 
+      "link": "/fix-permissions", 
+      "module": "fix_permissions",
+      "name": "Fix Permissions"
+    },
+    {
+        "description": "Redirect Domain to URL", 
+        "link": "/domains/redirect", 
+        "module": "redirect",
+        "name": "Redirect Domain"
+    },
+    {
+        "description": "Edit VHosts File", 
+        "link": "/domains/vhosts", 
+        "module": "edit_vhost",
+        "name": "Edit VHosts"
+    },
+    {
+        "description": "GoAccess logs", 
+        "link": "/domains/stats", 
+        "module": "goaccess",
+        "name": "GoAccess logs"
+    },
+    {
+        "description": "Email accounts", 
+        "link": "/emails", 
+        "module": "emails",
+        "name": "Emails"
+    },
+    {
+        "description": "Create an Email", 
+        "link": "/emails/new", 
+        "module": "emails",
+        "name": "Create an Email"
+    },
+    {
+        "description": "Manage services", 
+        "link": "/services", 
+        "module": "services",
+        "name": "Services"
+    },
+    {
+        "description": "Manage Resources for Containers.", 
+        "link": "/containers", 
+        "module": "docker",
+        "name": "Containers"
+    },
+    {
+        "description": "Execute commands in Containers.", 
+        "link": "/containers/terminal", 
+        "module": "docker",
+        "name": "Docker Terminal"
+    },
+    {
+        "description": "View Container Logs.", 
+        "link": "/containers/logs", 
+        "module": "docker",
+        "name": "Logs"
+    },
+    {
+        "description": "Check for container image updates.", 
+        "link": "/containers/image", 
+        "module": "docker",
+        "name": "Image Updates"
+    },
+    {
+        "description": "Change container image (tags).", 
+        "link": "/containers/image/change", 
+        "module": "docker",
+        "name": "Change Tag"
+    },
+    {
+        "description": "Switch between Nginx and Apache.", 
+        "link": "/containers/webserver", 
+        "module": "docker",
+        "name": "Switch Webserver"
+    },
+    {
+        "description": "Switch between MySQL and MariaDB.", 
+        "link": "/containers/mysql", 
+        "module": "docker",
+        "name": "Switch MySQL Type"
+    },
+    {
+      "description": "View and manage files in Trash.",
+      "link": "/files.trash",
+      "module": "trash",
+      "name": "Trash"
+    },
+    {
+      "description": "Browse all REST API endpoints with examples and authentication guide.",
+      "link": "/account/api",
+      "module": "api",
+      "name": "API Reference"
+    }
+  ]

@@ -1,0 +1,490 @@
+{{define "flowbite_js"}}
+    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/domains/domains.html -->
+
+<!-- page header -->
+<section aria-label="Domains" x-data="{ searchQuery: '' }">
+
+
+    <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Domains"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Total domains:"}} <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white mb-2">{{.TotalDomains}}</span></p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+
+    </div>
+</div>
+<!-- END page header -->
+
+
+<script src="{{static "js/data-table.js"}}"></script>
+<div x-data="createTableController({
+        storageKey: 'domainsColumnsVisibility',
+        trackCount: true,
+        initialCount: {{len .Domains}},
+        columns: {
+            domain: true,
+            type: false,
+            link: false,
+            status: true,
+            docroot: true,
+            php: true,
+            site_count: true,
+            redirect: false,
+            ssl: true,
+            actions: true
+        }
+    })" x-init="init()" x-cloak>
+    <div class="">
+        <div class="space-y-3">
+            <div class="flex px-6 pt-3 flex-wrap items-center justify-between gap-2 sm:gap-x-6 border-t border-gray-200 dark:border-gray-800">
+                <div class="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
+
+                    <div class="relative w-full sm:max-w-[250px] sm:[&>input]:h-[30px]">
+                        <input
+                            x-model="searchQuery"
+                            class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
+                            placeholder="{{.T.Get "Search"}}"
+                            type="search"
+                        />
+                        <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                                <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+
+        <!-- Dropdown for Column Visibility -->
+        <div class="relative">
+            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 cursor-pointer" type="button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4"><path d="M5 7C5 6.17157 5.67157 5.5 6.5 5.5C7.32843 5.5 8 6.17157 8 7C8 7.82843 7.32843 8.5 6.5 8.5C5.67157 8.5 5 7.82843 5 7ZM6.5 3.5C4.567 3.5 3 5.067 3 7C3 8.933 4.567 10.5 6.5 10.5C8.433 10.5 10 8.933 10 7C10 5.067 8.433 3.5 6.5 3.5ZM12 8H20V6H12V8ZM16 17C16 16.1716 16.6716 15.5 17.5 15.5C18.3284 15.5 19 16.1716 19 17C19 17.8284 18.3284 18.5 17.5 18.5C16.6716 18.5 16 17.8284 16 17ZM17.5 13.5C15.567 13.5 14 15.067 14 17C14 18.933 15.567 20.5 17.5 20.5C19.433 20.5 21 18.933 21 17C21 15.067 19.433 13.5 17.5 13.5ZM4 16V18H12V16H4Z"></path></svg> {{.T.Get "Show Columns"}}</button>
+
+            <!-- Dropdown menu -->
+            <div id="dropdownToggle" class="z-10 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 divide-y divide-gray-100 rounded-lg shadow-sm w-64 dark:divide-gray-600 hidden">
+                <ul class="p-2 space-y-1" aria-labelledby="dropdownToggleButton">
+                    {{template "column_toggle" (dict "Key" "domain" "Label" (.T.Get "Domain Name"))}}
+                    {{template "column_toggle" (dict "Key" "link" "Label" (.T.Get "Link"))}}
+                    {{template "column_toggle" (dict "Key" "type" "Label" (.T.Get "Type"))}}
+                    {{template "column_toggle" (dict "Key" "status" "Label" (.T.Get "Status"))}}
+{{if .UserAllowed.docroot}}
+                    {{template "column_toggle" (dict "Key" "docroot" "Label" (.T.Get "Document Root"))}}
+{{end}}
+                    {{template "column_toggle" (dict "Key" "php" "Label" (.T.Get "PHP Version"))}}
+                    {{template "column_toggle" (dict "Key" "site_count" "Label" (.T.Get "Websites"))}}
+{{if .UserAllowed.redirects}}
+                    {{template "column_toggle" (dict "Key" "redirect" "Label" (.T.Get "Redirect"))}}
+{{end}}
+{{if .UserAllowed.ssl}}
+                    {{template "column_toggle" (dict "Key" "ssl" "Label" (.T.Get "SSL Status"))}}
+{{end}}
+                    {{template "column_toggle" (dict "Key" "actions" "Label" (.T.Get "Actions"))}}
+                </ul>
+            </div>
+        </div>
+
+
+                </div>
+                <div class="flex items-center gap-2">
+
+        <a href="/domains/new" id="login_button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg> {{.T.Get "New Domain"}}
+        </a>
+
+                </div>
+            </div>
+            <div class="relative">
+                <table id="domains-table" class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+
+
+                <thead class="">
+                    <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+                        <th x-show="columns.domain" scope="col" class="whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Domain Name") "Key" "domain" "Type" "string")}}</th>
+
+                        <th x-show="columns.link" scope="col" class="whitespace-nowrap px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Link"}}</th>
+
+                        <th x-show="columns.type" scope="col" class="whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Type") "Key" "type" "Type" "string")}}</th>
+
+
+                        <th x-show="columns.status" scope="col" class="whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Status") "Key" "status" "Type" "string")}}</th>
+
+                        {{if .UserAllowed.docroot}}
+                        <th x-show="columns.docroot" scope="col" class="whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Document Root") "Key" "docroot" "Type" "string")}}</th>
+                        {{end}}
+
+                        <th x-show="columns.php" scope="col" class="whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "PHP Version") "Key" "php" "Type" "string")}}</th>
+
+                        <th x-show="columns.site_count" scope="col" class="whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Websites") "Key" "site_count" "Type" "number")}}</th>
+
+
+                        {{if .UserAllowed.redirects}}
+                        <th x-show="columns.redirect" scope="col" class="whitespace-nowrap px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Redirect"}}</th>
+                        {{end}}
+
+                        {{if .UserAllowed.ssl}}
+                        <th x-show="columns.ssl"  scope="col" class="whitespace-nowrap px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "SSL"}}</th>
+                        {{end}}
+
+                        <th id="tour-domains-actions" x-show="columns.actions"  scope="col" class="whitespace-nowrap px-4 py-3.5 text-sm text-end font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Actions"}}</th>
+                    </tr>
+                </thead>
+                    <tbody x-ref="tbody" class="divide-y divide-gray-200 dark:divide-gray-800">
+                    {{if not .Domains}}
+                    <tr>
+                        <td colspan="12" class="p-6 text-center">{{.T.Get "No domains yet."}} <a href="/domains/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Add your first domain"}}</a></td>
+                    </tr>
+
+                    {{else}}
+                        {{$root := .}}
+                        {{range $i, $domain := .Domains}}
+                            <tr x-show="searchQuery === '' || '{{$domain.DomainURL}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="user-row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+
+                                    <td x-show="columns.domain" class="p-4 text-sm relative whitespace-nowrap py-1 font-medium text-gray-900 dark:text-gray-50 first:w-10 text-left select-text" data-sort-col="domain" data-sort-value="{{$domain.DomainURL}}">
+        <span class="punycode">{{$domain.DomainURL}}</span>
+                                    </td>
+
+                                    <td x-show="columns.link" class="p-4 text-sm relative whitespace-nowrap py-1 text-gray-600 dark:text-gray-400 first:w-10 text-left"><a class="domain_link inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400" href="http://{{$domain.DomainURL}}" target="_blank">http://<span class="punycode">{{$domain.DomainURL}}</span>/ <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a> </td>
+
+                                    <td x-show="columns.type" class="p-4 text-sm relative whitespace-nowrap py-1 text-gray-600 dark:text-gray-400 first:w-10 text-left select-text" data-sort-col="type">{{if $domain.IsSubdomain}}{{$root.T.Get "subdomain"}}{{else}}{{$root.T.Get "domain"}}{{end}}</td>
+
+                                    <td x-show="columns.status" class="p-4 text-sm relative whitespace-nowrap py-1 font-medium text-gray-600 dark:text-gray-400 first:w-10 text-left" data-sort-col="status" data-sort-value="{{$domain.Status}}">
+                                        {{if eq $domain.Status "Suspended"}}
+                                        <span class="inline-flex items-center gap-2.5 rounded px-2.5 py-1.5 text-xs font-medium text-white bg-red-500 dark:bg-red-500">{{$root.T.Get "Suspended"}}</span>
+                                        {{if $domain.SuspendComment}}<br><small class="select-text">{{$domain.SuspendComment}}</small>{{end}}
+                                        {{else if eq $domain.Status "Not Suspended"}}
+                                        <span class="inline-flex items-center gap-2.5 rounded px-2.5 py-1.5 text-xs font-medium text-white bg-emerald-500 dark:bg-green-900">{{$root.T.Get "Active"}}</span>
+                                        {{else}}
+                                        <span class="inline-flex items-center gap-2.5 rounded px-2.5 py-1.5 text-xs font-medium text-white bg-blue-500 dark:bg-blue-500">{{$domain.Status}}</span>
+                                        {{end}}
+                                    </td>
+
+
+
+        {{if $root.UserAllowed.docroot}}
+                                    <td x-show="columns.docroot" class="p-4 text-sm relative whitespace-nowrap py-1 text-gray-600 dark:text-gray-400 first:w-10 text-left select-text" data-sort-col="docroot" data-sort-value="{{$domain.Docroot}}">{{if $root.UserAllowed.filemanager}}<a href="/files{{replace $domain.Docroot "/var/www/html" ""}}">{{end}}
+                            <i style="color: orange;" class="bi bi-folder-fill"></i> <span class="domain_link">{{$domain.Docroot}}</span>
+                            {{if $root.UserAllowed.filemanager}}</a>{{end}}</td>
+        {{end}}
+
+                                    <td x-show="columns.php" class="p-4 text-sm relative whitespace-nowrap py-1 text-gray-600 dark:text-gray-400 first:w-10 text-left select-text" data-sort-col="php" data-sort-value="{{$domain.PHPVersion}}">{{if $root.UserAllowed.php}}<a href="/php/domains">{{end}}{{$domain.PHPVersion}}{{if $root.UserAllowed.php}}</a>{{end}}</td>
+
+                                    <td x-show="columns.site_count" class="p-4 text-sm relative whitespace-nowrap py-1 text-gray-600 dark:text-gray-400 first:w-10 text-left select-text" data-sort-col="site_count" data-sort-value="{{$domain.SiteCount}}">{{if or $root.UserAllowed.nodejs $root.UserAllowed.python $root.UserAllowed.wordpress $root.UserAllowed.website_builder}}{{if gt $domain.SiteCount 0}}<a href="/sites">{{end}}{{$domain.SiteCount}}</a>{{end}}</td>
+
+
+        {{if $root.UserAllowed.redirects}}
+                                <td x-show="columns.redirect" class="p-4 text-sm relative whitespace-nowrap py-1 text-gray-600 dark:text-gray-400 first:w-10 text-left">
+                                {{if $domain.RedirectURL}}
+                                    <div id="edit-form-{{$domain.DomainID}}" style="display: none;">
+                                        <form action="/domains/redirect" method="post">
+                                            <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
+                                            <input type="hidden" name="domain_id" value="{{$domain.DomainID}}">
+                                            <input type="hidden" name="domain_name" value="{{$domain.DomainURL}}">
+                                            <input type="hidden" name="domain_url" value="{{$domain.DomainURL}}">
+
+                                            <div class="form-group">
+
+        <input type="url" name="redirect_url" value="{{$domain.RedirectURL}}" pattern="https://.*" title="{{$root.T.Get "Must be a valid URL starting with https://."}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="https://example.net" required="">
+                                            </div>
+
+        <button type="submit" class="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">{{$root.T.Get "Save"}}</button>
+
+        <button type="button" onclick="cancelEdit('{{$domain.DomainID}}')" class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">{{$root.T.Get "Cancel"}}</button>
+
+                                        </form>
+                                    </div>
+
+        <div id="edit-buttons-{{$domain.DomainID}}" style="display: inline-flex;">
+                                        <span id="redirect-value-{{$domain.DomainID}}" class="mr-2"><a href="{{$domain.RedirectURL}}" target="_blank">{{$domain.RedirectURL}}</a></span>
+
+                                    <button type="button" class="btn btn-sm btn-transparent" onclick="editRedirect('{{$domain.DomainID}}')"><i class="bi bi-pencil"></i></button>
+                                    <form action="/domains/redirect/delete" method="post">
+                                        <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
+                                        <input type="hidden" name="domain_name" value="{{$domain.DomainURL}}">
+                                        <input type="hidden" name="redirect_url" value="{{$domain.RedirectURL}}">
+                                        <button type="submit" class="btn btn-sm btn-transparent" style="color:red;"><i class="bi bi-x-lg"></i></button>
+                                    </form>
+
+                                    </div>
+                                {{else}}
+                                    <div id="create-form-{{$domain.DomainID}}" style="display: none;">
+                                        <form action="/domains/redirect" method="post">
+            <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
+
+            <input type="hidden" name="domain_name" value="{{$domain.DomainURL}}">
+                                            <div class="form-group">
+        <input type="url" name="redirect_url" pattern="https?://.*" title="{{$root.T.Get "Must be a valid URL starting with http:// or https://."}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="{{$root.T.Get "Enter redirect URL"}}">
+                                            </div>
+
+
+        <button type="submit" class="px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">{{$root.T.Get "Save"}}</button>
+
+        <button type="button" onclick="cancelCreate('{{$domain.DomainID}}')" class="px-3 py-2 text-xs font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">{{$root.T.Get "Cancel"}}</button>
+                                        </form>
+                                    </div>
+
+        <button type="button" onclick="showRedirectInput('{{$domain.DomainID}}')" id="create-button-{{$domain.DomainID}}" class="btn dropdown-item"><span class="flex sm:hidden"><i class="bi bi-plus-circle-fill"></i></span><span class="">{{$root.T.Get "Create Redirect"}}</span></button>
+
+                                {{end}}
+                                </td>
+        {{end}}
+
+
+
+        {{if $root.UserAllowed.ssl}}
+
+                                <td x-show="columns.ssl" class="p-4 text-sm relative whitespace-nowrap py-1 font-medium text-gray-600 dark:text-gray-400 first:w-10 text-left">
+                                <span class="inline-flex items-center gap-x-2.5 rounded-full bg-white px-2.5 py-1.5 text-xs ring-1 ring-inset ring-gray-200 dark:bg-gray-950 dark:ring-gray-800">
+                                    <span class="inline-flex items-center gap-1.5 font-medium text-gray-900 dark:text-gray-50">
+                                    {{if eq $domain.HTTPS "Automatic"}}
+                                        <svg class="remixicon -ml-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 22C17.5 22 22 17.5 22 12S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10Zm5.5-12.5-6.5 6.5-4.2-4.2L8.2 10.3l2.3 2.3 5.1-5.1 1.4 1.4Z"/></svg>
+                                        {{$root.T.Get "Automatic"}}
+                                    {{else if eq $domain.HTTPS "Custom"}}
+                                        <svg class="remixicon size-4 shrink-0 text-emerald-600 dark:text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1 20.2 2.8c.5.1.8.5.8 1v10c0 2-1 3.9-2.7 5L12 23 5.7 18.8C4 17.7 3 15.8 3 13.8V3.8c0-.5.3-.9.8-1L12 1Zm0 2-7 1.6V13.8c0 1.3.7 2.5 1.8 3.3L12 20.6l5.2-3.5c1.1-.8 1.8-2 1.8-3.3V4.6L12 3Zm4.5 5.2 1.4 1.4L11.5 16 7.3 11.8l1.4-1.4 2.8 2.8 5-5Z"/></svg>
+                                        {{$root.T.Get "Custom"}}
+                                    {{else if hasSuffix $domain.DomainURL ".onion"}}
+                                        <svg class="remixicon size-4 shrink-0 text-emerald-600 dark:text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1 20.2 2.8c.5.1.8.5.8 1v10c0 2-1 3.9-2.7 5L12 23 5.7 18.8C4 17.7 3 15.8 3 13.8V3.8c0-.5.3-.9.8-1L12 1Zm0 2-7 1.6V13.8c0 1.3.7 2.5 1.8 3.3L12 20.6l5.2-3.5c1.1-.8 1.8-2 1.8-3.3V4.6L12 3Zm4.5 5.2 1.4 1.4L11.5 16 7.3 11.8l1.4-1.4 2.8 2.8 5-5Z"/></svg>
+                                        {{$root.T.Get "None"}}
+                                    {{else}}
+                                        <svg class="remixicon -ml-0.5 size-4 shrink-0 text-red-600 dark:text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10Zm0-11.4-2.8-2.8-1.4 1.4 2.8 2.8-2.8 2.8 1.4 1.4 2.8-2.8 2.8 2.8 1.4-1.4-2.8-2.8 2.8-2.8-1.4-1.4L12 10.6Z"/></svg>
+                                        {{$domain.HTTPS}}
+                                    {{end}}
+                                    </span>
+                                    <span class="h-4 w-px bg-gray-200 dark:bg-gray-800"></span>
+                                    <a href="/domains/ssl?domain_name={{$domain.DomainURL}}">
+                                    <span class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-500">
+
+                                        {{if hasSuffix $domain.DomainURL ".onion"}}
+                                        {{$root.T.Get "No SSL is needed on the Tor network."}}
+                                        {{else}}
+                                        {{$root.T.Get "Check"}}
+                                        {{end}}
+                                    </span>
+                                    </a>
+                                </span>
+                                </td>
+        {{end}}
+
+                                <td x-show="columns.actions" class="whitespace-nowrap p-2 text-sm text-gray-600 dark:text-gray-400" style="text-align: right;">
+
+
+        <button id="dropdownHoverButton-{{$i}}" data-dropdown-toggle="dropdownHover-{{$i}}" data-dropdown-trigger="hover" class="text-dark bg-white-700 hover:bg-dark-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-dark-600 dark:hover:bg-dark-700 dark:focus:ring-dark-800" type="button"><i class="bi bi-three-dots-vertical"></i>
+        </button>
+
+        <!-- Dropdown menu -->
+        <div id="dropdownHover-{{$i}}" class="z-10 text-left hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownHoverButton-{{$i}}">
+
+        {{if not (hasSuffix $domain.DomainURL ".onion")}}
+
+            {{if and $root.UserAllowed.dns $domain.DNS}}
+            <li>
+            <a href="/domains/edit-dns-zone/{{$domain.DomainURL}}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-pencil-fill"></i> {{$root.T.Get "Edit DNS Zone"}}</a>
+            </li>
+            {{end}}
+
+
+            {{if $root.UserAllowed.waf}}
+            <li>
+            <a href="/server/waf/{{$domain.DomainURL}}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-shield-check"></i> {{$root.T.Get "Manage WAF"}}</a>
+            </li>
+            {{end}}
+            {{if $root.UserAllowed.docroot}}
+            <li>
+            <a href="/domains/docroot?domain_name={{$domain.DomainURL}}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-folder"></i> {{$root.T.Get "Change docroot"}}</a>
+            </li>
+            {{end}}
+        {{end}}
+
+        {{if $root.UserAllowed.edit_vhost}}
+        <li>
+        <a href="/domains/vhosts?domain={{$domain.DomainURL}}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-file-earmark-binary"></i> {{$root.T.Get "Edit VirtualHosts"}}</a>
+        </li>
+        {{end}}
+
+        {{if $root.UserAllowed.capitalize_domains}}
+        <li>
+        <a href="/domains/capitalize/{{$domain.DomainURL}}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-alphabet-uppercase"></i> {{$root.T.Get "Capitalize"}}</a>
+        </li>
+        {{end}}
+
+        {{if and (not (hasSuffix $domain.DomainURL ".onion")) $root.UserAllowed.domain_suspend}}
+
+            {{if eq $domain.Status "Suspended"}}
+            <li>
+            <a href="/domains/unsuspend?domain={{$domain.DomainURL}}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-check-circle"></i> {{$root.T.Get "Unsuspend"}}</a>
+            </li>
+            {{else if eq $domain.Status "Not Suspended"}}
+            <li>
+            <a href="/domains/suspend?domain={{$domain.DomainURL}}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-ban"></i> {{$root.T.Get "Suspend"}}</a>
+            </li>
+            {{end}}
+        {{end}}
+
+        <li>
+        <a href="/domains/delete?domain={{$domain.DomainURL}}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" ><i class="bi bi-trash3"></i> {{$root.T.Get "Delete"}}</a>
+        </li>
+            </ul>
+        </div>
+                                </td>
+
+
+                                </tr>
+                        {{end}}
+                    {{end}}
+                    </tbody>
+                </table>
+
+                <div class="fixed inset-x-0 bottom-8 mx-auto flex w-fit items-center"></div>
+            </div>
+            <div class="px-6 py-2 flex items-center justify-between">
+                <div></div>
+                <div class="hidden text-sm tabular-nums text-gray-500">{{.T.Get "0 of"}} {{len .Domains}} {{.T.Get "row(s) selected."}}</div>
+                <div class="flex items-center gap-x-6 lg:gap-x-8">
+<p class="text-sm tabular-nums text-gray-500 sm:block">
+  {{.T.Get "Showing"}}
+  <span class="font-medium text-gray-900 dark:text-gray-50" x-text="count"></span> of <span class="font-medium text-gray-900 dark:text-gray-50">{{len .Domains}}</span>
+</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<!-- END page header -->
+
+
+
+<!-- domains table --></section>
+<!-- END domains table -->
+
+
+
+{{if .UserAllowed.redirects}}
+<script>
+    function showRedirectInput(domainId) {
+        document.getElementById('create-button-' + domainId).style.display = 'none';
+        document.getElementById('create-form-' + domainId).style.display = 'block';
+    }
+
+    function cancelCreate(domainId) {
+        document.getElementById('create-form-' + domainId).style.display = 'none';
+        document.getElementById('create-button-' + domainId).style.display = 'inline';
+    }
+
+function editRedirect(domainId) {
+    var editButtons = document.getElementById('edit-buttons-' + domainId);
+    if (editButtons) editButtons.style.display = 'none';
+
+    var cancelButton = document.querySelector('#edit-buttons-' + domainId + ' button:last-child');
+    if (cancelButton) cancelButton.style.display = 'inline-flex';
+
+    var editForm = document.getElementById('edit-form-' + domainId);
+    if (editForm) editForm.style.display = 'block';
+}
+
+function cancelEdit(domainId) {
+    var editButtons = document.getElementById('edit-buttons-' + domainId);
+    if (editButtons) editButtons.style.display = 'inline-flex';
+
+    var cancelButton = document.querySelector('#edit-buttons-' + domainId + ' button:last-child');
+    if (cancelButton) cancelButton.style.display = 'inline-flex';
+
+    var editForm = document.getElementById('edit-form-' + domainId);
+    if (editForm) editForm.style.display = 'none';
+}
+
+</script>
+{{end}}
+
+{{if gt .TotalPages 1}}
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <p>
+                        {{.T.Get "Showing domains"}} {{.StartLineNumber}} {{.T.Get "to"}} {{.EndLineNumber}}, {{.T.Get "from a total of"}} {{.TotalDomains}}.
+                    </p>
+                </div>
+                <div class="col-sm">
+
+    <nav aria-label="{{.T.Get "Page navigation"}}">
+        <ul class="pagination">
+            {{if gt .CurrentPage 1}}
+                <li class="page-item">
+                    <a class="page-link" href="/domains?page={{.PrevPage}}" aria-label="{{.T.Get "Previous"}}">
+                        <span aria-hidden="true">&laquo; {{.T.Get "Previous"}}</span>
+                    </a>
+                </li>
+            {{end}}
+            {{range .PageEntries}}
+                {{if .IsEllipsis}}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {{else if eq .Number $.CurrentPage}}
+                    <li class="page-item active">
+                        <span class="page-link">{{.Number}}</span>
+                    </li>
+                {{else}}
+                    <li class="page-item">
+                        <a class="page-link" href="/domains?page={{.Number}}">{{.Number}}</a>
+                    </li>
+                {{end}}
+            {{end}}
+            {{if lt .CurrentPage .TotalPages}}
+                <li class="page-item">
+                    <a class="page-link" href="/domains?page={{.NextPage}}" aria-label="{{.T.Get "Next"}}">
+                        <span aria-hidden="true">{{.T.Get "Next"}} &raquo;</span>
+                    </a>
+                </li>
+            {{end}}
+        </ul>
+    </nav>
+
+                </div>
+            </div>
+        </div>
+
+{{end}}
+
+<script>
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'n' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const tag = document.activeElement.tagName.toLowerCase();
+    const isInputFocused = ['input', 'textarea'].includes(tag) || document.activeElement.isContentEditable;
+    if (isInputFocused) return;
+    e.preventDefault();
+    document.querySelector('a[href="/domains/new"]')?.click();
+});
+if (window.registerShortcut) registerShortcut(['N'], '{{.T.Get "Add new domain"}}');
+</script>
+<script src="{{static "js/table-sort.js"}}"></script>
+
+<!-- END templates/domains/domains.html -->
+{{end}}
+
+{{define "column_toggle"}}
+<li>
+    <div class="flex py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+        <label class="inline-flex items-center w-full cursor-pointer">
+            <input type="checkbox" x-model="columns.{{.Key}}" x-on:change="saveColumns" class="sr-only peer">
+            <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Label}}</span>
+        </label>
+    </div>
+</li>
+{{end}}
+
+{{define "sort_header"}}
+<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+    <span>{{.Label}}</span>
+    <div class="-space-y-2">
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+    </div>
+</div>
+{{end}}

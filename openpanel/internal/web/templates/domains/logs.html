@@ -1,0 +1,271 @@
+{{define "flowbite_js"}}
+    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/domains/logs.html -->
+
+{{if .JSONLogs}}
+<!-- page header -->
+<section aria-label="Select Domain Log Header">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Domain Logs for"}} <span class="punycode">{{.DomainName}}</span></h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .CurrentPage 1)) 1}} - {{if gt (mul .ItemsPerPage .CurrentPage) .TotalLines}}{{.TotalLines}}{{else}}{{mul .ItemsPerPage .CurrentPage}}{{end}} {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "rows"}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+
+    <p class="text-sm text-gray-500 dark:text-gray-500">
+        {{if lt .TotalLines .TotalAllowedLinesForShowAll}}
+        <input class="form-check-input" type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
+        <label class="form-check-label text-secondary fs-sm" for="showAllCheckbox">{{.T.Get "Show all"}} {{.TotalLines}} {{.T.Get "rows"}}</label>
+        {{end}}
+    </p>
+
+
+
+<script>
+    const showAllCheckbox = document.getElementById('showAllCheckbox');
+
+    showAllCheckbox.addEventListener('change', () => {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        if (showAllCheckbox.checked)
+        {
+            urlSearchParams.set('show_all', 'true');
+            urlSearchParams.delete('page');
+        }
+        else
+        {
+            urlSearchParams.delete('show_all');
+        }
+        window.location.search = urlSearchParams.toString();
+    });
+
+
+</script>
+
+    </div>
+</div>
+<!-- END page header -->
+
+
+<section aria-label="Records Table" x-data="{
+    searchQuery: '',
+    columns: {
+        timestamp: true,
+        level: false,
+        logger: false,
+        message: false,
+        client_ip: true,
+        method: true,
+        uri: true,
+        status: true,
+        size: false,
+        duration: false
+    },
+    init() {
+        const savedColumns = sessionStorage.getItem('columns');
+        if (savedColumns) {
+            this.columns = JSON.parse(savedColumns);
+        }
+    },
+    saveColumns() {
+        sessionStorage.setItem('columns', JSON.stringify(this.columns));
+    }
+}">
+    <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
+        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
+            <input
+                x-model="searchQuery"
+                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[5px] file:rounded-r-none file:border-0 file:px-3 file:py-2 file:outline-none focus:outline-none disabled:pointer-events-none file:disabled:pointer-events-none file:border-solid file:border-gray-300 file:bg-gray-50 file:text-gray-500 file:hover:bg-gray-100 file:dark:border-gray-800 file:dark:bg-gray-950 file:hover:dark:bg-gray-900/20 file:disabled:dark:border-gray-700 file:disabled:bg-gray-100 file:disabled:text-gray-500 file:disabled:dark:bg-gray-800 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
+                placeholder="{{.T.Get "Search"}}"
+                type="search"
+            />
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                    <path
+                        d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"
+                    ></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Dropdown for Column Visibility -->
+        <div class="relative">
+            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+                {{.T.Get "Show Columns"}}
+                <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                </svg>
+            </button>
+
+            <!-- Dropdown menu -->
+            <div id="dropdownToggle" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-72 dark:bg-gray-700 dark:divide-gray-600">
+                <ul class="p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownToggleButton">
+                    {{template "log_column_toggle" (dict "T" .T "Key" "timestamp" "Label" (.T.Get "Timestamp"))}}
+                    {{template "log_column_toggle" (dict "T" .T "Key" "level" "Label" (.T.Get "Level"))}}
+                    {{template "log_column_toggle" (dict "T" .T "Key" "logger" "Label" (.T.Get "Logger"))}}
+                    {{template "log_column_toggle" (dict "T" .T "Key" "message" "Label" (.T.Get "Message"))}}
+                    {{template "log_column_toggle" (dict "T" .T "Key" "client_ip" "Label" (.T.Get "Client IP"))}}
+                    {{template "log_column_toggle" (dict "T" .T "Key" "method" "Label" (.T.Get "Method"))}}
+                    {{template "log_column_toggle" (dict "T" .T "Key" "uri" "Label" (.T.Get "URI"))}}
+                    {{template "log_column_toggle" (dict "T" .T "Key" "status" "Label" (.T.Get "Status"))}}
+                    {{template "log_column_toggle" (dict "T" .T "Key" "size" "Label" (.T.Get "Size"))}}
+                    {{template "log_column_toggle" (dict "T" .T "Key" "duration" "Label" (.T.Get "Duration"))}}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table id="logs-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                        <th x-show="columns.timestamp" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Timestamp"}}</th>
+                        <th x-show="columns.level" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Level"}}</th>
+                        <th x-show="columns.logger" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Logger"}}</th>
+                        <th x-show="columns.message" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Message"}}</th>
+                        <th x-show="columns.client_ip" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Client IP"}}</th>
+                        <th x-show="columns.method" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Method"}}</th>
+                        <th x-show="columns.uri" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "URI"}}</th>
+                        <th x-show="columns.status" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Status"}}</th>
+                        <th x-show="columns.size" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Size"}}</th>
+                        <th x-show="columns.duration" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Duration"}}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                    {{$domainName := .DomainName}}
+                    {{range .JSONLogs}}
+                    <tr x-show="searchQuery === '' || '{{.Level}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Logger}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Msg}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Request.ClientIP}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Request.Method}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Request.URI}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                        <td x-show="columns.timestamp" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 timestamp" data-ts="{{.TS}}">{{.TS}}</td>
+                        <td x-show="columns.level" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Level}}</td>
+                        <td x-show="columns.logger" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Logger}}</td>
+                        <td x-show="columns.message" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Msg}}</td>
+                        <td x-show="columns.client_ip" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Request.ClientIP}}</td>
+                        <td x-show="columns.method" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Request.Method}}</td>
+                        <td x-show="columns.uri" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"><a href="http://{{$domainName}}{{.Request.URI}}" target="_blank" class="hover:underline">{{.Request.URI}}</a></td>
+                        <td x-show="columns.status" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            {{if hasPrefix (toString .Status) "1"}}
+                            <span class="bg-purple-100 text-purple-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-purple-900 dark:text-purple-300">{{.Status}}</span>
+                            {{else if hasPrefix (toString .Status) "2"}}
+                            <span class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-green-900 dark:text-green-300">{{.Status}}</span>
+                            {{else if hasPrefix (toString .Status) "3"}}
+                            <span class="bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300">{{.Status}}</span>
+                            {{else if hasPrefix (toString .Status) "4"}}
+                            <span class="bg-red-100 text-red-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-red-900 dark:text-red-300">{{.Status}}</span>
+                            {{else if hasPrefix (toString .Status) "5"}}
+                            <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">{{.Status}}</span>
+                            {{else}}
+                            <span class="bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">{{.Status}}</span>
+                            {{end}}
+                        </td>
+                        <td x-show="columns.size" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Size}}</td>
+                        <td x-show="columns.duration" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Duration}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const timestampElements = document.querySelectorAll('.timestamp');
+
+        timestampElements.forEach(function(element) {
+            const timestamp = parseFloat(element.getAttribute('data-ts'));
+
+            if (!isNaN(timestamp)) {
+                const date = new Date(timestamp * 1000);
+
+                if (!isNaN(date.getTime())) {
+                    const formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
+                    element.innerText = formattedDate;
+                } else {
+                    element.innerText = 'Invalid Date';
+                }
+            } else {
+                element.innerText = 'Invalid Timestamp';
+            }
+        });
+    });
+</script>
+
+
+
+<!-- pagination -->
+<div class="m-6 flex justify-center">
+    <nav aria-label="Pagination">
+        <ul class="inline-flex -space-x-px text-sm">
+            {{if gt .CurrentPage 1}}
+                <li>
+                    <a href="/domains/log/{{.DomainName}}?page={{sub .CurrentPage 1}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Previous"}}</a>
+                </li>
+            {{end}}
+
+            {{range .LogPageEntries}}
+                {{if .IsEllipsis}}
+                    <li><span class="px-3 py-2 text-gray-500 dark:text-gray-400">&hellip;</span></li>
+                {{else}}
+                    <li>
+                        <a href="/domains/log/{{$.DomainName}}?page={{.Number}}" class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 {{if eq .Number $.CurrentPage}}bg-gray-200 dark:bg-gray-700{{end}}">{{.Number}}</a>
+                    </li>
+                {{end}}
+            {{end}}
+
+            {{if lt .CurrentPage .TotalPages}}
+                <li>
+                    <a href="/domains/log/{{.DomainName}}?page={{add .CurrentPage 1}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Next"}}</a>
+                </li>
+            {{end}}
+        </ul>
+    </nav>
+</div>
+<!-- END pagination -->
+
+
+
+{{else}}
+
+<!-- page header -->
+<section
+    aria-label="Select Domain Log Header"
+>
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Domain Logs"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View webserver raw access logs for domains."}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+    </div>
+</div>
+<!-- END page header -->
+
+
+{{if .Domains}}
+    {{template "domain_selector" (dict "T" .T "Domains" .Domains "RedirectBase" "/domains/log/")}}
+{{else}}
+    {{template "no_domain" .}}
+{{end}}
+
+</section>
+{{end}}
+
+<!-- END templates/domains/logs.html -->
+{{end}}
+
+{{define "log_column_toggle"}}
+<li>
+    <div class="flex p-2 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+        <label class="inline-flex items-center w-full cursor-pointer">
+            <input type="checkbox" x-model="columns.{{.Key}}" x-on:change="saveColumns" class="sr-only peer">
+            <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Label}}</span>
+        </label>
+    </div>
+</li>
+{{end}}

@@ -1,0 +1,26 @@
+{{define "twofa"}}{{if and .UserAllowed.twofa (eq .TwofaNag "yes")}}
+<!-- START templates/dashboard/twofa.html -->
+<div id="dashboard_twofa" class="flex flex-col justify-center overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800 xl:col-span-1">
+    <div class="flex items-center justify-between gap-4 relative m-0 p-2" id="dashboard_twofa_title">
+        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+        <h2 class="pl-4 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Two-Factor Authentication"}}</h2>
+    </div>
+    <div class="mx-2" id="dashboard_twofa_content">
+        <p>{{.TwofaStatusMessage}}</p>
+
+        <form method="POST" action="/account/2fa">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+            {{if not .TwofaEnabled}}
+            <div class="form-check mb-3" style="display:none;">
+                <input class="form-check-input" type="checkbox" id="twofa_active" name="twofa_active" checked>
+                <label class="form-check-label" for="twofa_active">{{.T.Get "Enable 2FA"}}</label>
+            </div>
+            {{end}}
+
+            <button class="w-full py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded border border-gray-200 hover:bg-gray-100 hover:text-dark-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" type="submit"><i class="bi {{if .TwofaEnabled}}bi-shield-x{{else}}bi-shield-check{{end}}"></i> {{if .TwofaEnabled}}{{.T.Get "Click to disable 2FA"}}{{else}}{{.T.Get "Click to Enable"}}{{end}}</button>
+        </form>
+    </div>
+</div>
+<!-- END templates/dashboard/twofa.html -->
+{{end}}{{end}}

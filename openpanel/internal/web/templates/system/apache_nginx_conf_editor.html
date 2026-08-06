@@ -1,0 +1,47 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/system/apache_nginx_conf_editor.html -->
+
+      <link rel="stylesheet" href="/static/vendor/codemirror/codemirror.min.css">
+      <script src="/static/vendor/codemirror/codemirror.min.js"></script>
+      <style>
+         .CodeMirror {min-height: 50vh;height: auto;}
+         div.CodeMirror-sizer {min-height: 500px!important;}
+      </style>
+
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+<section aria-label="WebServer Conf Editor Header" x-data="{ searchQuery: '' }">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Edit main webserver configuration file:"}} {{.Path}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        {{if .CanRestoreDefault}}
+        <button type="submit" name="action" value="restore_default" onclick="return confirm('{{.T.Get "This will overwrite the current file with the default configuration and restart the service. Continue?"}}')" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-700 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "Restore Default"}}</button>
+        {{end}}
+        <button type="submit" name="action" value="save" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Changes"}}</button>
+
+    </div>
+</div>
+
+    <div id="editor-container" class="overflow-auto">
+        <textarea id="editor" name="editor_content" rows="40" cols="100">{{.FileContent}}</textarea>
+    </div>
+
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+    mode: "javascript",
+    lineNumbers: true,
+});
+</script>
+
+</form>
+</section>
+
+<!-- END templates/system/apache_nginx_conf_editor.html -->
+{{end}}

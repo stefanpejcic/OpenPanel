@@ -1,0 +1,285 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/files/ftp_new.html -->
+
+<section aria-label="New FTP Account Header">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "New FTP Account"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Create a new FTP account."}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+    </div>
+</div>
+
+
+{{if .Domains}}
+<!-- form -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <form class="mt-8" method="POST" action="/ftp/new">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+
+
+
+  <div class="col-span-full mb-5">
+    <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Username"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+    <input type="text" name="username" id="new_ftp_username" pattern="[A-Za-z0-9]+" title="{{.T.Get "Only letters and numbers are allowed."}}" class="w-full py-2 px-3 pe-11 block border-gray-200 shadow-sm text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600" required>
+  </div>
+
+  <div class="col-span-full mb-5">
+    <label for="domain" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Domain"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+    <select name="domain" id="domain" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="" onchange="updateDocroot()">
+        <option value="" disabled></option>
+        {{range .Domains}}
+        <option class="punycode" docroot="{{.Docroot}}" value="{{.DomainURL}}" label="{{.DomainURL}}">{{.DomainURL}}</option>
+        {{end}}
+    </select>
+  </div>
+
+
+<div
+  class="col-span-full mb-5"
+  x-data="passwordStrength({
+    weak: '{{.T.Get "Weak password"}}',
+    medium: '{{.T.Get "Medium strength password"}}',
+    strong: '{{.T.Get "Strong password"}}',
+    tooWeak: '{{.T.Get "Password does not meet the required strength."}}'
+  }, {{.PasswordStrength}})"
+  x-init="checkStrength()"
+>
+  <label
+    for="password"
+    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+  >
+    {{.T.Get "Password"}}<span class="text-red-500 dark:text-red-500">*</span>
+  </label>
+  <div class="flex">
+    <input
+      type="text"
+      name="password"
+      id="password"
+      maxlength="30"
+      minlength="8"
+      title="{{.T.Get "Password must be at least 8 characters, and include a lowercase letter, an uppercase letter, a number, and a special character."}}"
+      pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}"
+      placeholder="{{.T.Get "New Password"}}"
+      class="relative block w-full appearance-none rounded-l-md border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+      x-model="password"
+      x-ref="input"
+      @input="checkStrength()"
+    />
+
+    <div class="input-group-append">
+      <button
+        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white"
+        type="button"
+        id="generatePassword">
+        <i class="bi bi-shuffle"></i>
+      </button>
+    </div>
+    <div class="input-group-append">
+      <button class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white" type="button" id="togglePassword">
+        <i class="bi bi-eye"></i>
+      </button>
+    </div>
+    <div class="input-group-append">
+        <span class="d-none" id="copy-password-link">
+
+        <button type="button" id="copy-password" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+            <i class="bi bi-clipboard"></i>
+        </button>
+
+        </span>
+    </div>
+  </div>
+
+  <!-- Password strength indicator -->
+  <div class="mt-2 h-2 rounded bg-gray-200 dark:bg-gray-700 overflow-hidden">
+    <div
+      class="h-full rounded transition-all duration-300"
+      :class="{
+        'bg-red-500': strength === 'Weak',
+        'bg-orange-500': strength === 'Medium',
+        'bg-green-500': strength === 'Strong',
+        'w-1/3': strength === 'Weak',
+        'w-2/3': strength === 'Medium',
+        'w-full': strength === 'Strong'
+      }"
+      style="width: 0%"
+      :style="{
+        width:
+          strength === 'Weak'
+            ? '33%'
+            : strength === 'Medium'
+            ? '66%'
+            : strength === 'Strong'
+            ? '100%'
+            : '0%'
+      }"
+    ></div>
+  </div>
+  <p
+    class="mt-1 text-sm font-semibold"
+    :class="{
+      'text-red-600 dark:text-red-400': strength === 'Weak',
+      'text-yellow-600 dark:text-yellow-400': strength === 'Medium',
+      'text-green-600 dark:text-green-400': strength === 'Strong'
+    }"
+  >
+    <span x-text="strengthMessage" class="text-xs"></span>
+  </p>
+</div>
+
+<script>
+function updateDocroot() {
+    const domainSelect = document.getElementById('domain');
+    const selectedOption = domainSelect.options[domainSelect.selectedIndex];
+    const docroot = selectedOption.getAttribute('docroot');
+    const pathField = document.getElementById('new_user_path');
+    pathField.value = docroot || '';
+}
+
+</script>
+
+
+
+
+
+
+  <div class="col-span-full mb-5">
+    <label for="path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Path (folder)"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+    <div class="flex rounded-lg shadow-sm">
+
+      <input type="text" name="path" id="new_user_path" class="w-full py-2 px-3 pe-11 block border-gray-200 shadow-sm rounded-e-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600" value="/var/www/html/" required>
+
+    </div>
+  </div>
+
+
+        </div>
+
+        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+
+<div class="md:flex items-center md:justify-end md:space-x-4">
+    <a href="/ftp" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">
+        {{.T.Get "Back to FTP Accounts"}}
+    </a>
+    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Create Account"}}<svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+        </svg>
+    </button>
+</div>
+
+    </form>
+</div>
+<!-- END form -->
+
+
+
+
+    <script>
+// GENERATE PASS FOR NEW USER AND CHANGE PASS FORMS
+function generateRandomStrongPassword(length) {
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const digits = "0123456789";
+    const special = "!@#$%^&*+=?";
+    const allChars = lowercase + uppercase + digits + special;
+
+    let password = "";
+
+    password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
+    password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
+    password += digits.charAt(Math.floor(Math.random() * digits.length));
+    password += special.charAt(Math.floor(Math.random() * special.length));
+
+    for (let i = 4; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * allChars.length);
+        password += allChars.charAt(randomIndex);
+    }
+
+    const arr = password.split("");
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.join("");
+
+}
+
+
+
+// NEW USER FORM
+
+function generateInitiallyFTPPassword() {
+    const generatedPassword = generateRandomStrongPassword(16);
+    const passwordField = document.getElementById("password");
+    passwordField.value = generatedPassword;
+    passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+    document.getElementById("copy-password-link").classList.remove("d-none");
+
+}
+
+    // When the page loads, populate random values for the inputs
+document.addEventListener("DOMContentLoaded", function () {
+    generateInitiallyFTPPassword();
+});
+
+document.getElementById("generatePassword").addEventListener("click", function() {
+    const generatedPassword = generateRandomStrongPassword(16);
+    document.getElementById("password").value = generatedPassword;
+
+    const passwordField = document.getElementById("password");
+    passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+    }
+    document.getElementById("copy-password-link").classList.remove("d-none");
+});
+
+
+    document.getElementById("togglePassword").addEventListener("click", function() {
+        const passwordField = document.getElementById("password");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+        } else {
+            passwordField.type = "password";
+        }
+    });
+
+    function copyPasswordToClipboard() {
+            const passwordInput = document.createElement("input");
+            passwordInput.type = "text";
+            passwordInput.value = document.getElementById("password").value;
+            document.body.appendChild(passwordInput);
+            passwordInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(passwordInput);
+
+            const copyLink = document.getElementById("copy-password");
+            copyLink.innerHTML = '<i class="bi bi-check"></i>';
+
+            setTimeout(() => {
+                copyLink.innerHTML = '<i class="bi bi-clipboard"></i>';
+            }, 3000);
+    }
+    document.getElementById("copy-password").addEventListener("click", copyPasswordToClipboard);
+
+</script>
+{{else}}
+<!-- START templates/domains/partials/_no_domain.html -->
+<div class="mt-8 inset-x-0 flex h-64 flex-col items-center justify-center">
+    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No domains yet"}}</p>
+    <p class="mt-2 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Add your first domain to get started"}}</p>
+    <a href="/domains/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "New domain"}}</a>
+</div>
+<!-- END templates/domains/partials/_no_domain.html -->
+{{end}}
+
+<!-- END templates/files/ftp_new.html -->
+{{end}}

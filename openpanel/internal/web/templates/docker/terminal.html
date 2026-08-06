@@ -1,0 +1,256 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/docker/terminal.html -->
+
+{{if .ContainerName}}
+
+  <link rel="stylesheet" href="{{static "vendor/xterm/xterm.css"}}" />
+  <script src="{{static "vendor/xterm/xterm.js"}}"></script>
+  <script src="{{static "vendor/xterm/xterm-addon-fit.min.js"}}"></script>
+  <script src="{{static "vendor/xterm/xterm-addon-web-links.min.js"}}"></script>
+
+  <section aria-label="Docker Terminal" x-data="{ tooltip: false }">
+
+    <!-- header -->
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <div class="flex items-center gap-x-3">
+          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Docker Terminal"}}</h1>
+
+          <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                 class="bi bi-info-circle-fill" viewBox="0 0 16 16">
+              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194
+                       0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703
+                       0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381
+                       2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
+            </svg>
+            <template x-if="tooltip">
+              <div x-transition
+                   class="absolute z-10 mt-2 w-64 rounded-lg bg-gray-800 text-white text-sm px-3 py-2 shadow-lg"
+                   style="top: 100%; left: 0;">
+                {{.T.Get "The terminal is interactive and executes commands as 'root' user inside the container."}}
+                <br>{{.T.Get "Inactivity timeout:"}} <b>{{.TerminalTimeoutSeconds}} {{.T.Get "seconds"}}</b>.
+              </div>
+            </template>
+          </span>
+        </div>
+
+        <p class="text-sm text-gray-500 dark:text-gray-500">
+          {{.T.Get "Container:"}}
+          <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white">
+            {{.ContainerName}}
+          </span>
+        </p>
+      </div>
+
+      <div class="mt-2 gap-2 sm:mt-0 flex items-center sm:inline-flex">
+        <select id="shell"
+                class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate
+                       rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm
+                       border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50
+                       bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50
+                       focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30
+                       focus:border-blue-500 focus:dark:border-blue-700">
+          <option disabled value=""> -- {{.T.Get "Shell type"}} -- </option>
+          <option value="sh">sh</option>
+          <option value="bash">bash</option>
+        </select>
+
+        <!-- shown only when connection drops -->
+        <button id="reconnect-btn"
+                style="display:none"
+                onclick="connectTerminal()"
+                class="px-3 py-2 rounded border border-blue-500 text-blue-600 dark:text-blue-400
+                       text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 transition whitespace-nowrap">
+          &#8635; {{.T.Get "Reconnect"}}
+        </button>
+      </div>
+    </div>
+
+    <!-- status bar -->
+    <div id="term-status"
+         class="flex items-center gap-2 px-4 py-1 text-xs bg-gray-100 dark:bg-gray-900
+                text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800">
+      <span id="status-dot" class="inline-block w-2 h-2 rounded-full bg-yellow-400"></span>
+      <span id="status-text">{{.T.Get "Connecting…"}}</span>
+    </div>
+
+    <!-- terminal viewport -->
+    <div id="terminal" style="width:100%; height:calc(60vh - 2rem); background:#1a1b26;"></div>
+
+  </section>
+
+  <script>
+    const WS_PATH = `/ws/containers/terminal/{{.ContainerName}}`;
+
+    // ── xterm ────────────────────────────────────────────────────────────────
+    const term = new Terminal({
+      cursorBlink: true,
+      fontSize: 14,
+      fontFamily: '"JetBrains Mono", "Fira Code", "Cascadia Code", monospace',
+      theme: {
+        background:    '#1a1b26',
+        foreground:    '#c0caf5',
+        cursor:        '#c0caf5',
+        black:         '#15161e',
+        red:           '#f7768e',
+        green:         '#9ece6a',
+        yellow:        '#e0af68',
+        blue:          '#7aa2f7',
+        magenta:       '#bb9af7',
+        cyan:          '#7dcfff',
+        white:         '#a9b1d6',
+        brightBlack:   '#414868',
+        brightRed:     '#f7768e',
+        brightGreen:   '#9ece6a',
+        brightYellow:  '#e0af68',
+        brightBlue:    '#7aa2f7',
+        brightMagenta: '#bb9af7',
+        brightCyan:    '#7dcfff',
+        brightWhite:   '#c0caf5',
+      },
+      scrollback: 5000,
+      allowTransparency: false,
+    });
+
+    const fitAddon = new FitAddon.FitAddon();
+    term.loadAddon(fitAddon);
+    term.loadAddon(new WebLinksAddon.WebLinksAddon());
+
+    const terminalEl = document.getElementById('terminal');
+    term.open(terminalEl);
+
+    // ── resize → notify server ───────────────────────────────────────────────
+    function fitAndReport() {
+      fitAddon.fit();
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'resize', rows: term.rows, cols: term.cols }));
+      }
+    }
+    new ResizeObserver(() => fitAndReport()).observe(terminalEl);
+    window.addEventListener('resize', () => fitAndReport());
+
+    // ── status bar ───────────────────────────────────────────────────────────
+    const dot  = document.getElementById('status-dot');
+    const txt  = document.getElementById('status-text');
+    const rBtn = document.getElementById('reconnect-btn');
+
+    function setStatus(state) {
+      dot.className = 'inline-block w-2 h-2 rounded-full ' + {
+        connecting: 'bg-yellow-400',
+        open:       'bg-green-400',
+        closed:     'bg-red-400',
+      }[state];
+      txt.textContent = { connecting: '{{.T.Get "Connecting…"}}', open: '{{.T.Get "Connected"}}', closed: '{{.T.Get "Disconnected"}}' }[state];
+      rBtn.style.display = state === 'closed' ? 'inline-flex' : 'none';
+    }
+
+    // ── WebSocket ────────────────────────────────────────────────────────────
+    let ws = null;
+    let onDataDispose = null;
+
+    function connectTerminal() {
+      if (ws) { try { ws.close(); } catch (_) {} }
+      if (onDataDispose) { onDataDispose.dispose(); onDataDispose = null; }
+
+      const shell = document.getElementById('shell').value || 'bash';
+      const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+      const url   = `${proto}://${location.host}${WS_PATH}`;
+
+      setStatus('connecting');
+      term.reset();
+      term.focus();
+
+      ws = new WebSocket(url);
+      ws.binaryType = 'arraybuffer';
+
+      ws.onopen = () => {
+        fitAddon.fit();
+        ws.send(JSON.stringify({
+          type:  'init',
+          shell: shell,
+          rows:  term.rows,
+          cols:  term.cols,
+        }));
+        setStatus('open');
+        term.focus();
+      };
+
+      ws.onmessage = (evt) => {
+        if (evt.data instanceof ArrayBuffer) {
+          term.write(new Uint8Array(evt.data));
+        } else {
+          term.write(evt.data);
+        }
+      };
+
+      ws.onerror = () => {
+        term.write('\r\n\x1b[31m[WebSocket error]\x1b[0m\r\n');
+      };
+
+      ws.onclose = (evt) => {
+        term.write(`\r\n\x1b[33m[Connection closed${evt.reason ? ': ' + evt.reason : ''}]\x1b[0m\r\n`);
+        setStatus('closed');
+      };
+
+      onDataDispose = term.onData(data => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(data);
+        }
+      });
+    }
+
+    // shell dropdown → reconnect with new shell
+    document.getElementById('shell').addEventListener('change', () => connectTerminal());
+
+    // auto-connect on page load
+    queueMicrotask(() => {
+      const shellEl = document.getElementById('shell');
+      if (!shellEl.value) shellEl.value = 'bash';
+      connectTerminal();
+    });
+  </script>
+
+{{else}}
+
+  <!-- ── service picker ───────────────────────────────────────────────────── -->
+  <section aria-label="Select Container">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <div class="flex items-center gap-x-3">
+          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Docker Terminal"}}</h1>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Select active service to open web terminal."}}</p>
+      </div>
+    </div>
+
+    <div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard">
+      <div class="mt-8">
+        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+          <div class="col-span-full">
+            <select id="service-select"
+                    class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate
+                           rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm
+                           border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50
+                           bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50
+                           focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30
+                           focus:border-blue-500 focus:dark:border-blue-700 mt-2"
+                    onchange="if(this.value) window.location.href = '/containers/terminal/' + this.value">
+              <option value="" disabled selected>{{.T.Get "Select service"}}</option>
+              {{range .ActiveServices}}
+                  <option value="{{.}}">{{.}}</option>
+              {{end}}
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+{{end}}
+
+<!-- END templates/docker/terminal.html -->
+{{end}}

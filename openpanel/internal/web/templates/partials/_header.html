@@ -1,0 +1,268 @@
+{{define "header"}}<!-- START templates/partials/_header.html -->
+    <header id="main_header" class="justify-between sticky top-0 z-40 flex h-16 shrink-0 items-center gap-2 border-b border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-950" :style="sidebarOpen ? 'margin-left: var(--sidebar-width)' : 'margin-left: 0'">
+
+
+                  <!-- Left Section -->
+                  <div class="flex items-center justify-center gap-2">
+                    <button id="sidebar_toggle_button" onclick="toggleSidebar()" class="group inline-flex rounded p-1.5 hover:bg-gray-200/50 hover:dark:bg-gray-900 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-left size-[18px] shrink-0 text-gray-700 dark:text-gray-300" aria-hidden="true">
+                        <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+                        <path d="M9 3v18"></path>
+                    </svg>
+                    <span class="sr-only">Toggle Sidebar</span>
+                    </button>
+                    <div class="mr-2 h-4 w-px bg-gray-200 dark:bg-gray-800"></div>
+                    <nav aria-label="Breadcrumb" class="ml-2">
+                        <ol role="list" class="flex items-center space-x-3 text-sm">
+
+                        <ul x-data="navMenu('{{.RequestPath}}')">
+                            <template x-for="item in items" :key="item.label">
+                                <li class="flex" x-show="item.show">
+                                    <a x-show="item.href !== '#'" :href="item.href" class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300" x-text="item.label"></a>
+                                    <span x-show="item.href === '#'" class="text-gray-500 dark:text-gray-400" x-text="item.label"></span>
+                                </li>
+                            </template>
+                        </ul>
+
+                        <script>
+                            function navMenu(currentPath) {
+                                return {
+                                    items: [
+                                        {
+                                            label: "{{.T.Get "Files"}}",
+                                            href: "/files",
+                                            show: [
+                                                '/files',
+                                                '/file-manager/edit-file',
+                                                '/file-manager/view-file',
+                                                '/disk-usage',
+                                                '/inodes-explorer',
+                                                '/malware-scanner',
+                                                '/ftp',
+                                                '/fix-permissions',
+                                                '/file-manager/upload',
+                                                '/files.trash',
+                                            ].some(p => currentPath.startsWith(p)),
+                                        },
+                                        {
+                                            label: "{{.T.Get "Services"}}",
+                                            href: "/services",
+                                            show: currentPath.startsWith('/services/')
+                                        },
+                                        {
+                                            label: "{{.T.Get "Caching"}}",
+                                            href: "#",
+                                            show: currentPath.startsWith('/cache')
+                                        },
+                                        {
+                                            label: "{{.T.Get "Emails"}}",
+                                            href: "/emails",
+                                            show: currentPath.startsWith('/email')
+                                        },
+                                        {
+                                            label: "{{.T.Get "Domains"}}",
+                                            href: "/domains",
+                                            show: currentPath.startsWith('/domain')
+                                        },
+                                        {
+                                            label: "{{.T.Get "MySQL"}}",
+                                            href: "/mysql",
+                                            show: currentPath.startsWith('/mysql')
+                                        },
+                                        {
+                                            label: "{{.T.Get "PostgreSQL"}}",
+                                            href: "/postgresql",
+                                            show: currentPath.startsWith('/postgresql')
+                                        },
+                                        {
+                                            label: "{{.T.Get "PHP"}}",
+                                            href: "/php/domains",
+                                            show: currentPath.startsWith('/php')
+                                        },
+                                        {
+                                            label: "{{.T.Get "Docker"}}",
+                                            href: "/containers",
+                                            show: currentPath.startsWith('/containers')
+                                        },
+                                        {
+                                            label: "{{.T.Get "Advanced"}}",
+                                            href: "#",
+                                            show: ['/server', '/cronjobs', '/process-manager', '/security/ip-blocker'].some(p => currentPath.startsWith(p))
+                                        },
+                                        {
+                                            label: "{{.T.Get "Account"}}",
+                                            href: "/account",
+                                            show: currentPath.startsWith('/account')
+                                        },
+                                        {
+                                            label: "{{.T.Get "Backups"}}",
+                                            href: "/backups",
+                                            show: currentPath.startsWith('/backup')
+                                        },
+                                        {
+                                            label: "{{.T.Get "Sites"}}",
+                                            href: "/sites",
+                                            show: [
+                                                '/sites',
+                                                '/pm2',
+                                                '/nodejs',
+                                                '/python',
+                                                '/website-builder',
+                                                '/wordpress',
+                                                '/auto-installer',
+                                                '/website',
+                                            ].some(p => currentPath.startsWith(p))
+                                        }
+                                    ]
+                                }
+                            }
+                        </script>
+{{if and (ne .RequestPath "/") (ne .RequestPath "/dashboard")}}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+{{end}}
+                            {{if .Title}}
+                            <li class="flex"><div class="flex items-center"><a class="text-gray-900 dark:text-gray-50" href="{{.RequestPath}}">{{.Title}}</a></div></li>
+                            {{end}}
+                        </ol>
+                    </nav>
+                  </div>
+                  <!-- END Left Section -->
+
+                  <!-- Right Section -->
+                  <div class="flex items-center gap-2">
+
+                    {{if and .UserAllowed.services (not (hasPrefix .RequestPath "/services"))}}
+                        {{template "service" .}}
+                    {{end}}
+
+                    {{template "search" .}}
+
+
+                     {{if .UserAllowed.favorites}}
+                     <!-- Favorites -->
+                     <div class="dark:text-white">
+                        <span aria-hidden="true">
+                           <div>
+                              <button data-toggle="tooltip" data-placement="bottom" title="{{.T.Get "Left-click to add to Favorites"}}" class="flex items-center justify-center w-8 h-8 rounded text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" id="addFavoriteBtn">
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-star"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path></svg>
+                              </button>
+                           </div>
+                        </span>
+                     </div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const favoriteButton = document.getElementById('addFavoriteBtn');
+    if (!favoriteButton) return;
+
+    const currentPath = window.location.pathname + window.location.search + window.location.hash;
+
+    // Initialize favorite button state
+    if (window.userFavorites) {
+        const isFavorite = window.userFavorites.some(fav => '/' + fav.link === currentPath);
+        favoriteButton.dataset.isFavorite = isFavorite ? 'true' : 'false';
+
+        if (isFavorite) {
+            favoriteButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" class="icon icon-tabler icons-tabler-filled icon-tabler-star">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path fill="orange" d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z" />
+                </svg>
+            `;
+            favoriteButton.title = "{{.T.Get "Right-click to remove from Favorites"}}";
+        }
+    }
+
+    // Right-click (remove favorite)
+    favoriteButton.addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+
+        if (favoriteButton.dataset.isFavorite === 'false') {
+            showToast("{{.T.Get "This page is not in your favorites! Left-click to add it."}}", 'warning');
+            return;
+        }
+
+        const data = { link: currentPath };
+
+        fetch('/json/favorites', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrf_token
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            showToast("{{.T.Get "Successfully removed from favorites!"}}", 'success');
+            favoriteButton.dataset.isFavorite = 'false';
+            favoriteButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-star">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
+                </svg>
+            `;
+            favoriteButton.title = "{{.T.Get "Left-click to add to Favorites"}}";
+            loadFavorites();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast("{{.T.Get "Failed to remove favorite."}}", 'error');
+        });
+    });
+
+    // Left-click (add favorite)
+    favoriteButton.addEventListener("click", function() {
+        if (favoriteButton.dataset.isFavorite === 'true') {
+            showToast("{{.T.Get "This page is already in your favorites! Right-click to remove it."}}", 'warning');
+            return;
+        }
+
+        let currentPageTitle = document.title.split(" - ")[0];
+
+        const data = {
+            link: currentPath,
+            title: currentPageTitle
+        };
+
+        fetch('/json/favorites', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrf_token
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                showToast(data.error, 'error');
+            } else {
+                showToast("{{.T.Get "Successfully added to favorites!"}}", 'success');
+                favoriteButton.dataset.isFavorite = 'true';
+                favoriteButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" class="icon icon-tabler icons-tabler-filled icon-tabler-star">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path fill="orange" d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z" />
+                    </svg>
+                `;
+                favoriteButton.title = "{{.T.Get "Right-click to remove from Favorites"}}";
+                loadFavorites();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast("{{.T.Get "Failed to add favorite."}}", 'error');
+        });
+    });
+});
+</script>
+
+                     <!-- END Favorites -->
+                     {{end}}
+                  </div>
+                  <!-- END Right Section -->
+
+    </header>
+<!-- END templates/partials/_header.html -->
+{{end}}

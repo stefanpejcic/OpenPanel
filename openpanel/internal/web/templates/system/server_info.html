@@ -1,0 +1,353 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/system/server_info.html -->
+
+<div class="border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+	<header>
+		<h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Server Information"}}</h1>
+		<p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "View current server specification and system usage."}}</p>
+	</header>
+</div>
+<div class="overflow-x-auto">
+	<div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+		<table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+			<tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+				<tr class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
+					<th id="server" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="2">{{.T.Get "Server Information"}}</th>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-rocket"></i> {{.T.Get "Hostname"}}
+					</td>
+					<td id="node" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-bar-chart"></i> {{.T.Get "Average Load"}}
+					</td>
+					<td class="whitespace-nowrap p-4 items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 flex">
+						<span id="load">{{.T.Get "Loading..."}}</span>
+						<span id="load_icon" class="flex"></span>
+					</td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-clock-history"></i> {{.T.Get "Uptime"}}
+					</td>
+					<td id="uptime" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-geo-alt-fill"></i> {{.T.Get "IP Address"}}
+					</td>
+					<td id="ip" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-ethernet"></i> {{.T.Get "Ports"}}
+					</td>
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<ul role="list" class="mt-2 space-y-2">
+							<li class="relative flex w-full items-center space-x-3 rounded bg-gray-100/60 p-1 hover:bg-gray-100 dark:bg-gray-800/60 hover:dark:bg-gray-800">
+								<span class="inline-flex w-20 justify-center rounded bg-sky-500 py-1.5 text-sm font-semibold text-white dark:bg-sky-500 dark:text-white" id="remote_mysql_port">&nbsp;</span>
+								<p class="flex w-full items-center justify-between space-x-4 truncate text-sm font-medium">
+									<span class="text-gray-500 truncate dark:text-gray-500">{{.T.Get "Remote MySQL port"}}</span>
+								</p>
+							</li>
+							<li class="relative flex w-full items-center space-x-3 rounded bg-gray-100/60 p-1 hover:bg-gray-100 dark:bg-gray-800/60 hover:dark:bg-gray-800">
+								<span class="inline-flex w-20 justify-center rounded bg-sky-500 py-1.5 text-sm font-semibold text-white dark:bg-sky-500 dark:text-white">3306</span>
+								<p class="flex w-full items-center justify-between space-x-4 truncate text-sm font-medium">
+									<span class="text-gray-500 truncate dark:text-gray-500">{{.T.Get "Local MySQL port"}}</span>
+								</p>
+							</li>
+							<li class="relative flex w-full items-center space-x-3 rounded bg-gray-100/60 p-1 hover:bg-gray-100 dark:bg-gray-800/60 hover:dark:bg-gray-800">
+								<span class="inline-flex w-20 justify-center rounded bg-sky-500 py-1.5 text-sm font-semibold text-white dark:bg-sky-500 dark:text-white" id="remote_postgres_port">&nbsp;</span>
+								<p class="flex w-full items-center justify-between space-x-4 truncate text-sm font-medium">
+									<span class="text-gray-500 truncate dark:text-gray-500">{{.T.Get "Remote PostgreSQL port"}}</span>
+								</p>
+							</li>
+						</ul>
+					</td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-ubuntu"></i> {{.T.Get "OS"}}
+					</td>
+					<td id="system" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-question"></i> {{.T.Get "Release"}}
+					</td>
+					<td id="release" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-question"></i> {{.T.Get "Version"}}
+					</td>
+					<td id="version" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-cpu-fill"></i> {{.T.Get "Processor"}}
+					</td>
+					<td id="processor" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-globe"></i> {{.T.Get "Nameservers"}}
+					</td>
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<ul role="list" id="nameservers" class="mt-2 space-y-2">{{.T.Get "Loading..."}}</ul>
+					</td>
+				</tr>
+				<tr class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
+					<th id="plan" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="2">{{.T.Get "Hosting Plan"}}</th>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-window-fullscreen"></i> {{.T.Get "Plan Name"}}
+					</td>
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.HostingPlanName}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-file-text"></i> {{.T.Get "Description"}}
+					</td>
+					<td id="plan_description" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-hdd-network"></i> {{.T.Get "Context"}}
+					</td>
+					<td id="context" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-speedometer2"></i> {{.T.Get "Bandwidth Limit"}}
+					</td>
+					<td id="plan_bandwidth" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-cpu-fill"></i> {{.T.Get "CPU Limit"}}
+					</td>
+					<td id="plan_cpu_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-memory"></i> {{.T.Get "Memory Limit"}}
+					</td>
+					<td id="plan_ram_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-database"></i> {{.T.Get "Database Limit"}}
+					</td>
+					<td id="plan_db_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-browser-chrome"></i> {{.T.Get "Websites Limit"}}
+					</td>
+					<td id="plan_websites_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-hdd"></i> {{.T.Get "Disk Limit"}}
+					</td>
+					<td id="plan_disk_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-globe2"></i> {{.T.Get "Domains Limit"}}
+					</td>
+					<td id="plan_domains_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="{{if not (index .UserAllowed "emails")}}hidden{{end}} domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-envelope"></i> {{.T.Get "Email Limit"}}
+					</td>
+					<td id="plan_email_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="{{if not (index .UserAllowed "ftp")}}hidden{{end}} domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-folder-fill"></i> {{.T.Get "FTP Limit"}}
+					</td>
+					<td id="plan_ftp_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-file-earmark-binary"></i> {{.T.Get "Inodes Limit"}}
+					</td>
+					<td id="plan_inodes_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-database-fill"></i> {{.T.Get "MySQL Server"}}
+					</td>
+					<td id="plan_mysql" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-server"></i> {{.T.Get "Web Server"}}
+					</td>
+					<td id="plan_webserver" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
+				</tr>
+				<tr class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
+					<th id="openpanel" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="2">{{.T.Get "OpenPanel Information"}}</th>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-window-fullscreen"></i> {{.T.Get "OpenPanel Version"}}
+					</td>
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<a href="https://openpanel.com/docs/changelog/{{.PanelVersion}}/" target="_blank">
+							<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">{{.PanelVersion}}</span>
+						</a>
+					</td>
+				</tr>
+				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+						<i class="bi bi-menu-app-fill"></i> {{.T.Get "Enabled Features"}}
+					</td>
+					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+					<ul x-data="modules()" class="flex gap-2">
+						<template x-for="module in filteredModules()" :key="module.name">
+							<li>
+								<a :href="module.help_link" target="_blank" class="text-blue-600 hover:underline">
+									<span x-text="module.name"></span>
+								</a>
+							</li>
+						</template>
+					</ul>
+
+					<script>
+					function modules() {
+						return {
+							modules: [],
+							userAllowed: {{.UserAllowedJSON}},
+							init() {
+								fetch('https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json')
+									.then(res => res.json())
+									.then(data => {
+										this.modules = data;
+									})
+									.catch(err => console.error('Error loading modules:', err));
+							},
+							filteredModules() {
+								return this.modules.filter(m => this.userAllowed.includes(m.name));
+							}
+						}
+					}
+					</script>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const csrfHeaders = { 'X-CSRF-Token': csrf_token };
+
+    function setText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    }
+
+    function setHTML(id, html) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = html;
+    }
+
+    fetch('/json/system/hosting/info', { headers: csrfHeaders })
+        .then(res => res.json())
+        .then(response => {
+            setText('machine', response.machine);
+            setText('uptime', response.uptime);
+            setText('node', response.node);
+            setText('processor', response.processor);
+            setText('release', response.release);
+            setText('system', response.system);
+            setText('version', response.version);
+            setText('ip', response.ip);
+            setText('load', response.load_avg);
+
+            const load_avg = response.load_avg.split(',').map(v => parseFloat(v.trim()));
+            const load_1min = load_avg[0];
+            const load_5min = load_avg[1];
+            const percentage_difference = ((load_1min - load_5min) / load_5min) * 100;
+            const percentage = percentage_difference.toFixed(1) + '%';
+
+            let iconHtml = '';
+            if (percentage_difference > 500) {
+                iconHtml = `<span class="flex items-center space-x-2.5 py-1 pl-2.5 pr-1 ring-1"><span class="font-semibold tabular-nums">${percentage}</span><span class="bg-blue-100 px-2 py-1 font-medium"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 text-blue-600"><path d="M13.0001 7.82843V20H11.0001V7.82843L5.63614 13.1924L4.22192 11.7782L12.0001 4L19.7783 11.7782L18.3641 13.1924L13.0001 7.82843Z"></path></svg></span></span>`;
+            } else if (percentage_difference > 200) {
+                iconHtml = `<span class="flex items-center space-x-2.5 py-1 pl-2.5 pr-1 ring-1"><span class="font-semibold tabular-nums">${percentage}</span><span class="bg-blue-100 px-2 py-1 font-medium"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 text-blue-600"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg></span></span>`;
+            } else if (percentage_difference < 200 && percentage_difference > 100) {
+                iconHtml = `<span class="flex items-center space-x-2.5 py-1 pl-2.5 pr-1 ring-1 custom-md-badge:inline-flex"><span class="font-semibold tabular-nums">${percentage}</span><span class="rbg-blue-100 px-2 py-1 font-medium"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 text-blue-600"><path d="M14.5895 16.0032L5.98291 7.39664L7.39712 5.98242L16.0037 14.589V7.00324H18.0037V18.0032H7.00373V16.0032H14.5895Z"></path></svg></span></span>`;
+            } else if (percentage_difference < 100) {
+                iconHtml = `<span class="flex items-center space-x-2.5 py-1 pl-2.5 pr-1 ring-1 custom-lg:inline-flex"><span class="font-semibold tabular-nums">${percentage}</span><span class="bg-blue-100 px-2 py-1 font-medium"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 text-blue-600"><path d="M13.0001 16.1716L18.3641 10.8076L19.7783 12.2218L12.0001 20L4.22192 12.2218L5.63614 10.8076L11.0001 16.1716V4H13.0001V16.1716Z"></path></svg></span></span>`;
+            }
+            setHTML('load_icon', iconHtml);
+        })
+        .catch(err => console.error('Error fetching hosting info:', err));
+
+    // PORTS
+    fetch('/json/system/hosting/ports', { headers: csrfHeaders })
+        .then(res => res.json())
+        .then(response => {
+            setText('remote_mysql_port', response.remote_mysql_port);
+            setText('remote_postgres_port', response.remote_postgres_port);
+        })
+        .catch(err => console.error('Error fetching ports:', err));
+
+    // HOSTING PACKAGE
+    fetch('/json/system/hosting/plan', { headers: csrfHeaders })
+        .then(res => res.json())
+        .then(response => {
+            setText('context', response.context);
+
+            const nsContainer = document.getElementById('nameservers');
+            nsContainer.innerHTML = '';
+            [response.ns1, response.ns2, response.ns3, response.ns4].forEach((ns, i) => {
+                if (ns) {
+                    const li = document.createElement('li');
+                    li.className = 'relative flex w-full items-center space-x-3 rounded bg-gray-100/60 p-1 hover:bg-gray-100 dark:bg-gray-800/60 hover:dark:bg-gray-800';
+                    li.innerHTML = `
+                        <span class="inline-flex w-20 justify-center rounded bg-sky-500 py-1.5 text-sm font-semibold text-white dark:bg-sky-500 dark:text-white">ns${i+1}</span>
+                        <p class="flex w-full items-center justify-between space-x-4 truncate text-sm font-medium">
+                            <span class="text-gray-500 truncate dark:text-gray-500">${ns}</span>
+                        </p>
+                    `;
+                    nsContainer.appendChild(li);
+                }
+            });
+
+            function formatLimit(value) {
+                return value == 0 ? '<i class="bi bi-infinity"></i>' : value;
+            }
+
+            setText('plan_bandwidth', response.plan_bandwidth);
+            setHTML('plan_cpu_limit', formatLimit(response.plan_cpu_limit));
+            setHTML('plan_ram_limit', formatLimit(response.plan_ram_limit));
+            setHTML('plan_db_limit', formatLimit(response.plan_db_limit));
+            setHTML('plan_disk_limit', formatLimit(response.plan_disk_limit));
+            setHTML('plan_domains_limit', formatLimit(response.plan_domains_limit));
+            setHTML('plan_email_limit', formatLimit(response.plan_email_limit));
+            setHTML('plan_ftp_limit', formatLimit(response.plan_ftp_limit));
+            setHTML('plan_inodes_limit', formatLimit(response.plan_inodes_limit));
+            setHTML('plan_websites_limit', formatLimit(response.plan_websites_limit));
+            setText('plan_mysql', response.plan_mysql);
+            setText('plan_webserver', response.plan_webserver);
+            setText('plan_description', response.plan_description);
+        })
+        .catch(err => console.error('Error fetching plan:', err));
+});
+</script>
+
+<!-- END templates/system/server_info.html -->
+{{end}}

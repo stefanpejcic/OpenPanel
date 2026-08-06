@@ -1,0 +1,719 @@
+{{define "temp_link"}}
+{{if .UserAllowed.temporary_links}}
+<!-- START templates/partials/temp_link.html -->
+<a href="#" type="button" data-selected-domain="{{.CurrentDomain}}" onclick="sendDataToPreview(event)" data-tooltip-target="tooltip-temporary-link" data-tooltip-placement="left" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">{{.T.Get "Live Preview"}} <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0">
+            <path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path>
+        </svg></a>
+
+<div id="tooltip-temporary-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+    {{.T.Get "Preview website on temporary .openpanel.org subdomain"}}
+    <div class="tooltip-arrow" data-popper-arrow></div>
+</div>
+
+<script>
+function sendDataToPreview(event) {
+    const button = event.currentTarget;
+    const originalHTML = button.innerHTML;
+
+    button.innerHTML = `<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Generating..`;
+    button.disabled = true;
+
+    const domain = button.getAttribute('data-selected-domain');
+
+    fetch(`/domains/temporary-link?domain=${encodeURIComponent(domain)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.link) {
+                window.open(data.link, '_blank');
+                showToast({{toJSON (.T.Get "Link opened in new tab, link is valid for 15 minutes.")}}, 'info');
+            } else {
+                showToast({{toJSON (.T.Get "No link found in the response. Contact Administrator.")}}, 'warning');
+                console.error('No link found in the response.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+            }, 3000);
+        });
+}
+</script>
+<!-- END templates/partials/temp_link.html -->
+{{end}}
+{{end}}
+
+{{define "screenshot"}}
+<!-- START templates/partials/screenshot.html -->
+<div x-data="screenshotComponent({{toJSON .CurrentDomain}})" x-init="loadScreenshot()" class="flex rounded border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 screenshot relative" :data-link="'http://' + domain">
+
+  <template x-if="loading">
+<div class="h-72 w-full flex flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400">
+  <svg class="animate-spin h-8 w-8 text-gray-400 dark:text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+  <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Loading screenshot..."}}</p>
+</div>
+  </template>
+
+  <template x-if="!loading && screenshotAvailable">
+    <div class="relative group">
+      <a :href="'http://' + domain" target="_blank" class="block w-full h-full relative">
+        <img :src="screenshotUrl" :alt="'Screenshot of ' + domain" class="w-full h-full object-cover rounded"/>
+      </a>
+
+      <div class="absolute inset-0 rounded bg-black/0 group-hover:bg-black/40 transition-all duration-200 pointer-events-none flex items-end p-3">
+        <a :href="'http://' + domain" target="_blank" rel="noopener noreferrer"
+           class="pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1.5 px-3 py-1.5 rounded bg-white text-gray-900 text-xs font-medium hover:bg-gray-100">
+          <i class="bi bi-box-arrow-up-right text-xs"></i>
+          {{.T.Get "Open site"}}
+        </a>
+      </div>
+
+      <button type="button" data-tooltip-target="tooltip-refresh-link" data-tooltip-placement="left" @click.prevent="regenerateScreenshot()" class="absolute top-0 right-0 mt-2 mr-2 flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50" aria-label="Refresh screenshot">
+        <i class="bi bi-arrow-counterclockwise"></i>
+      </button>
+      <div id="tooltip-refresh-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+          {{.T.Get "Click to refresh screenshot"}}
+          <div class="tooltip-arrow" data-popper-arrow></div>
+      </div>
+    </div>
+  </template>
+
+  <template x-if="!loading && !screenshotAvailable">
+    <div id="placeholder_no_image" class="h-72 w-full flex flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" aria-hidden="true" class="text-gray-400 dark:text-gray-600"><rect x="2" y="3" width="20" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><path d="M4 17l5-5 4 4 5-6 3 3" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No Screenshot"}}</p>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Failed to generate website screenshot."}}</p>
+    </div>
+  </template>
+</div>
+
+<script>
+  function screenshotComponent(domain) {
+    return {
+      domain,
+      loading: true,
+      screenshotAvailable: false,
+      screenshotUrl: '',
+
+      loadScreenshot() {
+        this.loading = true;
+        this.screenshotAvailable = false;
+
+        const url = `/json/screenshot/${this.domain}?t=${Date.now()}`;
+        const img = new Image();
+
+        img.src = url;
+
+        img.onload = () => {
+          this.screenshotUrl = url;
+          this.screenshotAvailable = true;
+          this.loading = false;
+        };
+
+        img.onerror = () => {
+          this.screenshotAvailable = false;
+          this.loading = false;
+        };
+      },
+
+      async regenerateScreenshot() {
+        this.loading = true;
+        this.screenshotAvailable = false;
+
+        try {
+          await fetch(`/json/screenshot/${this.domain}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': csrf_token
+            }
+          });
+
+          const url = `/json/screenshot/${this.domain}?t=${Date.now()}`;
+          const img = new Image();
+          img.src = url;
+
+          img.onload = () => {
+            this.screenshotUrl = url;
+            this.screenshotAvailable = true;
+            this.loading = false;
+          };
+
+          img.onerror = () => {
+            this.screenshotAvailable = false;
+            this.loading = false;
+          };
+
+        } catch (err) {
+          console.error('Error regenerating screenshot:', err);
+          this.screenshotAvailable = false;
+          this.loading = false;
+        }
+      }
+    };
+  }
+</script>
+<!-- END templates/partials/screenshot.html -->
+{{end}}
+
+{{define "visitors"}}
+<!-- START templates/partials/visitors.html -->
+<div id="partials_visitors" class="flex flex-col justify-center overflow-hidden rounded border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1 p-4">
+    <div class="mb-2 flex items-center justify-between gap-4 relative" id="partials_waf_title">
+        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+        <h2 id="visitors_header" class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Live Visitors"}}</h2>
+
+        <span class="flex items-center gap-x-2 text-sm font-medium text-gray-900 dark:bg-gray-950 dark:text-gray-950">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-px size-5 shrink-0 text-gray-500 dark:text-gray-500"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM13 12H17V14H11V7H13V12Z"></path></svg>
+            {{.T.Get "Last"}}
+            <select id="visitor_seconds" class="cursor-pointer rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-500 dark:bg-blue-400/10 dark:text-blue-500">
+                <option value="60" selected>{{.T.Get "1 minute"}}</option>
+                <option value="300">{{.T.Get "5 minutes"}}</option>
+                <option value="1800">{{.T.Get "30 minutes"}}</option>
+                <option value="3600">{{.T.Get "1 hour"}}</option>
+                <option value="21600">{{.T.Get "6 hours"}}</option>
+                <option value="43200">{{.T.Get "12 hours"}}</option>
+                <option value="86400">{{.T.Get "24 hours"}}</option>
+            </select>
+        </span>
+    </div>
+
+    <div class="flex items-center min-h-[3rem]">
+        <div id="visitors_loader" class="hidden">
+            <svg class="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+        </div>
+        {{if .UserAllowed.domain_logs}}<a href="/domains/log/{{index (split .CurrentDomain "/") 0}}" target="_blank" title="{{.T.Get "Open domain access logs in new tab"}}">{{end}}
+        <dd id="visitors_data" class="text-3xl font-semibold text-gray-900 dark:text-gray-50">0</dd>
+        {{if .UserAllowed.domain_logs}}</a>{{end}}
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const domain = {{toJSON .CurrentDomain}};
+    const countEl = document.getElementById("visitors_data");
+    const loaderEl = document.getElementById("visitors_loader");
+    const selectEl = document.getElementById("visitor_seconds");
+    const headerEl = document.getElementById("visitors_header");
+    let refreshTimer;
+
+    function getLabel(seconds) {
+        return seconds == 60
+            ? {{toJSON (.T.Get "Live Visitors")}}
+            : {{toJSON (.T.Get "Visitors")}};
+    }
+
+    async function updateVisitors(seconds) {
+        if (document.hidden) return;
+
+        headerEl.textContent = getLabel(seconds);
+        loaderEl.classList.remove("hidden");
+        countEl.classList.add("hidden");
+
+        try {
+            const safeDomain = domain.split('/')[0];
+            const res = await fetch(`/json/visitors/${safeDomain}?seconds=${seconds}`);
+            const { count } = await res.json();
+            countEl.textContent = count ?? "0";
+        } catch (err) {
+            console.error("Error fetching visitors:", err);
+            countEl.textContent = "0";
+        } finally {
+            loaderEl.classList.add("hidden");
+            countEl.classList.remove("hidden");
+        }
+
+        clearInterval(refreshTimer);
+        if (seconds == 60)
+            refreshTimer = setInterval(() => updateVisitors(seconds), 30000);
+    }
+
+    updateVisitors(selectEl.value);
+    selectEl.addEventListener("change", e => updateVisitors(e.target.value));
+});
+</script>
+<!-- END templates/partials/visitors.html -->
+{{end}}
+
+{{define "waf_panel"}}
+{{if .UserAllowed.waf}}
+<!-- START templates/partials/waf.html -->
+<style>
+.circle { border-radius: 50%; border: 2px solid gray; opacity: 0.5; background: none; transition: all 0.3s ease;}
+.circle-1 { width: 170px; height: 170px; }
+.circle-2 { width: 110px; height: 110px; }
+.circle-3 { width: 70px; height: 70px; }
+.dark\:outline-indigo-500 { outline-color: #6366F1; }
+.circle.active { background: radial-gradient(circle, rgba(99,102,241,0.3), transparent); border-color: rgba(99,102,241,0.5); opacity: 1;}
+</style>
+
+<div id="partials_waf" class="flex flex-col justify-center overflow-hidden rounded border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1 p-4">
+    <div class="mb-2 flex items-center justify-between gap-4 relative" id="partials_waf_title">
+        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Firewall"}}</h2>
+
+        <button
+            id="waf_toggle_btn"
+            type="button"
+            data-tooltip-target="tooltip-waf"
+            data-tooltip-placement="left"
+            class="group relative isolate inline-flex shrink-0 items-center rounded-full p-0.5 shadow-inner ring-1 ring-inset transition-all ring-black/5 dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 h-5 w-9 bg-gray-200 dark:bg-gray-950"
+            aria-checked="false">
+            <span class="pointer-events-none relative inline-block transform appearance-none rounded-full border-none shadow-lg outline-none transition-all duration-150 ease-in-out bg-white dark:bg-gray-50 h-4 w-4 translate-x-0"></span>
+        </button>
+    </div>
+
+    <div id="tooltip-waf" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+        {{.T.Get "Control Coraza WAF for the domain"}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+
+    <div id="partials_waf_data">
+        <div class="relative">
+            <div class="mt-8">
+                <div class="relative flex items-center justify-center isolate">
+                    <div class="absolute circle circle-1"></div>
+                    <div class="absolute circle circle-2"></div>
+                    <div class="absolute circle circle-3"></div>
+                    <i id="waf_icon" class="bi bi-shield text-3xl"></i>
+                </div>
+
+                <div class="flex flex-col gap-2 items-center justify-center relative">
+                    <p id="firewall_status_text" class="relative font-medium text-slate-900 dark:text-slate-100">{{.T.Get "Checking Firewall status.."}}</p>
+                </div>
+            </div>
+
+            <table class="mt-8 w-full text-sm">
+                <tbody>
+                    <tr>
+                        <td class="relative p-2"><span class="flex gap-1 relative font-medium text-gray-600 dark:text-gray-400">
+                            <i class="bi bi-shield-exclamation"></i> {{.T.Get "Requests denied"}}:
+                        </span></td>
+                        <td class="text-end">
+                            <a href="/server/waf/log/{{index (split .CurrentDomain "/") 0}}" target="_blank" title="{{.T.Get "Open domain WAF logs in new tab"}}">
+                            <b id="blocks"></b>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="relative p-2"><span class="flex gap-1 relative font-medium text-gray-600 dark:text-gray-400">
+                            <i class="bi bi-shield-check"></i> {{.T.Get "Requests challenged"}}:
+                        </span></td>
+                        <td class="text-end">
+                            <a href="/server/waf/log/{{index (split .CurrentDomain "/") 0}}" target="_blank" title="{{.T.Get "Open domain WAF logs in new tab"}}">
+                            <b id="checks"></b>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const domainName = {{toJSON .CurrentDomain}};
+    const i18n = {
+        active: {{toJSON (.T.Get "Firewall is active")}},
+        inactive: {{toJSON (.T.Get "Firewall is inactive")}},
+        fetchStateError: {{toJSON (.T.Get "Error fetching firewall state")}},
+        statsError: {{toJSON (.T.Get "Error fetching WAF data (blocked/challenged) for the domain.")}},
+        toggleError: {{toJSON (.T.Get "An error occurred while updating the firewall status, please check console log.")}},
+        statusMessage: {{toJSON (.T.Get "Firewall for %(domain)s is now %(status)s")}}
+    };
+    const wafButton = document.getElementById("waf_toggle_btn");
+    const statusText = document.getElementById("firewall_status_text");
+    const wafIcon = document.getElementById("waf_icon");
+    const circles = document.querySelectorAll('.circle');
+    const blocksEl = document.getElementById("blocks");
+    const checksEl = document.getElementById("checks");
+
+    function updateCircles(active) {
+        circles.forEach(circle => circle.classList.toggle('active', active));
+    }
+
+    function setButtonState(active) {
+        const thumb = wafButton.querySelector("span");
+        wafButton.setAttribute("aria-checked", active);
+        wafButton.classList.toggle("bg-indigo-600", active);
+        wafButton.classList.toggle("bg-gray-200", !active);
+        thumb.classList.toggle("translate-x-4", active);
+        thumb.classList.toggle("translate-x-0", !active);
+    }
+
+    async function fetchFirewallState() {
+        try {
+            const response = await fetch(`/server/waf?domain=${domainName}`);
+            const data = await response.json();
+            const firewallState = Object.values(data)[0];
+            const isActive = firewallState === "On";
+
+            setButtonState(isActive);
+            updateCircles(isActive);
+            wafIcon.className = isActive ? "bi bi-shield-fill-check text-3xl" : "bi bi-shield-slash text-3xl";
+            statusText.textContent = isActive ? i18n.active : i18n.inactive;
+        } catch (error) {
+            console.error("Error fetching firewall state:", error);
+            showToast(i18n.fetchStateError, "warning");
+        }
+    }
+
+    async function fetchWafStats() {
+        try {
+            const safeDomain = domainName.split('/')[0];
+            const response = await fetch(`/json/waf/${safeDomain}?seconds=3600`);
+            const data = await response.json();
+            blocksEl.textContent = data.blocks || 0;
+            checksEl.textContent = data.checks || 0;
+        } catch (error) {
+            console.error("Error fetching WAF stats for domain:", error);
+            showToast(i18n.statsError, "warning");
+        }
+    }
+
+    async function toggleFirewall() {
+        const isActive = wafButton.getAttribute("aria-checked") === "true";
+        const newState = !isActive;
+        setButtonState(newState);
+        updateCircles(newState);
+
+        const formData = new FormData();
+        formData.append("domain_name", domainName);
+        formData.append("modsec_action", newState ? "On" : "Off");
+
+        try {
+            const postResponse = await fetch(`/server/waf?domain=${domainName}`, {
+                method: "POST",
+                headers: { 'X-CSRF-TOKEN': csrf_token },
+                body: formData,
+            });
+            const result = await postResponse.json();
+            const [domain, status] = Object.entries(result)[0];
+            statusText.textContent = status === "On" ? i18n.active : i18n.inactive;
+            wafIcon.className = status === "On" ? "bi bi-shield-fill-check text-3xl" : "bi bi-shield-slash text-3xl";
+            showToast(i18n.statusMessage.replace('%(domain)s', domain).replace('%(status)s', status), status === "On" ? "success" : "info");
+            await fetchWafStats();
+        } catch (error) {
+            console.error(error);
+            setButtonState(isActive);
+            updateCircles(isActive);
+            wafIcon.className = isActive ? "bi bi-shield-fill-check text-3xl" : "bi bi-shield-slash text-3xl";
+            statusText.textContent = isActive ? i18n.active : i18n.inactive;
+            showToast(i18n.toggleError, "error");
+        }
+    }
+
+    wafButton.addEventListener("click", toggleFirewall);
+    await fetchFirewallState();
+    await fetchWafStats();
+});
+</script>
+<!-- END templates/partials/waf.html -->
+{{end}}
+{{end}}
+
+{{define "pagespeed_panel"}}
+<!-- START templates/partials/pagespeed.html -->
+<div id="partials_pagespeed" class="flex flex-col justify-center overflow-hidden rounded border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1 p-4">
+            <div class="mb-2 flex items-center justify-between gap-4 relative" id="partials_pagespeed_title">
+                <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Speed"}}</h2>
+                <span class="mt-6 inline-flex w-full justify-center space-x-4 whitespace-nowrap rounded border border-gray-200 px-2 py-1 text-xs text-gray-900 dark:border-gray-900 dark:text-gray-50 sm:mt-0 sm:w-fit sm:items-center">
+                    <span tabindex="1" class="flex items-center gap-1.5"><span aria-hidden="true" class="size-3 rounded-sm bg-red-600 dark:bg-red-500"></span>0-49</span>
+                    <span tabindex="1" class="flex items-center gap-1.5"><span aria-hidden="true" class="size-3 rounded-sm bg-orange-500 dark:bg-orange-500"></span>50-89</span>
+                    <span tabindex="1" class="flex items-center gap-1.5"><span aria-hidden="true" class="size-3 rounded-sm bg-emerald-600 dark:bg-emerald-500"></span>90-100</span>
+                </span>
+            </div>
+
+    <div class="card-body text-center hidden" id="partials_pagespeed_loading">
+        <div class="flex h-72 items-center justify-center rounded border border-dashed border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+            <div class="text-center">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon mx-auto size-7 text-gray-400 dark:text-gray-600">
+                    <path d="M3 12H7V21H3V12ZM17 8H21V21H17V8ZM10 2H14V21H10V2Z"></path>
+                </svg>
+                <p class="mt-2 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Loading Google PageSpeed data"}}</p>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Data refreshes every 24 hours."}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body text-center hidden" id="partials_pagespeed_data">
+        <div class="row my-4">
+            <div class="group inline-flex space-x-4">
+                <div class="wrapper_ps desktop">
+        <div class="flex justify-center">
+            <div class="relative" role="progressbar" aria-label="progress bar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" data-max="100" data-value="65">
+                <svg width="120" height="120" viewBox="0 0 90 90" class="-rotate-90 transform">
+                    <circle r="42" cx="45" cy="45" stroke-width="6" fill="transparent" stroke="" stroke-linecap="round" class="transition-colors ease-linear stroke-gray-100"></circle>
+                    <circle r="42" cx="45" cy="45" stroke-width="6" stroke-dasharray="263.89378290154264 263.89378290154264" stroke-dashoffset="66.28214111016942" fill="transparent" stroke="" stroke-linecap="round" class="desktop-mainColor stroke-blue-500 transform-gpu transition-all duration-300 ease-in-out"></circle>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="flex flex-col items-center">
+                        <span class="mt-1 font-medium tabular-nums text-gray-900 dark:text-gray-50" id="desktop-performance_score">??</span><span class="text-xs font-medium tabular-nums text-gray-500 dark:text-gray-500">{{.T.Get "Desktop"}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                <div class="wrapper_ps mobile">
+        <div class="flex justify-center">
+            <div class="relative" role="progressbar" aria-label="progress bar" aria-valuenow="74.88302286571907" aria-valuemin="0" aria-valuemax="100" data-max="100" data-value="74.88302286571907">
+                <svg width="120" height="120" viewBox="0 0 90 90" class="-rotate-90 transform">
+                    <circle r="42" cx="45" cy="45" stroke-width="6" fill="transparent" stroke="" stroke-linecap="round" class="transition-colors ease-linear stroke-gray-100"></circle>
+                    <circle r="42" cx="45" cy="45" stroke-width="6" stroke-dasharray="263.89378290154264 263.89378290154264" stroke-dashoffset="66.28214111016942" fill="transparent" stroke="" stroke-linecap="round" class="mobile-mainColor stroke-blue-500 transform-gpu transition-all duration-300 ease-in-out"></circle>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="flex flex-col items-center">
+                        <span class="mt-1 font-medium tabular-nums text-gray-900 dark:text-gray-50" id="mobile-performance_score">??</span><span class="text-xs font-medium tabular-nums text-gray-500 dark:text-gray-500">{{.T.Get "Mobile"}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+            </div>
+        </div>
+
+        <table class="w-full text-sm">
+            <thead>
+                <tr>
+                    <td class="relative p-2"></td>
+                    <td class="text-end"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Desktop"}}</span></td>
+                    <td class="text-end"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Mobile"}}</span></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="relative text-left p-1"><span class="relative text-start font-medium text-slate-500 dark:text-slate-400">{{.T.Get "First Contentful Paint:"}}</span></td>
+                    <td class="text-end"><b id="desktop-first_contentful_paint">??</b></td>
+                    <td class="text-end"><b id="mobile-first_contentful_paint">??</b></td>
+                </tr>
+                <tr>
+                    <td class="relative text-left p-1"><span class="relative text-start font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Speed Index:"}}</span></td>
+                    <td class="text-end"><b id="desktop-speed_index">??</b></td>
+                    <td class="text-end"><b id="mobile-speed_index">??</b></td>
+                </tr>
+                <tr>
+                    <td class="relative text-left p-1"><span class="relative text-start font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Time to Interactive:"}}</span></td>
+                    <td class="text-end"><b id="desktop-interactive">??</b></td>
+                    <td class="text-end"><b id="mobile-interactive">??</b></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Measured at"}} <span class="text-xs tabular-nums text-gray-500 dark:text-gray-500" id="timestamp"></span></span></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="relative p-2"><span class="text-xs text-gray-500 dark:text-gray-500 domain_link hover:underline">
+                        {{if .PagespeedAPIKey}}
+                        {{.T.Get "PageSpeed Insights API key:"}} <span class="text-xs tabular-nums text-gray-500 dark:text-gray-500" id="click_to_show_api_key" style="filter: blur(5px); cursor: pointer;" onclick="revealAPIkey()">{{.PagespeedAPIKey}}</span>
+                        {{else if .UserAllowed.filemanager}}
+                        <a href="/file-manager/edit-file/pagespeed_api_key.txt?new=true" target="_blank">{{.T.Get "Click to add PageSpeed Insights API key"}}</a>
+                        {{else}}
+                        {{.T.Get "Ask Administrator to set a PageSpeed Insights API key"}}
+                        {{end}}
+                        </span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-body text-center" id="partials_pagespeed_no_data">
+        <div class="flex h-72 items-center justify-center rounded border border-dashed border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+            <div class="text-center">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon mx-auto size-7 text-gray-400 dark:text-gray-600">
+                    <path d="M3 12H7V21H3V12ZM17 8H21V21H17V8ZM10 2H14V21H10V2Z"></path>
+                </svg>
+                <p class="mt-2 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No data to show"}}</p>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "May take 24h for data to be shown."}}</p>
+            </div>
+        </div>
+
+        <table class="w-full text-sm">
+            <thead><tr></tr></thead>
+            <tbody>
+                <tr>
+                    <td colspan="3" class="relative pt-2"><span class="text-sm text-gray-500 dark:text-gray-500 domain_link hover:underline">
+                        {{if .PagespeedAPIKey}}
+                        {{.T.Get "PageSpeed Insights API key:"}} <span class="text-xs tabular-nums text-gray-500 dark:text-gray-500" id="click_to_show_api_key" style="filter: blur(5px); cursor: pointer;" onclick="revealAPIkey()">{{.PagespeedAPIKey}}</span>
+                        {{else if .UserAllowed.filemanager}}
+                        <a href="/file-manager/edit-file/pagespeed_api_key.txt?new=true" class="text-xs" target="_blank">{{.T.Get "Click to add PageSpeed Insights API key"}}</a>
+                        {{else}}
+                        {{.T.Get "Ask Administrator to set a PageSpeed Insights API key"}}
+                        {{end}}
+                        </span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+    function revealAPIkey() {
+        var keySpan = document.getElementById("click_to_show_api_key");
+        if (!keySpan) return;
+        if (keySpan.style.filter === "blur(5px)") {
+            keySpan.style.filter = "none";
+        } else {
+            keySpan.style.filter = "blur(5px)";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const circumference = 2 * Math.PI * 42;
+
+        function getClassForScore(score) {
+            if (score <= 45) return 'stroke-red-500';
+            if (score <= 89) return 'stroke-orange-500';
+            if (score <= 100) return 'stroke-emerald-500';
+            return 'stroke-grey-500';
+        }
+
+        function updateCircleCompletion(selector, score) {
+            const offset = circumference - (score / 100) * circumference;
+            document.querySelectorAll(selector).forEach(el => {
+                el.style.strokeDashoffset = offset;
+            });
+        }
+
+        function updateUI(data) {
+            const metrics = ['performance_score', 'first_contentful_paint', 'speed_index', 'interactive'];
+
+            ['desktop', 'mobile'].forEach(type => {
+                const score = Math.round(data[`${type}_speed`].performance_score * 100);
+                const colorClass = getClassForScore(score);
+
+                document.querySelector(`#${type}-performance_score`).textContent = score;
+                document.querySelectorAll(`.${type}-mainColor`).forEach(el => {
+                    el.classList.remove('stroke-blue-500');
+                    el.classList.add(colorClass);
+                });
+                updateCircleCompletion(`.${type}-mainColor`, score);
+
+                metrics.slice(1).forEach(metric => {
+                    document.querySelector(`#${type}-${metric}`).textContent = data[`${type}_speed`][metric];
+                });
+            });
+
+            document.querySelector('#timestamp').textContent = data.timestamp;
+        }
+
+        let toastDisplayed = false;
+
+        function fetchDataAndUpdateUI() {
+            const currentDomain = {{toJSON .CurrentDomain}};
+
+            document.querySelector('#partials_pagespeed_loading').classList.remove('hidden');
+            document.querySelector('#partials_pagespeed_data').classList.add('hidden');
+            document.querySelector('#partials_pagespeed_no_data').classList.add('hidden');
+
+            fetch(`/json/page_speed/${currentDomain}`, {
+                method: "GET",
+                headers: { 'X-CSRF-TOKEN': csrf_token }
+            })
+                .then(response => response.json().then(data => ({ ok: response.ok, data })))
+                .then(({ ok, data }) => {
+                    if (!ok) {
+                        let toastMessage = {{toJSON (.T.Get "Error fetching Google PageSpeed data for the domain. Please refresh the page. If the issue continues, contact support for assistance.")}};
+
+                        if (data && data.message) {
+                            const apiMessage = String(data.message);
+
+                            const quotaErrorKey = "google_ps_quota_error";
+                            const quotaErrorCacheDuration = 24 * 60 * 60 * 1000;
+                            const cachedError = JSON.parse(localStorage.getItem(quotaErrorKey));
+                            const now = Date.now();
+
+                            if (apiMessage.toLowerCase().includes('exceeded for quota metric')) {
+                                if (!cachedError || (now - cachedError.timestamp) > quotaErrorCacheDuration) {
+                                    toastMessage = "Quota limit exceeded for Google PageSpeed API. Please add an API Key.";
+
+                                    localStorage.setItem(quotaErrorKey, JSON.stringify({
+                                        shown: true,
+                                        timestamp: now
+                                    }));
+
+                                    showToast(toastMessage, 'error');
+                                    toastDisplayed = true;
+                                }
+
+                                document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+                                document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
+                                return;
+                            }
+                            else if (apiMessage.includes('Aborting')) {
+                                toastMessage = apiMessage;
+                                return;
+                            }
+                        }
+
+                        showToast(toastMessage, 'error');
+                        toastDisplayed = true;
+                        document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+                        document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
+                        return;
+                    }
+
+                    if (data.message) {
+                        let toastMessage = data.message;
+
+                        if (toastMessage.toLowerCase().includes('exceeded for quota metric')) {
+                            const quotaErrorKey = "google_ps_quota_error";
+                            const quotaErrorCacheDuration = 24 * 60 * 60 * 1000;
+                            const cachedError = JSON.parse(localStorage.getItem(quotaErrorKey));
+                            const now = Date.now();
+
+                            if (!cachedError || (now - cachedError.timestamp) > quotaErrorCacheDuration) {
+                                showToast({{toJSON (.T.Get "Quota limit exceeded for Google PageSpeed API. Please add an API Key.")}}, 'error');
+                                localStorage.setItem(quotaErrorKey, JSON.stringify({ shown: true, timestamp: now }));
+                                toastDisplayed = true;
+                            }
+
+                            document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+                            document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
+                            return;
+                        }
+
+                        if (toastMessage.includes('Aborting')) {
+                            showToast(toastMessage, 'error');
+                            document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+                            document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
+                            return;
+                        }
+
+                        showToast(toastMessage, 'loading');
+                        toastDisplayed = true;
+                        setTimeout(fetchDataAndUpdateUI, 15000);
+                    } else {
+                        updateUI(data);
+                        document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+                        document.querySelector('#partials_pagespeed_data').classList.remove('hidden');
+                        if (toastDisplayed) {
+                            showToast({{toJSON (.T.Get "The site's Google PageSpeed data has been successfully collected.")}}, 'success');
+                        }
+                    }
+                })
+                .catch(function () {
+                    showToast({{toJSON (.T.Get "Error fetching Google PageSpeed data for the domain. Please refresh the page. If the issue continues, contact support for assistance.")}}, 'error');
+                    toastDisplayed = true;
+                    document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+                    document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
+                });
+        }
+
+        fetchDataAndUpdateUI();
+    });
+    </script>
+</div>
+<!-- END templates/partials/pagespeed.html -->
+{{end}}

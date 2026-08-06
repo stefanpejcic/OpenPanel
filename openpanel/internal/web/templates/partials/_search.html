@@ -1,0 +1,225 @@
+{{define "search"}}<!-- START templates/partials/_search.html -->
+<div data-sidebar="group-content" class="w-full text-sm" x-data="searchComponent()" id="searchGroup" @click.outside="closeSearch">
+    <form action="./" method="get" autocomplete="off" novalidate="">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <div class="relative flex items-center justify-end">
+
+            <button type="button" id="openSearchBtn" @click="openSearch" x-show="!isOpen" class="flex items-center justify-center w-8 h-8 rounded text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Open search"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"/></svg></button>
+
+            <!-- search field -->
+            <div x-cloak
+                x-show="isOpen"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-x-75 translate-x-4"
+                x-transition:enter-end="opacity-100 scale-x-100 translate-x-0"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 scale-x-100 translate-x-0"
+                x-transition:leave-end="opacity-0 scale-x-75 translate-x-4"
+                class="relative w-full origin-right [&>input]:sm:py-1.5">
+                <input type="search" x-model="searchText" x-ref="searchInput" @input="fetchResults" @keydown.escape="closeSearch" @keydown.arrow-down.prevent="moveActive(1)" @keydown.arrow-up.prevent="moveActive(-1)" @keydown.enter.prevent="selectActive" placeholder="{{.T.Get "Search"}}" id="searchInput" class="relative block w-full appearance-none rounded border px-2.5 py-1 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8 pr-8">
+
+                <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"/></svg>
+                </div>
+
+
+                <button type="button" @click="closeSearch" class="absolute bottom-0 right-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" aria-label="Close search"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"/></svg>
+                </button>
+
+                <!-- Search results -->
+                <ul class="absolute p-1 z-50 overflow-hidden rounded shadow-xl shadow-black/[2.5%] min-w-48 bg-white dark:bg-[#090E1A] text-gray-900 dark:text-gray-50 border border-gray-200 dark:border-gray-800 [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500" style="top: 100%; width: 100%; right: 0px; overflow-x: hidden; overflow-y: overlay; max-height: 90vh;" aria-labelledby="searchInput" id="filteredDropdown" x-show="dropdownItems.length">
+                    <template x-for="(item, index) in dropdownItems" :key="item.id">
+                        <li class="p-1 border-b border-gray-200 dark:border-gray-800 rounded" :class="{'bg-gray-100 dark:bg-gray-800': activeIndex === index}" x-html="item.html"></li>
+                    </template>
+                </ul>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+function searchComponent() {
+    // entity search (databases, domains, emails, ftp, containers, services, crons) is Enterprise-only,
+    // and further limited to modules this user actually has access to
+    const isEnterprise = {{if .IsEnterprise}}true{{else}}false{{end}};
+    const entityTypes = [];
+    {{if .IsEnterprise}}
+        {{if .UserAllowed.mysql}}
+        entityTypes.push({ type: 'mysql_databases', icon: 'bi-database', label: "{{.T.Get "MySQL Database"}}" });
+        entityTypes.push({ type: 'mysql_users', icon: 'bi-person-fill', label: "{{.T.Get "MySQL User"}}" });
+        {{end}}
+        {{if .UserAllowed.postgresql}}
+        entityTypes.push({ type: 'postgresql_databases', icon: 'bi-database', label: "{{.T.Get "PostgreSQL Database"}}" });
+        entityTypes.push({ type: 'postgresql_users', icon: 'bi-person-fill', label: "{{.T.Get "PostgreSQL User"}}" });
+        {{end}}
+        {{if .UserAllowed.domains}}
+        entityTypes.push({ type: 'domains', icon: 'bi-globe', label: "{{.T.Get "Domain"}}" });
+        {{end}}
+        {{if .UserAllowed.emails}}
+        entityTypes.push({ type: 'emails', icon: 'bi-envelope', label: "{{.T.Get "Email Account"}}" });
+        {{end}}
+        {{if .UserAllowed.ftp}}
+        entityTypes.push({ type: 'ftp', icon: 'bi-folder-symlink-fill', label: "{{.T.Get "FTP Account"}}" });
+        {{end}}
+        {{if .UserAllowed.docker}}
+        entityTypes.push({ type: 'containers', icon: 'bi-boxes', label: "{{.T.Get "Container"}}" });
+        {{end}}
+        {{if .UserAllowed.services}}
+        entityTypes.push({ type: 'services', icon: 'bi-hdd-stack', label: "{{.T.Get "Service"}}" });
+        {{end}}
+        {{if .UserAllowed.crons}}
+        entityTypes.push({ type: 'crons', icon: 'bi-calendar2-week', label: "{{.T.Get "Cron Job"}}" });
+        {{end}}
+    {{end}}
+
+    return {
+        searchText: '',
+        dropdownItems: [],
+        moduleItems: [],
+        entityItems: [],
+        activeIndex: -1,
+        debounceTimer: null,
+        searchRequestId: 0,
+        isOpen: false,
+        openSearch() {
+            this.isOpen = true;
+            this.$nextTick(() => {
+                this.$refs.searchInput.focus();
+            });
+        },
+        closeSearch() {
+            this.isOpen = false;
+            this.searchText = '';
+            this.dropdownItems = [];
+            this.activeIndex = -1;
+        },
+        moveActive(step) {
+            if (!this.dropdownItems.length) return;
+            const max = this.dropdownItems.length - 1;
+            this.activeIndex = Math.min(max, Math.max(0, this.activeIndex + step));
+        },
+        selectActive() {
+            const item = this.dropdownItems[this.activeIndex] || this.dropdownItems[0];
+            if (item && item.link) {
+                window.location.href = item.link;
+            }
+        },
+        fetchResults() {
+            clearTimeout(this.debounceTimer);
+
+            const searchLower = this.searchText.toLowerCase();
+            if (!searchLower) {
+                this.dropdownItems = [];
+                this.activeIndex = -1;
+                return;
+            }
+
+            this.debounceTimer = setTimeout(() => this.performSearch(searchLower), 250);
+        },
+        // Renders each search type as soon as it resolves, instead of waiting on every
+        // request (Promise.all) before showing anything. Enterprise entity lookups
+        // (databases, domains, emails, etc.) can be slow, so they're fired independently
+        // and merged in as they land. Features/pages are local + fast, so they resolve
+        // first anyway, but are also kept in their own bucket to always render on top.
+        renderDropdown() {
+            this.dropdownItems = [...this.moduleItems, ...this.entityItems];
+        },
+        performSearch(searchLower) {
+            const requestId = ++this.searchRequestId;
+            this.moduleItems = [];
+            this.entityItems = [];
+            this.activeIndex = -1;
+            this.dropdownItems = [];
+
+            // MODULES / PAGES — always shown first, on top of any entity results
+            fetch('/json/search/features').then(r => r.json()).then(features => {
+                if (requestId !== this.searchRequestId) return;
+                const items = [];
+                features.forEach(item => {
+                    const name = item.name || '';
+                    if (name.toLowerCase().includes(searchLower)) {
+                        items.push({
+                            id: name,
+                            link: item.link,
+                            html: `<h3 class="m-0">
+                                    <a class="dropdown-item flex w-full" href="${item.link}">
+                                        ${item.name}<br>
+                                        <p class="dropdown-item-description" style="display:contents; font-size: 0.7em; margin-bottom: 0px;">
+                                            ${item.description}
+                                        </p>
+                                    </a>
+                                </h3>`
+                        });
+                    }
+                });
+                this.moduleItems = items;
+                this.renderDropdown();
+            }).catch(() => {});
+
+            // WEBSITES — appended to the entity section as soon as it resolves
+            if (isEnterprise) {
+                fetch('/json/search/websites').then(r => r.ok ? r.json() : []).then(websites => {
+                    if (requestId !== this.searchRequestId) return;
+                    const items = [];
+                    websites.forEach(item => {
+                        const name = item[0] || '';
+                        if (name.toLowerCase().includes(searchLower)) {
+                            const link = '/website?domain=' + name;
+                            items.push({
+                                id: name,
+                                link: link,
+                                html: `<h3 class="m-0">
+                                        <a class="flex items-center dropdown-item" href="${link}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="globe2" viewBox="0 0 16 16">
+                                            <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855q-.215.403-.395.872c.705.157 1.472.257 2.282.287zM4.249 3.539q.214-.577.481-1.078a7 7 0 0 1 .597-.933A7 7 0 0 0 3.051 3.05q.544.277 1.198.49zM3.509 7.5c.036-1.07.188-2.087.436-3.008a9 9 0 0 1-1.565-.667A6.96 6.96 0 0 0 1.018 7.5zm1.4-2.741a12.3 12.3 0 0 0-.4 2.741H7.5V5.091c-.91-.03-1.783-.145-2.591-.332M8.5 5.09V7.5h2.99a12.3 12.3 0 0 0-.399-2.741c-.808.187-1.681.301-2.591.332zM4.51 8.5c.035.987.176 1.914.399 2.741A13.6 13.6 0 0 1 7.5 10.91V8.5zm3.99 0v2.409c.91.03 1.783.145 2.591.332.223-.827.364-1.754.4-2.741zm-3.282 3.696q.18.469.395.872c.552 1.035 1.218 1.65 1.887 1.855V11.91c-.81.03-1.577.13-2.282.287zm.11 2.276a7 7 0 0 1-.598-.933 9 9 0 0 1-.481-1.079 8.4 8.4 0 0 0-1.198.49 7 7 0 0 0 2.276 1.522zm-1.383-2.964A13.4 13.4 0 0 1 3.508 8.5h-2.49a6.96 6.96 0 0 0 1.362 3.675c.47-.258.995-.482 1.565-.667m6.728 2.964a7 7 0 0 0 2.275-1.521 8.4 8.4 0 0 0-1.197-.49 9 9 0 0 1-.481 1.078 7 7 0 0 1-.597.933M8.5 11.909v3.014c.67-.204 1.335-.82 1.887-1.855q.216-.403.395-.872A12.6 12.6 0 0 0 8.5 11.91zm3.555-.401c.57.185 1.095.409 1.565.667A6.96 6.96 0 0 0 14.982 8.5h-2.49a13.4 13.4 0 0 1-.437 3.008M14.982 7.5a6.96 6.96 0 0 0-1.362-3.675c-.47.258-.995.482-1.565.667.248.92.4 1.938.437 3.008zM11.27 2.461q.266.502.482 1.078a8.4 8.4 0 0 0 1.196-.49 7 7 0 0 0-2.275-1.52c.218.283.418.597.597.932m-.488 1.343a8 8 0 0 0-.395-.872C9.835 1.897 9.17 1.282 8.5 1.077V4.09c.81-.03 1.577-.13 2.282-.287z"/>
+                                        </svg>
+                                            &nbsp;${name}
+                                        </a>
+                                    </h3>`
+                            });
+                        }
+                    });
+                    if (!items.length) return;
+                    this.entityItems = [...this.entityItems, ...items];
+                    this.renderDropdown();
+                }).catch(() => {});
+            }
+
+            // ENTERPRISE ENTITIES (databases, users, domains, emails, ftp, containers,
+            // services, crons) — each type is fetched independently and merged into the
+            // results the moment it resolves, so a slow lookup no longer blocks the ones
+            // that already came back.
+            entityTypes.forEach(et => {
+                fetch('/json/search/' + et.type)
+                    .then(r => r.ok ? r.json() : [])
+                    .then(list => {
+                        if (requestId !== this.searchRequestId) return;
+                        const items = [];
+                        (list || []).forEach(entity => {
+                            const name = entity.name || '';
+                            if (name.toLowerCase().includes(searchLower)) {
+                                items.push({
+                                    id: et.type + ':' + name,
+                                    link: entity.link,
+                                    html: `<h3 class="m-0">
+                                            <a class="dropdown-item flex w-full" href="${entity.link}">
+                                                <i class="bi ${et.icon}"></i>&nbsp;${name}<br>
+                                                <p class="dropdown-item-description" style="display:contents; font-size: 0.7em; margin-bottom: 0px; opacity: 0.6;">
+                                                    ${et.label}
+                                                </p>
+                                            </a>
+                                        </h3>`
+                                });
+                            }
+                        });
+                        if (!items.length) return;
+                        this.entityItems = [...this.entityItems, ...items];
+                        this.renderDropdown();
+                    })
+                    .catch(() => {});
+            });
+        }
+    }
+}
+</script>
+<!-- END templates/partials/_search.html -->
+{{end}}

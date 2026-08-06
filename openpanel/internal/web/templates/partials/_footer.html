@@ -1,0 +1,99 @@
+{{define "footer"}}<!-- START templates/partials/_footer.html -->
+<div data-sidebar="footer" class="flex flex-col gap-2 p-3">
+
+    <div class="px-2">
+        <button x-data="{ allOpen: false }" @click="allOpen = !allOpen; $dispatch('sidebar-toggle-all', { open: allOpen })" class="flex w-full items-center justify-between gap-x-2 rounded px-2 text-xs text-gray-500 transition hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 outline outline-offset-2 outline-0 focus-visible:outline-2 justify-center" :title="allOpen ? '{{.T.Get "Collapse all"}}' : '{{.T.Get "Expand all"}}'">
+            <span class="flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" x-show="allOpen"><path d="M4 14h6m0 0v6m0-6-7 7"/><path d="M20 10h-6m0 0V4m0 6 7-7"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" x-show="!allOpen"><path d="M3 8h6V3"/><path d="m3 8 7-7"/><path d="M21 16h-6v5"/><path d="m21 16-7 7"/></svg>
+                <span x-text="allOpen ? '{{.T.Get "Collapse all"}}' : '{{.T.Get "Expand all"}}'">{{.T.Get "Expand all"}}</span>
+            </span>
+        </button>
+    </div>
+
+    <div class="border-t border-gray-200 dark:border-gray-800"></div>
+
+    <div x-data="{ isOpen: false }" @click.away="isOpen = false">
+        <div dir="ltr" id="popup-menu" :class="{ 'hidden': !isOpen }" class="hidden">
+            <div data-side="top" data-align="start" role="menu" aria-orientation="vertical" data-state="open" dir="ltr" class="relative z-50 overflow-hidden rounded border p-1 shadow-xl shadow-black/[2.5%] min-w-48 bg-white dark:bg-[#090E1A] text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 will-change-[transform,opacity] data-[state=closed]:animate-hide data-[side=bottom]:animate-slideDownAndFade data-[side=left]:animate-slideLeftAndFade data-[side=right]:animate-slideRightAndFade data-[side=top]:animate-slideUpAndFade" tabindex="-1" data-orientation="vertical">
+                <!-- Content inside Popup -->
+                <div class="px-2 py-2 text-xs font-medium tracking-wide text-gray-500 dark:text-gray-500">OpenPanel {{.PanelVersion}}</div>
+                <div role="separator" aria-orientation="horizontal" class="-mx-1 my-1 h-px border-t border-gray-200 dark:border-gray-800"></div>
+
+                <!-- Theme Switcher -->
+                {{template "themeswitcher" .}}
+
+                <div role="group">
+                    <a
+                        role="menuitem"
+                        class="group/DropdownMenuItem relative flex cursor-pointer select-none items-center rounded py-1.5 pl-2 pr-1 outline-none transition-colors data-[state=checked]:font-semibold sm:text-sm text-gray-900 dark:text-gray-50 data-[disabled]:pointer-events-none data-[disabled]:text-gray-400 data-[disabled]:hover:bg-none dark:data-[disabled]:text-gray-600 focus-visible:bg-gray-100 focus-visible:dark:bg-gray-900 hover:bg-gray-100 hover:dark:bg-gray-900"
+                        href="https://openpanel.com/docs/changelog/{{.PanelVersion}}/"
+                        target="_blank"
+                        tabindex="-1"
+                        data-orientation="vertical"
+                    >
+                        {{.T.Get "Changelog"}}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right mb-1 ml-1 size-3 shrink-0 text-gray-500 dark:text-gray-500" aria-hidden="true"> <path d="M7 7h10v10"></path> <path d="M7 17 17 7"></path></svg>
+                    </a>
+                    <a
+                        role="menuitem"
+                        class="group/DropdownMenuItem relative flex cursor-pointer select-none items-center rounded py-1.5 pl-2 pr-1 outline-none transition-colors data-[state=checked]:font-semibold sm:text-sm text-gray-900 dark:text-gray-50 data-[disabled]:pointer-events-none data-[disabled]:text-gray-400 data-[disabled]:hover:bg-none dark:data-[disabled]:text-gray-600 focus-visible:bg-gray-100 focus-visible:dark:bg-gray-900 hover:bg-gray-100 hover:dark:bg-gray-900"
+                        tabindex="-1"
+                        data-orientation="vertical"
+                        href="https://openpanel.com/docs/panel/intro/"
+                        target="_blank"
+                    >
+                        {{.T.Get "Documentation"}}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right mb-1 ml-1 size-3 shrink-0 text-gray-500" aria-hidden="true"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
+                    </a>
+                    <a
+                        role="menuitem"
+                        class="group/DropdownMenuItem relative flex cursor-pointer select-none items-center rounded py-1.5 pl-2 pr-1 outline-none transition-colors data-[state=checked]:font-semibold sm:text-sm text-gray-900 dark:text-gray-50 data-[disabled]:pointer-events-none data-[disabled]:text-gray-400 data-[disabled]:hover:bg-none dark:data-[disabled]:text-gray-600 focus-visible:bg-gray-100 focus-visible:dark:bg-gray-900 hover:bg-gray-100 hover:dark:bg-gray-900"
+                        href="https://community.openpanel.org/t/openpanel"
+                        target="_blank"
+                        tabindex="-1"
+                        data-orientation="vertical"
+                    >
+                        {{.T.Get "Community Forums"}}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right mb-1 ml-1 size-3 shrink-0 text-gray-500" aria-hidden="true"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
+                    </a>
+                </div>
+                <div role="separator" aria-orientation="horizontal" class="-mx-1 my-1 h-px border-t border-gray-200 dark:border-gray-800"></div>
+                <div role="group">
+                    <div role="menuitem" id="tour-start-button" class="group/DropdownMenuItem relative flex cursor-pointer select-none items-center rounded py-1.5 pl-2 pr-1 outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 focus-visible:bg-gray-100 focus-visible:dark:bg-gray-900 hover:bg-gray-100 hover:dark:bg-gray-900" tabindex="-1" data-orientation="vertical" @click="isOpen = false; OPTour.start(true)">
+                        {{.T.Get "Take the tour"}}
+                    </div>
+                </div>
+                <div role="separator" aria-orientation="horizontal" class="-mx-1 my-1 h-px border-t border-gray-200 dark:border-gray-800"></div>
+                <div role="group">
+                    <div role="menuitem" class="group/DropdownMenuItem relative flex cursor-pointer select-none items-center rounded py-1.5 pl-2 pr-1 outline-none transition-colors data-[state=checked]:font-semibold sm:text-sm text-gray-900 dark:text-gray-50 data-[disabled]:pointer-events-none data-[disabled]:text-gray-400 data-[disabled]:hover:bg-none dark:data-[disabled]:text-gray-600 focus-visible:bg-gray-100 focus-visible:dark:bg-gray-900 hover:bg-gray-100 hover:dark:bg-gray-900" tabindex="-1" data-orientation="vertical"><a href="/logout" class="w-full">{{.T.Get "Sign out"}}</a></div>
+                </div>
+            </div>
+        </div>
+        <button id="user-btn-info" class="select-text relative whitespace-nowrap border text-center transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none shadow-none border-transparent dark:text-gray-50 bg-transparent disabled:text-gray-400 disabled:dark:text-gray-600 group flex w-full items-center justify-between rounded px-1 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200/50 data-[state=open]:bg-gray-200/50 hover:dark:bg-gray-800/50 data-[state=open]:dark:bg-gray-900 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 cursor-pointer"
+            @click="isOpen = !isOpen" aria-label="User settings" type="button">
+            <span class="flex items-center gap-3">
+                {{if eq .AvatarType "gravatar"}}
+                <img src="{{.GravatarURL}}" class="flex size-8 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-xs text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300" alt="{{.CurrentUsername}}">
+                {{else if eq .AvatarType "letter"}}
+                <span class="flex size-8 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-xs text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300" aria-hidden="true">{{firstUpper .CurrentUsername}}</span>
+                {{else}}
+                <span class="flex size-8 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-xs text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300" aria-hidden="true">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-user"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                </span>
+                {{end}}
+                <div>
+                <span class="block text-sm font-semibold text-gray-900 dark:text-gray-50">{{.CurrentUsername}}</span>
+                <span class="block text-xs text-gray-900 dark:text-gray-50">{{.HostingPlanName}}</span>
+                </div>
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevrons-up-down size-4 shrink-0 text-gray-500 group-hover:text-gray-700 group-hover:dark:text-gray-400" aria-hidden="true">
+                <path d="m7 15 5 5 5-5"></path>
+                <path d="m7 9 5-5 5 5"></path>
+            </svg>
+        </button>
+    </div>
+
+</div>
+<!-- END templates/partials/_footer.html -->
+{{end}}

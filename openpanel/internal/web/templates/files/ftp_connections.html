@@ -1,0 +1,36 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/files/ftp_connections.html -->
+
+<section aria-label="FTP Connections Header" x-data="{ searchQuery: '' }">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "FTP Connections"}}</h1></div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Current FTP sessions of all sub-accounts."}}</p>
+        </div>
+        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        <a href="/ftp" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit mt-2md:mt-0 cursor-pointer">{{.T.Get "Back to Accounts"}}</a>
+        </div>
+    </div>
+
+<section aria-label="Records Table" x-data="{ searchQuery: '' }">
+    <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+        {{if .HasConnections}}
+            <pre class="overflow-auto p-4 my-4 bg-gray-800 text-white rounded">{{.ConnectionsOutput}}</pre>
+        {{else}}
+            <div class="flex flex-col items-center justify-center py-12 text-center">
+                <svg class="my-6 h-10 w-10 text-gray-400 dark:text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No active connections"}}</p>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "There are no active FTP sessions at this time."}}</p>
+            </div>
+        {{end}}
+        </div>
+    </div>
+</section>
+
+<!-- END templates/files/ftp_connections.html -->
+{{end}}

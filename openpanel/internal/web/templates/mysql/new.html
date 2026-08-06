@@ -1,0 +1,56 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/mysql/new.html -->
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create a Database"}}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "Create a new database to store and organize data, providing a foundational structure for applications to manage and retrieve information efficiently."}}</p>
+    </header>
+</div>
+
+<script src="{{static "js/generator.js"}}"></script>
+
+<!-- form -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <form class="mt-8" method="POST">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+            <div class="col-span-full" x-data="{ database_name: '' }">
+    <label for="database_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Database Name"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+    <div class="flex rounded-lg shadow-sm">
+      <input x-ref="database_name" x-model="database_name" type="text" name="database_name" id="database_name" minlength="1" maxlength="63" pattern="[a-zA-Z0-9_]+" title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-63 characters)."}}" class="relative block w-full appearance-none rounded-l-md border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" placeholder=" {{.T.Get "Database Name"}}" required>
+
+                        <div class="input-group-append">
+  <button type="button" @click="database_name = generateString(8); $nextTick(() => $refs.database_name.dispatchEvent(new Event('input', { bubbles: true })))" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+    <i class="bi bi-shuffle"></i>
+  </button>
+                        </div>
+    </div>
+  </div>
+
+      </div>
+
+        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+<div class="md:flex items-center md:justify-end md:space-x-4">
+    <a href="/mysql" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">
+        {{.T.Get "Back to Databases"}}
+    </a>
+    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+        {{.T.Get "Create Database"}}
+        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+        </svg>
+    </button>
+</div>
+
+    </form>
+</div>
+<!-- END form -->
+
+<!-- END templates/mysql/new.html -->
+{{end}}

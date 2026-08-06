@@ -1,0 +1,91 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/emails/aliases.html -->
+
+<section aria-label="Aliases Header" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="flex items-center gap-x-3">
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Aliases"}}</h1>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">
+                {{.T.Get "Total aliases:"}}
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white mb-2">{{len .AliasList}}</span>
+            </p>
+        </div>
+        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+            <div class="relative w-full sm:w-64">
+                <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
+                <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                        <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                    </svg>
+                </div>
+            </div>
+            <a href="/emails/aliases/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>
+                {{.T.Get "New Alias"}}
+            </a>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table id="aliases-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "From (alias)"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Delivers to"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-right text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Options"}}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+
+                {{if not .AliasList}}
+                    <tr>
+                        <td colspan="3" class="p-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                            {{.T.Get "No aliases yet."}}
+                            <a href="/emails/aliases/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit border-black bg-black text-white hover:bg-gray-800 ml-2">
+                                {{.T.Get "Add your first alias"}}
+                            </a>
+                        </td>
+                    </tr>
+                {{else}}
+                    {{range .AliasList}}
+                    {{$entry := .}}
+                    <tr x-show="searchQuery === '' || {{toJSON $entry.Source}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON (join $entry.Targets ",")}}.toLowerCase().includes(searchQuery.toLowerCase())"
+                        class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            <span class="punycode font-medium text-gray-900 dark:text-gray-50">{{$entry.Source}}</span>
+                        </td>
+
+                        <td class="p-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div class="flex flex-wrap gap-1">
+                                {{range $entry.Targets}}
+                                <span class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                                    {{.}}
+                                </span>
+                                {{end}}
+                            </div>
+                        </td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-right">
+                            <a href="/emails/aliases/{{$entry.Source}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">
+                                <i class="bi bi-wrench-adjustable"></i> {{$.T.Get "Manage"}}
+                            </a>
+                        </td>
+
+                    </tr>
+                    {{end}}
+                {{end}}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- END templates/emails/aliases.html -->
+{{end}}

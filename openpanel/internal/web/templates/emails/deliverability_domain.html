@@ -1,0 +1,88 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/emails/deliverability_domain.html -->
+
+<!-- page header -->
+<div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="gap-x-3">
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email Deliverability"}}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-500 punycode">{{.Domain}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        <a href="/emails/deliverability" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit gap-x-0.5 whitespace-nowrap">
+            {{.T.Get "Back to Deliverability"}}
+        </a>
+    </div>
+</div>
+<!-- END page header -->
+
+<div class="sm:mx-auto sm:max-w-3xl p-6 m-6 CrawlerStatusCard" id="deliverabilityDetail">
+    <div class="flex items-center justify-center p-8 text-sm text-gray-500 dark:text-gray-400" id="deliverabilityLoading">
+        {{.T.Get "Checking DNS records..."}}
+    </div>
+
+    <div id="deliverabilityResult" class="hidden space-y-8"></div>
+</div>
+
+<script>
+function recordTable(label, record) {
+    const map = {
+        ok: ['bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400', 'OK'],
+        missing: ['bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400', 'Missing'],
+        mismatch: ['bg-orange-300 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400', 'Mismatch'],
+        wrong_ip: ['bg-orange-300  text-amber-800 dark:bg-amber-900/40 dark:text-amber-400', 'Wrong IP'],
+    };
+    const [cls, statusLabel] = map[record.status] || ['bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300', record.status];
+
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value || '';
+        return div.innerHTML;
+    }
+
+    return `
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">${label}</h2>
+                <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${cls}">${statusLabel}</span>
+            </div>
+            <div class="overflow-hidden rounded border border-gray-200 dark:border-gray-800">
+                <table class="w-full caption-bottom text-sm">
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                        <tr>
+                            <td class="p-3 align-top text-gray-500 dark:text-gray-400 w-32">{{.T.Get "Current"}}</td>
+                            <td class="p-3 font-mono text-xs break-all text-gray-900 dark:text-gray-50">${record.current ? escapeHtml(record.current) : '<span class="text-gray-400 dark:text-gray-600">' + {{toJSON (.T.Get "Not found")}} + '</span>'}</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 align-top text-gray-500 dark:text-gray-400 w-32">{{.T.Get "Expected"}}</td>
+                            <td class="p-3 font-mono text-xs break-all text-gray-900 dark:text-gray-50">${record.expected ? escapeHtml(record.expected) : '<span class="text-gray-400 dark:text-gray-600">-</span>'}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    fetch('/emails/deliverability/{{.Domain}}?output=json')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('deliverabilityLoading').classList.add('hidden');
+            const result = document.getElementById('deliverabilityResult');
+            result.classList.remove('hidden');
+            result.innerHTML =
+                recordTable('SPF', data.spf) +
+                recordTable('DKIM', data.dkim) +
+                recordTable('DMARC', data.dmarc);
+        })
+        .catch(function (err) {
+            document.getElementById('deliverabilityLoading').textContent = {{toJSON (.T.Get "Failed to check DNS records.")}};
+            console.error('Failed to load deliverability status', err);
+        });
+});
+</script>
+
+<!-- END templates/emails/deliverability_domain.html -->
+{{end}}

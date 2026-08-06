@@ -1,0 +1,397 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/emails/filter.html -->
+
+{{if not .Email}}
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email Filters"}}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-500">
+            {{.T.Get "Select an email address to manage its Sieve filters."}}
+            <a href="https://openpanel.com/docs/panel/emails/filters/" target="_blank"
+               class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">
+                {{.T.Get "Documentation"}}
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"/></svg>
+            </a>
+        </p>
+    </header>
+</div>
+
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6">
+    <form method="GET">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <div class="space-y-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{.T.Get "Email address"}}</label>
+            <select id="filter-email-select" name="ignore" onchange="window.location.href='/emails/filter/'+this.value"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                <option value="" disabled selected>{{.T.Get "Select address"}}</option>
+                {{range .Addresses}}
+                    <option class="punycode" value="{{.}}">{{.}}</option>
+                {{end}}
+            </select>
+        </div>
+    </form>
+</div>
+
+{{else}}
+
+<div x-data="filterPage()" x-init="init()" class="min-h-screen">
+
+    <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email Filters"}}</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-500">
+                {{.T.Get "Sieve filters for"}} <span class="font-medium text-gray-700 dark:text-gray-300 punycode">{{.Email}}</span>
+            </p>
+        </div>
+        <div class="hidden flex items-center gap-2">
+            <button @click="mode = 'gui'"
+                    :class="mode === 'gui' ? 'bg-white dark:bg-gray-800 shadow text-gray-900 dark:text-gray-50' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                    class="px-3 py-1.5 text-sm rounded-md transition-all">
+                {{.T.Get "Visual editor"}}
+            </button>
+            <button @click="mode = 'raw'"
+                    :class="mode === 'raw' ? 'bg-white dark:bg-gray-800 shadow text-gray-900 dark:text-gray-50' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                    class="px-3 py-1.5 text-sm rounded-md transition-all">
+                {{.T.Get "File editor"}}
+            </button>
+        </div>
+    </div>
+
+    <div x-show="mode === 'gui'" x-cloak>
+        <div class="sm:mx-auto sm:max-w-3xl p-6">
+
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{.T.Get "Rules are applied in order, top to bottom."}}
+                </p>
+                <button @click="addFilter()"
+                        class="inline-flex items-center gap-1.5 rounded border px-3 py-1.5 text-sm font-medium border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    {{.T.Get "Add filter"}}
+                </button>
+            </div>
+
+            <template x-if="filters.length === 0">
+                <div class="text-center my-6 py-6 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-10 w-10 text-gray-300 dark:text-gray-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "No filters yet."}}</p>
+                    <button @click="addFilter()"
+                            class="inline-flex items-center gap-1.5 rounded border px-3 py-1.5 text-sm font-medium border-black bg-black text-white hover:bg-gray-800">
+                        {{.T.Get "Create first filter"}}
+                    </button>
+                </div>
+            </template>
+
+            <template x-for="(filter, fi) in filters" :key="filter.id">
+                <div class="mb-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 shadow-sm">
+
+                    <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-grab flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
+                        <input type="text" x-model="filter.name" placeholder="{{.T.Get "Filter name…"}}"
+                               class="flex-1 min-w-0 text-sm bg-transparent border-0 border-b border-dashed border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-50 focus:ring-0 focus:border-blue-500 px-0 py-0.5"/>
+                        <div class="flex items-center gap-1 ml-auto flex-shrink-0">
+                            <button @click="moveUp(fi)" :disabled="fi === 0"
+                                    class="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30" title="{{.T.Get "Move up"}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                            </button>
+                            <button @click="moveDown(fi)" :disabled="fi === filters.length - 1"
+                                    class="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30" title="{{.T.Get "Move down"}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <button @click="removeFilter(fi)"
+                                    class="p-1 rounded text-red-400 hover:text-red-600" title="{{.T.Get "Remove filter"}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-4 space-y-4">
+
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">{{.T.Get "If"}}</span>
+                                <select x-model="filter.logic"
+                                        class="text-xs rounded border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 py-0.5 px-1.5 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="anyof">{{.T.Get "any"}}</option>
+                                    <option value="allof">{{.T.Get "all"}}</option>
+                                </select>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">{{.T.Get "of these match:"}}</span>
+                            </div>
+
+                            <template x-for="(rule, ri) in filter.rules" :key="rule.id">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <select x-model="rule.field"
+                                            class="text-sm rounded border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="from">{{.T.Get "From"}}</option>
+                                        <option value="subject">{{.T.Get "Subject"}}</option>
+                                        <option value="to">{{.T.Get "To"}}</option>
+                                        <option value="any_recipient">{{.T.Get "Any recipient"}}</option>
+                                        <option value="body">{{.T.Get "Body"}}</option>
+                                        <option value="any_header">{{.T.Get "Any header"}}</option>
+                                        <option value="spam_status">{{.T.Get "Spam status"}}</option>
+                                        <option value="spam_score">{{.T.Get "Spam score"}}</option>
+                                        <option value="list_id">{{.T.Get "List ID"}}</option>
+                                    </select>
+                                    <select x-model="rule.match"
+                                            class="text-sm rounded border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="contains">{{.T.Get "contains"}}</option>
+                                        <option value="not_contains">{{.T.Get "does not contain"}}</option>
+                                        <option value="is">{{.T.Get "equals"}}</option>
+                                        <option value="begins">{{.T.Get "begins with"}}</option>
+                                        <option value="ends">{{.T.Get "ends with"}}</option>
+                                        <option value="matches">{{.T.Get "matches regex"}}</option>
+                                        <option value="not_matches">{{.T.Get "does not match regex"}}</option>
+                                    </select>
+                                    <input type="text" x-model="rule.value" placeholder="{{.T.Get "Value…"}}"
+                                           class="flex-1 min-w-[120px] text-sm rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2.5 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700"/>
+                                    <button @click="removeRule(fi, ri)" :disabled="filter.rules.length === 1"
+                                            class="p-1 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-30 flex-shrink-0" title="{{.T.Get "Remove condition"}}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                    </button>
+                                    <button @click="addRule(fi)"
+                                            class="p-1 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex-shrink-0" title="{{.T.Get "Add condition"}}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+
+                        <div class="border-t border-gray-100 dark:border-gray-800"></div>
+
+                        <div>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 block mb-2">{{.T.Get "Then:"}}</span>
+
+                            <template x-for="(action, ai) in filter.actions" :key="action.id">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <select x-model="action.type" @change="onActionTypeChange(action)"
+                                            class="text-sm rounded border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="deliver_folder">{{.T.Get "Deliver to folder"}}</option>
+                                        <option value="redirect">{{.T.Get "Redirect to email"}}</option>
+                                        <option value="forward">{{.T.Get "Forward to email (keep copy)"}}</option>
+                                        <option value="discard">{{.T.Get "Discard message"}}</option>
+                                        <option value="reject">{{.T.Get "Reject with message"}}</option>
+                                        <option value="mark_read">{{.T.Get "Mark as read"}}</option>
+                                        <option value="add_flag">{{.T.Get "Flag / star"}}</option>
+                                        <option value="autoresponder">{{.T.Get "Auto-responder (vacation)"}}</option>
+                                        <option value="stop">{{.T.Get "Stop processing"}}</option>
+                                    </select>
+                                    <template x-if="['deliver_folder','redirect','forward','reject','add_flag'].includes(action.type)">
+                                        <input type="text" x-model="action.value"
+                                               :placeholder="actionPlaceholder(action.type)"
+                                               class="flex-1 min-w-[120px] text-sm rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2.5 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700"/>
+                                    </template>
+                                    <template x-if="action.type === 'autoresponder'">
+                                        <div class="flex-1 min-w-[260px] flex flex-col gap-1.5">
+                                            <input type="text" x-model="action.value.subject" placeholder="{{.T.Get "Subject, e.g. Re: ${subjectwas}"}}"
+                                                   class="text-sm rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2.5 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700"/>
+                                            <textarea x-model="action.value.message" rows="3" placeholder="{{.T.Get "Auto-reply message…"}}"
+                                                      class="text-sm rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2.5 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700"></textarea>
+                                            <div class="flex items-center gap-2">
+                                                <label class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Reply at most once every"}}</label>
+                                                <input type="number" min="1" x-model.number="action.value.days"
+                                                       class="w-16 text-sm rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1 px-2 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700"/>
+                                                <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "day(s) per sender"}}</span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <button @click="removeAction(fi, ai)" :disabled="filter.actions.length === 1"
+                                            class="p-1 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-30 flex-shrink-0" title="{{.T.Get "Remove action"}}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                    </button>
+                                    <button @click="addAction(fi)"
+                                            class="p-1 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex-shrink-0" title="{{.T.Get "Add action"}}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+
+                    </div>
+                </div>
+            </template>
+
+            <div class="flex items-center justify-end gap-3 mt-6">
+                <form id="gui-form" method="POST" action="/emails/filter/{{.Email}}/gui">
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                    <textarea id="gui-sieve-payload" name="new_content" style="display:none"></textarea>
+                    <button type="button" @click="guiSave()"
+                            class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-sm font-medium border-black bg-black text-white hover:bg-gray-800">
+                        {{.T.Get "Save filters"}}
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <div x-show="mode === 'raw'" x-cloak>
+        <div class="sm:mx-auto sm:max-w-3xl p-6">
+            <p class="text-xs text-gray-400 dark:text-gray-500 mb-3 font-mono">{{.SieveFile}}</p>
+            <form method="POST" action="/emails/filter/{{.Email}}/raw">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <textarea id="raw_content" name="new_content" rows="22"
+                          class="flex min-h-[4rem] w-full rounded border px-3 py-2 shadow-sm outline-none transition-colors font-mono text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">{{.RawContent}}</textarea>
+                <div class="flex justify-end mt-4">
+                    <button type="submit"
+                            class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-sm font-medium border-black bg-black text-white hover:bg-gray-800">
+                        {{.T.Get "Save file"}}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function filterPage() {
+    return {
+        mode: {{toJSON .ViewMode}},
+        filters: [],
+        _id: 0,
+
+        uid() { return ++this._id; },
+
+        init() {
+            const raw = {{toJSON .ParsedFilters}};
+            if (raw && raw.length) {
+                this.filters = raw.map(f => ({
+                    id: this.uid(),
+                    name: f.name || '',
+                    logic: f.logic || 'anyof',
+                    rules: f.rules.map(r => ({ id: this.uid(), field: r.field, match: r.match, value: r.value })),
+                    actions: f.actions.map(a => ({
+                        id: this.uid(),
+                        type: a.type,
+                        value: a.type === 'autoresponder'
+                            ? Object.assign({ subject: 'Re: ${subjectwas}', message: '', days: 1 }, a.value || {})
+                            : (a.value || '')
+                    }))
+                }));
+            }
+        },
+
+        addFilter() {
+            this.filters.push({
+                id: this.uid(), name: '', logic: 'anyof',
+                rules: [{ id: this.uid(), field: 'subject', match: 'contains', value: '' }],
+                actions: [{ id: this.uid(), type: 'deliver_folder', value: '' }]
+            });
+        },
+
+        removeFilter(fi) { this.filters.splice(fi, 1); },
+        moveUp(fi) { if (fi > 0) { const t = this.filters.splice(fi, 1)[0]; this.filters.splice(fi - 1, 0, t); } },
+        moveDown(fi) { if (fi < this.filters.length - 1) { const t = this.filters.splice(fi, 1)[0]; this.filters.splice(fi + 1, 0, t); } },
+
+        addRule(fi) { this.filters[fi].rules.push({ id: this.uid(), field: 'subject', match: 'contains', value: '' }); },
+        removeRule(fi, ri) { if (this.filters[fi].rules.length > 1) this.filters[fi].rules.splice(ri, 1); },
+
+        addAction(fi) { this.filters[fi].actions.push({ id: this.uid(), type: 'deliver_folder', value: '' }); },
+        removeAction(fi, ai) { if (this.filters[fi].actions.length > 1) this.filters[fi].actions.splice(ai, 1); },
+
+        onActionTypeChange(action) {
+            action.value = action.type === 'autoresponder'
+                ? { subject: 'Re: ${subjectwas}', message: '', days: 1 }
+                : '';
+        },
+
+        actionPlaceholder(type) {
+            return {
+                deliver_folder: {{toJSON (.T.Get "Folder name, e.g. Junk")}},
+                redirect: 'email@example.com',
+                forward: 'email@example.com',
+                reject: {{toJSON (.T.Get "Rejection message…")}},
+                add_flag: {{toJSON (.T.Get "Flag, e.g. \\Flagged")}}
+            }[type] || '';
+        },
+
+        sieveMatch(field, match, value) {
+            const esc = value.replace(/"/g, '\\"');
+            const v = `"${esc}"`;
+            const hdrMap = { from: '"From"', subject: '"Subject"', to: '"To"', spam_status: '"X-Spam-Status"', spam_score: '"X-Spam-Score"', list_id: '"List-Id"' };
+            const neg = match.startsWith('not_');
+            const m = match.replace('not_', '');
+            const pfx = neg ? 'not ' : '';
+
+            if (field === 'body') {
+                const mm = { is: ':is', begins: ':matches', ends: ':matches', matches: ':matches' }[m] || ':contains';
+                const val = m === 'begins' ? `"${esc}*"` : m === 'ends' ? `"*${esc}"` : v;
+                return `${pfx}body :text ${mm} ${val}`;
+            }
+            if (field === 'any_recipient') {
+                return `${pfx}address :contains ["to", "cc"] ${v}`;
+            }
+            if (field === 'any_header') {
+                const mm = { is: ':is', begins: ':matches', ends: ':matches', matches: ':matches' }[m] || ':contains';
+                return `${pfx}header ${mm} :all ${v}`;
+            }
+            const hdr = hdrMap[field] || `"${field}"`;
+            const mm = { is: ':is', begins: ':matches', ends: ':matches', matches: ':matches' }[m] || ':contains';
+            const val = m === 'begins' ? `"${esc}*"` : m === 'ends' ? `"*${esc}"` : v;
+            return `${pfx}header ${mm} ${hdr} ${val}`;
+        },
+
+        generateSieve() {
+            if (!this.filters.length) return '# No filters defined.\n';
+            const requires = new Set(['fileinto']);
+            const blocks = [];
+            let needSubjectwas = false;
+
+            for (const f of this.filters) {
+                if (f.actions.some(a => a.type === 'reject')) requires.add('reject');
+                if (f.actions.some(a => ['mark_read', 'add_flag'].includes(a.type))) requires.add('imap4flags');
+                if (f.actions.some(a => a.type === 'forward')) requires.add('copy');
+                if (f.actions.some(a => a.type === 'autoresponder')) requires.add('vacation');
+
+                const conditions = f.rules.map(r => this.sieveMatch(r.field, r.match, r.value));
+                let cond;
+                if (f.rules.length === 1) {
+                    cond = conditions[0];
+                } else {
+                    cond = `${f.logic} (\n    ${conditions.join(',\n    ')}\n  )`;
+                }
+
+                const actions = f.actions.map(a => {
+                    if (a.type === 'discard')        return 'discard;\n  stop;';
+                    if (a.type === 'deliver_folder') return `fileinto "${a.value || 'INBOX'}";`;
+                    if (a.type === 'redirect')       return `redirect "${a.value}";`;
+                    if (a.type === 'forward')        return `redirect :copy "${a.value}";`;
+                    if (a.type === 'reject')         return `reject "${a.value}";`;
+                    if (a.type === 'stop')           return 'stop;';
+                    if (a.type === 'mark_read')      return 'addflag "\\\\Seen";';
+                    if (a.type === 'add_flag')       return `addflag "${a.value || '\\\\Flagged'}";`;
+                    if (a.type === 'autoresponder') {
+                        const v = a.value || {};
+                        const subject = v.subject || 'Re: ${subjectwas}';
+                        const message = v.message || '';
+                        const days = parseInt(v.days, 10) || 1;
+                        if (subject.includes('${subjectwas}')) { requires.add('variables'); needSubjectwas = true; }
+                        return `vacation\n    :days ${days}\n    :subject "${subject.replace(/"/g, '\\"')}"\n    "${message.replace(/"/g, '\\"')}";`;
+                    }
+                    return '';
+                }).filter(Boolean).join('\n  ');
+
+                const comment = f.name ? `# ${f.name}\n` : '';
+                blocks.push(`${comment}if ${cond} {\n  ${actions}\n}`);
+            }
+
+            const prefix = needSubjectwas
+                ? '# Store old Subject line so it can be used in the auto-reply\nif header :matches "Subject" "*" {\n  set "subjectwas" "${1}";\n}\n\n'
+                : '';
+            return `require [${[...requires].map(r => `"${r}"`).join(', ')}];\n\n${prefix}${blocks.join('\n\n')}\n`;
+        },
+
+        guiSave() {
+            document.getElementById('gui-sieve-payload').value = this.generateSieve();
+            document.getElementById('gui-form').submit();
+        }
+    };
+}
+</script>
+
+{{end}}
+<!-- END templates/emails/filter.html -->
+{{end}}

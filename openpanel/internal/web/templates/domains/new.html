@@ -1,0 +1,445 @@
+{{define "content"}}
+<!-- START templates/domains/new.html -->
+
+<!-- page header -->
+<section x-data="{ addDomainDebug: localStorage.getItem('addDomainDebug') === 'true' }" x-ref="statusWrapper" x-init="$watch('addDomainDebug', value => localStorage.setItem('addDomainDebug', value))">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="flex items-center gap-x-3">
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "New Domain"}}</h1>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Add a new domain name to be used for websites, emails, etc."}}</p>
+        </div>
+        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+            <button
+                type="button"
+                @click="addDomainDebug = !addDomainDebug"
+                class="mb-3 inline-flex items-center rounded border px-3 py-2 text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60"
+            >
+                <span x-text="addDomainDebug ? '{{.T.Get "Hide Details"}}' : '{{.T.Get "Show Details"}}'"></span>
+                <svg class="w-4 h-4 ml-2 transition-transform" :class="{ 'rotate-180': addDomainDebug }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+<!-- END page header -->
+
+
+
+<!-- form -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <form class="mt-8" id="addDomainForm" method="POST"  action="#">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+            <div class="col-span-full">
+                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="domain_url"> {{.T.Get "Domain"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                <div class="relative w-full mt-2">
+                    <input
+                        type="text"
+                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                        id="domain_url"
+                        placeholder="example.net"
+                        name="domain_url"
+                        pattern="(?:(?!-)[\p{L}\p{N}\p{M}-]{1,63}(?&lt;!-)\.)+(?:[a-zA-Z\p{L}]{2,63}|xn--[a-zA-Z0-9-]{1,59}|\bonion\b)"
+                        title="{{.T.Get "Invalid domain name. Please enter a valid domain name like"}} 'example.com' {{.T.Get "or"}} 'sub.example.com'."
+                        required
+                    />
+                          <input type="text" class="form-control d-none" name="domain_name" id="domain_name" placeholder="example.net" hidden >
+
+                </div>
+                <p id="punycode-info" style="display: none;" class="mt-2 text-xs text-gray-500 dark:text-gray-500"></p>
+            </div>
+
+
+            <div class="col-span-full">
+                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="docroot"> {{.T.Get "Document Root (folder):"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                <div class="relative w-full mt-2"  x-data="{tooltip: false }">
+                    <input
+                        type="text"
+                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                        id="docroot"
+                        name="docroot"
+                        value="/var/www/html/"
+                        pattern="^/var/www/html/.*"
+                        title="{{.T.Get "Invalid document root. Please enter a valid path that start with /var/www/html/"}}"
+                        required
+                        {{if not .UserAllowed.docroot}}
+                        @mouseenter="tooltip = true" @mouseleave="tooltip = false"
+                        readonly
+                        {{end}}
+                    />
+                    {{if not .UserAllowed.docroot}}<div x-show="tooltip" x-transition class="absolute z-10 mt-2 w-64 rounded-lg bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">{{.T.Get "docroot module or feature are not enabled. Contact Administrator to change docroot."}}</div>{{end}}
+            </div>
+
+            <div class="col-span-full" id="keys-fields" style="display: none;">
+                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="hs_ed25519_public_key">Public key<span class="text-red-500 dark:text-red-500">*</span></label>
+                <div class="relative w-full mt-2">
+                    <input
+                        type="text"
+                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950"
+                        id="hs_ed25519_public_key"
+                        name="hs_ed25519_public_key"
+                        pattern="^/var/www/html/.*"
+                        placeholder="/var/www/html/path/to/hs_ed25519_public_key"
+                    />
+                </div>
+            </div>
+
+            <div class="col-span-full" id="key2-fields" style="display: none;">
+                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="hs_ed25519_secret_key">Secret Key<span class="text-red-500 dark:text-red-500">*</span></label>
+                <div class="relative w-full mt-2">
+                    <input
+                        type="text"
+                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950"
+                        id="hs_ed25519_secret_key"
+                        name="hs_ed25519_secret_key"
+                        pattern="^/var/www/html/.*"
+                        placeholder="/var/www/html/path/to/hs_ed25519_secret_key"
+                    />
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+</div>
+
+
+        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
+            <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+        </div>
+
+                    {{if not .UserAllowed.php}}
+                    <input type="hidden" name="skip_containers" value="--skip_containers"/>
+                    {{end}}
+
+<div class="md:flex items-center md:justify-end md:space-x-4">
+
+    <button
+        class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"
+        type="submit"
+        id="installButton"
+    >
+        {{.T.Get "Add Domain"}}
+        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+        </svg>
+    </button>
+</div>
+
+    </form>
+</div>
+<!-- END form -->
+
+
+<!-- .CrawlerStatusCard.active spin animation now lives globally in base.html -->
+
+<!-- progress text -->
+<div class="sm:mx-auto p-6 m-6">
+<pre id="statusMessage" x-show="addDomainDebug" x-transition x-cloak class="overflow-auto max-h-64 p-4 rounded" :class="{'bg-gray-800 text-white': addDomainDebug}"></pre>
+
+<div>
+<!-- END progress text -->
+
+
+<!-- js for submit and validation -->
+<script type="module">
+
+import * as punycode from "{{static "vendor/punycode/punycode.es6.js"}}";
+
+const addDomainForm = document.getElementById("addDomainForm");
+const domainNameInput = document.querySelector('input[name="domain_name"]');
+const domainUrlInput = document.querySelector('input[name="domain_url"]');
+const domainDocrootInput = document.querySelector('input[name="docroot"]');
+
+// .onion domains
+const keysFields = document.getElementById('keys-fields');
+const key2Fields = document.getElementById('key2-fields');
+
+domainUrlInput.addEventListener('focusout', syncDomainCustomValidity);
+
+// Handle form submission
+addDomainForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    if (domainNameInput.value.trim() === '') {
+        domainNameInput.value = extractDomainName(domainUrlInput.value);
+    }
+
+    // if docroot module is enabled, validate path
+    if (domainDocrootInput) {
+        const requiredPath = `/var/www/html/`;
+        if (!domainDocrootInput.value.startsWith(requiredPath)) {
+            const toastMessage = `Invalid document root. Directory must be inside ${requiredPath}`;
+            showToast(toastMessage, 'error');
+
+            event.preventDefault();
+            return;
+        }
+    }
+
+    // Use the Punycode value in form submission if available
+    if (punycodeValueForSubmission !== undefined) {
+        domainUrlInput.value = punycodeValueForSubmission;
+    }
+
+
+    const installButton = event.target.querySelector("#installButton");
+
+    // Check if the domain URL contains a valid domain name
+    const validDomain = isValidDomainName(domainUrlInput.value);
+    if (!validDomain) {
+        const toastMessage = "{{.T.Get "Invalid domain name. Please enter a valid domain name like"}} 'example.com' {{.T.Get "or"}} 'sub.example.com'.";
+        showToast(toastMessage, 'error');
+        event.preventDefault();
+        return;
+    } else {
+
+        // Use the Punycode value in form submission if available
+        if (punycodeValueForSubmission !== undefined) {
+            domainUrlInput.value = punycodeValueForSubmission;
+        }
+    }
+
+
+    const isOnionDomain = domainUrlInput.value.endsWith('.onion');
+
+    if (isOnionDomain) {
+        const onionKey1 = document.getElementById("hs_ed25519_public_key").value;
+        const onionKey2 = document.getElementById("hs_ed25519_secret_key").value;
+
+        if (!onionKey1 || !onionKey2) {
+            const toastMessage = "{{.T.Get "Paths for both public and secret files must be set for importing .onion domain."}}";
+            showToast(toastMessage, 'error');
+            event.preventDefault();
+            return;
+        }
+
+        if (!onionKey1.startsWith('/var/www/html/') || !onionKey2.startsWith('/var/www/html/')) {
+            const toastMessage = "{{.T.Get "Paths for both public and secret files must start with /var/www/html/."}}";
+            showToast(toastMessage, 'error');
+            event.preventDefault();
+            return;
+        }
+    }
+
+
+
+
+
+
+
+    // Show the active state
+    document.getElementById("toAddActive").classList.add("active");
+
+    // Disable the button and show loading message
+    const button = document.getElementById("installButton");
+    button.disabled = true;
+    button.innerText = "Adding...";
+
+    // Clear any previous status messages
+    const statusMessageDiv = document.getElementById("statusMessage");
+    statusMessageDiv.classList.remove("hidden");
+    statusMessageDiv.innerText = ""; // Clear status
+
+    // Gather form data to send via POST
+    const formData = new FormData(addDomainForm);
+
+    // Add a flag to prevent duplicate toast messages
+    let toastDisplayed = false;
+
+    const toastMessage = `{{.T.Get "Adding domain"}} ${domainUrlInput.value} {{.T.Get "Please wait for the process to finish."}}`;
+    showToast(toastMessage, 'loading');
+
+// Inside the stream reader logic
+fetch("/domains/new", {
+    method: "POST",
+    body: formData,
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error("Network response was not ok.");
+    }
+    return response.body;
+})
+.then(stream => {
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    return new ReadableStream({
+        start(controller) {
+            function read() {
+                reader.read().then(({ done, value }) => {
+                    if (done) {
+                        controller.close();
+                        return;
+                    }
+                    const text = decoder.decode(value);
+
+                    if (
+                        !(
+                            text.toLowerCase().includes("working outside of request context") ||
+                            text.toLowerCase().includes("an active http request") ||
+                            text.toLowerCase().includes("consult the documentation")
+                        )
+                    ) {
+                        statusMessageDiv.innerHTML += text;
+                        statusMessageDiv.scrollTop = statusMessageDiv.scrollHeight;
+                    }
+
+
+                    // Success if: "added successfully" or failed if: "error"
+                    if (text.toLowerCase().includes("added successfully") && !toastDisplayed) {
+
+                        const toastMessage = `{{.T.Get "Domain name"}} ${domainUrlInput.value} {{.T.Get "added successfully."}}`;
+                        showToast(toastMessage, 'success');
+                        toastDisplayed = true;
+                        document.getElementById("toAddActive").classList.remove("active");
+
+                        button.disabled = false;
+                        button.innerHTML = `{{.T.Get "Add Domain"}} <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>`;
+                        domainUrlInput.value = "";
+                        domainNameInput.value = "";
+                        domainDocrootInput.value = "/var/www/html/";
+                        punycodeInfo.style.display = "none";
+
+                    } else if (text.toLowerCase().includes("warning") && !toastDisplayed) {
+                        const wrapper = document.querySelector('[x-ref="statusWrapper"]');
+                        if (wrapper && wrapper.__x) {
+                            wrapper.__x.$data.addDomainDebug = true;
+                        }
+                    } else if (text.toLowerCase().includes("error") && !toastDisplayed) {
+                        const toastMessage = `{{.T.Get "Error adding domain name"}} ${domainUrlInput.value} {{.T.Get "Click on Show Details above to view the log."}}`;
+                        showToast(toastMessage, 'warning');
+
+                        const wrapper = document.querySelector('[x-ref="statusWrapper"]');
+                        if (wrapper && wrapper.__x) {
+                            wrapper.__x.$data.addDomainDebug = true;
+                        }
+
+                        toastDisplayed = true; // Mark toast as displayed
+                        document.getElementById("toAddActive").classList.remove("active");
+
+                        button.disabled = false;
+                        button.innerHTML = `{{.T.Get "Retry"}} <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>`;
+
+                    }
+
+                    read();
+                }).catch(err => {
+                    console.error("Error reading stream", err);
+                });
+            }
+            read();
+        }
+    });
+})
+.then(() => {
+})
+.catch(error => {
+    console.error("Fetch error: ", error);
+});
+
+
+});
+
+// Function to extract domain name from a URL
+function extractDomainName(url) {
+    let domain = url;
+    if (domain.indexOf("://") > -1) {
+        domain = domain.split('/')[2];
+    } else {
+        domain = domain.split('/')[0];
+    }
+    domain = domain.split(':')[0]; // Remove port if present
+    return domain;
+}
+
+function isValidDomainName(domain) {
+    const domainRegex = /^(?:(?!-)[\p{L}\p{N}\p{M}-]{1,63}(?<!-)\.)+(?:[a-z\p{L}]{2,63}|xn--[a-z0-9-]{1,59}|\bonion\b)$/iu;
+    return domainRegex.test(domain);
+}
+
+let resyncingDomainValidity = false;
+
+function syncDomainCustomValidity() {
+    const valueToTest = punycodeValueForSubmission !== undefined
+        ? punycodeValueForSubmission
+        : domainUrlInput.value;
+
+    if (valueToTest === '' || isValidDomainName(valueToTest)) {
+        domainUrlInput.setCustomValidity('');
+    } else {
+        domainUrlInput.setCustomValidity(
+            domainUrlInput.title || "{{.T.Get "Invalid domain name. Please enter a valid domain name like"}} 'example.com' {{.T.Get "or"}} 'sub.example.com'."
+        );
+    }
+}
+
+
+
+const docRootInput = document.getElementById('docroot');
+const punycodeInfo = document.getElementById('punycode-info');
+
+let punycodeValueForSubmission;
+
+domainUrlInput.addEventListener('input', function () {
+    if (resyncingDomainValidity) {
+        resyncingDomainValidity = false;
+        return;
+    }
+    var domainUrlValue = domainUrlInput.value;
+
+    // '.onion'
+    if (domainUrlValue.includes('.onion')) {
+        keysFields.style.display = 'block';
+        key2Fields.style.display = 'block';
+    } else {
+        keysFields.style.display = 'none';
+        key2Fields.style.display = 'none';
+    }
+
+
+    // non-ASCII characters
+    var needsPunycode = /[^\x00-\x7F]/.test(domainUrlValue);
+
+    if (needsPunycode) {
+        // to Punycode
+        punycodeValueForSubmission = punycode.toASCII(domainUrlValue);
+
+        punycodeInfo.innerHTML = "{{.T.Get "Converted to Punycode:"}} <b>" + punycodeValueForSubmission + "</b> {{.T.Get "(for compatibility with internationalized domain names)"}}";
+        punycodeInfo.style.display = 'block';
+
+        var updatedDocRootValue = "/var/www/html/" + punycodeValueForSubmission;
+        if (docRootInput) {
+            docRootInput.value = updatedDocRootValue;
+        }
+    } else {
+        punycodeInfo.style.display = 'none';
+
+        var updatedDocRootValue = "/var/www/html/" + domainUrlValue;
+        if (docRootInput) {
+            docRootInput.value = updatedDocRootValue;
+        }
+
+        punycodeValueForSubmission = undefined;
+    }
+
+    syncDomainCustomValidity();
+
+    resyncingDomainValidity = true;
+    setTimeout(function () {
+        domainUrlInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }, 0);
+
+
+});
+</script>
+<!-- END js for submit and validation -->
+
+<!-- END templates/domains/new.html -->
+{{end}}

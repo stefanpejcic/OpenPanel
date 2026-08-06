@@ -1,0 +1,348 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/mysql/wizard.html -->
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database Wizard"}}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Create a new MySQL database, set up a user with a secure password, and assign it to the database with all necessary privileges."}}</p>
+    </header>
+</div>
+
+<!-- generateString() -->
+<script src="{{static "js/generator.js"}}"></script>
+
+{{if .Success}}
+
+<div x-data="{
+  tab: 'credentials',
+  copied: null,
+  copy(text, key) {
+    copyToClipboard(text).then(() => {
+      this.copied = key;
+      setTimeout(() => this.copied = null, 1500);
+    });
+  },
+  download(text, filename) {
+    const a = document.createElement('a');
+    a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+    a.download = filename;
+    a.click();
+  }
+}" class="sm:mx-auto sm:max-w-2xl p-6 m-6">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3 mb-4">
+    <div class="inline-flex size-8 items-center justify-center rounded-full bg-green-100">
+      <svg class="w-4 h-4 text-green-600 dark:text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+    </div>
+    <h2 class="text-base font-semibold text-green-800">{{.T.Get "Setup complete"}}</h2>
+  </div>
+  <p class="text-sm text-green-700 mb-5">{{.T.Get "Save these credentials, the password cannot be retrieved later."}}</p>
+
+  <!-- Tabs -->
+  <div class="flex border-b border-gray-200 mt-4">
+    <template x-for="t in [
+      {id:'credentials', label:{{toJSON (.T.Get "Credentials")}}},
+      {id:'wordpress',   label:'WordPress'},
+      {id:'laravel',     label:'Laravel'},
+      {id:'django',      label:'Django'},
+      {id:'nodejs',      label:'Node.js'},
+      {id:'phppdo',      label:'PHP PDO'}
+    ]" :key="t.id">
+      <button
+        @click="tab = t.id"
+        :class="tab === t.id
+          ? 'border-b-2 border-gray-900 text-gray-900 dark:text-white font-medium'
+          : 'text-gray-500 hover:text-gray-700'"
+        class="px-4 py-2 text-sm whitespace-nowrap -mb-px"
+        x-text="t.label">
+      </button>
+    </template>
+  </div>
+
+  <!-- Credentials tab -->
+  <div x-show="tab === 'credentials'">
+    <div class="divide-y divide-gray-200 rounded border border-gray-200 overflow-hidden text-sm mt-2">
+      <template x-for="row in [
+        {label:{{toJSON (.T.Get "Database")}}, key:'db',   val:{{toJSON .CreatedDB}}},
+        {label:{{toJSON (.T.Get "Username")}}, key:'user', val:{{toJSON .CreatedUser}}},
+        {label:{{toJSON (.T.Get "Password")}}, key:'pass', val:{{toJSON .CreatedPassword}}},
+        {label:{{toJSON (.T.Get "Server")}},   key:'host', val:{{toJSON .Service}}},
+        {label:{{toJSON (.T.Get "Port")}}, key:'priv', val:'3306', nocopy: true}
+      ]" :key="row.key">
+        <div :class="['db','pass','priv'].includes(row.key) ? 'bg-white' : 'bg-gray-50'" class="flex items-center">
+          <span class="w-20 shrink-0 px-4 py-3 font-medium text-gray-500" x-text="row.label"></span>
+          <span class="flex-1 px-4 py-3 font-mono text-gray-900 break-all truncate" x-text="row.val"></span>
+          <button x-show="!row.nocopy" @click="copy(row.val, row.key)" class="px-3 py-3 text-gray-400 hover:text-gray-700 transition-colors" title="{{.T.Get "Copy"}}">
+            <template x-if="copied === row.key">
+              <svg class="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </template>
+            <template x-if="copied !== row.key">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </template>
+          </button>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- Code tabs -->
+  <template x-for="cfg in [
+    {
+      id: 'wordpress',
+      filename: 'wp-config-snippet.php',
+      lang: 'wp-config.php',
+      code: `define( 'DB_NAME',     '{{.CreatedDB}}' );\ndefine( 'DB_USER',     '{{.CreatedUser}}' );\ndefine( 'DB_PASSWORD', '{{.CreatedPassword}}' );\ndefine( 'DB_HOST',     '{{.Service}}' );\ndefine( 'DB_CHARSET',  'utf8mb4' );\ndefine( 'DB_COLLATE',  '' );`
+    },
+    {
+      id: 'laravel',
+      filename: '.env',
+      lang: '.env',
+      code: `DB_CONNECTION=mysql\nDB_HOST={{.Service}}\nDB_PORT=3306\nDB_DATABASE={{.CreatedDB}}\nDB_USERNAME={{.CreatedUser}}\nDB_PASSWORD={{.CreatedPassword}}`
+    },
+    {
+      id: 'django',
+      filename: 'settings.py',
+      lang: 'settings.py',
+      code: `DATABASES = {\n    'default': {\n        'ENGINE':   'django.db.backends.mysql',\n        'NAME':     '{{.CreatedDB}}',\n        'USER':     '{{.CreatedUser}}',\n        'PASSWORD': '{{.CreatedPassword}}',\n        'HOST':     '{{.Service}}',\n        'PORT':     '3306',\n    }\n}`
+    },
+    {
+      id: 'nodejs',
+      filename: 'db.js',
+      lang: 'Node.js (MySQL2)',
+      code: `import mysql from 'mysql2/promise';\n\nconst pool = mysql.createPool({\n  host:     '{{.Service}}',\n  user:     '{{.CreatedUser}}',\n  password: '{{.CreatedPassword}}',\n  database: '{{.CreatedDB}}',\n  waitForConnections: true,\n  connectionLimit:    10,\n});`
+    },
+    {
+      id: 'phppdo',
+      filename: 'db-connect.php',
+      lang: 'PHP PDO',
+      code: `<?php\n\n$dsn  = 'mysql:host={{.Service}};dbname={{.CreatedDB}};charset=utf8mb4';\n$user = '{{.CreatedUser}}';\n$pass = '{{.CreatedPassword}}';\n$opts = [\n    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,\n    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,\n    PDO::ATTR_EMULATE_PREPARES   => false,\n];\n\ntry {\n    $pdo = new PDO($dsn, $user, $pass, $opts);\n} catch (\\PDOException $e) {\n    throw new \\PDOException($e->getMessage(), (int)$e->getCode());\n}`
+    }
+  ]" :key="cfg.id">
+    <div x-show="tab === cfg.id">
+      <div class="flex justify-between gap-2 items-center py-2">
+        <span class="text-xs text-gray-500 font-mono">{{.T.Get "Configuration Code"}}</span>
+        <div class="flex gap-2">
+          <button
+            @click="copy(cfg.code, cfg.id)"
+            class="inline-flex items-center gap-1.5 px-2 py-1 text-sm border border-gray-300 rounded bg-white text-gray-700 hover:bg-gray-50">
+            <template x-if="copied === cfg.id">
+              <svg class="w-3.5 h-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </template>
+            <template x-if="copied !== cfg.id">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </template>
+            <span x-text="copied === cfg.id ? {{toJSON (.T.Get "Copied!")}} : {{toJSON (.T.Get "Copy")}}"></span>
+          </button>
+          <button
+            @click="download(cfg.code, cfg.filename)"
+            class="inline-flex items-center gap-1.5 px-2 py-1 text-sm rounded bg-black text-white hover:bg-gray-800">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>{{.T.Get "Download snippet"}}</span>
+          </button>
+        </div>
+      </div>
+
+      <pre class="bg-gray-50 dark:bg-black border border-gray-200 rounded text-xs font-mono p-4 overflow-x-auto leading-relaxed mb-3" x-text="cfg.code"></pre>
+    </div>
+  </template>
+
+  <!-- Bottom actions -->
+  <div class="flex items-center justify-end gap-3 mt-6">
+    <a href="/mysql" class="inline-flex items-center justify-center rounded border px-3 py-2 text-sm font-medium border-gray-300 text-gray-900 bg-white hover:bg-gray-50">
+      {{.T.Get "View Databases"}}
+    </a>
+    <a href="/mysql/wizard" class="inline-flex items-center justify-center rounded border px-3 py-2 text-sm font-medium border-black bg-black text-white hover:bg-gray-800 gap-1.5">
+      {{.T.Get "Create Another"}}
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/></svg>
+    </a>
+  </div>
+
+</div>
+
+
+{{else}}
+<div x-data="dbUserGrant()" x-init="updateGrantCommands()" @input="updateGrantCommands()"
+     class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+
+  <form class="mt-8" id="databaseWizardForm" method="POST" action="/mysql/wizard">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+    <input type="hidden" name="privileges" value="ALL PRIVILEGES"/>
+
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+      <!-- Step 1: Database name -->
+      <div class="col-span-full mb-2">
+        <div class="flex items-center space-x-3 pb-2">
+          <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">1</div>
+          <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="dbname">
+            {{.T.Get "Create a database"}}<span class="text-red-500 dark:text-red-500">*</span>
+          </label>
+        </div>
+        <div class="flex rounded-lg">
+          <input type="text" x-ref="dbname" x-model="dbname" name="database_name" id="dbname"
+            minlength="1" maxlength="63" pattern="[a-zA-Z0-9_]+"
+            title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-63 characters)."}}"
+            value="{{.FormDatabaseName}}"
+            class="relative block w-full appearance-none rounded-l border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
+            placeholder=" {{.T.Get "Database Name"}}" required>
+          <div class="input-group-append">
+            <button type="button" @click="dbname = generateString(12); updateGrantCommands(); $nextTick(() => $refs.dbname.dispatchEvent(new Event('input', { bubbles: true })))"
+              class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+              <i class="bi bi-shuffle"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mx-auto my-2 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
+        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+      </div>
+
+      <!-- Step 2: Username -->
+      <div class="col-span-full">
+        <div class="flex items-center space-x-3 pb-2">
+          <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">2</div>
+          <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="username">
+            {{.T.Get "Create a user"}}<span class="text-red-500 dark:text-red-500">*</span>
+          </label>
+        </div>
+        <div class="flex rounded-lg">
+          <input type="text" x-ref="username" x-model="username" name="db_user" id="username"
+            pattern="[a-zA-Z0-9_]+" minlength="1" maxlength="31"
+            title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters)."}}"
+            value="{{.FormDBUser}}"
+            class="relative block w-full appearance-none rounded-l border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
+            placeholder=" {{.T.Get "Database User"}}" required>
+          <div class="input-group-append">
+            <button type="button" @click="username = generateString(12); updateGrantCommands(); $nextTick(() => $refs.username.dispatchEvent(new Event('input', { bubbles: true })))"
+              class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+              <i class="bi bi-shuffle"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="col-span-full mb-2"
+        x-data="passwordStrength({
+          weak: {{toJSON (.T.Get "Weak password")}},
+          medium: {{toJSON (.T.Get "Medium strength password")}},
+          strong: {{toJSON (.T.Get "Strong password")}},
+          tooWeak: {{toJSON (.T.Get "Password does not meet the required strength.")}}
+        }, {{.PasswordStrength}})"
+        x-init="checkStrength()">
+
+        <div class="flex">
+          <input type="text" name="password" id="password"
+            maxlength="30" minlength="8"
+            placeholder=" {{.T.Get "Password"}}"
+            class="relative block w-full appearance-none rounded-l border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
+            x-model="password" x-ref="input" @input="checkStrength()" required>
+          <div class="input-group-append">
+            <button type="button" id="generatePassword"
+              class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+              <i class="bi bi-shuffle"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-2 h-2 rounded bg-gray-200 dark:bg-gray-700 overflow-hidden">
+          <div class="h-full rounded transition-all duration-300"
+            :class="{
+              'bg-red-500':    strength === 'Weak',
+              'bg-orange-500': strength === 'Medium',
+              'bg-green-500':  strength === 'Strong'
+            }"
+            :style="{
+              width: strength === 'Weak' ? '33%' : strength === 'Medium' ? '66%' : strength === 'Strong' ? '100%' : '0%'
+            }"></div>
+        </div>
+        <p class="mt-1 text-sm font-semibold"
+          :class="{
+            'text-red-600 dark:text-red-400':       strength === 'Weak',
+            'text-yellow-600 dark:text-yellow-400': strength === 'Medium',
+            'text-green-600 dark:text-green-400':   strength === 'Strong'
+          }">
+          <span x-text="strengthMessage" class="text-xs"></span>
+        </p>
+      </div>
+
+      <div class="mx-auto my-2 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
+        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+      </div>
+
+      <!-- Step 3: Grant preview -->
+      <div class="col-span-full mb-2">
+        <div class="flex items-center space-x-3 pb-2">
+          <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">3</div>
+          <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium">{{.T.Get "Assign user to database"}}</label>
+        </div>
+        <div class="flex rounded-lg">
+          <pre x-text="grantText" class="text-sm overflow-x-auto"></pre>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
+      <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+    </div>
+
+    <div class="md:flex items-center md:justify-end md:space-x-4">
+      <a href="/mysql"
+        class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">
+        {{.T.Get "Back to Databases"}}
+      </a>
+      <button type="submit" id="createAndAssign"
+        class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+        {{.T.Get "Create"}}
+        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+        </svg>
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  function dbUserGrant() {
+    return {
+      dbname:   {{toJSON .FormDatabaseName}},
+      username: {{toJSON .FormDBUser}},
+      grantText: '',
+      updateGrantCommands() {
+        const db   = this.dbname   || '[database]';
+        const user = this.username || '[user]';
+        this.grantText = `GRANT ALL PRIVILEGES ON \`${db}\`.* TO '${user}'@'%';`;
+      }
+    };
+  }
+
+  document.getElementById("generatePassword").addEventListener("click", function () {
+    const pwd   = generateString(12);
+    const field = document.getElementById("password");
+    field.value = pwd;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+    if (field.type === "password") field.type = "text";
+  });
+
+  // Spin border while submitting
+  document.getElementById("databaseWizardForm").addEventListener("submit", function () {
+    const btn = document.getElementById("createAndAssign");
+    btn.disabled  = true;
+    btn.innerText = {{toJSON (.T.Get "Creating...")}};
+    document.getElementById("toAddActive").classList.add("active");
+  });
+</script>
+{{end}}
+
+<!-- .CrawlerStatusCard.active spin animation now lives globally in base.html -->
+
+<!-- END templates/mysql/wizard.html -->
+{{end}}

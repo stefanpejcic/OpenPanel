@@ -1,0 +1,119 @@
+{{define "content"}}
+<!-- START templates/domains/capitalize.html -->
+
+<!-- page header -->
+<section aria-label="Edit Domain Display">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Capitalize"}} <span class="punycode">{{.DomainURL}}</span></h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "You can customize your domain type case by clicking on the letter you want to change.(e.g. SuperDomainName.com)."}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+    </div>
+</div>
+<!-- END page header -->
+
+
+<div class="sm:mx-auto sm:max-w-3xl p-6 m-6">
+    <form class="mt-8" method="POST">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+            <div class="col-span-full">
+
+<input type="hidden" name="domain_url" value="{{.DomainURL}}">
+<input type="hidden" name="capitalized_domain" id="capitalized_domain"
+       value="{{if .CapitalizedDomain}}{{.CapitalizedDomain}}{{else}}{{.DomainURL}}{{end}}"
+       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+
+<div id="letters-container" class="flex flex-wrap mt-2 justify-center">
+    <!-- Buttons are dynamically added here -->
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const domainInput = document.getElementById('capitalized_domain');
+        const lettersContainer = document.getElementById('letters-container');
+
+        function createLetterButtons(domain) {
+            lettersContainer.innerHTML = '';
+
+            domain.split('').forEach((char) => {
+                const button = document.createElement('button');
+                button.textContent = char;
+
+                button.classList.add('text-lg', 'px-2', 'pt-1', 'bg-blue-100', 'dark:text-black', 'dark:bg-blue-400', 'mr-1', 'hover:bg-gray-300', 'focus:outline-none', 'border-b-4', 'cursor-pointer');
+
+                if (/^[A-Za-z]$/.test(char)) {
+                    if (char === char.toUpperCase()) {
+                        button.classList.add('border-blue-500');
+                    } else {
+                        button.classList.add('border-transparent');
+                    }
+
+                    button.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        if (button.textContent === button.textContent.toUpperCase()) {
+                            button.textContent = button.textContent.toLowerCase();
+                            button.classList.remove('border-blue-500');
+                            button.classList.add('border-transparent');
+                        } else {
+                            button.textContent = button.textContent.toUpperCase();
+                            button.classList.remove('border-transparent');
+                            button.classList.add('border-blue-500');
+                        }
+                        updateDomainValue();
+                    });
+                } else {
+                    button.classList.add('border-transparent', 'pointer-events-none');
+                }
+
+                lettersContainer.appendChild(button);
+            });
+        }
+
+        function updateDomainValue() {
+            const updatedDomain = Array.from(lettersContainer.children)
+                .map(button => button.textContent)
+                .join('');
+            domainInput.value = updatedDomain;
+        }
+
+        createLetterButtons(domainInput.value);
+
+        domainInput.addEventListener('input', function () {
+            createLetterButtons(domainInput.value);
+        });
+    });
+</script>
+
+
+            </div>
+        </div>
+
+<div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+<div class="md:flex items-center md:justify-end md:space-x-4">
+
+
+    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full md:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 md:mt-0">
+        {{.T.Get "Save"}}
+        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/> </svg>
+    </button>
+
+
+</form>
+
+    <a href="/domains" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 mt-2 w-full md:w-auto gap-x-1.5 disabled:text-gray-400 disabled:dark:text-gray-600 md:mt-0">
+        {{.T.Get "Back to Domains"}}
+    </a>
+
+
+</div>
+
+</div>
+
+</section>
+
+<!-- END templates/domains/capitalize.html -->
+{{end}}

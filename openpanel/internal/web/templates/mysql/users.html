@@ -1,0 +1,204 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/mysql/users.html -->
+
+<section aria-label="Users Table" x-data="{ searchQuery: '' }">
+    <div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:flex sm:items-center sm:justify-between sm:p-6 lg:p-8">
+        <div>
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if eq .Service "mariadb"}}MariaDB{{else}}MySQL{{end}} {{.T.Get "Users"}}</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "Total users:"}} <span id="total_records_count" class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white">{{len .Users}}</span></p>
+        </div>
+
+        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+
+        <p class="text-sm text-gray-500 dark:text-gray-500">
+            <input class="form-check-input mr-2" type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
+            <label class="form-check-label text-secondary fs-sm" for="showAllCheckbox">{{.T.Get "Show system users"}}</label>
+        </p>
+        </div>
+    </div>
+
+    <script>
+        const showAllCheckbox = document.getElementById('showAllCheckbox');
+
+        showAllCheckbox.addEventListener('change', () => {
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            if (showAllCheckbox.checked)
+            {
+                urlSearchParams.set('show_all', 'true');
+            }
+            else
+            {
+                urlSearchParams.delete('show_all');
+            }
+            window.location.search = urlSearchParams.toString();
+        });
+    </script>
+
+    <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
+        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
+            <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-2 sm:flex-row">
+
+        {{if eq .ContainerState "running"}}
+        <a href="/mysql/user" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "Create User"}}</a>
+
+        <a href="/mysql/assign" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Assign User"}} <span class="hidden sm:inline"> {{.T.Get "to"}} {{.T.Get "Database"}}</span></a>
+
+        <a href="/mysql/remove" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Remove User"}} <span class="hidden sm:inline"> {{.T.Get "from"}} {{.T.Get "Database"}}</span></a>
+        {{else}}
+        <span title="{{.T.Get "Unavailable while the service is not running."}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm cursor-not-allowed opacity-50 border-black bg-black text-white sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "Create User"}}</span>
+
+        <span title="{{.T.Get "Unavailable while the service is not running."}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm cursor-not-allowed opacity-50 border-black bg-black text-white sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "Assign User"}} <span class="hidden sm:inline"> {{.T.Get "to"}} {{.T.Get "Database"}}</span></span>
+
+        <span title="{{.T.Get "Unavailable while the service is not running."}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm cursor-not-allowed opacity-50 border-black bg-black text-white sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "Remove User"}} <span class="hidden sm:inline"> {{.T.Get "from"}} {{.T.Get "Database"}}</span></span>
+        {{end}}
+        </div>
+
+    </div>
+
+   <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table id="users-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{template "sort_header" (dict "Label" (.T.Get "Username") "Key" "username" "Type" "string")}}
+                        </th>
+                        <th scope="col" class="w-10 whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Actions"}}
+                        </th>
+                    </tr>
+                </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+    {{if eq .ContainerState "running"}}
+        {{if eq .HealthStatus "healthy"}}
+        {{if .Users}}
+            {{range .Users}}
+            {{$user := .}}
+            <tr x-show="searchQuery === '' || {{toJSON $user}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                                <td class="p-4 text-sm relative whitespace-nowrap font-medium text-gray-900 dark:text-gray-50 text-left select-text" data-sort-col="username">{{$user}}</td>
+                                <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+
+                                    <div class="flex gap-2">
+                                        {{if isSystemMySQLUser $user}}
+            <span class="bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">System User</span>
+                                        {{else}}
+
+                                            <a href="/mysql/password/{{$user}}" class="btn btn-primary" type="button"><i class="bi bi-key-fill"></i> {{$.T.Get "Change Password"}}</a>
+                                            <form method="POST" action="/delete_db_user">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+
+            <input type="hidden" name="db_user" value="{{$user}}">
+                                            <button class="btn btn-danger" type="button" onclick="confirmDelete(this);"><i class="bi bi-trash3"></i> {{$.T.Get "Delete"}}</button>
+                                            </form>
+                                        {{end}}
+                                    </div>
+                                </td>
+            </tr>
+            {{end}}
+            <script>
+
+            function confirmDelete(button) {
+                var countdown = 5;
+                var countdownActive = true;
+
+                button.classList.remove('btn-danger');
+                button.classList.add('btn-dark');
+                button.innerHTML = '<i class="bi bi-trash3-fill"></i> {{.T.Get "Confirm"}} <span class="btn-indicator btn-indicator-mini bg-danger">' + countdown + '</span>';
+
+                var intervalId = setInterval(function () {
+                    countdown--;
+
+                    var indicator = button.querySelector('.btn-indicator-mini');
+                    if (indicator) indicator.textContent = countdown;
+                    button.removeAttribute('onclick');
+
+                    if (countdown === 0) {
+                        clearInterval(intervalId);
+                        revertButton(button);
+                        countdownActive = false;
+                    }
+                }, 1000);
+
+                button.addEventListener('click', function () {
+                    if (countdownActive) {
+                        button.closest('form').submit();
+                    }
+                });
+            }
+
+            function revertButton(button) {
+                button.classList.remove('btn-dark');
+                button.classList.add('btn-danger');
+                button.innerHTML = '<i class="bi bi-trash3"></i> {{.T.Get "Delete"}}';
+                button.setAttribute('onclick', 'confirmDelete(this);');
+            }
+
+            </script>
+        {{else}}
+        <tr>
+            <td colspan="2" class="p-6 text-center">{{.T.Get "No users yet."}} <a href="/mysql/user" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Create your first user"}}</a></td>
+        </tr>
+        {{end}}
+        {{else}}
+        <tr>
+            <td colspan="2" class="p-6 text-center">
+                {{.StatusDetail}}
+                <br>
+                <span id="refresh-message"></span>
+            </td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr>
+            <td colspan="2" class="p-6 text-center">
+                {{.StatusDetail}}
+                <br>
+                <span id="refresh-message"></span>
+            </td>
+        </tr>
+    {{end}}
+    {{if ne .HealthStatus "healthy"}}
+    <script>
+        let countdown = 5; // seconds
+        const messageEl = document.getElementById('refresh-message');
+        const interval = setInterval(() => {
+            if (countdown > 0) {
+                messageEl.textContent = `{{.T.Get "The page will refresh in"}} ${countdown} {{.T.Get "seconds"}}`;
+                countdown--;
+            } else {
+                clearInterval(interval);
+                window.location.reload();
+            }
+        }, 1000);
+    </script>
+    {{end}}
+        </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<script src="/static/js/table-sort.js"></script>
+
+<!-- END templates/mysql/users.html -->
+{{end}}
+
+{{define "sort_header"}}
+<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+    <span>{{.Label}}</span>
+    <div class="-space-y-2">
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+    </div>
+</div>
+{{end}}

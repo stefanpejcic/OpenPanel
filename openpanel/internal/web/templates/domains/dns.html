@@ -1,0 +1,759 @@
+{{define "flowbite_js"}}
+    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/domains/dns.html -->
+
+{{if .Domain}}
+
+<!-- START drawer component -->
+<div id="drawer-right-restart-zone" class="fmdrawer fixed top-0 right-0 z-40 flex flex-col h-full p-4 overflow-y-auto transition-transform translate-x-full bg-white w-72 dark:bg-gray-950" tabindex="-1" aria-labelledby="drawer-right-label">
+   <div class="flex items-start justify-between gap-x-4 border-b border-gray-200 pb-4 dark:border-gray-900">
+      <div class="mt-1 flex flex-col gap-y-1">
+         <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Confirm DNS zone reset"}}</h2>
+      </div>
+      <button
+         class="relative inline-flex items-center justify-center whitespace-nowrap rounded border text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 shadow-none border-transparent text-gray-900 dark:text-gray-50 bg-transparent disabled:text-gray-400 disabled:dark:text-gray-600 aspect-square p-1 hover:bg-gray-100 hover:dark:bg-gray-400/10"
+         type="button"
+         data-drawer-hide="drawer-right-restart-zone"
+         >
+         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-6">
+            <path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"></path>
+         </svg>
+      </button>
+   </div>
+   <div class="h-full max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]">
+   <p class="my-4 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Are you sure you want to reset the DNS zone for this domain?"}}</p>
+   <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "This acton is irreversible and will delete all existing DNS records, then restore the default zone records."}}</p>
+   </div>
+    <form action="/domains/restart-dns-zone/{{.Domain}}" method="post">
+    <div class="flex flex-col-reverse border-t border-gray-200 pt-4 sm:flex-row sm:justify-end sm:space-x-2 dark:border-gray-900 mt-6">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 cursor-pointer">{{.T.Get "Reset Zone"}} <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/></svg></button>
+    </div>
+</form>
+</div>
+<!-- END drawer component -->
+
+{{if eq .ViewMode "table"}}
+
+{{if .Issues}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues === 'function') {
+        reportHealthIssues({{toJSON (printf "dns-zone:%s" .Domain)}}, {{toJSON .Issues}}, 0);
+    }
+});
+</script>
+{{end}}
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit DNS for"}} <span class="punycode">{{.Domain}}</span></h1>
+        <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "Total DNS records:"}} <span id="total_records_count" class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white">{{.TotalRecords}}</span></p>
+    </header>
+</div>
+
+<section aria-label="Records Table" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
+        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
+            <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <input type="text" id="serial_number_current" value="{{.Serial}}" hidden>
+
+        <div x-data="{ selectedType: '' }" class="flex flex-col items-center gap-2 sm:flex-row">
+
+            <button type="button" id="AddDNSRecord" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "New Record"}}</button>
+
+            <button id="dropdownHoverButton" data-dropdown-toggle="dropdownHover" data-dropdown-trigger="hover" class="text-dark bg-white-700 hover:bg-dark-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center hidden sm:inline-flex items-center dark:bg-dark-600 dark:hover:bg-dark-700 dark:focus:ring-dark-800" type="button"><i class="bi bi-three-dots-vertical"></i>
+            </button>
+
+            <div id="dropdownHover" class="z-10 text-left hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownHoverButton">
+                    <li>
+                    <a href="/domains/edit-dns-zone/{{.Domain}}?view=code" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-pencil-fill"></i> {{.T.Get "Edit DNS File"}}</a>
+                    </li>
+                    <li>
+                    <a href="/domains/export-dns-zone/{{.Domain}}" target="_blank" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-download"></i> {{.T.Get "Export Zone"}}</a>
+                    </li>
+                    <li>
+                        <a class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer" data-drawer-target="drawer-right-restart-zone" data-drawer-show="drawer-right-restart-zone" data-drawer-placement="right" aria-controls="drawer-right-restart-zone"><i class="bi bi-arrow-clockwise"></i> {{.T.Get "Reset"}}</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="relative flex w-full justify-between sm:hidden items-center space-x-4">
+                <a href="/domains/edit-dns-zone/{{.Domain}}?view=code" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-pencil-fill"></i> {{.T.Get "Edit DNS File"}}</a>
+                <a href="/domains/export-dns-zone/{{.Domain}}" target="_blank" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-download"></i> {{.T.Get "Export Zone"}}</a>
+                <a data-drawer-target="drawer-right-restart-zone" data-drawer-show="drawer-right-restart-zone" data-drawer-placement="right" aria-controls="drawer-right-restart-zone" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-arrow-clockwise"></i> {{.T.Get "Reset Zone"}}</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800" id="filemanager_table">
+                <thead class="">
+                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Name"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "TTL"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Type"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Record"}}</th>
+                        <th scope="col" class="w-10 whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+
+                    <tr class="hidden sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6" id="addRecordRow" style="display: none; background: #3c63bb17;">
+                        <form method="POST" action="/domains/dns/add-record/">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+            <td class="px-6 py-4">
+                                <input type="text" name="Name" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" placeholder="" aria-label="{{.T.Get "Name"}}" required pattern="^[A-Za-z0-9.@_-]+$" title="{{.T.Get "Only letters, numbers, and the characters . @ _ - are allowed."}}">
+                            </td>
+                            <td class="px-6 py-4">
+                                <input type="number" name="TTL" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" placeholder="" aria-label="{{.T.Get "TTL"}}" required min="60" value="14400">
+                            </td>
+                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                                <select name="Type" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" required onchange="updateForm()">
+                                    <option value="A">{{.T.Get "A"}}</option>
+                                    <option value="AAAA">{{.T.Get "AAAA"}}</option>
+                                    <option value="CAA">{{.T.Get "CAA"}}</option>
+                                    <option value="CNAME">{{.T.Get "CNAME"}}</option>
+                                    <option value="MX">{{.T.Get "MX"}}</option>
+                                    <option value="SRV">{{.T.Get "SRV"}}</option>
+                                    <option value="TLSA">{{.T.Get "TLSA"}}</option>
+                                    <option value="TXT">{{.T.Get "TXT"}}</option>
+                                </select>
+                                <input type="text" name="IN" class="d-none" required value="IN" hidden>
+                            </td>
+                            <td class="px-6 py-4">
+                                <input type="text" name="Priority" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" placeholder="0" aria-label="{{.T.Get "Priority"}}" style="display:none;">
+                                <input type="text" name="Record" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" placeholder="" aria-label="{{.T.Get "Record"}}" required>
+
+                              <div id="tlsa_helper" style="display:none;" class="mt-3">
+                                  <div class="flex items-center gap-2 mb-2">
+                                      <button type="button" id="tlsa_generate_btn"
+                                          class="relative inline-flex items-center justify-center rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 gap-x-1.5 whitespace-nowrap">
+                                          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1"><path d="M18 8h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h2V7a6 6 0 1 1 12 0v1zm-2 0V7a4 4 0 1 0-8 0v1h8zm-5 6.732V17h2v-2.268A2 2 0 1 0 11 14.732z"/></svg>
+                                          {{.T.Get "Generate from existing SSL cert"}}
+                                      </button>
+                                      <span id="tlsa_cert_type" class="text-xs text-gray-400 dark:text-gray-500"></span>
+                                  </div>
+
+                                  <div id="tlsa_hash_choice" style="display:none;" class="flex flex-col gap-2 mb-2">
+                                      <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+                                          <input type="radio" name="tlsa_hash_type" value="311" class="mt-0.5">
+                                          <span>
+                                              <strong>3 1 1</strong> — {{.T.Get "Public key hash (SHA-256)"}}<br>
+                                              <span class="text-xs text-gray-400 dark:text-gray-500" id="tlsa_hash_311_preview"></span>
+                                          </span>
+                                      </label>
+                                      <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+                                          <input type="radio" name="tlsa_hash_type" value="301" class="mt-0.5">
+                                          <span>
+                                              <strong>3 0 1</strong> — {{.T.Get "Full certificate hash (SHA-256)"}}<br>
+                                              <span class="text-xs text-gray-400 dark:text-gray-500" id="tlsa_hash_301_preview"></span>
+                                          </span>
+                                      </label>
+                                  </div>
+
+                                  <div class="flex items-center gap-2 mt-1">
+                                      <label class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{{.T.Get "Port"}}</label>
+                                      <input type="number" id="tlsa_port" value="443" min="1" max="65535"
+                                          class="w-20 rounded border px-2 py-1 text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500">
+                                      <label class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{{.T.Get "Protocol"}}</label>
+                                      <select id="tlsa_protocol"
+                                          class="rounded border px-2 py-1 text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500">
+                                          <option value="tcp">TCP</option>
+                                          <option value="udp">UDP</option>
+                                      </select>
+                                  </div>
+
+                                  <p id="tlsa_renewal_warning" class="mt-2 text-xs" style="display:none;"></p>
+                              </div>
+
+                                  <input type="text" name="Domain" class="d-none" required value="{{.Domain}}" hidden>
+                            </td>
+                            <td>
+
+        <button type="submit" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" id="save-row"><i class="bi bi-check"></i><span class="hidden sm:inline">{{.T.Get "Save"}}</span></button>
+
+        <button type="button" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" id="CancelDNSRecord"><i class="bi bi-x"></i><span class="hidden sm:inline">{{.T.Get "Cancel"}}</span></button>
+
+                            </td>
+                        </form>
+                    </tr>
+
+<script>
+    const dnsI18n = {
+        confirm: {{toJSON (.T.Get "Confirm")}},
+        deleteWithSpace: {{toJSON (.T.Get " Delete")}},
+        unexpectedError: {{toJSON (.T.Get "An unexpected error occurred. Please try again.")}}
+    };
+    function updateForm() {
+        var selectedType = document.getElementsByName("Type")[0].value;
+        var recordInput = document.getElementsByName("Record")[0];
+        var priorityInput = document.getElementsByName("Priority")[0];
+        var nameInput = document.getElementsByName("Name")[0];
+        var tlsaHelper = document.getElementById("tlsa_helper");
+
+        tlsaHelper.style.display = "none";
+        var warningEl = document.getElementById("tlsa_renewal_warning");
+        if (warningEl) { warningEl.style.display = "none"; }
+
+        recordInput.required = true;
+
+        if (selectedType === "A") {
+            recordInput.placeholder = "IPv4 {{.T.Get "Address"}}";
+            recordInput.pattern = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$";
+        } else if (selectedType === "AAAA") {
+            recordInput.placeholder = "IPv6 {{.T.Get "Address"}}";
+            recordInput.pattern = "^(?:(?:[0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}|(?:(?:[0-9A-Fa-f]{1,4}:){6}|::(?:[0-9A-Fa-f]{1,4}:){5}|(?:[0-9A-Fa-f]{1,4}:){4}(?::[0-9A-Fa-f]{1,4})?|(?:[0-9A-Fa-f]{1,4}:){3}(?::[0-9A-Fa-f]{1,4}){0,2}|(?:[0-9A-Fa-f]{1,4}:){2}(?::[0-9A-Fa-f]{1,4}){0,3}|[0-9A-Fa-f]{1,4}:(?:(?::[0-9A-Fa-f]{1,4}){0,4})|:(?:(?::[0-9A-Fa-f]{1,4}){0,5})|::(?:(?::[0-9A-Fa-f]{1,4}){0,6})))$";
+        } else if (selectedType === "CNAME") {
+            recordInput.placeholder = "{{.T.Get "Domain"}}";
+            recordInput.pattern = "^[A-Za-z0-9.-]+$";
+        } else if (selectedType === "TXT") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = "";
+        } else if (selectedType === "TLSA") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = "3 1 1 <hash> {{.T.Get "or use Generate button below"}}";
+            if (!nameInput.value || nameInput.value === "@") {
+                nameInput.value = "_443._tcp";
+            }
+            tlsaHelper.style.display = "block";
+        } else {
+            recordInput.placeholder = "";
+            recordInput.pattern = "";
+        }
+
+        if (selectedType === "MX") {
+            priorityInput.style.display = "block";
+            recordInput.placeholder = "{{.T.Get "Domain"}}";
+            recordInput.pattern = "^[A-Za-z0-9.-]+$";
+            priorityInput.value = "0";
+            priorityInput.placeholder = "{{.T.Get "Priority"}}";
+            priorityInput.required = true;
+        } else {
+            priorityInput.style.display = "none";
+            priorityInput.required = false;
+        }
+    }
+
+    function editRowUpdateType(selectEl) {
+        var row = selectEl.closest('tr');
+        var selectedType = selectEl.value;
+        var priorityInput = row.querySelector('input[name="priority"]');
+        var recordInput = row.querySelector('input[name="field4"]');
+
+        if (selectedType === 'MX') {
+            if (!priorityInput) {
+                var p = document.createElement('input');
+                p.type = 'number'; p.name = 'priority'; p.min = '0'; p.max = '65535'; p.value = '0';
+                p.className = recordInput.className;
+                recordInput.parentNode.insertBefore(p, recordInput);
+            } else {
+                priorityInput.style.display = 'block';
+            }
+        } else if (priorityInput) {
+            priorityInput.style.display = 'none';
+        }
+    }
+
+    updateForm();
+
+    function tlsaUpdateName() {
+        var port = document.getElementById("tlsa_port").value;
+        var protocol = document.getElementById("tlsa_protocol").value;
+        var nameInput = document.getElementsByName("Name")[0];
+        nameInput.value = "_" + port + "._" + protocol;
+    }
+
+    document.getElementById("tlsa_port").addEventListener("input", tlsaUpdateName);
+    document.getElementById("tlsa_protocol").addEventListener("change", tlsaUpdateName);
+
+    document.querySelectorAll('input[name="tlsa_hash_type"]').forEach(function(radio) {
+        radio.addEventListener("change", function() {
+            var recordInput = document.getElementsByName("Record")[0];
+            if (this.value === "311" && window._tlsa_hash_311) {
+                recordInput.value = "3 1 1 " + window._tlsa_hash_311;
+            } else if (this.value === "301" && window._tlsa_hash_301) {
+                recordInput.value = "3 0 1 " + window._tlsa_hash_301;
+            }
+        });
+    });
+
+    document.getElementById("tlsa_generate_btn").addEventListener("click", function() {
+        var btn = this;
+        btn.disabled = true;
+        btn.textContent = "{{.T.Get "Fetching..."}}";
+
+        fetch("/domains/dns/tlsa-hash/{{.Domain}}", {
+            headers: { "X-CSRF-Token": csrf_token }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                showToast(data.error, "error");
+                btn.disabled = false;
+                btn.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1"><path d="M18 8h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h2V7a6 6 0 1 1 12 0v1zm-2 0V7a4 4 0 1 0-8 0v1h8zm-5 6.732V17h2v-2.268A2 2 0 1 0 11 14.732z"/></svg>{{.T.Get "Generate from existing SSL cert"}}';
+                return;
+            }
+
+            window._tlsa_hash_311 = data.hash_311;
+            window._tlsa_hash_301 = data.hash_301;
+
+            var certTypeEl = document.getElementById("tlsa_cert_type");
+            certTypeEl.textContent = data.type === "custom"
+                ? "{{.T.Get "Custom certificate"}}"
+                : "{{.T.Get "Lets Encrypt certificate"}}";
+
+            var warning = document.getElementById("tlsa_renewal_warning");
+            if (data.type === "letsencrypt") {
+                warning.className = "mt-2 text-xs text-amber-600 dark:text-amber-400";
+                warning.textContent = "{{.T.Get "Caddy autorenews Lets Encrypt certificates with a new keypair. This record will go stale after the next renewal — regenerate it then."}}";
+            } else {
+                warning.className = "mt-2 text-xs text-blue-600 dark:text-blue-400";
+                warning.textContent = "{{.T.Get "Using a custom certificate. Regenerate this record whenever you replace the certificate."}}";
+            }
+            warning.style.display = "block";
+
+            document.getElementById("tlsa_hash_311_preview").textContent = data.hash_311;
+            document.getElementById("tlsa_hash_301_preview").textContent = data.hash_301;
+
+            var recordInput = document.getElementsByName("Record")[0];
+            recordInput.value = "3 1 1 " + data.hash_311;
+            document.querySelector('input[name="tlsa_hash_type"][value="311"]').checked = true;
+
+            document.getElementById("tlsa_hash_choice").style.display = "flex";
+            document.getElementById("tlsa_hash_choice").style.flexDirection = "column";
+
+            btn.disabled = false;
+            btn.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1"><path d="M18 8h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h2V7a6 6 0 1 1 12 0v1zm-2 0V7a4 4 0 1 0-8 0v1h8zm-5 6.732V17h2v-2.268A2 2 0 1 0 11 14.732z"/></svg>{{.T.Get "Regenerate"}}';
+        })
+        .catch(function(err) {
+            showToast("{{.T.Get "Failed to fetch SSL certificate info."}}", "error");
+            btn.disabled = false;
+        });
+    });
+</script>
+
+            {{range .Rows}}
+                    <tr x-show="searchQuery === '' || '{{.Name}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.TTL}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Type}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.DisplayValue}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                                <div class="flex" style="align-content: space-between;">
+                                    <span class="col" style="font-weight: bold;">{{.Name}}</span>
+                                </div>
+                        </td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.TTL}}</td>
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Type}}</td>
+                        <td class="p-4 text-sm text-gray-600 dark:text-gray-400 break-words max-w-xs" style="word-break: break-all; white-space: normal;">
+                            {{if .Comment}}
+                                <div class="flex">
+                                    <div class="col">{{.DisplayValue}}</div>
+                                    <div class="col-auto"><div id="tooltip-manage-{{.LineNumber}}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"><span class="hidden"> ; </span>{{.Comment}}<div class="tooltip-arrow" data-popper-arrow></div></div><span class="col-auto" data-tooltip-target="tooltip-manage-{{.LineNumber}}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 9h8"></path><path d="M8 13h6"></path><path d="M9 18h-3a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-3l-3 3l-3 -3z"></path></svg></span></div>
+                                </div>
+                            {{else}}{{.DisplayValue}}{{end}}
+                        </td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            <button type="button" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 edit-button" data-line="{{.RawLine}}" data-line-number="{{.LineNumber}}" data-end-line-number="{{.EndLineNumber}}" data-domain="{{$.Domain}}"><i class="bi bi-pencil-fill"></i><span class="hidden sm:inline">{{$.T.Get " Edit"}}</span></button>
+        <button type="button" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 delete-button" data-row-id="{{.LineNumber}}" data-end-line-number="{{.EndLineNumber}}" data-domain="{{$.Domain}}"><i class="bi bi-trash3"></i><span class="hidden sm:inline">{{$.T.Get " Delete"}}</span></button>
+        <button type="button" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 save-button" style="display: none;" data-line-number="{{.LineNumber}}" data-domain="{{$.Domain}}"><i class="bi bi-check"></i><span class="hidden sm:inline">{{$.T.Get " Save"}}</span></button>
+        <button type="button" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 cancel-button" style="display: none;" data-line="{{.RawLine}}"><i class="bi bi-x"></i><span class="hidden sm:inline">{{$.T.Get " Cancel"}}</span></button>
+                        </td>
+                    </tr>
+            {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+          <script>
+              document.addEventListener('click', function(e) {
+                  var deleteButton = e.target.closest('.delete-button');
+                  if (!deleteButton) return;
+                  var rowId = deleteButton.dataset.rowId;
+                  var domain = deleteButton.dataset.domain;
+                  var rowToDelete = deleteButton.closest('tr');
+
+                  if (deleteButton.textContent === dnsI18n.confirm) {
+                      sendDeleteRequest(rowId, domain, rowToDelete, deleteButton);
+                  } else {
+                      deleteButton.textContent = dnsI18n.confirm;
+                      deleteButton.classList.remove('btn-outline-danger');
+                      deleteButton.classList.add('btn-danger');
+                      var icon = deleteButton.querySelector('i');
+                      if (icon) icon.remove();
+
+                      setTimeout(function() {
+                          deleteButton.textContent = dnsI18n.deleteWithSpace;
+                          deleteButton.classList.remove('btn-danger');
+                          deleteButton.classList.add('btn-outline-danger');
+                          deleteButton.insertAdjacentHTML('afterbegin', '<i class="bi bi-trash3"></i>');
+                      }, 5000);
+                  }
+              });
+
+                  function sendDeleteRequest(rowId, domain, rowToDelete, deleteButton) {
+                      const toastMessage = {{toJSON (.T.Get "Deleting record, please wait.")}};
+                      showToast(toastMessage, 'loading');
+
+                      const endRowId = deleteButton.dataset.endLineNumber;
+
+                      fetch(`/domains/dns/delete-record/${rowId - 1}`, {
+                          method: 'POST',
+                          headers: {
+                              'X-CSRF-Token': csrf_token,
+                              'Content-Type': 'application/x-www-form-urlencoded'
+                          },
+                          body: new URLSearchParams({ domain: domain, endRowId: endRowId }).toString()
+                      })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.message === "Row deleted successfully") {
+                                showToast({{toJSON (.T.Get "Record deleted successfully.")}}, 'success');
+                                rowToDelete.remove();
+
+                                const totalRecordsElement = document.getElementById('total_records_count');
+                                let totalRecords = parseInt(totalRecordsElement.innerText);
+                                if (!isNaN(totalRecords) && totalRecords > 0) {
+                                    totalRecords -= 1;
+                                    totalRecordsElement.innerText = totalRecords;
+                                }
+                            } else {
+                                showToast({{toJSON (.T.Get "Error occurred deleting the record. Please refresh the page and try again. If the issue persists, try editing the zone file directly.")}}, 'error');
+                            }
+                        })
+                        .catch(function() {
+                            showToast({{toJSON (.T.Get "An unexpected error occurred.")}}, 'error');
+                        });
+                }
+
+              document.addEventListener('click', function(e) {
+                  var editButton = e.target.closest('.edit-button');
+                  if (!editButton) return;
+                  var row = editButton.closest('.domain_row');
+                  var line = editButton.dataset.line;
+                  var lineNumber = editButton.dataset.lineNumber;
+                  var endLineNumber = editButton.dataset.endLineNumber;
+                  var domain = editButton.dataset.domain;
+
+                  row.dataset.originalLine = line;
+                  row.dataset.endLineNumber = endLineNumber;
+
+                  var existingField1 = row.children[0].textContent.trim().replace(/\.$/, '');
+                  var existingField2 = row.children[1].textContent;
+                  var existingField3 = row.children[2].textContent;
+                  var existingPriority = '';
+                  var existingField4 = row.children[3].textContent.trim().replace(/\.$/, '');
+
+                  if(existingField3 === 'MX') {
+                    let priorityMatch = existingField4.match(/^(\d+)\s+/);
+                    existingPriority = priorityMatch ? priorityMatch[1] : '';
+                    existingField4 = existingField4.replace(/^(\d+)\s+/, '');
+                  }
+
+                  row.innerHTML = `
+                      <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"><input type="text" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" name="field1" value='${existingField1}'></td>
+                      <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"><input type="number" min="0" max="65535" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2"  name="field2" value='${existingField2}'></td>
+                      <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+        <select name="field3" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" id="Type" required onchange="updateForm()">
+            <option value="A" ${existingField3 === 'A' ? 'selected' : ''}>A</option>
+            <option value="AAAA" ${existingField3 === 'AAAA' ? 'selected' : ''}>AAAA</option>
+            <option value="CAA" ${existingField3 === 'CAA' ? 'selected' : ''}>CAA</option>
+            <option value="CNAME" ${existingField3 === 'CNAME' ? 'selected' : ''}>CNAME</option>
+            <option value="MX" ${existingField3 === 'MX' ? 'selected' : ''}>MX</option>
+            <option value="SRV" ${existingField3 === 'SRV' ? 'selected' : ''}>SRV</option>
+            <option value="TLSA" ${existingField3 === 'TLSA' ? 'selected' : ''}>TLSA</option>
+            <option value="TXT" ${existingField3 === 'TXT' ? 'selected' : ''}>TXT</option>
+        </select>
+                      </td>
+
+                      <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+  ${
+    existingField3 === 'MX'
+    ? `<input type="number" name="priority" min="0" max="65535" value='${existingPriority}' class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 id="Priority" focus:border-blue-500 focus:dark:border-blue-700 mt-2">`
+    : ``
+  }
+                      <input type="text" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" name="field4" id="Record" value='${existingField4}'>
+                      </td>
+                      <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+<button type="button" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 save-button" style="display: none;" data-line-number="${lineNumber}" data-end-line-number="${endLineNumber}" data-domain="${domain}"><i class="bi bi-check"></i><span class="hidden sm:inline">{{.T.Get "Save"}}</span></button>
+<button type="button" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 cancel-button" style="display: none;" data-line="${line}"><i class="bi bi-x"></i><span class="hidden sm:inline">{{.T.Get "Cancel"}}</span></button>
+                    <button type="button" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 edit-button" data-line="${line}" data-line-number="${lineNumber}" data-domain="${domain}"><i class="bi bi-pencil-fill"></i><span class="hidden sm:inline">{{.T.Get " Edit"}}</span></button>
+<button type="button" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 delete-button" data-row-id="${lineNumber}" data-end-line-number="${endLineNumber}" data-domain="${domain}"><i class="bi bi-trash3"></i><span class="hidden sm:inline">${dnsI18n.deleteWithSpace}</span></button>
+                      </td>
+                  `;
+
+                  row.querySelectorAll('.edit-button, .delete-button').forEach(el => el.style.display = 'none');
+                  row.querySelectorAll('.save-button, .cancel-button').forEach(el => el.style.display = '');
+              });
+
+              document.addEventListener('click', function(e) {
+              var cancelButton = e.target.closest('.cancel-button');
+              if (!cancelButton) return;
+              var row = cancelButton.closest('.domain_row');
+              var originalLine = row.dataset.originalLine;
+
+              var originalLineArray = originalLine.match(/\S+/g);
+
+              if (originalLineArray && originalLineArray.length >= 4) {
+                showToast({{toJSON (.T.Get "Edit Cancelled.")}}, 'info');
+
+                  row.children[0].innerHTML = '<strong>' + originalLineArray[0] + '</strong>';
+                  row.children[1].textContent = originalLineArray[1];
+                  row.children[2].textContent = originalLineArray[3];
+                  row.children[3].innerHTML = originalLineArray.slice(4).join(' ');
+
+                  row.querySelectorAll('.save-button, .cancel-button').forEach(el => el.style.display = 'none');
+                  row.querySelectorAll('.edit-button, .delete-button').forEach(el => el.style.display = '');
+              } else {
+                    showToast({{toJSON (.T.Get "Edit Cancelled. Reloading the page.")}}, 'info');
+                  window.location.reload();
+              }
+          });
+
+document.addEventListener('click', function(e) {
+    var saveButton = e.target.closest('.save-button');
+    if (!saveButton) return;
+    var row = saveButton.closest('.domain_row');
+    var lineNumber = saveButton.dataset.lineNumber;
+    var endRowId = row.dataset.endLineNumber || lineNumber;
+    var domain = saveButton.dataset.domain;
+    var updatedField1 = row.querySelector('input[name="field1"]').value;
+    var updatedField2 = row.querySelector('input[name="field2"]').value;
+    var updatedField3 = row.querySelector('select[name="field3"]').value;
+    var updatedField4 = row.querySelector('input[name="field4"]').value;
+    var priorityInput = row.querySelector('input[name="priority"]');
+    var existingPriority = (priorityInput ? priorityInput.value : '') || '0';
+
+    if (updatedField3 === 'MX' && existingPriority) {
+        updatedField4 = existingPriority + ' ' + updatedField4;
+    }
+
+    if (updatedField1.endsWith(domain)) {
+        updatedField1 += '.';
+    }
+    if (updatedField4.endsWith(domain)) {
+        updatedField4 += '.';
+    }
+
+    if (updatedField3 === 'CNAME') {
+        let duplicateFound = false;
+      document.querySelectorAll('.domain_row').forEach(function(otherRow) {
+          var otherSaveButton = otherRow.querySelector('.save-button');
+          if (otherSaveButton && otherSaveButton.dataset.lineNumber == lineNumber) return;
+          var existingField1 = otherRow.children[0].textContent.trim();
+          var existingField3 = otherRow.children[2].textContent.trim();
+          if (existingField3 === 'CNAME' && existingField1 === updatedField1) {
+              duplicateFound = true;
+          }
+      });
+
+        if (duplicateFound) {
+            showToast({{toJSON (.T.Get "A CNAME record with this name already exists.")}}, 'warning');
+            return;
+        }
+    }
+
+    var updatedLine = `${updatedField1} ${updatedField2} IN ${updatedField3} ${updatedField4}`;
+
+    fetch(`/domains/dns/update-record/${lineNumber}/${domain}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-Token': csrf_token,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            newContent: updatedLine,
+            serial: document.querySelector('#serial_number_current').value,
+            endRowId: endRowId
+        }).toString()
+    })
+        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok) {
+                let toastMessage = dnsI18n.unexpectedError;
+                if (data && data.message) {
+                    toastMessage = data.message;
+                }
+                showToast(toastMessage, 'danger');
+                return;
+            }
+            if (data.updated_row) {
+                showToast({{toJSON (.T.Get "Record updated successfully.")}}, 'success');
+                window.location.reload();
+            } else if (data.error) {
+                showToast(data.error, 'danger');
+            }
+        })
+        .catch(function() {
+            showToast(dnsI18n.unexpectedError, 'danger');
+        });
+});
+</script>
+
+  <script>
+function DomainNewRow() {
+      const addRecordButton = document.getElementById("AddDNSRecord");
+      const addRecordRow = document.getElementById("addRecordRow");
+
+      addRecordRow.style.display = "none";
+
+      addRecordButton.addEventListener("click", function() {
+          if (addRecordRow.style.display === "none") {
+              addRecordRow.style.display = "table-row";
+          } else {
+              addRecordRow.style.display = "none";
+          }
+      });
+};
+
+DomainNewRow();
+
+      const cancelDNSRecordButton = document.getElementById("CancelDNSRecord");
+
+      cancelDNSRecordButton.addEventListener("click", function() {
+          addRecordRow.style.display = "none";
+
+          const inputFields = addRecordRow.querySelectorAll("input");
+          inputFields.forEach(function(inputField) {
+              inputField.value = "";
+          });
+      });
+</script>
+
+{{else if eq .ViewMode "code"}}
+
+{{if .Issues}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues === 'function') {
+        reportHealthIssues({{toJSON (printf "dns-zone:%s" .Domain)}}, {{toJSON .Issues}}, 0);
+    }
+});
+</script>
+{{end}}
+
+<form method="post" action="/domains/save-dns-zone/{{.Domain}}">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+<div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit DNS File for"}} <span class="punycode">{{.Domain}}</span></h1>
+        <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Attention:"}}</strong> {{.T.Get "Editing DNS file is intended for advanced users only. This action can potentially lead to server misconfiguration or downtime if not done correctly."}}<br>{{.T.Get "Please be cautious and make sure you understand the changes you are making."}}</p>
+    </div>
+
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+    <button type="button" id="save_zone_button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Changes"}}</button>
+
+    <button id="dropdownHoverButton" data-dropdown-toggle="dropdownHover" data-dropdown-trigger="hover" class="text-dark bg-white-700 hover:bg-dark-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center hidden sm:inline-flex items-center dark:bg-dark-600 dark:hover:bg-dark-700 dark:focus:ring-dark-800" type="button"><i class="bi bi-three-dots-vertical"></i>
+    </button>
+
+    <div id="dropdownHover" class="z-10 text-left hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownHoverButton">
+    <li>
+    <a href="/domains/edit-dns-zone/{{.Domain}}?view=table" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-table"></i> {{.T.Get "Table View"}}</a>
+    </li>
+    <li>
+    <a href="/domains/export-dns-zone/{{.Domain}}" target="_blank" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-download"></i> {{.T.Get "Download File"}}</a>
+    </li>
+    <li>
+    <a class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" data-drawer-target="drawer-right-restart-zone" data-drawer-show="drawer-right-restart-zone" data-drawer-placement="right" aria-controls="drawer-right-restart-zone"><i class="bi bi-arrow-clockwise"></i> {{.T.Get "Reset"}}
+    </a>
+    </li>
+        </ul>
+    </div>
+
+    <div class="relative flex w-full justify-between sm:hidden items-center space-x-4 mt-2">
+        <a href="/domains/edit-dns-zone/{{.Domain}}?view=table" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-pencil-fill"></i> {{.T.Get "Edit as Table"}}</a>
+        <a href="/domains/export-dns-zone/{{.Domain}}" target="_blank" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-download"></i> {{.T.Get "Download File"}}</a>
+        <a data-drawer-target="drawer-right-restart-zone" data-drawer-show="drawer-right-restart-zone" data-drawer-placement="right" aria-controls="drawer-right-restart-zone" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-arrow-clockwise"></i> {{.T.Get "Reset Zone"}}</a>
+    </div>
+
+</div>
+
+</div>
+
+  <div class="h-full w-2/2">
+    <div class="h-full m-6">
+      <textarea class="flex resize-none w-full h-full min-h-svh rounded border px-3 py-1.5 shadow-sm outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 " id="zone_content" name="zone_content">{{.ZoneContent}}</textarea>
+    </div>
+  </div>
+
+</form>
+
+<script>
+document.getElementById('save_zone_button').addEventListener('click', function() {
+    const zoneContent = document.getElementById('zone_content').value;
+    const domain = encodeURIComponent({{.Domain}});
+
+    const params = new URLSearchParams();
+    params.append('zone_content', zoneContent);
+
+    const toastMessage = {{toJSON (.T.Get "Saving zone file for domain")}} + ' ' + domain + ' ' + {{toJSON (.T.Get "Please wait for the process to finish.")}};
+    showToast(toastMessage, 'loading');
+
+    fetch(`/domains/save-dns-zone/${domain}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-Token': csrf_token,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params.toString()
+    })
+    .then(response => response.text())
+    .then(responseText => {
+        if (responseText.includes('saved')) {
+            showToast({{toJSON (.T.Get "Zone file saved successfully")}}, 'success');
+        } else {
+            showToast(responseText, 'danger');
+        }
+    })
+    .catch(error => {
+        showToast({{toJSON (.T.Get "An error occurred while saving the zone file.")}}, 'danger');
+    });
+});
+</script>
+
+{{end}}
+
+{{else}}
+
+<!-- page header -->
+<section aria-label="Select DNS Zone Header">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "DNS Zone Editor"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Manage and edit Domain Name System (DNS) zone files, which contain critical information for mapping domain names to IP addresses and managing various DNS records, such as A, CNAME, MX, and TXT records."}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+    </div>
+</div>
+<!-- END page header -->
+
+{{if .Domains}}
+    {{template "domain_selector" (dict "T" .T "Domains" .Domains "RedirectBase" "/domains/edit-dns-zone/")}}
+{{else}}
+    {{template "no_domain" .}}
+{{end}}
+
+</section>
+
+{{end}}
+
+<!-- END templates/domains/dns.html -->
+{{end}}

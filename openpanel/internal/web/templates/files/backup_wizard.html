@@ -1,0 +1,182 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/files/backup_wizard.html -->
+
+<section aria-label="Backup Wizard Header">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="flex items-center gap-x-3">
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Backup Wizard"}}</h1>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Create and download backups of your account."}}</p>
+        </div>
+    </div>
+</section>
+
+<div class="p-4 sm:p-6 lg:p-8 space-y-8">
+
+    {{if .InProgress}}
+    <!-- In-progress banner -->
+    <div class="flex items-start gap-3 rounded-lg border border-gray-200 bg-blue-50 p-4 dark:border-gray-800 dark:bg-blue-950"
+         id="backup-progress-banner"
+         x-data="{
+            started: '{{.InProgressStarted}}',
+            size: '{{.InProgressSize}}'
+         }"
+         x-init="
+            const poll = () => fetch('/backup-wizard/status').then(r => r.json()).then(d => {
+                if (!d.in_progress) { location.reload(); }
+                else {
+                    if (d.in_progress_size) size = d.in_progress_size;
+                    setTimeout(poll, 5000);
+                }
+            }).catch(() => setTimeout(poll, 10000));
+            setTimeout(poll, 5000);
+         ">
+        <svg class="mt-0.5 size-5 shrink-0 text-blue-500 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0 1 15-4.5M20 15a9 9 0 0 1-15 4.5"/>
+        </svg>
+        <div>
+            <p class="text-sm font-medium text-blue-800 dark:text-blue-200">{{.T.Get "Backup in progress"}}</p>
+            <p class="text-sm text-blue-600 dark:text-blue-400">{{.T.Get "Your backup is currently being created. This page will refresh automatically when it completes."}}</p>
+            <p class="mt-1 text-xs text-blue-500 dark:text-blue-400 space-x-3">
+                <template x-if="started">
+                    <span>{{.T.Get "Started"}}: <span x-text="started"></span></span>
+                </template>
+                <template x-if="size">
+                    <span>{{.T.Get "Size"}}: <span x-text="size"></span></span>
+                </template>
+            </p>
+        </div>
+    </div>
+    {{end}}
+
+    <!-- Create Backup -->
+    <div class="rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
+        <div class="border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Back Up"}}</h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "This feature allows you to download a compressed copy of all your files."}}</p>
+        </div>
+        <div class="px-6 py-4">
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{{.T.Get "The system will include the following items in the backup file:"}}</p>
+            <ul class="grid grid-cols-2 sm:grid-cols-4 space-y-2 mb-4">
+                {{range .BackupIncludes}}
+                <li class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="shrink-0 text-green-500">
+                        <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-.997-6 7.07-7.071-1.414-1.414-5.656 5.657-2.829-2.829-1.414 1.414L11.003 16z"/>
+                    </svg>
+                    {{.}}
+                </li>
+                {{end}}
+            </ul>
+
+            <form method="POST" action="/backup-wizard/create">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <button
+                    type="submit"
+                    {{if .InProgress}}disabled{{end}}
+                    class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-center text-sm font-medium shadow-sm transition-all border-black bg-black text-white hover:bg-gray-800 gap-x-1.5 whitespace-nowrap"
+                >
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" aria-hidden="true" class="shrink-0">
+                        <path d="M4 6.414L.757 3.172l1.415-1.415L5.172 5h15.108C21.246 5 22 5.754 22 6.66v13.28c0 .892-.748 1.66-1.72 1.66H3.72C2.748 21.6 2 20.852 2 19.94V4H4v2.414zM4 9v10h16V7H5.414L4 9zm7 7.586L7.586 13 9 11.586l2 2 4-4L16.414 11 11 16.586z"/>
+                    </svg>
+                    {{if .InProgress}}
+                        {{.T.Get "Backup in progress…"}}
+                    {{else}}
+                        {{.T.Get "Generate Backup"}}
+                    {{end}}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Existing Backups -->
+    <div class="rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
+        <div class="border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center justify-between">
+            <div>
+                <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Existing Backups"}}</h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Download previously generated backups."}}</p>
+            </div>
+            {{if .Backups}}
+            <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-gray-700 dark:text-white">
+                {{len .Backups}}
+            </span>
+            {{end}}
+        </div>
+
+        {{if not .Backups}}
+        <div class="p-6 text-center">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="mx-auto mb-3 text-gray-300 dark:text-gray-700">
+                <path d="M20 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h16zm-1 2H5v16h14V4zm-5 8v4h-4v-4H7l5-5 5 5h-3z"/>
+            </svg>
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "No backups found. Generate your first backup above."}}</p>
+        </div>
+        {{else}}
+        <div class="overflow-x-auto">
+            <table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead>
+                    <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                        <th scope="col" class="whitespace-nowrap px-6 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">
+                            {{.T.Get "Filename"}}
+                        </th>
+                        <th scope="col" class="whitespace-nowrap px-6 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">
+                            {{.T.Get "Size"}}
+                        </th>
+                        <th scope="col" class="whitespace-nowrap px-6 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">
+                            {{.T.Get "Created"}}
+                        </th>
+                        <th scope="col" class="whitespace-nowrap px-6 py-3.5 text-right text-sm font-semibold text-gray-900 dark:text-gray-50">
+                            {{.T.Get "Actions"}}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                    {{range .Backups}}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors">
+                        <td class="whitespace-nowrap px-6 py-3.5 text-sm text-gray-900 dark:text-gray-50">
+                            <div class="flex items-center gap-2">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="shrink-0 text-gray-400 dark:text-gray-600">
+                                    <path d="M20 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h16zm-1 2H5v16h14V4zm-5 8v4h-4v-4H7l5-5 5 5h-3z"/>
+                                </svg>
+                                {{.Name}}
+                            </div>
+                        </td>
+                        <td class="whitespace-nowrap px-6 py-3.5 text-sm text-gray-500 dark:text-gray-500">
+                            {{.Size}}
+                        </td>
+                        <td class="whitespace-nowrap px-6 py-3.5 text-sm text-gray-500 dark:text-gray-500">
+                            {{.Mtime}}
+                        </td>
+                        <td class="whitespace-nowrap px-6 py-3.5 text-right text-sm">
+                            {{if .InProgress}}
+                            <span class="inline-flex items-center gap-1.5 rounded border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-sm font-medium text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-900 cursor-not-allowed">
+                                <svg class="size-4 shrink-0 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0 1 15-4.5M20 15a9 9 0 0 1-15 4.5"/>
+                                </svg>
+                                {{$.T.Get "In progress…"}}
+                            </span>
+                            {{else}}
+                            <a
+                                href="/backup-wizard/download/{{.Name}}"
+                                class="inline-flex items-center gap-1.5 rounded border px-3 py-1.5 text-sm font-medium transition-all border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800"
+                            >
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="shrink-0">
+                                    <path d="M3 19h18v2H3v-2zm10-5.828L19.071 7.1l1.414 1.414L12 17 3.515 8.515 4.929 7.1 11 13.17V2h2v11.172z"/>
+                                </svg>
+                                {{$.T.Get "Download"}}
+                            </a>
+                            {{end}}
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+        {{end}}
+    </div>
+
+</div>
+
+<!-- END templates/files/backup_wizard.html -->
+{{end}}

@@ -1,0 +1,4 @@
+Contact: mailto:info@openpanel.com
+Expires: 2030-12-12T11:00:00.000Z
+Preferred-Languages: rs, en
+Policy:  https://github.com/stefanpejcic/OpenPanel/security/policy

@@ -1,0 +1,41 @@
+{{define "content"}}
+<!-- START templates/user/reset_password/request_email.html -->
+
+<div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700 border border-gray-300">
+    <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+        <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+            {{.T.Get "Forgot Your Password?"}}
+        </h1>
+        <p class="text-gray-900 dark:text-white">
+            {{.T.Get "Enter your email address and we'll send you a link to reset your password."}}
+        </p>
+        <form method="POST" class="space-y-4 md:space-y-6" action="/reset_password">
+
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+            <div>
+                <label for="email" class="flex mb-2 text-sm font-medium text-gray-900 dark:text-white justify-between"><span>{{.T.Get "Email"}}<span class="text-red-500 dark:text-red-500">*</span></span> <a href="/login" tabindex="-1">{{.T.Get "Back to Login"}}</a></label>
+                <input type="text" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 rounded focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required placeholder="{{.T.Get "Enter your email address"}}" {{if contains .ErrorMessage "@"}}autofocus value="{{.Email}}"{{else if .Email}}value="{{.Email}}"{{else}}autofocus{{end}}>
+            </div>
+
+            <button type="submit" class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">{{.T.Get "Send Reset Link"}}</button>
+        </form>
+
+        <!-- START errors -->
+        {{with .FirstFlash}}
+        <div class="mt-6 flex items-center space-x-2.5 rounded-lg bg-emerald-50 p-4 dark:bg-emerald-500/10"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 text-emerald-500 dark:text-emerald-500">
+        <path d="M12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22ZM10 16.586L16.293 10.293L14.879 8.879L10 13.757L9.121 12.879L7.707 14.293L10 16.586Z"></path>
+        </svg>
+        <p class="text-sm text-emerald-600 dark:text-emerald-500">{{.Text}}</p></div>
+        {{end}}
+
+        {{if .ErrorMessage}}
+        <div class="mt-6 flex items-center space-x-2.5 rounded-lg bg-red-50 p-4 dark:bg-red-500/10"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 text-red-500 dark:text-red-500"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg><p class="text-sm text-red-600 dark:text-red-500">{{.ErrorMessage}}</p></div>
+        {{end}}
+        <!-- END errors -->
+
+    </div>
+</div>
+
+<!-- END templates/user/reset_password/request_email.html -->
+{{end}}

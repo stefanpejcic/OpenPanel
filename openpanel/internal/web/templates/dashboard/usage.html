@@ -1,0 +1,416 @@
+{{define "usage"}}<!-- START templates/dashboard/usage.html -->
+<div id="dashboard_usage" class="flex flex-col justify-center overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800 xl:col-span-1" x-data="usageDashboard()" x-init="init()">
+    <div class="flex items-center justify-between gap-4 relative m-0 p-2 border-b border-gray-200  dark:border-gray-800 mb-2"  id="dashboard_usage_title">
+        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+        <h2 class="pl-4 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Usage"}}</h2>
+    </div>
+
+    <div class="w-full divide-y divide-gray-200 border-b border-gray-200 dark:divide-gray-800 dark:border-gray-800 space-y-3">
+
+        {{if or .UserAllowed.wordpress .UserAllowed.website_builder .UserAllowed.nodejs .UserAllowed.python}}
+        <!-- Websites -->
+        <a id="dashboard_usage_websites" href="/sites" class="w-full text-sm flex justify-between gap-3 items-center px-2">
+            <span class="block mb-2"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-app-window"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 5m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M6 8h.01" /><path d="M9 8h.01" /></svg></span>
+            <span class="block mb-2 w-full">
+                <div class="flex items-center justify-between">
+                    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Websites"}}</p>
+                    <p class="font-medium text-gray-700 dark:text-gray-300"><span x-text="websites.used"></span>/<span x-text="websites.allocated"></span></p>
+                </div>
+                <div class="w-full mt-2">
+                    <div class="flex w-full items-center [&> *]:h-1.5">
+                        <div class="relative flex h-2 w-full items-center bg-blue-100 dark:bg-blue-500/30">
+                            <div class="h-full flex-col"
+                                 :style="'width: ' + websites.percentage + '%'"
+                                 :class="progressBarClass(websites.percentage)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <span>
+        </a>
+        {{end}}
+
+        {{if .UserAllowed.domains}}
+        <!-- Domains -->
+        <a id="dashboard_usage_domains" href="/domains" class="w-full text-sm flex justify-between gap-3 items-center px-2">
+            <span class="block mb-2"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-world-www"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 7a9 9 0 0 0 -7.5 -4a8.991 8.991 0 0 0 -7.484 4" /><path d="M11.5 3a16.989 16.989 0 0 0 -1.826 4" /><path d="M12.5 3a16.989 16.989 0 0 1 1.828 4" /><path d="M19.5 17a9 9 0 0 1 -7.5 4a8.991 8.991 0 0 1 -7.484 -4" /><path d="M11.5 21a16.989 16.989 0 0 1 -1.826 -4" /><path d="M12.5 21a16.989 16.989 0 0 0 1.828 -4" /><path d="M2 10l1 4l1.5 -4l1.5 4l1 -4" /><path d="M17 10l1 4l1.5 -4l1.5 4l1 -4" /><path d="M9.5 10l1 4l1.5 -4l1.5 4l1 -4" /></svg></span>
+            <span class="block mb-2 w-full">
+                <div class="flex items-center justify-between">
+                    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domains"}}</p>
+                    <p class="font-medium text-gray-700 dark:text-gray-300"><span x-text="domains.used"></span>/<span x-text="domains.allocated"></span></p>
+                </div>
+                <div class="w-full mt-2">
+                    <div class="flex w-full items-center [&> *]:h-1.5">
+                        <div class="relative flex h-2 w-full items-center bg-blue-100 dark:bg-blue-500/30">
+                            <div class="h-full flex-col"
+                                 :style="'width: ' + domains.percentage + '%'"
+                                 :class="progressBarClass(domains.percentage)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </span>
+        </a>
+        {{end}}
+
+        {{if or .UserAllowed.mysql .UserAllowed.postgresql}}
+        <!-- Databases -->
+        <a id="dashboard_usage_databases" href="/{{if .UserAllowed.mysql}}mysql{{end}}" class="w-full text-sm flex justify-between gap-3 items-center px-2">
+            <span class="block mb-2"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-database"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6m-8 0a8 3 0 1 0 16 0a8 3 0 1 0 -16 0" /><path d="M4 6v6a8 3 0 0 0 16 0v-6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></svg></span>
+            <span class="block mb-2 w-full">
+                <div class="flex items-center justify-between">
+                    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Databases"}}</p>
+                    <p class="font-medium text-gray-700 dark:text-gray-300"><span x-text="databases.used"></span>/<span x-text="databases.allocated"></span></p>
+                </div>
+                <div class="w-full mt-2">
+                    <div class="flex w-full items-center [&> *]:h-1.5">
+                        <div class="relative flex h-2 w-full items-center bg-blue-100 dark:bg-blue-500/30">
+                            <div class="h-full flex-col"
+                                 :style="'width: ' + databases.percentage + '%'"
+                                 :class="progressBarClass(databases.percentage)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </span>
+        </a>
+        {{end}}
+
+        {{if .UserAllowed.emails}}
+        <!-- Emails -->
+        <a id="dashboard_usage_emails" href="/emails" class="w-full text-sm flex justify-between gap-3 items-center px-2">
+            <span class="block mb-2"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-mail"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" /><path d="M3 7l9 6l9 -6" /></svg></span>
+            <span class="block mb-2 w-full">
+                <div class="flex items-center justify-between">
+                    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Email accounts"}}</p>
+                    <p class="font-medium text-gray-700 dark:text-gray-300"><span x-text="emails.used"></span>/<span x-text="emails.allocated"></span></p>
+                </div>
+                <div class="w-full mt-2">
+                    <div class="flex w-full items-center [&> *]:h-1.5">
+                        <div class="relative flex h-2 w-full items-center bg-blue-100 dark:bg-blue-500/30">
+                            <div class="h-full flex-col"
+                                 :style="'width: ' + emails.percentage + '%'"
+                                 :class="progressBarClass(emails.percentage)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </span>
+        </a>
+        {{end}}
+
+        {{if .UserAllowed.ftp}}
+        <!-- FTP -->
+        <a id="dashboard_usage_ftp" href="/ftp" class="w-full text-sm flex justify-between gap-3 items-center px-2">
+            <span class="block mb-2"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-filezilla"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16 15.824a4.062 4.062 0 0 1 -2.25 .033c-.738 -.201 -2.018 -.08 -2.75 .143l4.583 -5h-6.583" /><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M8 15l2 -8h5" /></svg></span>
+            <span class="block mb-2 w-full">
+                <div class="flex items-center justify-between">
+                    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "FTP Accounts"}}</p>
+                    <p class="font-medium text-gray-700 dark:text-gray-300"><span x-text="ftp.used"></span>/<span x-text="ftp.allocated"></span></p>
+                </div>
+                <div class="w-full mt-2">
+                    <div class="flex w-full items-center [&> *]:h-1.5">
+                        <div class="relative flex h-2 w-full items-center bg-blue-100 dark:bg-blue-500/30">
+                            <div class="h-full flex-col"
+                                 :style="'width: ' + ftp.percentage + '%'"
+                                 :class="progressBarClass(ftp.percentage)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </span>
+        </a>
+        {{end}}
+
+        <!-- Storage -->
+        <a id="dashboard_usage_storage" :href="userAllowed.includes('disk_usage') ? '/disk-usage' : '#'" class="w-full text-sm flex justify-between gap-3 items-center px-2">
+            <span class="block mb-2"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" /></svg></span>
+            <span class="block mb-2 w-full">
+                <div class="flex items-center justify-between">
+                    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Storage"}}</p>
+                    <p class="font-medium text-gray-700 dark:text-gray-300" x-text="disk.percentage + '%'"></p>
+                </div>
+                <div class="w-full">
+                    <div class="flex w-full items-center mt-2 [&> *]:h-1.5">
+                        <div
+                            class="relative flex h-2 w-full items-center bg-blue-100 dark:bg-blue-500/30"
+                            aria-label="progress bar"
+                            aria-valuenow="disk.percentage"
+                            aria-valuemax="100"
+                        >
+                            <div
+                                class="h-full flex-col"
+                                :style="'width: ' + disk.percentage + '%'"
+                                :class="progressBarClass(disk.percentage)"
+                            ></div>
+                        </div>
+                    </div>
+                    <p class="mt-1 flex items-center justify-between text-xs text-gray-500">
+                        <span x-text="disk.used"></span>
+                        <span x-text="disk.allocated"></span>
+                    </p>
+                </div>
+            </span>
+        </a>
+
+        <!-- Inodes -->
+        <a id="dashboard_usage_inodes" :href="userAllowed.includes('inodes') ? '/inodes-explorer' : '#'" class="w-full text-sm flex justify-between gap-3 items-center px-2">
+            <span class="block mb-2"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-info"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M11 14h1v4h1" /><path d="M12 11h.01" /></svg></span>
+            <span class="block mb-2 w-full">
+                <div class="flex items-center justify-between">
+                    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Inodes"}}</p>
+                    <p class="font-medium text-gray-700 dark:text-gray-300" x-text="inodes.percentage + '%'"></p>
+                </div>
+                <div class="w-full">
+                    <div class="flex w-full items-center mt-2 [&> *]:h-1.5">
+                        <div
+                            class="relative flex h-2 w-full items-center bg-blue-100 dark:bg-blue-500/30"
+                            aria-label="progress bar"
+                            aria-valuenow="inodes.percentage"
+                            aria-valuemax="100"
+                        >
+                            <div
+                                class="h-full flex-col"
+                                :style="'width: ' + inodes.percentage + '%'"
+                                :class="progressBarClass(inodes.percentage)"
+                            ></div>
+                        </div>
+                    </div>
+                    <p class="mt-1 flex items-center justify-between text-xs text-gray-500">
+                        <span x-text="inodes.used"></span>
+                        <span x-text="inodes.allocated"></span>
+                    </p>
+                </div>
+            </span>
+        </a>
+
+        <!-- CPU Usage -->
+        <a id="dashboard_usage_cpu" :href="userAllowed.includes('usage') ? '/server/usage' : '#'" class="w-full text-sm flex justify-between gap-3 items-center px-2">
+            <span class="block mb-2"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cpu"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 5m0 1a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1z" /><path d="M9 9h6v6h-6z" /><path d="M3 10h2" /><path d="M3 14h2" /><path d="M10 3v2" /><path d="M14 3v2" /><path d="M21 10h-2" /><path d="M21 14h-2" /><path d="M14 21v-2" /><path d="M10 21v-2" /></svg></span>
+            <span class="block mb-2 w-full">
+                <div class="flex items-center justify-between relative">
+                    <p class="font-medium text-gray-900 dark:text-gray-50 flex items-center">{{.T.Get "CPU Usage"}}</p>
+                    <p class="font-medium text-gray-700 dark:text-gray-300" x-text="cpu.percentage + '%'"></p>
+                </div>
+                <div class="w-full">
+                    <div class="flex w-full items-center mt-2 [&> *]:h-1.5">
+                        <div
+                            class="relative flex h-2 w-full items-center bg-blue-100 dark:bg-blue-500/30"
+                            aria-label="progress bar"
+                            aria-valuenow="cpu.visual"
+                            aria-valuemax="100"
+                        >
+                            <div
+                                class="h-full flex-col"
+                                :style="'width: ' + cpu.visual + '%'"
+                                :class="progressBarClass(cpu.visual)"
+                            ></div>
+                        </div>
+                    </div>
+                    <p class="mt-1 flex items-center justify-between text-xs text-gray-500">
+                        <span x-text="cpu.used"></span>
+                        <span x-text="cpu.allocated"></span>
+                    </p>
+                </div>
+            </span>
+        </a>
+
+        <!-- RAM Usage -->
+        <a id="dashboard_usage_memory" :href="userAllowed.includes('usage') ? '/server/usage' : '#'" class="w-full text-sm flex justify-between gap-3 items-center px-2">
+            <span class="block mb-2"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-device-sd-card"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 21h10a2 2 0 0 0 2 -2v-14a2 2 0 0 0 -2 -2h-6.172a2 2 0 0 0 -1.414 .586l-3.828 3.828a2 2 0 0 0 -.586 1.414v10.172a2 2 0 0 0 2 2z" /><path d="M13 6v2" /><path d="M16 6v2" /><path d="M10 7v1" /></svg></span>
+            <span class="block mb-2 w-full">
+                <div class="flex items-center justify-between relative">
+                    <p class="font-medium text-gray-900 dark:text-gray-50 flex items-center">{{.T.Get "Memory Usage"}}</p>
+                    <p class="font-medium text-gray-700 dark:text-gray-300" x-text="mem.percentage + '%'"></p>
+                </div>
+                <div class="w-full">
+                    <div class="flex w-full items-center mt-2 [&> *]:h-1.5">
+                        <div
+                            class="relative flex h-2 w-full items-center bg-blue-100 dark:bg-blue-500/30"
+                            aria-label="progress bar"
+                            aria-valuenow="mem.percentage"
+                            aria-valuemax="100"
+                        >
+                            <div
+                                class="h-full flex-col"
+                                :style="'width: ' + mem.percentage + '%'"
+                                :class="progressBarClass(mem.percentage)"
+                            ></div>
+                        </div>
+                    </div>
+                    <p class="mt-1 flex items-center justify-between text-xs text-gray-500">
+                        <span x-text="mem.used"></span>
+                        <span x-text="mem.allocated"></span>
+                    </p>
+                </div>
+            </span>
+        </a>
+    </div>
+
+    <script>
+    function usageDashboard() {
+        return {
+            userAllowed: {{.UserAllowedJSON}},
+
+            // backend
+            websites:   { used: '0', allocated: '∞', percentage: 0 },
+            domains:    { used: '0', allocated: '∞', percentage: 0 },
+            databases:  { used: '0', allocated: '∞', percentage: 0 },
+            emails:     { used: '0', allocated: '∞', percentage: 0 },
+            ftp:        { used: '0', allocated: '∞', percentage: 0 },
+
+            // ajax
+            disk:     { used: "{{.T.Get "Calculating.."}}", allocated: "", percentage: 0 },
+            inodes:   { used: "{{.T.Get "Calculating.."}}", allocated: "", percentage: 0 },
+            cpu:      { used: "{{.T.Get "Calculating.."}}", allocated: "", percentage: 0 },
+            mem:      { used: "{{.T.Get "Calculating.."}}", allocated: "", percentage: 0 },
+
+            calcStat({ count, limit }) {
+                const isUnlimited = limit === 0;
+                const allocated = isUnlimited ? '∞' : limit;
+                const percentage = isUnlimited ? 0 : Math.min(100, ((count / limit) * 100).toFixed(1));
+                return {
+                    used: count.toString(),
+                    allocated: allocated.toString(),
+                    percentage: percentage,
+                };
+            },
+            formatBytes(kb) {
+                const sizes = ['KB', 'MB', 'GB', 'TB', 'PB'];
+                if (kb === 0) return 'Unlimited';
+                const i = Math.min(Math.floor(Math.log(kb) / Math.log(1000)), sizes.length - 1);
+                return Math.round((kb / Math.pow(1000, i)) * 100) / 100 + ' ' + sizes[i];
+            },
+            formatBytesToBigger(bytes) {
+                const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+                if (bytes === 0) return 'Unlimited';
+                const i = Math.floor(Math.log(bytes * 1024) / Math.log(1024));
+                const roundedValue = i > 2 ? Math.ceil(bytes * 1024 / Math.pow(1024, i)) : Math.round(bytes * 1024 / Math.pow(1024, i));
+                return roundedValue + ' ' + sizes[i];
+            },
+            formatInodes(inodes) {
+                if (inodes === 0) return 'Unlimited';
+                if (inodes < 1e6) return inodes.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                return (inodes / 1e6).toFixed(2) + 'M';
+            },
+            progressBarClass(percent) {
+                percent = parseFloat(percent);
+                if (percent > 90) return 'bg-red-500 dark:bg-red-500';
+                if (percent > 70) return 'bg-orange-500 dark:bg-orange-500';
+                return 'bg-blue-500 dark:bg-blue-500';
+            },
+            fetchDiskInodes() {
+                fetch('/json/disk_inodes')
+                    .then(response => response.json())
+                    .then(data => {
+                        const isDiskUnlimited = data.disk_soft === 0;
+                        const isInodesUnlimited = data.inodes_soft === 0;
+
+                        const diskUsed = this.formatBytes(data.disk_used);
+                        const diskTotal = isDiskUnlimited ? '∞' : this.formatBytesToBigger(data.disk_soft);
+                        const diskPct = isDiskUnlimited ? 0 : Math.min(100, ((data.disk_used / data.disk_soft) * 100).toFixed(1));
+
+                        this.disk = {
+                            used: diskUsed,
+                            allocated: diskTotal,
+                            percentage: diskPct
+                        };
+
+                        const inodesUsed = this.formatInodes(data.inodes_used);
+                        const inodesTotal = isInodesUnlimited ? '∞' : this.formatInodes(data.inodes_soft);
+                        const inodesPct = isInodesUnlimited ? 0 : Math.min(100, ((data.inodes_used / data.inodes_soft) * 100).toFixed(1));
+
+                        this.inodes = {
+                            used: inodesUsed,
+                            allocated: inodesTotal,
+                            percentage: inodesPct
+                        };
+
+                        if (typeof reportHealthIssues === 'function') {
+                            const issues = [];
+                            if (!isDiskUnlimited && diskPct >= 90) {
+                                issues.push({
+                                    id: 'disk-limit',
+                                    severity: diskPct >= 100 ? 'error' : 'warning',
+                                    message: "{{.T.Get "Disk usage is at"}} " + diskPct + "% {{.T.Get "of your limit."}}",
+                                });
+                            }
+                            if (!isInodesUnlimited && inodesPct >= 90) {
+                                issues.push({
+                                    id: 'inodes-limit',
+                                    severity: inodesPct >= 100 ? 'error' : 'warning',
+                                    message: "{{.T.Get "Inodes usage is at"}} " + inodesPct + "% {{.T.Get "of your limit."}}",
+                                });
+                            }
+                            if (issues.length) reportHealthIssues('dashboard', issues, 24);
+                        }
+                    });
+            },
+
+            fetchResourceUsage() {
+                fetch('/json/resource_usage', {
+                    headers: { 'X-CSRF-TOKEN': '{{.CSRFToken}}' }
+                })
+                .then(res => res.json())
+                .then(response => {
+                    const data = response;
+
+                    // CPU
+                    let cpuUsedPct = data.cpu.usage.pct || 0;
+
+                    this.cpu = {
+                        used: data.cpu.usage.human || '0 cores',
+                        allocated: data.cpu.total.human || '0 cores',
+                        percentage: cpuUsedPct, // convert from %
+                        visual: cpuUsedPct
+                    };
+
+                    // Memory
+                    this.mem = {
+                        used: data.memory.used.human || '0',
+                        allocated: data.memory.total.human || '0',
+                        percentage: data.memory.usage_pct || 0
+                    };
+
+                    if (typeof reportHealthIssues === 'function') {
+                        const issues = [];
+                        if (cpuUsedPct >= 90) {
+                            issues.push({
+                                id: 'cpu-limit',
+                                severity: cpuUsedPct >= 100 ? 'error' : 'warning',
+                                message: "{{.T.Get "CPU usage is at"}} " + cpuUsedPct + "% {{.T.Get "of your limit."}}",
+                            });
+                        }
+                        if (this.mem.percentage >= 90) {
+                            issues.push({
+                                id: 'ram-limit',
+                                severity: this.mem.percentage >= 100 ? 'error' : 'warning',
+                                message: "{{.T.Get "RAM usage is at"}} " + this.mem.percentage + "% {{.T.Get "of your limit."}}",
+                            });
+                        }
+                        if (issues.length) reportHealthIssues('dashboard', issues, 24);
+                    }
+                });
+            },
+
+            // Initialization
+            init() {
+                if (this.initialized) return;
+                this.initialized = true;
+
+                this.websites     = this.calcStat({ count: {{.UserWebsitesCount}}, limit: {{.WebsitesLimit}} });
+                this.domains      = this.calcStat({ count: {{.MainDomainsCount}}, limit: {{.DomainsLimit}} });
+                this.databases    = this.calcStat({ count: {{.DBUsage}},     limit: {{.DBLimit}} });
+                this.emails       = this.calcStat({ count: {{.EmailCount}},  limit: {{.EmailLimit}} });
+                this.ftp          = this.calcStat({ count: {{.FTPCount}},    limit: {{.FTPLimit}} });
+
+                this.fetchDiskInodes();
+                this.fetchResourceUsage();
+            }
+        }
+    }
+    </script>
+</div>
+
+<!-- END templates/dashboard/usage.html -->
+{{end}}

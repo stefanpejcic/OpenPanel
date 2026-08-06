@@ -1,0 +1,415 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/files/edit_file.html -->
+
+<style>
+    html, body { height: 100%; margin: 0; }
+    .container-fluid { padding: 0; }
+    .editor-container { min-height: 90vh; height: 100%; }
+
+    #editor-container.fullscreen {
+        position: fixed; top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 9999; background-color: #1e1e1e;
+    }
+    .editor-header { display: flex; padding: 0px 10px; justify-content: space-between; align-items: center; }
+    #editor-container.fullscreen h3 { display: none; }
+    #fullscreenButton { margin-left: 10px; }
+
+    /* textarea editor */
+    #editor-text {
+        width: 100%; min-height: 90vh; height: 100%;
+        background: #1e1e1e; color: #d4d4d4;
+        font-family: 'Courier New', monospace; font-size: 14px;
+        border: none; outline: none; resize: none;
+        padding: 16px; box-sizing: border-box;
+        tab-size: 4;
+    }
+
+    /* CodeMirror */
+    .CodeMirror {
+        height: 90vh !important;
+        font-size: 14px;
+    }
+    #editor-container.fullscreen .CodeMirror {
+        height: 100vh !important;
+    }
+
+    /* Ace */
+    #editor-ace {
+        width: 100%;
+        min-height: 90vh;
+        height: 100%;
+    }
+    #editor-container.fullscreen #editor-ace {
+        height: 100vh;
+    }
+</style>
+
+
+{{if eq .Editor "monaco"}}
+    <link rel="stylesheet" href="{{static "vendor/monaco/editor.main.css"}}">
+    <script src="{{static "vendor/monaco/loader.js"}}"></script>
+{{else if eq .Editor "ace"}}
+    <script src="{{static "vendor/ace/ace.min.js"}}"></script>
+    <script src="{{static "vendor/ace/ext-language_tools.min.js"}}"></script>
+{{else if eq .Editor "codemirror"}}
+    <link rel="stylesheet" href="{{static "vendor/codemirror/codemirror.min.css"}}">
+    <link rel="stylesheet" href="{{static "vendor/codemirror/theme/dracula.min.css"}}">
+    <script src="{{static "vendor/codemirror/codemirror.min.js"}}"></script>
+    <!-- order matters: php depends on all of these -->
+    <script src="{{static "vendor/codemirror/mode/xml/xml.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/mode/css/css.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/mode/javascript/javascript.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/mode/htmlmixed/htmlmixed.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/mode/php/php.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/mode/python/python.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/mode/shell/shell.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/mode/sql/sql.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/mode/yaml/yaml.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/mode/markdown/markdown.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/addon/edit/matchbrackets.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/addon/edit/closebrackets.min.js"}}"></script>
+{{end}}
+
+
+
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <section aria-label="File Editor Header" id="editor-container" x-data="{ isFullscreen: true }" :class="{ 'fullscreen': isFullscreen }">
+        <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between"
+             :class="{ 'sm:p-6 lg:p-8': !isFullscreen }">
+            <div>
+
+                {{if eq .FilePath "wpcli_themes.txt"}}
+                    <div class="flex items-center gap-x-3">
+                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit WordPress Themes Set"}}</h1>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Themes listed here will be automatically installed to new WordPress websites."}} <a href="https://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel#themes-set" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">{{.T.Get "View Examples"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
+                {{else if eq .FilePath "wpcli_plugins.txt"}}
+                    <div class="flex items-center gap-x-3">
+                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit WordPress Plugins Set"}}</h1>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Plugins listed here will be automatically installed to new WordPress websites."}} <a href="https://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel#plugins-set" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">{{.T.Get "View Examples"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
+                {{else if eq .FilePath "pagespeed_api_key.txt"}}
+                    <div class="flex items-center gap-x-3">
+                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit Google PageSpeed API key"}}</h1>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Set API key to be used on Site Manager for your websites."}} <a href="https://openpanel.com/docs/articles/websites/google-pagespeed-insights-api-key" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">{{.T.Get "Documentation"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
+                {{else}}
+                    <div class="flex items-center gap-x-3">
+                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit File"}}</h1>
+                    </div>
+
+      <!-- START breadcrumbs -->
+      <p class="text-sm text-gray-500 dark:text-gray-500 flex">
+<a href="/files" title="{{.T.Get "Open in File Manager"}}" class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300">/var/www/html/</a>{{range .Breadcrumbs}}{{if .Last}}{{.Name}}{{else}}<a href="/files/{{.Path}}" title="{{$.T.Get "Open in File Manager"}}">{{.Name}}</a>{{end}}{{if not .Last}}/{{end}}{{end}}</p>
+      <!-- END breadcrumbs -->
+
+                {{end}}
+
+            </div>
+
+            <div class="editor-header mt-2 gap-2 sm:mt-0 sm:flex">
+
+                <div class="relative" x-data="{ open: false }">
+                    <button type="button"
+                            @click="open = !open"
+                            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full gap-x-1.5 whitespace-nowrap sm:w-fit">
+                        <i class="bi bi-code-slash"></i>
+                        <span class="ml-1">{{.EditorLabel}}</span>
+                        <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-show="open"
+                         @click.outside="open = false"
+                         x-cloak
+                         class="absolute right-0 z-50 mt-1 w-40 rounded border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                        {{range .EditorOptions}}
+                            <a href="?editor={{.Value}}{{$.FullscreenQS}}"
+                               class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 {{if .Selected}}font-semibold text-indigo-600 dark:text-indigo-400{{end}}">
+                                {{if .Selected}}<i class="bi bi-check2"></i>{{else}}<span class="w-4"></span>{{end}}
+                                {{.Label}}
+                            </a>
+                        {{end}}
+                    </div>
+                </div>
+
+                <button type="submit" id="editorcontentvalue" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save"}}</button>
+                <button type="button" @click="isFullscreen = !isFullscreen" id="fullscreenButton" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-arrows-fullscreen"></i></button>
+            </div>
+        </div>
+
+        <input type="hidden" name="editor_content" id="editor_content">
+
+        {{if eq .Editor "text"}}
+            <textarea id="editor-text" spellcheck="false" autocorrect="off" autocapitalize="off">{{.FileContent}}</textarea>
+        {{else if eq .Editor "codemirror"}}
+            <textarea id="editor-codemirror" style="display:none;">{{.FileContent}}</textarea>
+            <div id="editor-codemirror-mount"></div>
+        {{else if eq .Editor "ace"}}
+            <div id="editor-ace"></div>
+        {{else}}
+            <div class="editor-container" id="editor"></div>
+        {{end}}
+
+    </section>
+</form>
+
+
+<script>
+(function () {
+    const filePath    = {{.FilePathJSON}};
+    const fileContent = {{.FileContentJSON}};
+    const editorType  = '{{.Editor}}';
+    const i18n = {
+        unsavedChanges: "{{.T.Get "You have unsaved changes. Leave anyway?"}}"
+    };
+
+    function getExtension(name) {
+        return name.split('.').pop().toLowerCase();
+    }
+
+    const editorContainer = document.getElementById('editor-container');
+    const hiddenInput     = document.getElementById('editor_content');
+    const saveBtn         = document.getElementById('editorcontentvalue');
+    const fullscreenBtn   = document.getElementById('fullscreenButton');
+
+
+    let editor = null;   // used by Monaco and Ace
+    let cm     = null;   // used by CodeMirror
+
+
+
+    // ?fullscreen
+    const urlParams   = new URLSearchParams(window.location.search);
+    let isFullscreen  = urlParams.get('fullscreen') === 'true';
+    editorContainer.classList.toggle('fullscreen', isFullscreen);
+
+    fullscreenBtn.addEventListener('click', () => {
+        isFullscreen = !isFullscreen;
+        editorContainer.classList.toggle('fullscreen', isFullscreen);
+        if (window._editorLayout) window._editorLayout(); // Monaco / Ace relayout
+    });
+
+    // Ctrl/Cmd+S to save, regardless of which editor backend is active
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 's') {
+            e.preventDefault();
+            saveBtn.click();
+        }
+    });
+    if (window.registerShortcut) registerShortcut(['Ctrl', 'S'], "{{.T.Get "Save file"}}");
+
+    function getHashLine() {
+        const h = window.location.hash;
+        if (h && h.startsWith('#')) {
+            const n = parseInt(h.substring(1));
+            if (!isNaN(n)) return n;
+        }
+        return null;
+    }
+    function setHashLine(n) {
+        const newHash = '#' + n;
+        if (window.location.hash !== newHash) history.replaceState(null, null, newHash);
+    }
+
+    // MONACO
+    if (editorType === 'monaco') {
+        const languageMap = {
+            'py':'python','js':'javascript','html':'html','css':'css','scss':'scss',
+            'java':'java','c':'c','cpp':'cpp','php':'php','sql':'sql','sh':'shell',
+            'md':'markdown','ini':'ini','gitconfig':'ini','less':'less','xml':'xml',
+            'yaml':'yaml','yml':'yaml','json':'json','ts':'typescript','rb':'ruby',
+            'rs':'rust','swift':'swift','perl':'perl','twig':'twig',
+        };
+
+        require.config({ paths: { vs: '{{static "vendor/monaco/vs"}}' } });
+        require(['vs/editor/editor.main'], function () {
+            const lang   = languageMap[getExtension(filePath)] || 'plaintext';
+            const editor = monaco.editor.create(document.getElementById('editor'), {
+                value: fileContent, language: lang,
+                theme: 'vs-dark', automaticLayout: true, lineNumbers: 'on',
+            });
+
+            window._editorLayout = () => editor.layout();
+
+            const line = getHashLine();
+            if (line) {
+                editor.revealLineInCenter(line);
+                editor.setPosition({ lineNumber: line, column: 1 });
+                editor.focus();
+            }
+
+            editor.onDidChangeCursorPosition(() => {
+                const pos = editor.getPosition();
+                if (pos) setHashLine(pos.lineNumber);
+            });
+
+            saveBtn.addEventListener('click', () => {
+                hiddenInput.value = editor.getValue();
+            });
+
+            editor.onDidChangeModelContent(() => { isDirty = true; });
+        });
+    }
+
+    // ACE
+    else if (editorType === 'ace') {
+        const aceModMap = {
+            'py':'python','js':'javascript','html':'html','css':'css','scss':'scss',
+            'java':'java','c':'c','cpp':'c_cpp','php':'php','sql':'sql','sh':'sh',
+            'md':'markdown','ini':'ini','xml':'xml','yaml':'yaml','yml':'yaml',
+            'json':'json','ts':'typescript','rb':'ruby','rs':'rust','swift':'swift',
+            'perl':'perl',
+        };
+
+        const aceEl  = document.getElementById('editor-ace');
+        const editor = ace.edit(aceEl);
+        editor.setTheme('ace/theme/monokai');
+
+        const mode = aceModMap[getExtension(filePath)] || 'text';
+        editor.session.setMode('ace/mode/' + mode);
+        editor.setValue(fileContent, -1);   // -1 = move cursor to start
+        editor.setOptions({ fontSize: '14px', showPrintMargin: false, enableLiveAutocompletion: true });
+
+        window._editorLayout = () => editor.resize();
+
+        const line = getHashLine();
+        if (line) { editor.gotoLine(line, 0, true); }
+
+        editor.selection.on('changeCursor', () => {
+            setHashLine(editor.getCursorPosition().row + 1);
+        });
+
+        saveBtn.addEventListener('click', () => {
+            hiddenInput.value = editor.getValue();
+        });
+    }
+
+    // CODEMIRROR
+ else if (editorType === 'codemirror') {
+    const cmModeMap = {
+        'py':   'text/x-python',
+        'js':   'text/javascript',
+        'html': 'text/html',
+        'css':  'text/css',
+        'php':  'text/x-php',
+        'sh':   'text/x-sh',
+        'sql':  'text/x-sql',
+        'xml':  'application/xml',
+        'yaml': 'text/x-yaml',
+        'yml':  'text/x-yaml',
+        'md':   'text/x-markdown',
+        'json': 'application/json',
+    };
+    const mode    = cmModeMap[getExtension(filePath)] || 'null';
+    const mountEl = document.getElementById('editor-codemirror-mount');
+
+    const cm = CodeMirror(mountEl, {
+        value: fileContent,
+        mode: mode,
+        theme: 'dracula',
+        lineNumbers: true,
+        matchBrackets: true,
+        autoCloseBrackets: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: false,
+        lineWrapping: false,
+        extraKeys: { Tab: (cm) => cm.replaceSelection('    ') },
+    });
+
+    function initCMSize() {
+        const h = isFullscreen ? '100vh' : '90vh';
+        cm.setSize('100%', h);
+        cm.refresh();   // fixes missing cursor
+    }
+    requestAnimationFrame(() => requestAnimationFrame(initCMSize));
+
+    window._editorLayout = () => {
+        const h = editorContainer.classList.contains('fullscreen') ? '100vh' : '90vh';
+        cm.setSize('100%', h);
+        cm.refresh();
+    };
+
+    const line = getHashLine();
+    if (line) {
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            cm.scrollIntoView({ line: line - 1, ch: 0 }, 200);
+            cm.setCursor({ line: line - 1, ch: 0 });
+        }));
+    }
+
+    cm.on('cursorActivity', () => {
+        setHashLine(cm.getCursor().line + 1);
+    });
+
+    fullscreenBtn.addEventListener('click', () => {
+        requestAnimationFrame(() => window._editorLayout());
+    });
+
+    saveBtn.addEventListener('click', () => {
+        hiddenInput.value = cm.getValue();
+    });
+}
+
+    // PLAIN TEXT
+    else {
+        const ta = document.getElementById('editor-text');
+
+        ta.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = ta.selectionStart;
+                const end   = ta.selectionEnd;
+                ta.value = ta.value.substring(0, start) + '    ' + ta.value.substring(end);
+                ta.selectionStart = ta.selectionEnd = start + 4;
+            }
+        });
+
+        saveBtn.addEventListener('click', () => {
+            hiddenInput.value = ta.value;
+        });
+    }
+
+    // UNSAVED CHANGES
+    let isDirty = false;
+
+    if (editorType === 'monaco') {
+        // monaco is async — the listener is set inside the require() callback
+    } else if (editorType === 'ace') {
+        editor.session.on('change', () => { isDirty = true; });
+    } else if (editorType === 'codemirror') {
+        cm.on('change', () => { isDirty = true; });
+    } else {
+        document.getElementById('editor-text').addEventListener('input', () => { isDirty = true; });
+    }
+
+    saveBtn.closest('form').addEventListener('submit', () => { isDirty = false; });
+
+    window.addEventListener('beforeunload', (e) => {
+        if (!isDirty) return;
+        e.preventDefault();
+        e.returnValue = '';
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!isDirty) return;
+        const anchor = e.target.closest('a[href]');
+        if (!anchor) return;
+        const href = anchor.getAttribute('href');
+        if (!href || href.startsWith('#')) return;
+        if (anchor.closest('[x-data]')) return;
+        const confirmed = window.confirm(i18n.unsavedChanges);
+        if (!confirmed) e.preventDefault();
+    });
+
+
+})();
+</script>
+
+<!-- END templates/files/edit_file.html -->
+{{end}}

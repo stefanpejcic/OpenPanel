@@ -1,0 +1,115 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/user/active_sessions.html -->
+
+<!-- page header -->
+<section aria-label="SSH Header" x-data="{ searchQuery: '' }">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Active Sessions"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View all currently active sessions for your account."}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+    </div>
+</div>
+<!-- END page header -->
+
+<section aria-label="Records Table" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
+        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
+            <input
+                x-model="searchQuery"
+                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
+                placeholder="{{.T.Get "Search"}}"
+                type="search"
+            />
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-2 sm:flex-row">
+
+        </div>
+
+    </div>
+
+   <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table id="sessions-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                                <span>{{.T.Get "IP Address"}}</span>
+                                <div class="-space-y-2">
+                                    <a href="#" data-sort-key="ip" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                    <a href="#" data-sort-key="ip" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                                </div>
+                            </div>
+                        </th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                                <span>{{.T.Get "Created On"}}</span>
+                                <div class="-space-y-2">
+                                    <a href="#" data-sort-key="created" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                    <a href="#" data-sort-key="created" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                                </div>
+                            </div>
+                        </th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Status"}}
+                        </th>
+                        <th scope="col" class="w-10 whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Actions"}}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                    {{$root := .}}
+                    {{range .Sessions}}
+                    <tr x-show="searchQuery === '' || '{{.IPAddress}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="ip" data-sort-value="{{.IPAddress}}">
+                            <div class="ps-3">
+                                <div class="text-base font-semibold">{{.IPAddress}}</div>
+                                {{if index $root.UserAllowed "activity"}}
+                                <div class="font-normal text-gray-500">
+                                    <a href="/account/activity?search={{.IPAddress}}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">{{$root.T.Get "View activity logs"}}</a>
+                                </div>
+                                {{end}}
+                            </div>
+                        </td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="created">
+                            {{.CreatedAt}}
+                        </td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div class="flex items-center">
+                                <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div>
+                                Online <span class="text-xs text-gray-400 ml-1">({{.ExpiresIn}})</span>
+                            </div>
+                        </td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            <form action="/account/sessions/terminate/{{.SessionToken}}" method="post">
+                                <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
+                                <button type="submit" class="text-red-600 hover:text-red-900 font-medium">{{$root.T.Get "Terminate"}}</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<script src="/static/js/table-sort.js"></script>
+
+<!-- END templates/user/active_sessions.html -->
+{{end}}

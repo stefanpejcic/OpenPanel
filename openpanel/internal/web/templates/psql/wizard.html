@@ -1,0 +1,225 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/psql/wizard.html -->
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database Wizard"}}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "Create a new PostgreSQL database, set up a user with a secure password, and assign it to the database with all necessary privileges."}}</p>
+    </header>
+</div>
+
+<script src="{{static "js/generator.js"}}"></script>
+
+<!-- START form -->
+<div x-data="dbUserGrant()" x-init="updateGrantCommands()" @input="updateGrantCommands()" class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <form class="mt-8" id="databaseWizardForm">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+  <div class="col-span-full mb-2">
+
+<div class="flex items-center space-x-3 pb-2"><div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">1</div><label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="dbname">{{.T.Get "Create a database"}}<span class="text-red-500 dark:text-red-500">*</span></label></div>
+
+    <div class="flex rounded-lg">
+      <input type="text" x-ref="dbname" x-model="dbname" name="database_name" id="dbname" minlength="1" maxlength="63" pattern="[a-zA-Z0-9_]+" title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-63 characters)."}}" class="relative block w-full appearance-none rounded-l border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" placeholder=" {{.T.Get "Database Name"}}" required>
+
+                        <div class="input-group-append">
+  <button type="button" @click="dbname = generateString(12); updateGrantCommands(); $nextTick(() => $refs.dbname.dispatchEvent(new Event('input', { bubbles: true })))" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+    <i class="bi bi-shuffle"></i>
+  </button>
+                        </div>
+    </div>
+  </div>
+
+<div class="mx-auto my-2 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+  <div class="col-span-full">
+
+<div class="flex items-center space-x-3 pb-2"><div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">2</div><label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="username">{{.T.Get "Create a user"}}<span class="text-red-500 dark:text-red-500">*</span></label></div>
+
+    <div class="flex rounded-lg">
+      <input type="text" x-ref="username" x-model="username" name="db_user" id="username" class="relative block w-full appearance-none rounded-l border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" pattern="[a-zA-Z0-9_]+" minlength="1" maxlength="31" title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters)."}}" placeholder=" {{.T.Get "Database User"}}" required>
+
+                        <div class="input-group-append">
+  <button type="button" @click="username = generateString(12); updateGrantCommands(); $nextTick(() => $refs.username.dispatchEvent(new Event('input', { bubbles: true })))" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+    <i class="bi bi-shuffle"></i>
+  </button>
+                        </div>
+    </div>
+  </div>
+
+<div
+  class="col-span-full mb-2"
+  x-data="passwordStrength({
+    weak: {{toJSON (.T.Get "Weak password")}},
+    medium: {{toJSON (.T.Get "Medium strength password")}},
+    strong: {{toJSON (.T.Get "Strong password")}},
+    tooWeak: {{toJSON (.T.Get "Password does not meet the required strength.")}}
+  }, {{.PasswordStrength}})"
+  x-init="checkStrength()"
+>
+  <div class="flex">
+    <input
+      type="text"
+      name="password"
+      id="password"
+      maxlength="30"
+      minlength="8"
+      placeholder=" {{.T.Get "Password"}}"
+      class="relative block w-full appearance-none rounded-l border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+      x-model="password"
+      x-ref="input"
+      @input="checkStrength()"
+    />
+
+    <div class="input-group-append">
+      <button type="button" id="generatePassword" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+        <i class="bi bi-shuffle"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-2 h-2 rounded bg-gray-200 dark:bg-gray-700 overflow-hidden">
+    <div class="h-full rounded transition-all duration-300"
+      :class="{ 'bg-red-500': strength === 'Weak', 'bg-orange-500': strength === 'Medium', 'bg-green-500': strength === 'Strong', 'w-1/3': strength === 'Weak', 'w-2/3': strength === 'Medium', 'w-full': strength === 'Strong' }"
+      style="width: 0%"
+      :style="{ width: strength === 'Weak' ? '33%' : strength === 'Medium' ? '66%' : strength === 'Strong' ? '100%' : '0%' }"
+    ></div>
+  </div>
+  <p class="mt-1 text-sm font-semibold" :class="{ 'text-red-600 dark:text-red-400': strength === 'Weak', 'text-yellow-600 dark:text-yellow-400': strength === 'Medium', 'text-green-600 dark:text-green-400': strength === 'Strong' }">
+    <span x-text="strengthMessage" class="text-xs"></span>
+  </p>
+</div>
+
+<div class="mx-auto my-2 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+  <div class="col-span-full mb-2">
+
+<div class="flex items-center space-x-3 pb-2"><div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">3</div><label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium">{{.T.Get "Assign user to database"}}</label></div>
+
+    <div class="flex rounded-lg">
+      <pre x-text="grantText" class="text-sm overflow-x-auto"></pre>
+    </div>
+  </div>
+
+      </div>
+
+        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+<div class="md:flex items-center md:justify-end md:space-x-4">
+    <a href="/postgresql" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">
+        {{.T.Get "Back to Databases"}}
+    </a>
+    <button type="button" id="createAndAssign" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+        {{.T.Get "Create DB, User, and Grant Privileges"}}
+        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+        </svg>
+    </button>
+</div>
+
+    </form>
+</div>
+<!-- END form -->
+
+<!-- START js  -->
+<script>
+function displaySuccessToast() {
+    const message = {{toJSON (.T.Get "Process completed!")}};
+    showToast(message, 'success');
+}
+
+function validateFormData() {
+    const dbname = document.getElementById("dbname").value;
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (!dbname || !username || !password) {
+        return { valid: false, message: {{toJSON (.T.Get "All fields are required")}} };
+    }
+
+    const passwordPattern = /^[a-zA-Z0-9_]+$/;
+    if (!passwordPattern.test(password)) {
+        return { valid: false, message: {{toJSON (.T.Get "Password can only contain letters, numbers, and underscores")}} };
+    }
+
+    if (password.length < 8) {
+        return { valid: false, message: {{toJSON (.T.Get "Password must be at least 8 characters long")}} };
+    }
+
+    return { valid: true, message: '' };
+}
+
+const createAndAssignButton = document.getElementById("createAndAssign");
+createAndAssignButton.addEventListener("click", function (event) {
+    event.preventDefault();
+
+    const validation = validateFormData();
+    if (!validation.valid) {
+        showToast(validation.message, 'error');
+        return;
+    }
+
+    const formElement = document.getElementById("databaseWizardForm");
+    const formData = new FormData(formElement);
+
+    createAndAssignButton.disabled = true;
+    createAndAssignButton.innerText = {{toJSON (.T.Get "Creating...")}};
+    document.getElementById("toAddActive").classList.add("active");
+
+    fetch("/postgresql/new", { method: "POST", body: formData, headers: { 'X-CSRF-TOKEN': csrf_token } })
+        .then(() => {
+            return fetch("/postgresql/user", { method: "POST", body: formData, headers: { 'X-CSRF-TOKEN': csrf_token } });
+        })
+        .then(() => {
+            return fetch("/postgresql/assign", { method: "POST", body: formData, headers: { 'X-CSRF-TOKEN': csrf_token } });
+        })
+        .then(() => {
+            displaySuccessToast();
+            createAndAssignButton.disabled = false;
+            createAndAssignButton.innerText = {{toJSON (.T.Get "Create DB, User, and Grant Privileges")}};
+            document.getElementById("toAddActive").classList.remove("active");
+        })
+        .catch(error => {
+            createAndAssignButton.disabled = false;
+            createAndAssignButton.innerText = {{toJSON (.T.Get "Retry creating Database and User")}};
+            console.error("Error:", error);
+            showToast({{toJSON (.T.Get "An error occurred while creating the database.")}}, 'error');
+            document.getElementById("toAddActive").classList.remove("active");
+        });
+});
+
+document.getElementById("generatePassword").addEventListener("click", function () {
+    const generatedPassword = generateString(12);
+    const passwordField = document.getElementById("password");
+    passwordField.value = generatedPassword;
+    passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+    }
+});
+</script>
+
+<script>
+  function dbUserGrant() {
+    return {
+      dbname: '',
+      username: '',
+      grantText: '',
+
+      updateGrantCommands() {
+        const db = this.dbname || '[database]';
+        const user = this.username || '[user]';
+
+        this.grantText = `GRANT ALL PRIVILEGES ON DATABASE "${db}" TO "${user}";`;
+      }
+    }
+  }
+</script>
+<!-- END js -->
+
+<!-- END templates/psql/wizard.html -->
+{{end}}

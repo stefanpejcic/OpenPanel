@@ -1,0 +1,90 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/user/passkeys.html -->
+
+<!-- page header -->
+<section aria-label="Passkeys">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Passkeys"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Sign in without a password using a fingerprint, face scan, screen lock, or a hardware security key."}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        <button id="add-passkey-btn" type="button" {{if .UnavailableReason}}disabled{{end}} class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Add a passkey"}}</button>
+    </div>
+</div>
+<!-- END page header -->
+
+{{if .UnavailableReason}}
+<div class="sm:mx-auto sm:max-w-2xl mt-6 rounded-lg bg-amber-50 p-4 ring-1 ring-inset ring-amber-200 dark:bg-amber-400/10 dark:ring-amber-900">
+    <p class="text-sm leading-6 text-amber-700 dark:text-amber-400">{{.T.Get .UnavailableReason}}</p>
+</div>
+{{end}}
+
+<div id="passkeys-error" class="hidden sm:mx-auto sm:max-w-2xl mt-6 flex items-center space-x-2.5 rounded bg-red-50 p-4 dark:bg-red-500/10">
+    <p class="text-sm text-red-600 dark:text-red-500" id="passkeys-error-text"></p>
+</div>
+
+<!-- list -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard">
+    {{if .Passkeys}}
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-4 py-3">{{.T.Get "Name"}}</th>
+                <th scope="col" class="px-4 py-3">{{.T.Get "Added"}}</th>
+                <th scope="col" class="px-4 py-3">{{.T.Get "Last used"}}</th>
+                <th scope="col" class="px-4 py-3"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Passkeys}}
+            <tr class="border-b dark:border-gray-700">
+                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{.Name}}</td>
+                <td class="px-4 py-3">{{.CreatedAt}}</td>
+                <td class="px-4 py-3">{{if .LastUsedAt.Valid}}{{.LastUsedAt.String}}{{else}}{{$.T.Get "Never"}}{{end}}</td>
+                <td class="px-4 py-3 text-right">
+                    <form method="POST" action="/account/passkeys/{{.ID}}/delete" onsubmit="return confirm('{{$.T.Get "Remove this passkey?"}}');">
+                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                        <button type="submit" class="text-red-600 dark:text-red-500 hover:underline">{{$.T.Get "Remove"}}</button>
+                    </form>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No passkeys registered yet."}}</p>
+    {{end}}
+</div>
+<!-- END list -->
+
+<script src="/static/js/passkeys.js"></script>
+<script>
+    document.getElementById('add-passkey-btn').addEventListener('click', async function () {
+        const errorBox = document.getElementById('passkeys-error');
+        const errorText = document.getElementById('passkeys-error-text');
+        errorBox.classList.add('hidden');
+
+        if (!window.PublicKeyCredential) {
+            errorText.textContent = "{{.T.Get "Passkeys are not available in this browser or context."}}";
+            errorBox.classList.remove('hidden');
+            return;
+        }
+
+        const name = prompt("{{.T.Get "Name this passkey (e.g. MacBook Touch ID) "}}");
+        if (name === null) return;
+
+        try {
+            await registerPasskey(name);
+            window.location.reload();
+        } catch (e) {
+            errorText.textContent = e.message;
+            errorBox.classList.remove('hidden');
+        }
+    });
+</script>
+
+<!-- END templates/user/passkeys.html -->
+{{end}}

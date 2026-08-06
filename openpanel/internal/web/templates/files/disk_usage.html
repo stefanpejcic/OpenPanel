@@ -1,0 +1,235 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/files/disk_usage.html -->
+
+<!-- page header -->
+<section
+    aria-label="Disk Usage Header"
+    x-data="{ searchQuery: '' }"
+>
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="flex items-center gap-x-3">
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Disk Usage"}}</h1>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Disk usage is the amount of space that is used by the content of your sites, this includes databases, files, videos, images, emails and pages."}}</p>
+        </div>
+
+        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+            <button type="button" onclick="location.reload(true); return false;" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 hidden dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Reload Data"}}</button>
+        </div>
+    </div>
+</section>
+<!-- END page header -->
+
+<div class="m-6">
+    <nav aria-label="Breadcrumb" class="ml-2">
+        <ol role="list" class="flex items-center space-x-3 text-sm">
+            <li class="flex">
+                <a class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300" href="/disk-usage/">/</a>
+            </li>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true">
+                <path d="m9 18 6-6-6-6"></path>
+            </svg>
+            {{range .Breadcrumbs}}
+                <li class="flex">
+                    <a class="text-gray-900 dark:text-gray-50" href="{{.Path}}">{{.Name}}</a>
+                </li>
+                {{if not .Last}}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true">
+                    <path d="m9 18 6-6-6-6"></path>
+                </svg>
+                {{end}}
+            {{end}}
+        </ol>
+    </nav>
+</div>
+
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 m-6">
+
+    <!-- folders table -->
+    <div class="relative w-full col-span-2 rounded-lg border text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900">
+                    <table id="folders_to_navigate" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+            <thead>
+                <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                    <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                        {{.T.Get "Directory"}}
+                    </th>
+                    <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                        {{.T.Get "Size"}}
+                    </th>
+                    <th scope="col" class="hidden whitespace-nowrap border-b px-4 py-3.5 text-left text-sm text-right font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                        {{.T.Get "Actions"}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                {{if .ShowUpLink}}
+                    <tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                        <td colspan="3" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            <a id="goUp" href="{{.UpLink}}">
+                                <i class="bi bi-arrow-up-circle"></i> {{.T.Get "Up One Level"}}
+                            </a>
+                        </td>
+                    </tr>
+                {{end}}
+
+                {{range .Rows}}
+                        <tr class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                                <a href="{{.Href}}">
+                                    <i class="bi bi-folder-fill" style="color: orange;"></i> {{.Directory}}
+                                </a>
+                            </td>
+                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Count}}</td>
+                            <td class="hidden whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 text-end">
+                                {{if .FileManagerHref}}
+                                <a href="{{.FileManagerHref}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+                                    {{$.T.Get "File Manager"}}
+                                </a>
+                                {{end}}
+                            </td>
+                        </tr>
+                {{end}}
+            </tbody>
+                    </table>
+    </div>
+    <!-- END folders table -->
+
+    <!-- chart -->
+    <div class="relative w-full col-span-3 rounded-lg border p-4 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900">
+            <canvas id="folderChart"></canvas>
+            <script src="{{static "vendor/chartjs/chart.umd.js"}}"></script>
+    </div>
+    <!-- END chart -->
+</div>
+
+
+
+<!-- js for chart -->
+<script>
+  function extractDataFromTable() {
+    const data = [];
+    const tableRows = document.querySelectorAll("#folders_to_navigate tbody tr");
+
+    tableRows.forEach((row) => {
+      const columns = row.querySelectorAll("td");
+
+      if (columns.length >= 2) {
+        const directory = columns[0].textContent.trim();
+        const sizeText = columns[1].textContent.trim();
+        const disk = parseHumanReadableSize(sizeText);
+
+        if (directory !== "Up One Level") {
+          data.push({ directory, disk });
+        }
+      }
+    });
+
+    return data;
+  }
+
+  function parseHumanReadableSize(sizeStr) {
+    const sizeRegex = /^(\d+(\.\d+)?)\s*([BKMGT])?B?$/;
+    const match = sizeStr.match(sizeRegex);
+
+    if (!match) {
+      return sizeStr;
+    }
+
+    const size = parseFloat(match[1]);
+    const unit = match[3];
+
+    switch (unit) {
+      case 'B':
+        return size / 1024 / 1024;
+      case 'K':
+        return size / 1024;
+      case 'M':
+        return size;
+      case 'G':
+        return size * 1024;
+      case 'T':
+        return size * 1024 * 1024;
+      default:
+        return size;
+    }
+  }
+
+    function createChart(data) {
+      const labels = data.map((entry) => entry.directory);
+      const values = data.map((entry) => entry.disk);
+
+      const ctx = document.getElementById("folderChart").getContext("2d");
+
+      const chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Disk Usage (MB)",
+              data: values,
+              backgroundColor: "#506fd9",
+            },
+          ],
+        },
+      });
+    }
+
+    function initializeChart() {
+      const tableData = extractDataFromTable();
+      createChart(tableData);
+      RefreshOnBackLink();
+    }
+
+    function RefreshOnBackLink() {
+      const goUpElement = document.getElementById('goUp');
+
+      if (goUpElement) {
+        goUpElement.addEventListener('click', async function() {
+          const toastMessage = `{{.T.Get "Calculating disk usage for parent directory.."}}`;
+          showToast(toastMessage, 'loading');
+
+          var currentUrl = window.location.href;
+          var parts = currentUrl.split('/');
+          parts.pop();
+          var newUrl = parts.join('/');
+
+          try {
+            const response = await fetch(newUrl);
+
+            if (!response.ok) {
+              throw new Error(`Failed to fetch ${newUrl}`);
+            }
+
+            const resultHtml = await response.text();
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(resultHtml, 'text/html');
+            const mainScopeContent = doc.getElementById("main-scope")?.innerHTML;
+
+            const mainScopeElement = document.getElementById("main-scope");
+            if (mainScopeElement) {
+              mainScopeElement.innerHTML = mainScopeContent || '';
+            }
+
+            history.pushState({}, '', newUrl);
+
+            initializeChart();
+
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        });
+      }
+    }
+
+    initializeChart();
+</script>
+<!-- END js for chart -->
+
+<!-- END templates/files/disk_usage.html -->
+{{end}}

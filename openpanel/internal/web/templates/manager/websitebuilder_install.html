@@ -1,0 +1,399 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/manager/websitebuilder_install.html -->
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header class="flex items-center justify-between gap-4">
+        <div>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Website Builder"}}</h1>
+            <p id="installDescription" class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Build a new HTML website using a drag-and-drop builder."}}</p>
+        </div>
+        <div id="headerRing" class="hidden flex-shrink-0">
+            <div class="relative w-12 h-12">
+                <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" stroke-width="10" class="dark:stroke-gray-700"/><circle id="progressRing" cx="50" cy="50" r="42" fill="none" stroke="url(#wbRingGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9" style="transition: stroke-dashoffset 0.6s ease"/><defs><linearGradient id="wbRingGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs></svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span id="progressPercent" class="text-xs font-bold text-gray-900 dark:text-gray-50">0%</span>
+                </div>
+            </div>
+        </div>
+    </header>
+</div>
+
+{{if .Domains}}
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6" id="toAddActive">
+    <form class="space-y-3" id="installForm" action="/website-builder/install">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+        <div class="flex items-center gap-2.5 mb-2">
+            <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">1</div>
+            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domain & location"}}</span>
+        </div>
+
+        <div class="mb-1">
+            <label class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="domain_id">
+                {{.T.Get "Domain"}}<span class="text-red-500">*</span>
+            </label>
+            <div class="flex rounded-lg shadow-sm">
+                <select name="domain_id" id="domain_id" onchange="updateDocroot()"
+                    class="peer flex-1 min-w-0 cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    <option selected disabled value="">{{.T.Get "Select a domain"}}</option>
+                    {{range .Domains}}
+                        <option class="punycode" docroot="{{.Docroot}}" value="{{.DomainID}}">{{.DomainURL}}</option>
+                    {{end}}
+                </select>
+                <input type="text" name="subdirectory" id="subdirectory" placeholder="{{.T.Get "subfolder"}}" oninput="syncSubdirectory()"
+                    class="w-36 appearance-none rounded-r border-t border-b border-r px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+            </div>
+            <p class="mt-1.5 text-xs text-gray-400 dark:text-gray-500">{{.T.Get "Leave subfolder blank to install at the domain root"}}</p>
+        </div>
+
+        <div class="flex items-center gap-2 px-3 py-2 rounded bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="orange" class="text-amber-500 flex-shrink-0" viewBox="0 0 16 16"><path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.19a2 2 0 0 1 1.45.63l.26.28a2 2 0 0 0 1.45.63H14a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3.87z"/></svg>
+            <span class="text-xs font-mono text-gray-500 dark:text-gray-400 truncate"><span id="path">/var/www/html/</span><span id="display_subdirectory"></span></span>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-between gap-3 pt-1">
+        <a href="/auto-installer"
+            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 whitespace-nowrap">
+            {{.T.Get "← Back"}}
+        </a>
+        <button type="submit" id="installButton"
+            class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-center text-sm font-medium shadow-sm transition-all border-black bg-black text-white hover:bg-gray-800 gap-x-1.5 whitespace-nowrap">
+            {{.T.Get "Open Website Builder"}}
+            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>
+        </button>
+    </div>
+
+    </form>
+</div>
+
+<div id="progressUI" class="hidden sm:mx-auto sm:max-w-2xl px-6 py-4 m-6">
+
+  <div class="grid grid-cols-1 gap-2" id="stepsContainer">
+
+      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" id="step-create-files" data-tooltip="{{.T.Get "Creates the destination folder and writes the initial index.html and style.css files."}}">
+        <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
+          <span class="step-icon flex-shrink-0"></span>{{.T.Get "Creating files"}}
+        </span>
+      </div>
+
+      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" id="step-perms" data-tooltip="{{.T.Get "Sets file permissions to 755 so the web server and PHP can read and serve them."}}">
+        <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
+          <span class="step-icon flex-shrink-0"></span>{{.T.Get "Setting file permissions"}}
+        </span>
+      </div>
+
+      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" id="step-owner" data-tooltip="{{.T.Get "Sets ownership of all files to the correct system user."}}">
+        <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
+          <span class="step-icon flex-shrink-0"></span>{{.T.Get "Setting file ownership"}}
+        </span>
+      </div>
+
+      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" id="step-save" data-tooltip="{{.T.Get "Records the new website in the database so it appears in Site Manager."}}">
+        <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
+          <span class="step-icon flex-shrink-0"></span>{{.T.Get "Saving to Site Manager"}}
+        </span>
+      </div>
+
+    </div>
+
+</div>
+
+<script>
+let _installDomain = '';
+let _installUrl = '';
+let _hangTimer = null;
+
+function _setDescription(html) {
+  const el = document.getElementById('installDescription');
+  if (el) el.innerHTML = html;
+}
+
+function startInstall(domain) {
+  _installDomain = domain;
+  document.getElementById('headerRing').classList.remove('hidden');
+  _setDescription({{toJSON (.T.Get "Building website for")}} + ` <span class="font-mono text-blue-500">${domain}</span>`);
+
+  if (_hangTimer) clearTimeout(_hangTimer);
+  _hangTimer = setTimeout(() => {
+    _setDescription({{toJSON (.T.Get "Build process hanged for")}} + ` <span class="font-mono text-blue-500">${domain}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-600 dark:text-blue-400 hover:underline">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
+  }, 5 * 60 * 1000);
+}
+
+function _clearHangTimer() {
+  if (_hangTimer) { clearTimeout(_hangTimer); _hangTimer = null; }
+}
+
+function showInstallError(domain) {
+  _clearHangTimer();
+  _setDescription({{toJSON (.T.Get "Build process failed for")}} + ` <span class="font-mono text-blue-500">${domain}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-600 dark:text-blue-400 hover:underline">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
+}
+
+function resetDescription() {
+  _clearHangTimer();
+  document.getElementById('headerRing').classList.add('hidden');
+  _setDescription({{toJSON (.T.Get "Build a new HTML website using a drag-and-drop builder.")}});
+}
+
+function updateRing(pct) {
+  const circ = 263.9;
+  const ring = document.getElementById('progressRing');
+  if (ring) ring.style.strokeDashoffset = circ - (circ * pct / 100);
+  const pctEl = document.getElementById('progressPercent');
+  if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+}
+
+const ICON_PENDING = `<svg class="size-5 shrink-0 text-gray-300 dark:text-gray-600" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" opacity=".25"/><circle cx="12" cy="12" r="3"/></svg>`;
+
+const ICON_SPIN = `<svg class="size-5 shrink-0 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="20" stroke-linecap="round" opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`;
+
+const ICON_DONE = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="size-5 shrink-0 text-emerald-500 dark:text-emerald-400"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path></svg>`;
+
+const ICON_ERROR = `<svg class="size-5 shrink-0 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"/></svg>`;
+
+const WB_STEPS = [
+  { id: 'step-create-files', triggers: ['Creating files'] },
+  { id: 'step-perms',        triggers: ['Setting files permissions'] },
+  { id: 'step-owner',        triggers: ['Setting files owner'] },
+  { id: 'step-save',         triggers: ['Saving website information'] },
+];
+
+const TOTAL_STEPS = WB_STEPS.length;
+let currentStepIndex = -1;
+
+function _icon(el)  { return el.querySelector('.step-icon'); }
+function _label(el) { return el.querySelector('.step-label'); }
+
+function _setState(el, state, labelText) {
+  const icon  = _icon(el);
+  const label = _label(el);
+
+  const states = {
+    pending: {
+      row:   'flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors',
+      label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500',
+      svg:   ICON_PENDING,
+    },
+    active: {
+      row:   'flex items-center justify-between rounded bg-blue-50 p-3 dark:bg-blue-900/20 transition-colors',
+      label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-900 dark:text-gray-50',
+      svg:   ICON_SPIN,
+    },
+    done: {
+      row:   'flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors',
+      label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-500 dark:text-gray-400',
+      svg:   ICON_DONE,
+    },
+    error: {
+      row:   'flex items-center justify-between rounded bg-red-50 p-3 dark:bg-red-900/20 transition-colors',
+      label: 'step-label font-medium text-sm flex items-center gap-3 text-red-600 dark:text-red-400',
+      svg:   ICON_ERROR,
+    },
+  };
+
+  const cfg = states[state];
+  el.className = 'step-row ' + cfg.row;
+  label.className = cfg.label;
+  icon.innerHTML = cfg.svg;
+  if (labelText) {
+    const textNodes = [...label.childNodes].filter(n => n.nodeType === Node.TEXT_NODE);
+    if (textNodes.length) textNodes[textNodes.length - 1].textContent = labelText;
+    else label.appendChild(document.createTextNode(labelText));
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.step-row[data-tooltip]').forEach(row => {
+    const tip = document.createElement('div');
+    tip.className = 'absolute right-0 bottom-full mb-2 z-50 w-72 rounded bg-gray-900 p-3 text-xs text-white shadow-xl ring-1 ring-white/10 pointer-events-none';
+    tip.style.display = 'none';
+    tip.innerHTML = `<div class="leading-relaxed opacity-90">${row.dataset.tooltip}</div>`;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'relative flex items-center flex-shrink-0';
+
+    const questionIcon = document.createElement('div');
+    questionIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-help transition-colors" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/></svg>`;
+
+    wrap.appendChild(questionIcon);
+    wrap.appendChild(tip);
+    row.appendChild(wrap);
+
+    questionIcon.addEventListener('mouseenter', () => { tip.style.display = 'block'; });
+    questionIcon.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+  });
+});
+
+function advanceTo(stepIndex, statusText) {
+  if (stepIndex < currentStepIndex) return;
+  if (stepIndex === currentStepIndex) return;
+
+  for (let i = Math.max(0, currentStepIndex); i < stepIndex; i++) {
+    const el = document.getElementById(WB_STEPS[i].id);
+    if (el) _setState(el, 'done', null);
+  }
+
+  const step = WB_STEPS[stepIndex];
+  const el = document.getElementById(step.id);
+  if (el) {
+    _setState(el, 'active', null);
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  currentStepIndex = stepIndex;
+  updateRing(Math.round((stepIndex / TOTAL_STEPS) * 100));
+}
+
+function markAllDone() {
+  WB_STEPS.forEach(s => { const el = document.getElementById(s.id); if (el) _setState(el, 'done', null); });
+  updateRing(100);
+}
+
+function markStepError(stepIndex) {
+  const el = document.getElementById(WB_STEPS[Math.max(0, stepIndex)].id);
+  if (el) _setState(el, 'error', null);
+}
+
+function matchStep(statusText) {
+  for (let i = 0; i < WB_STEPS.length; i++) {
+    if (WB_STEPS[i].triggers.some(t => statusText.includes(t))) return i;
+  }
+  return -1;
+}
+
+function retryInstall() {
+  resetDescription();
+  document.getElementById('progressUI').classList.add('hidden');
+  document.getElementById('toAddActive').classList.remove('hidden');
+  const button = document.getElementById("installButton");
+  button.disabled = false;
+  button.innerHTML = {{toJSON (.T.Get "Open Website Builder")}} + `<svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>`;
+}
+
+document.getElementById("installForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  const domainSelect = document.getElementById('domain_id');
+
+  if (domainSelect.selectedIndex === 0) {
+    showToast({{toJSON (.T.Get "Please select a domain name.")}}, 'warning');
+    return;
+  }
+
+  const selectedOption = domainSelect.options[domainSelect.selectedIndex];
+  const subdirectoryFieldValue = document.getElementById('subdirectory').value.trim();
+  const domain = encodeURIComponent(selectedOption.text);
+  _installUrl = '/website-builder/edit?domain=' + domain;
+  if (subdirectoryFieldValue !== '') {
+    _installUrl += '/' + encodeURIComponent(subdirectoryFieldValue);
+  }
+
+  const installTarget = subdirectoryFieldValue ? `${selectedOption.text}/${subdirectoryFieldValue}` : selectedOption.text;
+
+  document.getElementById("toAddActive").classList.add("hidden");
+  const progressUI = document.getElementById("progressUI");
+  progressUI.classList.remove("hidden");
+
+  currentStepIndex = -1;
+  WB_STEPS.forEach(s => { const el = document.getElementById(s.id); if (el) _setState(el, 'pending', null); });
+  updateRing(0);
+  startInstall(installTarget);
+
+  const button = document.getElementById("installButton");
+  button.disabled = true;
+
+  showToast({{toJSON (.T.Get "Creating website. Please wait for the process to finish.")}}, 'loading');
+
+  const formData = new FormData(this);
+
+  fetch('/website-builder/install', { method: 'POST', body: formData })
+    .then(response => {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+
+      function read() {
+        reader.read().then(({ done, value }) => {
+          if (done) { return; }
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n').filter(Boolean);
+
+          lines.forEach(line => {
+            try {
+              const data = JSON.parse(line);
+
+              if (data.status) {
+                const matched = matchStep(data.status);
+                if (matched >= 0) advanceTo(matched, data.status);
+
+                if (data.status.includes('Website creation completed')) {
+                  markAllDone();
+                  updateRing(100);
+                  _clearHangTimer();
+                  showToast(data.status, 'success');
+                  setTimeout(() => { window.location.href = _installUrl; }, 2000);
+                }
+              } else if (data.error) {
+                markStepError(currentStepIndex);
+                showInstallError(_installDomain);
+                showToast(`${data.error} — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">Retry</a>`, 'error');
+                button.disabled = false;
+              }
+            } catch(e) { /* non-JSON line, ignore */ }
+          });
+
+          read();
+        }).catch(streamErr => {
+          markStepError(currentStepIndex);
+          showInstallError(_installDomain);
+          showToast({{toJSON (.T.Get "Connection lost during installation.")}} + ` — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">Retry</a>`, 'error');
+          button.disabled = false;
+          console.error("Stream read error:", streamErr);
+        });
+      }
+      read();
+    })
+    .catch(error => {
+      markStepError(currentStepIndex);
+      showInstallError(_installDomain);
+      showToast({{toJSON (.T.Get "Fetch error. Please try again.")}}, 'error');
+      button.disabled = false;
+      console.error("Fetch error:", error);
+    });
+});
+</script>
+
+<script>
+    function syncSubdirectory() {
+        const subdirectoryValue = document.getElementById('subdirectory').value;
+        document.getElementById('display_subdirectory').textContent = subdirectoryValue ? '/' + subdirectoryValue : '';
+    }
+
+    function updateDocroot() {
+        const domainSelect = document.getElementById('domain_id');
+        const selectedOption = domainSelect.options[domainSelect.selectedIndex];
+        const docroot = selectedOption.getAttribute('docroot');
+        document.getElementById('path').textContent = docroot || '/var/www/html/';
+    }
+
+    window.onload = function() {
+        const domainSelect = document.getElementById('domain_id');
+        if (domainSelect) {
+            const selectedOption = domainSelect.options[domainSelect.selectedIndex];
+            if (selectedOption) {
+                const docroot = selectedOption.getAttribute('docroot');
+                document.getElementById('path').textContent = docroot || '/var/www/html/';
+            }
+        }
+    };
+</script>
+
+{{else}}
+    {{template "no_domain" .}}
+{{end}}
+
+<!-- END templates/manager/websitebuilder_install.html -->
+{{end}}

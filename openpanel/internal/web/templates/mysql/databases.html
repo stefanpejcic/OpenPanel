@@ -1,0 +1,744 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/mysql/databases.html -->
+
+<section aria-label="Databases Table" x-data="{ searchQuery: '' }">
+    <div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:flex sm:items-center sm:justify-between sm:p-6 lg:p-8" x-data="{tooltip: false }">
+        <div>
+            <div class="flex relative items-center gap-x-3"><h1 class="flex gap-2 text-lg font-semibold text-gray-900 dark:text-gray-50">{{if eq .Service "mariadb"}}MariaDB{{else}}MySQL{{end}} {{.T.Get "Databases"}} <span class="flex items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 cursor-pointer" @mouseenter="tooltip = true" @mouseleave="tooltip = false">{{.Service}}</span></h1>
+
+                <div x-show="tooltip" x-transition x-cloak
+                    class="absolute z-10 mt-2 w-84 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg"
+                    style="top: 100%; left: 0;">
+                    <span>{{.T.Get "To connect to the database, do not use localhost or 127.0.0.1. Instead, use:"}}</span>
+                    <ul>
+                        <li>{{.T.Get "server:"}} <span class="text-lg">{{.Service}}</span></li>
+                        <li>{{.T.Get "port:"}} <span class="text-lg">3306</span></li>
+                    </ul>
+                </div>
+            </div>
+
+                <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "Total databases:"}} <span id="total_records_count" class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white">{{len .Databases}}</span></p>
+        </div>
+
+        <div class="mt-2 gap-2 sm:mt-0">
+
+        <p class="text-sm text-gray-500 dark:text-gray-500">
+            <input class="form-check-input mr-2" type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
+            <label class="form-check-label font-medium text-xs fs-sm" for="showAllCheckbox">{{.T.Get "Show system databases"}}</label>
+        </p>
+
+        <p class="text-sm text-gray-500 dark:text-gray-500 flex">
+            <span>
+                <input class="form-check-input mr-2" type="checkbox" role="switch" id="showSizesCheckbox">
+                <label class="form-check-label font-medium text-xs fs-sm" for="showSizesCheckbox">{{.T.Get "Show database sizes"}}</label>
+            </span>
+            <span id="size-unit-wrapper" style="display:none !important;">
+                <select id="display-size" class="form-select ml-1 block bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="bytes" {{if eq .Unit "bytes"}}selected{{end}}> B</option>
+                    <option value="kb" {{if eq .Unit "kb"}}selected{{end}}>KB</option>
+                    <option value="mb" {{if eq .Unit "mb"}}selected{{end}}>MB</option>
+                    <option value="gb" {{if eq .Unit "gb"}}selected{{end}}>GB</option>
+                </select>
+            </span>
+        </p>
+        </div>
+    </div>
+
+
+<script>
+const showAllCheckbox    = document.getElementById('showAllCheckbox');
+const showSizesCheckbox  = document.getElementById('showSizesCheckbox');
+const displaySizeSelect  = document.getElementById('display-size');
+const sizeUnitWrapper    = document.getElementById('size-unit-wrapper');
+
+function getSelectedUnit() {
+    return displaySizeSelect.value;
+}
+
+function updateURL() {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+
+    if (showAllCheckbox.checked) {
+        urlSearchParams.set('show_all', 'true');
+        sessionStorage.setItem('show_all', 'true');
+    } else {
+        urlSearchParams.delete('show_all');
+        sessionStorage.removeItem('show_all');
+    }
+
+    const unit = getSelectedUnit();
+    if (unit) {
+        urlSearchParams.set('unit', unit);
+        sessionStorage.setItem('unit', unit);
+    } else {
+        urlSearchParams.delete('unit');
+        sessionStorage.removeItem('unit');
+    }
+
+    window.location.search = urlSearchParams.toString();
+}
+
+
+function setSizeColumnVisible(visible) {
+    const sizeHeader = document.getElementById('size-column-header');
+    if (sizeHeader) sizeHeader.style.display = visible ? '' : 'none';
+
+    document.querySelectorAll('.db_size_cell').forEach(cell => {
+        cell.style.display = visible ? '' : 'none';
+    });
+
+    sizeUnitWrapper.style.setProperty('display', visible ? 'flex' : 'none', 'important');
+}
+
+let sizesFetched = false;
+
+function populateDatabasesTable() {
+    const showAllValue = sessionStorage.getItem('show_all');
+    const unit         = sessionStorage.getItem('unit') || displaySizeSelect.value;
+    const url          = `/json/mysql-size?unit=${unit}${showAllValue ? '&show_all' : ''}`;
+
+    const sizeUnitSpan = document.getElementById('size_unit');
+    if (sizeUnitSpan) {
+        sizeUnitSpan.textContent = `(${unit.toUpperCase()})`;
+    }
+
+    document.querySelectorAll('.db_size_cell').forEach(cell => {
+        cell.textContent = '…';
+    });
+
+    fetch(url, {
+        method: 'GET',
+        headers: { 'X-CSRF-Token': csrf_token }
+    })
+        .then(res => res.json())
+        .then(sizeResponse => {
+            sizesFetched = true;
+            document.querySelectorAll('#databases-table tbody tr').forEach(row => {
+                const dbName      = row.querySelector('td').textContent.trim();
+                const dbSizeInfo  = sizeResponse.find(item => item.Database === dbName);
+
+                let sizeValue = 'N/A';
+                if (dbSizeInfo) {
+                    for (const key in dbSizeInfo) {
+                        if (key.toLowerCase().includes('size')) {
+                            sizeValue = dbSizeInfo[key];
+                            break;
+                        }
+                    }
+                }
+
+                const sizeCell = row.querySelector('.db_size_cell');
+                if (sizeCell) sizeCell.textContent = sizeValue;
+            });
+        })
+        .catch(function () {
+            console.error('Failed to fetch database size info');
+            document.querySelectorAll('.db_size_cell').forEach(cell => {
+                cell.textContent = 'Error';
+            });
+        });
+}
+
+showSizesCheckbox.addEventListener('change', function () {
+    const checked = this.checked;
+    sessionStorage.setItem('show_sizes', checked ? 'true' : '');
+    setSizeColumnVisible(checked);
+
+    if (checked && !sizesFetched) {
+        populateDatabasesTable();
+    }
+});
+
+displaySizeSelect.addEventListener('change', function () {
+    sessionStorage.setItem('unit', this.value);
+    if (showSizesCheckbox.checked) {
+        sizesFetched = false;
+        populateDatabasesTable();
+    }
+});
+
+showAllCheckbox.addEventListener('change', updateURL);
+
+window.addEventListener('load', () => {
+    const showAllValue  = sessionStorage.getItem('show_all');
+    const unitValue     = sessionStorage.getItem('unit');
+    const showSizes     = sessionStorage.getItem('show_sizes');
+
+    if (showAllValue === 'true') showAllCheckbox.checked = true;
+    if (unitValue)               displaySizeSelect.value = unitValue;
+
+    if (showSizes === 'true') {
+        showSizesCheckbox.checked = true;
+        setSizeColumnVisible(true);
+        populateDatabasesTable();
+    } else {
+        setSizeColumnVisible(false);
+    }
+});
+</script>
+
+
+    <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
+        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
+            <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-2 sm:flex-row">
+            {{if eq .ContainerState "running"}}
+            <a href="/mysql/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "New Database"}}</a>
+            <a href="/mysql/wizard" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Database Wizard"}}</a>
+            {{else}}
+            <span title="{{.T.Get "Unavailable while the service is not running."}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm cursor-not-allowed opacity-50 border-black bg-black text-white sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "New Database"}}</span>
+            <span title="{{.T.Get "Unavailable while the service is not running."}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm cursor-not-allowed opacity-50 border-black bg-black text-white sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "Database Wizard"}}</span>
+            {{end}}
+        </div>
+    </div>
+
+   <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800 min-h-[90vh]">
+            <table id="databases-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Database Name") "Key" "database" "Type" "string")}}</th>
+                        <th id="size-column-header" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800" style="display:none;">{{.T.Get "Size"}} <span id="size_unit">({{.Unit}})</span></th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Assigned Users") "Key" "assigned_users" "Type" "string")}}</th>
+                        <th scope="col" class="w-10 whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
+                    </tr>
+                </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+    {{if eq .ContainerState "running"}}
+        {{if eq .HealthStatus "healthy"}}
+            {{if .Databases}}
+                {{range .Databases}}
+                {{$db := .}}
+                <tr x-show="searchQuery === '' || {{toJSON $db.Database}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $db.AssignedUsers}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                    <td class="p-4 text-sm relative whitespace-nowrap font-medium text-gray-900 dark:text-gray-50 text-left select-text" data-sort-col="database">{{$db.Database}}</td>
+                    <td class="db_size_cell whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" style="display:none;">—</td>
+                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="assigned_users" data-sort-value="{{$db.AssignedUsers}}">
+                        {{if $db.AssignedUsers}}
+                        {{$users := split $db.AssignedUsers ","}}
+                        {{range $i, $u := $users}}{{if $i}}, {{end}}{{$user := trimSpace $u}}<a href="/mysql/assign?database_name={{$db.Database}}&database_user={{$user}}" title="{{$.T.Get "Manage privileges"}}" class="text-blue-500 hover:underline">{{$user}}</a>{{end}}
+                        {{end}}
+                    </td>
+<td class="whitespace-nowrap text-sm text-gray-600 dark:text-gray-400" x-data="dbActionModal()">
+
+    <!-- optimize / repair modal -->
+<template x-teleport="body">
+    <div x-show="open" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center"
+         style="background: rgba(0,0,0,0.5);"
+         @keydown.escape.window="open = false">
+
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl w-full h-full max-w-xl mx-4 flex flex-col"
+             style="max-height: 80vh;"
+             @click.outside="open = false">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div>
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50 capitalize"
+                        x-text="action + ' ' + i18n.database"></h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"
+                       x-text="database"></p>
+                </div>
+                <button @click="open = false"
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path d="M12 10.586l4.95-4.95 1.414 1.414L13.414 12l4.95 4.95-1.414 1.414L12 13.414l-4.95 4.95-1.414-1.414L10.586 12 5.636 7.05l1.414-1.414L12 10.586z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Table list -->
+            <div class="overflow-y-auto flex-1 px-5 py-3">
+                <template x-if="loading">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 py-6 text-center" x-text="i18n.loading"></p>
+                </template>
+                <template x-if="!loading && tables.length === 0">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 py-6 text-center" x-text="i18n.noTables"></p>
+                </template>
+                <table x-show="tables.length > 0" class="w-full text-sm" style="table-layout: fixed;">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <th class="text-left py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 w-1/3" x-text="i18n.table"></th>
+                            <th class="text-left py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 w-2/3" x-text="i18n.status"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="table in tables" :key="table">
+                            <tr class="border-b border-gray-100 dark:border-gray-800 align-top">
+                                <td class="py-2 text-gray-800 dark:text-gray-200 font-mono text-xs truncate pr-4" x-text="table"></td>
+                                <td class="py-2 align-top">
+                                    <!-- pending -->
+                                    <template x-if="!running && !done || (!results[table] && !running && !done)">
+                                        <span class="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+                                            <span class="inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+                                            <span x-text="i18n.pending"></span>
+                                        </span>
+                                    </template>
+                                    <!-- running (no result yet) -->
+                                    <template x-if="running && !results[table]">
+                                        <span class="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+                                            <svg class="animate-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                                            </svg>
+                                            <span x-text="i18n.running"></span>
+                                        </span>
+                                    </template>
+                                    <!-- ok -->
+                                    <template x-if="results[table] && results[table].status === 'ok'">
+                                        <div class="flex flex-col gap-0.5">
+                                            <template x-for="detail in results[table].details" :key="detail.msg_type + detail.msg_text">
+                                                <span class="inline-flex items-center gap-1 text-xs font-medium"
+                                                    :class="detail.msg_type === 'status' ? 'text-green-700 dark:text-green-400' : 'text-red-500 dark:text-red-400'">
+                                                    <span class="inline-block w-2 h-2 rounded-full flex-shrink-0"
+                                                        :class="detail.msg_type === 'status' ? 'bg-emerald-500' : 'bg-red-500'"></span>
+                                                    <span x-text="detail.msg_text" class="whitespace-normal"></span>
+                                                </span>
+                                            </template>
+                                        </div>
+                                    </template>
+                                    <!-- error -->
+                                    <template x-if="results[table] && results[table].status === 'error'">
+                                        <span class="inline-flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400">
+                                            <span class="inline-block w-2 h-2 rounded-full flex-shrink-0 bg-red-500"></span>
+                                            <span x-text="results[table].error || i18n.error" class="whitespace-normal"></span>
+                                        </span>
+                                    </template>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-between px-5 py-4 border-t border-gray-200 dark:border-gray-700">
+                <span x-show="done" class="text-xs text-gray-500 dark:text-gray-400">
+                    <span x-text="i18n.done"></span> —
+                    <span x-text="Object.values(results).filter(r => r.status === 'error').length"></span>
+                    <span x-text="i18n.errors"></span>
+                </span>
+                <span x-show="!done"></span>
+                <div class="flex gap-2">
+                    <button @click="open = false"
+                            class="relative inline-flex items-center justify-center rounded border px-3 py-1.5 text-sm font-medium border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                            x-text="i18n.close"></button>
+                    <button @click="runAction"
+                            :disabled="running || loading || tables.length === 0"
+                            class="relative inline-flex items-center justify-center rounded border px-3 py-1.5 text-sm font-medium border-black bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed gap-1.5">
+                        <template x-if="running">
+                            <svg class="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                            </svg>
+                        </template>
+                        <span x-text="running ? i18n.running : (done ? i18n.runAgain : i18n.run + ' ' + action)"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+
+<div class="flex gap-1 items-center">
+    {{if $db.IsSystem}}
+    <span class="bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">{{$.T.Get "System Database"}}</span>
+    {{else}}
+        {{if $.UserAllowed.mysql_import}}
+
+        <div x-data="{ tooltip: false }" class="relative">
+            <a href="/mysql/import/{{$db.Database}}"
+                    @mouseenter="tooltip = true" @mouseleave="tooltip = false"
+                    class="btn btn-primary p-1.5">
+                <i class="bi bi-upload"></i>
+            </a>
+            <div x-show="tooltip" x-cloak x-transition
+                 class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap pointer-events-none z-10">
+                {{$.T.Get "Import"}}
+                <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+            </div>
+        </div>
+
+        {{end}}
+
+        <div x-data="{ tooltip: false, ...exportModal({{toJSON $db.Database}}) }" class="relative">
+            <button @click="open = true" @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="btn btn-primary p-1.5" title="{{$.T.Get "Export"}}">
+                <i class="bi bi-download"></i>
+            </button>
+
+            <div x-show="tooltip" x-cloak x-transition
+                 class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap pointer-events-none z-10">
+                {{$.T.Get "Export"}}
+                <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+            </div>
+
+            <div x-cloak x-show="open" x-transition class="absolute right-0 mt-2 w-72 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg p-3 z-50 export-section">
+                <div @click.outside="open = false">
+                    <form method="POST" action="/mysql/export" @submit="handleSubmit">
+                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                        <input type="hidden" name="database_name" :value="database">
+                        <input type="hidden" name="local_path" :value="fullPath">
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{$.T.Get "Format:"}}</label>
+                            <div class="grid grid-cols-2 w-full rounded p-1">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="export_format" value="sql" x-model="format" class="sr-only">
+                                    <div :class="format === 'sql' ? 'bg-black text-white dark:bg-black dark:text-gray-50 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                                        class="flex items-center justify-center px-3 py-1 text-sm font-medium transition-all rounded">
+                                        SQL (.sql)
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="export_format" value="gzip" x-model="format" class="sr-only">
+                                    <div :class="format === 'gzip' ? 'bg-black text-white dark:bg-black dark:text-gray-50 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                                        class="flex items-center justify-center px-3 py-1 text-sm font-medium transition-all rounded">
+                                        GZIP (.sql.gz)
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{$.T.Get "Destination:"}}</label>
+                            <div class="grid grid-cols-2 w-full rounded p-1">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="export_destination" value="browser" x-model="mode" class="sr-only">
+                                    <div :class="mode === 'browser' ? 'bg-black text-white dark:bg-black dark:text-gray-50 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                                        class="flex items-center justify-center px-3 py-1 text-sm font-medium transition-all rounded">
+                                        {{$.T.Get "Browser"}}
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="export_destination" value="files" x-model="mode" class="sr-only">
+                                    <div :class="mode === 'files' ? 'bg-black text-white dark:bg-black dark:text-gray-50 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                                        class="flex items-center justify-center px-3 py-1 text-sm font-medium transition-all rounded">
+                                        {{$.T.Get "Files"}}
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div x-show="mode === 'files'" x-transition class="mb-4">
+                            <div class="flex mt-1">
+                                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-600 rounded-l text-xs">/var/www/html/</span>
+                                <input type="text" x-model="relativePath" placeholder="backups" class="w-full rounded-r border px-2 py-1 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-1.5 text-center text-sm font-medium w-full border-black bg-black text-white hover:bg-gray-800">{{$.T.Get "Export"}}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div x-data="{ tooltip: false }" class="relative">
+            <button @click="openModal('optimize', {{toJSON $db.Database}})"
+                    @mouseenter="tooltip = true" @mouseleave="tooltip = false"
+                    class="btn btn-primary p-1.5">
+                <i class="bi bi-stars"></i>
+            </button>
+            <div x-show="tooltip" x-cloak x-transition
+                 class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap pointer-events-none z-10">
+                {{$.T.Get "Optimize"}}
+                <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+            </div>
+        </div>
+
+        <div x-data="{ tooltip: false }" class="relative">
+            <button @click="openModal('repair', {{toJSON $db.Database}})"
+                    @mouseenter="tooltip = true" @mouseleave="tooltip = false"
+                    class="btn btn-primary p-1.5">
+                <i class="bi bi-wrench"></i>
+            </button>
+            <div x-show="tooltip" x-cloak x-transition
+                 class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap pointer-events-none z-10">
+                {{$.T.Get "Repair"}}
+                <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+            </div>
+        </div>
+
+        {{if $.UserAllowed.phpmyadmin}}
+        <div x-data="{ tooltip: false }" class="relative">
+            <a href="/phpmyadmin/?route=/database/structure&db={{$db.Database}}" target="_blank"
+               @mouseenter="tooltip = true" @mouseleave="tooltip = false"
+               class="btn btn-primary p-1.5">
+                <i class="bi bi-box-arrow-up-right"></i>
+            </a>
+            <div x-show="tooltip" x-cloak x-transition
+                 class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap pointer-events-none z-10">
+                {{$.T.Get "phpMyAdmin"}}
+                <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+            </div>
+        </div>
+        {{end}}
+
+        <form method="POST" action="/mysql/delete">
+            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+            <input type="hidden" name="database_name" value="{{$db.Database}}">
+            <div x-data="{ tooltip: false }" class="relative">
+                <button class="btn btn-danger p-1.5" type="button" onclick="confirmDelete(this);" @mouseenter="tooltip = true" @mouseleave="tooltip = false"><i class="bi bi-trash3"></i>{{$.T.Get "Delete"}}</button>
+                <div x-show="tooltip" x-cloak x-transition class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap pointer-events-none z-10">
+                    {{$.T.Get "Delete"}}
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                </div>
+            </div>
+        </form>
+    {{end}}
+</div>
+
+
+
+                    </td>
+                </tr>
+                {{end}}
+
+                <script>
+                function confirmDelete(button) {
+                    var countdown = 5;
+                    var countdownActive = true;
+
+                    button.classList.remove('btn-danger');
+                    button.classList.add('btn-dark');
+                    button.innerHTML = '<i class="bi bi-trash3-fill"></i> Confirm <span class="btn-indicator btn-indicator-mini bg-danger">' + countdown + '</span>';
+
+                    var intervalId = setInterval(function () {
+                        countdown--;
+                        var indicator = button.querySelector('.btn-indicator-mini');
+                        if (indicator) indicator.textContent = countdown;
+                        button.removeAttribute('onclick');
+                        if (countdown === 0) {
+                            clearInterval(intervalId);
+                            revertButton(button);
+                            countdownActive = false;
+                        }
+                    }, 1000);
+
+                    button.addEventListener('click', function () {
+                        if (countdownActive) {
+                            button.closest('form').submit();
+                        }
+                    });
+                }
+
+                function revertButton(button) {
+                    button.classList.remove('btn-dark');
+                    button.classList.add('btn-danger');
+                    button.innerHTML = '<i class="bi bi-trash3"></i> Delete';
+                    button.setAttribute('onclick', 'confirmDelete(this);');
+                }
+                </script>
+
+
+<script>
+function exportModal(dbName) {
+    return {
+        open: false,
+        mode: 'browser',
+        format: 'sql',   //
+        database: dbName,
+        basePath: '/var/www/html/',
+        relativePath: '',
+
+        get fullPath() {
+            return this.basePath + this.relativePath.replace(/^\/+/, '');
+        },
+
+        handleSubmit(event) {
+            if (this.mode === 'files') {
+                if (!this.fullPath.startsWith(this.basePath)) {
+                    event.preventDefault();
+                }
+
+                if (!this.fullPath.startsWith(this.basePath)) {
+                    event.preventDefault();
+                }
+            }
+        }
+    }
+}
+</script>
+
+
+
+
+            {{else}}
+            <tr>
+                <td colspan="4" class="p-6 text-center">{{.T.Get "No databases yet."}} <a href="/mysql/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Create your first database"}}</a></td>
+            </tr>
+            {{end}}
+        {{else}}
+        <tr>
+            <td colspan="4" class="p-6 text-center">
+                {{.StatusDetail}}
+                <br><span id="refresh-message"></span>
+            </td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr>
+            <td colspan="4" class="p-6 text-center">
+                {{.StatusDetail}}
+                <br>
+                <span id="refresh-message"></span>
+            </td>
+        </tr>
+    {{end}}
+    {{if ne .HealthStatus "healthy"}}
+    <script>
+        let countdown = 5;
+        const messageEl = document.getElementById('refresh-message');
+        const interval = setInterval(() => {
+            if (countdown > 0) {
+                messageEl.textContent = `{{.T.Get "The page will refresh in"}} ${countdown} {{.T.Get "seconds"}}`;
+                countdown--;
+            } else {
+                clearInterval(interval);
+                window.location.reload();
+            }
+        }, 1000);
+    </script>
+    {{end}}
+        </tbody>
+            </table>
+        </div>
+    </div>
+
+{{if .DBToastMessage}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues === 'function') {
+        reportHealthIssues('mysql-databases', [{id: {{toJSON .DBToastID}}, severity: 'warning', message: {{toJSON .DBToastMessage}}}], 24);
+    }
+});
+</script>
+{{end}}
+
+<script>
+const i18n = {
+    close:    {{toJSON (.T.Get "Close")}},
+    running:  {{toJSON (.T.Get "Running..")}},
+    runAgain: {{toJSON (.T.Get "Run again")}},
+    run:      {{toJSON (.T.Get "Run")}},
+    done:     {{toJSON (.T.Get "Done")}},
+    errors:   {{toJSON (.T.Get "error(s)")}},
+    noTables: {{toJSON (.T.Get "No tables in this database.")}},
+    loading:  {{toJSON (.T.Get "Loading tables..")}},
+    pending:  {{toJSON (.T.Get "Pending")}},
+    error:    {{toJSON (.T.Get "Error")}},
+    database: {{toJSON (.T.Get "database")}},
+    table:    {{toJSON (.T.Get "Table")}},
+    status:   {{toJSON (.T.Get "Status")}},
+};
+</script>
+
+<script>
+function dbActionModal() {
+    return {
+        open: false,
+        action: '',
+        database: '',
+        tables: [],
+        results: {},
+        running: false,
+        done: false,
+        loading: false,
+
+        async openModal(action, dbName) {
+            this.action = action;
+            this.database = dbName;
+            this.tables = [];
+            this.results = {};
+            this.running = false;
+            this.done = false;
+            this.loading = true;
+            this.open = true;
+
+            const res = await fetch(`/mysql/${action}/${dbName}`, {
+                headers: { 'X-CSRF-Token': csrf_token }
+            });
+            const data = await res.json();
+            this.tables = (data.tables || []).map(t => t.table);
+            this.loading = false;
+
+            if (this.tables.length > 0) {
+                this.runAction();
+            }
+        },
+
+        async runAction() {
+            if (this.running) return;
+            this.running = true;
+            this.results = {};
+
+            const res = await fetch(`/mysql/${this.action}/${this.database}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-Token': csrf_token,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await res.json();
+
+            for (const r of (data.results || [])) {
+                this.results[r.table] = r;
+            }
+
+            this.running = false;
+            this.done = true;
+        },
+
+        statusFor(table) {
+            const r = this.results[table];
+            if (!r) return 'pending';
+            return r.status === 'ok' ? 'ok' : 'error';
+        },
+
+        labelFor(table) {
+            const r = this.results[table];
+            if (!r) return '—';
+            if (r.status === 'error') return r.error || 'Error';
+            const detail = (r.details || []).find(d => d.msg_type === 'status');
+            return detail ? detail.msg_text : 'OK';
+        }
+    }
+}
+</script>
+
+<script>
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'n' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const tag = document.activeElement.tagName.toLowerCase();
+    const isInputFocused = ['input', 'textarea'].includes(tag) || document.activeElement.isContentEditable;
+    if (isInputFocused) return;
+    e.preventDefault();
+    document.querySelector('a[href="/mysql/new"]')?.click();
+});
+{{if eq .ContainerState "running"}}
+if (window.registerShortcut) registerShortcut(['N'], {{toJSON (.T.Get "Add new database")}});
+{{end}}
+</script>
+<script src="/static/js/table-sort.js"></script>
+
+</section>
+
+<!-- END templates/mysql/databases.html -->
+{{end}}
+
+{{define "sort_header"}}
+<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+    <span>{{.Label}}</span>
+    <div class="-space-y-2">
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+    </div>
+</div>
+{{end}}

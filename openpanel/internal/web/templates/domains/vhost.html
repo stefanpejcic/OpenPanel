@@ -1,0 +1,201 @@
+{{define "content"}}
+
+{{if .DomainName}}
+    <!-- Include CodeMirror, clike and Dracula theme files -->
+    <link rel="stylesheet" href="{{static "vendor/codemirror/codemirror.min.css"}}">
+    <script src="{{static "vendor/codemirror/codemirror.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/mode/clike/clike.min.js"}}"></script>
+    <link rel="stylesheet" href="{{static "vendor/codemirror/theme/dracula.min.css"}}">
+    <style>
+        .CodeMirror {min-height: 50vh;height: auto;}
+        div.CodeMirror-sizer {min-height: 500px!important;}
+    </style>
+
+
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+
+<section>
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts File"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file for the domain name"}} <b><span class="punycode">{{.DomainName}}</span></b></p>
+    </div>
+
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Changes"}}</button>
+
+    </div>
+
+</div>
+
+    <input type="hidden" name="domain_name" value="{{.DomainName}}">
+
+    <div id="editor-container" class="overflow-auto">
+        <textarea id="editor" name="vhost_content" rows="40" cols="100">{{.VhostContent}}</textarea>
+    </div>
+
+</form>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+    mode: "javascript",
+    lineNumbers: true,
+});
+
+function validateVhostConfig(content, serverType) {
+    var errors = [];
+    var lines = content.split('\n');
+
+    if (serverType === 'apache') {
+        var stack = [];
+        var tagRegex = /<(\/?)\s*([A-Za-z][A-Za-z0-9]*)\b[^>]*?(\/?)>/g;
+
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            if (line.trim().startsWith('#')) continue;
+
+            var m;
+            tagRegex.lastIndex = 0;
+            while ((m = tagRegex.exec(line)) !== null) {
+                var closing = m[1] === '/';
+                var tag = m[2].toLowerCase();
+                var selfClosing = m[3] === '/';
+                if (selfClosing) continue;
+
+                if (closing) {
+                    if (stack.length === 0) {
+                        errors.push('Line ' + (i + 1) + ': Unexpected closing tag </' + m[2] + '> with no matching opening tag.');
+                    } else if (stack[stack.length - 1].tag !== tag) {
+                        var top = stack[stack.length - 1];
+                        errors.push('Line ' + (i + 1) + ': Closing tag </' + m[2] + '> does not match <' + top.tag + '> opened on line ' + top.line + '.');
+                        stack.pop();
+                    } else {
+                        stack.pop();
+                    }
+                } else {
+                    stack.push({tag: tag, line: i + 1});
+                }
+            }
+        }
+
+        stack.forEach(function (item) {
+            errors.push('Line ' + item.line + ': Tag <' + item.tag + '> is never closed.');
+        });
+
+    } else {
+        // brace based configs: nginx, openresty, openlitespeed/litespeed
+        var braceDepth = 0;
+        var openStack = [];
+        var inSingle = false, inDouble = false, escape = false;
+
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            escape = false;
+
+            for (var j = 0; j < line.length; j++) {
+                var ch = line[j];
+
+                if (escape) { escape = false; continue; }
+
+                if (inSingle) {
+                    if (ch === '\\') { escape = true; }
+                    else if (ch === "'") { inSingle = false; }
+                    continue;
+                }
+                if (inDouble) {
+                    if (ch === '\\') { escape = true; }
+                    else if (ch === '"') { inDouble = false; }
+                    continue;
+                }
+
+                if (ch === '#') break; // rest of line is a comment
+                if (ch === "'") { inSingle = true; continue; }
+                if (ch === '"') { inDouble = true; continue; }
+
+                if (ch === '{') {
+                    braceDepth++;
+                    openStack.push(i + 1);
+                } else if (ch === '}') {
+                    braceDepth--;
+                    if (braceDepth < 0) {
+                        errors.push('Line ' + (i + 1) + ": Unexpected closing brace '}' with no matching '{'.");
+                        braceDepth = 0;
+                    } else {
+                        openStack.pop();
+                    }
+                }
+            }
+
+            if (inSingle || inDouble) {
+                errors.push('Line ' + (i + 1) + ': Unterminated quote (missing closing ' + (inDouble ? '"' : "'") + ').');
+                inSingle = false;
+                inDouble = false;
+            }
+        }
+
+        openStack.forEach(function (ln) {
+            errors.push("Line " + ln + ": Unclosed '{' - missing matching '}'.");
+        });
+    }
+
+    return errors;
+}
+
+(function () {
+    var form = editor.getTextArea().closest('form');
+    var serverType = {{toJSON .WebServerPreference}};
+    var skipValidation = false;
+
+    form.addEventListener('submit', function (e) {
+        if (skipValidation) {
+            skipValidation = false;
+            return;
+        }
+
+        editor.save();
+        var content = editor.getValue();
+        var errors = validateVhostConfig(content, serverType);
+
+        if (errors.length > 0) {
+            e.preventDefault();
+            var message = "{{.T.Get "Potential syntax issues were found:"}}\n\n" + errors.join('\n') +
+                "\n\n" + "{{.T.Get "Do you want to save anyway?"}}";
+            if (confirm(message)) {
+                skipValidation = true;
+                form.submit();
+            }
+        }
+    });
+})();
+</script>
+
+{{else}}
+
+<!-- page header -->
+<section aria-label="Select Domain Header">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts File"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Select domain name to edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file for."}}</p>
+    </div>
+</div>
+<!-- END page header -->
+
+    {{if .Domains}}
+        <div class="p-6 m-6 bg-blue-100 border-l-4 border-blue-500 text-blue-700">
+            <strong>{{.T.Get "Attention:"}}</strong> {{.T.Get "Editing the domain file is intended for advanced users only. This action can potentially lead to server misconfiguration or downtime if not done correctly."}}
+            <br><br>
+            {{.T.Get "Please be cautious and make sure you understand the changes you are making. We use a rollback mechanism to check for errors, and if any issues are detected, we will revert the changes. However, it's important to have a backup of your configurations before proceeding."}}
+        </div>
+        {{template "domain_selector" (dict "T" .T "Domains" .Domains "RedirectBase" "/domains/vhosts?domain=")}}
+    {{else}}
+        {{template "no_domain" .}}
+    {{end}}
+
+</section>
+
+{{end}}
+
+{{end}}

@@ -1,0 +1,978 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/manager/python_node_apps.html -->
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('logs', { rawMode: false });
+    });
+    let toastDisplayed = false;
+</script>
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8 sm:flex sm:items-center sm:justify-between">
+    <div class="group">
+        <div class="flex items-center gap-x-3">
+            <img alt="{{.CurrentDomain}} Favicon" loading="lazy" width="5" height="5" decoding="async" class="h-4 w-4 rounded-full object-cover shadow-lg shadow-indigo-500/50 ring-2 ring-white dark:ring-gray-700" style="color:transparent" src="/json/favicon/{{.CurrentDomain}}">
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.CurrentDomain}}</h1>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-500 hover:underline"><a href="http://{{.CurrentDomain}}" class="hover:underline" target="_blank">https://{{.CurrentDomain}}</a></p>
+    </div>
+
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        {{template "temp_link" .}}
+    </div>
+</div>
+
+<div class="m-6 grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4">
+
+    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+
+        <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: 'dashboard' }">
+
+    <div class="border-b border-gray-200 dark:border-gray-700">
+        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" class="grid grid-cols-4 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+            <li role="presentation">
+                <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
+                   @click="activeTab = 'dashboard'"
+                   :class="activeTab === 'dashboard' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M2 10h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1m9-9h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m0 9a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1zm0-10a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM2 9a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2zm7 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2zM0 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.354.854a.5.5 0 1 0-.708-.708L3 3.793l-.646-.647a.5.5 0 1 0-.708.708l1 1a.5.5 0 0 0 .708 0z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Overview"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#pip" id="pip-tab" data-tabs-target="#pip" role="tab" aria-controls="pip" aria-selected="false"
+                   @click="activeTab = 'pip'"
+                   :class="activeTab === 'pip' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Install Packages"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#logs" id="logs-tab" data-tabs-target="#logs" role="tab" aria-controls="logs" aria-selected="false"
+                   @click="activeTab = 'logs'"
+                   :class="activeTab === 'logs' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Logs"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
+                   @click="activeTab = 'remove'"
+                   :class="activeTab === 'remove' ? 'bg-white text-red-600 shadow-sm dark:bg-gray-900 dark:text-red-400' : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Remove"}}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+            <div id="wp-tab-content p-4">
+
+                <div class="hidden p-4 rounded" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+
+        <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
+            <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
+                <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden xl:col-span-3">
+            {{template "screenshot" .}}
+                </div>
+            </div>
+            <div class="flex flex-col h-full space-y-4 xl:col-span-1 pb-2">
+
+                <div class="flex flex-col flex-grow justify-center rounded p-4 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Status:"}}</h2>
+                    </div>
+                    <h3 class="flex items-center gap-2 text-xl font-bold lg:text-2xl">
+                    <div class="flex gap-0.5">
+                    {{if eq .PM2Status "true"}}
+                        <div class="h-3.5 w-1 rounded-sm bg-green-500 dark:bg-green-500"></div>
+                        <div class="h-3.5 w-1 rounded-sm bg-green-500 dark:bg-green-500"></div>
+                        <div class="h-3.5 w-1 rounded-sm bg-green-500 dark:bg-green-500"></div>
+                    {{else if eq .PM2Status "false"}}
+                        <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
+                        <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
+                        <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
+                    {{else}}
+                        <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
+                        <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
+                        <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
+                    {{end}}
+                    </div><span class="inline-block font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400">
+                        {{if eq .PM2Status "true"}}{{.T.Get "Active"}}
+                        {{else if eq .PM2Status "false"}}{{.T.Get "Inactive"}}
+                        {{else}}{{.T.Get "Unknown"}}
+                        {{end}}</span></h3>
+                </div>
+
+                <div class="flex flex-col flex-grow justify-center rounded p-4 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class="text-gray-600 dark:text-gray-400">
+                            {{if eq .Type "nodejs"}}{{.T.Get "NodeJS"}}
+                            {{else if eq .Type "python"}}{{.T.Get "Python"}}
+                            {{end}} {{.T.Get "Version:"}}</h2>
+                    </div>
+                    <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{.Container.Version}}</h3>
+                </div>
+
+                <div class="flex flex-col flex-grow justify-center rounded p-4 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "CPU limit:"}}</h2>
+                    </div>
+                    <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl"><i class="dashboard_icon bi bi-cpu"></i> {{.CPU}}</h3>
+                </div>
+
+                <div class="flex flex-col flex-grow justify-center rounded p-4 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Memory limit:"}}</h2>
+                    </div>
+                    <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl"><i class="dashboard_icon bi bi-memory"></i> {{.RAM}}</h3>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="grid gap-4 grid-cols-2 md:gap-4 m-0 pb-4">
+
+        <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+            <div class="mb-2 flex items-center justify-between gap-4 relative">
+                <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                <h2 class="pl-4 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Actions"}}</h2>
+                {{if .UserAllowed.docker}}
+                <a type="button" href="/containers" target="_blank" data-tooltip-target="tooltip-pm2-link" data-tooltip-placement="left" class="flex items-center justify-between gap-1.5 rounded bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package-search size-[18px] shrink-0" aria-hidden="true"><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"></path><path d="m7.5 4.27 9 5.15"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><line x1="12" x2="12" y1="22" y2="12"></line><circle cx="18.5" cy="15.5" r="2.5"></circle><path d="M20.27 17.27 22 19"></path></svg>
+                </a>
+<div id="tooltip-pm2-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded shadow-xs opacity-0 tooltip dark:bg-gray-700">
+    {{.T.Get "Manage Containers"}}
+    <div class="tooltip-arrow" data-popper-arrow></div>
+</div>
+                {{end}}
+            </div>
+
+  <div class="col">
+  <div role="group" class="w-full flex space-x-2">
+
+{{if eq .PM2Status "false"}}
+<button type="button" onclick="startApp(this);" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap"><i class="bi bi-play-fill"></i> {{.T.Get "Start"}}</button>
+
+<script>
+    function startApp(button) {
+        const pm2Id = {{toJSON .Service}};
+        showToast({{toJSON (.T.Get "Starting application. Please wait.")}}, 'loading');
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `/pm2/start/${pm2Id}`, true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                showToast({{toJSON (.T.Get "Application started successfully.")}}, 'success');
+                setTimeout(() => { location.reload(); }, 1000);
+            } else {
+                showToast({{toJSON (.T.Get "Error starting application.")}}, 'error');
+                console.error('Start failed:', xhr.statusText);
+            }
+        };
+        xhr.onerror = function() {
+            showToast({{toJSON (.T.Get "Error starting application.")}}, 'error');
+            console.error('Network error occurred');
+        };
+        xhr.send();
+    }
+</script>
+
+{{else if eq .PM2Status "true"}}
+<button type="button" onclick="stopApp(this);" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap"><i class="bi bi-stop-fill"></i> {{.T.Get "Stop"}}</button>
+
+<script>
+    function stopApp(button) {
+        const pm2Id = {{toJSON .Service}};
+        showToast({{toJSON (.T.Get "Stopping application. Please wait.")}}, 'loading');
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `/pm2/stop/${pm2Id}`, true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                showToast({{toJSON (.T.Get "Application stopped successfully.")}}, 'success');
+                setTimeout(() => { location.reload(); }, 1000);
+            } else {
+                showToast({{toJSON (.T.Get "Error stopping application.")}}, 'error');
+                console.error('Stop failed:', xhr.statusText);
+            }
+        };
+        xhr.onerror = function() {
+            showToast({{toJSON (.T.Get "Error stopping application.")}}, 'error');
+            console.error('Network error occurred');
+        };
+        xhr.send();
+    }
+</script>
+{{end}}
+
+<button type="button" id="restartButton" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap"><i class="bi bi-arrow-clockwise"></i> {{.T.Get "Restart"}}</button>
+
+<script>
+    document.getElementById('restartButton').addEventListener('click', function(event) {
+        event.preventDefault();
+        const pm2Id = {{toJSON .Service}};
+        showToast({{toJSON (.T.Get "Application restart in progress. Please wait.")}}, 'loading');
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `/pm2/restart/${pm2Id}`, true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                showToast({{toJSON (.T.Get "Application restarted successfully.")}}, 'success');
+                setTimeout(() => { location.reload(); }, 1000);
+            } else {
+                showToast({{toJSON (.T.Get "Error restarting application.")}}, 'error');
+                console.error('Restart failed:', xhr.statusText);
+            }
+        };
+        xhr.onerror = function() {
+            showToast({{toJSON (.T.Get "Error restarting application.")}}, 'error');
+            console.error('Network error occurred');
+        };
+        xhr.send();
+    });
+</script>
+
+  </div>
+</div>
+        </div>
+
+        <div class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+            <div class="mb-2 flex items-center justify-between gap-4 relative">
+                <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                <h2 class="pl-4 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
+                <a type="button" {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}} target="_blank" data-tooltip-target="tooltip-filemanager-link" data-tooltip-placement="left" class="flex items-center justify-between gap-1.5 rounded bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
+                    <svg class="hi-mini hi-archive-box inline-block size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path d="M2 3a1 1 0 00-1 1v1a1 1 0 001 1h16a1 1 0 001-1V4a1 1 0 00-1-1H2z"></path>
+                <path fill-rule="evenodd" d="M2 7.5h16l-.811 7.71a2 2 0 01-1.99 1.79H4.802a2 2 0 01-1.99-1.79L2 7.5zM7 11a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+              </svg>
+                </a>
+<div id="tooltip-filemanager-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded shadow-xs opacity-0 tooltip dark:bg-gray-700">
+    {{.T.Get "Open folder in File Manager"}}
+    <div class="tooltip-arrow" data-popper-arrow></div>
+</div>
+            </div>
+
+  <div class="col">
+<table class="w-full text-sm">
+    <tbody>
+        <tr>
+            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Folder:"}}</span></td>
+            <td class="text-end truncate"><a class="domain_link relative font-medium hover:underline" {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}>{{.Docroot}}</a></td>
+        </tr>
+    </tbody>
+</table>
+<table class="w-full text-sm">
+    <tbody>
+        <tr>
+            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Folder Size:"}}</span></td>
+            <td class="text-end"><b id="filesSize">{{.T.Get "Calculating.."}}</b></td>
+        </tr>
+    </tbody>
+</table>
+</div>
+        </div>
+
+</div>
+
+    <div class="mt-4 grid grid-cols-1">
+
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+    <div>
+        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container"}}</h2>
+        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Name"}} {{if .Container.Port}}{{.T.Get " and custom port "}}{{end}}{{.T.Get "on which the application is accessible from other services."}}</p>
+    </div>
+    <div class="sm:max-w-3xl md:col-span-2">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+            <label class="flex gap-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium"><i class="bi bi-box"></i>{{.Service}}{{if .Container.Port}}:{{.Container.Port}}{{end}}</label>
+        </div>
+    </div>
+    </div>
+
+    <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+            <form action="/pm2/update/{{.Service}}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+    <div>
+        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Startup"}}</h2>
+        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Configure startup file and if install should be run before starting the application."}}</p>
+    </div>
+    <div class="sm:max-w-3xl md:col-span-2">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+            <div class="col-span-full">
+
+    <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="startup_file" x-data="{tooltip: false }">
+        <span>{{.T.Get "Startup file:"}}<span class="text-red-500 dark:text-red-500">*</span></span>
+        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+</svg>
+            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">
+                 {{.T.Get "If no custom startup command is provided, this file is executed with command:"}}
+                 <br>
+                 {{if eq .Type "nodejs"}}node{{else if eq .Type "python"}}python{{end}} {{.StartupFile}}
+            </div>
+        </span>
+    </label>
+
+    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .StartupFile}}, error: false, errorMessage: '', appType: {{toJSON .Type}}, ext: {{if eq .Type "nodejs"}}'js'{{else if eq .Type "python"}}'py'{{else}}''{{end}} }">
+    <input
+        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+        required id="startup_file" name="startup_file" type="text" x-model="value"
+        :class="error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''"
+        @input="
+            if (!value.startsWith('/var/www/html/')) {
+                error = true;
+                errorMessage = 'Path must start with /var/www/html/';
+            } else if (value.includes('../')) {
+                error = true;
+                errorMessage = 'Path traversal (../) is not allowed';
+            } else if (!value.endsWith('.' + ext)) {
+                error = true;
+                errorMessage = 'Startup file needs to be a .' + ext + ' file';
+            } else {
+                error = false;
+                errorMessage = '';
+            }
+        ">
+    <template x-if="error"><p class="mt-1 text-sm text-red-600 dark:text-red-400" x-text="errorMessage"></p></template>
+    </div>
+            </div>
+
+            <div class="col-span-full">
+        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="custom_cmd" x-data="{tooltip: false }">
+        <span>{{.T.Get "Custom startup command:"}}</span>
+        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+</svg>
+            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">
+                 {{.T.Get "You can provide a custom startup command with flags to be used instead of the default:"}}
+                 <br>
+                 {{if eq .Type "nodejs"}}node{{else if eq .Type "python"}}python{{end}} {{.StartupFile}}
+            </div>
+        </span>
+    </label>
+
+    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .CustomCmd}}, error: false }">
+    <input
+    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+    id="custom_cmd" name="custom_cmd" type="text" x-model="value"
+    :class="error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''"
+    @input="
+         if (value.includes('..')) {
+        error = true;
+        startuperrorMessage = 'Path traversal (..) is not allowed';
+        } else {
+        error = false;
+        startuperrorMessage = '';
+        }
+    ">
+    <template x-if="error"><p class="mt-1 text-sm text-red-600 dark:text-red-400" x-text="startuperrorMessage"></p></template>
+    </div>
+            </div>
+
+            <div class="col-span-full">
+        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="workdir" x-data="{tooltip: false }">
+        <span>{{.T.Get "Work dir:"}}<span class="text-red-500 dark:text-red-500">*</span></span>
+        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+</svg>
+            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">
+                 {{.T.Get "Set the working directory inside which packages are installed with command:"}}
+                 <br>
+                 {{if eq .Type "nodejs"}}npm{{else if eq .Type "python"}}pip{{end}} {{.T.Get "install"}}
+            </div>
+        </span>
+    </label>
+
+    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .Workdir}}, error: false }">
+    <input
+    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+    required id="workdir" name="workdir" type="text" x-model="value"
+    :class="error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''"
+    @input="
+        if (!value.startsWith('/var/www/html/')) {
+        error = true;
+        errorMessage = 'Path must start with /var/www/html/';
+        } else if (value.includes('../')) {
+        error = true;
+        errorMessage = 'Path traversal (../) is not allowed';
+        } else {
+        error = false;
+        errorMessage = '';
+        }
+    ">
+    <template x-if="error"><p class="mt-1 text-sm text-red-600 dark:text-red-400" x-text="errorMessage"></p></template>
+    </div>
+            </div>
+
+<div class="col-span-full">
+        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="requirements" x-data="{tooltip: false }">
+        <span>{{.T.Get "Install packages before startup:"}}</span>
+        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+</svg>
+            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">
+                 {{.T.Get "If enabled, this command is executed before the custom startup command or startup file:"}}
+                 <br>
+                 {{if eq .Type "nodejs"}}npm{{else if eq .Type "python"}}pip{{end}} {{.T.Get "install"}} {{if eq .Type "python"}}-r requirements.txt{{end}}
+            </div>
+        </span>
+    </label>
+
+    <div class="relative w-full mt-2">
+    <select id="requirements" name="requirements" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2">
+    <option value="1" {{if .RequirementsSelected}}selected{{end}}>Yes</option>
+    <option value="" {{if not .RequirementsSelected}}selected{{end}}>No</option>
+    </select>
+                        </div>
+</div>
+
+        </div>
+    </div>
+    </div>
+
+    <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+    <div>
+        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Version:"}}</h2>
+        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Change version, make sure to restart the application afterward by stopping and starting it."}}</p>
+    </div>
+    <div class="sm:max-w-3xl md:col-span-2">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+            <div class="col-span-full">
+        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="version" x-data="{tooltip: false }">
+        <span>{{.T.Get "Version:"}}<span class="text-red-500 dark:text-red-500">*</span></span>
+        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+</svg>
+            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">
+                 {{.T.Get "Select"}} {{if eq .Type "nodejs"}}NodeJS{{else if eq .Type "python"}}Python{{end}} {{.T.Get "version to use for the application."}}
+            </div>
+        </span>
+    </label>
+
+                <div class="relative w-full mt-2">
+    <select name="version" id="version" required class="peer w-full cursor-pointer appearance-none truncate rounded border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+    </select>
+
+    <script>
+    function updateVersionOptions() {
+    const versionSelect = document.getElementById('version');
+    const currentVersion = {{toJSON .CurrentVersion}};
+    const type = {{toJSON .Type}};
+    const versionI18n = { error: {{toJSON (.T.Get "Error")}} };
+
+    versionSelect.innerHTML = '<option>Loading versions...</option>';
+
+    fetch(`/docker/tags/${type}`)
+        .then(response => response.json())
+        .then(data => {
+            versionSelect.innerHTML = '';
+
+            if (data.error) {
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = data.error;
+                versionSelect.appendChild(option);
+                return;
+            }
+
+            const versions = data.map(item => item.latest).filter(v => v);
+
+            versions.forEach(version => {
+                const option = document.createElement('option');
+                option.value = version;
+
+                if (version === currentVersion) {
+                    option.textContent = `${version} (Current)`;
+                    option.selected = true;
+                } else {
+                    option.textContent = version;
+                }
+
+                versionSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            versionSelect.innerHTML = '';
+            const option = document.createElement('option');
+            option.value = "";
+            option.textContent = `${versionI18n.error}: ${error.message}`;
+            versionSelect.appendChild(option);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', updateVersionOptions);
+    </script>
+                        </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+    <div>
+        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Resource limits"}}</h2>
+        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Limit CPU and Memory available to the container."}}</p>
+    </div>
+    <div class="sm:max-w-3xl md:col-span-2">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+            <div class="col-span-full">
+        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="cpu" x-data="{tooltip: false }">
+        <span>{{.T.Get "CPU (cores):"}}<span class="text-red-500 dark:text-red-500">*</span></span>
+        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+</svg>
+            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">
+                 {{.T.Get "Set max number of CPU cores to allocate for this service."}}
+            </div>
+        </span>
+    </label>
+
+                <div class="relative w-full mt-2"><input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                        required id="cpu" name="cpu" type="number" min="0.10" step=".01" value="{{.CPU}}"></div>
+            </div>
+            <div class="col-span-full">
+        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="ram" x-data="{tooltip: false }">
+        <span>{{.T.Get "Memory (GB):"}}<span class="text-red-500 dark:text-red-500">*</span></span>
+        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+</svg>
+            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">
+                 {{.T.Get "Set max size in GB for Memory to allocate for this service."}}
+            </div>
+        </span>
+    </label>
+
+                <div class="relative w-full mt-2"><input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                        required id="ram" name="ram" type="number" min="0.10" step=".01" value="{{.RAM}}"></div>
+            </div>
+
+            <div class="col-span-full">
+        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="pids" x-data="{tooltip: false }">
+        <span>{{.T.Get "PIDs:"}}<span class="text-red-500 dark:text-red-500">*</span></span>
+        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+</svg>
+            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">
+                 {{.T.Get "Set total of PIDs allowed for the application."}}
+            </div>
+        </span>
+    </label>
+
+                <div class="relative w-full mt-2">
+                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                        id="pids" disabled name="ram" type="number" min="10" max="1000" value="{{.PIDs}}">
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "PIDs can not currently be configured in Docker compose"}} - <a href="https://github.com/docker/cli/issues/5009#issuecomment-2122396421" class="text-red-600 dark:text-red-400" target="_blank">Issue #5009</a></p>
+                        </div>
+            </div>
+
+        </div>
+    </div>
+    </div>
+
+    <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+    <div class="flex justify-end">
+    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">{{.T.Get "Save changes"}}</button>
+    </div>
+
+    </form>
+
+    </div>
+
+            </div>
+
+
+                <div class="hidden p-4 rounded" id="pip" role="tabpanel" aria-labelledby="pip-tab">
+
+                <h3 class="font-semibold text-gray-900 dark:text-gray-50 mb-4">
+                    {{if eq .Type "nodejs"}}{{.T.Get "package.json"}}
+                    {{else if eq .Type "python"}}{{.T.Get "requirements.txt"}}
+                    {{end}}
+                        {{.T.Get "file content:"}}</h3>
+
+    <script>
+    document.querySelector('html').addEventListener('click', function(e) {
+    if (!e.target.closest('#pip-tab')) return;
+
+    const workdir = {{toJSON .Workdir}};
+    const docroot = encodeURIComponent(
+        workdir || {{toJSON (replace .Docroot "/var/www/html/" "")}}
+    );
+
+    const type = {{toJSON .Type}};
+
+    let filename = "requirements.txt";
+    if (type === "nodejs") {
+        filename = "package.json";
+    }
+
+    const url = `/file-manager/view-file/${docroot}/${filename}`;
+
+    fetch(url)
+        .then(res => res.text())
+        .then(data => {
+            const isHTML = /<[^>]+>/.test(data);
+            if (isHTML) {
+                document.getElementById('requirements_file').textContent = `/var/www/html/${decodeURIComponent(docroot)}/${filename} does not exist.`;
+            } else {
+                document.getElementById('requirements_file').textContent = data;
+            }
+        })
+        .catch(function() {
+            document.getElementById('requirements_file').textContent = `/var/www/html/${decodeURIComponent(docroot)}/${filename} does not exist.`;
+            console.error(`Failed to fetch ${filename}`);
+        });
+    });
+    </script>
+
+    <pre id="requirements_file">
+    </pre>
+
+    <div class="w-full flex space-x-2">
+    {{if eq .Type "nodejs"}}
+    <button type="button" data-pm="npm" class="install-btn relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "NPM install"}}</button>
+    <button type="button" data-pm="pnpm" class="install-btn relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "PNPM install"}}</button>
+    {{else if eq .Type "python"}}
+    <button type="button" data-pm="pip" class="install-btn relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "PIP install"}}</button>
+    {{end}}
+
+    <a href="/file-manager/edit-file/{{replace .Workdir "/var/www/html/" ""}}/{{if eq .Type "nodejs"}}{{.T.Get "package.json"}}{{else if eq .Type "python"}}{{.T.Get "requirements.txt"}}{{end}}?new=true" target="_blank" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap" id="npm-edit-link">{{.T.Get "Edit file"}}</a>
+    </div>
+
+    <div id="installPIPModal">
+    <div class="modal-body"></div>
+    </div>
+
+                </div>
+
+                <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="app-log-title" class="font-semibold text-gray-900 dark:text-gray-50">
+                            {{.T.Get "Loading application logs.."}}
+                        </h3>
+                        <div class="flex space-x-2">
+                            <button title="{{.T.Get "Change view"}}"
+                                class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                                @click="
+                                    $store.logs.rawMode = !$store.logs.rawMode;
+                                    renderLogs(window.__loadedLogs, $store.logs.rawMode);
+                                "
+                                x-text="$store.logs.rawMode ? {{toJSON (.T.Get "Formatted view")}} : {{toJSON (.T.Get "Raw view")}}">
+                            </button>
+
+                            <button title="{{.T.Get "Copy to clipboard"}}"
+                                class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                                @click="copyLogs()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">  <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
+                            </button>
+
+                            <button title="{{.T.Get "Open log in new tab"}}"
+                                class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                                @click="openLogsInNewTab()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
+</svg>
+                            </button>
+                        </div>
+                    </div>
+
+<style>
+.text-red-900 {color: hsl(358, 66%, 48%)}
+.bg-red-200 { background-color: hsl(0, 100%, 96%)}
+.text-amber-900 { color: hsl(30, 100%, 32%)}
+.bg-amber-200 { background-color: hsl(44, 100%, 92%)}
+</style>
+
+<div id="app-log" class="overflow-y-auto h-72 p-2 rounded border border-dashed border-gray-300 dark:border-gray-800"></div>
+
+                    <script>
+                    document.querySelector('html').addEventListener('click', function(e) {
+                        if (!e.target.closest('#logs-tab')) return;
+                        const domain = {{toJSON .Service}};
+
+                        fetch(`/pm2/logs/${encodeURIComponent(domain)}`)
+                            .then(response => response.text())
+                            .then(data => {
+                                const modalTitle = document.getElementById('app-log-title');
+                                const modalBody = document.getElementById('app-log');
+                                window.__loadedLogs = data;
+
+                                modalTitle.textContent = "Container log for application: " + domain;
+                                modalBody.innerHTML = '';
+
+                                const rawMode = Alpine.store('logs').rawMode;
+                                renderLogs(data, rawMode);
+                            })
+                            .catch(error => {
+                                showToast({{toJSON (.T.Get "Error fetching container logs for application.")}}, 'warning');
+                                console.error({{toJSON (.T.Get "Error fetching container logs for application:")}}, error);
+                            });
+                    });
+
+                    function renderLogs(data, rawMode) {
+                        const modalBody = document.getElementById('app-log');
+                        modalBody.innerHTML = '';
+
+                        const pre = document.createElement('pre');
+
+                        if (rawMode) {
+                            pre.textContent = data;
+                            modalBody.appendChild(pre);
+                            return;
+                        }
+
+                        const lines = data.split('\n');
+
+                        lines.forEach(line => {
+                            line = line.trim();
+                            if (!line) return;
+
+                            let isJson = false;
+
+                            try {
+                                const json = JSON.parse(line);
+
+                                if (json.time && json.log) {
+                                    const lineSpan = document.createElement('span');
+                                    lineSpan.textContent = `[${json.time}] `;
+
+                                    const logSpan = document.createElement('span');
+                                    logSpan.textContent = json.log;
+
+                                    if (json.stream?.toLowerCase() === 'stderr') {
+                                        logSpan.classList.add('text-red-900', 'bg-red-200');
+                                    }
+
+                                    lineSpan.appendChild(logSpan);
+                                    pre.appendChild(lineSpan);
+                                    isJson = true;
+                                }
+                            } catch (e) {}
+
+                            if (!isJson) {
+                                pre.appendChild(document.createTextNode(line + '\n'));
+                            }
+                        });
+
+                        modalBody.appendChild(pre);
+                    }
+
+function copyLogs() {
+    if (!window.__loadedLogs) return;
+
+    copyToClipboard(window.__loadedLogs)
+        .then(() => {
+            showToast({{toJSON (.T.Get "Logs copied to clipboard.")}}, "success");
+        })
+        .catch(err => {
+            console.error("Clipboard copy failed:", err);
+            showToast({{toJSON (.T.Get "Failed to copy logs.")}}, "warning");
+        });
+}
+
+function openLogsInNewTab() {
+    const domain = {{toJSON .Service}};
+    const url = `/pm2/logs/${encodeURIComponent(domain)}`;
+    window.open(url, "_blank");
+}
+                    </script>
+                </div>
+
+                <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
+
+                    <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                        <div>
+                            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete"}}</h2>
+                            <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Stops the application, deletes docker container and removes it from Site Manager interface."}}</p>
+                        </div>
+                        <div class="sm:max-w-3xl md:col-span-2">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                                <div class="col-span-full">
+                                    <div class="relative w-full mt-2 space-y-2">
+                                        <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                            <i class="bi bi-trash3 mr-2"></i> {{.T.Get "Delete Application"}}
+                                        </button>
+                                        <div x-show="open">
+                                            <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Stops the application, deletes docker container and removes it from Site Manager interface."}}</p>
+                                            <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "All website data such as files and database remains."}}</p>
+                                            <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
+                                                <button onclick="confirmRemoveforWP({{toJSON .CurrentDomain}})" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400 w-100" type="button">
+                                                {{.T.Get "Confirm delete"}}
+                                                </button>
+                                                <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                                {{.T.Get "Cancel"}}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+            <script>
+                function confirmRemoveforWP(Id) {
+                    showToast({{toJSON (.T.Get "Application removal started. Please wait.")}}, 'loading');
+                    var xhr = new XMLHttpRequest();
+                    const domain = {{toJSON .CurrentDomain}};
+                    xhr.open('POST', `/pm2/delete/${domain}`, true);
+                    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4) {
+                                window.location.href = '/sites';
+                        }
+                    };
+
+                    xhr.send('id=' + Id + '&csrf_token=' + encodeURIComponent(csrf_token));
+                }
+            </script>
+
+                    <p class="text-sm text-gray-500 dark:text-gray-400"></p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "waf_panel" .}}
+
+        <div class="flex flex-col justify-center overflow-hidden rounded p-0 xl:col-span-1">
+
+        <table class="w-full text-sm">
+            <tbody>
+                <tr>
+                    <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400"><a data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{{.Container.CreatedDate}}"><i class="bi bi-info-circle"></i></a> {{.T.Get "Created"}}</span></td>
+                    <td class="text-end"><b id="created_date" data-relative-date="{{.Container.CreatedDate}}">{{.Container.CreatedDate}}</b></td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+function GetWPfilesSize() {
+    const filesSizeSpan = document.getElementById("filesSize");
+    const destinationPath = {{toJSON (replace .Docroot "/var/www/html/" "")}};
+
+    fetch(`/json/directory-size?folder=${encodeURIComponent(destinationPath)}`)
+        .then(response => response.json())
+        .then(data => {
+            filesSizeSpan.textContent = data.size;
+        })
+        .catch(error => {
+            console.error("An error occurred fetching file size from container:", error);
+            showToast({{toJSON (.T.Get "An error occurred fetching folder size from the container.")}}, 'warning');
+        });
+}
+
+GetWPfilesSize();
+
+</script>
+
+<script>
+document.querySelector('html').addEventListener('click', function(e) {
+    const button = e.target.closest('.install-btn');
+    if (!button) return;
+    const pm2Id = {{toJSON .Service}};
+    const status = {{toJSON .PM2Status}};
+    const packageManager = button.dataset.pm;
+    const url = `/pm2/install/${packageManager}/${encodeURIComponent(pm2Id)}`;
+
+    if (status === "false") {
+        showToast({{toJSON (.T.Get "Cannot install while container is stopped.")}}, 'error');
+        return;
+    }
+
+    showToast({{toJSON (.T.Get "Installing packages.. Please wait.")}}, 'loading');
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-Token': csrf_token,
+            'Content-Type': 'application/json'
+        },
+        body: null
+    })
+    .then(response => response.json().then(data => ({ ok: response.ok, data })))
+    .then(({ ok, data }) => {
+        const modalBody = document.querySelector('#installPIPModal .modal-body');
+        modalBody.innerHTML = '';
+
+        const pre = document.createElement('pre');
+        pre.classList.add('overflow-auto', 'max-h-64', 'p-4', 'my-4', 'bg-gray-800', 'text-white', 'rounded');
+        pre.textContent = data.output || data.error_output || data.message || "";
+        modalBody.appendChild(pre);
+
+        if (ok) {
+            showToast({{toJSON (.T.Get "Package installation completed.")}}, 'success');
+        } else {
+            showToast({{toJSON (.T.Get "Package installation failed.")}}, 'error');
+            console.error('Installation failed:', data.message);
+        }
+    })
+    .catch(error => {
+        showToast({{toJSON (.T.Get "Error running package install for application.")}}, 'error');
+        console.error(error);
+    });
+});
+</script>
+
+<!-- END templates/manager/python_node_apps.html -->
+{{end}}

@@ -1,0 +1,177 @@
+{{define "content"}}
+<!-- START templates/php/options.html -->
+
+{{if .Version}}
+
+<section aria-label="PHP Settings Header" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Edit options for this PHP version. Any changes will restart the service."}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        <div class="relative w-full sm:max-w-[250px] sm:[&>input]:h-[30px]">
+            <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                </svg>
+            </div>
+        </div>
+
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+      <button type="submit" id="save-changes-button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Changes"}}</button>
+    </div>
+</div>
+<!-- END page header -->
+
+<!-- table -->
+    <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="bg-gray-50 dark:bg-gray-900 sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Option"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Value"}}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+
+{{if .Fields}}
+                  {{range .Fields}}
+                  <tr x-show="searchQuery === '' || '{{.Key}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Value}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                      {{.Key}}
+                    </td>
+                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                    {{if eq .Kind "checkbox_binary"}}
+                        <input type="checkbox" id="{{.Key}}" name="{{.Key}}" value="1" {{if .Checked}}checked{{end}} class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                    {{else if eq .Kind "timezone"}}
+                        <select id="{{.Key}}" name="{{.Key}}" class="bgroup/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2">
+                            {{range .Timezones}}
+                                <option value="{{.Name}}" {{if .Selected}}selected{{end}}>{{.Name}}</option>
+                            {{end}}
+                        </select>
+                    {{else if eq .Kind "checkbox_onoff"}}
+                        <input type="checkbox" id="{{.Key}}" name="{{.Key}}" value="On" {{if .Checked}}checked{{end}} class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                    {{else if eq .Kind "unit"}}
+                        <div class="flex items-center combined-input" data-key="{{.Key}}">
+                            <input type="number" value="{{.NumberPart}}" min="0" step="any" class="numeric-part bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                            <select class="unit-part inline-flex bg-gray-100 border border-l-0 border-gray-300 text-gray-600 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                <option value="K" {{if eq .UnitPart "K"}}selected{{end}}>K</option>
+                                <option value="M" {{if eq .UnitPart "M"}}selected{{end}}>M</option>
+                                <option value="G" {{if eq .UnitPart "G"}}selected{{end}}>G</option>
+                            </select>
+                            <input type="hidden" name="{{.Key}}" value="{{.NumberPart}}{{.UnitPart}}" class="combined-value" />
+                        </div>
+                    {{else if eq .Kind "number"}}
+                        <input type="number" min="0" name="{{.Key}}" value="{{.Value}}" step="any" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                    {{else}}
+                        <input type="text" name="{{.Key}}" value="{{.Value}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                    {{end}}
+                    </td>
+                  </tr>
+                  {{end}}
+
+<script>
+  document.querySelectorAll('.combined-input').forEach(container => {
+    const numberInput = container.querySelector('.numeric-part');
+    const unitSelect = container.querySelector('.unit-part');
+    const hiddenInput = container.querySelector('.combined-value');
+
+    function updateCombinedValue() {
+      hiddenInput.value = numberInput.value + unitSelect.value;
+    }
+
+    numberInput.addEventListener('input', updateCombinedValue);
+    unitSelect.addEventListener('change', updateCombinedValue);
+    updateCombinedValue();
+  });
+</script>
+
+{{else}}
+<tr class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                    <td colspan="2" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                      {{.T.Get "Default keys are not available. Contact Administrator."}}
+                    </td>
+                  </tr>
+{{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+<!-- END table -->
+
+{{if .Issues}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues === 'function') {
+        reportHealthIssues({{toJSON (printf "php-options:%s" .Version)}}, {{toJSON .Issues}}, 0);
+    }
+});
+</script>
+{{end}}
+
+</section>
+
+{{else}}
+
+<!-- page header -->
+<section aria-label="PHP Select Header" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit PHP options"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Modify PHP options such as memory limits, error reporting, and extension settings."}}</p>
+    </div>
+</div>
+<!-- END page header -->
+
+<!-- form -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <form class="mt-8" method="GET" id="php_version_form">
+        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+            <div class="col-span-full mb-5">
+                <label for="php_version" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Select PHP version:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                <div class="flex rounded-lg shadow-sm">
+                    <select id="php_version" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 mt-2" onchange="updateFormAction()" required>
+                        <option value="" disabled selected>{{.T.Get "Select PHP Version"}}</option>
+                        {{range .InstalledVersions}}
+                        <option value="{{.}}">PHP {{.}}</option>
+                        {{end}}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+        <div class="md:flex items-center md:justify-end md:space-x-4">
+            <a href="/php/domains" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full sm:w-fit">{{.T.Get "Back to PHP versions"}}</a>
+            <button class="relative hidden inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800 mt-2 w-full sm:w-auto sm:mt-0" type="submit" id="submit_version">{{.T.Get "Edit Options"}}</button>
+        </div>
+    </form>
+</div>
+<!-- END form -->
+
+<script>
+    function updateFormAction() {
+        var version = document.getElementById('php_version').value;
+        var form = document.getElementById('php_version_form');
+        var submitButton = document.getElementById('submit_version');
+        if (version) {
+            form.action = '/php/php' + version + '/options';
+            submitButton.classList.remove('hidden');
+        } else {
+            submitButton.classList.add('hidden');
+        }
+    }
+</script>
+
+</section>
+
+{{end}}
+
+<!-- END templates/php/options.html -->
+{{end}}

@@ -1,0 +1,77 @@
+{{define "content"}}
+<!-- START templates/user/login.html -->
+
+<div class="w-full bg-white rounded shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700 border border-gray-300">
+    <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+        <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">{{.T.Get "Sign in to your account"}}</h1>
+
+<form method="POST" class="space-y-4 md:space-y-6" action="/login">
+
+<input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+
+{{if not .TwofaEnabled}}
+<!-- Username and password fields only if 2FA is not enabled -->
+            <div>
+                <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Username"}}</label>
+                <input type="text" name="username" id="username" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 text-gray-900 placeholder-gray-400 bg-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="" placeholder="{{.T.Get "username"}}" {{if .UnrecognizedError}}autofocus value="{{.Username}}"{{else if .Username}}value="{{.Username}}"{{else}}autofocus{{end}}>
+            </div>
+            <div>
+                <label for="password" class="flex mb-2 text-sm font-medium text-gray-900 dark:text-white justify-between">{{.T.Get "Password"}}{{if eq .PasswordReset "yes"}} <a href="/reset_password" tabindex="-1">{{.T.Get "Forgot password?"}}</a>{{end}}</label>
+                <input type="password" name="password" id="password" placeholder="••••••••" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 text-gray-900 placeholder-gray-400 bg-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="" {{if .PasswordError}}autofocus{{end}}>
+            </div>
+
+{{else}}
+<!-- 2FA field if 2FA is enabled -->
+<input type="hidden" name="user_id" value="{{.UserID}}">
+
+            <div>
+                <label for="twofa_code" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Two-Factor Authentication Code"}}</label>
+
+                <input autofocus id="twofa_code" name="twofa_code" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 text-gray-900 placeholder-gray-400 bg-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="">
+            </div>
+{{end}}
+
+<!-- CAPTCHA: deferred until the plugin system (modules/plugins/captcha) is ported -->
+
+            <button type="submit" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 border-transparent text-white bg-[#090E1A] hover:bg-black disabled:text-white mt-4 w-full">{{.T.Get "Sign In"}}</button>
+        </form>
+
+{{if not .TwofaEnabled}}
+<button type="button" id="passkey-login-btn" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 text-gray-900 bg-white hover:bg-gray-100 dark:border-gray-700 dark:text-white dark:bg-gray-800 dark:hover:bg-gray-700 mt-3 w-full">{{.T.Get "Sign in with a passkey"}}</button>
+<script src="{{static "js/passkeys.js"}}"></script>
+<script>
+    document.getElementById('passkey-login-btn').addEventListener('click', async function () {
+        if (!window.PublicKeyCredential) {
+            alert("{{.T.Get "Passkeys require this panel to be accessed over HTTPS with a domain name."}}");
+            return;
+        }
+        try {
+            const result = await loginWithPasskey();
+            window.location.href = result.redirect || '/dashboard';
+        } catch (e) {
+            alert(e.message);
+        }
+    });
+</script>
+{{end}}
+
+        <!-- START errors -->
+        {{$message := .ErrorMessage}}
+        {{with .FirstFlash}}{{$message = .Text}}{{end}}
+
+        {{if $message}}
+        <div class="mt-6 flex items-center space-x-2.5 rounded bg-red-50 p-4 dark:bg-red-500/10">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-red-500 dark:text-red-500"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg>
+        <p class="text-sm text-red-600 dark:text-red-500">
+            {{$message}}
+        </p>
+        </div>
+        {{end}}
+        <!-- END errors -->
+
+    </div>
+</div>
+
+<!-- END templates/user/login.html -->
+{{end}}

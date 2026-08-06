@@ -1,0 +1,112 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/docker/logs.html -->
+
+    <div x-data="{ showSection: false }" class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+        <header>
+            <div class="flex flex-col gap-2 text-center sm:flex-row sm:items-center sm:justify-between sm:text-start">
+                <div class="grow">
+                    <h1 class="mb-1 text-xl font-bold">{{.T.Get "Logs"}}</h1>
+                    <h2 class="text-sm font-medium text-slate-500">{{.T.Get "View Docker container logs."}}</h2>
+                </div>
+                <div class="flex flex-none items-center justify-center gap-2 rounded-sm px-2 sm:justify-end sm:bg-transparent sm:px-0">
+
+
+
+
+        <div class="flex space-x-4 mt-4 md:mt-0">
+            <div>
+                <select id="log-select" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    <option disabled selected value>{{.T.Get "-- Select container --"}}</option>
+                    {{range .Services}}
+                                <option value="{{.}}">{{.}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <div>
+                <select id="lines-select" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    <option disabled selected value> {{.T.Get "-- Lines --"}} </option>
+                    <option value="20">20</option>
+                    <option value="100">100</option>
+                    <option value="500">500</option>
+                    <option selected value="1000">1000</option>
+                    <option value="2000">2000</option>
+                    <option value="999999">ALL</option>
+                </select>
+            </div>
+        </div>
+
+
+
+                </div>
+            </div>
+    </header>
+    </div>
+
+
+
+<div class="container mx-auto mt-4">
+
+    <div class="mt-6 bg-black-500 shadow-md rounded-lg p-4">
+        <pre id="log-content" class="whitespace-pre-wrap border border-gray-300 p-3">{{.T.Get "Select a container to view its logs here."}}</pre>
+    </div>
+
+</div>
+
+<script>
+const logsI18n = {
+    emptyLog: "{{.T.Get "The log file is empty."}}",
+    fetchError: "{{.T.Get "Error fetching log data."}}"
+};
+// SHOW LOG FILE CONTENT
+function fetchLog() {
+    const logSelect = document.getElementById('log-select');
+    const logName = logSelect.value;
+    const linesSelect = document.getElementById('lines-select');
+    const linesValue = linesSelect.value;
+
+    let url = `/containers/logs/${logName}`;
+    if (linesValue !== 'ALL') {
+        url += `?lines=${linesValue}`;
+    }
+
+    fetch(url)
+        .then(response => response.text())
+        .then(text => {
+            const logContentDiv = document.getElementById('log-content');
+            logContentDiv.textContent = text.trim() || logsI18n.emptyLog;
+        })
+        .catch(error => {
+            console.error('Error fetching log:', error);
+            document.getElementById('log-content').textContent = logsI18n.fetchError;
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const containerParam = urlParams.get('container');
+    const linesParam = urlParams.get('lines');
+
+    if (containerParam) {
+        const logSelect = document.getElementById('log-select');
+        logSelect.value = containerParam;
+
+        if (linesParam) {
+            const linesSelect = document.getElementById('lines-select');
+            linesSelect.value = linesParam;
+        }
+
+        fetchLog();
+    }
+
+
+    document.getElementById('log-select').addEventListener('change', fetchLog);
+    document.getElementById('lines-select').addEventListener('change', fetchLog);
+});
+</script>
+
+
+<!-- END templates/docker/logs.html -->
+{{end}}

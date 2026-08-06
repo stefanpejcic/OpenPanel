@@ -1,0 +1,211 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/user/activity.html -->
+
+<section aria-label="Domains Header" x-data="{ searchActivityQuery: {{toJSON .SearchTerm}} }">
+
+    <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="flex items-center gap-x-3">
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Activity Log"}}</h1>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">
+                {{if .SearchTerm}}
+                {{.T.Get "Search results for:"}} {{.SearchTerm}}
+                {{else}}
+                {{.T.Get "View recent user activity and system events."}}
+                {{end}}</p>
+        </div>
+        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+            <div class="relative w-full sm:w-64">
+                 <form id="activitySearchForm" action="/account/activity" method="get">
+                    <input
+                        x-model="searchActivityQuery"
+                        @keydown.enter.prevent="document.getElementById('activitySearchForm').submit()"
+                        name="search"
+                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 pl-8"
+                        placeholder="{{.T.Get "Search"}}"
+                        type="search"
+                    />
+                <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                        <path
+                            d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"
+                        ></path>
+                    </svg>
+                </div>
+            </div>
+            </div>
+        </div>
+
+<div class="">
+    <div class="w-full whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+        <table id="activity-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+            <thead>
+                <tr class="bg-gray-50 dark:bg-gray-900 sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
+                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                        <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                            <span>{{.T.Get "User"}}</span>
+                            <div class="-space-y-2">
+                                <a href="#" data-sort-key="user" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                <a href="#" data-sort-key="user" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                            </div>
+                        </div>
+                    </th>
+                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                        <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                            <span>{{.T.Get "Action"}}</span>
+                            <div class="-space-y-2">
+                                <a href="#" data-sort-key="action" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                <a href="#" data-sort-key="action" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                            </div>
+                        </div>
+                    </th>
+                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                        <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                            <span>{{.T.Get "IP Address"}}</span>
+                            <div class="-space-y-2">
+                                <a href="#" data-sort-key="ip" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                <a href="#" data-sort-key="ip" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                            </div>
+                        </div>
+                    </th>
+                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                        <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                            <span>{{.T.Get "Timestamp"}}</span>
+                            <div class="-space-y-2">
+                                <a href="#" data-sort-key="timestamp" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                <a href="#" data-sort-key="timestamp" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+
+            {{if not .Rows}}
+                    <tr>
+                        <td colspan="4" class="p-6 text-center">{{.T.Get "No logs yet."}}</td>
+                    </tr>
+
+            {{else}}
+                {{range .Rows}}
+                 <tr
+    data-ip="{{.IP}}"
+    data-timestamp="{{.Timestamp}}"
+    x-data='{
+        action: {{toJSON .Action}},
+        ip: {{toJSON .IP}},
+        timestamp: {{toJSON .Timestamp}}
+    }'
+    x-show='searchActivityQuery === ""
+        || action.toLowerCase().includes(searchActivityQuery.toLowerCase())
+        || ip.toLowerCase().includes(searchActivityQuery.toLowerCase())
+        || timestamp.toLowerCase().includes(searchActivityQuery.toLowerCase())'
+    class="hover:bg-gray-100 dark:hover:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6"
+>
+              <td class="px-4 py-3 flex items-center space-x-3" data-sort-col="user" data-sort-value="{{.User}}">
+                    {{if $.GravatarURL}}
+                    <img class="rounded-full shadow-lg w-8 h-8" src="{{$.GravatarURL}}" alt="Gravatar profile image"/>
+                    {{end}}
+                <span>{{.User}}</span>
+              </td>
+              <td class="px-4 py-3 max-w-xl truncate" title="{{.Action}}" data-sort-col="action">{{.Action}}</td>
+              <td class="px-4 py-3" data-sort-col="ip">{{.IP}}</td>
+              <td class="px-4 py-3" data-sort-col="timestamp">{{.Timestamp}}</td>
+            </tr>
+                {{end}}
+            {{end}}
+            </tbody>
+        </table>
+
+        <div class="mt-6 flex justify-between items-center mb-4">
+            <h5 class="section-title mb-0 text-sm">
+                {{if .ShowAll}}
+                    {{.T.Get "Showing"}} 1 - {{.TotalLines}} {{.T.Get "of"}} {{.TotalLines}} {{.T.Get "items"}}
+                {{else}}
+                    {{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .Page 1)) 1}} -
+                    {{if gt (mul .ItemsPerPage .Page) .TotalLines}}
+                        {{.TotalLines}}
+                    {{else}}
+                        {{mul .ItemsPerPage .Page}}
+                    {{end}}
+                    {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "items"}}
+                {{end}}
+            </h5>
+        </div>
+
+        <div class="mt-6 flex justify-center">
+            <nav aria-label="Pagination">
+                <ul class="inline-flex -space-x-px text-sm">
+
+                    {{if gt .Page 1}}
+                        <li>
+                            <a href="/account/activity?page={{sub .Page 1}}{{if .SearchTerm}}&search={{.SearchTerm}}{{end}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Previous"}}</a>
+                        </li>
+                    {{end}}
+                {{range .PageEntries}}
+                {{if .IsEllipsis}}
+                    <li class="page-item disabled">
+                        <span class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">...</span>
+                    </li>
+                {{else}}
+                    <li class="page-item {{if eq .Number $.Page}}active{{end}}">
+                        {{if eq .Number $.Page}}
+                        <span class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 bg-gray-200 dark:bg-gray-700">{{.Number}}</span>
+                        {{else}}
+                        <a class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700" href="/account/activity?page={{.Number}}{{if $.SearchTerm}}&search={{$.SearchTerm}}{{end}}">{{.Number}}</a>
+                        {{end}}
+                    </li>
+                {{end}}
+                {{end}}
+                    {{if lt .Page .TotalPages}}
+                        <li>
+                            <a href="/account/activity?page={{add .Page 1}}{{if .SearchTerm}}&search={{.SearchTerm}}{{end}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Next"}}</a>
+                        </li>
+                    {{end}}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues !== 'function') return;
+
+    const buckets = {}; // "ip|YYYY-MM-DDTHH:MM" -> count
+    document.querySelectorAll('table tbody tr[data-ip]').forEach(function (row) {
+        const ip = row.getAttribute('data-ip');
+        const ts = row.getAttribute('data-timestamp');
+        if (!ip || !ts) return;
+        const minuteBucket = ts.trim().slice(0, 16); // "YYYY-MM-DD HH:MM"
+        const key = ip + '|' + minuteBucket;
+        buckets[key] = (buckets[key] || 0) + 1;
+    });
+
+    const botIps = [];
+    Object.keys(buckets).forEach(function (key) {
+        if (buckets[key] >= 100) {
+            const ip = key.split('|')[0];
+            if (!botIps.includes(ip)) botIps.push(ip);
+        }
+    });
+
+    if (botIps.length) {
+        let issue;
+        if (botIps.length === 1) {
+            issue = { id: 'bot-activity:' + botIps[0], severity: 'error', message: "{{.T.Get "Suspicious activity detected from IP"}} " + botIps[0] + " {{.T.Get "(100+ actions in one minute)."}}" };
+        } else {
+            issue = { id: 'bot-activity:multiple', severity: 'error', message: botIps.length + " {{.T.Get "IPs show bot-like activity (100+ actions in one minute)."}}" };
+        }
+        reportHealthIssues('account-activity', [issue], 24);
+    }
+});
+</script>
+<script src="/static/js/table-sort.js"></script>
+
+</section>
+
+<!-- END templates/user/activity.html -->
+{{end}}

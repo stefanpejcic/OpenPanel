@@ -1,0 +1,239 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/docker/images.html -->
+
+<!-- page header -->
+<section aria-label="Select">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Image Updates"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Check for container image updates"}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+
+<p class="text-xs text-gray-500">{{.T.Get "Last checked"}}: {{if .LastModified}}{{.LastModified}}{{else}}{{.T.Get "Never"}}{{end}}</p>
+<form method="POST">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+    <input type="hidden" name="action" value="check"/>
+
+        <button id="check-updates-btn" type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-refresh"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg></button>
+</form>
+
+    </div>
+</div>
+<!-- END page header -->
+</section>
+
+
+{{if .Rows}}
+
+<dl class="m-6 flex flex-wrap items-center gap-x-12 gap-y-8">
+    <div>
+        <dt class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Monitored Images"}}</dt>
+        <dd class="mt-1.5 flex items-center gap-2">
+            <div class="flex gap-0.5">
+                <div class="h-3.5 w-1 rounded-sm bg-blue-500 dark:bg-blue-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-blue-500 dark:bg-blue-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-blue-500 dark:bg-blue-500"></div>
+            </div>
+            <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                {{.Metrics.MonitoredImages}}
+            </p>
+        </dd>
+    </div>
+
+
+
+    <div>
+        <dt class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Updates Available"}}</dt>
+        <dd class="mt-1.5 flex items-center gap-2">
+            <div class="flex gap-0.5">
+                <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
+            </div>
+            <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                {{.Metrics.UpdatesAvailable}}
+            </p>
+        </dd>
+    </div>
+
+    <div>
+        <dt class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Minor Updates"}}</dt>
+        <dd class="mt-1.5 flex items-center gap-2">
+            <div class="flex gap-0.5">
+                <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
+            </div>
+            <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                {{.Metrics.MinorUpdates}}
+            </p>
+        </dd>
+    </div>
+    <div>
+        <dt class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Major Updates"}}</dt>
+        <dd class="mt-1.5 flex items-center gap-2">
+            <div class="flex gap-0.5">
+                <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+            </div>
+            <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                {{.Metrics.MajorUpdates}}
+            </p>
+        </dd>
+    </div>
+    <div>
+        <dt class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Up to Date"}}</dt>
+        <dd class="mt-1.5 flex items-center gap-2">
+            <div class="flex gap-0.5">
+                <div class="h-3.5 w-1 rounded-sm bg-green-500 dark:bg-green-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-green-500 dark:bg-green-500"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-green-500 dark:bg-green-500"></div>
+            </div>
+            <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                {{.Metrics.UpToDate}}
+            </p>
+        </dd>
+    </div>
+    <div>
+        <dt class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Unknown"}}</dt>
+        <dd class="mt-1.5 flex items-center gap-2">
+            <div class="flex gap-0.5">
+                <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
+                <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
+            </div>
+            <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                {{.Metrics.Unknown}}
+            </p>
+        </dd>
+    </div>
+
+</dl>
+
+<section
+    aria-label="Images"
+    x-data="{ searchQuery: '' }"
+>
+
+<!-- table -->
+
+    <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Image"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Tag"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Update"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Info"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+
+{{range .Rows}}
+                    <tr x-show="searchQuery === '' || '{{.Repository}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Tag}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                        {{.Repository}}{{if .URL}} <a href="{{.URL}}" class="text-blue-500 underline" target="_blank">{{$.T.Get "Link"}}</a>{{end}}
+                        </td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                        {{.Tag}}
+                        </td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                                {{if eq .UpdateStatus "available"}}
+                                <div>
+                                    <dd class="flex items-center gap-2">
+                                        <div class="flex gap-0.5">
+                                            <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                                            <div class="h-3.5 w-1 rounded-sm bg-gray-500 dark:bg-gray-500"></div>
+                                            <div class="h-3.5 w-1 rounded-sm bg-gray-500 dark:bg-gray-500"></div>
+                                        </div>
+                                        <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Update available"}}</p>
+                                    </dd>
+                                </div>
+                                {{else if eq .UpdateStatus "uptodate"}}
+                                <div>
+                                    <dd class="flex items-center gap-2">
+                                        <div class="flex gap-0.5">
+                                            <div class="h-3.5 w-1 rounded-sm bg-green-500 dark:bg-green-500"></div>
+                                            <div class="h-3.5 w-1 rounded-sm bg-green-500 dark:bg-green-500"></div>
+                                            <div class="h-3.5 w-1 rounded-sm bg-green-500 dark:bg-green-500"></div>
+                                        </div>
+                                        <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Up to date"}}</p>
+                                    </dd>
+                                </div>
+                                {{else}}
+                                <div>
+                                    <dd class="flex items-center gap-2">
+                                        <div class="flex gap-0.5">
+                                            <div class="h-3.5 w-1 rounded-sm bg-gray-500 dark:bg-gray-500"></div>
+                                            <div class="h-3.5 w-1 rounded-sm bg-gray-500 dark:bg-gray-500"></div>
+                                            <div class="h-3.5 w-1 rounded-sm bg-gray-500 dark:bg-gray-500"></div>
+                                        </div>
+                                        <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Unknown"}}</p>
+                                    </dd>
+                                </div>
+                                {{end}}
+                        </td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            {{if eq .InfoType "version"}}
+                                <div>{{$.T.Get "New:"}} <strong>{{.NewTag}}</strong></div>
+                                <div>{{$.T.Get "From:"}} {{.CurrentVersion}}</div>
+                                <div>{{$.T.Get "To:"}} {{.NewVersion}}</div>
+                                <div>{{$.T.Get "Type:"}} {{.VersionUpdateType}}</div>
+                            {{else if eq .InfoType "digest"}}
+                                <div>{{$.T.Get "Digest updated"}}</div>
+                            {{else}}
+                            <span class="text-red-600">{{if .Error}}{{$.T.Get "Error:"}} {{.Error}}{{end}}</span>
+                            {{end}}
+                        </td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div class="flex items-center gap-2">
+                                <form method="POST" onsubmit="return confirm('{{$.T.Get "Permanently delete image"}} {{.ImageRef}}?');">
+                                    <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                                    <input type="hidden" name="action" value="delete"/>
+                                    <input type="hidden" name="image" value="{{.ImageRef}}"/>
+                                    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-2.5 py-1.5 text-center text-xs font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-red-300 dark:border-red-900 text-red-600 dark:text-red-500 bg-white dark:bg-gray-950 hover:bg-red-50 dark:hover:bg-red-950/40">{{$.T.Get "Delete"}}</button>
+                                </form>
+                            </div>
+                        </td>
+
+    </tr>
+    {{end}}
+</tbody>
+                </table>
+
+
+
+</div>
+    </div>
+
+
+</section>
+
+{{else}}
+  <p></p>
+
+        <div style="font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; height: 100vh; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center">
+            <div>
+                <h1 class="next-error-h1" style="display: inline-block; margin: 0 20px 0 0; padding: 0 23px 0 0; font-size: 24px; font-weight: 500; vertical-align: top; line-height: 49px">{{.T.Get "Check is in progress.."}}</h1>
+                <div style="display: inline-block">
+                    <h2 style="font-size:14px;font-weight:400;line-height:49px;margin:0">{{.T.Get "This may take a few minutes to complete. Refresh the page to display data."}}</h2>
+                </div>
+            </div>
+        </div>
+
+{{end}}
+
+<!-- END templates/docker/images.html -->
+{{end}}

@@ -1,0 +1,44 @@
+{{define "servicejs"}}{{if .Service}}
+<!-- START templates/partials/_service_js.html -->
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('serviceStatus', () => ({
+        serviceName: '{{.Service}}',
+        status: 'checking',
+        label: '{{.T.Get "Checking"}}',
+        stats: {},
+        showTooltip: false,
+
+        async fetchStatus() {
+            try {
+                const service = await window.fetchServiceData(this.serviceName);
+
+                if (service) {
+                    this.status = 'active';
+                    this.label = '{{.T.Get "Active"}}';
+                    this.stats = {
+                        ID: service.ID,
+                        Name: service.Name,
+                        '{{.T.Get "CPU Usage"}}': service.CPUPerc,
+                        '{{.T.Get "RAM Usage"}}': service.MemUsage,
+                        '{{.T.Get "Memory %%"}}': service.MemPerc,
+                        '{{.T.Get "Network I/O"}}': service.NetIO,
+                        '{{.T.Get "Block I/O"}}': service.BlockIO,
+                        PIDs: service.PIDs
+                    };
+                } else {
+                    this.status = 'error';
+                    this.label = '{{.T.Get "Inactive"}}';
+                }
+            } catch (error) {
+                this.status = 'error';
+                this.label = '{{.T.Get "Unknown"}}';
+                console.error('Error fetching service stats:', error);
+            }
+        }
+    }));
+});
+
+</script>
+<!-- END templates/partials/_service_js.html -->
+{{end}}{{end}}

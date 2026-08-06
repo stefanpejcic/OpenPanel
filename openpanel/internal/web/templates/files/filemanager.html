@@ -1,0 +1,488 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}
+    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/files/filemanager.html -->
+
+<script src="{{static "js/data-table.js"}}"></script>
+<div x-data="createTableController({
+        storageKey: 'fileManagerColumns',
+        storage: 'session',
+        columns: {
+            date: true,
+            group: false,
+            link_target: false,
+            links: false,
+            name: true,
+            owner: false,
+            permissions: true,
+            size: true,
+            type: false
+        }
+    })" x-cloak x-init="
+    document.addEventListener('keydown', (e) => {
+        const tag = document.activeElement.tagName.toLowerCase();
+        const isInputFocused = ['input', 'textarea'].includes(tag) || document.activeElement.isContentEditable;
+
+        if (!isInputFocused && e.key === 'Delete') {
+            document.getElementById('deleteButton')?.click();
+        }
+
+        if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+            if (isInputFocused) {
+                return;
+            }
+            e.preventDefault();
+            document.getElementById('SelectAll-button')?.click();
+        }
+
+        if (e.key === 'n' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            if (isInputFocused) return;
+            e.preventDefault();
+            document.getElementById('newFileButton')?.click();
+        }
+    });
+    if (window.registerShortcut) {
+        registerShortcut(['Ctrl', 'A'], '{{.T.Get "Select all files"}}');
+        registerShortcut(['Delete'], '{{.T.Get "Delete selected files"}}');
+        registerShortcut(['N'], '{{.T.Get "New file"}}');
+    }
+">
+
+
+<!-- START header -->
+<div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+   <div>
+      <div class="flex items-center gap-x-3">
+         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "File Manager"}}</h1>
+      </div>
+
+
+      <!-- START breadcrumbs -->
+      <p class="text-sm text-gray-500 dark:text-gray-500">
+      <nav aria-label="FileManager Breadcrumbs" id="tour-fm-breadcrumbs">
+         <ol role="list" class="flex items-center space-x-1 text-sm">
+            <li class="flex">
+               <a href="/files?view={{.View}}" class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300">/var/www/html/</a>
+            </li>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true">
+               <path d="m9 18 6-6-6-6"></path>
+            </svg>
+            {{range $i, $part := .Breadcrumbs}}
+            <li class="flex">
+               {{if eq $i 2}}
+               <a href="/files?view={{$.View}}" class="text-gray-900 dark:text-gray-50">{{$part.Name}}</a>
+               {{else}}
+               <a href="/files/{{$part.Path}}?view={{$.View}}" class="text-gray-900 dark:text-gray-50">{{$part.Name}}</a>
+               {{end}}
+            </li>
+            {{if not $part.Last}}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true">
+               <path d="m9 18 6-6-6-6"></path>
+            </svg>
+            {{end}}
+            {{end}}
+         </ol>
+      </nav>
+      </p>
+      <!-- END breadcrumbs -->
+   </div>
+   <!-- START new and upload buttons -->
+   <div class="gap-0 sm:mt-0 sm:flex">
+
+    <input type="text" class="form-control search-bar relative block appearance-none rounded-l border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[5px] focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" id="searchFilesInput" style="display: none;" placeholder="{{.T.Get "Search Files & Folders"}}">
+
+
+      <button class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="newFileButton" data-drawer-target="newfiDrawer" data-drawer-show="newfiDrawer" data-drawer-placement="right" aria-controls="newfiDrawer">
+      <i class="bi bi-plus-lg"></i> {{.T.Get "New File"}}
+      </button>
+      <button class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="newFolderButton" data-drawer-target="newfoDrawer" data-drawer-show="newfoDrawer" data-drawer-placement="right" aria-controls="newfoDrawer">
+      <i class="bi bi-folder-plus"></i> {{.T.Get "New Folder"}}
+      </button>
+      <button class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="uploadButton" onclick="window.open('/file-manager/upload?path_param={{.PathParam}}', '_blank')">
+      <i class="bi bi-upload"></i> {{.T.Get "Upload"}}
+      </button>
+
+
+
+        <!-- Dropdown for Column Visibility -->
+        <div class="relative" id="FilterButton">
+            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" class="h-full relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" type="button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4"><path d="M5 7C5 6.17157 5.67157 5.5 6.5 5.5C7.32843 5.5 8 6.17157 8 7C8 7.82843 7.32843 8.5 6.5 8.5C5.67157 8.5 5 7.82843 5 7ZM6.5 3.5C4.567 3.5 3 5.067 3 7C3 8.933 4.567 10.5 6.5 10.5C8.433 10.5 10 8.933 10 7C10 5.067 8.433 3.5 6.5 3.5ZM12 8H20V6H12V8ZM16 17C16 16.1716 16.6716 15.5 17.5 15.5C18.3284 15.5 19 16.1716 19 17C19 17.8284 18.3284 18.5 17.5 18.5C16.6716 18.5 16 17.8284 16 17ZM17.5 13.5C15.567 13.5 14 15.067 14 17C14 18.933 15.567 20.5 17.5 20.5C19.433 20.5 21 18.933 21 17C21 15.067 19.433 13.5 17.5 13.5ZM4 16V18H12V16H4Z"></path></svg></button>
+
+            <!-- Dropdown menu -->
+            <div id="dropdownToggle" class="z-50 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 divide-y divide-gray-100 rounded-lg shadow-sm w-42 dark:divide-gray-600 hidden">
+                <ul class="p-2 space-y-1" aria-labelledby="dropdownToggleButton">
+                    {{template "column_toggle" (dict "Key" "name" "Label" (.T.Get "Name"))}}
+                    {{template "column_toggle" (dict "Key" "date" "Label" (.T.Get "Date"))}}
+                    {{template "column_toggle" (dict "Key" "owner" "Label" (.T.Get "Owner"))}}
+                    {{template "column_toggle" (dict "Key" "group" "Label" (.T.Get "Group"))}}
+                    {{template "column_toggle" (dict "Key" "links" "Label" (.T.Get "Links"))}}
+                    {{template "column_toggle" (dict "Key" "link_target" "Label" (.T.Get "Link Target"))}}
+                    {{template "column_toggle" (dict "Key" "permissions" "Label" (.T.Get "Permissions"))}}
+                    {{template "column_toggle" (dict "Key" "size" "Label" (.T.Get "Size"))}}
+                    {{template "column_toggle" (dict "Key" "type" "Label" (.T.Get "Type"))}}
+                </ul>
+            </div>
+        </div>
+
+        <div class="relative" id="FilterSearchButton" style="display: none;">
+            <button id="dropdownSearchToggleButton" data-dropdown-toggle="dropdownSearchToggle" class="h-full relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" type="button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4"><path d="M5 7C5 6.17157 5.67157 5.5 6.5 5.5C7.32843 5.5 8 6.17157 8 7C8 7.82843 7.32843 8.5 6.5 8.5C5.67157 8.5 5 7.82843 5 7ZM6.5 3.5C4.567 3.5 3 5.067 3 7C3 8.933 4.567 10.5 6.5 10.5C8.433 10.5 10 8.933 10 7C10 5.067 8.433 3.5 6.5 3.5ZM12 8H20V6H12V8ZM16 17C16 16.1716 16.6716 15.5 17.5 15.5C18.3284 15.5 19 16.1716 19 17C19 17.8284 18.3284 18.5 17.5 18.5C16.6716 18.5 16 17.8284 16 17ZM17.5 13.5C15.567 13.5 14 15.067 14 17C14 18.933 15.567 20.5 17.5 20.5C19.433 20.5 21 18.933 21 17C21 15.067 19.433 13.5 17.5 13.5ZM4 16V18H12V16H4Z"></path></svg></button>
+
+            <!-- Dropdown menu -->
+            <div id="dropdownSearchToggle" class="z-50 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 divide-y divide-gray-100 rounded-lg shadow-sm w-42 dark:divide-gray-600 hidden">
+                <ul class="p-2 space-y-1" aria-labelledby="dropdownSearchToggleButton">
+
+                    <li>
+<div class="flex py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600"><label class="flex items-center w-full cursor-pointer"><span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300 w-full">{{.T.Get "in:"}}</span><input id="searchFolder" type="text" class="relative block appearance-none rounded-l border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[5px] focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" placeholder="{{.T.Get "all folders"}}"></label></div>
+                    </li>
+
+
+                    <li>
+                        <div class="flex py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+                            <label class="inline-flex items-center w-full cursor-pointer">
+                                <input id="toggleFiles" type="checkbox" checked class="sr-only peer">
+                                <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Files"}}</span>
+                            </label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+                            <label class="inline-flex items-center w-full cursor-pointer">
+                                <input id="toggleFolders" type="checkbox" checked class="sr-only peer">
+                                <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Folders"}}</span>
+                            </label>
+                        </div>
+                    </li>
+                    <li class="hidden">
+                        <div class="py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+                            <label class="items-center w-full cursor-pointer">
+                                <input type="checkbox" x-on:change="searchFiles" class="sr-only peer">
+                                <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Specific extension"}}</span>
+                            </label>
+                        </div>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+
+      <button class="h-full relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="searchIcon" onclick="toggleSearchBar()">
+      <i class="bi bi-search"></i>
+      </button>
+
+   </div>
+   <!-- END new and upload buttons -->
+
+</div>
+<!-- END header -->
+
+<!-- START files search results -->
+<!-- NOTE: this search box calls /json/search/files and /json/search/folders,
+     which don't exist anywhere in the Python backend either - dead,
+     never-functional UI in the source this was ported from. Kept as-is
+     rather than removed, to stay a faithful port; not worth implementing
+     server-side search that was never part of the original feature. -->
+    <div class="text-sm" id="fileserachresults">
+
+        <ul class="flex w-full overflow-y-auto [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500" aria-labelledby="searchFilesInput" id="filteredFilesDropdown">
+        </ul>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchFilesInput');
+    const searchFolder = document.getElementById('searchFolder');
+    const toggleFiles = document.getElementById('toggleFiles');
+    const toggleFolders = document.getElementById('toggleFolders');
+    const dropdown = document.getElementById('filteredFilesDropdown');
+
+    async function doSearch() {
+        const searchText = searchInput.value.toLowerCase();
+        const folderFilter = searchFolder.value.trim();
+
+        let dropdownItems = '';
+
+        const searchFilesEnabled = toggleFiles.checked;
+        const searchFoldersEnabled = toggleFolders.checked;
+
+        let filesUrl = `/json/search/files?q=${encodeURIComponent(searchText)}`;
+        let foldersUrl = `/json/search/folders?q=${encodeURIComponent(searchText)}`;
+
+        if (folderFilter !== '') {
+            const folderParam = `&folder=${encodeURIComponent(folderFilter)}`;
+            filesUrl += folderParam;
+            foldersUrl += folderParam;
+        }
+
+        const requests = [];
+
+        requests.push(
+            searchFilesEnabled
+                ? fetch(filesUrl).then(r => r.json())
+                : Promise.resolve([])
+        );
+
+        requests.push(
+            searchFoldersEnabled
+                ? fetch(foldersUrl).then(r => r.json())
+                : Promise.resolve([])
+        );
+
+        const [filesData, foldersData] = await Promise.all(requests);
+
+        const currentQuery = window.location.search;
+
+        foldersData.forEach(item => {
+            const itemName = (item.name || '').toLowerCase();
+            const linkTarget = item.path || '';
+
+            if (itemName.includes(searchText)) {
+                const fullLink =
+                    `${window.location.protocol}//${window.location.host}/files/${linkTarget}${currentQuery}`;
+
+                dropdownItems += `
+                    <li class="p-1 border-r border-gray-200 dark:border-gray-800">
+                        <h3 class="m-0">
+                            <a class="flex" href="${fullLink}">
+                                <span class="text-orange-500 mr-2">
+                                    <i class="bi bi-folder-fill"></i>
+                                </span>
+                                ${item.name}
+                                <br>
+                                <p class="dropdown-item-description"
+                                   style="display:contents;font-size:0.7em;">
+                                    ${linkTarget}
+                                </p>
+                            </a>
+                        </h3>
+                    </li>`;
+            }
+        });
+
+        filesData.forEach(item => {
+            const itemName = (item.name || '').toLowerCase();
+            const linkTarget = item.path || '';
+
+            if (itemName.includes(searchText)) {
+                const fullLink =
+                    `${window.location.protocol}//${window.location.host}/files/${linkTarget}${currentQuery}`;
+
+                dropdownItems += `
+                    <li class="p-1 border-r border-gray-200 dark:border-gray-800">
+                        <h3 class="m-0">
+                            <a class="flex" href="${fullLink}">
+                                <span class="mr-2">
+                                    <i class="bi bi-file-earmark"></i>
+                                </span>
+                                ${item.name}
+                                <br>
+                                <p class="dropdown-item-description"
+                                   style="display:contents;font-size:0.7em;">
+                                    ${linkTarget}
+                                </p>
+                            </a>
+                        </h3>
+                    </li>`;
+            }
+        });
+
+        if (dropdownItems) {
+            dropdown.innerHTML = dropdownItems;
+            dropdown.style.display = '';
+            dropdown.classList.add('p-1');
+        } else {
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'none';
+            dropdown.classList.remove('p-1');
+        }
+    }
+
+    searchInput?.addEventListener('input', doSearch);
+    searchFolder?.addEventListener('input', doSearch);
+    toggleFiles?.addEventListener('change', doSearch);
+    toggleFolders?.addEventListener('change', doSearch);
+
+    document.addEventListener('click', event => {
+        if (
+            !event.target.closest(
+                '#searchFilesInput, #searchFolder, #fileserachresults'
+            )
+        ) {
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'none';
+            dropdown.classList.remove('p-1');
+        }
+    });
+});
+</script>
+<!-- END files search results -->
+
+
+{{if eq (len .Directories) 0}}{{if eq (len .Files) 0}}
+
+    {{template "drag_and_drop" .}}
+    {{template "empty_directory" .}}
+
+{{end}}{{end}}
+{{if or (gt (len .Directories) 0) (gt (len .Files) 0)}}
+
+    {{if eq .View "classic"}}
+        {{template "actions_buttons" .}}
+    {{else}}
+        {{template "new_actions_buttons" .}}
+    {{end}}
+
+    {{template "drag_and_drop" .}}
+    {{template "files_table" .}}
+
+    {{if gt .TotalPages 1}}
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <p>
+                        {{.T.Get "Showing files"}} {{.StartLineNumber}} {{.T.Get "to"}} {{.EndLineNumber}}, {{.T.Get "from a total of"}} {{.TotalFiles}}.
+                    </p>
+                </div>
+                <div class="col-sm">
+
+    <nav aria-label="{{.T.Get "Page navigation"}}">
+        <ul class="pagination">
+            {{if gt .CurrentPage 1}}
+                <li class="page-item">
+                    <a class="page-link" href="/files/{{.PathParam}}?view={{.View}}&page={{.PrevPage}}" aria-label="{{.T.Get "Previous"}}">
+                        <span aria-hidden="true">&laquo; {{.T.Get "Previous"}}</span>
+                    </a>
+                </li>
+            {{end}}
+            {{range .PageEntries}}
+                {{if .IsEllipsis}}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {{else if eq .Number $.CurrentPage}}
+                    <li class="page-item active">
+                        <span class="page-link">{{.Number}}</span>
+                    </li>
+                {{else}}
+                    <li class="page-item">
+                        <a class="page-link" href="/files/{{$.PathParam}}?view={{$.View}}&page={{.Number}}">{{.Number}}</a>
+                    </li>
+                {{end}}
+            {{end}}
+            {{if lt .CurrentPage .TotalPages}}
+                <li class="page-item">
+                    <a class="page-link" href="/files/{{.PathParam}}?view={{.View}}&page={{.NextPage}}" aria-label="{{.T.Get "Next"}}">
+                        <span aria-hidden="true">{{.T.Get "Next"}} &raquo;</span>
+                    </a>
+                </li>
+            {{end}}
+        </ul>
+    </nav>
+
+                </div>
+            </div>
+        </div>
+    {{end}}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof reportHealthIssues !== 'function') return;
+        const noPermFiles = [];
+        document.querySelectorAll('#filemanager_table tbody tr[data-file]').forEach(function (row) {
+            const perms = row.getAttribute('data-permissions') || '';
+            if (/^.-{9}$/.test(perms)) noPermFiles.push(row.getAttribute('data-file'));
+        });
+        if (!noPermFiles.length) return;
+        let issue;
+        if (noPermFiles.length === 1) {
+            issue = { id: 'perms0000:' + noPermFiles[0], severity: 'error', message: "{{.T.Get "File"}} " + noPermFiles[0] + " {{.T.Get "has no permissions (0000) and cannot be accessed."}}" };
+        } else if (noPermFiles.length === 2) {
+            issue = { id: 'perms0000:' + noPermFiles.join(','), severity: 'error', message: "{{.T.Get "Files"}} " + noPermFiles.join(', ') + " {{.T.Get "have no permissions (0000) and cannot be accessed."}}" };
+        } else {
+            issue = { id: 'perms0000:multiple', severity: 'error', message: noPermFiles.length + " {{.T.Get "files have no permissions (0000) and cannot be accessed."}}" };
+        }
+        reportHealthIssues('files:' + window.location.pathname, [issue], 24);
+    });
+    </script>
+    {{template "fm_inline_js" .}}
+    {{template "fm_copy" .}}
+    {{template "fm_move" .}}
+    {{template "fm_delete" .}}
+    {{template "fm_rename" .}}
+    {{template "fm_permissions" .}}
+    {{template "fm_compress" .}}
+    {{template "fm_extract" .}}
+
+{{end}}
+
+{{template "fm_new_file" .}}
+{{template "fm_new_folder" .}}
+
+</div>
+
+<script>
+  function toggleSearchBar() {
+    var searchBar = document.querySelector('.search-bar');
+    var searchIcon = document.getElementById('searchIcon');
+    var filterButton = document.getElementById('FilterButton');
+    var filterSearchButton = document.getElementById('FilterSearchButton');
+    var newFileButton = document.getElementById('newFileButton');
+    var newFolderButton = document.getElementById('newFolderButton');
+    var uploadButton = document.getElementById('uploadButton');
+    var searchFilesInput = document.getElementById('searchFilesInput');
+    var toggleDarkModeIcon = document.getElementById('toggleDarkModeIcon');
+
+    if (searchBar.style.display === 'none' || searchBar.style.display === '') {
+      searchBar.style.display = 'block';
+      searchIcon.innerHTML = '<i class="bi bi-x-lg"></i>';
+
+      if (searchFilesInput) {
+        searchFilesInput.style.display = 'block';
+        searchFilesInput.focus();
+      }
+
+      if (toggleDarkModeIcon) {
+        toggleDarkModeIcon.style.display = 'none';
+      }
+        newFileButton.style.display = 'none';
+        newFolderButton.style.display = 'none';
+        uploadButton.style.display = 'none';
+        filterButton.style.display = 'none';
+        filterSearchButton.style.display = 'block';
+    } else {
+      searchBar.style.display = 'none';
+      searchIcon.innerHTML = '<i class="bi bi-search"></i>';
+      if (toggleDarkModeIcon) {
+        toggleDarkModeIcon.style.display = 'block';
+      }
+
+        filterButton.style.display = 'block';
+        filterSearchButton.style.display = 'none';
+        newFileButton.style.display = 'block';
+        newFolderButton.style.display = 'block';
+        uploadButton.style.display = 'block';
+    }
+  }
+</script>
+
+<script defer src="/static/js/filemanager_breadcrumbs.js?ver=1.1.3"></script>
+
+<!-- END templates/files/filemanager.html -->
+{{end}}
+
+{{define "column_toggle"}}
+<li>
+    <div class="flex py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+        <label class="inline-flex items-center w-full cursor-pointer">
+            <input type="checkbox" x-model="columns.{{.Key}}" x-on:change="saveColumns" class="sr-only peer">
+            <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Label}}</span>
+        </label>
+    </div>
+</li>
+{{end}}

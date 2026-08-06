@@ -1,0 +1,127 @@
+{{define "grapejs_editor"}}<!DOCTYPE html>
+<html lang="en">
+    <!-- START templates/manager/grapejs_editor.html -->
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="robots" content="noindex">
+        <link rel="shortcut icon" type="image/x-icon" href="{{if .Favicon}}{{.Favicon}}{{else}}{{static "images/favicon.svg"}}{{end}}">
+        <title>GrapesJS Website Editor - {{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}</title>
+        <link href="{{static "vendor/grapesjs/grapes.min.css"}}" rel="stylesheet">
+
+        <script type="text/javascript">
+            var csrf_token = "{{.CSRFToken}}";
+        </script>
+
+    </head>
+    <body>
+
+        <style>
+            body,
+            html {
+                margin: 0;
+                height: 100%;
+            }
+
+            .change-theme-button {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                margin: 5px;
+            }
+
+            .change-theme-button:focus {
+                outline: none;
+                box-shadow: 0 0 0 2pt #c5c5c575;
+            }
+        </style>
+
+        <div id="gjs"></div>
+
+        <script src="{{static "vendor/grapesjs/grapes.min.js"}}"></script>
+        <script src="{{static "vendor/grapesjs/grapesjs-tailwind.min.js"}}"></script>
+
+        <script>
+            const escapeName = name => name.replace(/([^a-z0-9\w-:/]+)/gi, '-').replace(/^-+|-+$/g, '');
+
+            const editor = grapesjs.init({
+                container: '#gjs',
+                height: '100%',
+                fromElement: false,
+                storageManager: false,
+                components: `{{.HTML}}`,
+                style: `{{.CSS}}`,
+                selectorManager: {
+                    escapeName,
+                },
+                plugins: ['grapesjs-tailwind']
+            });
+
+			editor.Panels.addButton('options', [{
+				id: 'save-button',
+				className: 'fa fa-save',
+				command: 'save-content',
+				attributes: { title: 'Save' }
+			}]);
+
+editor.Commands.add('save-content', {
+	run: function(editor, sender) {
+		sender && sender.set('active');
+
+		let html = editor.getHtml();
+		const css = editor.getCss();
+
+		const tailwindCDN = `<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">`;
+
+		html = html.replace(/<head>(.*?)<\/head>/s, `<head>${tailwindCDN}$1</head>`);
+
+		if (!html.includes('<head>')) {
+			html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	${tailwindCDN}
+</head>
+<body>
+${html}
+<style>${css}</style>
+</body>
+</html>`;
+		}
+
+        const params = new URLSearchParams(window.location.search);
+        const domain = params.get("domain");
+
+        fetch("", {
+        method: "POST",
+        headers: {
+            'X-CSRF-Token': csrf_token,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({ html: html, css: css })
+        }).then(res => {
+        if (res.ok) {
+            const successHtml = `
+            <div style="padding:10px;">{{.T.Get "Saved successfully!"}}</div>
+            ${domain ? `<div style="padding:10px;"><a href="http://${domain}" target="_blank" rel="noopener noreferrer">{{.T.Get "View your site"}}</a> {{.T.Get "or close the modal and keep editing."}}</div>` : ""}
+            `;
+            editor.Modal.setTitle('{{.T.Get "Success"}}')
+            .setContent(successHtml)
+            .open();
+        } else {
+            editor.Modal.setTitle('{{.T.Get "Error"}}')
+            .setContent('<div style="padding:10px;color:red;">{{.T.Get "Failed to save."}}</div><div style="padding:10px;color:red;">{{.T.Get "Copy code from HTML and CSS tabs, then reload the page to try again."}}</div>')
+            .open();
+        }
+        });
+	}
+});
+
+        </script>
+
+    </body>
+    <!-- END templates/manager/grapejs_editor.html -->
+</html>
+{{end}}

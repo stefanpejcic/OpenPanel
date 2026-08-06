@@ -1,0 +1,238 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/docker/container_form.html -->
+
+<!-- page header -->
+<section>
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{if .Editing}}{{.T.Get "Edit docker service."}}{{else}}{{.T.Get "Add a new docker service"}}{{end}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+    </div>
+</div>
+
+
+
+<div class="rounded-lg m-8 bg-gray-50 p-6 ring-1 ring-inset ring-gray-200 dark:bg-gray-400/10 dark:ring-gray-800"><h4 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Experimental feature"}}</h4><p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">{{.T.Get "Adding containers is an experimental feature and should not be used in production."}} <a href="https://community.openpanel.org/" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-500">{{.T.Get "Please share feedback"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg></a></p></div>
+
+
+  <script>
+    function suggestName() {
+      const image = document.getElementById('image').value;
+      const serviceInput = document.getElementById('service_name');
+      if (serviceInput.disabled) return; // don't suggest on edit
+
+      if (!image) return;
+      let name = image.split(":")[0].split("/").pop().toLowerCase();
+      // keep only letters and numbers at end, no dashes or underscores
+      name = name.replace(/[^a-z0-9]/g, '');
+      if (name.length < 3) {
+        name = 'app' + name; // ensure min length 3
+      } else if (!/^[a-z]/.test(name)) {
+        name = 'app' + name; // ensure starts with letter
+      }
+      // check if exists in existing_services passed as JSON
+      const existing = {{.ExistingServicesJSON}};
+      if (existing.includes(name)) {
+        // append number to make unique
+        let i = 2;
+        let newName = name + i;
+        while (existing.includes(newName)) {
+          i++;
+          newName = name + i;
+        }
+        name = newName;
+      }
+      serviceInput.value = name;
+    }
+  </script>
+
+<!-- form -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <form class="mt-8" id="installForm" action="" method="POST">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+
+  {{if .Error}}
+    <div class="col-span-full error">{{.Error}}</div>
+  {{end}}
+
+
+<div class="col-span-full">
+  <label for="service_name" class="text-start block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+    {{.T.Get "Name:"}}<span class="text-red-500 dark:text-red-500">*</span>
+  </label>
+  <div class="flex rounded-lg shadow-sm">
+    <input type="text"
+           class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+           name="service_name"
+           id="service_name"
+           pattern="[a-z0-9]+"
+           title="{{.T.Get "Only lowercase letters and numbers are allowed."}}"
+           oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9]/g, '')"
+           value="{{.ServiceName}}"
+           {{if .ServiceNameReadonly}}readonly{{end}}
+           required>
+  </div>
+  <p class="text-xs text-gray-500">{{.T.Get "Name is used to identify the container, and is used by other services to connect."}}</p>
+</div>
+
+
+
+  <div class="col-span-full">
+    <label for="image" class="text-start block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Docker Image and Tag:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+    <div class="flex rounded-lg shadow-sm">
+<input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" type="text" id="image" name="image" required value="{{.Image}}" onblur="suggestName()">
+    </div>
+  </div>
+
+  <div class="col-span-full">
+    <label for="environment" class="text-start block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Environment Variables (key:value, one per line, optional):"}}</label>
+    <div>
+      <textarea class="flex w-full resize-none rounded border px-3 py-1.5 shadow-sm outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-300 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="environment" name="environment" rows="5" placeholder="VAR1: value1\nVAR2: value2">{{.Environment}}</textarea>
+
+  </div>
+
+        <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6 col-span-full">
+        <div class="col-span">
+            <label for="cpu" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "CPU Limit (e.g., 0.5):"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+            <div class="flex rounded-lg shadow-sm">
+<input class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" type="text" id="cpu" name="cpu" required pattern="[0-9]+(\.[0-9]+)?" title="{{.T.Get "Numeric value"}}" value="{{.CPU}}">
+
+            </div>
+        </div>
+
+        <div class="col-span">
+            <label for="cpu" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Memory Limit (e.g., 0.5G):"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+            <div class="flex rounded-lg shadow-sm">
+<input class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" type="text" id="ram" name="ram" required pattern="^[0-9]+[gG]$" title="{{.T.Get "Example: 1G"}}" value="{{.RAM}}">
+
+            </div>
+        </div>
+
+        </div>
+
+
+
+
+        <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6 col-span-full">
+
+  <div class="col-span-full">
+    <label for="volumes" class="text-start block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Volumes:"}}</label>
+    <div class="grid gap-2">
+      <div>
+        <label><input type="checkbox" name="add_socket" {{if .AddSocket}}checked{{end}}> {{.T.Get "Mount Docker socket"}} (<code>/run/user/${USER_ID}/podman/podman.sock:/var/run/docker.sock:ro</code>)</label>
+      </div>
+      <div id="volumes-section">
+        {{if .VolumeEntries}}
+          {{range .VolumeEntries}}
+            <div class="volume-entry">
+              <input type="text" name="volume_name" placeholder="{{$.T.Get "Volume name"}}" value="{{.Name}}" required>
+              <input type="text" name="volume_mount" placeholder="{{$.T.Get "Mount path inside container"}}" value="{{.Mount}}" required>
+              <label>
+                <input type="checkbox" name="volume_readonly" {{if .ReadOnly}}checked{{end}}> {{$.T.Get "Read-only"}}
+              </label>
+              <button type="button" onclick="removeVolume(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+</svg></button>
+            </div>
+          {{end}}
+        {{else}}
+          <div class="volume-entry">
+          </div>
+        {{end}}
+      </div>
+      <button type="button" onclick="addVolume()" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg> {{.T.Get "Add"}}</button>
+
+
+      <script>
+        function addVolume() {
+          const container = document.getElementById("volumes-section");
+          const div = document.createElement("div");
+          div.className = "volume-entry flex py-1";
+          div.innerHTML = `
+          <div class="flex w-full">
+            <select name="volume_name" required class="relative block w-full appearance-none rounded-l border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+            {{range .AvailableVolumes}}
+              <option value="{{.}}">{{.}}</option>
+            {{end}}
+          </select>
+
+            <input type="text" class="relative block w-full appearance-none rounded-r border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" name="volume_mount" placeholder="{{.T.Get "Path inside container"}}" required>
+          </div>
+            <label hidden><input type="checkbox" name="volume_readonly"> {{.T.Get "Read-only"}}</label>
+            <button type="button" class="ml-2" onclick="removeVolume(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+</svg></button>
+          `;
+          container.appendChild(div);
+        }
+
+        function removeVolume(button) {
+          const entry = button.closest(".volume-entry");
+          entry.remove();
+        }
+      </script>
+
+    </div>
+  </div>
+
+
+
+  <div class="col-span-full">
+    <label for="network" class="text-start block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Networks:"}}</label>
+    <div class="flex">
+      <select name="network" id="network" required>
+        {{range .AvailableNetworks}}
+          <option value="{{.}}" {{if eq . $.Network}}selected{{end}}>{{.}}</option>
+        {{end}}
+      </select>
+    </div>
+  </div>
+
+
+
+
+  <div class="col-span-full">
+    <label for="healthcheck" class="text-start block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Healthcheck (YAML format, optional):"}}</label>
+    <textarea class="flex w-full resize-none rounded border px-3 py-1.5 shadow-sm outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-300 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="healthcheck" name="healthcheck" rows="5" placeholder='test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]&#10;interval: 10s&#10;retries: 3&#10;timeout: 10s'>{{.Healthcheck}}</textarea>
+  </div>
+
+
+
+        </div>
+
+
+      </div>
+
+        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+
+
+<div class="md:flex items-center md:justify-end md:space-x-4">
+    <a href="/containers" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">
+        {{.T.Get "Back to Containers"}}
+    </a>
+    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+        {{.T.Get "Save"}}
+        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+        </svg>
+    </button>
+</div>
+
+    </form>
+</div>
+<!-- END form -->
+
+</section>
+
+
+<!-- END templates/docker/container_form.html -->
+{{end}}

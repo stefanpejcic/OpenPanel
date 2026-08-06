@@ -1,0 +1,149 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/system/cronjobs_new.html -->
+
+<!-- page header -->
+<section aria-label="Crons Header" x-data="{ searchQuery: '' }">
+  <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <div class="flex items-center gap-x-3">
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create Cron Job"}}</h1>
+      </div>
+      <p class="text-sm text-gray-500 dark:text-gray-500">
+        {{.T.Get "Select a container in which the script will be executed and set schedule. To add multiple jobs at once, use the File Editor instead."}}
+      </p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+      <a href="/cronjobs?view=code" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit mt-2 md:mt-0">
+        {{.T.Get "Switch to File Editor"}}
+      </a>
+    </div>
+  </div>
+  <!-- END page header -->
+
+  <!-- form -->
+  <div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <form class="mt-8" id="cronForm" action="/cronjobs/save" method="post" data-parsley-validate="" novalidate="">
+      <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+      <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+        <!-- Container select -->
+        <div class="col-span-full">
+          <label for="container" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            {{.T.Get "Select Container:"}}<span class="text-red-500">*</span>
+          </label>
+          <select id="container" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+            <option value="--" disabled>{{.T.Get "-- Select --"}}</option>
+            {{range .Containers}}
+              <option value="{{.}}">{{.}}</option>
+            {{end}}
+          </select>
+        </div>
+
+        <!-- Schedule input -->
+        <div class="col-span-full">
+            <div class="flex mx-auto justify-between mb-2">
+                <label for="schedule" class="block text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Schedule:"}} <span class="text-red-500">*</span></label>
+                <a href="https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format" target="_blank" class="text-sm inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">{{.T.Get "Expression Format"}} <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a>
+            </div>
+          <input type="text" id="schedule" name="schedule"
+                 class="py-2 px-3 block w-full border-gray-200 shadow-sm rounded text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                 placeholder="* * * * * * or @daily" required>
+        </div>
+
+        <!-- Common schedules select -->
+        <div class="col-span-full">
+          <label for="common_options" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            {{.T.Get "Common schedules:"}}
+          </label>
+          <select id="common_options" onchange="applyCommonSchedule()" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option value="--">{{.T.Get "-- Common Settings --"}}</option>
+            <option value="@every 30s">{{.T.Get "Every 30 Seconds"}} (@every 30s)</option>
+            <option value="@every 1m">{{.T.Get "Every Minute"}} (@every 1m)</option>
+            <option value="@every 5m">{{.T.Get "Every 5 Minutes"}} (@every 5m)</option>
+            <option value="@every 30m">{{.T.Get "Every 30 Minutes"}} (@every 30m)</option>
+            <option value="@hourly">{{.T.Get "Hourly"}} (@hourly)</option>
+            <option value="@daily">{{.T.Get "Daily"}} (@daily)</option>
+            <option value="@weekly">{{.T.Get "Weekly"}} (@weekly)</option>
+            <option value="@monthly">{{.T.Get "Monthly"}} (@monthly)</option>
+            <option value="@yearly">{{.T.Get "Yearly"}} (@yearly)</option>
+          </select>
+        </div>
+
+        <!-- Command input -->
+        <div class="col-span-full w-full">
+          <label for="command" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Command:"}}<span class="text-red-500">*</span></label>
+          <input type="text" id="command" name="command" required
+                 class="py-2 px-3 block w-full border-gray-200 shadow-sm rounded text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                 placeholder="php /var/www/html/path/to/cron/script">
+        </div>
+
+        <!-- Comment input -->
+        <div class="col-span-full w-full">
+          <label for="comment" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Comment:"}}</label>
+          <input type="text" id="comment" name="comment"
+                 class="py-2 px-3 block w-full border-gray-200 shadow-sm rounded text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                 placeholder="{{.T.Get "optional"}}">
+        </div>
+
+      </div>
+
+      <div class="md:flex items-center md:justify-end md:space-x-4 mt-6">
+        <a href="/cronjobs"
+           class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full sm:w-auto">
+          {{.T.Get "Back to CronJobs"}}
+        </a>
+        <button type="button" onclick="submitCronForm()"
+                class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800 w-full sm:w-auto mt-2 sm:mt-0">
+          {{.T.Get "Schedule CronJob"}}
+        </button>
+      </div>
+    </form>
+  </div>
+  <!-- END form -->
+
+  <script>
+    function applyCommonSchedule() {
+      const select = document.getElementById('common_options');
+      const scheduleField = document.getElementById('schedule');
+      if (select.value === '--') {
+        scheduleField.value = '';
+      } else {
+        scheduleField.value = select.value;
+      }
+    }
+
+    function submitCronForm() {
+      const schedule = document.getElementById('schedule').value.trim();
+      const command = document.getElementById('command').value.trim();
+      const container = document.getElementById('container').value;
+
+      if (!schedule || !command || !container) {
+        alert({{toJSON (.T.Get "Please fill in all required fields before submitting.")}});
+        return;
+      }
+
+      const form = document.getElementById('cronForm');
+
+      const appendHiddenInput = (name, value) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      };
+
+      appendHiddenInput('schedule', schedule);
+      appendHiddenInput('command', command);
+      appendHiddenInput('container', container);
+      appendHiddenInput('comment', document.getElementById('comment').value);
+
+      form.submit();
+    }
+  </script>
+</section>
+
+<!-- END templates/system/cronjobs_new.html -->
+{{end}}

@@ -1,0 +1,617 @@
+{{define "layout"}}<!doctype html>
+<!--
+* OpenPanel default template with TailwindCSS and AlpineJS
+* @link https://openpanel.com
+* Copyright 2023-2026 Stefan Pejcic <stefan@pejcic.rs>
+* Licensed under MIT
+-->
+<html lang="en" class="h-full" style="color-scheme: " dir="{{.PanelDir}}">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>{{.Title}} - {{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}</title>
+    <link rel="icon" type="image/x-icon" href="{{if .Favicon}}{{.Favicon}}{{else}}{{static "images/favicon.svg"}}{{end}}">
+    <meta name="robots" content="noindex,nofollow">
+    <script type="text/javascript"> var csrf_token = "{{.CSRFToken}}"; </script>
+
+    <!-- DARK MODE -->
+    <script>if(localStorage.getItem('color-theme')==='dark'||(!('color-theme' in localStorage)&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}</script>
+
+    <!-- SIDEBAR CLOSE / OPEN -->
+    <style>[x-cloak] { display: none !important;}</style>
+    <script>(function(){const sidebarState=sessionStorage.getItem('sidebarOpen');const isMobile=window.innerWidth<768;let isOpen=sidebarState===null?!isMobile:sidebarState==='true';if(isOpen){document.documentElement.classList.add('sidebar-open');}else{document.documentElement.classList.remove('sidebar-open');}})();</script>
+    <style>#sidebar{display:none;width:16rem}#main_header,#no_margin_for_iframe{margin-left:0;transition:margin .2s ease-in-out}.sidebar-open #sidebar{display:block}.sidebar-open #main_header,.sidebar-open #no_margin_for_iframe{margin-left:16rem} html.sidebar-open button[onclick="toggleSidebar()"] {cursor: w-resize;} html:not(.sidebar-open) button[onclick="toggleSidebar()"] {cursor: e-resize;}</style>
+
+    <!-- form-submission loading indicator, shared by any page with a #toAddActive .CrawlerStatusCard -->
+    <style>
+    @keyframes rotate { to { --angle: 360deg } }
+    @property --angle { syntax: "<angle>"; initial-value: 0deg; inherits: false }
+    .CrawlerStatusCard.active {
+        animation: rotate 2s linear infinite;
+        background: hsla(0,0%,100%,.5);
+        border: 2px solid transparent;
+        border-image: conic-gradient(from var(--angle),transparent 0deg 90deg,transparent 90deg 180deg,transparent 180deg 270deg,#0077bc 270deg 1turn) 1 stretch;
+    }
+    </style>
+
+    <!-- live input-validation hints, see static/js/input-validation.js -->
+    <style>
+    .iv-hint { font-size: .75rem; line-height: 1rem; margin-top: .375rem; color: #6b7280; }
+    .iv-hint.iv-invalid { color: #ef4444; }
+    .iv-hint.iv-valid { color: #16a34a; }
+    .dark .iv-hint { color: #9ca3af; }
+    .dark .iv-hint.iv-invalid { color: #f87171; }
+    .dark .iv-hint.iv-valid { color: #4ade80; }
+    input.iv-invalid, textarea.iv-invalid { border-color: #ef4444 !important; }
+    input.iv-valid, textarea.iv-valid { border-color: #16a34a !important; }
+    .dark input.iv-invalid, .dark textarea.iv-invalid { border-color: #f87171 !important; }
+    .dark input.iv-valid, .dark textarea.iv-valid { border-color: #4ade80 !important; }
+    </style>
+
+    <link rel="stylesheet" href="{{static "vendor/bootstrap-icons/bootstrap-icons.css"}}">
+    <link rel="stylesheet" href="{{static "dist/output.css"}}">
+    <link rel="stylesheet" href="{{static "vendor/driverjs/driver.min.css"}}">
+    <script>
+        window.ToastI18n = {
+            success: '{{.T.Get "Success"}}',
+            error: '{{.T.Get "Error"}}',
+            info: '{{.T.Get "Info"}}',
+            uploading: '{{.T.Get "Uploading"}}',
+            loading: '{{.T.Get "Loading"}}',
+            warning: '{{.T.Get "Warning"}}',
+            close: '{{.T.Get "Close"}}',
+            cancel: '{{.T.Get "Cancel"}}',
+        };
+        window.RelativeDateI18n = {
+            today: '{{.T.Get "today"}}',
+            yesterday: '{{.T.Get "yesterday"}}',
+            secondAgo: '{{.T.Get "1 second ago"}}',
+            secondsAgo: '{{.T.Get "%%(n)s seconds ago"}}',
+            minuteAgo: '{{.T.Get "1 minute ago"}}',
+            minutesAgo: '{{.T.Get "%%(n)s minutes ago"}}',
+            hourAgo: '{{.T.Get "1 hour ago"}}',
+            hoursAgo: '{{.T.Get "%%(n)s hours ago"}}',
+            dayAgo: '{{.T.Get "1 day ago"}}',
+            daysAgo: '{{.T.Get "%%(n)s days ago"}}',
+            weekAgo: '{{.T.Get "1 week ago"}}',
+            weeksAgo: '{{.T.Get "%%(n)s weeks ago"}}',
+            lastMonth: '{{.T.Get "last month"}}',
+            monthAgo: '{{.T.Get "1 month ago"}}',
+            monthsAgo: '{{.T.Get "%%(n)s months ago"}}',
+            lastYear: '{{.T.Get "last year"}}',
+            yearAgo: '{{.T.Get "1 year ago"}}',
+            yearsAgo: '{{.T.Get "%%(n)s years ago"}}',
+        };
+        window.InputValidationI18n = {
+            required: '{{.T.Get "This field is required."}}',
+            typeEmail: '{{.T.Get "Enter a valid email address."}}',
+            typeUrl: '{{.T.Get "Enter a valid URL."}}',
+            invalidFormat: '{{.T.Get "Invalid format."}}',
+            tooShort: '{{.T.Get "At least {min} characters required ({count} so far)."}}',
+            tooLong: '{{.T.Get "Maximum {max} characters."}}',
+            rangeUnderflow: '{{.T.Get "Value must be at least {min}."}}',
+            rangeOverflow: '{{.T.Get "Value must be at most {max}."}}',
+            looksGood: '{{.T.Get "Looks good."}}',
+        };
+    </script>
+    <script defer src="{{static "js/showtoasts.min.js"}}"></script>
+    <script defer src="{{static "js/health-toast.min.js"}}"></script>
+    <script defer src="{{static "js/relative-date.js"}}"></script>
+    <script defer src="{{static "js/service-status.js"}}"></script>
+    <script defer src="{{static "js/input-validation.min.js"}}"></script>
+    <script defer src="{{static "js/password-strength.js"}}"></script>
+    <script defer src="{{static "js/clipboard.js"}}"></script>
+    {{template "alpine_plugins" .}}
+    <script defer src="{{static "vendor/alpinejs/alpinejs3xx.min.js"}}"></script>
+    {{template "flowbite_js" .}}
+
+    <!-- Custom code in header: deferred until the custom_code admin feature is ported -->
+
+    {{if .CustomCSS}}
+    <!-- Custom CSS code -->
+    <link rel="stylesheet" href="{{static "css/custom.css"}}">
+    {{end}}
+
+</head>
+
+<body class="bg-white-50 h-full antialiased dark:bg-gray-950">
+
+<script>
+// https://github.com/stefanpejcic/OpenPanel/issues/900#issuecomment-4177000991
+window._serviceCache = {};
+
+window.fetchServiceData = async function(serviceName) {
+    if (window._serviceCache[serviceName]) {
+        return window._serviceCache[serviceName];
+    }
+
+    window._serviceCache[serviceName] = fetch(`/json/services?name=${encodeURIComponent(serviceName)}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.container_stat) return data.container_stat;
+            if (data.container_stats) return data.container_stats.find(c => c.Name === serviceName) || null;
+            return null;
+        })
+        .catch(err => {
+            delete window._serviceCache[serviceName];
+            throw err;
+        });
+
+    return window._serviceCache[serviceName];
+};
+
+// progress cursor while working
+(function() {
+  let activeRequests = 0;
+
+  function updateCursor() {
+    document.body.style.cursor = activeRequests > 0 ? "progress" : "default";
+  }
+
+  // --- Wrap fetch ---
+  const originalFetch = window.fetch;
+  window.fetch = async function(...args) {
+    activeRequests++;
+    updateCursor();
+    try {
+      const response = await originalFetch.apply(this, args);
+      return response;
+    } finally {
+      activeRequests--;
+      updateCursor();
+    }
+  };
+
+  // --- Wrap XMLHttpRequest ---
+  const OriginalXHR = window.XMLHttpRequest;
+  function CustomXHR() {
+    const xhr = new OriginalXHR();
+
+    xhr.addEventListener("loadstart", () => {
+      activeRequests++;
+      updateCursor();
+    });
+
+    xhr.addEventListener("loadend", () => {
+      activeRequests--;
+      updateCursor();
+    });
+
+    return xhr;
+  }
+  window.XMLHttpRequest = CustomXHR;
+})();
+
+// any form inside a #toAddActive .CrawlerStatusCard gets a spin indicator + disabled
+// submit button while it's in flight, so it's visible something's happening and the
+// user can't double-submit by clicking again
+document.addEventListener('submit', (e) => {
+  if (e.defaultPrevented) return;
+  const card = document.getElementById('toAddActive');
+  if (!card || !card.contains(e.target)) return;
+  card.classList.add('active');
+  const btn = e.target.querySelector('button[type="submit"], input[type="submit"]');
+  if (btn) btn.disabled = true;
+});
+</script>
+
+
+<div class="flex min-h-svh w-full">
+    <div x-show="sidebarOpen"
+         :class="{'hidden': !sidebarOpen}"
+         @click.away="isMobile && (sidebarOpen = false)"
+         class="group peer md:block"
+         data-state="expanded"
+         data-collapsible="false">
+
+        <div class="relative h-svh max-w-[16rem] bg-transparent transition-[width] duration-150 ease-in-out will-change-transform group-data-[collapsible=true]:w-0"></div>
+        <div id="sidebar" class="fixed inset-y-0 z-50 h-svh max-w-[16rem] transition-[left,right,width] duration-150 ease-in-out will-change-transform md:flex left-0 group-data-[collapsible=true]:left-[calc(16rem*-1)] bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800">
+
+            <div data-sidebar="sidebar" class="flex h-full w-full flex-col" style="max-width: 16em;">
+
+                <div data-sidebar="header" class="truncate flex flex-col gap-2 p-2 px-3 py-4 min-h-16 h-auto" id="logo_section">
+
+                     {{if .Logo}}
+                     <!-- logo -->
+                     <div class="flex items-center justify-center gap-3">
+                         <a href="/dashboard" class="group flex text-slate-500 hover:text-slate-700 dark:hover:text-slate-400">
+                            <img src="{{.Logo}}" class="h-auto w-full" id="logo_image"></img>
+                         </a>
+                     </div>
+                     <!-- END logo -->
+                     {{else}}
+                     <!-- text logo -->
+                     <div class="flex items-center gap-3">
+                        <span id="logo_openpanel_icon" class="flex size-9 rounded bg-white p-1.5 shadow-sm ring-1 ring-gray-200 dark:bg-gray-900 dark:ring-gray-800"><svg version="1.0" class="text-black dark:text-white" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 213.000000 215.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,215.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"></path></g></svg></span>
+                        <div id="logo_brand_name"><span class="block text-xl font-semibold text-gray-900 dark:text-gray-50">
+                          <a href="/" id="hostname" style="text-decoration:none;">{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}</a>
+</span></div>
+                    </div>
+                     <!-- END text logo -->
+                     {{end}}
+                </div>
+
+                <div><div class="mx-auto flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 my-0 py-0"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div></div>
+
+                <div data-sidebar="content" class="max-h-100 flex flex-1 flex-col gap-2 overflow-y-auto  [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
+
+      {{if .UserAllowed.favorites}}
+
+                    <div data-sidebar="group" class="relative flex w-full min-w-0 flex-col p-2">
+                        <div data-sidebar="group-content" class="w-full text-sm">
+                            <ul data-sidebar="menu" class="flex w-full min-w-0 flex-col">
+
+
+                                <li x-cloak x-data="{ open: true, active: false }" class="relative">
+                                <button @click="open = !open" class="flex w-full items-center justify-between gap-x-2.5 rounded p-2 text-base text-gray-900 transition hover:bg-gray-200/50 sm:text-sm dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500"><div class="flex items-center gap-2.5"><svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-star"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg> {{.T.Get "Favorites"}} </div><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon rotate-0 size-5 shrink-0 transform text-gray-400 transition-transform duration-150 ease-in-out dark:text-gray-600 rotate-180" :class="{ 'rotate-180': open }"><path d="M12 16L6 10H18L12 16Z"></path></svg></button>
+                                    <ul x-show="open || active" x-transition class="relative space-y-1 border-l border-transparent">
+                                        <div id="favorites-list" class="relative z-50 overflow-hidden min-w-48 text-gray-900 will-change-[transform,opacity] data-[state=closed]:animate-hide data-[side=bottom]:animate-slideDownAndFade data-[side=left]:animate-slideLeftAndFade data-[side=right]:animate-slideRightAndFade data-[side=top]:animate-slideUpAndFade"></div>
+                                    </ul>
+                                </li>
+
+
+
+                                <script>
+                                function loadFavorites() {
+                                    fetch('/json/favorites')
+                                        .then(response => response.json())
+                                        .then(favorites => {
+                                            const favoritesList = document.getElementById('favorites-list');
+                                            favoritesList.innerHTML = '';
+
+                                            const bannerItem = document.createElement('span');
+                                            bannerItem.className = `absolute inset-y-0 left-4 w-px bg-gray-300 dark:bg-gray-800`.trim();
+                                            favoritesList.appendChild(bannerItem);
+
+                                            favorites.forEach(favorite => {
+                                                const { link, title } = favorite;
+
+                                                const listItem = document.createElement('li');
+
+                                                const linkItem = document.createElement('a');
+                                                linkItem.href = '/' + link;
+                                                linkItem.setAttribute('data-active', 'false');
+                                                listItem.className = `relative flex gap-2 rounded py-1.5 pl-9 pr-3 text-base transition sm:text-sm text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 data-[active=true]:rounded data-[active=true]:bg-white data-[active=true]:text-blue-600 data-[active=true]:shadow data-[active=true]:ring-1 data-[active=true]:ring-gray-200 data-[active=true]:dark:bg-gray-900 data-[active=true]:dark:text-blue-500 data-[active=true]:dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500`.trim();
+
+                                                linkItem.textContent = title;
+
+                                                listItem.appendChild(linkItem);
+                                                favoritesList.appendChild(listItem);
+                                            });
+
+                                            // global variable so otemplates/partials/_header.html can access it later
+                                            window.userFavorites = favorites;
+                                        })
+                                        .catch(error => {
+                                            console.error('Error fetching favorites for user:', error);
+                                        });
+                                }
+
+                                // Load favorites immediately
+                                loadFavorites();
+                                </script>
+
+
+
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div><div class="mx-auto flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 my-0 py-0"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div></div>
+      {{end}}
+
+<div id="tour-main-menu" data-sidebar="group" class="relative flex w-full min-w-0 flex-col p-2">
+    <div data-sidebar="group-content" class="w-full text-sm">
+        <ul data-sidebar="menu" class="flex w-full min-w-0 flex-col gap-1 space-y-2">
+
+        {{range .NavGroups}}
+        <li x-cloak x-data="{
+                open: {{if .Open}}true{{else}}false{{end}},
+                active: {{if .Active}}true{{else}}false{{end}}
+            }"
+            @sidebar-toggle-all.window="open = $event.detail.open"
+            class="relative">
+            <button @click="open = !open"
+                    class="flex w-full items-center justify-between gap-x-2.5 rounded p-2 text-base text-gray-900 transition hover:bg-gray-200/50 sm:text-sm dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500">
+                <div class="flex items-center gap-2.5">
+                    {{.Icon}}
+                    {{$.T.Get .Label}}
+                </div>
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"
+                    class="remixicon rotate-0 size-5 shrink-0 transform text-gray-400 transition-transform duration-150 ease-in-out dark:text-gray-600"
+                    :class="{ 'rotate-180': open }">
+                    <path d="M12 16L6 10H18L12 16Z"></path>
+                </svg>
+            </button>
+            <ul id="{{.MenuID}}" x-show="open || active" x-transition class="relative space-y-1 border-l border-transparent">
+                <div class="absolute inset-y-0 left-4 w-px bg-gray-300 dark:bg-gray-800"></div>
+                {{range .Links}}
+                <li class="relative">
+                    <a data-active="{{if .Active}}true{{else}}false{{end}}"
+                       class="relative flex gap-2 rounded py-1.5 pl-9 pr-3 text-base transition sm:text-sm text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 data-[active=true]:rounded data-[active=true]:bg-white data-[active=true]:text-blue-600 data-[active=true]:shadow data-[active=true]:ring-1 data-[active=true]:ring-gray-200 data-[active=true]:dark:bg-gray-900 data-[active=true]:dark:text-blue-500 data-[active=true]:dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500"
+                       href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}}>
+                        {{$.T.Get .Label}}
+                    </a>
+                </li>
+                {{end}}
+            </ul>
+        </li>
+        {{end}}
+
+        </ul>
+    </div>
+</div>
+
+
+                </div>
+                {{template "footer" .}}
+            </div>
+        </div>
+    </div>
+    <div class="w-full">
+
+        {{template "header" .}}
+
+        <!-- Flowbite toasts 2 -->
+        <div id="toast-container" class="fixed sm:bottom-10 sm:right-10 flex flex-col space-y-2 z-50 overflow-y-none"></div>
+        <!-- END Flowbite toasts -->
+
+    <main id="no_margin_for_iframe" class="x-cloak bg-white-50 antialiased dark:bg-gray-950 text-gray-800 dark:text-white min-h-[90vh]">
+
+
+    {{template "impersonate" .}}
+
+
+<!-- flash messages -->
+{{if .Flashes}}
+
+<div id="alert-progress-container" class="hidden w-full h-0.5 bg-gray-700">
+    <div id="alert-progress-bar" class="h-full bg-blue-500 dark:bg-blue-500 transition-all duration-100 ease-linear" style="width: 0%"></div>
+</div>
+
+<div id="alert-stack" class="relative">
+    {{range .Flashes}}
+    <div id="alert-{{.Index}}" class="top-0 left-0 right-0 flex items-center p-4 bg-gray-800 {{.ZClass}}" role="alert">
+        <svg class="shrink-0 w-4 h-4 text-gray-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/></svg>
+        <span class="sr-only">{{$.T.Get "Notification"}}</span>
+        <div class="ms-3 text-sm font-medium text-white">{{.Text}}</div>
+        <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-gray-700 text-gray-500 rounded focus:ring-2 focus:ring-gray-400 p-1.5 hover:bg-gray-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white" data-dismiss-target="#alert-{{.Index}}" aria-label="{{$.T.Get "Close"}}">
+            <span class="sr-only">{{$.T.Get "Dismiss"}}</span>
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
+        </button>
+    </div>
+    {{end}}
+</div>
+
+<script>
+document.querySelectorAll('#alert-stack [data-dismiss-target]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        const target = document.querySelector(btn.getAttribute('data-dismiss-target'));
+        if (target) target.remove();
+    });
+});
+</script>
+
+{{end}}
+<!-- END flash messages -->
+
+<!-- START individual template file -->
+{{template "content" .}}
+<!-- END individual template file -->
+    </main>
+    <script>function toggleSidebar(){const root=document.documentElement;const isOpen=root.classList.toggle('sidebar-open');sessionStorage.setItem('sidebarOpen',isOpen);}window.addEventListener('resize',()=>{if(window.innerWidth<768){document.documentElement.classList.remove('sidebar-open');}});</script>
+    <script>
+    document.addEventListener('keydown', (e) => {
+        if (!((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b')) return;
+        const tag = document.activeElement.tagName.toLowerCase();
+        const isInputFocused = ['input', 'textarea'].includes(tag) || document.activeElement.isContentEditable;
+        if (isInputFocused) return;
+        e.preventDefault();
+        toggleSidebar();
+    });
+    </script>
+
+    <!-- Keyboard shortcuts help -->
+    <div id="shortcuts-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="shortcuts-modal-label">
+        <div class="max-w-md mx-auto bg-white dark:bg-gray-950 rounded-lg shadow-xl p-6 relative border border-gray-200 dark:border-gray-800">
+            <div class="flex items-start justify-between gap-x-4 border-b border-gray-200 pb-4 dark:border-gray-900">
+                <h2 id="shortcuts-modal-label" class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Keyboard shortcuts"}}</h2>
+                <button type="button" id="shortcuts-modal-close" class="text-gray-900 dark:text-gray-50 hover:bg-gray-100 hover:dark:bg-gray-400/10 p-1 rounded" aria-label="{{.T.Get "Close"}}">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24" class="size-6"><path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"/></svg>
+                </button>
+            </div>
+            <ul id="shortcuts-modal-list" class="mt-4 divide-y divide-gray-200 dark:divide-gray-900 text-sm"></ul>
+        </div>
+    </div>
+    <script>
+    window.OPShortcuts = window.OPShortcuts || [];
+    window.registerShortcut = function(keys, label) {
+        window.OPShortcuts.push({ keys, label });
+    };
+    registerShortcut(['Ctrl', 'B'], "{{.T.Get "Toggle sidebar"}}");
+    registerShortcut(['?'], "{{.T.Get "Show this dialog"}}");
+
+    (function() {
+        const modal = document.getElementById('shortcuts-modal');
+        const list = document.getElementById('shortcuts-modal-list');
+        const closeBtn = document.getElementById('shortcuts-modal-close');
+
+        function renderList() {
+            list.innerHTML = '';
+            window.OPShortcuts.forEach(s => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center justify-between py-2 gap-4';
+
+                const label = document.createElement('span');
+                label.className = 'text-gray-700 dark:text-gray-300';
+                label.textContent = s.label;
+
+                const keys = document.createElement('span');
+                keys.className = 'flex gap-1 shrink-0';
+                s.keys.forEach(k => {
+                    const kbd = document.createElement('kbd');
+                    kbd.className = 'px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-xs font-mono text-gray-700 dark:text-gray-300';
+                    kbd.textContent = k;
+                    keys.appendChild(kbd);
+                });
+
+                li.appendChild(label);
+                li.appendChild(keys);
+                list.appendChild(li);
+            });
+        }
+
+        window.openShortcutsHelp = function() {
+            renderList();
+            modal.classList.remove('hidden');
+        };
+        window.closeShortcutsHelp = function() {
+            modal.classList.add('hidden');
+        };
+
+        closeBtn.addEventListener('click', closeShortcutsHelp);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeShortcutsHelp(); });
+
+        document.addEventListener('keydown', (e) => {
+            if (!modal.classList.contains('hidden') && e.key === 'Escape') {
+                closeShortcutsHelp();
+                return;
+            }
+
+            if (e.key !== '?') return;
+            const tag = document.activeElement.tagName.toLowerCase();
+            const isInputFocused = ['input', 'textarea'].includes(tag) || document.activeElement.isContentEditable;
+            if (isInputFocused) return;
+            e.preventDefault();
+            openShortcutsHelp();
+        });
+    })();
+    </script>
+
+
+
+{{if eq .FoundABugLink "yes"}}
+<!-- START report bug nag -->
+<div class="relative mb-2 hidden items-center justify-end sm:flex bottom-0 right-0 "><a class="group flex items-center space-x-0.5 text-xs text-slate-500 hover:text-slate-700" href="https://github.com/stefanpejcic/OpenPanel/issues/new?template=2_user_bug.yaml&affected-versions={{.PanelVersion}}&os=Ubuntu&title=Bug%20in%20OpenPanel%20UI%20on%20{{.RequestPath}}" target="_blank" rel="noopener noreferrer"><span class="text-inherit">{{.T.Get "Found a bug? Let us know"}}</span><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 text-inherit"><path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path></svg></a></div>
+<!-- END report bug nag -->
+{{end}}
+
+<!-- Product Tour -->
+<script defer src="{{static "vendor/driverjs/driver.min.js"}}"></script>
+<script defer src="{{static "js/tour-steps.js"}}"></script>
+<script defer src="{{static "js/tour.js"}}"></script>
+
+</div>
+</div>
+
+</body>
+
+{{if .CustomPlugins}}
+
+    <script>window.userAllowed = {{.UserAllowedJSON}};</script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+    const isDashboard = window.location.pathname === '/dashboard';
+
+    fetch('/plugins')
+        .then(response => {
+        if (!response.ok) throw new Error('Network response not OK');
+        return response.json();
+        })
+        .then(plugins => {
+
+        plugins.forEach(plugin => {
+            if (!window.userAllowed.includes(plugin.name)) {
+            return;
+            }
+
+            // SIDEBAR MENU
+            const menuContainer = document.getElementById(plugin.category + '-menu');
+            if (menuContainer) {
+                const li = document.createElement('li');
+                li.className = 'relative';
+
+                const a = document.createElement('a');
+                a.href = plugin.link;
+                a.textContent = plugin.title;
+                a.setAttribute('data-active', 'false');
+                a.className = 'relative flex gap-2 rounded py-1.5 pl-9 pr-3 text-base transition sm:text-sm text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 data-[active=true]:rounded data-[active=true]:bg-white data-[active=true]:text-blue-600 data-[active=true]:shadow data-[active=true]:ring-1 data-[active=true]:ring-gray-200 data-[active=true]:dark:bg-gray-900 data-[active=true]:dark:text-blue-500 data-[active=true]:dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500';
+                li.appendChild(a);
+                menuContainer.appendChild(li);
+                //console.log(`[Sidebar Plugins] Added plugin "${plugin.name}" under category "${plugin.category}"`);
+            }
+
+            // DASHBOARD ICONS
+            if (isDashboard) {
+            const iconContainer = document.getElementById('section-icons-' + plugin.category);
+            if (iconContainer && plugin.icon) {
+
+                const a = document.createElement('a');
+                a.href = plugin.link;
+                a.target = '_self';
+                a.className = 'block w-1/2 py-1 text-center lg:w-1/4 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer';
+                const div = document.createElement('div');
+                div.className = 'py-2';
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'size-9 items-center justify-center rounded-xl bg-slate-700 text-white hover:bg-slate-600 active:bg-slate-700 ring-4 ring-slate-400/50 dark:ring-slate-600/50 cursor-pointer';
+                const icon = document.createElement('i');
+                icon.className = plugin.icon;
+
+                button.appendChild(icon);
+
+                const p = document.createElement('p');
+                p.className = 'pt-2 text-sm font-medium font-body md:text-base md:pt-2 text-slate-500 dark:text-slate-400';
+                p.textContent = plugin.title;
+
+                div.appendChild(button);
+                div.appendChild(p);
+                a.appendChild(div);
+
+                iconContainer.appendChild(a);
+            }
+            }
+        });
+        })
+        .catch(err => {
+        console.error('[Sidebar Plugins] Failed to fetch plugins:', err);
+        });
+    });
+    </script>
+{{end}}
+
+
+    {{if .UserAllowed.services}}
+        <!-- JS for service stats in header.
+             The Jinja original guards this with
+             `not path.startswith('/services') or not path.startswith('/cache')`,
+             which is a tautology (a path can't start with both prefixes at
+             once, so the OR is always true) - so the include is
+             unconditional here too, matching actual current behavior
+             rather than the evidently-intended-but-never-executed gate. -->
+        {{template "servicejs" .}}
+    {{end}}
+
+    <!-- Custom code in footer: deferred until the custom_code admin feature is ported -->
+
+    {{if .CustomJS}}
+    <!-- Custom JS code -->
+    <script src="{{static "js/custom.js"}}"></script>
+    {{end}}
+
+    {{if .UserAllowed.capitalize_domains}}
+    <script src="{{static "js/capitalize.js"}}"></script>
+    {{end}}
+
+    <!-- Punycode -->
+    {{template "punycode" .}}
+
+
+</html>
+{{end}}
+
+{{define "flowbite_js"}}{{end}}

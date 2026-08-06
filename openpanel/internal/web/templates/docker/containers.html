@@ -1,0 +1,470 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/docker/containers.html -->
+
+<section aria-label="Containers Table" x-data="{ searchQuery: '' }" >
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+                <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Containers"}}</h1></div>
+                <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "Running containers:"}} <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white"><span id="total_records_count">0/</span>{{len .Rows}}</span></p>
+        </div>
+
+        <div class="mt-2 gap-2 sm:mt-0 flex sm:inline">
+                <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "Total CPU:"}} <span class="font-semibold">{{.TotalCPU}}</span> {{.T.Get "cores"}}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "Total Memory:"}} <span class="font-semibold">{{.TotalRAM}}</span> GB</p>
+        </div>
+    </div>
+
+
+<script src="{{static "js/data-table.js"}}"></script>
+<div x-data="createTableController({
+        storageKey: 'containersColumnsVisibility',
+        columns: {
+            name: true,
+            cpu: true,
+            ram: true,
+            blockio: false,
+            netio: false,
+            pids: false,
+            status: true,
+            actions: true
+        }
+    })" x-init="init()" x-cloak>
+    <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
+        <div class="flex gap-2">
+        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
+    <input
+        x-model="searchQuery"
+        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
+        placeholder="{{.T.Get "Search"}}"
+        type="search"
+    />
+    <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+            <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+        </svg>
+    </div>
+</div>
+                <!-- Dropdown for Column Visibility -->
+        <div class="relative">
+            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 cursor-pointer" type="button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4"><path d="M5 7C5 6.17157 5.67157 5.5 6.5 5.5C7.32843 5.5 8 6.17157 8 7C8 7.82843 7.32843 8.5 6.5 8.5C5.67157 8.5 5 7.82843 5 7ZM6.5 3.5C4.567 3.5 3 5.067 3 7C3 8.933 4.567 10.5 6.5 10.5C8.433 10.5 10 8.933 10 7C10 5.067 8.433 3.5 6.5 3.5ZM12 8H20V6H12V8ZM16 17C16 16.1716 16.6716 15.5 17.5 15.5C18.3284 15.5 19 16.1716 19 17C19 17.8284 18.3284 18.5 17.5 18.5C16.6716 18.5 16 17.8284 16 17ZM17.5 13.5C15.567 13.5 14 15.067 14 17C14 18.933 15.567 20.5 17.5 20.5C19.433 20.5 21 18.933 21 17C21 15.067 19.433 13.5 17.5 13.5ZM4 16V18H12V16H4Z"></path></svg> {{.T.Get "Show Columns"}}</button>
+
+            <!-- Dropdown menu -->
+            <div id="dropdownToggle" class="z-10 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 divide-y divide-gray-100 rounded-lg shadow-sm w-64 dark:divide-gray-600 hidden">
+                <ul class="p-2 space-y-1" aria-labelledby="dropdownToggleButton">
+                    {{template "column_toggle" (dict "Key" "name" "T" .T "Label" (.T.Get "Name"))}}
+                    {{template "column_toggle" (dict "Key" "cpu" "T" .T "Label" (.T.Get "CPU Usage"))}}
+                    {{template "column_toggle" (dict "Key" "ram" "T" .T "Label" (.T.Get "Memory Usage"))}}
+                    {{template "column_toggle" (dict "Key" "blockio" "T" .T "Label" (.T.Get "Block I/O"))}}
+                    {{template "column_toggle" (dict "Key" "netio" "T" .T "Label" (.T.Get "Net I/O"))}}
+                    {{template "column_toggle" (dict "Key" "pids" "T" .T "Label" (.T.Get "PIDs"))}}
+                    {{template "column_toggle" (dict "Key" "status" "T" .T "Label" (.T.Get "Status"))}}
+                    {{template "column_toggle" (dict "Key" "actions" "T" .T "Label" (.T.Get "Actions"))}}
+                </ul>
+            </div>
+        </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-2 sm:flex-row">
+        <a href="/containers/new" id="login_button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg> {{.T.Get "New Service"}}
+        </a>
+        </div>
+
+    </div>
+
+   <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table id="containers-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+
+                        <th x-show="columns.name" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Name"}}
+                        </th>
+
+                        <th x-show="columns.cpu" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "CPU Usage"}}
+                        </th>
+                        <th x-show="columns.ram" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Memory Usage"}}
+                        </th>
+
+                        <th x-show="columns.blockio" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Block I/O"}}
+                        </th>
+                        <th x-show="columns.netio" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Net I/O"}}
+                        </th>
+                        <th x-show="columns.pids" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "PIDs"}}
+                        </th>
+
+                        <th x-show="columns.status" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Status"}}
+                        </th>
+
+                        <th x-show="columns.actions" scope="col" class="w-10 whitespace-nowrap border-b px-4 py-3.5 text-end text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Actions"}}
+                        </th>
+
+                    </tr>
+                </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+        {{range .Rows}}
+        {{template "container_row" (dict "Row" . "T" $.T "TotalCPU" $.TotalCPU "TotalRAM" $.TotalRAM "CSRFToken" $.CSRFToken)}}
+        {{end}}
+        </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</section>
+
+
+<!-- JS for stats -->
+<script>
+const containersI18n = {
+    enabled: "{{.T.Get "Enabled"}}",
+    stop: "{{.T.Get "Stop"}}",
+    terminal: "{{.T.Get "Terminal"}}",
+    logs: "{{.T.Get "Logs"}}"
+};
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/json/services', {
+        method: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': csrf_token
+        }
+    })
+        .then(response => response.json())
+        .then(function(response) {
+            if (response.container_stats) {
+
+                var totalCount = 0;
+                var highUsageContainers = [];
+
+                if (response.container_stats.length === 0) {
+                    showToast('{{.T.Get "No container are currently running."}}', 'warning');
+                } else {
+
+
+                response.container_stats.forEach(function(container) {
+                    var containerName = container.Name;
+                    var containerId = containerName.replace(/\./g, '\\.');
+
+                    var statusCell = document.querySelector('#status-' + containerId);
+                    if (!statusCell) return;  // container not in this table, skip
+
+                    var blockioCell = document.querySelector('#blockio-' + containerId);
+                    var netioCell = document.querySelector('#netio-' + containerId);
+                    var pidsCell = document.querySelector('#pids-' + containerId);
+                    var ramCell = document.querySelector('#ram-' + containerId);
+                    var actionsCell = document.querySelector('#actions-' + containerId);
+                    var cpuCell = document.querySelector('#cpu-' + containerId);
+                    var ramText = document.querySelector('#ram-usage-' + containerId);
+                    var cpuText = document.querySelector('#cpu-usage-' + containerId);
+
+                    var allocatedCpuInput = document.querySelector('#cpu-allocated-' + containerId);
+                    var allocatedCpu = allocatedCpuInput ? (parseFloat(allocatedCpuInput.value) || 1) : 1;
+
+                    var rawCpuUsage = parseFloat(container.CPUPerc.replace('%', '')) || 0;
+                    var cpuUsage = (rawCpuUsage / (allocatedCpu * 100)) * 100;
+
+                    var memUsage = parseFloat(container.MemPerc.replace('%', '')) || 0;
+
+                    var cpuDashOffset = 78.54 * (1 - cpuUsage / 100);
+                    var memDashOffset = 78.54 * (1 - memUsage / 100);
+
+                    var cpuTextInfo = `${container.CPUPerc}`;
+
+                    cpuText.innerHTML = cpuTextInfo;
+
+                    var memUsageOnly = container.MemUsage.split('/')[0].trim();
+                    var ramTextInfo = `${memUsageOnly}`;
+
+                    ramText.innerHTML = ramTextInfo;
+
+                    var cpuInfo = `
+                        <div class="flex gap-2">
+                            <!-- CPU Usage -->
+                            <div class="flex items-center gap-x-2.5">
+                                <div class="relative" role="progressbar" aria-valuenow="${cpuUsage}" aria-valuemin="0" aria-valuemax="100">
+                                    <svg width="28" height="28" viewBox="0 0 28 28" class="-rotate-90 transform">
+                                        <circle r="12.5" cx="14" cy="14" stroke-width="3" fill="transparent" class="stroke-gray-100 dark:stroke-gray-500/30"></circle>
+                                        <circle r="12.5" cx="14" cy="14" stroke-width="3" stroke-dasharray="78.54" stroke-dashoffset="${cpuDashOffset}" fill="transparent"
+                                        class="${cpuUsage < 50 ? 'stroke-blue-500' : cpuUsage < 80 ? 'stroke-green-500' : cpuUsage < 90 ? 'stroke-orange-500' : 'stroke-red-500'} dark:${cpuUsage < 50 ? 'stroke-blue-500' : cpuUsage < 80 ? 'stroke-green-500' : cpuUsage < 90 ? 'stroke-orange-500' : 'stroke-red-500'} transition-all duration-300">
+                                        </circle>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-[11px] font-semibold">${Math.round(cpuUsage)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    cpuCell.innerHTML = cpuInfo;
+
+                    var ramInfo = `
+                        <div class="flex gap-2">
+                            <!-- Memory Usage -->
+                            <div class="flex items-center gap-x-2.5">
+                                <div class="relative" role="progressbar" aria-valuenow="${memUsage}" aria-valuemin="0" aria-valuemax="100">
+                                    <svg width="28" height="28" viewBox="0 0 28 28" class="-rotate-90 transform">
+                                        <circle r="12.5" cx="14" cy="14" stroke-width="3" fill="transparent" class="stroke-gray-100 dark:stroke-gray-500/30"></circle>
+                                        <circle r="12.5" cx="14" cy="14" stroke-width="3" stroke-dasharray="78.54" stroke-dashoffset="${memDashOffset}" fill="transparent"
+
+                                        class="${memUsage < 50 ? 'stroke-blue-500' : memUsage < 80 ? 'stroke-green-500' : memUsage < 90 ? 'stroke-orange-500' : 'stroke-red-500'} dark:${memUsage < 50 ? 'stroke-blue-500' : memUsage < 80 ? 'stroke-green-500' : memUsage < 90 ? 'stroke-orange-500' : 'stroke-red-500'} transition-all duration-300">
+
+
+
+                                        </circle>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-[11px] font-semibold">${Math.round(memUsage)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    ramCell.innerHTML = ramInfo;
+
+                    blockioCell.textContent = container.BlockIO;
+                    netioCell.textContent = container.NetIO;
+                    pidsCell.textContent = container.PIDs;
+
+                    var statusInfo = `
+                        <span class="w-full relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-2 py-1 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0 text-emerald-600 dark:text-emerald-500"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path></svg>${containersI18n.enabled}</span>`;
+                    statusCell.innerHTML = statusInfo;
+
+
+                    var actionsInfo = `
+                        <form method="POST" action="/containers/stop/${containerName}">
+                        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                        <button type="submit" class="relative inline-flex items-center justify-center gap-1 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stop-fill" viewBox="0 0 16 16">
+  <path d="M5 3.5h6A1.5 1.5 0 0 1 12.5 5v6a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 11V5A1.5 1.5 0 0 1 5 3.5"/>
+</svg> ${containersI18n.stop}</button></form>
+<a href="/containers/terminal/${containerName}" class="relative inline-flex items-center justify-center gap-1 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-terminal" viewBox="0 0 16 16"> <path d="M6 9a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3A.5.5 0 0 1 6 9M3.854 4.146a.5.5 0 1 0-.708.708L4.793 6.5 3.146 8.146a.5.5 0 1 0 .708.708l2-2a.5.5 0 0 0 0-.708z"/>  <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/></svg>${containersI18n.terminal}</a>
+<a href="/containers/logs?container=${containerName}&lines=20" class="relative inline-flex items-center justify-center gap-1 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600">${containersI18n.logs}</a>
+
+`;
+                    actionsCell.innerHTML = actionsInfo;
+
+                    if (cpuUsage >= 90 || memUsage >= 90) {
+                        highUsageContainers.push(containerName);
+                    }
+
+                    totalCount++;
+                });
+                document.querySelector('#total_records_count').textContent = totalCount + "/";
+
+                if (typeof reportHealthIssues === 'function' && highUsageContainers.length) {
+                    let issue;
+                    if (highUsageContainers.length === 1) {
+                        issue = { id: 'resource-limit:' + highUsageContainers[0], severity: 'warning', message: "{{.T.Get "Container"}} " + highUsageContainers[0] + " {{.T.Get "is reaching its CPU/RAM limit."}}" };
+                    } else if (highUsageContainers.length === 2) {
+                        issue = { id: 'resource-limit:' + highUsageContainers.join(','), severity: 'warning', message: "{{.T.Get "Containers"}} " + highUsageContainers.join(', ') + " {{.T.Get "are reaching their CPU/RAM limit."}}" };
+                    } else {
+                        issue = { id: 'resource-limit:multiple', severity: 'warning', message: highUsageContainers.length + " {{.T.Get "containers are reaching their CPU/RAM limit."}}" };
+                    }
+                    reportHealthIssues('containers', [issue], 24);
+                }
+                }
+            }
+        })
+        .catch(function(error) {
+            console.error("Error fetching container stats:", error);
+            showToast('{{.T.Get "Error fetching docker stats for containers."}}', 'error');
+            document.querySelector('#total_records_count').textContent = "?/";
+        });
+});
+
+</script>
+<!-- END JS for stats -->
+
+<script>
+// search table based on ?s= in the url
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const s = params.get('s');
+    if (s) {
+        setTimeout(() => {
+            const searchInput = document.querySelector('[x-model="searchQuery"]');
+            if (searchInput) {
+                const scope = Alpine.$data(searchInput.closest('[x-data]'));
+                if (scope) {
+                    scope.searchQuery = s;
+                }
+                searchInput.value = s;
+                searchInput.dispatchEvent(new Event('input'));
+            }
+        }, 100);
+    }
+});
+</script>
+
+<!-- END templates/docker/containers.html -->
+{{end}}
+
+{{define "column_toggle"}}
+<li>
+    <div class="flex py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+        <label class="inline-flex items-center w-full cursor-pointer">
+            <input type="checkbox" x-model="columns.{{.Key}}" x-on:change="saveColumns" class="sr-only peer">
+            <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Label}}</span>
+        </label>
+    </div>
+</li>
+{{end}}
+
+{{define "container_row"}}
+{{$row := .Row}}
+{{$t := .T}}
+<tr x-show="searchQuery === '' || '{{$row.DisplayName}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{$row.Service}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{$row.Image}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+
+    <td x-show="columns.name">
+        <div class="flex flex-col gap-1">
+            <span class="font-medium text-gray-900 dark:text-gray-50">{{$row.DisplayName}}</span>
+            <div class="flex items-center gap-1 text-xs">
+                <span class="text-gray-500 dark:text-gray-500">Image:</span>
+                <span class="font-mono font-medium uppercase tabular-nums text-gray-900 dark:text-gray-50">{{$row.Image}}</span>
+{{if $row.ImageTrusted}}
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-3 shrink-0 text-emerald-600 dark:text-emerald-400"><path d="M12 1L20.2169 2.82598C20.6745 2.92766 21 3.33347 21 3.80217V13.7889C21 15.795 19.9974 17.6684 18.3282 18.7812L12 23L5.6718 18.7812C4.00261 17.6684 3 15.795 3 13.7889V3.80217C3 3.33347 3.32553 2.92766 3.78307 2.82598L12 1ZM16.4524 8.22183L11.5019 13.1709L8.67421 10.3431L7.25999 11.7574L11.5026 16L17.8666 9.63604L16.4524 8.22183Z"></path></svg>
+{{else}}
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-3 shrink-0 text-gray-400 dark:text-gray-600"><path d="M12 1L20.2169 2.82598C20.6745 2.92766 21 3.33347 21 3.80217V13.7889C21 15.795 19.9974 17.6684 18.3282 18.7812L12 23L5.6718 18.7812C4.00261 17.6684 3 15.795 3 13.7889V3.80217C3 3.33347 3.32553 2.92766 3.78307 2.82598L12 1ZM16.4524 8.22183L11.5019 13.1709L8.67421 10.3431L7.25999 11.7574L11.5026 16L17.8666 9.63604L16.4524 8.22183Z"></path></svg>
+{{end}}
+            </div>
+        </div>
+    </td>
+
+<td x-show="columns.cpu"
+    x-data="{
+    editing: false,
+    rawValue: '{{if $row.CPUUnlimited}}{{else}}{{$row.CPUValue}}{{end}}',
+    CPUinputValue: '{{if $row.CPUUnlimited}}0{{else}}{{$row.CPUValue}}{{end}}',
+    get isUnlimited() { return this.rawValue === '' || this.rawValue === '0'; },
+    get value() { return this.isUnlimited ? '∞' : this.rawValue; },
+    set value(val) { this.rawValue = val; this.CPUinputValue = val; }
+}"
+class="relative group cursor-pointer p-4 text-sm whitespace-nowrap text-gray-600 dark:text-gray-400 text-left">
+
+    <div class="flex gap-2">
+        <div id="cpu-{{$row.Service}}">
+            <div class="flex items-center gap-x-2.5">
+                <div class="relative" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <svg width="28" height="28" viewBox="0 0 28 28" class="-rotate-90 transform">
+                        <circle r="12.5" cx="14" cy="14" stroke-width="3" fill="transparent" class="stroke-gray-100 dark:stroke-gray-500/30"></circle>
+                        <circle r="12.5" cx="14" cy="14" stroke-width="3" stroke-dasharray="78.54" stroke-dashoffset="78.54" fill="transparent" class="stroke-blue-500 dark:stroke-blue-500 transition-all duration-300"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-[11px] font-semibold">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-0">
+            <span class="text-gray-900 dark:text-gray-50">
+                <span class="text-xs text-gray-500 dark:text-gray-500">{{$t.Get "Usage:"}} </span>
+                <span class="font-medium" id="cpu-usage-{{$row.Service}}"></span>
+            </span>
+            <span class="flex items-center text-xs text-gray-500 dark:text-gray-500">
+                <input id="cpu-allocated-{{$row.Service}}" type="hidden" value="{{.TotalCPU}}">
+                {{$t.Get "Allocated:"}} &nbsp;
+                <span x-show="!editing"><span class="font-medium" x-text="value"></span> {{$t.Get "cores"}} <a href="#" @click.prevent="editing = !editing" class="transform hidden group-hover:inline-block text-gray-400 hover:text-gray-600"><span x-show="!editing"><i class="bi bi-pencil-fill"></i></a></span>
+            <form action="/containers/cpu/{{$row.Service}}" method="POST" x-show="editing" @click.stop="editing = true" class="flex items-center gap-2">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input x-model="CPUinputValue" title='{{$t.Get "Max CPUs that this service can use. 0 = unlimited"}}' name="value" type="number" min="0" {{if ne .TotalCPU 0}}max="{{.TotalCPU}}"{{end}} step=".01" class="w-20 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white" />
+                <button type="submit" class="px-2 py-1 text-white bg-blue-500 rounded hover:bg-blue-600">{{$t.Get "Save"}}</button>
+            </form>
+            </span>
+        </div>
+    </div>
+</td>
+
+<td x-show="columns.ram"
+    x-data="{
+    editing: false,
+    rawValue: '{{if $row.RAMUnlimited}}{{else}}{{$row.RAMGB}}{{end}}',
+    RAMinputValue: '{{if $row.RAMUnlimited}}0{{else}}{{$row.RAMGB}}{{end}}',
+    get isUnlimited() { return this.rawValue === '' || this.rawValue === '0'; },
+    get value() { return this.isUnlimited ? '∞' : this.rawValue + ' GB'; },
+    set value(val) { this.rawValue = val; this.RAMinputValue = val; }
+}" class="relative group cursor-pointer p-4 text-sm relative whitespace-nowrap py-2.5 text-gray-600 dark:text-gray-400 text-left">
+
+    <div class="flex gap-2">
+        <div id="ram-{{$row.Service}}">
+            <div class="flex items-center gap-x-2.5">
+                <div class="relative" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <svg width="28" height="28" viewBox="0 0 28 28" class="-rotate-90 transform">
+                        <circle r="12.5" cx="14" cy="14" stroke-width="3" fill="transparent" class="stroke-gray-100 dark:stroke-gray-500/30"></circle>
+                        <circle r="12.5" cx="14" cy="14" stroke-width="3" stroke-dasharray="78.54" stroke-dashoffset="78.54" fill="transparent" class="stroke-blue-500 dark:stroke-blue-500 transition-all duration-300"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-[11px] font-semibold">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-0">
+            <span class="text-gray-900 dark:text-gray-50">
+                <span class="text-xs text-gray-500 dark:text-gray-500">{{$t.Get "Usage:"}} </span>
+                <span class="font-medium" id="ram-usage-{{$row.Service}}"></span>
+            </span>
+            <span class="flex items-center text-xs text-gray-500 dark:text-gray-500">
+                {{$t.Get "Allocated:"}} &nbsp;
+                <span x-show="!editing"><span class="font-medium">{{if $row.RAMUnlimited}}∞{{else}}{{$row.RAMGB}} GB{{end}} </span> <a href="#" @click.prevent="editing = !editing" class="transform hidden group-hover:inline-block text-gray-400 hover:text-gray-600"><span x-show="!editing"><i class="bi bi-pencil-fill"></i></a></span>
+
+            <form action="/containers/ram/{{$row.Service}}" method="POST" x-show="editing" @click.stop="editing = true" class="flex items-center gap-2">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <input x-model="RAMinputValue" name="value"  title='{{$t.Get "Max Memory that this service can use. 0 = unlimited"}}' type="number" min="0" {{if ne .TotalRAM 0}}max="{{.TotalRAM}}"{{end}} step=".01" class="w-20 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white" />
+
+                <button type="submit" class="px-2 py-1 text-white bg-blue-500 rounded hover:bg-blue-600">{{$t.Get "Save"}}</button>
+            </form>
+            </span>
+        </div>
+    </div>
+</td>
+
+    <td x-show="columns.blockio" id="blockio-{{$row.Service}}" class="text-sm text-gray-600 dark:text-gray-400 py-2">--</td>
+    <td x-show="columns.netio" id="netio-{{$row.Service}}" class="text-sm text-gray-600 dark:text-gray-400 py-2">--</td>
+    <td x-show="columns.pids" id="pids-{{$row.Service}}" class="text-sm text-gray-600 dark:text-gray-400 py-2">--</td>
+
+    <td x-show="columns.status" id="status-{{$row.Service}}" class="py-1">
+        <span class="w-full relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-2 py-1 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0 text-gray-400 dark:text-gray-600"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 10.5858L9.17157 7.75736L7.75736 9.17157L10.5858 12L7.75736 14.8284L9.17157 16.2426L12 13.4142L14.8284 16.2426L16.2426 14.8284L13.4142 12L16.2426 9.17157L14.8284 7.75736L12 10.5858Z"></path></svg>{{$t.Get "Disabled"}}</button>
+    </td>
+
+                    <td x-show="columns.actions" x-data="{ pullValue: 'false' }" class="flex py-1 gap-1 justify-end">
+                        <span id="actions-{{$row.Service}}" class="flex gap-1">
+                        <form method="POST" class="flex gap-1" action="/containers/start/{{$row.DisplayName}}">
+                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                            <input type="hidden" name="pull" class="pullInput" :value="pullValue">
+                            <button type="submit" class="relative inline-flex items-center justify-center gap-1 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
+  <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393"/></svg>{{$t.Get "Start"}}</button>
+                            <button type="button" class="hidden items-center justify-center gap-1 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600" @click="pullValue = 'true'; $nextTick(() => $el.closest('form').submit())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg>{{$t.Get "Pull & Start"}}</button>
+                        </form>
+                        </span>
+
+{{if $row.ShowManage}}
+<a href="/containers/edit/{{$row.Service}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+</svg> {{$t.Get "Edit"}}</a>
+
+<a href="/containers/delete/{{$row.Service}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+  <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+</svg> {{$t.Get "Delete"}}</a>
+{{end}}
+                    </td>
+                </tr>
+{{end}}

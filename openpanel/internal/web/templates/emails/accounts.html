@@ -1,0 +1,140 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/emails/accounts.html -->
+
+<section aria-label="Emails Header" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Emails"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Total emails:"}} <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white mb-2">{{.TotalCount}}</span></p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        <div class="relative w-full sm:w-64">
+            <input
+                id="emails-search-input"
+                x-model="searchQuery"
+                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
+                placeholder="{{.T.Get "Search"}}"
+                type="search"
+            />
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path></svg>
+            </div>
+        </div>
+
+        <a href="/emails/new" id="showAddEmailFormBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg> {{.T.Get "New Email"}}</a>
+        <a href="/emails/export" id="export_emails_csv" class="hidden items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap sm:w-fit"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon -ml-1 size-5 shrink-0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM3.517 14.841a1.13 1.13 0 0 0 .401.823q.195.162.478.252.284.091.665.091.507 0 .859-.158.354-.158.539-.44.187-.284.187-.656 0-.336-.134-.56a1 1 0 0 0-.375-.357 2 2 0 0 0-.566-.21l-.621-.144a1 1 0 0 1-.404-.176.37.37 0 0 1-.144-.299q0-.234.185-.384.188-.152.512-.152.214 0 .37.068a.6.6 0 0 1 .246.181.56.56 0 0 1 .12.258h.75a1.1 1.1 0 0 0-.2-.566 1.2 1.2 0 0 0-.5-.41 1.8 1.8 0 0 0-.78-.152q-.439 0-.776.15-.337.149-.527.421-.19.273-.19.639 0 .302.122.524.124.223.352.367.228.143.539.213l.618.144q.31.073.463.193a.39.39 0 0 1 .152.326.5.5 0 0 1-.085.29.56.56 0 0 1-.255.193q-.167.07-.413.07-.175 0-.32-.04a.8.8 0 0 1-.248-.115.58.58 0 0 1-.255-.384zM.806 13.693q0-.373.102-.633a.87.87 0 0 1 .302-.399.8.8 0 0 1 .475-.137q.225 0 .398.097a.7.7 0 0 1 .272.26.85.85 0 0 1 .12.381h.765v-.072a1.33 1.33 0 0 0-.466-.964 1.4 1.4 0 0 0-.489-.272 1.8 1.8 0 0 0-.606-.097q-.534 0-.911.223-.375.222-.572.632-.195.41-.196.979v.498q0 .568.193.976.197.407.572.626.375.217.914.217.439 0 .785-.164t.55-.454a1.27 1.27 0 0 0 .226-.674v-.076h-.764a.8.8 0 0 1-.118.363.7.7 0 0 1-.272.25.9.9 0 0 1-.401.087.85.85 0 0 1-.478-.132.83.83 0 0 1-.299-.392 1.7 1.7 0 0 1-.102-.627zm8.239 2.238h-.953l-1.338-3.999h.917l.896 3.138h.038l.888-3.138h.879z"></path></svg> {{.T.Get "Export"}}</a>
+    </div>
+</div>
+
+
+    <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table id="email-accounts" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Account @ Domain") "Key" "address" "Type" "string")}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Storage Used") "Key" "quota" "Type" "number")}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm text-right font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Options"}}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+
+                {{if not .Rows}}
+                    <tr>
+                        <td colspan="3" class="p-6 text-center">{{.T.Get "No emails yet."}} <a href="/emails/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Add your first email"}}</a></td>
+                    </tr>
+
+                {{else}}
+                {{range .Rows}}
+                {{$row := .}}
+                    <tr x-show="searchQuery === '' || {{toJSON $row.Address}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="address" data-sort-value="{{$row.Address}}"><span class="punycode">{{$row.Address}}</span></td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="quota" data-sort-value="{{$row.PercentVal}}">
+                            {{$row.QuotaDisplay}}
+                            <div class="h-2 bg-gray-200 rounded">
+                                <div id="disk-progress-bar"
+                                    class="h-2 {{$row.BarColor}} rounded"
+                                    role="progressbar"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    aria-valuenow="{{$row.PercentVal}}"
+                                    style="width: {{$row.CappedVal}}%;">
+                                </div>
+                            </div>
+                        </td>
+
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div class="text-end space-x-2">
+                                {{if $.UserAllowed.webmail}}
+                                <a href="/webmail/{{$row.Address}}" target="_blank" data-email="{{$row.Address}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><i class="bi bi-box-arrow-up-right"></i> {{$.T.Get "Webmail"}}</a>
+                                {{end}}
+                                <a href="/emails/edit/{{$row.Address}}" role="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><i class="bi bi-wrench-adjustable"></i> {{$.T.Get "Manage"}}</a>
+                                <a href="/emails/info/{{$row.Address}}" role="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-phone"></i> {{$.T.Get "Connect Devices"}}</a>
+                            </div>
+                        </td>
+
+
+                    </tr>
+
+                {{end}}
+                {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+<!-- END emails table -->
+
+{{if .QuotaToastMsg}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues === 'function') {
+        reportHealthIssues('emails', [{id: {{toJSON .QuotaToastID}}, severity: 'warning', message: {{toJSON .QuotaToastMsg}}}], 24);
+    }
+});
+</script>
+{{end}}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.webmail-link').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                const email = this.dataset.email;
+                const url = `/webmail/${email}`;
+                const toastMessage = {{toJSON (.T.Get "Webmail for ")}} + email + {{toJSON (.T.Get " opened in new window.")}};
+                showToast(toastMessage, 'success');
+            });
+        });
+    });
+</script>
+
+<script>
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'n' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const tag = document.activeElement.tagName.toLowerCase();
+    const isInputFocused = ['input', 'textarea'].includes(tag) || document.activeElement.isContentEditable;
+    if (isInputFocused) return;
+    e.preventDefault();
+    document.getElementById('showAddEmailFormBtn')?.click();
+});
+if (window.registerShortcut) registerShortcut(['N'], {{toJSON (.T.Get "Add new email account")}});
+</script>
+<script src="/static/js/table-sort.js"></script>
+
+<!-- END templates/emails/accounts.html -->
+{{end}}
+
+{{define "sort_header"}}
+<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+    <span>{{.Label}}</span>
+    <div class="-space-y-2">
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+    </div>
+</div>
+{{end}}

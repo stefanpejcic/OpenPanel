@@ -1,0 +1,138 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/psql/remote_psql.html -->
+
+<section aria-label="Remote PostgreSQL Header">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Remote PostgreSQL Access"}}</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Connect to a PostgreSQL database on this server from a another (remote) device or location over the internet."}}</p>
+        </div>
+        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+            {{if eq .RemotePostgreSQLDisplay "ON"}}
+            <form method="post">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="action" value="disable">
+                <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Disable Remote PostgreSQL Access"}}</button>
+            </form>
+            {{else if eq .RemotePostgreSQLDisplay "OFF"}}
+            <form method="post">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="action" value="enable">
+                <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Enable Remote PostgreSQL Access"}}</button>
+            </form>
+            {{else}}
+            <form method="post">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="action" value="disable">
+                <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Disable Remote PostgreSQL Access"}}</button>
+            </form>
+            <form method="post">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="action" value="enable">
+                <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Enable Remote PostgreSQL Access"}}</button>
+            </form>
+            {{end}}
+        </div>
+    </div>
+</section>
+
+<div dir="ltr" class="m-6">
+    <div class="mt-6 space-y-10">
+        <section aria-labelledby="status-overview">
+            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+                <div>
+                    <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Status"}}</h2>
+                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Remote access to PostgreSQL is currently:"}}</p>
+                </div>
+                <div class="">
+                    <dd class="mt-1.5 flex items-center gap-2">
+                        {{if eq .RemotePostgreSQLDisplay "ON"}}
+                        <div class="flex gap-0.5">
+                            <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
+                            <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
+                            <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
+                        </div>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Enabled"}}</p>
+                        <form method="post">
+                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                            <input type="hidden" name="action" value="disable">
+                            <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Click to Disable"}}</button>
+                        </form>
+                        {{else if eq .RemotePostgreSQLDisplay "OFF"}}
+                        <div class="flex gap-0.5">
+                            <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
+                            <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
+                            <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
+                        </div>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Disabled"}}</p>
+                        <form method="post">
+                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                            <input type="hidden" name="action" value="enable">
+                            <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Click to Enable"}}</button>
+                        </form>
+                        {{else}}
+                        <div class="flex gap-0.5">
+                            <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                            <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                            <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
+                        </div>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Unknown"}}</p>
+                        <form method="post">
+                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                            <input type="hidden" name="action" value="enable">
+                            <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Click to Restart"}}</button>
+                        </form>
+                        {{end}}
+                    </dd>
+                </div>
+            </div>
+        </section>
+        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+        <section aria-labelledby="remote">
+            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+                <div>
+                    <h2 id="remote" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Remote"}}</h2>
+                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Connection info when connecting to database"}} <b>{{.T.Get "from a remote server"}}</b>.</p>
+                </div>
+                <div class="md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:max-w-3xl sm:grid-cols-2">
+                        <div class="relative w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 !p-4 hover:bg-gray-50 hover:dark:bg-gray-900">
+                            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Server:"}}</p>
+                            <p class="mt-3 flex items-end"><span class="text-3xl font-semibold text-gray-900 dark:text-gray-50">{{.ServerIP}}</span></p>
+                        </div>
+                        <div class="relative w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 !p-4 hover:bg-gray-50 hover:dark:bg-gray-900">
+                            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Port:"}}</p>
+                            <p class="mt-3 flex items-end"><span class="text-3xl font-semibold text-gray-900 dark:text-gray-50">{{.ContainerPort}}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+        <section aria-labelledby="local">
+            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+                <div>
+                    <h2 id="local" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Local"}}</h2>
+                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Connection info when connecting to database"}} <b>{{.T.Get "from a local server"}}</b>.</p>
+                </div>
+                <div class="md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:max-w-3xl sm:grid-cols-2">
+                        <div class="relative w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 !p-4 hover:bg-gray-50 hover:dark:bg-gray-900">
+                            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Server:"}}</p>
+                            <p class="mt-3 flex items-end"><span class="text-3xl font-semibold text-gray-900 dark:text-gray-50">postgres</span></p>
+                        </div>
+                        <div class="relative w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 !p-4 hover:bg-gray-50 hover:dark:bg-gray-900">
+                            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Port:"}}</p>
+                            <p class="mt-3 flex items-end"><span class="text-3xl font-semibold text-gray-900 dark:text-gray-50">5432</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- END templates/psql/remote_psql.html -->
+{{end}}

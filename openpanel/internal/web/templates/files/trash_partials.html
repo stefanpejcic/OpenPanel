@@ -1,0 +1,725 @@
+{{define "empty_trash"}}
+<!-- START templates/files/filemanager/empty_trash.html -->
+<div class="row flex flex-col items-center text-center justify-center h-72">
+   <svg  xmlns="http://www.w3.org/2000/svg"  width="120"  height="120"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.25"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M11 19h-6a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v4" /><path d="M15 19l2 2l4 -4" /></svg>
+
+   <div class="fs-1 fw-bolder text-dark mb-4">{{.T.Get "No files in the Trash."}}</div>
+</div>
+<!-- END templates/files/filemanager/empty_trash.html -->
+{{end}}
+
+{{define "table_trash"}}
+<!-- START templates/files/filemanager/table_trash.html -->
+<div class="table-responsive" style="margin-top:0px;">
+   <table class="table-auto w-full mt-0 text-left select-none" id="filemanager_table">
+      <thead class="text-sm">
+         <tr class="border-b border-gray-200 dark:border-gray-800">
+            <th x-show="columns.name" class="sortable px-4 py-1.5 cursor-pointer">{{.T.Get "Name"}}</th>
+            <th x-show="columns.size" class="sortable px-4 py-1.5 cursor-pointer">{{.T.Get "Size"}}</th>
+            <th x-show="columns.date" class="sortable px-4 py-1.5 cursor-pointer">
+               <span class="hidden md:inline">{{.T.Get "Last Modified"}}</span>
+               <span class="md:hidden">{{.T.Get "Date"}}</span>
+            </th>
+
+            <th x-show="columns.deletion_date" class="sortable px-4 py-1.5 cursor-pointer">
+               <span class="hidden md:inline">{{.T.Get "Deletion Date"}}</span>
+               <span class="md:hidden">{{.T.Get "Deleted"}}</span>
+            </th>
+
+            <th x-show="columns.original_path" class="sortable px-4 py-1.5 cursor-pointer">
+               <span>{{.T.Get "Original Path"}}</span>
+            </th>
+
+            <th x-show="columns.owner" class="sortable px-4 py-1.5 cursor-pointer text-center">
+               <span>{{.T.Get "Owner"}}</span>
+            </th>
+            <th x-show="columns.group" class="sortable px-4 py-1.5 cursor-pointer text-center">
+               <span>{{.T.Get "Group"}}</span>
+            </th>
+
+            <th x-show="columns.links" class="sortable px-4 py-1.5 cursor-pointer text-center">
+               <span>{{.T.Get "Links"}}</span>
+            </th>
+
+            <th x-show="columns.link_target" class="sortable px-4 py-1.5 cursor-pointer text-center">
+               <span>{{.T.Get "Link target"}}</span>
+            </th>
+
+            <th x-show="columns.type" class="sortable px-4 py-1.5 cursor-pointer">
+               <span>{{.T.Get "Type"}}</span>
+            </th>
+
+
+            <th x-show="columns.permissions" class="sortable cursor-pointer" style="width:5%;">
+               <span class="hidden md:inline">{{.T.Get "Permissions"}}</span>
+               <i class="md:hidden bi bi-key"></i>
+            </th>
+         </tr>
+      </thead>
+      <tbody>
+         {{range $i, $info := .Rows}}
+         <tr data-row-index="{{$i}}" class="clickable-row" data-file="{{$info.Name}}" data-size="{{$info.Size}}" data-date="{{$info.Date}}" data-type="{{$info.Type}}" data-permissions="{{$info.Permissions}}">
+            <!-- First column (Name) -->
+            {{if eq $info.Type "directory"}}
+            <td x-show="columns.name" class="px-4 py-1.5 select-text">
+               <div class="flex items-center">
+                  <div class="text-orange-500 mr-2"><i class="bi bi-folder-fill"></i></div>
+                  <h6 class="text-dark dark_on_light_theme text-sm mb-0">
+                     {{$info.Name}}
+                  </h6>
+               </div>
+            </td>
+            {{else if eq $info.Type "file"}}
+            <td x-show="columns.name" class="px-4 py-1.5 select-text">
+               <div class="flex items-center">
+                  <div class="mr-2"><i class="bi bi-file-earmark"></i></div>
+                  <h6 class="text-sm mb-0">{{$info.Name}}</h6>
+               </div>
+            </td>
+            {{else if eq $info.Type "symlink"}}
+            <td  x-show="columns.name" class="px-4 py-1.5">
+               <div class="flex items-center">
+                  <div class="mr-2"><i class="bi bi-link-45deg"></i></div>
+                  <h6 class="text-sm mb-0">{{$info.Name}} ({{$info.LinkTarget}})</h6>
+               </div>
+            </td>
+            {{end}}
+            <!-- End of Name column -->
+
+            <!-- Second column (Size) -->
+            <td  x-show="columns.size" class="px-4 py-1.5 text-sm">
+               <span class="file-size-bytes">{{$info.Size}}</span>
+            </td>
+            <!-- End of Size column -->
+
+            <td x-show="columns.date" class="px-4 py-1.5 text-sm">{{$info.Date}}</td>
+
+            <td x-show="columns.deletion_date" class="group-cell px-4 py-1.5 text-sm">{{$info.DeletionDate}}</td>
+            <td x-show="columns.original_path" class="group-cell px-4 py-1.5 text-sm">{{$info.DisplayOriginalPath}}</td>
+            <td x-show="columns.owner" class="owner-cell px-4 py-1.5 text-center text-sm">{{$info.Owner}}</td>
+            <td x-show="columns.group" class="group-cell px-4 py-1.5 text-center text-sm">{{$info.Group}}</td>
+            <td x-show="columns.links" class="group-cell px-4 py-1.5 text-center text-sm">{{$info.Links}}</td>
+            <td x-show="columns.link_target" class="group-cell px-4 py-1.5 text-center text-sm">{{$info.LinkTarget}}</td>
+            <td x-show="columns.type" class="group-cell px-4 py-1.5 text-sm">{{$info.Type}}</td>
+
+            <td  x-show="columns.permissions"
+               class="permissions-cell text-sm text-center"
+               x-data="permissionCell"
+               x-init="init($el.textContent.trim())"
+               @mouseenter="showNumeric"
+               @mouseleave="showSymbolic"
+               x-text="display"
+               >{{$info.Permissions}}</td>
+         </tr>
+         {{end}}
+      </tbody>
+   </table>
+</div>
+<!-- END templates/files/filemanager/table_trash.html -->
+{{end}}
+
+{{define "restoreAll_trash"}}
+<!-- START templates/files/filemanager/restoreAll.html -->
+<div id="restoreAllDrawer" class="fmdrawer fixed top-0 right-0 z-40 flex flex-col h-full p-4 overflow-y-auto transition-transform translate-x-full bg-white min-w-72 dark:bg-gray-950" tabindex="-1" aria-labelledby="drawer-right-label">
+   <form method="POST" action="/files.trash/restoreall">
+   <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+   <div class="flex items-start justify-between gap-x-4 border-b border-gray-200 pb-4 dark:border-gray-900">
+      <div class="mt-1 flex flex-col gap-y-1">
+         <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore All"}}</h2>
+      </div>
+      <button
+         class="relative inline-flex items-center justify-center whitespace-nowrap rounded-md border text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 shadow-none border-transparent text-gray-900 dark:text-gray-50 bg-transparent disabled:text-gray-400 disabled:dark:text-gray-600 aspect-square p-1 hover:bg-gray-100 hover:dark:bg-gray-400/10"
+         type="button"
+         data-drawer-hide="restoreAllDrawer"
+         >
+         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-6">
+            <path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"></path>
+         </svg>
+      </button>
+   </div>
+   <!-- drawer BODY -->
+   <div class="h-full max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]">
+      <ul class="scroller selected-items-list max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 text-sm"></ul>
+      <br>
+   </div>
+   <!-- drawer FOOTER -->
+   <div class="group border-t border-gray-200 pt-4 sm:flex-row sm:justify-end sm:space-x-2 dark:border-gray-900 mt-6">
+      <button type="submit" class="relative inline-flex items-center justify-center rounded-md border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 cursor-pointer">
+         {{.T.Get "Restore All"}}
+         <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+         </svg>
+      </button>
+   </div>
+   </form>
+</div>
+<!-- END templates/files/filemanager/restoreAll.html -->
+{{end}}
+
+{{define "deleteAll_trash"}}
+<!-- START templates/files/filemanager/deleteAll.html -->
+<div id="deleteAllDrawer" class="fmdrawer fixed top-0 right-0 z-40 flex flex-col h-full p-4 overflow-y-auto transition-transform translate-x-full bg-white min-w-72 dark:bg-gray-950" tabindex="-1" aria-labelledby="drawer-right-label">
+   <form method="POST" action="/files.trash/deleteall">
+   <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+   <div class="flex items-start justify-between gap-x-4 border-b border-gray-200 pb-4 dark:border-gray-900">
+      <div class="mt-1 flex flex-col gap-y-1">
+         <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete All"}}</h2>
+      </div>
+      <button
+         class="relative inline-flex items-center justify-center whitespace-nowrap rounded-md border text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 shadow-none border-transparent text-gray-900 dark:text-gray-50 bg-transparent disabled:text-gray-400 disabled:dark:text-gray-600 aspect-square p-1 hover:bg-gray-100 hover:dark:bg-gray-400/10"
+         type="button"
+         data-drawer-hide="deleteAllDrawer"
+         >
+         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-6">
+            <path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"></path>
+         </svg>
+      </button>
+   </div>
+   <!-- drawer BODY -->
+   <div class="h-full max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]">
+      <ul class="scroller selected-items-list max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 text-sm"></ul>
+      <br>
+   </div>
+   <!-- drawer FOOTER -->
+   <div class="group border-t border-gray-200 pt-4 sm:flex-row sm:justify-end sm:space-x-2 dark:border-gray-900 mt-6">
+      <button type="submit" class="relative inline-flex items-center justify-center rounded-md border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 cursor-pointer">
+         {{.T.Get "Delete All"}}
+         <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+         </svg>
+      </button>
+   </div>
+   </form>
+</div>
+<!-- END templates/files/filemanager/deleteAll.html -->
+{{end}}
+
+{{define "restore_trash"}}
+<!-- START templates/files/filemanager/restore.html -->
+<div id="restoreDrawer" class="fmdrawer fixed top-0 right-0 z-40 flex flex-col h-full p-4 overflow-y-auto transition-transform translate-x-full bg-white min-w-72 dark:bg-gray-950" tabindex="-1" aria-labelledby="drawer-right-label">
+   <div class="flex items-start justify-between gap-x-4 border-b border-gray-200 pb-4 dark:border-gray-900">
+      <div class="mt-1 flex flex-col gap-y-1">
+         <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore items"}}</h2>
+      </div>
+      <button
+         class="relative inline-flex items-center justify-center whitespace-nowrap rounded-md border text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 shadow-none border-transparent text-gray-900 dark:text-gray-50 bg-transparent disabled:text-gray-400 disabled:dark:text-gray-600 aspect-square p-1 hover:bg-gray-100 hover:dark:bg-gray-400/10"
+         type="button"
+         data-drawer-hide="restoreDrawer"
+         >
+         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-6">
+            <path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"></path>
+         </svg>
+      </button>
+   </div>
+   <!-- drawer BODY -->
+   <div class="h-full max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]">
+      <ul class="scroller selected-items-list max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 text-sm"></ul>
+
+   </div>
+   <!-- drawer FOOTER -->
+   <div class="group border-t border-gray-200 pt-4 sm:flex-row sm:justify-end sm:space-x-2 dark:border-gray-900 mt-6">
+      <button type="button" id="restoreConfirmButton" class="relative inline-flex items-center justify-center rounded-md border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 cursor-pointer">
+         {{.T.Get "Restore"}}
+         <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+         </svg>
+      </button>
+   </div>
+</div>
+<!-- templates/files/filemanager/restore.html -->
+{{end}}
+
+{{define "deleteTrash_trash"}}
+<!-- START templates/files/filemanager/deleteTrash.html -->
+<div id="deleteTrashDrawer" class="fmdrawer fixed top-0 right-0 z-40 flex flex-col h-full p-4 overflow-y-auto transition-transform translate-x-full bg-white min-w-72 dark:bg-gray-950" tabindex="-1" aria-labelledby="drawer-right-label">
+   <div class="flex items-start justify-between gap-x-4 border-b border-gray-200 pb-4 dark:border-gray-900">
+      <div class="mt-1 flex flex-col gap-y-1">
+         <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete items"}}</h2>
+      </div>
+      <button
+         class="relative inline-flex items-center justify-center whitespace-nowrap rounded-md border text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 shadow-none border-transparent text-gray-900 dark:text-gray-50 bg-transparent disabled:text-gray-400 disabled:dark:text-gray-600 aspect-square p-1 hover:bg-gray-100 hover:dark:bg-gray-400/10"
+         type="button"
+         data-drawer-hide="deleteTrashDrawer"
+         >
+         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-6">
+            <path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"></path>
+         </svg>
+      </button>
+   </div>
+   <!-- drawer BODY -->
+   <div class="h-full max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]">
+      <ul class="scroller selected-items-list max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400 text-sm"></ul>
+
+   </div>
+   <!-- drawer FOOTER -->
+   <div class="group border-t border-gray-200 pt-4 sm:flex-row sm:justify-end sm:space-x-2 dark:border-gray-900 mt-6">
+      <button type="button" id="deleteTrashConfirmButton" class="relative inline-flex items-center justify-center rounded-md border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 cursor-pointer">
+         {{.T.Get "Delete"}}
+         <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+         </svg>
+      </button>
+   </div>
+</div>
+<!-- END templates/files/filemanager/deleteTrash.html -->
+{{end}}
+
+{{define "inline_js_trash"}}
+<!-- START templates/files/filemanager/inline_js_trash.html -->
+<script>
+(function () {
+    var selectedRows = [];
+    var sveselect = 0;
+    var isSelecting = false;
+    var wasSelecting = false;
+    var startRowIndex = null;
+    var endRowIndex = null;
+
+    var filemanagerTable = document.getElementById('filemanager_table');
+
+    function addSelectedClass(el) {
+        el.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+    }
+    function removeSelectedClass(el) {
+        el.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+    }
+    function toggleSelectedClass(el) {
+        el.classList.toggle('selected-row');
+        el.classList.toggle('bg-gray-200');
+        el.classList.toggle('dark:bg-gray-900');
+    }
+
+    function fillSelectedItemsList(listSelector, items) {
+        var list = document.querySelector(listSelector);
+        if (!list) return;
+        list.innerHTML = '';
+        items.forEach(function (item) {
+            var li = document.createElement('li');
+            li.textContent = item;
+            list.appendChild(li);
+        });
+    }
+
+    var deleteAllButton = document.getElementById('deleteAllButton');
+    if (deleteAllButton) {
+        deleteAllButton.addEventListener('click', function () {
+            filemanagerTable.querySelectorAll('tbody tr.clickable-row').forEach(addSelectedClass);
+
+            var selectedItems = [];
+            document.querySelectorAll('.selected-row').forEach(function (row) {
+                selectedItems.push(row.dataset.file);
+            });
+
+            fillSelectedItemsList('#deleteAllDrawer .selected-items-list', selectedItems);
+        });
+    }
+
+    var restoreAllButton = document.getElementById('restoreAllButton');
+    if (restoreAllButton) {
+        restoreAllButton.addEventListener('click', function () {
+            filemanagerTable.querySelectorAll('tbody tr.clickable-row').forEach(addSelectedClass);
+
+            var selectedItems = [];
+            document.querySelectorAll('.selected-row').forEach(function (row) {
+                selectedItems.push(row.dataset.file);
+            });
+
+            fillSelectedItemsList('#restoreAllDrawer .selected-items-list', selectedItems);
+        });
+    }
+
+    var restoreButton = document.getElementById('restoreButton');
+    var restoreConfirmButton = document.getElementById('restoreConfirmButton');
+    var rowsToRestore = [];
+
+    if (restoreButton) {
+        restoreButton.addEventListener('click', function () {
+            rowsToRestore = Array.from(document.querySelectorAll('.selected-row'));
+
+            fillSelectedItemsList(
+                '#restoreDrawer .selected-items-list',
+                rowsToRestore.map(function (row) { return row.dataset.file; })
+            );
+        });
+    }
+
+    if (restoreConfirmButton) {
+        restoreConfirmButton.addEventListener('click', function () {
+            var successfulRestores = 0;
+            var totalItems = rowsToRestore.length;
+
+            var reloadPage = function () {
+                var progressText = document.getElementById('delete-progress-text');
+                var progressBar = document.getElementById('delete-progress-bar');
+                if (progressText) progressText.textContent = 'Deletion complete';
+                if (progressBar) {
+                    progressBar.style.width = '100%';
+                    progressBar.setAttribute('aria-valuenow', '100');
+                }
+                setTimeout(function () {
+                    location.reload();
+                }, 1000);
+            };
+
+            var handleRestoreResponse = function () {
+                successfulRestores++;
+                if (successfulRestores === totalItems) {
+                    showToast('Items successfully restored. Reloading page to display updated content.', 'success');
+                    reloadPage();
+                }
+            };
+
+            rowsToRestore.forEach(function (row) {
+                var fileName = row.dataset.file;
+                var requestUrl = '/file-manager/restoreTrash?filename=' + encodeURIComponent(fileName);
+
+                fetch(requestUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-Token': csrf_token
+                    }
+                })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (data.success) {
+                        handleRestoreResponse();
+                    } else {
+                        console.error('Error restoring item:', data.error);
+                        showToast('Error restoring item: ' + data.error, 'warning');
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error restoring item:', error);
+                    showToast('Error restoring item: ' + (error.message || error), 'error');
+                });
+            });
+        });
+    }
+
+    var deleteTrashButton = document.getElementById('deleteTrashButton');
+    var deleteTrashConfirmButton = document.getElementById('deleteTrashConfirmButton');
+    var rowsToDelete = [];
+
+    if (deleteTrashButton) {
+        deleteTrashButton.addEventListener('click', function () {
+            rowsToDelete = Array.from(document.querySelectorAll('.selected-row'));
+
+            fillSelectedItemsList(
+                '#deleteTrashDrawer .selected-items-list',
+                rowsToDelete.map(function (row) { return row.dataset.file; })
+            );
+        });
+    }
+
+    if (deleteTrashConfirmButton) {
+        deleteTrashConfirmButton.addEventListener('click', function () {
+            var successfulDeletes = 0;
+            var totalItems = rowsToDelete.length;
+
+            var reloadPage = function () {
+                var progressText = document.getElementById('delete-progress-text');
+                var progressBar = document.getElementById('delete-progress-bar');
+                if (progressText) progressText.textContent = 'Deletion complete';
+                if (progressBar) {
+                    progressBar.style.width = '100%';
+                    progressBar.setAttribute('aria-valuenow', '100');
+                }
+                setTimeout(function () {
+                    location.reload();
+                }, 1000);
+            };
+
+            var handleDeleteTrashResponse = function () {
+                successfulDeletes++;
+                if (successfulDeletes === totalItems) {
+                    showToast('Items permanently deleted. Reloading page to display updated content.', 'success');
+                    reloadPage();
+                }
+            };
+
+            rowsToDelete.forEach(function (row) {
+                var fileName = row.dataset.file;
+                var itemType = row.dataset.type;
+                var requestUrl = '/file-manager/deleteTrash?filename=' + encodeURIComponent(fileName) +
+                    '&item_type=' + encodeURIComponent(itemType);
+
+                fetch(requestUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-Token': csrf_token
+                    }
+                })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (data.success) {
+                        handleDeleteTrashResponse();
+                    } else {
+                        console.error('Error deleting item:', data.error);
+                        showToast('Error deleting item: ' + data.error, 'warning');
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error deleting item:', error);
+                    showToast('Error deleting item: ' + (error.message || error), 'error');
+                });
+            });
+        });
+    }
+
+    function sortTable(tableId, columnIndex) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById(tableId);
+        switching = true;
+        dir = "asc";
+
+        while (switching) {
+            switching = false;
+            rows = table.getElementsByTagName("tr");
+
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+
+                if (columnIndex !== rows[i].cells.length - 1) {
+                    x = rows[i].getElementsByTagName("td")[columnIndex];
+                    y = rows[i + 1].getElementsByTagName("td")[columnIndex];
+
+                    var xValue = x.innerHTML.toLowerCase();
+                    var yValue = y.innerHTML.toLowerCase();
+
+                    if (dir === "asc") {
+                        if (xValue > yValue) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir === "desc") {
+                        if (xValue < yValue) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                switchcount++;
+            } else {
+                if (switchcount === 0 && dir === "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+
+    var selectAllActiveClass = 'relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0';
+
+    function updateSelectAllButton() {
+        var spanAll = document.getElementById('spanAll');
+        var selectAllButton = document.getElementById('SelectAll-button');
+        if (!spanAll || !selectAllButton) return;
+
+        spanAll.innerHTML = sveselect
+            ? '<i class="bi bi-hand-index-fill"></i> {{.T.Get "Deselect"}}'
+            : '<i class="bi bi-hand-index"></i> {{.T.Get "Select all"}}';
+
+        selectAllButton.className = selectAllActiveClass;
+    }
+
+    // ---- Row click selection (with ctrl/cmd multi-select) ----
+    if (filemanagerTable) {
+        filemanagerTable.querySelectorAll('tbody tr.clickable-row').forEach(function (row) {
+            row.addEventListener('click', function (event) {
+                var rowIndex = this.dataset.rowIndex;
+
+                if (event.ctrlKey || event.metaKey) {
+                    toggleSelectedClass(this);
+                    sveselect = 0;
+                    updateSelectAllButton();
+
+                    var idx = selectedRows.indexOf(rowIndex);
+                    if (idx === -1) {
+                        selectedRows.push(rowIndex);
+                    } else {
+                        selectedRows.splice(idx, 1);
+                    }
+                } else {
+                    filemanagerTable.querySelectorAll('tbody tr.selected-row').forEach(removeSelectedClass);
+                    toggleSelectedClass(this);
+                    selectedRows = [rowIndex];
+                }
+                toggleButtonState();
+            });
+        });
+    }
+
+    document.querySelectorAll('#filemanager_table th.sortable').forEach(function (th) {
+        th.addEventListener('click', function () {
+            var columnIndex = Array.from(this.parentNode.children).indexOf(this);
+            sortTable('filemanager_table', columnIndex);
+        });
+    });
+
+    var selectAllButtonEl = document.getElementById('SelectAll-button');
+    if (selectAllButtonEl && filemanagerTable) {
+        selectAllButtonEl.addEventListener('click', function () {
+            var rows = filemanagerTable.querySelectorAll('tbody tr.clickable-row');
+
+            if (!sveselect) {
+                rows.forEach(addSelectedClass);
+                sveselect = 1;
+            } else {
+                rows.forEach(removeSelectedClass);
+                sveselect = 0;
+            }
+            updateSelectAllButton();
+
+            var allRows = document.querySelectorAll('.selected-row');
+            if (allRows.length > 0) {
+                selectedRows = [];
+                allRows.forEach(function (row, index) {
+                    addSelectedClass(row);
+                    selectedRows.push(index);
+                });
+            } else {
+                selectedRows = [];
+                toggleButtonState();
+            }
+            toggleButtonState();
+        });
+    }
+
+    if (filemanagerTable) {
+        filemanagerTable.addEventListener('mousedown', function (event) {
+            if (!event.ctrlKey && !event.metaKey && event.button === 0) {
+                isSelecting = true;
+                wasSelecting = true;
+                sveselect = 0;
+                updateSelectAllButton();
+                startRowIndex = endRowIndex = null;
+
+                var startX = event.pageX;
+                var startY = event.pageY;
+
+                var selectionRectangle = document.createElement('div');
+                selectionRectangle.className = 'selection-rectangle';
+                selectionRectangle.style.top = startY + 'px';
+                selectionRectangle.style.left = startX + 'px';
+                selectionRectangle.style.userSelect = 'none';
+                document.body.appendChild(selectionRectangle);
+
+                function onMouseMove(moveEvent) {
+                    if (!isSelecting) return;
+
+                    var endX = moveEvent.pageX;
+                    var endY = moveEvent.pageY;
+
+                    selectionRectangle.style.width = Math.abs(endX - startX) + 'px';
+                    selectionRectangle.style.height = Math.abs(endY - startY) + 'px';
+                    selectionRectangle.style.left = (endX < startX ? endX : startX) + 'px';
+                    selectionRectangle.style.top = (endY < startY ? endY : startY) + 'px';
+
+                    toggleButtonState();
+
+                    filemanagerTable.querySelectorAll('tbody tr.clickable-row').forEach(function (row) {
+                        var rect = row.getBoundingClientRect();
+                        var rowOffsetLeft = rect.left + window.scrollX;
+                        var rowOffsetTop = rect.top + window.scrollY;
+
+                        var intersects = !(
+                            rowOffsetLeft + row.offsetWidth < Math.min(startX, endX) ||
+                            rowOffsetLeft > Math.max(startX, endX) ||
+                            rowOffsetTop + row.offsetHeight < Math.min(startY, endY) ||
+                            rowOffsetTop > Math.max(startY, endY)
+                        );
+
+                        var rowIndex = row.dataset.rowIndex;
+
+                        if (intersects) {
+                            addSelectedClass(row);
+                            if (!selectedRows.includes(rowIndex)) {
+                                selectedRows.push(rowIndex);
+                            }
+
+                            if (startRowIndex === null) {
+                                startRowIndex = endRowIndex = rowIndex;
+                            } else {
+                                startRowIndex = Math.min(startRowIndex, rowIndex);
+                                endRowIndex = Math.max(endRowIndex, rowIndex);
+                            }
+                        } else {
+                            removeSelectedClass(row);
+                            var idx = selectedRows.indexOf(rowIndex);
+                            if (idx !== -1) {
+                                selectedRows.splice(idx, 1);
+                            }
+                        }
+                    });
+
+                    toggleButtonState();
+                }
+
+                function onMouseUp() {
+                    isSelecting = false;
+                    wasSelecting = true;
+                    selectionRectangle.remove();
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                    toggleButtonState();
+                }
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            }
+        });
+    }
+
+    document.addEventListener('click', function (event) {
+        var target = event.target;
+
+        if (!target.closest('#filemanager_table') &&
+            !target.closest('#mainButtons') &&
+            !target.closest('.modal.fade') &&
+            !target.closest('.btn-group') &&
+            !target.closest('.fmdrawer') &&
+            !wasSelecting) {
+            if (filemanagerTable) {
+                filemanagerTable.querySelectorAll('tbody tr.selected-row').forEach(removeSelectedClass);
+            }
+            selectedRows = [];
+            sveselect = 0;
+            updateSelectAllButton();
+            toggleButtonState();
+        }
+        wasSelecting = false;
+    });
+
+    function toggleButtonState() {
+        var baseClass = 'relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0';
+        var redButtonClass = 'relative inline-flex items-center justify-center whitespace-nowrap border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400';
+
+        function setButtonsState(selector, enabled, customClass) {
+            document.querySelectorAll(selector).forEach(function (btn) {
+                btn.disabled = !enabled;
+                btn.className = customClass || baseClass;
+            });
+        }
+
+        setButtonsState('#deleteTrashButton, #restoreButton', false, baseClass);
+
+        if (selectedRows.length === 0) {
+            setButtonsState('#restoreButton', false, baseClass);
+            setButtonsState('#deleteTrashButton', false, redButtonClass);
+            return;
+        }
+
+        setButtonsState('#restoreButton', true, baseClass);
+        setButtonsState('#deleteTrashButton', true, redButtonClass);
+    }
+
+    toggleButtonState();
+})();
+</script>
+<!-- END templates/files/filemanager/inline_js_trash.html -->
+{{end}}

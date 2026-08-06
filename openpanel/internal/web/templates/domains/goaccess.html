@@ -1,0 +1,27 @@
+{{define "flowbite_js"}}
+    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/domains/goaccess.html -->
+
+<section aria-label="Select Domain Log Header">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "GoAccess"}}</h1></div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View html reports generated from domain access logs."}}</p>
+        </div>
+        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        </div>
+    </div>
+
+    {{if .Domains}}
+        {{template "domain_selector" (dict "T" .T "Domains" .Domains "RedirectBase" "/domains/stats/")}}
+    {{else}}
+        {{template "no_domain" .}}
+    {{end}}
+
+</section>
+
+<!-- END templates/domains/goaccess.html -->
+{{end}}

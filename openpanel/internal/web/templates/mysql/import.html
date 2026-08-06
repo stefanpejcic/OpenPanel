@@ -1,0 +1,106 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/mysql/import.html -->
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Import into Database"}}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-500">
+            {{if eq .MySQLVersion "mysql"}}{{.T.Get "Select a local file to upload and import into a MySQL database."}}
+            {{else if eq .MySQLVersion "mariadb"}}{{.T.Get "Select a local file to upload and import into a MariaDB database."}}
+            {{end}}</p>
+    </header>
+</div>
+
+<!-- form -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <form class="mt-8" method="POST" enctype="multipart/form-data" x-data="{ isInstalling: false }">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+  <div class="col-span-full mb-5">
+    <label for="database_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" >{{.T.Get "Select database:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+    <div class="flex rounded-lg shadow-sm">
+  <select name="database_name" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" required>
+    <option value=""></option>
+  </select>
+
+    </div>
+  </div>
+
+      </div>
+
+        <div class="col-span-full mt-5">
+            <label for="fileName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Select File"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+            <div class="flex rounded-lg shadow-sm">
+            <input type="file" name="db_file" accept=".sql" id="file" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" placeholder=" {{.T.Get "Select file to upload"}}" required>
+            </div>
+        </div>
+
+        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+<div class="md:flex items-center md:justify-end md:space-x-4">
+    <button type="submit" :disabled="isInstalling" @click="isInstalling = true; $nextTick(() => $el.closest('form').submit())" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+        <span x-show="isInstalling">    <svg aria-hidden="true" class="w-4 h-4 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg></span>
+        <span x-text="isInstalling ? {{toJSON (.T.Get "Importing...")}} : {{toJSON (.T.Get "Upload & Import")}}"></span>
+        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+        </svg>
+    </button>
+</div>
+
+    </form>
+</div>
+<!-- END form -->
+
+<script>
+
+    var selectedDbName = {{toJSON .DBName}};
+
+    function refreshData() {
+        fetch('/mysql/info', {
+            headers: {
+                'X-CSRF-Token': csrf_token
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                var databaseSelect = document.querySelector("select[name='database_name']");
+                databaseSelect.innerHTML = '';
+
+                var defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.text = {{toJSON (.T.Get "Select a database")}};
+                defaultOption.selected = !selectedDbName;
+                databaseSelect.appendChild(defaultOption);
+
+                var matched = false;
+
+                data.databases.forEach(function(database) {
+                    var option = document.createElement('option');
+                    option.value = database;
+                    option.text = database;
+
+                    if (database === selectedDbName) {
+                        option.selected = true;
+                        matched = true;
+                    }
+
+                    databaseSelect.appendChild(option);
+                });
+
+                if (selectedDbName && !matched) {
+                    databaseSelect.value = '';
+                }
+            })
+            .catch(function (error) {
+                console.error('Error fetching data:', error);
+            });
+    }
+refreshData();
+</script>
+
+<!-- END templates/mysql/import.html -->
+{{end}}

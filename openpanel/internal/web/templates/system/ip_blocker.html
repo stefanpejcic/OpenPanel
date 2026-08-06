@@ -1,0 +1,85 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/system/ip_blocker.html -->
+
+<form method="post" action="/security/ip-blocker" x-data="ipBlocker()" @submit.prevent="validateAndSubmit">
+
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <section>
+        <!-- Header -->
+        <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <div class="flex items-center gap-x-3">
+                    <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "IP Blocker"}}</h1>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-500">
+                    {{.T.Get "This feature allows you to block a range of IP addresses to prevent them from accessing your websites."}}
+                </p>
+            </div>
+
+            <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+                <button id="save-ips" type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+                    {{.T.Get "Save Changes"}}
+                </button>
+            </div>
+        </div>
+
+        <!-- Textarea for IPs -->
+        <div class="overflow-auto mt-4 p-4">
+            <label for="blocked_ips" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                {{.T.Get "Enter IP addresses or CIDRs (one per line)"}}
+            </label>
+            <textarea
+                id="blocked_ips"
+                name="ips"
+                rows="15"
+                x-model="ips"
+                @input="filterInput"
+                class="w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-50"
+                placeholder="192.168.1.1
+10.0.0.0/24
+8.8.8.8/32">{{join .IPs "\n"}}</textarea>
+            <p class="mt-2 text-sm text-red-600" x-show="errorMessage" x-text="errorMessage"></p>
+        </div>
+    </section>
+</form>
+
+<script>
+function ipBlocker() {
+    return {
+        ips: `{{join .IPs "\n"}}`,
+        errorMessage: '',
+        validateIP(ip) {
+            // Regex for IPv4, IPv6, or CIDR
+            const ipv4 = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
+            const ipv4Cidr = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}\/([0-9]|[1-2][0-9]|3[0-2])$/;
+            const ipv6 = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
+            const ipv6Cidr = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8])$/;
+
+            return ipv4.test(ip) || ipv4Cidr.test(ip) || ipv6.test(ip) || ipv6Cidr.test(ip);
+        },
+        filterInput() {
+            this.errorMessage = '';
+            const lines = this.ips.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line && !this.validateIP(line)) {
+                    this.errorMessage = `Invalid IP or CIDR on line ${i+1}: "${line}"`;
+                    break;
+                }
+            }
+        },
+        validateAndSubmit(event) {
+            this.filterInput();
+            if (!this.errorMessage) {
+                event.target.submit();
+            }
+        }
+    }
+}
+</script>
+
+<!-- END templates/system/ip_blocker.html -->
+{{end}}

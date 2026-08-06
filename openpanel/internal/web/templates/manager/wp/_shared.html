@@ -1,0 +1,421 @@
+{{define "wp_vulnerabilities"}}
+<!-- START templates/manager/wp/_vulnerabilities.html -->
+<div id="partials_wp_vulnerability">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+        <div>
+            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WP Vulnerabilities"}}</h2>
+            <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "WP Manager automatically scans your WP core version, plugins and themes for known vulnerabilities."}}</p>
+        </div>
+
+        <div class="sm:max-w-3xl md:col-span-2">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                <div class="flex gap-2 justify-between items-center col-span-full pb-2">
+                    <span class="my-2 flex gap-2 text-sm/6 text-gray-500 dark:text-gray-500">
+                        <span id="partials_wp_vulnerability_total_count_text">{{.T.Get "Vulnerabilities detected"}} <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="partials_wp_vulnerability_total_count">0</span></span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="vulnerabilities_checked"></span>
+                    </span>
+                    <form method="post" action="/json/wp_vulnerability/{{.CurrentDomain}}">
+                        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                        <input type="hidden" name="redirect_to" value="/website?domain={{.CurrentDomain}}"/>
+                        <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Scan for vulnerabilities"}}</button>
+                    </form>
+                </div>
+            </div>
+            <div class="relative w-full mt-2">
+                <div class="card-body text-center" id="partials_wp_vulnerability_loading">
+                    <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Loading WordPress vulnerability data.."}}</p>
+                </div>
+
+                <div class="card-body text-center hidden" id="partials_wp_vulnerability_no_data">
+                    <div class="flex items-center space-x-2">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-emerald-500 dark:text-emerald-400">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path>
+                        </svg>
+                        <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No vulnerabilities found"}}</p>
+                    </div>
+                </div>
+
+                <div class="card-body hidden" id="partials_wp_vulnerability_data">
+                    <div id="wp_vulnerability_table_body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END templates/manager/wp/_vulnerabilities.html -->
+{{end}}
+
+{{define "wp_secure"}}
+<div id="partials_wp_harden">
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+        <div>
+            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Security Measures"}}</h2>
+            <p class="mt-2 text-sm text-gray-500">{{.T.Get "Server-level restrictions to harden your WordPress instance. Rules are applied at the webserver level before PHP processing."}}</p>
+        </div>
+
+        <div class="sm:max-w-3xl md:col-span-2">
+            <form id="wordpress-security-form" method="post" action="/wordpress/secure/{{.CurrentDomain}}">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                    <div class="grid grid-cols-1 gap-2 col-span-full mb-2">
+
+                        {{/* Named "hardening-update", not "security-update": Go's html/template
+                             flags any attribute whose name contains "uri"/"url"/"src" as a URL
+                             attribute (a heuristic against "javascript:..." injection in custom
+                             attrs), and "security" itself contains "uri" - that misclassification
+                             made it percent-escape the quotes in the JS expression below (%22
+                             instead of &#34;), which browsers don't auto-decode outside URL
+                             context, breaking the Alpine expression with a syntax error. */}}
+                        {{range $rule := .SecurityToggles}}
+                        <div x-data="{ enabled: false, tooltip: false }"
+                             @hardening-update.window="enabled = $event.detail.includes({{toJSON $rule.ID}})"
+                             class="flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+
+                            <span class="font-medium flex items-center gap-3 text-gray-700 dark:text-gray-200">
+                                <button
+                                    type="button"
+                                    @click="enabled = !enabled"
+                                    :class="enabled ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'"
+                                    class="group relative isolate inline-flex shrink-0 items-center rounded-full p-0.5 shadow-inner ring-1 ring-inset transition-all ring-black/5 dark:ring-white/5 h-5 w-9">
+                                    <span
+                                        class="pointer-events-none relative inline-block transform rounded-full bg-white shadow-md transition-all duration-150 ease-in-out h-4 w-4"
+                                        :class="enabled ? 'translate-x-4' : 'translate-x-0'"></span>
+                                </button>
+                                {{$.T.Get $rule.Label}}
+                            </span>
+
+                            <input type="hidden" name="{{$rule.ID}}" value="{{$rule.ID}}" x-bind:disabled="!enabled" />
+
+                            <div class="relative flex items-center" @mouseenter="tooltip = true" @mouseleave="tooltip = false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="text-gray-400 hover:text-gray-600 cursor-help transition-colors" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+                                </svg>
+
+                                <div x-show="tooltip"
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 scale-95"
+                                     x-transition:enter-end="opacity-100 scale-100"
+                                     class="absolute right-0 bottom-full mb-2 z-50 w-72 rounded bg-gray-900 p-3 text-xs text-white shadow-xl ring-1 ring-white/10">
+                                    <div class="font-bold mb-1 text-indigo-400 uppercase tracking-wider text-[10px]">{{$.T.Get "How it works"}}</div>
+                                    <div class="leading-relaxed opacity-90">{{$.T.Get $rule.TechDetails}}</div>
+                                    <div class="mt-2 pt-2 border-t border-white/10 font-mono text-gray-400 text-[10px]">Action: 403 Forbidden</div>
+                                </div>
+                            </div>
+                        </div>
+                        {{end}}
+
+                    </div>
+                    <div class="flex items-center justify-end space-x-4">
+                        <button type="submit" class="relative inline-flex items-center justify-center rounded border border-black bg-black px-4 py-2 text-center text-sm font-medium text-white shadow-sm transition-all hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60">{{.T.Get "Apply Changes"}}</button>
+                    </div>
+                </div>
+            </form>
+
+            <script>
+            document.querySelector('#security-tab')?.addEventListener('click', function() {
+                fetch(`/wordpress/secure/{{.CurrentDomain}}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        window.dispatchEvent(new CustomEvent('hardening-update', { detail: data }));
+                    })
+                    .catch(err => console.error('Failed to fetch security status:', err));
+            });
+            </script>
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "wp_googlesafebrowsing"}}
+<!-- START templates/partials/googlesafebrowsing.html -->
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+        <div>
+            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Google Safe Browsing"}}</h2>
+            <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Check website status on"}} <a href="https://transparencyreport.google.com/safe-browsing/search?url=http:%2F%2F{{.CurrentDomain}}" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500" rel="noopener noreferrer">{{.T.Get "Google Safe Browsing"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg></a></p>
+        </div>
+        <div class="sm:max-w-3xl md:col-span-2">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                <div class="col-span-full">
+
+<p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Google's Safe Browsing technology examines billions of URLs per day looking for unsafe websites, many of which are legitimate websites that have been compromised. When an unsafe site is detected, warning is shown on Google Search and in web browsers. Here you can see whether this website is currently marked by Google as dangerous to visit."}}</p>
+
+                    <div class="relative w-full mt-2">
+                        <span id="safebrowsing_results"></span>
+
+<script>
+    var securityTab = document.getElementById('security-tab');
+    var selectedDomain = {{toJSON .CurrentDomain}};
+
+    securityTab.addEventListener('click', function () {
+
+        if (securityTab.dataset.checked === "true") return;
+        securityTab.dataset.checked = "true";
+
+        function createVulnRow(type, name, version, latest, vulnerabilities, link) {
+            let vulnHTML = '';
+            if (vulnerabilities && vulnerabilities.length > 0) {
+            vulnerabilities.forEach(v => {
+            	const firstSource = v.source && v.source.length > 0 ? v.source[0] : {};
+
+				let rawDescription = v.description || firstSource.description || 'No description available.';
+	            let displayDate = v.date || firstSource.date || 'N/A';
+	            const displayDesc = rawDescription.replace(/^\[en\]\s*/i, '');
+
+
+            let sourcesHTML = v.source.map(s => {
+                    let svgIcon = "";
+
+                    if (s.link.startsWith("https://wpscan.com")) {
+                        svgIcon = `<svg height="15" width="80" viewBox="0 0 124 32" xmlns="http://www.w3.org/2000/svg"><path d="M14.9493 9.60738L2.71529 17.2489C1.46118 18.0322 1.46118 19.8576 2.71529 20.6409L14.9493 28.2824C15.5983 28.6877 16.4218 28.6877 17.0707 28.2824L29.3047 20.6409C30.5588 19.8576 30.5588 18.0322 29.3047 17.2489L17.0707 9.60738C16.4218 9.20204 15.5983 9.20204 14.9493 9.60738Z"></path><path d="M14.9493 2.67824L2.71529 10.3197C1.46118 11.1031 1.46118 12.9284 2.71529 13.7117L14.9493 21.3532C15.5983 21.7585 16.4218 21.7585 17.0707 21.3532L29.3047 13.7117C30.5588 12.9284 30.5588 11.1031 29.3047 10.3197L17.0707 2.67824C16.4218 2.2729 15.5983 2.2729 14.9493 2.67824Z"></path><path d="M14.9493 0.662493L2.71529 8.30399C1.46118 9.08733 1.46118 10.9127 2.71529 11.696L14.9493 19.3375C15.5983 19.7428 16.4218 19.7428 17.0707 19.3375L29.3047 11.696C30.5588 10.9127 30.5588 9.08733 29.3047 8.30399L17.0707 0.662494C16.4218 0.257156 15.5983 0.257155 14.9493 0.662493Z"></path><path d="M44.5663 21.3208H47.5652L50.3298 11.8109H50.4434L53.2151 21.3208H56.2141L60.3786 6.77535H57.0171L54.608 16.9032H54.4801L51.8293 6.77535H48.9511L46.2931 16.8819H46.1724L43.7632 6.77535H40.4017L44.5663 21.3208ZM62.0257 21.3208H65.1028V16.6049H67.6897C71.0369 16.6049 72.9842 14.6092 72.9842 11.7043C72.9842 8.8137 71.0725 6.77535 67.7679 6.77535H62.0257V21.3208ZM65.1028 14.1404V9.28955H67.178C68.9547 9.28955 69.8146 10.2555 69.8146 11.7043C69.8146 13.1461 68.9547 14.1404 67.1922 14.1404H65.1028ZM82.8785 10.9586H85.8277C85.7851 8.36625 83.6532 6.57648 80.4125 6.57648C77.2216 6.57648 74.8834 8.33785 74.8977 10.9799C74.8906 13.1248 76.4043 14.3535 78.8632 14.943L80.448 15.3407C82.0328 15.7242 82.914 16.1788 82.9211 17.1589C82.914 18.2242 81.9049 18.9486 80.3414 18.9486C78.7424 18.9486 77.5911 18.21 77.4916 16.754H74.5139C74.5921 19.9003 76.8449 21.5268 80.3769 21.5268C83.9303 21.5268 86.0197 19.8293 86.0268 17.166C86.0197 14.7441 84.1932 13.4586 81.6632 12.8904L80.3556 12.5779C79.0906 12.2867 78.0318 11.818 78.0531 10.7739C78.0531 9.83643 78.8845 9.1475 80.3911 9.1475C81.8623 9.1475 82.7648 9.81512 82.8785 10.9586ZM92.9718 21.5339C95.8784 21.5339 97.7049 19.8293 97.8471 17.3222H94.9902C94.8125 18.487 94.045 19.1404 93.0073 19.1404C91.5932 19.1404 90.6764 17.9543 90.6764 15.8663C90.6764 13.8066 91.6003 12.6276 93.0073 12.6276C94.116 12.6276 94.8267 13.3592 94.9902 14.4458H97.8471C97.7191 11.9245 95.8074 10.2697 92.9576 10.2697C89.6458 10.2697 87.5992 12.5637 87.5992 15.9089C87.5992 19.2256 89.6103 21.5339 92.9718 21.5339ZM102.898 21.5268C104.511 21.5268 105.556 20.8236 106.089 19.808H106.174V21.3208H109.045V13.9628C109.045 11.3634 106.843 10.2697 104.412 10.2697C101.797 10.2697 100.077 11.5197 99.6575 13.5083L102.457 13.7356C102.663 13.0111 103.311 12.4785 104.397 12.4785C105.428 12.4785 106.018 12.9969 106.018 13.8918V13.9344C106.018 14.6376 105.272 14.7299 103.375 14.9146C101.214 15.1134 99.2737 15.8378 99.2737 18.2739C99.2737 20.433 100.816 21.5268 102.898 21.5268ZM103.765 19.4387C102.834 19.4387 102.166 19.0055 102.166 18.1745C102.166 17.3222 102.869 16.9032 103.936 16.754C104.596 16.6617 105.677 16.5055 106.039 16.264V17.4217C106.039 18.5651 105.094 19.4387 103.765 19.4387ZM114.422 15.014C114.429 13.6077 115.267 12.7839 116.49 12.7839C117.705 12.7839 118.437 13.5793 118.43 14.9146V21.3208H121.457V14.3748C121.457 11.8322 119.965 10.2697 117.691 10.2697C116.071 10.2697 114.898 11.0651 114.408 12.3364H114.279V10.4117H111.395V21.3208H114.422V15.014Z"></path></svg>`;
+                    } else if (s.link.startsWith("https://www.wordfence.com")) {
+                        svgIcon = `<svg width="76" height="13" viewBox="0 0 76 13" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M72.9333 6.93017C72.8884 6.61485 72.7648 6.35585 72.5626 6.13062C72.3604 5.90539 72.0796 5.80404 71.7314 5.80404C71.0799 5.80404 70.698 6.17567 70.5857 6.93017H72.9333ZM73.2703 8.67567L74.6519 9.12612C74.0678 10.0383 73.1579 10.5 71.9224 10.5C70.9339 10.5 70.1701 10.241 69.6084 9.72296C69.058 9.20494 68.7772 8.51801 68.7772 7.66215C68.7772 6.79504 69.058 6.07431 69.6309 5.49999C70.2038 4.92566 70.9227 4.63287 71.81 4.63287C72.4503 4.63287 73.0007 4.79053 73.4725 5.11711C73.933 5.44368 74.2587 5.84909 74.4385 6.33332C74.6182 6.81756 74.708 7.3581 74.708 7.95495H70.5632C70.5857 8.4617 70.7542 8.82206 71.0462 9.03602C71.3383 9.24999 71.6528 9.35134 71.9785 9.35134C72.4054 9.32882 72.8434 9.11486 73.2703 8.67567ZM67.8786 4.75674V7.03152H66.6093C66.3173 6.40089 65.868 6.09684 65.2502 6.09684C64.8571 6.09684 64.5425 6.23197 64.3067 6.49098C64.0708 6.74999 63.9584 7.09909 63.9584 7.53828C63.9584 8.06756 64.082 8.4617 64.3291 8.70945C64.5762 8.9572 64.8795 9.09233 65.239 9.09233C65.5198 9.09233 65.7894 9.0135 66.0477 8.84458C66.3061 8.67567 66.5082 8.4617 66.6655 8.19143L68.0471 8.79954C67.5304 9.92567 66.6206 10.4887 65.3288 10.4887C64.3516 10.4887 63.5765 10.2185 62.9924 9.68918C62.4083 9.1599 62.1275 8.43918 62.1275 7.54954C62.1275 6.6599 62.4083 5.95044 62.9812 5.43242C63.5541 4.9144 64.2168 4.65539 64.9694 4.65539C65.5759 4.65539 66.1376 4.83557 66.6655 5.20719V4.74549H67.8786V4.75674ZM54.7028 6.05179V4.75674H57.3424V5.27476C57.8816 4.86936 58.432 4.66666 58.9824 4.66666C60.1169 4.66666 60.6785 5.38738 60.6785 6.82882V9.06981H61.521V10.3649H58.8925V6.97521C58.8925 6.67116 58.8476 6.4572 58.769 6.34458C58.6904 6.23197 58.5556 6.17566 58.3646 6.17566C58.0276 6.17566 57.6906 6.29954 57.3424 6.53603V9.06981H58.2074V10.3649H54.7028V9.06981H55.5565V6.04053H54.7028V6.05179ZM52.0856 6.93017C52.0407 6.61485 51.9171 6.35585 51.7149 6.13062C51.5127 5.90539 51.2319 5.80404 50.8837 5.80404C50.2322 5.80404 49.8503 6.17567 49.738 6.93017H52.0856ZM52.4338 8.67567L53.8154 9.12612C53.2313 10.0383 52.3215 10.5 51.0859 10.5C50.0974 10.5 49.3336 10.241 48.772 9.72296C48.2216 9.20494 47.9408 8.51801 47.9408 7.66215C47.9408 6.79504 48.2216 6.07431 48.7944 5.49999C49.3673 4.92566 50.0862 4.63287 50.9736 4.63287C51.6138 4.63287 52.1642 4.79053 52.636 5.11711C53.0965 5.44368 53.4223 5.84909 53.602 6.33332C53.7817 6.81756 53.8716 7.3581 53.8716 7.95495H49.7043C49.7267 8.4617 49.8952 8.82206 50.1873 9.03602C50.4793 9.24999 50.7938 9.35134 51.1196 9.35134C51.5576 9.32882 51.9957 9.11486 52.4338 8.67567ZM47.1545 9.06981V10.3649H43.6836V9.06981H44.4923V6.04053H43.7398V4.74549H44.4923V4.22747C44.4923 3.64188 44.6721 3.14639 45.0427 2.75224C45.4022 2.3581 45.9526 2.1554 46.6715 2.1554C47.5476 2.1554 48.1654 2.4144 48.5361 2.94368L47.2443 3.9572C47.132 3.55179 46.9635 3.34909 46.7501 3.34909C46.4468 3.34909 46.2896 3.6081 46.2896 4.12612V4.74549H47.1657V6.04053H46.2896V9.06981H47.1545Z" fill="#2E2E2E"/> <path d="M40.9881 7.54951C40.9881 7.00897 40.8757 6.62608 40.6399 6.40086C40.4152 6.17563 40.1456 6.06302 39.8536 6.06302C39.5054 6.06302 39.2358 6.19815 39.0448 6.46843C38.8539 6.7387 38.764 7.09906 38.764 7.53824C38.764 7.95491 38.8539 8.31527 39.0448 8.5968C39.2358 8.8896 39.5054 9.02473 39.8648 9.02473C40.1569 9.02473 40.4264 8.91212 40.6511 8.67563C40.8757 8.45041 40.9881 8.07879 40.9881 7.54951ZM43.6727 9.06978V10.3648H40.9656V9.70041C40.4714 10.1959 39.9322 10.4549 39.3481 10.4549C38.6517 10.4549 38.0676 10.1734 37.6183 9.59905C37.1578 9.03599 36.9331 8.34906 36.9331 7.53824C36.9331 6.71617 37.169 6.02924 37.6408 5.46617C38.1125 4.90311 38.6854 4.62158 39.3593 4.62158C40.0108 4.62158 40.55 4.88059 40.9768 5.38734V3.5968H40.1007V2.30176H42.7628V9.06978H43.6727ZM35.4279 9.06978V10.3648H31.4965V9.06978H32.5299V6.0405H31.5639V4.74545H34.1699V6.18689C34.271 5.78149 34.4956 5.42113 34.8551 5.12834C35.2145 4.82428 35.6301 4.67788 36.1131 4.67788C36.1917 4.67788 36.2928 4.67789 36.4052 4.68915V6.37834C35.9559 6.37834 35.5852 6.42338 35.3044 6.52473C35.0236 6.62608 34.7877 6.84005 34.5967 7.18915C34.417 7.52698 34.3159 7.93239 34.3159 8.3941V9.08104H35.4279V9.06978ZM27.7785 9.10356C28.1043 9.10356 28.3739 8.97969 28.5873 8.72068C28.7895 8.46167 28.9018 8.06752 28.9018 7.51572C28.9018 7.03149 28.8007 6.65987 28.5985 6.38959C28.3963 6.11932 28.1267 5.98419 27.7785 5.98419C27.0372 5.98419 26.6777 6.51347 26.6777 7.58329C26.6777 8.02248 26.7676 8.38284 26.9473 8.66437C27.127 8.95716 27.4079 9.10356 27.7785 9.10356ZM27.7898 10.4887C26.9698 10.4887 26.2734 10.2297 25.7005 9.70041C25.1276 9.18239 24.8468 8.46167 24.8468 7.54951C24.8468 6.63734 25.1276 5.91662 25.7005 5.39861C26.2734 4.88059 26.9698 4.61032 27.7898 4.61032C28.621 4.61032 29.3174 4.86933 29.879 5.39861C30.4407 5.91662 30.7327 6.63734 30.7327 7.54951C30.7327 8.45041 30.4519 9.15987 29.8903 9.68915C29.3286 10.2297 28.621 10.4887 27.7898 10.4887ZM16.984 10.4211L14.6925 3.67563H13.8389V2.31302H17.467V3.67563H16.6358L17.9388 7.54951L19.1631 3.67563H18.4442V2.31302H21.331V3.67563H20.5784L21.8926 7.54951L23.1619 3.67563H22.3532V2.31302H25.5769V3.67563H24.7008L22.488 10.4211H20.9828L19.7135 6.73869L18.5116 10.4211H16.984Z" fill="#00709F"/> <path d="M6.23438 2.41441L6.88587 3.8446L6.8971 3.85585H6.67245C6.67245 3.87838 6.68368 3.9009 6.68368 3.92342C6.68368 3.99099 6.66121 4.05856 6.63875 4.11487C6.62752 4.13739 6.60505 4.17117 6.59382 4.19369C6.59382 4.19369 6.56012 4.50901 6.57135 5.08334C6.57135 5.43243 6.59382 5.95045 6.62752 6.50225C7.30147 6.53604 7.94173 6.61487 8.51459 6.71622V4.28378H8.3461L8.78418 3.32658L9.19978 4.28378H9.03129V6.80631C9.64909 6.93018 10.1995 7.08784 10.6713 7.2455V5.12838H10.5028L10.9408 4.17117L11.3564 5.12838H11.188V7.41441C11.7496 7.62838 12.1652 7.81982 12.4235 7.95496C12.7493 4.89189 12.0866 2.2455 12.0866 2.2455C8.99759 2.14414 6.25684 0.5 6.25684 0.5V2.41441H6.23438Z" fill="#228DC1"/> <path d="M11.1655 7.98877V10.3762H11.4688H11.5362H11.7272H11.8844C11.9855 10.0496 12.0754 9.70048 12.1428 9.3739C12.2326 9.03607 12.2888 8.7658 12.3225 8.56309V8.55183C12.3225 8.54057 12.3225 8.52931 12.3337 8.51805C12.1652 8.4167 11.7609 8.21399 11.1655 7.98877Z" fill="#228DC1"/> <path d="M9.02002 7.3468V10.3761H9.3233H9.88493H10.177H10.6712V7.79725C10.1882 7.63959 9.63781 7.48194 9.02002 7.3468Z" fill="#228DC1"/> <path d="M8.50328 10.3761V7.24549C7.94165 7.14414 7.31263 7.06531 6.6499 7.02026C6.6499 7.02026 6.6499 7.02026 6.6499 7.03153C6.6499 7.04279 6.69483 7.38063 6.69483 7.43693C6.79593 8.21396 7.00935 9.43017 7.22277 10.3874H7.21153H8.2674H8.50328V10.3761Z" fill="#228DC1"/> <path d="M5.24585 10.3762C5.45927 9.43021 5.67269 8.20273 5.77378 7.4257C5.78501 7.36939 5.81871 7.03156 5.81871 7.0203C5.81871 7.0203 5.81871 7.02029 5.81871 7.00903C5.15599 7.05408 4.52696 7.13291 3.96533 7.23426V10.3649H4.18998L5.24585 10.3762Z" fill="#1B719E"/> <path d="M1.30318 7.44817V5.16213H1.13469L1.55029 4.20492L1.98837 5.16213H1.81988V7.27925C2.29165 7.12159 2.84204 6.97519 3.45984 6.84006V4.31754H3.29135L3.70695 3.36033L4.14503 4.31754H3.97654V6.74997C4.56063 6.64862 5.18966 6.56979 5.86361 6.53601C5.90854 5.97294 5.91978 5.45492 5.91978 5.10582C5.91978 4.52024 5.89731 4.21618 5.89731 4.21618C5.87485 4.19366 5.86361 4.17114 5.85238 4.13735C5.81868 4.08105 5.80745 4.01348 5.80745 3.94592C5.80745 3.92339 5.80745 3.90087 5.81868 3.87835H5.59403L5.60526 3.86708L6.25675 2.43691V0.556274C6.25675 0.556274 3.516 2.20042 0.427033 2.30177C0.427033 2.30177 -0.23569 4.95943 0.0900552 8.01123C0.32594 7.85357 0.741546 7.65087 1.30318 7.44817Z" fill="#1B719E"/> <path d="M1.81982 7.79725V10.3761H2.31406H2.60611H3.16774H3.47102V7.3468C2.80829 7.48194 2.2579 7.65086 1.81982 7.79725Z" fill="#1B719E"/> <path d="M0.134766 8.51805C0.134766 8.52931 0.134766 8.54057 0.145998 8.55183V8.56309C0.179696 8.7658 0.235859 9.03607 0.32572 9.3739C0.404348 9.71174 0.482976 10.0496 0.58407 10.3762H0.741326H0.999676H1.30296V7.98877C0.718861 8.21399 0.314487 8.4167 0.134766 8.51805Z" fill="#1B719E"/> <path d="M75.371 4.52026C75.7192 4.52026 76.0001 4.79053 76.0001 5.13963C76.0001 5.48873 75.7305 5.759 75.371 5.759C75.0228 5.759 74.742 5.48873 74.742 5.13963C74.7308 4.79053 75.0228 4.52026 75.371 4.52026ZM75.371 4.64413C75.1015 4.64413 74.8993 4.86936 74.8993 5.13963C74.8993 5.4099 75.1015 5.63513 75.3823 5.63513C75.6519 5.63513 75.854 5.42116 75.854 5.13963C75.8428 4.86936 75.6406 4.64413 75.371 4.64413ZM75.2699 5.45495H75.1239V4.84684C75.1801 4.83558 75.2587 4.82432 75.3598 4.82432C75.4721 4.82432 75.5283 4.84684 75.5732 4.86936C75.6069 4.89188 75.6294 4.94819 75.6294 5.0045C75.6294 5.07206 75.5732 5.12837 75.5058 5.15089V5.16215C75.562 5.18468 75.5957 5.22972 75.6182 5.30855C75.6406 5.39864 75.6519 5.44369 75.6631 5.45495H75.5058C75.4834 5.43242 75.4721 5.37612 75.4609 5.30855C75.4497 5.24098 75.416 5.2072 75.3373 5.2072H75.2699V5.45495ZM75.2812 5.10585H75.3486C75.4272 5.10585 75.4946 5.08333 75.4946 5.01576C75.4946 4.95945 75.4497 4.92567 75.3598 4.92567C75.3261 4.92567 75.2924 4.92567 75.2812 4.93693V5.10585Z" fill="#2B2C2C"/> </svg>`;
+                    } else if (s.link.startsWith("https://patchstack.com")) {
+                        svgIcon = `<svg width="80" height="11" viewBox="0 0 88 11" fill="none" xmlns="http://www.w3.org/2000/svg"> <g clip-path="url(#clip0_164_2985)"> <path fill-rule="evenodd" clip-rule="evenodd" d="M24.0827 6.24147C24.0827 5.09188 23.5639 4.62077 22.2605 4.62077C21.0034 4.62077 20.4037 5.12647 20.4037 6.24147C20.4037 7.3448 21.0034 7.83911 22.2605 7.83911C23.5639 7.83911 24.0827 7.35633 24.0827 6.24147ZM25.559 6.24147C25.559 8.03452 24.5557 9.16105 22.6987 9.16105C21.7184 9.16105 20.8766 8.6323 20.4613 7.67813V11.0001H18.9966V3.41383H20.4613V4.80452C20.8766 3.85063 21.7531 3.29883 22.7796 3.29883C24.5903 3.29883 25.559 4.41383 25.559 6.24147Z" fill="#17191E"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M31.7335 6.24147C31.7335 5.12647 31.1339 4.62077 29.8767 4.62077C28.5733 4.62077 28.0544 5.09188 28.0544 6.24147C28.0544 7.35633 28.5733 7.83911 29.8767 7.83911C31.1339 7.83911 31.7335 7.3448 31.7335 6.24147ZM31.6874 3.41383H33.1523V9.04605H31.6874V7.65522C31.2723 8.60924 30.4419 9.16105 29.4385 9.16105C27.5816 9.16105 26.5781 8.03452 26.5781 6.24147C26.5781 4.41383 27.5355 3.29883 29.3693 3.29883C30.3956 3.29883 31.2723 3.86216 31.6874 4.82758V3.41383Z" fill="#17191E"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M38.9419 4.70115H37.0158V7.75865H38.8035V9.04601H37.3041C36.2547 9.04601 35.5511 8.34476 35.5511 7.29879V4.70115H34.1787V3.41379H35.5511V1.7356H37.0158V3.41379H38.9419V4.70115Z" fill="#17191E"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M44.8353 6.58617L46.2654 6.93103C45.908 8.41381 44.8353 9.16103 43.0477 9.16103C41.9981 9.16103 41.1677 8.89659 40.568 8.35645C39.9568 7.8277 39.6567 7.12645 39.6567 6.24145C39.6567 5.34478 39.9568 4.63228 40.568 4.09201C41.1677 3.56326 41.9981 3.29895 43.0477 3.29895C44.8353 3.29895 45.908 4.04589 46.2654 5.52881L44.8353 5.87353C44.6507 4.95409 44.1548 4.62076 43.0361 4.62076C41.6637 4.62076 41.1216 5.12645 41.1216 6.24145C41.1216 7.34478 41.6637 7.83909 43.0361 7.83909C44.1548 7.83909 44.6394 7.50576 44.8353 6.58617Z" fill="#17191E"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M53.4619 5.79306V9.04597H51.9972V6.10333C51.9972 5.04583 51.5703 4.62069 50.6363 4.62069C49.5292 4.62069 48.9755 5.19542 48.9755 6.35639V9.04597H47.5107V1H48.9755V4.73556C49.2868 3.78153 50.0134 3.29889 51.1552 3.29889C52.6891 3.29889 53.4619 4.12639 53.4619 5.79306Z" fill="#17191E"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M54.5571 7.49438L55.9872 7.11508C56.114 7.81605 56.5409 8.04605 57.452 8.04605C58.2364 8.04605 58.6283 7.85063 58.6283 7.47133C58.6283 7.10355 58.3747 6.95411 57.6364 6.85049L56.5063 6.6898C55.399 6.54022 54.7186 5.94258 54.7186 5.01161C54.7186 3.94258 55.6528 3.29883 57.2327 3.29883C58.8014 3.29883 59.7357 3.89661 59.9547 4.95411L58.5361 5.26438C58.4323 4.56327 58.0749 4.35633 57.2906 4.35633C56.5639 4.35633 56.1949 4.55174 56.1949 4.94258C56.1949 5.27591 56.4139 5.44827 57.0023 5.52883L58.3862 5.70119C59.4589 5.82758 60.0932 6.40244 60.0932 7.31036C60.0932 8.47133 59.0782 9.16105 57.3597 9.16105C55.8259 9.16105 54.7532 8.4598 54.5571 7.49438Z" fill="#17191E"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M65.3999 4.70115H63.4738V7.75865H65.2615V9.04601H63.7621C62.7127 9.04601 62.0091 8.34476 62.0091 7.29879V4.70115H60.6367V3.41379H62.0091V1.7356H63.4738V3.41379H65.3999V4.70115Z" fill="#17191E"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M71.3463 6.24147C71.3463 5.12647 70.7467 4.62077 69.4895 4.62077C68.1861 4.62077 67.6672 5.09188 67.6672 6.24147C67.6672 7.35633 68.1861 7.83911 69.4895 7.83911C70.7467 7.83911 71.3463 7.3448 71.3463 6.24147ZM71.3002 3.41383H72.7651V9.04605H71.3002V7.65522C70.8851 8.60924 70.0547 9.16105 69.0513 9.16105C67.1944 9.16105 66.1909 8.03452 66.1909 6.24147C66.1909 4.41383 67.1483 3.29883 68.9821 3.29883C70.0084 3.29883 70.8851 3.86216 71.3002 4.82758V3.41383Z" fill="#17191E"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M79.177 6.58617L80.6071 6.93103C80.2496 8.41381 79.177 9.16103 77.3893 9.16103C76.3398 9.16103 75.5095 8.89659 74.9097 8.35645C74.2984 7.8277 73.9985 7.12645 73.9985 6.24145C73.9985 5.34478 74.2984 4.63228 74.9097 4.09201C75.5095 3.56326 76.3398 3.29895 77.3893 3.29895C79.177 3.29895 80.2496 4.04589 80.6071 5.52881L79.177 5.87353C78.9925 4.95409 78.4965 4.62076 77.3777 4.62076C76.0054 4.62076 75.4632 5.12645 75.4632 6.24145C75.4632 7.34478 76.0054 7.83909 77.3777 7.83909C78.4965 7.83909 78.981 7.50576 79.177 6.58617Z" fill="#17191E"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M86.2236 9.04597L84.4706 6.62069L83.2941 7.73569V9.04597H81.8525V1H83.2941V6.02889L86.0045 3.41375H87.873L85.3934 5.74708L87.9998 9.04597H86.2236Z" fill="#17191E"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M0 11H3.49206V8.5H0V11Z" fill="#AFE614"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M3.49219 11H6.98425V8.5H3.49219V11Z" fill="#6EBE00"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M6.98389 8.5H13.968V1H6.98389V8.5Z" fill="#AFE614"/> <path fill-rule="evenodd" clip-rule="evenodd" d="M0 6H6.98413V1H0V6Z" fill="#6EBE00"/> </g> <defs> <clipPath id="clip0_164_2985"> <rect width="88" height="11" fill="white"/> </clipPath> </defs> </svg>`;
+                    } else if (s.link.startsWith("https://www.cve.org")) {
+                    	svgIcon = `<svg width="30" height="11" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320.65 93.91"><defs><style>.cls-1{fill-rule:evenodd;fill:url(#linear-gradient);}.cls-2{font-size:18px;fill:#ff940e;font-family:ArialMT, Arial;}</style><linearGradient id="linear-gradient" x1="152.2" y1="90.17" x2="152.2" y2="5.62" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f68826"/><stop offset="0.45" stop-color="#faa227"/><stop offset="1" stop-color="#fdb714"/></linearGradient></defs><path class="cls-1" d="M99.83,88.73l13.75-17.79H56.86a38.82,38.82,0,0,1-5.67-.4,34.11,34.11,0,0,1-5.31-1.23,30.85,30.85,0,0,1-4.8-2,24.78,24.78,0,0,1-4.17-2.7h0a22.28,22.28,0,0,1-3.46-3.4,21.7,21.7,0,0,1-2.59-4.06,20.67,20.67,0,0,1-1.62-4.63,23.3,23.3,0,0,1-.54-5,23,23,0,0,1,.56-5.06,20.43,20.43,0,0,1,1.68-4.68,23.07,23.07,0,0,1,6-7.55,24.74,24.74,0,0,1,4.14-2.78,30.15,30.15,0,0,1,4.78-2.05,31.58,31.58,0,0,1,5.33-1.28,36.22,36.22,0,0,1,5.68-.43h41.4v-9h18v-9h9v9h-9v9h9.52l26.61,39.24,1.95,2.88,2-2.84L196.93,5.63H297.85l-13.9,18H210.34l-.73,1L179.25,67.62l-9.7,13.72a23.11,23.11,0,0,1-2.89,3.28,36.14,36.14,0,0,1-3.65,3,12.89,12.89,0,0,1-4,1.89,18.14,18.14,0,0,1-5.12.67,19,19,0,0,1-5-.62,12.63,12.63,0,0,1-3.92-1.79,23.76,23.76,0,0,1-3.48-2.88,25.93,25.93,0,0,1-2.93-3.52L99.31,24.72l-.73-1h8.71V5.62H56.86a73.24,73.24,0,0,0-10.67.75A59.88,59.88,0,0,0,36.43,8.6a52.92,52.92,0,0,0-8.66,3.58A44.37,44.37,0,0,0,20.46,17a39.78,39.78,0,0,0-5.91,5.91,38.75,38.75,0,0,0-4.49,7,33.93,33.93,0,0,0-2.81,7.82,38.33,38.33,0,0,0-.94,8.64A39.24,39.24,0,0,0,7.25,55a35.86,35.86,0,0,0,2.83,8,40.55,40.55,0,0,0,4.5,7.23,41.25,41.25,0,0,0,5.92,6.19h0a45.86,45.86,0,0,0,7.33,5.08,55.52,55.52,0,0,0,8.66,3.89,56.45,56.45,0,0,0,9.74,2.45,65.94,65.94,0,0,0,10.63.82h43ZM134.36,5.62v9h9v-9ZM253,39H214V88.72h70.36L298.1,70.94H236.5V54.16h44.58L292.94,39Z"/><text class="cls-2" transform="translate(303.31 19.09)">®</text></svg>`;
+                    } else {
+                        svgIcon = s.name;
+                    }
+
+                	return `<a href="${s.link}" target="_blank" class="inline-block ml-1 hover:opacity-80 transition">${svgIcon}</a>`;
+
+                }).join('');
+
+	            vulnHTML += `
+                <div class="items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 mb-2">
+                    <span class="text-sm font-bold capitalize text-gray-700 dark:text-gray-300">${v.name}</span>
+                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">${displayDesc}</div>
+                    <div class="mt-2 text-xs text-gray-500 hidden">Fixed in: ${v.operator.max_version}</div>
+                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">Date: ${displayDate}</div>
+                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400 space-x-2">Source: ${sourcesHTML}</div>
+                </div>`;
+
+                });
+            } else {
+                vulnHTML = '<div class="flex items-center space-x-2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-emerald-500 dark:text-emerald-400"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path></svg><p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get "None"}}</p></div>';
+            }
+
+            let linkHTML = link ? `<a href="${link}" target="_blank" class="text-blue-500 hover:underline">${name}</a>` : name;
+
+            return `<p class="py-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex gap-2">${type} ${linkHTML}${latest ? ` &nbsp;(Updated: ${latest})` : ''}</p><div class="grid grid-cols-1 gap-2">${vulnHTML}</div>`;
+        }
+
+        function fetchWPVulnerabilities() {
+            const currentDomain = {{toJSON .CurrentDomain}};
+
+            document.querySelector('#partials_wp_vulnerability_loading').classList.remove('hidden');
+            document.querySelector('#partials_wp_vulnerability_data').classList.add('hidden');
+            document.querySelector('#partials_wp_vulnerability_no_data').classList.add('hidden');
+
+            fetch(`/json/wp_vulnerability/${currentDomain}`, {
+                method: "GET",
+                headers: { 'X-CSRF-TOKEN': csrf_token }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.querySelector('#wp_vulnerability_table_body');
+                    tbody.innerHTML = '';
+
+                    let hasData = false;
+                    let totalVulns = 0;
+
+                    if (data.timestamp) {
+                        const formattedTimestamp = new Date(data.timestamp).toLocaleString();
+                        const lastCheckedLabel = {{toJSON (.T.Get "Last checked")}};
+                        document.querySelector('#vulnerabilities_checked').textContent = `${lastCheckedLabel}: ${formattedTimestamp}`;
+                    }
+
+                    for (const key in data) {
+                        if (key === 'timestamp') continue;
+
+                        const item = data[key];
+                        if (!item || item.error) continue;
+                        if (!item.data) {continue;}
+
+                        let name;
+                        let typeIcon;
+
+                        if (key.startsWith('core_')) {
+                            if (key.startsWith('core_version_')) {
+                                name = key.replace('core_version_', '');
+                            } else {
+                                name = key.replace('core_', '');
+                            }
+                            typeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" alt="Core" height="16" fill="currentColor" class="bi bi-wordpress" viewBox="0 0 16 16"> <path d="M12.633 7.653c0-.848-.305-1.435-.566-1.892l-.08-.13c-.317-.51-.594-.958-.594-1.48 0-.63.478-1.218 1.152-1.218q.03 0 .058.003l.031.003A6.84 6.84 0 0 0 8 1.137 6.86 6.86 0 0 0 2.266 4.23c.16.005.313.009.442.009.717 0 1.828-.087 1.828-.087.37-.022.414.521.044.565 0 0-.371.044-.785.065l2.5 7.434 1.5-4.506-1.07-2.929c-.369-.022-.719-.065-.719-.065-.37-.022-.326-.588.043-.566 0 0 1.134.087 1.808.087.718 0 1.83-.087 1.83-.087.37-.022.413.522.043.566 0 0-.372.043-.785.065l2.48 7.377.684-2.287.054-.173c.27-.86.469-1.495.469-2.046zM1.137 8a6.86 6.86 0 0 0 3.868 6.176L1.73 5.206A6.8 6.8 0 0 0 1.137 8"/> <path d="M6.061 14.583 8.121 8.6l2.109 5.78q.02.05.049.094a6.85 6.85 0 0 1-4.218.109m7.96-9.876q.046.328.047.706c0 .696-.13 1.479-.522 2.458l-2.096 6.06a6.86 6.86 0 0 0 2.572-9.224z"/> <path fill-rule="evenodd" d="M0 8c0-4.411 3.589-8 8-8s8 3.589 8 8-3.59 8-8 8-8-3.589-8-8m.367 0c0 4.209 3.424 7.633 7.633 7.633S15.632 12.209 15.632 8C15.632 3.79 12.208.367 8 .367 3.79.367.367 3.79.367 8"/> </svg>`;
+                        } else if (key.startsWith('theme_')) {
+                            name = item.data.name || key;
+                            typeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" alt="Theme" height="16" fill="currentColor" class="bi bi-display" viewBox="0 0 16 16"> <path d="M0 4s0-2 2-2h12s2 0 2 2v6s0 2-2 2h-4q0 1 .25 1.5H11a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1h.75Q6 13 6 12H2s-2 0-2-2zm1.398-.855a.76.76 0 0 0-.254.302A1.5 1.5 0 0 0 1 4.01V10c0 .325.078.502.145.602q.105.156.302.254a1.5 1.5 0 0 0 .538.143L2.01 11H14c.325 0 .502-.078.602-.145a.76.76 0 0 0 .254-.302 1.5 1.5 0 0 0 .143-.538L15 9.99V4c0-.325-.078-.502-.145-.602a.76.76 0 0 0-.302-.254A1.5 1.5 0 0 0 13.99 3H2c-.325 0-.502.078-.602.145"/> </svg>`;
+                        } else if (key.startsWith('plugin_')) {
+                            name = item.data.name || key;
+                            typeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" alt="Plugin" height="16" fill="currentColor" class="bi bi-plugin" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M1 8a7 7 0 1 1 2.898 5.673c-.167-.121-.216-.406-.002-.62l1.8-1.8a3.5 3.5 0 0 0 4.572-.328l1.414-1.415a.5.5 0 0 0 0-.707l-.707-.707 1.559-1.563a.5.5 0 1 0-.708-.706l-1.559 1.562-1.414-1.414 1.56-1.562a.5.5 0 1 0-.707-.706l-1.56 1.56-.707-.706a.5.5 0 0 0-.707 0L5.318 5.975a3.5 3.5 0 0 0-.328 4.571l-1.8 1.8c-.58.58-.62 1.6.121 2.137A8 8 0 1 0 0 8a.5.5 0 0 0 1 0"/> </svg>`;
+                        } else {
+                            typeIcon = 'Other';
+                            name = item.data.name || key;
+                        }
+
+                        const version = item.data.version || '';
+                        const latestRaw = item.data.latest || '';
+                        const latest = latestRaw
+                            ? new Date(Number(latestRaw) * 1000).toLocaleString()
+                            : '';
+                        const vulnerabilities = item.data.vulnerability || [];
+                        const link = item.data.link || null;
+                        totalVulns += vulnerabilities.length;
+
+                        tbody.insertAdjacentHTML('beforeend', createVulnRow(typeIcon, name, version, latest, vulnerabilities, link));
+                        hasData = true;
+                    }
+
+                    document.querySelector('#partials_wp_vulnerability_loading').classList.add('hidden');
+
+                    if (hasData) {
+                        document.querySelector('#partials_wp_vulnerability_no_data').classList.add('hidden');
+                        document.querySelector('#partials_wp_vulnerability_data').classList.remove('hidden');
+                        document.querySelector('#partials_wp_vulnerability_total_count_text').classList.remove('hidden');
+                        document.querySelector('#partials_wp_vulnerability_total_count').textContent = totalVulns;
+                    } else {
+                        document.querySelector('#partials_wp_vulnerability_total_count_text').classList.add('hidden');
+                        document.querySelector('#partials_wp_vulnerability_no_data').classList.remove('hidden');
+                    }
+                })
+                .catch(function() {
+                    document.querySelector('#partials_wp_vulnerability_loading').classList.add('hidden');
+                    document.querySelector('#partials_wp_vulnerability_no_data').classList.remove('hidden');
+                });
+        }
+
+        fetchWPVulnerabilities();
+
+        var resultsContainer = document.getElementById('safebrowsing_results');
+        resultsContainer.innerHTML = {{toJSON (printf "<p class=\"text-sm text-gray-500 dark:text-gray-400\">%s</p>" (.T.Get "Checking website status..."))}};
+
+        fetch(`/json/safebrowsing/${selectedDomain}`, {
+            method: "GET",
+            headers: {
+                'X-CSRF-TOKEN': csrf_token
+            }
+        })
+        .then(response => response.json())
+        .then(function(response) {
+            var html = '';
+            if (response.status === "safe") {
+                html = `<div class="flex items-center space-x-2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-emerald-500 dark:text-emerald-400"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path></svg><p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No unsafe content found"}}</p></div>`;
+            } else if (response.status === "danger") {
+                html = `<div class="flex items-center space-x-2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-red-500 dark:text-red-400"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg><p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "The website is flagged for threats:"}}</p></div><ul class="list-disc list-inside text-sm text-red-500 dark:text-red-300">`;
+                response.threats.forEach(function(threat) {
+                    html += `<li>${threat.threatType} on ${threat.platformType}</li>`;
+                });
+                html += '</ul>';
+            } else if (response.error) {
+                html = `<div class="flex items-center space-x-2">⚠️<p class="text-sm font-medium text-gray-900 dark:text-gray-50">${response.error}</p></div>`;
+            }
+            resultsContainer.innerHTML = html;
+        })
+        .catch(function(error) {
+            resultsContainer.innerHTML = {{toJSON (printf "<div class=\"flex items-center space-x-2\"><p class=\"text-sm font-medium text-gray-900 dark:text-gray-50\">%s</p></div>" (.T.Get "Failed to check the website"))}};
+        });
+
+    });
+</script>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- END templates/partials/googlesafebrowsing.html -->
+{{end}}
+
+{{define "wp_cache"}}
+<!-- START templates/manager/wp/cache.html -->
+<div x-data="wpCacheComponent()" x-init="fetchCacheType()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+  <div class="mb-2 flex items-center justify-between gap-4 relative">
+    <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+    <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Cache"}}</h2>
+    <svg aria-hidden="true" class="lucide lucide-compass size-5 shrink-0" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor" fill="none" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"></path><circle cx="12" cy="12" r="10"></circle></svg>
+  </div>
+
+    <div class="grid grid-cols-1 gap-2">
+        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Cache Type:"}}</span>
+            <span class="font-medium" id="wp_cache_type" x-text="cacheType">...</span>
+        </div>
+        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Purge WordPress cache:"}}</span>
+            <span class="font-medium">
+
+        <button
+        @click="flushCache"
+        data-tooltip-target="tooltip-purge_cache-link" data-tooltip-placement="left"
+        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 cursor-pointer"
+        type="button"
+        aria-label="Purge WP Cache"
+        >
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash size-5 shrink-0"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        {{.T.Get "Clear Cache"}}
+        </button>
+            </span>
+        </div>
+    </div>
+
+    <div id="tooltip-purge_cache-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+      {{.T.Get "Click to Purge WP Cache"}}
+      <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+</div>
+
+<script>
+  function wpCacheComponent() {
+    return {
+      cacheType: 'Checking...',
+      domain: {{toJSON .CurrentDomain}},
+
+      fetchCacheType() {
+        if (!this.domain) {
+          return;
+        }
+        fetch(`/wp-cli/cache?domain=${encodeURIComponent(this.domain)}`)
+          .then(res => res.json())
+          .then(data => {
+            if(data.error) {
+              this.cacheType = data.error;
+            } else {
+              this.cacheType = data.type || 'none';
+            }
+          })
+          .catch(() => {
+            this.cacheType = 'Default';
+          });
+      },
+
+      flushCache() {
+        if (!this.domain) {
+          return;
+        }
+        fetch(`/wp-cli/cache?domain=${encodeURIComponent(this.domain)}`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrf_token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({})
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            showToast({{toJSON (.T.Get "Error flushing cache")}}, 'danger');
+          } else {
+            showToast(data.message || {{toJSON (.T.Get "Cache flushed successfully!")}}, 'success');
+          }
+        })
+        .catch(() => {
+          showToast({{toJSON (.T.Get "Failed to flush cache")}}, 'danger');
+        });
+      }
+    }
+  }
+</script>
+<!-- END templates/manager/wp/cache.html -->
+{{end}}

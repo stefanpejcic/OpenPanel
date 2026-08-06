@@ -1,0 +1,357 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/cache/service.html -->
+
+<!-- page header -->
+<div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1>
+        <p class="text-sm text-gray-500">{{.Description}}</p>
+    </div>
+
+    <form method="post" class="mt-2 sm:mt-0">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <input type="hidden" name="action" value="{{if eq .ContainerState "not_found"}}enable{{else}}disable{{end}}">
+        <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+            {{if eq .ContainerState "not_found"}}{{.T.Get "Click to Enable"}}{{else}}{{.T.Get "Click to Disable"}}{{end}}
+        </button>
+    </form>
+</div>
+
+<!-- body -->
+<div class="m-6 space-y-10">
+
+    <!-- status -->
+    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+        <div>
+            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Status"}}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Current service status."}}</p>
+        </div>
+        <div class="flex items-center gap-2 mt-1.5"
+            data-status-poll
+            data-status-key="{{.StatusKey}}"
+            data-status-map='{{.StatusMapJSON}}'
+            data-fetch-url="{{.RequestPath}}"
+        >
+            <div class="flex gap-0.5">
+                <div class="service-status-bar h-3.5 w-1 rounded-sm bg-{{.StatusColor}} dark:bg-{{.StatusColor}}"></div>
+                <div class="service-status-bar h-3.5 w-1 rounded-sm bg-{{.StatusColor}} dark:bg-{{.StatusColor}}"></div>
+                <div class="service-status-bar h-3.5 w-1 rounded-sm bg-{{.StatusColor}} dark:bg-{{.StatusColor}}"></div>
+            </div>
+            <p id="service-page-status" class="service-status-label text-lg font-semibold text-gray-900 dark:text-gray-50">{{.StatusLabel}}</p>
+        </div>
+    </div>
+
+    <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+
+    {{if .Port}}
+    <!-- service name -->
+    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+        <div>
+            <h2 id="port" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "TCP"}}</h2>
+            <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "IP and Port for accessing the service."}}</p>
+        </div>
+        <div class="md:col-span-2">
+            <div class="grid grid-cols-1 gap-4 sm:max-w-3xl sm:grid-cols-2">
+                <div class="relative w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 !p-4 hover:bg-gray-50 hover:dark:bg-gray-900">
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Server:"}}</p>
+                    <p class="mt-3 flex items-end"><span id="service-page-name" class="text-3xl font-semibold text-gray-900 dark:text-gray-50">{{.Service}}</span></p>
+                </div>
+                <div class="relative w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 !p-4 hover:bg-gray-50 hover:dark:bg-gray-900">
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Port:"}}</p>
+                    <p class="mt-3 flex items-end"><span id="service-page-port" class="text-3xl font-semibold text-gray-900 dark:text-gray-50">{{.Port}}</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{else}}
+
+    {{if .IsRunning}}
+    <!-- varnish stats -->
+    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+        <div>
+            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Varnish Cache"}}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Real-time cache performance and efficiency metrics."}}</p>
+        </div>
+
+        <div x-data="varnishStats()" x-init="fetchStats()" class="grid grid-cols-1 gap-4 sm:max-w-3xl sm:grid-cols-2 md:col-span-2">
+            <template x-for="[label, value] in Object.entries(stats)" :key="label">
+                <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                    <span class="text-sm text-gray-600 dark:text-gray-400" x-text="label"></span>
+                    <span class="font-medium text-gray-900 dark:text-gray-50" x-text="value"></span>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('varnishStats', () => ({
+            stats: {
+                'Hit Ratio': '--',
+                'Hits': '--',
+                'Misses': '--',
+                'Pass': '--',
+                'Requests': '--',
+                'Backend Requests': '--',
+                'Backend Failures': '--',
+                'Efficiency Score': '--'
+            },
+
+            async fetchStats() {
+                try {
+                    const res = await fetch(`/cache/varnish/stats`);
+                    const data = await res.json();
+
+                    if (!data || !data.cache) {
+                        Object.keys(this.stats).forEach(k => this.stats[k] = 'N/A');
+                        return;
+                    }
+
+                    const hitRatio = data.cache.hit_ratio ?? 0;
+
+                    this.stats = {
+                        'Hit Ratio': (hitRatio * 100).toFixed(2) + '%',
+                        'Hits': data.cache.hits ?? 0,
+                        'Misses': data.cache.misses ?? 0,
+                        'Pass': data.cache.pass ?? 0,
+
+                        'Requests': data.traffic?.requests_total ?? 0,
+
+                        'Backend Requests': data.backend?.requests ?? 0,
+                        'Backend Failures': data.backend?.failures ?? 0,
+
+                        'Efficiency Score': data.performance?.efficiency_score >= 80
+                            ? '🟢 ' + data.performance.efficiency_score
+                            : '🟠 ' + data.performance.efficiency_score
+                    };
+
+                } catch (e) {
+                    Object.keys(this.stats).forEach(k => this.stats[k] = 'Error');
+                }
+            }
+        }));
+    });
+    </script>
+
+    <div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+    {{end}}
+
+    <!-- varnish domains -->
+    <section aria-labelledby="domains" x-data="{ searchQuery: '' }">
+        <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+            <div>
+                <h2 id="domains" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Domains"}}</h2>
+                <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Enable/disable Varnish cache per domain."}}</p>
+            </div>
+            <div class="md:col-span-2">
+                <div class="grid grid-cols-1 gap-4 grid-cols-1">
+                    <table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                        <thead class="">
+                            <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                                <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Domain Name"}}
+                        </th>
+                                <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Status"}}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                        {{$csrf := .CSRFToken}}
+                        {{range .VarnishDomains}}
+                            <tr x-show="searchQuery === '' || {{toJSON .DomainURL}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                                <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                                    {{.DomainURL}}
+                                </td>
+
+                <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" x-data="{ enabled: {{if eq .Status "On"}}true{{else}}false{{end}} }">
+                    <form method="post">
+                        <input type="hidden" name="csrf_token" value="{{$csrf}}"/>
+                        <input type="hidden" name="action" value="domain">
+                        <input type="hidden" name="domain_name" value="{{.DomainURL}}">
+
+                        <input type="hidden" name="varnish_action" :value="enabled ? 'Off' : 'On'">
+
+                        <button type="submit"
+                            @click.prevent="enabled = !enabled; $event.target.form.submit()"
+                            :aria-checked="enabled"
+                            :class="enabled ? 'bg-indigo-600 dark:bg-indigo-600' : 'bg-gray-200 dark:bg-gray-950'"
+                            class="group relative isolate inline-flex shrink-0 cursor-pointer items-center rounded-full p-0.5 shadow-inner ring-1 ring-inset transition-all ring-black/5 dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 h-5 w-9">
+                            <span :class="enabled ? 'translate-x-4' : 'translate-x-0'"
+                                class="pointer-events-none relative inline-block transform appearance-none rounded-full border-none shadow-lg outline-none transition-all duration-150 ease-in-out bg-white dark:bg-gray-50 h-4 w-4">
+                            </span>
+                        </button>
+                    </form>
+                </td>
+
+                            </tr>
+                        {{end}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    {{end}}
+
+    {{if .IsRunning}}
+    <div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+
+    <!-- container stats -->
+    <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+        <div>
+            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container"}}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Current real-time resource usage for the service."}}</p>
+            {{if index .UserAllowed "docker"}}
+            <a href="/containers?s={{.Service}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap sm:w-fit mt-1">{{.T.Get "Edit limits"}}</a>
+            {{end}}
+        </div>
+        <div id="service-page-stats"
+            x-data="containerStats()"
+            x-init="fetchStats()"
+            class="grid grid-cols-1 gap-4 sm:max-w-3xl sm:grid-cols-2 md:col-span-2"
+        >
+            <template x-for="[label, value] in Object.entries(stats)" :key="label">
+                <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                    <span class="text-sm capitalize text-gray-600 dark:text-gray-400" x-text="label"></span>
+                    <span class="font-medium min-w-0" :class="{ truncate: label === 'ID' }" x-text="value"></span>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('containerStats', () => ({
+            serviceName: {{toJSON .Service}},
+            stats: { ID:'--', Name:'--', 'CPU Usage':'--', 'Memory Usage':'--', 'Memory %':'--', 'Network I/O':'--', 'Block I/O':'--', PIDs:'--' },
+
+            async fetchStats() {
+                try {
+                    const s = await window.fetchServiceData(this.serviceName);
+
+                    if (s) {
+                        this.stats = {
+                            ID: s.ID,
+                            Name: s.Name,
+                            'CPU Usage': s.CPUPerc,
+                            'Memory Usage': s.MemUsage,
+                            'Memory %': s.MemPerc,
+                            'Network I/O': s.NetIO,
+                            'Block I/O': s.BlockIO,
+                            PIDs: s.PIDs
+                        };
+                    } else {
+                        Object.keys(this.stats).forEach(k => this.stats[k] = 'N/A');
+                    }
+                } catch {
+                    Object.keys(this.stats).forEach(k => this.stats[k] = 'Error');
+                }
+            }
+        }));
+    });
+    </script>
+    {{end}}
+
+    <!-- logs -->
+    <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
+      <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+    </div>
+    <section aria-labelledby="logs" x-data="logViewer()" x-init="checkLogHealth()">
+      <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+
+        <div>
+          <h2 id="logs" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Logs"}}</h2>
+          <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "View logs for the service."}}</p>
+        </div>
+
+        <div class="space-y-6 md:col-span-2">
+          <div class="p-4 relative w-full rounded-lg border text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 overflow-hidden">
+            <div class="flex justify-between items-center">
+              <button @click="fetchLogs" x-text="buttonText" :disabled="loading" id="service-log" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap sm:w-fit"></button>
+            </div>
+
+            <div x-show="showLogs" x-transition class="p-4 mt-4 border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-full max-h-64 overflow-y-auto" id="log-container">
+              <pre id="log-content" x-text="logContent"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        document.addEventListener('alpine:init', () => {
+          Alpine.data('logViewer', () => ({
+            showLogs: false,
+            logContent: '',
+            logFetched: false,
+            buttonText: {{toJSON (.T.Get "View container log")}},
+            loading: false,
+            serviceName: {{toJSON .Service}},
+
+            async checkLogHealth() {
+              try {
+                const response = await fetch(`/json/containers/log/${this.serviceName}`, {
+                  headers: { 'X-CSRF-Token': csrf_token },
+                });
+                if (!response.ok) return;
+                const data = await response.text();
+                this.logContent = data;
+                this.logFetched = true;
+                if (typeof reportHealthIssues !== 'function' || !data) return;
+                const errorLines = data.split('\n').filter(function (line) {
+                  return /\b(error|fatal|failed|denied|refused|exception|panic|critical)\b/i.test(line);
+                });
+                if (errorLines.length) {
+                  reportHealthIssues('service-log:' + this.serviceName, [{
+                    id: 'log-errors:' + this.serviceName,
+                    severity: 'warning',
+                    message: {{toJSON (.T.Get "Service")}} + ' ' + this.serviceName + ' ' + {{toJSON (.T.Get "log contains")}} + ' ' + errorLines.length + ' ' + {{toJSON (.T.Get "error line(s). Check the log.")}},
+                  }], 24);
+                }
+              } catch (error) {
+                // background check, ignore failures
+              }
+            },
+
+            async fetchLogs() {
+              if (this.logFetched) {
+                this.logContent = this.logContent || {{toJSON (.T.Get "No logs available.")}};
+                this.buttonText = {{toJSON (.T.Get "Click to refresh")}};
+                this.showLogs = true;
+                this.logFetched = false;
+                return;
+              }
+
+              this.loading = true;
+              this.buttonText = {{toJSON (.T.Get "Loading...")}};
+
+              try {
+                const response = await fetch(`/json/containers/log/${this.serviceName}`, {
+                  headers: { 'X-CSRF-Token': csrf_token },
+                });
+
+                if (!response.ok) throw new Error('Request failed');
+
+                const data = await response.text();
+                this.logContent = data || {{toJSON (.T.Get "No logs available.")}};
+                this.buttonText = {{toJSON (.T.Get "Click to refresh")}};
+              } catch (error) {
+                this.logContent = {{toJSON (.T.Get "No logs.")}};
+                this.buttonText = {{toJSON (.T.Get "Click to retry")}};
+              } finally {
+                this.showLogs = true;
+                this.loading = false;
+              }
+            },
+          }));
+        });
+      </script>
+
+    </section>
+
+</div>
+
+<!-- END templates/cache/service.html -->
+{{end}}

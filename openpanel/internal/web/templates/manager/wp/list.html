@@ -1,0 +1,410 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/manager/wp/list.html -->
+
+<!-- page header -->
+<div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between border-b">
+    <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Manage WordPress websites"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Total installations:"}} <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white">{{len .Sites}}</span></p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        <a href="/wordpress/install" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg> {{.T.Get "New Installation"}}
+        </a>
+        <button type="button" id="scanButton" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Scan for Existing Installations"}}</button>
+    </div>
+</div>
+<!-- END page header -->
+
+{{if .Sites}}
+
+<!-- if we have sites-->
+
+<section aria-label="WP Table" x-data="{ searchQuery: '' }">
+    <div class="border-b flex border-gray-200 dark:border-gray-800 flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
+        <div class="flex gap-2 items-center">
+
+            <div class="relative w-full sm:w-64 [&>input]:py-1.5">
+                <input
+                    x-model="searchQuery"
+                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
+                    placeholder="{{.T.Get "Search"}}"
+                    type="search"
+                />
+                <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                        <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                    </svg>
+                </div>
+            </div>
+
+{{if .UserAllowed.filemanager}}
+<div class="flex flex-wrap gap-1 justify-center sm:justify-start items-center">
+    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Sets:"}}</p>
+    <a href="/file-manager/edit-file/wpcli_themes.txt?new=true&amp;fullscreen=false" target="_blank" data-tooltip-target="tooltip-themes" data-tooltip-placement="right" class="rounded border border-gray-200 dark:border-gray-700 px-2 py-1 text-xs font-medium transition bg-white text-gray-500 dark:bg-gray-800">{{.T.Get "Themes"}}</a>
+    <a href="/file-manager/edit-file/wpcli_plugins.txt?new=true&amp;fullscreen=false" target="_blank" data-tooltip-target="tooltip-plugins" data-tooltip-placement="right" class="rounded border border-gray-200 dark:border-gray-700 px-2 py-1 text-xs font-medium transition bg-white text-gray-500 dark:bg-gray-800">{{.T.Get "Plugins"}}</a>
+    <div id="tooltip-themes" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+        {{.T.Get "Create a Themes Set to have themes auto-installed on new WordPress websites."}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+    <div id="tooltip-plugins" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+        {{.T.Get "Create a Plugins Set to have plugins auto-installed on new WordPress websites."}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+</div>
+{{end}}
+
+        </div>
+
+        <div class="flex flex-col items-center gap-2 sm:flex-row">
+
+            <button type="button" id="refreshData" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-arrow-counterclockwise"></i> {{.T.Get "Refresh Data"}}</button>
+
+            {{if eq .ViewMode "cards"}}
+            <a href="/wordpress?view=table" data-tooltip-target="tooltip-cards" data-tooltip-placement="top" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-table"></i> {{.T.Get "Switch to Table view"}}</a>
+            <div id="tooltip-cards" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                {{.T.Get "Display websites in a table"}}
+                <div class="tooltip-arrow" data-popper-arrow></div>
+            </div>
+            {{else if eq .ViewMode "table"}}
+            <a href="/wordpress?view=cards" data-tooltip-target="tooltip-table" data-tooltip-placement="top" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-view-list"></i>{{.T.Get "Switch to Cards view"}}</a>
+            <div id="tooltip-table" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                {{.T.Get "Display websites in a grid"}}
+                <div class="tooltip-arrow" data-popper-arrow></div>
+            </div>
+            {{end}}
+
+        </div>
+
+    </div>
+
+{{if eq .ViewMode "table"}}
+
+   <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap">
+            <table id="sites-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                                <span>{{.T.Get "Domain"}}</span>
+                                <div class="-space-y-2">
+                                    <a href="#" data-sort-key="domain" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                    <a href="#" data-sort-key="domain" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                                </div>
+                            </div>
+                        </th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                                <span>{{.T.Get "Version"}}</span>
+                                <div class="-space-y-2">
+                                    <a href="#" data-sort-key="version" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                    <a href="#" data-sort-key="version" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                                </div>
+                            </div>
+                        </th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Admin Email"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Created on"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-end text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
+                    </tr>
+                </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+    {{range $i, $site := .Sites}}
+<tr x-show="searchQuery === '' || {{toJSON $site.SiteName}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $site.AdminEmail}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+
+            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="domain" data-sort-value="{{$site.SiteName}}"><a class="punycode no_link domain_link" href="http://{{$site.SiteName}}" target="_blank"><img src="/json/favicon/{{$site.SiteName}}" alt="{{$site.SiteName}} Favicon" style="width:16px; height:16px; margin-right:5px;">
+ {{$site.SiteName}} <i class="bi bi-box-arrow-up-right"></i></a></td>
+            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="version" data-sort-value="{{$site.Version}}"> <i class="bi bi-wordpress"></i> <span id="version-{{$site.SiteName}}">{{$site.Version}}</span>
+</td>
+            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="email">{{$site.AdminEmail}}</td>
+            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="created">{{$site.CreatedDate}}</td>
+            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" style="text-align: right;">
+                       <div class="flex gap-2 justify-end">
+                            <a href="#" onclick="handleLoginClick({{toJSON $site.SiteName}})" class="btn btn-primary" type="button"> {{$.T.Get "Login as Admin"}} <i class="bi bi-box-arrow-in-right"></i></a>
+                            <a class="btn btn-secondary mx-2" href="/website?domain={{$site.SiteName}}">{{$.T.Get "Manage"}}</a>
+
+<button id="dropdownHoverButton-{{$i}}" data-dropdown-toggle="dropdownHover-{{$i}}" data-dropdown-trigger="hover" class="" type="button"><i class="bi bi-x-lg"></i>
+</button>
+
+                            <!-- Dropdown menu -->
+                            <div id="dropdownHover-{{$i}}" class="z-10 text-left hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+                                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownHoverButton-{{$i}}">
+                            <li>
+                            <a href="#" onclick="confirmDetach({{$site.ID}})" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" ><i class="bi bi-trash3"></i> {{$.T.Get "Detach"}}</a>
+                            </li>
+                            <li>
+                            <a href="#" onclick="confirmRemove({{$site.ID}})" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" ><i class="bi bi-trash3"></i> {{$.T.Get "Uninstall"}}</a>
+                            </li>
+                                </ul>
+                            </div>
+                        </div>
+            </td>
+        </tr>
+    {{end}}
+        </tbody>
+            </table>
+        </div>
+    </div>
+
+{{else if eq .ViewMode "cards"}}
+
+<style>
+  .image-container { position: relative; display: inline-block; }
+  .image-container:hover .center-button { display: block; }
+</style>
+
+      <div class="m-6 grid gap-4 md:gap-4 lg:grid-cols-3">
+
+            {{range $i, $site := .Sites}}
+<div x-show="searchQuery === '' || {{toJSON $site.SiteName}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $site.AdminEmail}}.toLowerCase().includes(searchQuery.toLowerCase())" class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between !p-0">
+    <div class="p-2">
+            <div class="image-container relative overflow-hidden rounded bg-gray-50 dark:bg-gray-800">
+
+                <a href="/website?domain={{$site.SiteName}}">
+                    <img
+                        id="screenshot-image-{{$site.SiteName}}"
+                        src="/static/images/placeholder.svg"
+                        alt="Screenshot of {{$site.SiteName}}"
+                        class="rounded-t-lg"
+                    />
+                </a>
+
+                <button id="dropdownHoverButton-{{$i}}" data-dropdown-toggle="dropdownHover-{{$i}}" data-dropdown-trigger="hover" type="button" class="flex items-center justify-center transition-all w-8 h-8 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 absolute top-1.5 right-1.5"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+
+                <div id="dropdownHover-{{$i}}" class="z-10 text-left hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+                    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownHoverButton-{{$i}}">
+                <li>
+                <a href="#" onclick="confirmDetach({{$site.ID}})" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" ><i class="bi bi-trash3"></i> {{$.T.Get "Detach"}}</a>
+                </li>
+                <li>
+                <a href="#" onclick="confirmRemove({{$site.ID}})" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" ><i class="bi bi-trash3"></i> {{$.T.Get "Uninstall"}}</a>
+                </li>
+                    </ul>
+                </div>
+
+            </div>
+        <div class="px-2 pb-2 pt-4">
+            <dt class="truncate text-sm font-medium text-gray-900 dark:text-gray-50">{{$site.SiteName}}</dt>
+            <dd class="mt-2 text-sm text-gray-600 dark:text-gray-400"><i class="bi bi-wordpress"></i> {{$.T.Get "WordPress"}} <span id="version-{{$site.SiteName}}">{{$site.Version}}</span></dd>
+        </div>
+    </div>
+    <div class="flex justify-between border-t border-gray-200 px-4 py-3 dark:border-gray-800">
+        <div class="flex -space-x-1 overflow-hidden"></div>
+        <a href="#" onclick="handleLoginClick({{toJSON $site.SiteName}})" class="text-sm font-medium text-blue-500 hover:text-blue-600 dark:text-blue-500 hover:dark:text-blue-600">{{$.T.Get "Login as Admin"}} &nbsp; <i class="bi bi-box-arrow-in-right"></i></a>
+    </div>
+</div>
+            {{end}}
+      </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function updateScreenshot(screenshotImage, screenshotURL) {
+            var imageLoader = new Image();
+            imageLoader.src = screenshotURL;
+            imageLoader.onload = function () {
+                screenshotImage.src = screenshotURL;
+            };
+        }
+
+        function updateAllScreenshots() {
+            {{range .Sites}}
+                (function() {
+                    var screenshotImage = document.getElementById("screenshot-image-{{.SiteName}}");
+                    var screenshotURL = "/json/screenshot/{{.SiteName}}?t=" + new Date().getTime();
+                    updateScreenshot(screenshotImage, screenshotURL);
+                })();
+            {{end}}
+        }
+
+        updateAllScreenshots();
+    });
+</script>
+
+{{end}}
+<!-- visible on both cards and table views -->
+
+<script>
+    function confirmRemove(id) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/wordpress/remove', true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    location.reload();
+                } else {
+                    showToast("{{.T.Get "An error occurred while removing WordPress. Please try again."}}", 'error');
+                }
+            }
+        };
+        xhr.send('id=' + id + '&csrf_token=' + encodeURIComponent(csrf_token));
+    }
+
+    function confirmDetach(id) {
+        showToast("{{.T.Get "WordPress detach process started. Please wait."}}", 'loading');
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/wordpress/detach', true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    window.location.href = '/wordpress';
+                } else {
+                    showToast("{{.T.Get "An error occurred while detaching WordPress. Please try again."}}", 'error');
+                }
+            }
+        };
+        xhr.send('id=' + id + '&csrf_token=' + encodeURIComponent(csrf_token));
+    }
+</script>
+
+<script>
+    function handleLoginClick(domain) {
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('GET', '/wp-cli/login?domain=' + encodeURIComponent(domain), true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                if (response && response.login_link) {
+                    window.open(response.login_link, '_blank');
+                }
+            }
+        };
+
+        xhr.send();
+    }
+</script>
+
+<script>
+    fetch('https://api.wordpress.org/core/stable-check/1.0/')
+        .then(response => response.json())
+        .then(data => {
+            const versionStatuses = data;
+            document.querySelectorAll('span[id^="version-"]').forEach(span => {
+                const version = span.textContent.trim();
+                const status = versionStatuses[version];
+                let badgeClass = '';
+                let badgeText = '';
+                switch (status) {
+                    case 'latest':
+                        badgeClass = 'bg-green-500 text-white dark:bg-green-900 dark:text-green-300';
+                        badgeText = 'Latest';
+                        break;
+                    case 'outdated':
+                        badgeClass = 'bg-orange-500 text-white dark:bg-yellow-900 dark:text-yellow-300';
+                        badgeText = 'Outdated';
+                        break;
+                    case 'insecure':
+                        badgeClass = 'bg-red-500 text-white dark:bg-red-900 dark:text-red-300';
+                        badgeText = 'Insecure';
+                        break;
+                    default:
+                        badgeClass = 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+                        badgeText = 'Unknown';
+                }
+                span.innerHTML = `
+                    ${version}
+                    <span class="${badgeClass} text-sm font-medium me-2 px-2.5 py-0.5">
+                        ${badgeText}
+                    </span>
+                `;
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching WordPress versions:', error);
+        });
+</script>
+
+<!-- END visible on both cards and table views -->
+
+</section>
+{{else}}
+
+<!-- no sites -->
+<div class="m-6 rounded-lg bg-gray-50 p-6 ring-1 ring-inset ring-gray-200 dark:bg-gray-400/10 dark:ring-gray-800">
+    <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "No WordPress Installations"}}</h4>
+    <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">
+        {{.T.Get "No WordPress sites managed via OpenPanel. Install a new WordPress site or scan to find existing installations."}}
+        <a href="https://openpanel.com/docs/panel/applications/wordpress/" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500">
+            {{.T.Get "View Documentation"}}
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0">
+                <path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path>
+            </svg>
+        </a>
+    </p>
+</div>
+<!-- END no sites -->
+
+{{end}}
+
+<script>
+  function attachScanButtonListener() {
+    const scanButton = document.getElementById("scanButton");
+    const refButton = document.getElementById("refreshData");
+    if (scanButton) {
+      scanButton.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+
+        showToast("{{.T.Get "Scanning started..."}}", 'success');
+
+        try {
+          const response = await fetch(`/wordpress/scan?action=scan`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          });
+
+          const resultText = await response.text();
+
+          if (resultText.trim() === "Scan completed. Found installations:") {
+            showToast("{{.T.Get "No installations found."}}", 'warning');
+          } else if (resultText.startsWith("Scan completed. Found installations:")) {
+            showToast(resultText, 'success');
+          } else if (resultText.trim() === "Scan skipped. WordPress installation is currently running.") {
+            showToast("{{.T.Get "Scan skipped. WordPress installation is currently running."}}", 'warning');
+          } else {
+            showToast(resultText, 'error');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showToast("{{.T.Get "Error occurred during scan. Try again."}}", 'error');
+        }
+      });
+    }
+
+    if (refButton) {
+      refButton.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+
+        showToast("{{.T.Get "Data refresh in progress... Please wait."}}", 'success');
+
+        try {
+          const response = await fetch(`/wordpress/reload_data`, { method: 'GET' });
+          const resultText = await response.text();
+          if (resultText.startsWith("Scan completed. Found installations:")) {
+              showToast("{{.T.Get "Refresh completed."}}", 'success');
+          }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast("{{.T.Get "Error occurred during refresh."}}", 'error');
+        }
+      });
+    }
+  }
+  attachScanButtonListener();
+</script>
+<script src="{{static "js/table-sort.js"}}"></script>
+
+<!-- END templates/manager/wp/list.html -->
+{{end}}

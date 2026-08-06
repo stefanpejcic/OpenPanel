@@ -1,0 +1,10 @@
+{{define "punycode"}}<script type="module">
+    import * as punycode from "{{static "vendor/punycode/punycode.es6.js"}}";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".punycode").forEach(element => {
+            element.textContent = punycode.toUnicode(element.textContent);
+        });
+    });
+</script>
+{{end}}

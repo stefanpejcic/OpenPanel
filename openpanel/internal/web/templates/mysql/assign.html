@@ -1,0 +1,191 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/mysql/assign.html -->
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Manage User Privileges"}}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "Assign a user to an existing MySQL database to manage database permissions and enable access for executing queries, modifying tables, or managing data within the specified database."}}</p>
+    </header>
+</div>
+
+<script>
+    let preSelectedUser = {{toJSON .DBUser}};
+    let preSelectedDatabase = {{toJSON .DatabaseName}};
+
+    function getQueryParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name) || '';
+    }
+
+    const userParam = getQueryParam('database_user');
+    if (userParam) preSelectedUser = userParam;
+
+    const dbParam = getQueryParam('database_name');
+    if (dbParam) preSelectedDatabase = dbParam;
+</script>
+
+<!-- form -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <form autocomplete="off" class="mt-8" method="POST">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+  <div class="col-span-full mb-5">
+    <label for="db_user" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Select user:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+
+    <div class="flex rounded-lg shadow-sm">
+
+  <select name="db_user" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" required>
+    <option value=""></option>
+  </select>
+
+    </div>
+  </div>
+
+
+  <div class="col-span-full mb-5">
+    <label for="database_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" >{{.T.Get "Select database:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+    <div class="flex rounded-lg shadow-sm">
+        <input type="text" name="db_host" class="form-control" placeholder=" {{.T.Get "Host"}}" value="%" hidden required>
+  <select name="database_name" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" required>
+    <option value=""></option>
+  </select>
+
+    </div>
+  </div>
+
+<div class="col-span-full mb-5">
+    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+        {{.T.Get "Select privileges:"}} <span class="text-red-500">*</span>
+    </label>
+    <div class="grid grid-cols-2 gap-2">
+        {{range .Privileges}}
+        <label class="inline-flex items-center gap-2">
+            <input type="checkbox" name="privileges" value="{{.}}" class="form-checkbox text-blue-600">
+            {{.}}
+        </label>
+        {{end}}
+    </div>
+</div>
+
+      </div>
+
+        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+<div class="md:flex items-center md:justify-end md:space-x-4">
+    <a href="/mysql" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">
+        {{.T.Get "Back to Databases"}}
+    </a>
+    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Make Changes"}}<svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+        </svg>
+    </button>
+</div>
+
+    </form>
+</div>
+<!-- END form -->
+
+<script>
+function refreshData() {
+    fetch('/mysql/info', {
+        headers: {
+            'X-CSRF-Token': csrf_token
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+            var userSelect = document.querySelector("select[name='db_user']");
+            var databaseSelect = document.querySelector("select[name='database_name']");
+
+            userSelect.querySelectorAll('option:not(:first-child)').forEach(opt => opt.remove());
+            databaseSelect.querySelectorAll('option:not(:first-child)').forEach(opt => opt.remove());
+
+            data.users.forEach(function(user) {
+                var opt = document.createElement('option');
+                opt.value = user;
+                opt.text = user;
+                opt.selected = user === preSelectedUser;
+                userSelect.appendChild(opt);
+            });
+
+            data.databases.forEach(function(database) {
+                var opt = document.createElement('option');
+                opt.value = database;
+                opt.text = database;
+                opt.selected = database === preSelectedDatabase;
+                databaseSelect.appendChild(opt);
+            });
+
+            loadUserPrivileges(preSelectedUser, preSelectedDatabase);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+}
+
+refreshData();
+
+
+function loadUserPrivileges(db_user, db_name) {
+    if (!db_user || !db_name) return;
+
+    fetch(`/mysql/privileges/${db_user}/${db_name}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.privileges) {
+                document.querySelectorAll("input[name='privileges']").forEach(cb => cb.checked = false);
+
+                data.privileges.forEach(priv => {
+                    const cb = document.querySelector(`input[name='privileges'][value='${priv}']`);
+                    if (cb) {
+                        cb.checked = true;
+
+                        if (priv === 'ALL PRIVILEGES') {
+                            document.querySelectorAll("input[name='privileges']").forEach(other => {
+                                if (other !== cb) other.checked = true;
+                            });
+                        }
+                    }
+                });
+            } else if (data.error) {
+                console.error("Error fetching privileges:", data.error);
+            }
+        })
+        .catch(err => console.error("Fetch error:", err));
+}
+
+document.querySelectorAll("input[name='privileges']").forEach(cb => {
+    cb.addEventListener('change', function() {
+        const allPriv = document.querySelector("input[value='ALL PRIVILEGES']");
+        const otherPrivs = Array.from(document.querySelectorAll("input[name='privileges']")).filter(p => p.value !== 'ALL PRIVILEGES');
+
+        if (this.value === 'ALL PRIVILEGES') {
+            if (this.checked) {
+                otherPrivs.forEach(p => p.checked = true);
+            } else {
+                otherPrivs.forEach(p => p.checked = false);
+            }
+        } else {
+            if (this.checked) {
+                allPriv.checked = false;
+            } else {
+                allPriv.checked = false;
+            }
+        }
+    });
+});
+
+document.querySelectorAll("select[name='db_user'], select[name='database_name']").forEach(function(el) {
+    el.addEventListener('change', function() {
+        const selectedUser = document.querySelector("select[name='db_user']").value;
+        const selectedDatabase = document.querySelector("select[name='database_name']").value;
+        loadUserPrivileges(selectedUser, selectedDatabase);
+    });
+});
+
+</script>
+
+<!-- END templates/mysql/assign.html -->
+{{end}}

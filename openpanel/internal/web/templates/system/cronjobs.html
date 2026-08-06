@@ -1,0 +1,438 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/system/cronjobs.html -->
+
+{{if eq .View "code"}}
+      <!-- Include CodeMirror, clike and Dracula theme files -->
+      <link rel="stylesheet" href="/static/vendor/codemirror/codemirror.min.css">
+      <script src="/static/vendor/codemirror/codemirror.min.js"></script>
+      <script src="/static/vendor/codemirror/mode/clike/clike.min.js"></script>
+      <link rel="stylesheet" href="/static/vendor/codemirror/theme/dracula.min.css">
+      <style>
+         .CodeMirror {min-height: 50vh;height: auto;}
+      </style>
+{{end}}
+
+
+<!-- page header -->
+<section aria-label="Crons Header" x-data="{ searchQuery: '', showSection: false }">
+    <div class="flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3">
+        {{if eq .View "table"}}
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Cron Jobs"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "A cron job is a Linux command used to schedule tasks for future execution."}}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "It allows you to automate repetitive tasks, such as sending notifications or running scripts at specific intervals."}}</p>
+
+        {{else if eq .View "code"}}
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Crontab File Editor"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Editing crontab file is intended for advanced users only. If you mistyped the cron entry in the file, you will not be warned as opposed to when saving cronjobs in table mode."}}</p>
+
+        {{end}}
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+
+                <button @click="showSection = !showSection" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit mt-2md:mt-0 cursor-pointer">
+                    {{.T.Get "Need Help?"}}
+                </button>
+
+
+{{if eq .View "code"}}
+
+<form method="post" action="/cronjobs/save">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+<button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full md:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 md:mt-0">{{.T.Get "Save Changes"}}</button>
+
+{{end}}
+
+    </div>
+</div>
+<!-- END page header -->
+
+        <!-- Initially Hidden, Show on Click -->
+        <div :class="{ 'md:flex': showSection }" class="hidden p-6 w-full md:items-stretch md:space-x-4">
+
+            <div class="relative rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 w-full">
+                <h3 class="mt-4 text-sm font-medium text-gray-900 dark:text-gray-50"><span class="absolute inset-0" aria-hidden="true"></span>{{.T.Get "Schedule"}} *</h3>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Description"}}:</strong> {{.T.Get "When the job should be executed. E.g. every 10 seconds or every night at 1 AM."}}</p>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Value"}}:</strong> {{.T.Get "String, see scheduling format of the Go implementation of cron. E.g. @every 10s or 0 0 1 * * * (every night at 1 AM). Note: the format starts with seconds, instead of minutes."}}</p>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Default"}}:</strong> {{.T.Get "Required field, no default."}}</p>
+                <h3 class="mt-4 text-sm font-medium text-gray-900 dark:text-gray-50"><span class="absolute inset-0" aria-hidden="true"></span>{{.T.Get "Command"}} *</h3>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Description"}}:</strong> {{.T.Get "Command you want to run inside the container."}}</p>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Value"}}:</strong> {{.T.Get "String, e.g. touch /tmp/example"}}</p>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Default"}}:</strong> {{.T.Get "Required field, no default."}}</p>
+
+                <h3 class="mt-4 text-sm font-medium text-gray-900 dark:text-gray-50"><span class="absolute inset-0" aria-hidden="true"></span>{{.T.Get "Container"}} *</h3>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Description"}}:</strong> {{.T.Get "Name of the container you want to execute the command in."}}</p>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Value"}}:</strong> {{.T.Get "String, e.g. nginx-proxy"}}</p>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Default"}}:</strong> {{.T.Get "Required field, no default."}}</p>
+
+                <h3 class="mt-4 text-sm font-medium text-gray-900 dark:text-gray-50"><span class="absolute inset-0" aria-hidden="true"></span>{{.T.Get "Comment"}}</h3>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Description"}}:</strong> {{.T.Get "Name/comment for the cron job"}}</p>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Value"}}:</strong> {{.T.Get "String, e.g. job for mysql db dump"}}</p>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Default"}}:</strong> {{.T.Get "Optional."}}</p>
+
+            </div>
+        </div>
+
+{{if eq .View "table"}}
+
+
+<section aria-label="Crons Table" x-data="{
+    searchQuery: '',
+
+    logsOpen: false,
+    logsLoading: false,
+    logsError: '',
+    logEntries: [],
+    logJob: '',
+    logLines: 100,
+
+    fetchLogs(job, lines) {
+        this.logJob   = job   ?? '';
+        this.logLines = lines ?? this.logLines;
+        this.logsOpen    = true;
+        this.logsLoading = true;
+        this.logsError   = '';
+        this.logEntries  = [];
+
+        const params = new URLSearchParams({ lines: this.logLines });
+        if (this.logJob) params.set('job', this.logJob);
+
+        fetch('/cronjobs/log?' + params.toString())
+            .then(r => {
+                if (!r.ok) return r.json().then(e => { throw new Error(e.error || r.statusText); });
+                return r.json();
+            })
+            .then(data => {
+                this.logEntries  = data;
+                this.logsLoading = false;
+            })
+            .catch(err => {
+                this.logsError   = err.message;
+                this.logsLoading = false;
+            });
+    },
+
+    refreshLogs() {
+        this.fetchLogs(this.logJob, this.logLines);
+    },
+
+    formatTime(ts) {
+        if (!ts) return '';
+        try { return new Date(ts).toLocaleString(); } catch { return ts; }
+    },
+
+    extractMsg(entry) {
+        return entry.log ?? entry.message ?? entry.msg ?? JSON.stringify(entry);
+    },
+
+    checkLogHealth() {
+        fetch('/cronjobs/log?' + new URLSearchParams({ lines: 200 }).toString())
+            .then(r => r.ok ? r.json() : [])
+            .then(data => {
+                if (typeof reportHealthIssues !== 'function' || !Array.isArray(data)) return;
+                const errorEntries = data.filter(entry => {
+                    const msg = entry.log ?? entry.message ?? entry.msg ?? '';
+                    return /\b(error|fatal|failed|denied|refused|exception|panic|critical)\b/i.test(String(msg));
+                });
+                if (errorEntries.length) {
+                    reportHealthIssues('cronjobs', [{
+                        id: 'cron-log-errors',
+                        severity: 'warning',
+                        message: errorEntries.length + ' ' + {{toJSON (.T.Get "cron log entries contain errors. Check the logs.")}},
+                    }], 24);
+                }
+            })
+            .catch(() => {});
+    }
+}" x-init="checkLogHealth()">
+
+{{if .ScheduleIssues}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues === 'function') {
+        reportHealthIssues('cronjobs-schedule', {{toJSON .ScheduleIssues}}, 0);
+    }
+});
+</script>
+{{end}}
+
+    <!-- toolbar -->
+    <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
+        <div class="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
+            <div class="relative w-full sm:w-64 [&>input]:py-1.5">
+                <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
+                <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                        <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <button @click="fetchLogs('', 100)" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 cursor-pointer">{{.T.Get "View Logs"}}</button>
+        </div>
+
+        <div class="flex flex-col items-center gap-2 sm:flex-row">
+            <a href="/cronjobs/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>
+                {{.T.Get "Create New"}}
+            </a>
+            <a href="/cronjobs?view=code" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit mt-2md:mt-0">
+                {{.T.Get "Switch to File Editor"}}
+            </a>
+        </div>
+    </div>
+
+    <div
+        x-show="logsOpen"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 -translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-2"
+        style="display:none;" class="mx-4 mb-4 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 shadow-sm overflow-hidden">
+        <!-- panel header / controls -->
+        <div class="flex flex-wrap items-center gap-3 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3">
+
+            <!-- filter: job name -->
+            <div class="flex items-center gap-1.5">
+                <label class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{{.T.Get "Job"}}</label>
+                <select x-model="logJob" class="rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 text-xs px-2 py-1.5 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 outline-none">
+                    <option value="">{{.T.Get "All jobs"}}</option>
+                    {{range .CronJobs}}
+                    <option value="{{.Comment}}">{{if .Comment}}{{.Comment}}{{else}}{{.Command}}{{end}}</option>
+                    {{end}}
+                </select>
+            </div>
+
+            <!-- filter: lines -->
+            <div class="flex items-center gap-1.5">
+                <label class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{{.T.Get "Lines"}}</label>
+                <select x-model.number="logLines" class="rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 text-xs px-2 py-1.5 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 outline-none">
+                    <option value="50">50</option>
+                    <option value="100" selected>100</option>
+                    <option value="250">250</option>
+                    <option value="500">500</option>
+                    <option value="1000">1000</option>
+                </select>
+            </div>
+
+            <!-- refresh -->
+            <button @click="refreshLogs()" :disabled="logsLoading" class="relative inline-flex items-center justify-center rounded border px-2.5 py-1.5 text-xs font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900 disabled:opacity-50 disabled:pointer-events-none gap-x-1"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" :class="logsLoading ? 'animate-spin' : ''"><path d="M5.46257 4.43262C7.21556 2.91688 9.5007 2 12 2C17.5228 2 22 6.47715 22 12C22 14.1361 21.3302 16.1158 20.1892 17.7385L17 12H20C20 7.58172 16.4183 4 12 4C9.84982 4 7.89777 4.84827 6.46023 6.22842L5.46257 4.43262ZM18.5374 19.5674C16.7844 21.0831 14.4993 22 12 22C6.47715 22 2 17.5228 2 12C2 9.86386 2.66979 7.88416 3.81078 6.26153L7 12H4C4 16.4183 7.58172 20 12 20C14.1502 20 16.1022 19.1517 17.5398 17.7716L18.5374 19.5674Z"></path></svg>{{.T.Get "Refresh"}}</button>
+
+            <!-- close -->
+            <button @click="logsOpen = false" class="ml-1 rounded p-1 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors" aria-label="Close log panel"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"></path></svg></button>
+        </div>
+
+        <!-- log body -->
+        <div class="max-h-96 overflow-y-auto font-mono text-xs bg-gray-950">
+
+            <!-- loading spinner -->
+            <div x-show="logsLoading" class="flex items-center justify-center py-10 text-gray-400"><svg class="animate-spin mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"><path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 12 17.5228 12 12C12 6.47715 17.5228 2 12 2ZM12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12C4 7.58172 7.58172 4 12 4Z" opacity="0.2"/><path d="M12 2C6.47715 2 2 6.47715 2 12H4C4 7.58172 7.58172 4 12 4V2Z"/></svg>{{.T.Get "Fetching logs.."}}
+            </div>
+
+            <!-- error -->
+            <div x-show="!logsLoading && logsError" class="px-4 py-4 text-red-400" x-text="logsError"></div>
+
+            <!-- empty -->
+            <div x-show="!logsLoading && !logsError && logEntries.length === 0" class="px-4 py-6 text-center text-gray-500">{{.T.Get "No log entries found."}}</div>
+
+            <!-- log rows -->
+            <template x-if="!logsLoading && !logsError && logEntries.length > 0">
+                <table class="w-full text-left">
+                    <tbody>
+                        <template x-for="(entry, idx) in logEntries" :key="idx">
+                            <tr class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-800/30 transition-colors">
+                                <td class="px-3 py-1.5 text-gray-500 whitespace-nowrap" x-text="formatTime(entry.time)"></td>
+                                <td class="px-3 py-1.5 text-gray-500 dark:text-gray-200 break-all whitespace-pre-wrap" x-text="extractMsg(entry)"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </template>
+        </div>
+
+        <!-- footer: entry count -->
+        <div x-show="!logsLoading && !logsError && logEntries.length > 0" class="border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-2 text-xs text-gray-500 dark:text-gray-400">
+            <span x-text="logEntries.length"></span> {{.T.Get "entries shown"}}
+        </div>
+    </div>
+    <!-- END inline log panel -->
+
+
+{{if .CronJobs}}
+   <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table id="cronjobs-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{template "sort_header" (dict "Label" (.T.Get "Schedule") "Key" "schedule" "Type" "string")}}
+                        </th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{template "sort_header" (dict "Label" (.T.Get "Container") "Key" "container" "Type" "string")}}
+                        </th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{template "sort_header" (dict "Label" (.T.Get "Command") "Key" "command" "Type" "string")}}
+                        </th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{template "sort_header" (dict "Label" (.T.Get "Name/Comment") "Key" "comment" "Type" "string")}}
+                        </th>
+                        <th scope="col" class="w-10 whitespace-nowrap border-b px-4 py-3.5 text-end text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Actions"}}
+                        </th>
+                    </tr>
+                </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+        {{range .CronJobs}}
+        {{$item := .}}
+
+<tr x-data="{ editing: false }" x-show="searchQuery === '' || {{toJSON $item.Container}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $item.Command}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $item.Schedule}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $item.Comment}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+
+                <form id="editForm" method="post" action="/cronjobs/edit">
+    <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+
+                <input type="text" class="hidden" name="original_command" value="{{$item.Command}}" required>
+                <input type="text" class="hidden" name="original_schedule" value="{{$item.Schedule}}" required>
+                <input type="text" class="hidden" name="original_container" value="{{$item.Container}}" required>
+                <input type="text" class="hidden" name="original_comment" value="{{$item.Comment}}" required>
+
+                <td x-show="!editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="schedule">{{$item.Schedule}}</td>
+                <td x-show="!editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="container">{{$item.Container}}</td>
+                <td x-show="!editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="command" data-sort-value="{{$item.Command}}"><pre class="m-0 text-xs truncate sm:max-w-3xl">{{$item.Command}}</pre></td>
+                <td x-show="!editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="comment">{{$item.Comment}}</td>
+
+                <td x-show="editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 w-50">
+                            <input type="text" name="schedule" class="relative block appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" value="{{$item.Schedule}}">
+                </td>
+                <td x-show="editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 w-50">
+                    <select name="container" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+{{range $.Services}}
+    <option value="{{.}}" {{if eq . $item.Container}}selected{{end}}>{{.}}</option>
+{{end}}
+                    </select>
+
+                </td>
+                <td x-show="editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 w-full">
+                            <input type="text" name="command" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" value="{{$item.Command}}">
+                </td>
+                <td x-show="editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 w-full">
+                            <input type="text" name="comment" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" placeholder="{{$.T.Get "optional"}}" value="{{$item.Comment}}">
+                </td>
+
+                <td class="whitespace-nowrap p-4 text-sm text-end text-gray-600 dark:text-gray-400">
+
+<div class="space-x-1" role="group" aria-label="Actions">
+
+    <button type="button" @click="editing = true" x-show="!editing" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><i class="bi bi-pencil-fill"></i> {{$.T.Get "Edit"}}</button>
+
+                            <button x-show="editing" type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><i class="bi bi-check-lg"></i> {{$.T.Get "Save"}}</button>
+
+                    </form>
+
+                        <form method="POST" class="inline" action="/cronjobs/delete">
+    <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+
+    <input type="text" class="hidden" name="command" value="{{$item.Command}}" required>
+                            <input type="text" class="hidden" name="schedule" value="{{$item.Schedule}}" required>
+                            <input type="text" class="hidden" name="container" value="{{$item.Container}}" required>
+                            <input type="text" class="hidden" name="comment" value="{{$item.Comment}}" required>
+
+                            <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap sm:w-fit mt-2md:mt-0"><i class="bi bi-trash3"></i> {{$.T.Get "Delete"}}</button>
+                            </form>
+
+            <!-- Per-row "View Logs" — filters to this job's comment -->
+            <button
+                @click="fetchLogs({{toJSON $item.Comment}}, 100)"
+                class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 gap-x-0.5 whitespace-nowrap sm:w-fit mt-2 md:mt-0"
+            >
+                <i class="bi bi-journal-text"></i> {{$.T.Get "Logs"}}
+            </button>
+
+</div>
+
+                </td>
+            </tr>
+
+        {{end}}
+        </tbody>
+            </table>
+        </div>
+    </div>
+
+
+{{else}}
+<!-- no crons table -->
+<div class="m-6 rounded-lg bg-gray-50 p-6 ring-1 ring-inset ring-gray-200 dark:bg-gray-400/10 dark:ring-gray-800">
+    <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "No cronjobs."}}</h4>
+    <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">
+        {{.T.Get "No cronjobs yet, to create a cron click on the button above."}}
+        <a href="https://openpanel.com/docs/panel/advanced/cronjobs/" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500">{{.T.Get "View Documentation"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg>
+        </a>
+    </p>
+</div>
+<!-- END no crons table -->
+{{end}}
+
+
+</section>
+
+
+{{else if eq .View "code"}}
+<!-- crontab editor -->
+<style>
+div.CodeMirror-sizer {min-height: 500px!important;}
+</style>
+
+    <div id="editor-container" class="h-full">
+        <textarea id="editor" name="crontab_content">{{.CrontabContent}}</textarea>
+    </div>
+
+</section>
+
+
+<script>
+    const editor = document.getElementById('editor');
+    const codeMirror = CodeMirror.fromTextArea(editor, {
+        lineNumbers: true,
+        mode: "text/x-sh",
+        theme: "dracula",
+    });
+</script>
+
+<!-- END crontab editor -->
+{{else}}
+
+{{.T.Get "view mode is unknown, only code and table are allowed"}}
+
+{{end}}
+
+<script>
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'n' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const tag = document.activeElement.tagName.toLowerCase();
+    const isInputFocused = ['input', 'textarea'].includes(tag) || document.activeElement.isContentEditable;
+    if (isInputFocused) return;
+    e.preventDefault();
+    document.querySelector('a[href="/cronjobs/new"]')?.click();
+});
+if (window.registerShortcut) registerShortcut(['N'], {{toJSON (.T.Get "Add new cron job")}});
+</script>
+<script src="/static/js/table-sort.js"></script>
+
+<!-- END templates/system/cronjobs.html -->
+{{end}}
+
+{{define "sort_header"}}
+<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+    <span>{{.Label}}</span>
+    <div class="-space-y-2">
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+    </div>
+</div>
+{{end}}
