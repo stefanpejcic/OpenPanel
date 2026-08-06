@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 10.07.2026
+# Last Modified: 05.08.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -842,16 +842,20 @@ create_mail_mountpoint() {
 
     local store_in
     store_in=$(grep -E '^email_storage_location=' /etc/openpanel/openadmin/config/admin.ini 2>/dev/null | cut -d'=' -f2- | xargs)
-
+	
     local volume_to_add
+	
+	mkdir -p "/home/$context/docker-data/volumes/${context}_mail_data/_data/"
     if [[ "$store_in" == /* ]]; then
         log "Using $store_in for email storage"
         mkdir -p "$store_in"
+		ln -s "/home/$context/docker-data/volumes/${context}_mail_data/_data/$domain_name" "$store_in/$domain_name"
         volume_to_add="      - $store_in:/var/mail/"
     else
         local domain_dir="/home/$context/mail/$domain_name/"
         log "Creating $domain_dir for emails"
         mkdir -p "$domain_dir"
+		ln -s "/home/$context/docker-data/volumes/${context}_mail_data/_data/$domain_name" "$domain_dir" 
         volume_to_add="      - $domain_dir:/var/mail/$domain_name/"
     fi
 

@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 10.07.2026
+# Last Modified: 05.08.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -319,35 +319,36 @@ postfwd_setup(){
 	fi
 }	
 
-# add mountpoint and reload mailserver
-# todo: need better solution!
 delete_mail_mountpoint(){
+	[[ -n "$key_value" ]] || return
 
-    if [ -n "$key_value" ]; then
-        DOMAIN_DIR="/home/$user/mail/$domain_name/"
-        COMPOSE_FILE="/usr/local/mail/openmail/compose.yml"
-        mount_path="/var/mail/$domain_name/"
-        volume_to_remove="$DOMAIN_DIR:$mount_path"
+	COMPOSE_FILE="/usr/local/mail/openmail/compose.yml"
+	[[ -f "$COMPOSE_FILE" ]] || return
 
-        if [ -f "$COMPOSE_FILE" ]; then
-            log "Removign volume: $volume_to_remove from mailserver"
+    local store_in
+    store_in=$(grep -E '^email_storage_location=' /etc/openpanel/openadmin/config/admin.ini 2>/dev/null | cut -d'=' -f2- | xargs)
 
-            # Escape slashes for sed
-            escaped_volume=$(printf '%s\n' "  - $volume_to_remove" | sed 's/[\/&]/\\&/g')
+	rm -rf "/home/$context/docker-data/volumes/${context}_mail_data/_data/"
 
-            # Remove the exact volume line if it exists in the mailserver service block
-            sed -i "/^  mailserver:/,/^[^[:space:]]/ {
-                /^    volumes:/,/^[^[:space:]]/ {
-                    /^\s*- $escaped_volume/d
-                }
-            }" "$COMPOSE_FILE"
+    if [[ "$store_in" == /* ]]; then
+        :
+    else
+		local DOMAIN_DIR="/home/$user/mail/$domain_name/"
+		local mount_path="/var/mail/$domain_name/"
+		local volume_to_remove="$DOMAIN_DIR:$mount_path"
 
-            log "Reloading mailserver to apply changes"
-            (cd /usr/local/mail/openmail/ && docker-compose up -d --force-recreate mailserver) > /dev/null 2>&1 & disown
-        fi
-    fi
+		log "Removing volume: $volume_to_remove from mailserver"
+
+		escaped_volume=$(printf '%s\n' "  - $volume_to_remove" | sed 's/[\/&]/\\&/g')
+		sed -i "/^  mailserver:/,/^[^[:space:]]/ {
+			/^    volumes:/,/^[^[:space:]]/ {
+				/^\s*- $escaped_volume/d
+			}
+		}" "$COMPOSE_FILE"
+
+		log "Reloading mailserver to apply changes"
+		(cd /usr/local/mail/openmail/ && docker compose up -d --force-recreate mailserver) > /dev/null 2>&1 & disown		
 }
-
 
 
 delete_websites() {
