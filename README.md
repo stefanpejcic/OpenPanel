@@ -1,6 +1,6 @@
-# OpenPanel - Web Hosting Control Panel with Docker Isolation
+# OpenPanel - Web Hosting Control Panel
 
-**OpenPanel** is a web hosting control panel built on Docker. Every user gets a fully isolated environment: dedicated web server, dedicated database, private network, and scoped file storage - delivering VPS-grade security on shared hardware.
+**OpenPanel** is a web hosting control panel built around Contianers. Every user gets a fully isolated environment: dedicated web server, dedicated database, private network, and scoped file storage - delivering VPS-grade security on shared hardware.
 
 ![openpanel screenshot](https://openpanel.com/img/landing/openpanel-illustration-dark.svg)
 
@@ -8,7 +8,7 @@
 
 ## What is OpenPanel?
 <!--start: description-->
-**OpenPanel** is a web hosting control panel that uses Docker to give every hosting user a completely isolated environment. Unlike traditional control panels that share a single Apache, MySQL, or PHP runtime across all users, OpenPanel provisions a dedicated Docker context per user: each with their own web server container, database container, PHP-FPM containers, private network, and storage volume.
+**OpenPanel** is a web hosting control panel that uses Contianers to give every hosting user a completely isolated environment. Unlike traditional control panels that share a single Apache, MySQL, or PHP runtime across all users, OpenPanel provisions a dedicated Podman context per user: each with their own web server container, database container, PHP-FPM containers, private network, and storage volume.
 The result: VPS-level isolation on shared hosting infrastructure, without the VPS price tag.
 <!--end: description-->
 
@@ -22,7 +22,6 @@ The result: VPS-level isolation on shared hosting infrastructure, without the VP
 ║  • 🔍 BIND9 – DNS Server                                       ║
 ║  • 🔍 phpMyAdmin – shared by all users                         ║
 ║  • 🗄️ MySQL – User Management & Metadata                       ║
-║  • 🐳 Docker Engine – Container Orchestration                  ║
 ╚════════════════════════════════════════════════════════════════╝
                                                    │   
         ┌──────────────────────────────────────────┼──────────────────────────────────────────┐
