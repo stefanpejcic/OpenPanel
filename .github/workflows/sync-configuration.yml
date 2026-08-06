@@ -26,7 +26,6 @@ jobs:
             ["tests"]="https://github.com/stefanpejcic/openpanel-tests"
             ["translations"]="https://github.com/stefanpejcic/openpanel-translations"
             ["configuration"]="https://github.com/stefanpejcic/openpanel-configuration"
-            ["opencli"]="https://github.com/stefanpejcic/opencli"
             ["openadmin"]="https://github.com/stefanpejcic/openadmin"
             ["integrations/cpanel-import"]="https://github.com/stefanpejcic/cPanel-to-OpenPanel"
             ["integrations/cyberpanel-import"]="https://github.com/stefanpejcic/CyberPanel-to-OpenPanel"
@@ -38,7 +37,7 @@ jobs:
 
           for path in "${!repos[@]}"; do
             url="${repos[$path]}"
-            if git config --file .gitmodules --get-regexp "^submodule\..*\.path$" 2>/dev/null | grep -q "$path\$"; then
+            if git config --file .gitmodules --get-regexp "^submodule\..*\.path$" 2>/dev/null | awk '{print $2}' | grep -qx "$path"; then
               echo "Submodule already exists: $path"
             else
               echo "Adding submodule: $path -> $url"
@@ -48,6 +47,17 @@ jobs:
               git submodule add -f "$url" "$path"
             fi
           done
+
+          # opencli is special-cased: track the podman branch, not the default
+          if git config --file .gitmodules --get-regexp "^submodule\..*\.path$" 2>/dev/null | awk '{print $2}' | grep -qx "opencli"; then
+            echo "Submodule already exists: opencli"
+          else
+            echo "Adding submodule: opencli -> podman branch"
+            git rm -r --cached opencli 2>/dev/null || true
+            rm -rf opencli
+            git submodule add -f -b podman https://github.com/stefanpejcic/opencli opencli
+          fi
+
 
       - name: Update submodules to latest upstream commits
         shell: bash
