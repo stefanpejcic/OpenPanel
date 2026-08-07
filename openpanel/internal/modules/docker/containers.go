@@ -2,6 +2,7 @@ package docker
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -57,6 +58,7 @@ func handleContainersList(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	dockerData, dataErr := podmanmanager.LoadComposeConfig(ctx, userContext)
 	if dataErr != nil {
+		log.Printf("DOCKER - user %s: failed to load compose config, showing 0 containers: %v", userContext, dataErr)
 		dockerData = map[string]any{"error": "Failed to fetch container data", "details": dataErr.Error()}
 	} else if services, ok := dockerData["services"].(map[string]any); ok {
 		filtered := map[string]any{}
