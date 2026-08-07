@@ -24,7 +24,10 @@ import (
 )
 
 const (
-	defaultListenAddr = ":2083"
+	// defaultAdminPort is also tlsCertPaths' fallback (startup.go) for when
+	// `opencli port` can't be read.
+	defaultAdminPort  = "2083"
+	defaultListenAddr = ":" + defaultAdminPort
 	// defaultStaticOverrideDir is where an admin can drop replacement
 	// copies of the few user-editable static files (custom.css, custom.js,
 	// robots.txt, security.txt); everything else is served from the

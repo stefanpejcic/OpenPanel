@@ -213,10 +213,16 @@ func checkSSLExists(domain string) (dir string, ok bool) {
 func tlsCertPaths(listenAddr string) (certFile, keyFile string, ok bool) {
 	domain, domainOK := opencli("domain")
 	if !domainOK || domain == "" {
+		log.Printf("BOOTSTRAP - could not determine panel domain (opencli domain failed or empty), running plain HTTP.")
 		return "", "", false
 	}
-	port, _ := opencli("port")
-	if port == "" || !strings.HasSuffix(listenAddr, ":"+port) {
+	port, portOK := opencli("port")
+	if port == "" {
+		port = defaultAdminPort
+		log.Printf("BOOTSTRAP - could not determine admin port (opencli port failed or empty, ok=%v), falling back to default port %s.", portOK, port)
+	}
+	if !strings.HasSuffix(listenAddr, ":"+port) {
+		log.Printf("BOOTSTRAP - listen address %q doesn't match configured admin port %q, running plain HTTP.", listenAddr, port)
 		return "", "", false
 	}
 
@@ -233,9 +239,11 @@ func tlsCertPaths(listenAddr string) (certFile, keyFile string, ok bool) {
 	certFile = filepath.Join(certDir, domain+".crt")
 	keyFile = filepath.Join(certDir, domain+".key")
 	if _, err := os.Stat(certFile); err != nil {
+		log.Printf("BOOTSTRAP - SSL cert file missing for %q (%s): %v, running plain HTTP.", domain, certFile, err)
 		return "", "", false
 	}
 	if _, err := os.Stat(keyFile); err != nil {
+		log.Printf("BOOTSTRAP - SSL key file missing for %q (%s): %v, running plain HTTP.", domain, keyFile, err)
 		return "", "", false
 	}
 	log.Printf("BOOTSTRAP - domain %q has SSL, server will terminate TLS directly (cert=%s)", domain, certFile)
