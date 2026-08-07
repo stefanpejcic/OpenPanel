@@ -350,7 +350,7 @@ install_packages() {
             fi
             run dnf install -y yum-utils epel-release perl gcc
             if [[ -f /etc/fedora-release ]]; then
-                packages=(git tar openssl wget dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mysql sqlite perl-Math-BigInt)
+                packages=(git tar openssl wget dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb sqlite perl-Math-BigInt)
             else
                 packages=(git tar openssl ncurses wget systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb sqlite perl-Math-BigInt)
             fi
