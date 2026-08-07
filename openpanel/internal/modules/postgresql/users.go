@@ -3,6 +3,8 @@ package postgresql
 import (
 	"net/http"
 
+	"github.com/lib/pq"
+
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
@@ -95,7 +97,7 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		if _, execErr := postgresmanager.Exec(ctx, userContext, `CREATE USER "`+dbUser+`" WITH PASSWORD $1`, "postgres", password); execErr != nil {
+		if _, execErr := postgresmanager.Exec(ctx, userContext, `CREATE USER "`+dbUser+`" WITH PASSWORD `+pq.QuoteLiteral(password), "postgres"); execErr != nil {
 			flashSess(a, w, r, "error", "Failed to create user: "+execErr.Error())
 		} else {
 			ipAddress := reqip.ClientIP(r)
@@ -203,7 +205,7 @@ func handleChangePostgresUserPassword(a *appctx.App, w http.ResponseWriter, r *h
 		return
 	}
 
-	if _, execErr := postgresmanager.Exec(ctx, userContext, `ALTER USER "`+dbUser+`" WITH PASSWORD $1`, "postgres", newPassword); execErr != nil {
+	if _, execErr := postgresmanager.Exec(ctx, userContext, `ALTER USER "`+dbUser+`" WITH PASSWORD `+pq.QuoteLiteral(newPassword), "postgres"); execErr != nil {
 		flashSess(a, w, r, "error", "Error changing password for user "+dbUser+": "+execErr.Error())
 	} else {
 		ipAddress := reqip.ClientIP(r)

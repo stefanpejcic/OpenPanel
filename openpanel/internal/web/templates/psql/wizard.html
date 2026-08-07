@@ -14,7 +14,7 @@
 
 <!-- START form -->
 <div x-data="dbUserGrant()" x-init="updateGrantCommands()" @input="updateGrantCommands()" class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" id="databaseWizardForm">
+    <form class="mt-8" id="databaseWizardForm" method="POST" action="/postgresql/wizard">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
     <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
@@ -127,11 +127,6 @@
 
 <!-- START js  -->
 <script>
-function displaySuccessToast() {
-    const message = {{toJSON (.T.Get "Process completed!")}};
-    showToast(message, 'success');
-}
-
 function validateFormData() {
     const dbname = document.getElementById("dbname").value;
     const username = document.getElementById("username").value;
@@ -153,6 +148,10 @@ function validateFormData() {
     return { valid: true, message: '' };
 }
 
+// The actual create-database/create-user/grant work happens server-side
+// (see handleDatabasesWizard) so this is a normal form submission - a real
+// page reload showing whatever the server actually did, not a client-side
+// fetch chain that reported success regardless of outcome.
 const createAndAssignButton = document.getElementById("createAndAssign");
 createAndAssignButton.addEventListener("click", function (event) {
     event.preventDefault();
@@ -163,33 +162,11 @@ createAndAssignButton.addEventListener("click", function (event) {
         return;
     }
 
-    const formElement = document.getElementById("databaseWizardForm");
-    const formData = new FormData(formElement);
-
     createAndAssignButton.disabled = true;
     createAndAssignButton.innerText = {{toJSON (.T.Get "Creating...")}};
     document.getElementById("toAddActive").classList.add("active");
 
-    fetch("/postgresql/new", { method: "POST", body: formData, headers: { 'X-CSRF-TOKEN': csrf_token } })
-        .then(() => {
-            return fetch("/postgresql/user", { method: "POST", body: formData, headers: { 'X-CSRF-TOKEN': csrf_token } });
-        })
-        .then(() => {
-            return fetch("/postgresql/assign", { method: "POST", body: formData, headers: { 'X-CSRF-TOKEN': csrf_token } });
-        })
-        .then(() => {
-            displaySuccessToast();
-            createAndAssignButton.disabled = false;
-            createAndAssignButton.innerText = {{toJSON (.T.Get "Create DB, User, and Grant Privileges")}};
-            document.getElementById("toAddActive").classList.remove("active");
-        })
-        .catch(error => {
-            createAndAssignButton.disabled = false;
-            createAndAssignButton.innerText = {{toJSON (.T.Get "Retry creating Database and User")}};
-            console.error("Error:", error);
-            showToast({{toJSON (.T.Get "An error occurred while creating the database.")}}, 'error');
-            document.getElementById("toAddActive").classList.remove("active");
-        });
+    document.getElementById("databaseWizardForm").submit();
 });
 
 document.getElementById("generatePassword").addEventListener("click", function () {

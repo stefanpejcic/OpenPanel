@@ -59,7 +59,13 @@ func ComposeContainer(ctx context.Context, userContext, name, action string) boo
 // StartComposeServiceIfNotRunning resolves the "sql"/"ws" meta-names to
 // the actual configured MySQL/webserver service (also syncing the MySQL
 // root password into my.cnf when starting "sql"), then activates it via
-// StartOrStopContainer.
+// StartOrStopContainer - but only when it isn't already running.
+// `podman-compose up -d` on an already-running container isn't always the
+// no-op its name implies (e.g. an ephemeral host port in the compose file
+// can look like config drift), and needlessly recreating a live database
+// container drops its unix socket for the few seconds it takes to come
+// back up, breaking any query issued in that window - see the "postgres
+// socket not found" class of bug this guards against.
 func StartComposeServiceIfNotRunning(ctx context.Context, userContext, serviceName string) {
 	switch serviceName {
 	case "sql":
@@ -70,6 +76,9 @@ func StartComposeServiceIfNotRunning(ctx context.Context, userContext, serviceNa
 			fmt.Sprintf("s/^password=.*/password=%s/", rootPass), myCnfPath).Run()
 	case "ws":
 		serviceName, _ = GetEnvValue(userContext, "WEB_SERVER")
+	}
+	if GetContainerStatus(ctx, userContext, serviceName).State == "running" {
+		return
 	}
 	StartOrStopContainer(ctx, userContext, serviceName, "activate", "")
 }

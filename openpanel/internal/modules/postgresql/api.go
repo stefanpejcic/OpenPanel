@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/lib/pq"
+
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
@@ -384,7 +386,7 @@ func apiPsqlCreateUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, execErr := postgresmanager.Exec(ctx, userContext, `CREATE USER "`+dbUser+`" WITH PASSWORD $1`, "postgres", password); execErr != nil {
+	if _, execErr := postgresmanager.Exec(ctx, userContext, `CREATE USER "`+dbUser+`" WITH PASSWORD `+pq.QuoteLiteral(password), "postgres"); execErr != nil {
 		writeAPIPsqlJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
 		return
 	}
@@ -462,7 +464,7 @@ func apiPsqlChangeUserPassword(a *appctx.App, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if _, execErr := postgresmanager.Exec(ctx, userContext, `ALTER USER "`+dbUser+`" WITH PASSWORD $1`, "postgres", newPassword); execErr != nil {
+	if _, execErr := postgresmanager.Exec(ctx, userContext, `ALTER USER "`+dbUser+`" WITH PASSWORD `+pq.QuoteLiteral(newPassword), "postgres"); execErr != nil {
 		writeAPIPsqlJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
 		return
 	}

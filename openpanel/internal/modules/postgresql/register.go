@@ -50,6 +50,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /postgresql/change_user_password", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleChangePostgresUserPassword(a, w, r) }))
 
 	mux.Handle("GET /postgresql/wizard", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesWizard(a, w, r) }))
+	mux.Handle("POST /postgresql/wizard", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesWizard(a, w, r) }))
 
 	mux.Handle("GET /postgresql/assign", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesAssign(a, w, r) }))
 	mux.Handle("POST /postgresql/assign", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesAssign(a, w, r) }))

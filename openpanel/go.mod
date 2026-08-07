@@ -13,6 +13,7 @@ require (
 	github.com/gorilla/sessions v1.3.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/leonelquinteros/gotext v1.7.0
+	github.com/lib/pq v1.12.3
 	github.com/pkg/sftp v1.13.6
 	github.com/pquerna/otp v1.5.0
 	github.com/redis/go-redis/v9 v9.7.0
@@ -32,7 +33,6 @@ require (
 	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/kr/fs v0.1.0 // indirect
-	github.com/lib/pq v1.12.3 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
