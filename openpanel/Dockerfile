@@ -23,6 +23,13 @@ RUN apk add --no-cache \
     podman \
     podman-compose \
     tzdata
+    gawk \
+    tar \
+    gzip \
+    acl \
+    attr \
+    shadow \
+    quota-tools
 
 # OpenCLI
 COPY opencli /usr/local/bin/opencli
