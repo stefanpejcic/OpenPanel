@@ -80,7 +80,9 @@ func loadKeysFromFile(userContext string) []string {
 func splitNonEmptyLines(content []byte) []string {
 	var keys []string
 	for _, line := range strings.Split(string(content), "\n") {
-		keys = append(keys, strings.TrimSpace(line))
+		if line = strings.TrimSpace(line); line != "" {
+			keys = append(keys, line)
+		}
 	}
 	return keys
 }
@@ -113,6 +115,13 @@ func updatePHPConfigFile(ctx context.Context, userContext, version string, keyOr
 	phpIniFile := "/home/" + userContext + "/php.ini/" + version + ".ini"
 
 	for _, key := range keyOrder {
+		if key == "" {
+			// An empty key would build a delete pattern matching almost
+			// every active directive in the file (see splitNonEmptyLines,
+			// which is the only source of keyOrder besides the built-in
+			// list) - never act on one, whatever produced it.
+			continue
+		}
 		value := values[key]
 		exists := keyExistsAndNotCommented(userContext, version, key)
 

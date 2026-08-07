@@ -113,9 +113,9 @@ func enforceAccessDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return false
 	}
 
-	requestedHost := r.Host
-	if h, _, err := net.SplitHostPort(requestedHost); err == nil {
-		requestedHost = h
+	requestedHost, requestedPort := r.Host, ""
+	if h, p, err := net.SplitHostPort(requestedHost); err == nil {
+		requestedHost, requestedPort = h, p
 	}
 
 	if requestedHost == desiredDomain {
@@ -132,9 +132,16 @@ func enforceAccessDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		scheme = "https"
 	}
 
+	// a.ForcePort comes from `opencli port`, which can fail to resolve in
+	// some deployments; when that happens, fall back to the port this
+	// very request came in on rather than omitting the port entirely -
+	// see dynamicdns.publicBaseURL for the same fallback and why.
 	portSuffix := ""
-	if a.ForcePort != "" {
+	switch {
+	case a.ForcePort != "":
 		portSuffix = ":" + a.ForcePort
+	case requestedPort != "":
+		portSuffix = ":" + requestedPort
 	}
 
 	target := scheme + "://" + desiredDomain + portSuffix + r.URL.RequestURI()
