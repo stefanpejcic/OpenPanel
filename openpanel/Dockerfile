@@ -21,7 +21,8 @@ RUN apk add --no-cache \
     unzip \
     jq \
     podman \
-    podman-compose
+    podman-compose \
+    tzdata
 
 # OpenCLI
 COPY opencli /usr/local/bin/opencli
