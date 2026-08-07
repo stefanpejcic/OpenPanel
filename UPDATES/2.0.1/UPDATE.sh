@@ -7,10 +7,10 @@ This ensures mailbox data is included in backups of the users docker-data volume
 
 
 # 0. ensure 'mysql' command exists and create symlink
-if ! command -v mysql >/dev/null 2>&1; then
-    if command -v mariadb >/dev/null 2>&1; then
-        ln -sf "$(command -v mariadb)" /usr/local/bin/mysql
-        echo "Created 'mysql' -> 'mariadb' symlink for compatibility."
+if ! command -v mariadb >/dev/null 2>&1; then
+    if command -v mysql >/dev/null 2>&1; then
+        ln -sf "$(command -v mysql)" /usr/local/bin/mariadb
+        echo "Created 'mariadb' -> 'mysql' symlink for compatibility."
     fi
 fi
 
