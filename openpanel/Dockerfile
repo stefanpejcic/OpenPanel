@@ -22,7 +22,7 @@ RUN apk add --no-cache \
     jq \
     podman \
     podman-compose \
-    tzdata
+    tzdata \
     gawk \
     tar \
     gzip \
