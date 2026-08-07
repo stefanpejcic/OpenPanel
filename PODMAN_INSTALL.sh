@@ -334,25 +334,25 @@ install_packages() {
             run $PACKAGE_MANAGER -qq install -y apt-transport-https ca-certificates
             echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
             run update-ca-certificates
-            packages=(curl openssl cron git tar dbus-user-session systemd dbus systemd-container quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" mariadb-client sqlite3)
+            packages=(curl openssl cron git tar dbus-user-session systemd dbus systemd-container quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client sqlite3)
             ;;
         yum)
             run yum install -y dnf-plugins-core yum-utils epel-release
-            packages=(curl openssl cronie git tar dbus-user-session systemd dbus systemd-container quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb-client sqlite3)
+            packages=(curl openssl cronie git tar dbus-user-session systemd dbus systemd-container quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb sqlite3)
             ;;
         dnf)
             if [[ "$OS_ID" == "openeuler" ]]; then
                 run dnf install -y dnf-plugins-core yum-utils perl gcc tar
-                packages=(git tar curl openssl ncurses wget cronie systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns passt slirp4netns fuse-overlayfs mariadb-client sqlite perl-Math-BigInt)
+                packages=(git tar curl openssl ncurses wget cronie systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns passt slirp4netns fuse-overlayfs mariadb sqlite perl-Math-BigInt)
                 wait_for_pkg_lock
                 install_pkgs_batch "${packages[@]}"
                 return
             fi
             run dnf install -y yum-utils epel-release perl gcc
             if [[ -f /etc/fedora-release ]]; then
-                packages=(git tar openssl wget dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb-client sqlite perl-Math-BigInt)
+                packages=(git tar openssl wget dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mysql sqlite perl-Math-BigInt)
             else
-                packages=(git tar openssl ncurses wget systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb-client sqlite perl-Math-BigInt)
+                packages=(git tar openssl ncurses wget systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb sqlite perl-Math-BigInt)
             fi
             ;;
     esac
