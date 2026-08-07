@@ -157,16 +157,27 @@ func ensureMasterUser(ctx context.Context) bool {
 		return false
 	}
 
-	out, err := exec.CommandContext(ctx, "podman", "exec", mailserverContainerName, "setup", "dovecot-master", "list").Output()
-	if err != nil {
-		log.Printf("WEBMAIL - Error configuring dovecot master user: %v", err)
+	// A fresh mailserver (or one that hasn't finished starting up yet, e.g.
+	// right after boot when this runs) has no dovecot-masters.cf file at
+	// all, so `list` itself errors out - that's not a real failure, it
+	// just means no master user exists yet and `add` still needs to run;
+	// only errors from the actual add/update below are worth bailing on.
+	out, listErr := exec.CommandContext(ctx, "podman", "exec", mailserverContainerName, "setup", "dovecot-master", "list").Output()
+	exists := listErr == nil && strings.Contains(string(out), masterUser)
+
+	var setupErr error
+	action, actionPast := "add", "added"
+	if exists {
+		action, actionPast = "update", "updated"
+		setupErr = exec.CommandContext(ctx, "podman", "exec", mailserverContainerName, "setup", "dovecot-master", "update", masterUser, pass).Run()
+	} else {
+		setupErr = exec.CommandContext(ctx, "podman", "exec", mailserverContainerName, "setup", "dovecot-master", "add", masterUser, pass).Run()
+	}
+	if setupErr != nil {
+		log.Printf("WEBMAIL - Error configuring dovecot master user (%s): %v", action, setupErr)
 		return false
 	}
-	if strings.Contains(string(out), masterUser) {
-		_ = exec.CommandContext(ctx, "podman", "exec", mailserverContainerName, "setup", "dovecot-master", "update", masterUser, pass).Run()
-	} else {
-		_ = exec.CommandContext(ctx, "podman", "exec", mailserverContainerName, "setup", "dovecot-master", "add", masterUser, pass).Run()
-	}
+	log.Printf("WEBMAIL - Dovecot master user %s successfully.", actionPast)
 	return true
 }
 
