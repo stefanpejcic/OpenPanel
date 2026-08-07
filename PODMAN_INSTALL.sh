@@ -334,7 +334,7 @@ install_packages() {
             run $PACKAGE_MANAGER -qq install -y apt-transport-https ca-certificates
             echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
             run update-ca-certificates
-            packages=(curl openssl cron git tar dbus-user-session systemd dbus systemd-container quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client sqlite3)
+            packages=(curl openssl cron git tar dbus-user-session systemd dbus systemd-container quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" mariadb-client sqlite3)
             ;;
         yum)
             run yum install -y dnf-plugins-core yum-utils epel-release
