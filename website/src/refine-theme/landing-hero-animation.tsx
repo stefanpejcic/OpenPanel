@@ -141,13 +141,6 @@ const backend: GroupOption = {
             color: "#00ACD7",
         },
         {
-            name: "Python",
-            icon: (props) => (
-                <LandingHeroPythonIcon {...props} style={{ marginLeft: "1.5em" }} />
-            ),
-            color: "#3776AB",
-        },
-        {
             name: "Bash",
             icon: (props) => (
                 <LandingHeroBashIcon {...props} style={{ marginLeft: "1.5em" }} />
