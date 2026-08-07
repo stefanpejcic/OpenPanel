@@ -38,6 +38,7 @@ func RequireLogin(a *appctx.App, featureName string) func(http.Handler) http.Han
 			userID, hasUser := UserID(r)
 			token := SessionToken(r)
 			if !hasUser || userID == 0 || token == "" {
+				log.Printf("APP - %s %s: no active session, redirecting to login", r.Method, r.URL.Path)
 				redirectToLogin(w, r)
 				return
 			}
@@ -47,6 +48,7 @@ func RequireLogin(a *appctx.App, featureName string) func(http.Handler) http.Han
 
 			data, err := a.Cache.Raw().HGetAll(ctx, sessionKey).Result()
 			if err != nil || len(data) == 0 {
+				log.Printf("APP - user %d: session %s not found in cache (expired or invalidated), redirecting to login", userID, sessionKey)
 				clearSession(sess)
 				_ = a.Sessions.Save(r, w, sess)
 				redirectToLogin(w, r)
@@ -56,6 +58,7 @@ func RequireLogin(a *appctx.App, featureName string) func(http.Handler) http.Han
 			if a.ValidateIPAddressCookie {
 				currentIP := reqip.ClientIP(r)
 				if data["ip_address"] != currentIP {
+					log.Printf("APP - user %d: IP mismatch (session=%s, request=%s), invalidating session", userID, data["ip_address"], currentIP)
 					a.Cache.Raw().Del(ctx, sessionKey)
 					clearSession(sess)
 					flash.Add(sess, "danger", a.I18n.Get(a.I18n.SystemDefaultLocale(ctx), "IP address mismatch. Please login again."))
@@ -67,7 +70,7 @@ func RequireLogin(a *appctx.App, featureName string) func(http.Handler) http.Han
 
 			createdAt, err := time.Parse(isoLayout, data["created_at"])
 			if err == nil && time.Since(createdAt) > a.MaxSessionLifetime {
-				log.Printf("APP - Session reached max lifetime (%s). Expiring.", a.MaxSessionLifetime)
+				log.Printf("APP - user %d: session reached max lifetime (%s), expiring", userID, a.MaxSessionLifetime)
 				a.Cache.Raw().Del(ctx, sessionKey)
 				clearSession(sess)
 				_ = a.Sessions.Save(r, w, sess)
@@ -79,10 +82,12 @@ func RequireLogin(a *appctx.App, featureName string) func(http.Handler) http.Han
 
 			details, err := a.GetUserDetailsWithPlan(ctx, userID)
 			if err != nil {
+				log.Printf("APP - user %d: failed to load user details: %v", userID, err)
 				http.Error(w, "internal error", http.StatusInternalServerError)
 				return
 			}
 			if strings.HasPrefix(details.Username, "SUSPENDED_") {
+				log.Printf("APP - user %d (%s): account suspended, invalidating session", userID, details.Username)
 				a.Cache.Raw().Del(ctx, sessionKey)
 				clearSession(sess)
 				_ = a.Sessions.Save(r, w, sess)
@@ -93,6 +98,7 @@ func RequireLogin(a *appctx.App, featureName string) func(http.Handler) http.Han
 			if a.TwofaEnforce && a.ModuleEnabled("twofa") && featureName != "twofa" {
 				status, err := a.Get2FAStatusForUser(ctx, userID)
 				if err == nil && !status.Enabled {
+					log.Printf("APP - user %d (%s): 2FA required but not enabled, redirecting to enrollment", userID, details.Username)
 					flash.Add(sess, "warning", a.I18n.Get(a.I18n.SystemDefaultLocale(ctx),
 						"Two-Factor Authentication is required on this panel. Please enable it to continue."))
 					_ = a.Sessions.Save(r, w, sess)
@@ -103,15 +109,18 @@ func RequireLogin(a *appctx.App, featureName string) func(http.Handler) http.Han
 
 			userFeatures, err := a.LoadUserFeatures(ctx, details.Username, details.Context)
 			if err != nil {
+				log.Printf("APP - user %d (%s): failed to load enabled features: %v", userID, details.Username, err)
 				http.Error(w, "internal error", http.StatusInternalServerError)
 				return
 			}
 			if !contains(userFeatures, featureName) {
+				log.Printf("APP - user %d (%s): access denied to %s (feature %q not enabled for this account)", userID, details.Username, r.URL.Path, featureName)
 				http.Error(w, "Forbidden", http.StatusForbidden)
 				return
 			}
 
 			if r.Method != http.MethodGet && a.DemoMode {
+				log.Printf("APP - user %d (%s): write blocked by demo mode (%s %s)", userID, details.Username, r.Method, r.URL.Path)
 				flash.Add(sess, "warning", a.I18n.Get(a.I18n.SystemDefaultLocale(ctx), "Disabled in demo mode."))
 				_ = a.Sessions.Save(r, w, sess)
 				referrer := r.Referer()
@@ -176,37 +185,44 @@ func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handl
 			via := Via(r)
 
 			if (via != ViaJWT && via != ViaMCP) || !hasUser || userID == 0 {
+				log.Printf("APP - API %s %s: missing or invalid bearer token (via=%v)", r.Method, r.URL.Path, via)
 				writeJSONError(w, http.StatusUnauthorized, "Authentication required", "Provide a valid Bearer token")
 				return
 			}
 
 			details, err := a.GetUserDetailsWithPlan(ctx, userID)
 			if err != nil {
+				log.Printf("APP - API user %d: failed to load user details: %v", userID, err)
 				http.Error(w, "internal error", http.StatusInternalServerError)
 				return
 			}
 
 			userFeatures, err := a.LoadUserFeatures(ctx, details.Username, details.Context)
 			if err != nil {
+				log.Printf("APP - API user %d (%s): failed to load enabled features: %v", userID, details.Username, err)
 				http.Error(w, "internal error", http.StatusInternalServerError)
 				return
 			}
 
 			if featureName != "api" && !contains(userFeatures, "api") {
+				log.Printf("APP - API user %d (%s): API access not enabled for this account", userID, details.Username)
 				writeJSONError(w, http.StatusForbidden, "Access denied", "API access is not enabled for your account")
 				return
 			}
 			if !contains(userFeatures, featureName) {
+				log.Printf("APP - API user %d (%s): access denied to %s (feature %q not enabled for this account)", userID, details.Username, r.URL.Path, featureName)
 				writeJSONError(w, http.StatusForbidden, "Access denied", "")
 				return
 			}
 
 			if via == ViaMCP && MCPReadOnly(r) && featureName != "mcp" && r.Method != http.MethodGet && r.Method != http.MethodHead {
+				log.Printf("APP - API user %d (%s): read-only MCP token blocked %s %s", userID, details.Username, r.Method, r.URL.Path)
 				writeJSONError(w, http.StatusForbidden, "This token is read-only", "Generate a token without the read-only option to make changes")
 				return
 			}
 
 			if r.Method != http.MethodGet && a.DemoMode {
+				log.Printf("APP - API user %d (%s): write blocked by demo mode (%s %s)", userID, details.Username, r.Method, r.URL.Path)
 				writeJSONError(w, http.StatusForbidden, "Disabled in demo mode", "")
 				return
 			}
