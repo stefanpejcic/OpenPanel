@@ -53,21 +53,35 @@ type DynamicDNSPageData struct {
 // canonical-domain redirect - by the time an authenticated page like this
 // one renders, the request's host has already passed that check.
 func publicBaseURL(ctx context.Context, a *appctx.App, r *http.Request) string {
+	requestHost, requestPort := r.Host, ""
+	if h, p, err := net.SplitHostPort(requestHost); err == nil {
+		requestHost, requestPort = h, p
+	}
+
 	host := strings.TrimSpace(a.ForceDomain)
 	if host == "" {
-		host = r.Host
-		if h, _, err := net.SplitHostPort(host); err == nil {
-			host = h
-		}
+		host = requestHost
 	}
+
 	scheme := "http"
 	if sysinfo.HasSSL(ctx, a.Cache, host) {
 		scheme = "https"
 	}
+
+	// a.ForcePort comes from `opencli port`, which can fail to resolve in
+	// some deployments (e.g. a config file it depends on not being
+	// reachable from inside this container); when that happens, fall back
+	// to the port this very request came in on rather than omitting the
+	// port entirely, since that's the port the panel is actually being
+	// accessed through right now.
 	portSuffix := ""
-	if a.ForcePort != "" {
+	switch {
+	case a.ForcePort != "":
 		portSuffix = ":" + a.ForcePort
+	case requestPort != "":
+		portSuffix = ":" + requestPort
 	}
+
 	return scheme + "://" + host + portSuffix + "/"
 }
 
