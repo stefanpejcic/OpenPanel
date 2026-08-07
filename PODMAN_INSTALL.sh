@@ -578,6 +578,12 @@ setup_compose() {
     local mysql_cnf="/etc/my.cnf"
     local root_pw; root_pw=$(openssl rand -hex 16)
 
+    if ! command -v mariadb >/dev/null 2>&1; then
+        if command -v mysql >/dev/null 2>&1; then
+            ln -sf "$(command -v mysql)" /usr/local/bin/mariadb
+        fi
+    fi
+
     cd /root || die 1 "No read access to /root"
     rm -f "$mysql_cnf" .env
     cp "${ETC_DIR}docker/compose/docker-compose.yml" /root/docker-compose.yml
