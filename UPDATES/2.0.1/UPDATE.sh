@@ -5,6 +5,15 @@ Symlinks each domains email storage directory into that users mail Docker volume
 This ensures mailbox data is included in backups of the users docker-data volumes.
 '
 
+
+# 0. ensure 'mysql' command exists and create symlink
+if ! command -v mysql >/dev/null 2>&1; then
+    if command -v mariadb >/dev/null 2>&1; then
+        ln -sf "$(command -v mariadb)" /usr/local/bin/mysql
+        echo "Created 'mysql' -> 'mariadb' symlink for compatibility."
+    fi
+fi
+
 # 1. check if Enteprise
 key_value=$(grep "^key=" "/etc/openpanel/openpanel/conf/openpanel.config" | cut -d'=' -f2-)
 [ -z "$key_value" ] && { echo "enterprise license not present - nothing to do."; exit 0; }
