@@ -1,8 +1,7 @@
-// Package modules is the Go replacement for app.py's importlib-based
-// module loader: instead of dynamically importing modules.<name> based on
-// openpanel.config's enabled_modules list, every module is a normal
-// compiled-in Go package exposing a Register(mux, app) function, and a
-// small static map resolves config names to those functions.
+// Package modules resolves openpanel.config's enabled_modules list to Go
+// packages: every module is a normal compiled-in Go package exposing a
+// Register(mux, app) function, and a small static map resolves config
+// names to those functions.
 package modules
 
 import (
@@ -52,38 +51,33 @@ import (
 // Registrar wires one feature module's routes onto mux.
 type Registrar func(mux *http.ServeMux, a *appctx.App)
 
-// alwaysOn mirrors app.py's unconditional top-of-file imports (`from
-// modules import dashboard, websites` / `from modules.account import
-// login, logout` / ...): these register regardless of enabled_modules,
-// unlike everything dispatched through the for-loop below.
+// alwaysOn is the set of routes that register regardless of
+// enabled_modules (core login/dashboard/search/etc.), unlike everything
+// dispatched through the for-loop below.
 var alwaysOn = []Registrar{
 	account.Register,              // login, login_autologin, logout
-	account.RegisterPasswordReset, // modules/account/forgot_password.py: conditionally imported on password_reset config, gated internally
-	account.RegisterAPILogin,      // modules/api_core.py: /api/login, no api_required gate in Python either
-	api.Register,                  // modules/api_core.py: /api/endpoints, gated internally via apiregistry.Handle
+	account.RegisterPasswordReset, // gated internally on the password_reset config
+	account.RegisterAPILogin,      // /api/login, no additional API-key gate
+	api.Register,                  // /api/endpoints, gated internally via apiregistry.Handle
 	dashboard.Register,
-	serverinfo.RegisterHostingJSON,    // modules/json/helpers.py: unconditional top-level import
-	appinstall.RegisterShared,         // modules/json/helpers.py: docker tags + check_if_file_exists
-	appinstall.RegisterPM2,            // modules/json/helpers.py: pm2 logs/action/delete
-	appinstall.RegisterPM2API,         // modules/api/pm2.py: gated internally via apiregistry.Handle ("pm2" feature)
-	filemanager.RegisterDirectorySize, // modules/json/helpers.py: get_folder_size
-	search.Register,                   // modules/core/search.py: unconditional, gated per-what internally
-	websites.Register,                 // modules/websites.py: app.py's main_modules = ["dashboard", "websites"]
-	websites.RegisterSitesAPI,         // modules/api/websites.py: gated internally via apiregistry.Handle
-	plugins.Register,                  // app.py: `if plugin_names: @app.route('/plugins') ...`, gated internally
+	serverinfo.RegisterHostingJSON,    // core helper endpoint, always available
+	appinstall.RegisterShared,         // docker tags + check_if_file_exists helpers
+	appinstall.RegisterPM2,            // pm2 logs/action/delete
+	appinstall.RegisterPM2API,         // gated internally via apiregistry.Handle ("pm2" feature)
+	filemanager.RegisterDirectorySize, // get_folder_size helper
+	search.Register,                   // unconditional, gated per-what internally
+	websites.Register,                 // part of mainModules = ["dashboard", "websites"] (see internal/app)
+	websites.RegisterSitesAPI,         // gated internally via apiregistry.Handle
+	plugins.Register,                  // only registers a route if plugin_names is non-empty, gated internally
 }
 
 // configured maps openpanel.config's enabled_modules entries to their Go
-// package's Register function, replacing app.py's category dispatch table
-// (modules.cache.<name>, modules.files.<name>, modules.account.<name>,
-// ...) - Python needs that indirection to resolve a string to an import
-// path; Go doesn't, since every module that exists at all is already
-// compiled in.
+// package's Register function - every module that exists at all is
+// already compiled in, so this is just a name-to-function lookup.
 //
 // Only modules that have been ported so far appear here. A name present in
-// enabled_modules but missing from this map is silently skipped, which -
-// unlike Python's ImportError for the same situation - is the expected,
-// normal state during an incremental port, not a broken install.
+// enabled_modules but missing from this map is silently skipped - the
+// expected, normal state during an incremental port, not a broken install.
 var configured = map[string]Registrar{
 	// mysql and the rest land here as their phases are ported.
 	"docker":          func(mux *http.ServeMux, a *appctx.App) { docker.Register(mux, a); docker.RegisterAPI(mux, a) },

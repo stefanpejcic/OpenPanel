@@ -16,7 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// RegisterAPI wires modules/api/crons.py's routes onto mux.
+// RegisterAPI wires the crons API routes onto mux.
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "crons", "GET /api/crons", func(w http.ResponseWriter, r *http.Request) { apiCronsList(a, w, r) })
 	apiregistry.Handle(mux, a, "crons", "POST /api/crons", func(w http.ResponseWriter, r *http.Request) { apiCronsCreate(a, w, r) })

@@ -33,8 +33,7 @@ func testApp(t *testing.T) *appctx.App {
 
 // TestRegisterAllWiresRoutes is an end-to-end smoke test of the module
 // registry: real HTTP requests through the real mux, verifying the routes
-// that don't need a live database/redis actually respond as app.py's
-// equivalent routes would.
+// that don't need a live database/redis actually respond as expected.
 func TestRegisterAllWiresRoutes(t *testing.T) {
 	a := testApp(t)
 	mux := http.NewServeMux()

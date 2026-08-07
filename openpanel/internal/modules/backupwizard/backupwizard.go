@@ -1,7 +1,6 @@
-// Package backupwizard ports modules/files/backup_wizard.py: the
-// single-click "back up my whole account" flow, backed by `opencli
-// user-backup` writing .tar.gz archives into the user's docroot volume's
-// _backups/ folder.
+// Package backupwizard is the single-click "back up my whole account"
+// flow, backed by `opencli user-backup` writing .tar.gz archives into the
+// user's docroot volume's _backups/ folder.
 package backupwizard
 
 import (
@@ -25,8 +24,8 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// Register wires modules/files/backup_wizard.py's routes onto mux, gated
-// behind the "backup_wizard" feature flag.
+// Register wires the backup wizard routes onto mux, gated behind the
+// "backup_wizard" feature flag.
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "backup_wizard")(h)
@@ -238,9 +237,8 @@ type statusPayload struct {
 	Backups           []BackupFile `json:"backups"`
 }
 
-// handleBackupWizardCreate mirrors backup_wizard_create(): fires
-// `opencli user-backup` in the background (matches Python's
-// subprocess.Popen + start_new_session=True fire-and-forget).
+// handleBackupWizardCreate fires `opencli user-backup` in the background
+// as a fire-and-forget child process that must outlive this request.
 func handleBackupWizardCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentUsername, userContext, err := injected(a, r)
 	if err != nil {
@@ -258,10 +256,9 @@ func handleBackupWizardCreate(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// nil Stdout/Stderr discard the child's output, matching Python's
-	// subprocess.DEVNULL; a bare exec.Command (no context) plus the
-	// detached goroutine below matches start_new_session=True's
-	// fire-and-forget semantics (the backup must outlive this request).
+	// nil Stdout/Stderr discard the child's output; a bare exec.Command (no
+	// context) plus the detached goroutine below keeps the backup running
+	// even after this request returns.
 	cmd := exec.Command("opencli", "user-backup", "--account", currentUsername)
 	if err := cmd.Start(); err != nil {
 		flashAndRedirectToWizard(a, w, r, "error", "Failed to start backup.")

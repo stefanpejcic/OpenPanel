@@ -46,7 +46,6 @@ func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, cat
 	http.Redirect(w, r, path, http.StatusFound)
 }
 
-// handleWAFDomain mirrors waf.py's server_settings_waf_for_domain().
 func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domainName := firstPathSegment(r.PathValue("domain"))
 
@@ -76,9 +75,9 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		// removed_tags has no meaningful validator in Python - its regex
-		// (`^[\w\W]+$`) matches any non-empty string, so every value
-		// produced by .split() already passes.
+		// removed_tags has no meaningful validation: the pattern this was
+		// checked against (`^[\w\W]+$`) matches any non-empty string, so
+		// every split value already passes.
 
 		removedRules = append([]string{excludedRuleID}, filterOut(removedRules, excludedRuleID)...)
 		removedTags = append([]string{excludedTag}, filterOut(removedTags, excludedTag)...)
@@ -103,8 +102,7 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// GET (and the POST fallthrough, matching Python's single function
-	// re-reading the file after any change).
+	// GET (and the POST fallthrough): re-read the file after any change.
 	status := "Not Found"
 	var removedRules, removedTags []string
 
@@ -153,9 +151,8 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderWAFDomainPage(a, w, r, domainName, status, removedRules, removedTags)
 }
 
-// readLinesKeepEnds splits content into lines the way Python's
-// file.readlines() does: each element (except possibly the last) keeps
-// its trailing "\n".
+// readLinesKeepEnds splits content into lines; each element (except
+// possibly the last) keeps its trailing "\n".
 func readLinesKeepEnds(content string) []string {
 	if content == "" {
 		return nil

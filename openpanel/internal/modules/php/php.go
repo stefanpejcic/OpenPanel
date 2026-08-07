@@ -1,7 +1,6 @@
-// Package php ports modules/php.py plus its phpd/* siblings
-// (php_ini.py, php_options.py, php_extensions.py) and modules/phpmyadmin.py:
-// default/per-domain PHP version selection, php.ini editing, PHP option
-// tuning, extension management, and the phpMyAdmin redirect.
+// Package php handles default/per-domain PHP version selection, php.ini
+// editing, PHP option tuning, extension management, and the phpMyAdmin
+// redirect.
 package php
 
 import (
@@ -25,17 +24,17 @@ import (
 
 // phpVersionFromSegment extracts the version from a "php<version>" URL path
 // segment (e.g. "php8.2" -> "8.2"). Go's net/http.ServeMux only allows a
-// wildcard to span an entire path segment (see its Patterns doc), unlike
-// Flask's <version> converter which could sit inside a literal "php<version>"
-// segment - so routes register the whole segment as a wildcard and every
-// handler unwraps it with this helper instead.
+// wildcard to span an entire path segment (see its Patterns doc) - it
+// can't sit inside a literal "php<version>" segment - so routes register
+// the whole segment as a wildcard and every handler unwraps it with this
+// helper instead.
 func phpVersionFromSegment(seg string) string {
 	return strings.TrimPrefix(seg, "php")
 }
 
 // phpVersionFromIniSegment extracts the version from a "php<version>.ini"
-// segment (e.g. "php8.2.ini" -> "8.2"), used by the php.ini editor route
-// (/php/php<version>.ini/editor in the Python source).
+// segment (e.g. "php8.2.ini" -> "8.2"), used by the
+// /php/{phpiniversion}/editor route.
 func phpVersionFromIniSegment(seg string) string {
 	return strings.TrimSuffix(phpVersionFromSegment(seg), ".ini")
 }
@@ -106,11 +105,10 @@ var validContextRE = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 // "1.8.5-lsphp83" -> "8.3") when the container isn't running to ask directly.
 var litespeedTagVersionRE = regexp.MustCompile(`(\d)(\d)$`)
 
-// GetPHPVForDomain mirrors get_php_v_for_domain(): the PHP version
-// currently configured for domainURL, read from its vhost file (PHP-FPM) or
-// queried live from the running container (LiteSpeed). Exported for later
-// app-installer phases (wordpress.py, drupal.py, mautic.py, websites.py)
-// that call the Python equivalent.
+// GetPHPVForDomain is the PHP version currently configured for domainURL,
+// read from its vhost file (PHP-FPM) or queried live from the running
+// container (LiteSpeed). Exported for other app-installer callers
+// (wordpress, websites) that need it too.
 func GetPHPVForDomain(ctx context.Context, a *appctx.App, userContext, domainURL string) string {
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 
@@ -193,8 +191,7 @@ func updatePHPVersionPreference(userContext, newPHPVersion string) bool {
 	return os.WriteFile(configFilePath, []byte(strings.Join(lines, "\n")), 0o644) == nil
 }
 
-// fetchPHPVersions mirrors fetch_php_versions(), memoized 1h like the
-// Python @cache.memoize(timeout=3600).
+// FetchPHPVersions is memoized for 1h.
 func FetchPHPVersions(ctx context.Context, a *appctx.App, userContext string) []string {
 	versions, _ := cache.Memoize(ctx, a.Cache, "fetch_php_versions:"+userContext, time.Hour, func() ([]string, error) {
 		return computeFetchPHPVersions(ctx, userContext), nil

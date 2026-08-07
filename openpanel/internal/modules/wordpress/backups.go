@@ -19,10 +19,9 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// toStringCell converts one mysqlmanager.Exec() result cell to a string,
-// matching how Python's DB-API cursor results stringify implicitly
-// wherever the original code did f"{row[i]}" or str(row[i]). The MySQL
-// driver scans INTEGER columns (e.g. wp_users.ID) into native int64/uint64,
+// toStringCell converts one mysqlmanager.Exec() result cell to a string.
+// The MySQL driver scans INTEGER columns (e.g. wp_users.ID) into native
+// int64/uint64,
 // not []byte/string - a missing case here isn't a compile error, it's a
 // silent empty string, which the WP autologin flow found the hard way:
 // wp_users.ID being read as "" -> strconv.Atoi returns 0 -> a

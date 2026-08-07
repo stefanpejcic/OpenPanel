@@ -1,9 +1,8 @@
-// Package api ports modules/api_core.py's introspection endpoint. The
-// actual per-feature endpoints (modules/api/*.py) live inside their
-// existing feature packages (mysql, postgresql, domains, ...) as
-// apiXxx.go files, each registering through
-// internal/core/apiregistry.Handle - which is also what this package's
-// /api/endpoints reads back from.
+// Package api provides the /api/endpoints introspection endpoint. The
+// actual per-feature endpoints live inside their existing feature
+// packages (mysql, postgresql, domains, ...) as apiXxx.go files, each
+// registering through internal/core/apiregistry.Handle - which is also
+// what this package's /api/endpoints reads back from.
 package api
 
 import (

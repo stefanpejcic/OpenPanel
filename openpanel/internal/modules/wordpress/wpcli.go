@@ -85,14 +85,13 @@ var (
 	wpCLIPathRE = regexp.MustCompile(`^[A-Za-z0-9_\-/.]+$`)
 )
 
-// sanitizeName/sanitizePath/sanitizePHPVersion/sanitizeAdminUser mirror
-// wp_cli()'s in-file sanitize_name()/sanitize_path()/etc. Python's versions
-// call bare `abort` (a reference to the function object, not `abort(...)`) -
-// a no-op that never actually rejects anything, so tainted values flow
-// straight into shelled-out wp-cli/podman commands unsanitized. That's a
+// sanitizeName/sanitizePath/sanitizePHPVersion/sanitizeAdminUser validate
+// input before it's used to build shelled-out wp-cli/podman commands. This
+// validation is deliberately real and enforced here - the logic this was
+// ported from had a no-op equivalent check that never actually rejected
+// anything, letting tainted values flow straight through unsanitized: a
 // real command-injection-adjacent bug in an endpoint whose whole job is to
-// build shell commands from these values, not a behavior worth preserving,
-// so these actually reject invalid input here.
+// build shell commands from these values, not a behavior worth preserving.
 func sanitizeName(name string) (string, bool) {
 	if name == "" || !wpCLINameRE.MatchString(name) {
 		return "", false

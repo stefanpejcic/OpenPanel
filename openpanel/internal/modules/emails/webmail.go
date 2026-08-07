@@ -73,7 +73,7 @@ func GetWebmailDomain(ctx context.Context, a *appctx.App, currentUsername string
 		out, err := exec.CommandContext(ctx, "opencli", "email-webmail").Output()
 		if err != nil {
 			log.Printf("WEBMAIL - Error executing command: %v", err)
-			return "", nil //nolint:nilerr // matches Python: broad except -> None
+			return "", nil //nolint:nilerr // command failure -> empty, not an error response
 		}
 		output := strings.TrimSpace(string(out))
 

@@ -46,10 +46,10 @@ var dashboardPage = web.MustLoadPage(
 	"dashboard/howto.html",
 )
 
-// Register wires dashboard.py's routes onto mux. "dashboard" is always in
-// EnabledModules (app.py forces it via main_modules), so this registers
-// unconditionally like the always-on account routes, not through the
-// enabled_modules dispatch table.
+// Register wires the dashboard routes onto mux. "dashboard" is always in
+// EnabledModules (mainModules forces it, see internal/app), so this
+// registers unconditionally like the always-on account routes, not
+// through the enabled_modules dispatch table.
 func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/json/resource_usage", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleResourceUsage(a, w, r)
@@ -61,13 +61,11 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 		http.Redirect(w, r, "/", http.StatusFound)
 	})
 	// net/http.ServeMux's "/" pattern is a catch-all for any path no other
-	// registered pattern matches (Go 1.22+ routing semantics) - unlike
-	// Flask's @app.route('/'), which only ever matches the literal root and
-	// leaves every other unmatched path to Flask's own 404, with no login
-	// check involved at all (routing happens before any decorator runs).
-	// The path check has to sit in front of RequireLogin, not behind it -
+	// registered pattern matches (Go 1.22+ routing semantics), so an
+	// explicit path check is needed to 404 anything that isn't the literal
+	// root. That check has to sit in front of RequireLogin, not behind it -
 	// otherwise an unknown route would redirect an unauthenticated visitor
-	// to /login instead of 404ing, which still isn't what Flask does.
+	// to /login instead of 404ing.
 	rootHandler := auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/dashboard", http.StatusFound)
 	}))
@@ -110,8 +108,7 @@ func handleDashboard(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 }
 
 // buildDashboardPageData assembles the shared app-shell data (nav,
-// flashes, branding - the Go analogue of app.py's inject_data()/injected()
-// context processors) plus dashboard()'s own template kwargs into one
+// flashes, branding) plus the dashboard page's own template data into one
 // DashboardPageData.
 func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Request, injected map[string]any, d DashboardData) DashboardPageData {
 	ctx := r.Context()
@@ -302,8 +299,7 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	_ = json.NewEncoder(w).Encode(map[string]string{"error": msg})
 }
 
-// DashboardData mirrors every value dashboard.py's dashboard() route
-// passes to render_template. Ready for the template once it exists.
+// DashboardData holds every value the dashboard page's template needs.
 type DashboardData struct {
 	TwofaEnabled          bool
 	TwofaNag              string
@@ -433,9 +429,9 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 	return d, nil
 }
 
-// restrictedDatabasesSQL mirrors mysql.py's restricted_databases_sql:
-// config's mysql_restricted_databases (space-separated, optionally quoted)
-// rendered as a SQL string list for `NOT IN (...)`.
+// restrictedDatabasesSQL renders config's mysql_restricted_databases
+// (space-separated, optionally quoted) as a SQL string list for
+// `NOT IN (...)`.
 func restrictedDatabasesSQL(cfg config.Config) string {
 	raw := stripQuotes(cfg.Get("mysql_restricted_databases",
 		"information_schema performance_schema mysql phpmyadmin sys mariadb.sys"))
@@ -447,8 +443,8 @@ func restrictedDatabasesSQL(cfg config.Config) string {
 	return strings.Join(quoted, ", ")
 }
 
-// stripQuotes mirrors modules/files/filemanager.py's strip_quotes(): strip
-// one layer of surrounding quotes if the whole string is quote-wrapped.
+// stripQuotes strips one layer of surrounding quotes if the whole string
+// is quote-wrapped.
 func stripQuotes(s string) string {
 	s = strings.TrimSpace(s)
 	if len(s) >= 2 {
@@ -460,18 +456,17 @@ func stripQuotes(s string) string {
 	return s
 }
 
-// getDatabaseCount mirrors modules/mysql.py's get_database_count(),
-// cached 1h. Connects to the user's own MySQL instance via mysqlmanager
-// (a unix socket under /home/<context>/sockets/mysqld/mysqld.sock, not
-// the panel's own DB) - returns 0 on any failure (container not running,
-// socket not found, ...), same as Python's broad except.
+// getDatabaseCount is cached 1h. Connects to the user's own MySQL
+// instance via mysqlmanager (a unix socket under
+// /home/<context>/sockets/mysqld/mysqld.sock, not the panel's own DB) -
+// returns 0 on any failure (container not running, socket not found, ...).
 func getDatabaseCount(a *appctx.App, ctx context.Context, username, userContext string) int {
 	count, _ := cache.Memoize(ctx, a.Cache, "get_database_count:"+username, time.Hour, func() (int, error) {
 		query := "SELECT COUNT(*) AS total FROM information_schema.schemata WHERE schema_name NOT IN (" +
 			restrictedDatabasesSQL(a.Config) + ")"
 		rows, err := mysqlmanager.Exec(ctx, userContext, query, "")
 		if err != nil || len(rows) == 0 || len(rows[0]) == 0 {
-			return 0, nil //nolint:nilerr // matches Python: any failure -> 0, not an error response
+			return 0, nil //nolint:nilerr // any failure -> 0, not an error response
 		}
 		return mysqlmanager.ToInt(rows[0][0]), nil
 	})
@@ -525,7 +520,7 @@ func loadQuotaReport(a *appctx.App, ctx context.Context) (*quotaReport, error) {
 	return cache.Memoize(ctx, a.Cache, "_load_quota_report", 1800*time.Second, func() (*quotaReport, error) {
 		data, err := os.ReadFile("/etc/openpanel/openpanel/quota_report.json")
 		if err != nil {
-			return nil, nil //nolint:nilerr // matches Python: missing/bad file -> None, not an error
+			return nil, nil //nolint:nilerr // missing/bad file -> nil, not an error
 		}
 		var report quotaReport
 		if err := json.Unmarshal(data, &report); err != nil {
@@ -622,9 +617,8 @@ func howToLinksForDashboard(a *appctx.App, ctx context.Context) ([]map[string]an
 		}
 		kbData := readJSONFile("/etc/openpanel/openpanel/conf/knowledge_base_articles.json")
 		if kbData == nil {
-			// Matches os.path.join(app.root_path, ...) in Python: app.py
-			// (and this default JSON, shipped alongside the Python
-			// templates/) lives at the container image's "/".
+			// This default JSON is shipped alongside the templates/ tree,
+			// which lives at the container image's "/".
 			kbData = readJSONFile("/templates/dashboard/knowledge_base_articles_default.json")
 		}
 		if kbData == nil {

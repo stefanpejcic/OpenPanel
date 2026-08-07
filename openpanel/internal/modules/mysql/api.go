@@ -693,8 +693,8 @@ func apiMySQLGrant(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "REVOKE ALL PRIVILEGES ON `"+dbName+"`.* FROM '"+dbUser+"'@'"+dbHost+"'", ""); execErr != nil {
-		// Matches Python: MySQL error 1141 ("no grants for user") is
-		// swallowed - there's simply nothing to revoke yet.
+		// MySQL error 1141 ("no grants for user") is swallowed - there's
+		// simply nothing to revoke yet.
 		if !strings.Contains(execErr.Error(), "1141") {
 			writeAPIMySQLJSON(w, http.StatusInternalServerError, map[string]string{"error": mysqlAPIError(execErr)})
 			return

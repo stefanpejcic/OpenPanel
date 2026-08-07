@@ -1,6 +1,5 @@
 // Package db provides the panel's own MySQL connection pool, reading
-// credentials from /etc/my.cnf the same way modules/core/db.py does via
-// mysql.connector's option_files support.
+// credentials from /etc/my.cnf (the standard MySQL option-file format).
 package db
 
 import (

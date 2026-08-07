@@ -1,8 +1,8 @@
-// Package appinstall (this file) ports the generic PM2-style app management
-// routes from modules/json/helpers.py (/pm2/logs, /pm2/<action>,
-// /pm2/delete) - these work identically regardless of whether the
-// underlying app is a Python or NodeJS install, which is why Python groups
-// them in helpers.py rather than python.py/nodejs.py.
+// Package appinstall (this file) handles the generic PM2-style app
+// management routes (/pm2/logs, /pm2/<action>, /pm2/delete) - these work
+// identically regardless of whether the underlying app is a Python or
+// NodeJS install, which is why they're grouped here rather than under
+// either install type specifically.
 package appinstall
 
 import (
@@ -24,13 +24,12 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// undeletableAppActions mirrors UNDELETABLE_APP_ACTIONS - a confusing name
-// kept verbatim from Python (it's actually the *allowed* app_actions list,
-// not a list of undeletable things).
+// undeletableAppActions is a confusingly-named variable: it's actually the
+// *allowed* app_actions list, not a list of undeletable things.
 var undeletableAppActions = map[string]bool{"start": true, "stop": true, "update": true, "restart": true}
 
-// undeletableServices mirrors UNDELETABLE_SERVICES: core panel services
-// app_actions/app_delete refuse to touch even if asked.
+// undeletableServices are core panel services app_actions/app_delete
+// refuse to touch even if asked.
 var undeletableServices = map[string]bool{
 	"elasticsearch": true, "redis": true, "valkey": true, "postgres": true, "mysql": true,
 	"mariadb": true, "phpmyadmin": true, "pgadmin": true, "opensearch": true, "memcached": true,
@@ -46,9 +45,8 @@ func flashAndRedirectApp(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 }
 
 // RegisterPM2 wires the three /pm2/* routes onto mux. Like RegisterShared,
-// these live in modules/json/helpers.py so Python's func.__module__-derived
-// feature check resolves to "helpers", unconditionally granted to every
-// user - login-only in practice.
+// these are gated on the "helpers" feature, which is unconditionally
+// granted to every user - login-only in practice.
 func RegisterPM2(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "helpers")(h)
@@ -101,9 +99,8 @@ func handlePM2Logs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	defer f.Close()
 
-	// mirrors collections.deque(log_file, maxlen=lines): keep only the last
-	// N lines, read sequentially like Python does (no reverse-seek
-	// optimization here either).
+	// Keep only the last N lines by reading sequentially (no reverse-seek
+	// optimization here).
 	ring := make([]string, 0, lines)
 	scanner := bufio.NewScanner(f)
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
@@ -407,13 +404,10 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/sites", http.StatusFound)
 }
 
-// revertWebserverConfig mirrors helpers.revert_webserver_config(), with one
-// deliberate deviation: Python's Apache branch searches for
-// "http://localhost", but edit_apache_config() (the function that
-// originally inserted these lines) actually writes "http://{service_name}"
-// - so in Python this revert never actually matches/removes anything on
-// Apache. Fixed here to search for what was actually written, per explicit
-// request rather than preserved for parity.
+// revertWebserverConfig's Apache branch searches for what
+// editApacheConfig() actually writes ("http://{service_name}"), not the
+// "http://localhost" a naive revert might assume - matching the real
+// inserted lines is what makes the revert actually find and remove them.
 func revertWebserverConfig(userContext, subdirectory, webServerType, domainURL, serviceName string) {
 	vhostsPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
 	content, err := os.ReadFile(vhostsPath)

@@ -7,10 +7,9 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
-// Register wires modules/wordpress.py's list + install routes onto mux.
+// Register wires the WordPress list + install routes onto mux.
 // Backups, clone/remove/detach/reload/scan and wp-cli passthrough are
-// ported separately (see registry.go's TODO comments) and added to this
-// same Register once done.
+// added to this same Register separately.
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := auth.RequireLogin(a, "wordpress")
 

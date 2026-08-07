@@ -1,6 +1,5 @@
-// Package logger ports modules/core/logger.py: per-user activity logs used
-// by modules and plugins to record actions like "logged in", "created
-// database x", etc.
+// Package logger writes per-user activity logs used by modules and
+// plugins to record actions like "logged in", "created database x", etc.
 package logger
 
 import (

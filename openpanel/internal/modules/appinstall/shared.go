@@ -28,9 +28,8 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// HandleDockerTags mirrors helpers.docker_tags_for_py_n_node(): proxies
-// endoflife.date's release feed for the "version" dropdown on both install
-// forms, cached 24h like Python's @cache.memoize(timeout=86400).
+// HandleDockerTags proxies endoflife.date's release feed for the
+// "version" dropdown on both install forms, cached 24h.
 func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	appType := r.PathValue("type")
 	if appType != "nodejs" && appType != "python" {
@@ -96,15 +95,12 @@ func HandleCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusOK, map[string]string{"message": file + " exists."})
 }
 
-// RegisterShared wires the two always-on routes from
-// modules/json/helpers.py that only python.py/nodejs.py use
-// (/docker/tags/<type>, /json/check_if_file_exists). Python's
-// @login_required_route derives its per-user feature-permission check from
-// the decorated view function's own module (func.__module__), so both of
-// these - living in modules/json/helpers.py - check against "helpers", not
-// "python"/"nodejs"; "helpers" is unconditionally granted to every user
-// (see baselineFeatures), so in practice this is login-only, matching why
-// it belongs in alwaysOn rather than configured.
+// RegisterShared wires the two always-on routes only the Python/NodeJS
+// install forms use (/docker/tags/<type>, /json/check_if_file_exists).
+// Both are gated on the "helpers" feature, not "python"/"nodejs" -
+// "helpers" is unconditionally granted to every user (see
+// baselineFeatures), so in practice this is login-only, matching why it
+// belongs in alwaysOn rather than configured.
 func RegisterShared(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "helpers")(h)

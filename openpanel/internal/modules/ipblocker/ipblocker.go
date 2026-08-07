@@ -1,5 +1,5 @@
-// Package ipblocker ports modules/ip_blocker.py: a per-user IP/CIDR
-// blocklist backed by the opencli user-block_ip wrapper.
+// Package ipblocker is a per-user IP/CIDR blocklist backed by the
+// opencli user-block_ip wrapper.
 package ipblocker
 
 import (
@@ -22,10 +22,9 @@ func injected(a *appctx.App, r *http.Request) (username string, err error) {
 	return username, nil
 }
 
-// normalizeIP mirrors the try/except block in ip_blocker.py: a "/" means
-// CIDR (ipaddress.ip_network(ip, strict=False) - host bits zeroed out to
-// the network address), otherwise a plain address. Returns ok=false for
-// anything that fails to parse, matching Python silently skipping it.
+// normalizeIP: a "/" means CIDR (host bits are zeroed out to the network
+// address), otherwise a plain address. Returns ok=false for anything that
+// fails to parse, which callers treat as silently skippable.
 func normalizeIP(ip string) (string, bool) {
 	if strings.Contains(ip, "/") {
 		prefix, err := netip.ParsePrefix(ip)

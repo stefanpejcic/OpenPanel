@@ -14,7 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterAPI wires modules/api/ip_blocker.py's routes onto mux.
+// RegisterAPI wires the ip-blocker API routes onto mux.
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "ip_blocker", "GET /api/ip-blocker", func(w http.ResponseWriter, r *http.Request) { apiIPBlockerList(a, w, r) })
 	apiregistry.Handle(mux, a, "ip_blocker", "POST /api/ip-blocker", func(w http.ResponseWriter, r *http.Request) { apiIPBlockerAdd(a, w, r) })

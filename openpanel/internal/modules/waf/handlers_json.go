@@ -8,8 +8,8 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
-// handleWAFJSONForDomain mirrors waf.py's waf_for_domain(): recent
-// check/block counts for a domain, polled by waf.html's status column.
+// handleWAFJSONForDomain returns recent check/block counts for a domain,
+// polled by waf.html's status column.
 func handleWAFJSONForDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domain := firstPathSegment(r.PathValue("domain"))
 

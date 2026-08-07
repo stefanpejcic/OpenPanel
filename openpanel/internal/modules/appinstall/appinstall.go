@@ -1,11 +1,10 @@
-// Package appinstall ports the near-identical modules/python.py and
-// modules/nodejs.py (a Python/NodeJS app is installed by generating a
-// docker-compose service entry from a shared template, starting the
-// container, then wiring a reverse-proxy into the domain's vhost config),
-// plus the two always-on helper routes from modules/json/helpers.py that
-// only these two install forms use (/docker/tags/<type>,
-// /json/check_if_file_exists). The two Python modules differ only in a
-// handful of string constants, captured here as a Kind.
+// Package appinstall handles the near-identical Python and NodeJS app
+// install flows (an app is installed by generating a docker-compose
+// service entry from a shared template, starting the container, then
+// wiring a reverse-proxy into the domain's vhost config), plus the two
+// always-on helper routes only these two install forms use
+// (/docker/tags/<type>, /json/check_if_file_exists). The two app types
+// differ only in a handful of string constants, captured here as a Kind.
 package appinstall
 
 import (
@@ -16,7 +15,7 @@ import (
 	"strings"
 )
 
-// Kind captures every point where python.py and nodejs.py diverge.
+// Kind captures every point where the Python and NodeJS install flows diverge.
 type Kind struct {
 	AppType        string // "python" | "nodejs", used in URLs and the compose template filename
 	DisplayAppType string // "Python" | "NodeJS", stored in sites.type and shown in messages
@@ -31,14 +30,13 @@ var (
 
 var validServiceNameRE = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 
-// isValidServiceName mirrors helpers.is_valid_service_name() - NOT
-// docker.IsValidServiceName's stricter lowercase-only regex; python.py and
-// nodejs.py both import the looser helpers.py version.
+// isValidServiceName is deliberately looser than docker.IsValidServiceName's
+// stricter lowercase-only regex - both install types (python, nodejs)
+// share this looser rule.
 func isValidServiceName(name string) bool {
 	return validServiceNameRE.MatchString(name)
 }
 
-// isValidSubdirectory mirrors helpers.is_valid_subdirectory().
 func isValidSubdirectory(subdirectory string) bool {
 	if subdirectory == "" {
 		return true
@@ -48,15 +46,13 @@ func isValidSubdirectory(subdirectory string) bool {
 
 var versionRE = regexp.MustCompile(`^[0-9]+(\.[0-9]+)*$`)
 
-// isValidVersion mirrors helpers.is_valid_version().
 func isValidVersion(version string) bool {
 	return versionRE.MatchString(version)
 }
 
-// noPathTraversal mirrors helpers.no_path_traversal(): normalize the path
-// (resolving "." and ".." the same way Python's os.path.normpath does,
-// which for an absolute path always fully resolves any ".." that stays
-// within the tree) then require it lands under /var/www/html/.
+// noPathTraversal normalizes the path (resolving "." and ".." - for an
+// absolute path this always fully resolves any ".." that stays within the
+// tree) then requires it lands under /var/www/html/.
 func noPathTraversal(p string) bool {
 	if strings.ContainsAny(p, "\n\r") {
 		return false
@@ -73,10 +69,8 @@ func noPathTraversal(p string) bool {
 	return true
 }
 
-// isValidStartupFile mirrors helpers.is_valid_startup_file(): shared
-// between both app types (accepts either .py or .js regardless of which
-// install form submitted it, matching Python's own lack of
-// type-specificity here).
+// isValidStartupFile is shared between both app types: it accepts either
+// .py or .js regardless of which install form submitted it.
 func isValidStartupFile(path string) bool {
 	if !noPathTraversal(path) {
 		return false
@@ -84,7 +78,6 @@ func isValidStartupFile(path string) bool {
 	return strings.HasSuffix(path, ".py") || strings.HasSuffix(path, ".js")
 }
 
-// isValidCustomCommand mirrors helpers.is_valid_custom_command().
 func isValidCustomCommand(cmd string) bool {
 	if strings.Contains(cmd, "..") {
 		return false
@@ -92,27 +85,23 @@ func isValidCustomCommand(cmd string) bool {
 	return !strings.ContainsAny(cmd, "\n\r")
 }
 
-// isValidRequirements mirrors helpers.is_valid_requirements(): only "" (No)
-// or "1" (Yes) are accepted.
+// isValidRequirements accepts only "" (No) or "1" (Yes).
 func isValidRequirements(req string) bool {
 	return req == "" || req == "1"
 }
 
-// isValidWorkdir mirrors helpers.is_valid_workdir(), a direct alias of
-// no_path_traversal().
+// isValidWorkdir is a direct alias of noPathTraversal().
 func isValidWorkdir(path string) bool {
 	return noPathTraversal(path)
 }
 
-// isPositiveNumber mirrors helpers.is_positive_number().
 func isPositiveNumber(value string) bool {
 	v, err := strconv.ParseFloat(value, 64)
 	return err == nil && v > 0
 }
 
-// getValidatedFloat mirrors helpers.get_validated_float(): a positive
-// float, or the parsed default (assumed itself valid, matching every call
-// site passing a literal like "1.0").
+// getValidatedFloat returns a positive float, or the parsed default
+// (assumed itself valid - every call site passes a literal like "1.0").
 func getValidatedFloat(value, def string) float64 {
 	if v, err := strconv.ParseFloat(value, 64); err == nil && v > 0 {
 		return v
@@ -121,7 +110,6 @@ func getValidatedFloat(value, def string) float64 {
 	return d
 }
 
-// buildAppRunCommand mirrors helpers.build_app_run_command().
 func buildAppRunCommand(pyOrNode, requirements, customCmd, startupFile string) string {
 	var installCmd, defaultRun string
 	if pyOrNode == "NODE" {
@@ -151,9 +139,8 @@ func buildAppRunCommand(pyOrNode, requirements, customCmd, startupFile string) s
 	return installCmd + runCmd
 }
 
-// normalizeRequirements mirrors helpers.normalize_requirements() (inlined
-// at python.py/nodejs.py's call site as `'1' if str(req_raw).lower() in
-// (...) else ”`).
+// normalizeRequirements maps common truthy strings to "1", everything
+// else to "".
 func normalizeRequirements(raw string) string {
 	switch strings.ToLower(strings.TrimSpace(raw)) {
 	case "1", "on", "true", "yes":
@@ -163,8 +150,8 @@ func normalizeRequirements(raw string) string {
 	}
 }
 
-// fileExists mirrors `os.path.exists` for the small paths this package
-// checks (backup files during the install's rollback path).
+// fileExists checks the small paths this package cares about (backup
+// files during the install's rollback path).
 func fileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil

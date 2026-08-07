@@ -62,10 +62,9 @@ type DashboardPageData struct {
 	FTPLimit      int
 }
 
-// twofaStatusMessage mirrors twofa.html's
-// `_('2FA is <b>{status}</b> for your account.').format(status=status_text)` -
-// status_text itself ("enabled"/"disabled") is plain English in the
-// Python source, not passed through _(), so it's never translated either.
+// twofaStatusMessage builds the "2FA is <b>{status}</b> for your account."
+// message. status itself ("enabled"/"disabled") is plain English and
+// never translated.
 func twofaStatusMessage(t i18n.Translator, enabled bool) template.HTML {
 	status := "disabled"
 	if enabled {

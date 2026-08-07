@@ -57,7 +57,7 @@ func TestEncodeDecodeCredentialID(t *testing.T) {
 func TestPasskeyUserWebAuthnID(t *testing.T) {
 	u := &passkeyUser{userID: 42, username: "bob"}
 	if string(u.WebAuthnID()) != "42" {
-		t.Errorf("WebAuthnID() = %q, want %q (decimal-ASCII, matching the Python-registered scheme)", u.WebAuthnID(), "42")
+		t.Errorf("WebAuthnID() = %q, want %q (decimal-ASCII, matching the scheme existing passkeys were registered under)", u.WebAuthnID(), "42")
 	}
 	if u.WebAuthnName() != "bob" || u.WebAuthnDisplayName() != "bob" {
 		t.Errorf("WebAuthnName/DisplayName = %q/%q, want %q", u.WebAuthnName(), u.WebAuthnDisplayName(), "bob")

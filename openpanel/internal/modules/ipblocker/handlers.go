@@ -13,7 +13,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// handleIPBlocker mirrors ip_blocker.py's ip_blocker().
 func handleIPBlocker(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	username, err := injected(a, r)
 	if err != nil {

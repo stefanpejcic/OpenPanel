@@ -22,9 +22,9 @@ func invalidate2FAStatus(a *appctx.App, r *http.Request, userID int) {
 }
 
 // randomBase32Secret generates a TOTP secret. Deliberately stronger than
-// pyotp.random_base32()'s Python default (16 base32 chars / 10 random
-// bytes / 80 bits): some client-side TOTP libraries (e.g. otplib, used by
-// this project's Playwright tests) reject anything under the RFC
+// a common TOTP library default (16 base32 chars / 10 random bytes / 80
+// bits): some client-side TOTP libraries (e.g. otplib, used by this
+// project's Playwright tests) reject anything under the RFC
 // 4226-recommended 128-bit minimum, so this uses the RFC's recommended 160
 // bits (20 random bytes, encoding to exactly 32 base32 characters with no
 // padding needed) instead.

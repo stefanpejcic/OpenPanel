@@ -7,7 +7,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
-// Register wires modules/ip_blocker.py's route onto mux.
+// Register wires the ip-blocker route onto mux.
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "ip_blocker")(h)

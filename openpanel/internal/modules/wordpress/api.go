@@ -25,12 +25,11 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 )
 
-// RegisterAPI wires modules/api/wordpress.py's routes onto mux. Several
+// RegisterAPI wires the WordPress API routes onto mux. Several
 // sub-resources share a <domain> prefix with a literal suffix - Go's
 // http.ServeMux requires a "{...}" wildcard to be the final segment, so
 // GET/POST get a "{rest...}" catch-all where needed and the dispatch funcs
-// below strip the known suffix by hand, replicating Werkzeug's
-// literal-suffix-wins routing.
+// below strip the known suffix by hand to recover per-suffix routing.
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "wordpress", "GET /api/wordpress", func(w http.ResponseWriter, r *http.Request) { apiWordPressList(a, w, r) })
 	apiregistry.Handle(mux, a, "wordpress", "GET /api/wordpress/secure", func(w http.ResponseWriter, r *http.Request) { apiWordPressSecureRules(a, w, r) })
@@ -258,9 +257,9 @@ func boolStr(b bool) string {
 
 // apiCaptureWriter buffers a reused UI handler's response instead of
 // streaming it to the client, so the API wrapper can inspect the outcome
-// (status code, plain-text vs JSON body) and translate it into the JSON
-// envelope modules/api/wordpress.py actually returns, rather than letting
-// the UI handler's own plain-text success body leak into an API response.
+// (status code, plain-text vs JSON body) and translate it into the proper
+// JSON envelope, rather than letting the UI handler's own plain-text
+// success body leak into an API response.
 type apiCaptureWriter struct {
 	header http.Header
 	status int
@@ -453,11 +452,10 @@ func apiWordPressSecureSet(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 // ── Remove / Detach ──────────────────────────────────────────────────────
 
-// apiWordPressRemove mirrors api_wordpress_remove(). The UI's
-// handleRemoveWordPress isn't reused here: it authenticates via session
-// flash messages and a form field rather than returning JSON, and Python's
-// API version has its own distinct status-code contract (403/404/500)
-// instead of flash-and-redirect - so this reimplements the same DB lookup /
+// apiWordPressRemove doesn't reuse the UI's handleRemoveWordPress: that
+// one reports outcomes via session flash messages and a redirect, while
+// this needs its own distinct status-code contract (403/404/500) instead
+// of flash-and-redirect - so this reimplements the same DB lookup /
 // wp-config.php credential scrape / DB+user drop / file cleanup sequence
 // directly, reusing only the low-level pieces (removeDBNameRE/
 // removeDBUserRE, wordpressFiles, mysqlmanager.Exec, cache invalidation).
@@ -642,9 +640,8 @@ func apiWordPressReload(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ── WP-CLI ───────────────────────────────────────────────────────────────
 
-// apiWPCLIActions mirrors ALLOWED_ACTIONS in api_wp_cli(): a deliberately
-// separate, smaller action set from the UI's own wp-cli passthrough
-// (handleWPCLI), matching modules/api/wordpress.py exactly.
+// apiWPCLIActions is a deliberately separate, smaller action set from the
+// UI's own wp-cli passthrough (handleWPCLI).
 var apiWPCLIActions = map[string][]string{
 	"core_update":       {"core", "update", "--allow-root", "--skip-themes"},
 	"core_update_check": {"core", "check-update", "--allow-root", "--skip-themes"},

@@ -85,8 +85,8 @@ func webAuthnUnavailableReason(r *http.Request) string {
 }
 
 // newWebAuthnForRequest builds a *webauthn.WebAuthn scoped to the current
-// request's host, matching rp_id_and_origin() being recomputed on every
-// call in Python rather than configured once.
+// request's host, recomputed on every call rather than configured once,
+// since the RP ID/origin depend on the request's host.
 func newWebAuthnForRequest(r *http.Request, brandName string) (*webauthn.WebAuthn, error) {
 	rpID, origin := rpIDAndOrigin(r)
 	if brandName == "" {

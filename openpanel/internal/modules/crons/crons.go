@@ -1,7 +1,6 @@
-// Package crons ports modules/crons.py: the per-user crons.ini file
-// (dodo/go-cron "job-exec" blocks executed inside a container), its table
-// and raw-file editor views, and the log viewer for the shared cron
-// container.
+// Package crons manages the per-user crons.ini file (dodo/go-cron
+// "job-exec" blocks executed inside a container), its table and raw-file
+// editor views, and the log viewer for the shared cron container.
 package crons
 
 import (
@@ -16,7 +15,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// excludedServicesForCrons mirrors excluded_services_for_crons.
 var excludedServicesForCrons = map[string]bool{"cron": true, "docker-proxy": true}
 
 func injected(a *appctx.App, r *http.Request) (username, userContext string, err error) {
@@ -43,9 +41,8 @@ func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, 
 	_ = a.Sessions.Save(r, w, sess)
 }
 
-// cronMaxFileSizeBytes mirrors MAX_CRON_FILE_SIZE, derived from
-// cron_max_file_size_kb (default 100 KB). a.Config is loaded once at
-// process startup, matching Python's own module-import-time read.
+// cronMaxFileSizeBytes is derived from cron_max_file_size_kb (default
+// 100 KB). a.Config is loaded once at process startup.
 func cronMaxFileSizeBytes(a *appctx.App) int {
 	kb, err := strconv.Atoi(a.Config.Get("cron_max_file_size_kb", "100"))
 	if err != nil {

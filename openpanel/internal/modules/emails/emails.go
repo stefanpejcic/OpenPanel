@@ -1,9 +1,6 @@
-// Package emails ports modules/emails.py plus its siblings
-// (email_aliases.py, email_default.py, email_deliverability.py,
-// email_export.py, email_filters.py, email_import.py) and modules/webmail.py:
-// email account CRUD, quota management, aliases, catch-all addresses,
-// SPF/DKIM/DMARC deliverability checks, CSV/XLSX export/import, Sieve
-// filters, and webmail single-sign-on.
+// Package emails handles email account CRUD, quota management, aliases,
+// catch-all addresses, SPF/DKIM/DMARC deliverability checks, CSV/XLSX
+// export/import, Sieve filters, and webmail single-sign-on.
 package emails
 
 import (
@@ -38,16 +35,14 @@ var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]
 
 func isValidEmail(s string) bool { return emailRegex.MatchString(s) }
 
-// baseMailPath mirrors BASE_MAIL_PATH, read once from admin.ini at package
-// init (matching Python's module-load-time ConfigParser read).
+// baseMailPath is read once from admin.ini at package init.
 var baseMailPath = readEmailStorageLocation()
 
 const adminIniPath = "/etc/openpanel/openadmin/config/admin.ini"
 
-// readEmailStorageLocation mirrors the module-level
-// `config.get("EMAIL", "email_storage_location", fallback="/var/mail")`
-// read - a minimal single-purpose INI reader since this is the only place
-// in the port that needs admin.ini's [EMAIL] section.
+// readEmailStorageLocation reads admin.ini's [EMAIL] email_storage_location
+// value (default "/var/mail") - a minimal single-purpose INI reader since
+// this is the only place that needs admin.ini's [EMAIL] section.
 func readEmailStorageLocation() string {
 	const fallback = "/var/mail"
 	data, err := os.ReadFile(adminIniPath)
@@ -117,7 +112,7 @@ func randomURLToken(nBytes int) string {
 }
 
 // ---------------------------------------------------------------------------
-// email list cache (mirrors emails.py's get_email_list/import_user_emails)
+// email list cache
 // ---------------------------------------------------------------------------
 
 func emailsCacheKey(username string) string { return "email_list:" + username }
@@ -249,9 +244,8 @@ func quotaToBytes(value string) (float64, error) {
 	return num * mult, nil
 }
 
-// emailSetQuota mirrors email_set_quota(). Returns (message, ok); ok=false
-// with an empty message means "invalid quota format" (Python's None
-// sentinel).
+// emailSetQuota returns (message, ok); ok=false with an empty message
+// means "invalid quota format".
 func emailSetQuota(email, gb, format, maxEmailQuota string, maxEmailQuotaNumeric float64, allocatedUnit string) (string, bool) {
 	if gb == "0" {
 		_ = exec.Command("opencli", "email-setup", "quota", "del", email).Run()
@@ -282,8 +276,7 @@ func emailSetQuota(email, gb, format, maxEmailQuota string, maxEmailQuotaNumeric
 }
 
 // trimFloat formats a float without a trailing ".0" when it's a whole
-// number, matching Python's f-string interpolation of ints/floats
-// (max_email_quota_numeric is often an int from _parse_max_quota).
+// number - the max quota value is often a whole number in practice.
 func trimFloat(f float64) string {
 	if f == float64(int64(f)) {
 		return strconv.FormatInt(int64(f), 10)
@@ -559,9 +552,8 @@ func parseSingleEmailQuota(entry string) SingleEmailQuota {
 // SINGLE EMAIL: LIST, EDIT, DELETE
 // ---------------------------------------------------------------------------
 
-// handleEmails mirrors emails(): GET /emails, GET/POST/DELETE /emails and
-// /emails/edit/{email} (email is "" when hit at the bare /emails path,
-// matching Python's default parameter).
+// handleEmails handles GET /emails, GET/POST/DELETE /emails and
+// /emails/edit/{email} (email is "" when hit at the bare /emails path).
 func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

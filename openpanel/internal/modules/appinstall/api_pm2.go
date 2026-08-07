@@ -18,14 +18,13 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// RegisterPM2API wires modules/api/pm2.py's routes onto mux. GET .../logs
-// and the three POST .../start|stop|restart routes all share a
-// <path:site_name> prefix with a literal suffix - Go's http.ServeMux
-// requires a "{...}" wildcard to be the final segment, so each method gets
-// one "{rest...}" catch-all and the dispatch funcs below strip the known
-// suffix by hand, replicating Werkzeug's literal-suffix-wins routing.
-// apiregistry.Add still records each logical route separately for
-// /api/endpoints.
+// RegisterPM2API wires the pm2 API routes onto mux. GET .../logs and the
+// three POST .../start|stop|restart routes all share a site-name prefix
+// with a literal suffix - Go's http.ServeMux requires a "{...}" wildcard
+// to be the final segment, so each method gets one "{rest...}" catch-all
+// and the dispatch funcs below strip the known suffix by hand to recover
+// per-suffix routing. apiregistry.Add still records each logical route
+// separately for /api/endpoints.
 func RegisterPM2API(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Add("GET /api/pm2/{site_name}/logs")
 	mux.Handle("GET /api/pm2/{rest...}", auth.RequireAPI(a, "pm2")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiPM2GetDispatch(a, w, r) })))

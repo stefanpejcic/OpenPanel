@@ -7,7 +7,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
-// Register wires modules/crons.py's routes onto mux.
+// Register wires the crons routes onto mux.
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "crons")(h)

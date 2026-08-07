@@ -18,12 +18,9 @@ type Section struct {
 	Items []SectionItem
 }
 
-// buildDashboardSections mirrors dashboard.html lines ~99-250: the
-// section_titles/sections dict literals, plus the
-// `items | selectattr('key', 'in', user_allowed) | list` filter
-// icon_section() applies when called. Section order matches the dict's
-// insertion order, since Python 3.7+ dicts (and Jinja's iteration over
-// them) preserve it.
+// buildDashboardSections builds the dashboard's section/item list,
+// keeping only items whose key is in allowed, for dashboard.html's
+// {{range .Sections}}. Section order matches this slice's literal order.
 func buildDashboardSections(allowed map[string]bool) []Section {
 	all := []Section{
 		{Key: "files", Title: "Files", Items: []SectionItem{
