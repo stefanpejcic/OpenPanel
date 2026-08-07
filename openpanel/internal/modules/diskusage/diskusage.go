@@ -93,7 +93,12 @@ func diskUsageOutput(ctx context.Context, a *appctx.App, userContext, actualFold
 		cmd.Dir = actualFolder
 		out, err := cmd.Output()
 		if err != nil {
-			return "", nil //nolint:nilerr // command failure -> empty output, not an error response
+			if _, ok := err.(*exec.ExitError); !ok {
+				return "", nil //nolint:nilerr // command failure -> empty output, not an error response
+			}
+			// find/du exit non-zero on permission-denied for individual
+			// subdirectories but still write the rest of their output to
+			// stdout, so keep using it instead of discarding everything.
 		}
 		return strings.ReplaceAll(string(out), "./", ""), nil
 	})

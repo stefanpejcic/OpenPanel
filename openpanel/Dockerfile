@@ -13,6 +13,7 @@ RUN apk add --no-cache \
     grep \
     procps \
     coreutils \
+    findutils \
     wget \
     curl \
     mariadb-client \
