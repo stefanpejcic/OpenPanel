@@ -31,16 +31,17 @@ var ftpPathPage = web.MustLoadPage(append(append([]string{}, pageFiles...), "fil
 type FTPAccountsPageData struct {
 	web.LayoutData
 	ServerIP, DedicatedIP string
+	FTPHost, FTPPort      string
 	Accounts              []Account
 }
 
-func renderFTPAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, serverIP, dedicatedIP string, accounts []Account) {
+func renderFTPAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, serverIP, dedicatedIP, ftpHost, ftpPort string, accounts []Account) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "FTP Accounts")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := FTPAccountsPageData{LayoutData: layout, ServerIP: serverIP, DedicatedIP: dedicatedIP, Accounts: accounts}
+	data := FTPAccountsPageData{LayoutData: layout, ServerIP: serverIP, DedicatedIP: dedicatedIP, FTPHost: ftpHost, FTPPort: ftpPort, Accounts: accounts}
 	if err := ftpAccountsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("FTP - accounts template render error: %v", err)
 	}

@@ -155,13 +155,19 @@ func handleFTPAccounts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	serverIP := a.GetCachedIPForUserOrPublicIPv4(r.Context(), currentUsername)
 
+	defaultHost := serverIP
+	if dedicatedIP != "Unknown" {
+		defaultHost = dedicatedIP
+	}
+	ftpHost, ftpPort := resolveFTPHostPort(defaultHost)
+
 	userFolder := "/etc/openpanel/ftp/users/" + userContext
 	usersListFile := userFolder + "/users.list"
 	_ = os.MkdirAll(userFolder, 0o755)
 
 	accounts := loadAccounts(usersListFile)
 
-	renderFTPAccountsPage(a, w, r, serverIP, dedicatedIP, accounts)
+	renderFTPAccountsPage(a, w, r, serverIP, dedicatedIP, ftpHost, ftpPort, accounts)
 }
 
 // handleListFTPConnections renders the page listing currently active FTP
@@ -407,27 +413,36 @@ func handleFTPConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	ftpHost := a.GetCachedIPForUserOrPublicIPv4(r.Context(), currentUsername)
+	defaultHost := a.GetCachedIPForUserOrPublicIPv4(r.Context(), currentUsername)
 	dedicatedIPPath := "/etc/openpanel/openpanel/core/users/" + currentUsername + "/ip.json"
 	if data, err := os.ReadFile(dedicatedIPPath); err == nil {
 		var parsed struct {
 			IP string `json:"ip"`
 		}
 		if json.Unmarshal(data, &parsed) == nil && parsed.IP != "" {
-			ftpHost = parsed.IP
+			defaultHost = parsed.IP
 		}
 	}
+	host, port := resolveFTPHostPort(defaultHost)
 
 	var content2, filename, mimeType string
 	switch clientType {
 	case "cyberduck":
-		content2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bookmark>\n    <hostname>" + ftpHost + "</hostname>\n    <username>" + accountData.Username + "</username>\n    <protocol>ftp</protocol>\n    <path>" + accountData.Path + "</path>\n</bookmark>"
 		filename = account + "_cyberduck.ftpbookmark"
 		mimeType = "application/xml"
+		if rendered, ok := renderFTPClientTemplate(ftpCyberduckTemplatePath, host, port, accountData.Username, accountData.Path); ok {
+			content2 = rendered
+		} else {
+			content2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bookmark>\n    <hostname>" + host + "</hostname>\n    <username>" + accountData.Username + "</username>\n    <protocol>ftp</protocol>\n    <path>" + accountData.Path + "</path>\n</bookmark>"
+		}
 	case "filezilla":
-		content2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<FileZilla3>\n    <Servers>\n        <Server>\n            <Host>" + ftpHost + "</Host>\n            <Port>21</Port>\n            <Protocol>0</Protocol>\n            <Type>0</Type>\n            <User>" + accountData.Username + "</User>\n            <Logontype>2</Logontype>\n            <EncodingType>Auto</EncodingType>\n            <Name>" + account + "</Name>\n            <RemoteDir>" + accountData.Path + "</RemoteDir>\n            <UsePassive>1</UsePassive>\n            <BypassProxy>0</BypassProxy>\n            <Encryption>0</Encryption>\n        </Server>\n    </Servers>\n</FileZilla3>"
 		filename = account + "_filezilla.xml"
 		mimeType = "application/xml"
+		if rendered, ok := renderFTPClientTemplate(ftpFileZillaTemplatePath, host, port, accountData.Username, accountData.Path); ok {
+			content2 = rendered
+		} else {
+			content2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<FileZilla3>\n    <Servers>\n        <Server>\n            <Host>" + host + "</Host>\n            <Port>" + port + "</Port>\n            <Protocol>0</Protocol>\n            <Type>0</Type>\n            <User>" + accountData.Username + "</User>\n            <Logontype>2</Logontype>\n            <EncodingType>Auto</EncodingType>\n            <Name>" + account + "</Name>\n            <RemoteDir>" + accountData.Path + "</RemoteDir>\n            <UsePassive>1</UsePassive>\n            <BypassProxy>0</BypassProxy>\n            <Encryption>0</Encryption>\n        </Server>\n    </Servers>\n</FileZilla3>"
+		}
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "downloaded "+clientType+" configuration for FTP account "+account, reqip.ClientIP(r))

@@ -352,15 +352,23 @@ func apiFTPConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	ftpHost := apiServerIP(a, r, currentUsername)
+	host, port := resolveFTPHostPort(apiServerIP(a, r, currentUsername))
 
 	var xmlContent, filename string
 	if configType == "cyberduck" {
-		xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bookmark>\n    <hostname>" + ftpHost + "</hostname>\n    <username>" + accountData.Username + "</username>\n    <protocol>ftp</protocol>\n    <path>" + accountData.Path + "</path>\n</bookmark>"
 		filename = account + "_cyberduck.ftpbookmark"
+		if rendered, ok := renderFTPClientTemplate(ftpCyberduckTemplatePath, host, port, accountData.Username, accountData.Path); ok {
+			xmlContent = rendered
+		} else {
+			xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bookmark>\n    <hostname>" + host + "</hostname>\n    <username>" + accountData.Username + "</username>\n    <protocol>ftp</protocol>\n    <path>" + accountData.Path + "</path>\n</bookmark>"
+		}
 	} else {
-		xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<FileZilla3>\n    <Servers>\n        <Server>\n            <Host>" + ftpHost + "</Host>\n            <Port>21</Port>\n            <Protocol>0</Protocol>\n            <Type>0</Type>\n            <User>" + accountData.Username + "</User>\n            <Logontype>2</Logontype>\n            <EncodingType>Auto</EncodingType>\n            <Name>" + account + "</Name>\n            <RemoteDir>" + accountData.Path + "</RemoteDir>\n            <UsePassive>1</UsePassive>\n        </Server>\n    </Servers>\n</FileZilla3>"
 		filename = account + "_filezilla.xml"
+		if rendered, ok := renderFTPClientTemplate(ftpFileZillaTemplatePath, host, port, accountData.Username, accountData.Path); ok {
+			xmlContent = rendered
+		} else {
+			xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<FileZilla3>\n    <Servers>\n        <Server>\n            <Host>" + host + "</Host>\n            <Port>" + port + "</Port>\n            <Protocol>0</Protocol>\n            <Type>0</Type>\n            <User>" + accountData.Username + "</User>\n            <Logontype>2</Logontype>\n            <EncodingType>Auto</EncodingType>\n            <Name>" + account + "</Name>\n            <RemoteDir>" + accountData.Path + "</RemoteDir>\n            <UsePassive>1</UsePassive>\n        </Server>\n    </Servers>\n</FileZilla3>"
+		}
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "downloaded "+configType+" config for FTP account "+account, reqip.ClientIP(r))

@@ -10,7 +10,7 @@
         <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Total accounts:"}} <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white mb-2">{{len .Accounts}}</span></p>
     </div>
     <div class="mt-2 gap-2 sm:mt-0 group">
-        <span>{{.T.Get "FTP Server:"}} <b id="ftp_server_address">{{if ne .DedicatedIP "Unknown"}}{{.DedicatedIP}}{{else}}{{.ServerIP}}{{end}}</b> | {{.T.Get "FTP Port:"}} <b id="ftp_server_port">21</b></span>
+        <span>{{.T.Get "FTP Server:"}} <b id="ftp_server_address">{{.FTPHost}}</b> | {{.T.Get "FTP Port:"}} <b id="ftp_server_port">{{.FTPPort}}</b></span>
     <p class="whitespace-nowrap text-sm text-end text-gray-600 dark:text-gray-400"><a href="/ftp/connections">{{.T.Get "View Connections"}}</a></p>
     </div>
 </div>

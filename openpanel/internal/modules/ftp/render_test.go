@@ -24,7 +24,7 @@ func TestRenderFTPAccountsPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("empty", func(t *testing.T) {
-		data := FTPAccountsPageData{LayoutData: baseLayout(mgr, "/ftp"), ServerIP: "1.2.3.4", DedicatedIP: "Unknown"}
+		data := FTPAccountsPageData{LayoutData: baseLayout(mgr, "/ftp"), ServerIP: "1.2.3.4", DedicatedIP: "Unknown", FTPHost: "1.2.3.4", FTPPort: "21"}
 		w := httptest.NewRecorder()
 		if err := ftpAccountsPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
@@ -40,6 +40,7 @@ func TestRenderFTPAccountsPage(t *testing.T) {
 	t.Run("with accounts", func(t *testing.T) {
 		data := FTPAccountsPageData{
 			LayoutData: baseLayout(mgr, "/ftp"), ServerIP: "1.2.3.4", DedicatedIP: "9.9.9.9",
+			FTPHost: "9.9.9.9", FTPPort: "21",
 			Accounts: []Account{{Username: "bob@example.com", Path: "/var/www/html/", UID: "1000", GID: "1000"}},
 		}
 		w := httptest.NewRecorder()
