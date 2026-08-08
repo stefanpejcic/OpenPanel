@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org/)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           30.07.2026
+# Last Modified:           08.08.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -319,6 +319,13 @@ wait_for_pkg_lock() {
         (( waited += 5 ))
     done
     die 1 "Timeout waiting for package manager lock."
+}
+
+sync_el_deps() {
+    # https://github.com/stefanpejcic/OpenPanel/issues/1060
+    [[ "$PACKAGE_MANAGER" =~ ^(dnf|yum)$ ]] || return
+    echo "Syncing system libraries to avoid AlmaLinux dependency-metadata gaps (systemd/openssl-libs)..."
+    run $PACKAGE_MANAGER distro-sync -y
 }
 
 install_packages() {
@@ -1082,6 +1089,7 @@ setup_progress_bar() {
 
 STEPS=(
     update_package_manager
+    sync_el_deps
     install_packages
     podman_docker_alias
     pull_sytem_images
