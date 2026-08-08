@@ -117,8 +117,8 @@ func TestBuildSidebarNavMySQLGroupPhpMyAdminGated(t *testing.T) {
 
 func TestBuildSidebarNavDockerGroupSimplePath(t *testing.T) {
 	groups := BuildSidebarNav(map[string]bool{"docker": true}, "/containers/terminal")
-	if len(groups) != 1 || groups[0].Label != "Docker" {
-		t.Fatalf("expected a Docker group, got %+v", groups)
+	if len(groups) != 1 || groups[0].Label != "Containers" {
+		t.Fatalf("expected a Containers group, got %+v", groups)
 	}
 	for _, l := range groups[0].Links {
 		if l.Href == "/containers/terminal" && !l.Active {

@@ -555,7 +555,7 @@
         "description": "Execute commands in Containers.", 
         "link": "/containers/terminal", 
         "module": "docker",
-        "name": "Docker Terminal"
+        "name": "Container Terminal"
     },
     {
         "description": "View Container Logs.", 

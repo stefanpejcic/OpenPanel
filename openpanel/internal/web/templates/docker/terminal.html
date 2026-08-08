@@ -11,13 +11,13 @@
   <script src="{{static "vendor/xterm/xterm-addon-fit.min.js"}}"></script>
   <script src="{{static "vendor/xterm/xterm-addon-web-links.min.js"}}"></script>
 
-  <section aria-label="Docker Terminal" x-data="{ tooltip: false }">
+  <section aria-label="Container Terminal" x-data="{ tooltip: false }">
 
     <!-- header -->
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <div class="flex items-center gap-x-3">
-          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Docker Terminal"}}</h1>
+          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container Terminal"}}</h1>
 
           <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -221,7 +221,7 @@
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <div class="flex items-center gap-x-3">
-          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Docker Terminal"}}</h1>
+          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container Terminal"}}</h1>
         </div>
         <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Select active service to open web terminal."}}</p>
       </div>

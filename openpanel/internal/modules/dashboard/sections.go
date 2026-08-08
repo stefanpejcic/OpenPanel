@@ -103,7 +103,7 @@ func buildDashboardSections(allowed map[string]bool) []Section {
 			{"php_extensions", "/php/extensions", "bi-puzzle", "PHP Extensions", ""},
 			{"php_ini", "/php/php_ini_editor", "bi-filetype-php", "PHP.INI Editor", ""},
 		}},
-		{Key: "docker", Title: "Docker", Items: []SectionItem{
+		{Key: "docker", Title: "Containers", Items: []SectionItem{
 			{"docker", "/containers", "bi-boxes", "Containers", ""},
 			{"docker", "/containers/terminal", "bi-terminal", "Terminal", ""},
 			{"docker", "/containers/logs", "bi-file-binary", "Logs", ""},

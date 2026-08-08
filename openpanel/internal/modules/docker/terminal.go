@@ -34,7 +34,7 @@ func handleDockerTerminal(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	terminalTimeout := terminalCommandTimeout(a)
 
 	if containerName != "" {
-		renderTerminalPage(a, w, r, terminalTimeout, "Docker Terminal", containerName, nil)
+		renderTerminalPage(a, w, r, terminalTimeout, "Container Terminal", containerName, nil)
 		return
 	}
 
@@ -57,7 +57,7 @@ func handleDockerTerminal(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	renderTerminalPage(a, w, r, terminalTimeout, "Select Docker service", "", activeServiceNames)
+	renderTerminalPage(a, w, r, terminalTimeout, "Select Container", "", activeServiceNames)
 }
 
 func terminalCommandTimeout(a *appctx.App) time.Duration {

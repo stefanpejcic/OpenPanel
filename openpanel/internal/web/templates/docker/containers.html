@@ -130,10 +130,7 @@
 <!-- JS for stats -->
 <script>
 const containersI18n = {
-    enabled: "{{.T.Get "Enabled"}}",
-    stop: "{{.T.Get "Stop"}}",
-    terminal: "{{.T.Get "Terminal"}}",
-    logs: "{{.T.Get "Logs"}}"
+    enabled: "{{.T.Get "Enabled"}}"
 };
 document.addEventListener('DOMContentLoaded', function() {
     fetch('/json/services', {
@@ -165,7 +162,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     var netioCell = document.querySelector('#netio-' + containerId);
                     var pidsCell = document.querySelector('#pids-' + containerId);
                     var ramCell = document.querySelector('#ram-' + containerId);
-                    var actionsCell = document.querySelector('#actions-' + containerId);
+                    var startItem = document.querySelector('#start-item-' + containerId);
+                    var stopItem = document.querySelector('#stop-item-' + containerId);
                     var cpuCell = document.querySelector('#cpu-' + containerId);
                     var ramText = document.querySelector('#ram-usage-' + containerId);
                     var cpuText = document.querySelector('#cpu-usage-' + containerId);
@@ -245,17 +243,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     statusCell.innerHTML = statusInfo;
 
 
-                    var actionsInfo = `
-                        <form method="POST" action="/containers/stop/${containerName}">
-                        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-                        <button type="submit" class="relative inline-flex items-center justify-center gap-1 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stop-fill" viewBox="0 0 16 16">
-  <path d="M5 3.5h6A1.5 1.5 0 0 1 12.5 5v6a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 11V5A1.5 1.5 0 0 1 5 3.5"/>
-</svg> ${containersI18n.stop}</button></form>
-<a href="/containers/terminal/${containerName}" class="relative inline-flex items-center justify-center gap-1 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-terminal" viewBox="0 0 16 16"> <path d="M6 9a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3A.5.5 0 0 1 6 9M3.854 4.146a.5.5 0 1 0-.708.708L4.793 6.5 3.146 8.146a.5.5 0 1 0 .708.708l2-2a.5.5 0 0 0 0-.708z"/>  <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/></svg>${containersI18n.terminal}</a>
-<a href="/containers/logs?container=${containerName}&lines=20" class="relative inline-flex items-center justify-center gap-1 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600">${containersI18n.logs}</a>
-
-`;
-                    actionsCell.innerHTML = actionsInfo;
+                    // Container is running: show "Stop" in the actions dropdown instead of "Start".
+                    if (startItem) startItem.classList.add('hidden');
+                    if (stopItem) stopItem.classList.remove('hidden');
 
                     if (cpuUsage >= 90 || memUsage >= 90) {
                         highUsageContainers.push(containerName);
@@ -444,27 +434,44 @@ class="relative group cursor-pointer p-4 text-sm whitespace-nowrap text-gray-600
         <span class="w-full relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-2 py-1 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0 text-gray-400 dark:text-gray-600"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 10.5858L9.17157 7.75736L7.75736 9.17157L10.5858 12L7.75736 14.8284L9.17157 16.2426L12 13.4142L14.8284 16.2426L16.2426 14.8284L13.4142 12L16.2426 9.17157L14.8284 7.75736L12 10.5858Z"></path></svg>{{$t.Get "Disabled"}}</button>
     </td>
 
-                    <td x-show="columns.actions" x-data="{ pullValue: 'false' }" class="flex py-1 gap-1 justify-end">
-                        <span id="actions-{{$row.Service}}" class="flex gap-1">
-                        <form method="POST" class="flex gap-1" action="/containers/start/{{$row.DisplayName}}">
-                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-                            <input type="hidden" name="pull" class="pullInput" :value="pullValue">
-                            <button type="submit" class="relative inline-flex items-center justify-center gap-1 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
-  <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393"/></svg>{{$t.Get "Start"}}</button>
-                            <button type="button" class="hidden items-center justify-center gap-1 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600" @click="pullValue = 'true'; $nextTick(() => $el.closest('form').submit())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg>{{$t.Get "Pull & Start"}}</button>
-                        </form>
-                        </span>
+                    <td x-show="columns.actions" class="whitespace-nowrap p-2 text-sm text-gray-600 dark:text-gray-400" style="text-align: right;">
 
+<button id="dropdownHoverButton-{{$row.Service}}" data-dropdown-toggle="dropdownHover-{{$row.Service}}" data-dropdown-trigger="hover" class="text-dark bg-white-700 hover:bg-dark-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-dark-600 dark:hover:bg-dark-700 dark:focus:ring-dark-800" type="button"><i class="bi bi-three-dots-vertical"></i>
+</button>
+
+<!-- Dropdown menu -->
+<div id="dropdownHover-{{$row.Service}}" class="z-10 text-left hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownHoverButton-{{$row.Service}}">
+        <li id="start-item-{{$row.Service}}">
+            <form method="POST" action="/containers/start/{{$row.DisplayName}}">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <button type="submit" class="w-full text-left flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-play-fill"></i> {{$t.Get "Start"}}</button>
+            </form>
+        </li>
+        <li id="stop-item-{{$row.Service}}" class="hidden">
+            <form method="POST" action="/containers/stop/{{$row.Service}}">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <button type="submit" class="w-full text-left flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-stop-fill"></i> {{$t.Get "Stop"}}</button>
+            </form>
+        </li>
 {{if $row.ShowManage}}
-<a href="/containers/edit/{{$row.Service}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
-</svg> {{$t.Get "Edit"}}</a>
-
-<a href="/containers/delete/{{$row.Service}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-  <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
-</svg> {{$t.Get "Delete"}}</a>
+        <li>
+            <a href="/containers/edit/{{$row.Service}}" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-pencil-square"></i> {{$t.Get "Edit"}}</a>
+        </li>
 {{end}}
+        <li>
+            <a href="/containers/terminal/{{$row.Service}}" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-terminal"></i> {{$t.Get "Terminal"}}</a>
+        </li>
+        <li>
+            <a href="/containers/logs?container={{$row.Service}}&lines=20" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-file-text"></i> {{$t.Get "Logs"}}</a>
+        </li>
+{{if $row.ShowManage}}
+        <li>
+            <a href="/containers/delete/{{$row.Service}}" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-trash3"></i> {{$t.Get "Delete"}}</a>
+        </li>
+{{end}}
+    </ul>
+</div>
                     </td>
                 </tr>
 {{end}}

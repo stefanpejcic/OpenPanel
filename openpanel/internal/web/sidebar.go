@@ -345,7 +345,7 @@ func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 			{"/containers/mysql", "Switch MySQL Type", path == "/containers/mysql", ""},
 		}
 		open := strings.HasPrefix(path, "/containers")
-		groups = append(groups, NavGroup{"Docker", dockerIcon, "docker-menu", links, open, open})
+		groups = append(groups, NavGroup{"Containers", dockerIcon, "docker-menu", links, open, open})
 	}
 
 	// Account group
