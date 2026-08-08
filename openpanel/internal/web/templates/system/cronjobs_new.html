@@ -88,6 +88,15 @@
                  placeholder="{{.T.Get "optional"}}">
         </div>
 
+        <!-- No overlap checkbox -->
+        <div class="col-span-full w-full">
+          <label for="no_overlap" class="inline-flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="no_overlap" class="rounded border-gray-300 dark:border-neutral-700 text-blue-600 focus:ring-blue-500">
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "No overlap"}}</span>
+          </label>
+          <p class="mt-1 text-xs text-gray-500 dark:text-neutral-500">{{.T.Get "Skip this run if the previous run of this job is still in progress."}}</p>
+        </div>
+
       </div>
 
       <div class="md:flex items-center md:justify-end md:space-x-4 mt-6">
@@ -139,6 +148,9 @@
       appendHiddenInput('command', command);
       appendHiddenInput('container', container);
       appendHiddenInput('comment', document.getElementById('comment').value);
+      if (document.getElementById('no_overlap').checked) {
+        appendHiddenInput('no_overlap', '1');
+      }
 
       form.submit();
     }

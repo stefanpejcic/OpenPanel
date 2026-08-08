@@ -74,6 +74,11 @@
     <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Value"}}:</strong> {{.T.Get "String, e.g. job for mysql db dump"}}</p>
     <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Default"}}:</strong> {{.T.Get "Optional."}}</p>
 
+                <h3 class="mt-4 text-sm font-medium text-gray-900 dark:text-gray-50"><span class="absolute inset-0" aria-hidden="true"></span>{{.T.Get "No overlap"}}</h3>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Description"}}:</strong> {{.T.Get "Skip this run if the previous run of this job is still in progress."}}</p>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Value"}}:</strong> {{.T.Get "Checkbox, adds a no-overlap line to the job's block when checked."}}</p>
+    <p class="text-sm text-gray-500 dark:text-gray-500"><strong>{{.T.Get "Default"}}:</strong> {{.T.Get "Optional, unchecked by default."}}</p>
+
             </div>
         </div>
 
@@ -282,6 +287,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
                             {{template "sort_header" (dict "Label" (.T.Get "Name/Comment") "Key" "comment" "Type" "string")}}
                         </th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "No overlap"}}
+                        </th>
                         <th scope="col" class="w-10 whitespace-nowrap border-b px-4 py-3.5 text-end text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
                             {{.T.Get "Actions"}}
                         </th>
@@ -305,6 +313,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td x-show="!editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="container">{{$item.Container}}</td>
                 <td x-show="!editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="command" data-sort-value="{{$item.Command}}"><pre class="m-0 text-xs truncate sm:max-w-3xl">{{$item.Command}}</pre></td>
                 <td x-show="!editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="comment">{{$item.Comment}}</td>
+                <td x-show="!editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{if $item.NoOverlap}}<i class="bi bi-check-lg"></i>{{else}}<i class="bi bi-dash"></i>{{end}}</td>
 
                 <td x-show="editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 w-50">
                             <input type="text" name="schedule" class="relative block appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" value="{{$item.Schedule}}">
@@ -322,6 +331,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 </td>
                 <td x-show="editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 w-full">
                             <input type="text" name="comment" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" placeholder="{{$.T.Get "optional"}}" value="{{$item.Comment}}">
+                </td>
+                <td x-show="editing" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            <input type="checkbox" name="no_overlap" value="1" {{if $item.NoOverlap}}checked{{end}} class="rounded border-gray-300 dark:border-gray-700 text-blue-600 focus:ring-blue-500">
                 </td>
 
                 <td class="whitespace-nowrap p-4 text-sm text-end text-gray-600 dark:text-gray-400">

@@ -81,6 +81,116 @@ command = rm -rf /tmp/cache/*
 	}
 }
 
+func TestUniqueCronComment(t *testing.T) {
+	if got := uniqueCronComment(nil, "apache"); got != "apache" {
+		t.Errorf("no existing jobs: got %q, want %q", got, "apache")
+	}
+
+	existing := []CronJob{{Comment: "apache"}, {Comment: "nginx"}}
+	if got := uniqueCronComment(existing, "nginx"); got != "nginx-1" {
+		t.Errorf("one collision: got %q, want %q", got, "nginx-1")
+	}
+
+	existing = []CronJob{{Comment: "apache"}, {Comment: "apache-1"}, {Comment: "apache-2"}}
+	if got := uniqueCronComment(existing, "apache"); got != "apache-3" {
+		t.Errorf("multiple collisions: got %q, want %q", got, "apache-3")
+	}
+
+	if got := uniqueCronComment(existing, "php-fpm"); got != "php-fpm" {
+		t.Errorf("no collision: got %q, want %q", got, "php-fpm")
+	}
+}
+
+func TestParseCronFileNoOverlap(t *testing.T) {
+	content := `[job-exec "apache"]
+schedule = @every 30s
+container = apache
+command = curl https://openpanel.com/
+no-overlap
+
+[job-exec "php-fpm-8.4"]
+schedule = @every 30m
+container = php-fpm-8.4
+command = curl https://openpanel.com/enterprise
+`
+	jobs := ParseCronFile(content)
+	if len(jobs) != 2 {
+		t.Fatalf("got %d jobs, want 2: %+v", len(jobs), jobs)
+	}
+	if !jobs[0].NoOverlap {
+		t.Errorf("jobs[0] (apache) NoOverlap = false, want true")
+	}
+	if jobs[1].NoOverlap {
+		t.Errorf("jobs[1] (php-fpm-8.4) NoOverlap = true, want false")
+	}
+}
+
+func TestValidateCronFileFormat(t *testing.T) {
+	valid := `[job-exec "apache"]
+schedule = @every 30s
+container = apache
+command = curl https://openpanel.com/
+
+[job-exec "php-fpm-8.4"]
+schedule = @every 30m
+container = php-fpm-8.4
+command = curl https://openpanel.com/enterprise
+no-overlap
+`
+	if got := ValidateCronFileFormat(valid); got != "" {
+		t.Errorf("valid content: got error %q, want none", got)
+	}
+
+	if got := ValidateCronFileFormat(""); got != "" {
+		t.Errorf("empty content: got error %q, want none", got)
+	}
+	if got := ValidateCronFileFormat("   \n\n  "); got != "" {
+		t.Errorf("whitespace-only content: got error %q, want none", got)
+	}
+
+	if got := ValidateCronFileFormat("schedule = @every 30s\ncontainer = apache\ncommand = curl"); got == "" {
+		t.Error("missing header: expected an error")
+	}
+
+	if got := ValidateCronFileFormat(`[job-exec ""]
+schedule = @every 30s
+container = apache
+command = curl`); got == "" {
+		t.Error("empty job name: expected an error")
+	}
+
+	if got := ValidateCronFileFormat(`[job-exec "apache"]
+container = apache
+command = curl`); got == "" {
+		t.Error("missing schedule line: expected an error")
+	} else if !strings.Contains(got, "schedule") {
+		t.Errorf("missing schedule: message = %q, want mention of schedule", got)
+	}
+
+	if got := ValidateCronFileFormat(`[job-exec "apache"]
+schedule = @every 30s
+container = apache
+command = curl
+overlap-typo`); got == "" {
+		t.Error("bad trailing line: expected an error")
+	}
+
+	// Two blocks jammed together with no blank line between them must fail
+	// (the GUI's required "empty row between them").
+	fused := `[job-exec "apache"]
+schedule = @every 30s
+container = apache
+command = curl https://openpanel.com/
+[job-exec "php-fpm-8.4"]
+schedule = @every 30m
+container = php-fpm-8.4
+command = curl https://openpanel.com/enterprise
+`
+	if got := ValidateCronFileFormat(fused); got == "" {
+		t.Error("fused blocks with no blank-line separator: expected an error")
+	}
+}
+
 func TestSplitJobExecSections(t *testing.T) {
 	content := `[job-exec "a"]
 x = 1

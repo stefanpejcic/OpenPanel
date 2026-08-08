@@ -4,6 +4,7 @@
 package crons
 
 import (
+	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -122,6 +123,7 @@ type CronJob struct {
 	Schedule  string
 	Container string
 	Command   string
+	NoOverlap bool
 }
 
 // ScheduleIssue is one entry of cronjobs.html's health_toast() issues list
@@ -132,20 +134,147 @@ type ScheduleIssue struct {
 	Message  string `json:"message"`
 }
 
-var cronJobBlockRE = regexp.MustCompile(`\[job-exec\s+"([^"]+)"\]\s*schedule\s*=\s*(.*?)\s*container\s*=\s*([^\s]+)\s*command\s*=\s*([^\n]+)\s*`)
+var cronJobHeaderRE = regexp.MustCompile(`\[job-exec\s+"([^"]*)"\]`)
 
-// ParseCronFile mirrors parse_cron_file().
+// cronBlockSplitRE splits crons.ini content on one-or-more blank lines
+// (the "empty row between them" separator the GUI requires between
+// [job-exec] blocks).
+var cronBlockSplitRE = regexp.MustCompile(`\r?\n[ \t]*\r?\n[ \t\r\n]*`)
+
+// splitCronBlocks splits raw crons.ini content into trimmed, non-empty
+// [job-exec] blocks separated by blank lines.
+func splitCronBlocks(content string) []string {
+	trimmed := strings.TrimSpace(content)
+	if trimmed == "" {
+		return nil
+	}
+	var blocks []string
+	for _, b := range cronBlockSplitRE.Split(trimmed, -1) {
+		b = strings.TrimSpace(b)
+		if b != "" {
+			blocks = append(blocks, b)
+		}
+	}
+	return blocks
+}
+
+// splitKV splits a "key = value" (or "key=value") line on its first "=".
+func splitKV(line string) (key, val string, ok bool) {
+	idx := strings.Index(line, "=")
+	if idx == -1 {
+		return "", "", false
+	}
+	return strings.TrimSpace(line[:idx]), strings.TrimSpace(line[idx+1:]), true
+}
+
+// ParseCronFile mirrors parse_cron_file(). It's intentionally tolerant of
+// key order and extra whitespace so existing/legacy crons.ini files keep
+// rendering even if they don't match the stricter format enforced by
+// ValidateCronFileFormat for new saves from the raw editor.
 func ParseCronFile(content string) []CronJob {
 	var jobs []CronJob
-	for _, m := range cronJobBlockRE.FindAllStringSubmatch(content, -1) {
-		jobs = append(jobs, CronJob{
-			Comment:   strings.TrimSpace(m[1]),
-			Schedule:  strings.TrimSpace(m[2]),
-			Container: strings.TrimSpace(m[3]),
-			Command:   strings.TrimSpace(m[4]),
-		})
+	for _, block := range splitCronBlocks(content) {
+		headerMatch := cronJobHeaderRE.FindStringSubmatch(block)
+		if headerMatch == nil {
+			continue
+		}
+		job := CronJob{Comment: strings.TrimSpace(headerMatch[1])}
+		for _, rawLine := range strings.Split(block, "\n") {
+			line := strings.TrimSpace(rawLine)
+			if line == "no-overlap" {
+				job.NoOverlap = true
+				continue
+			}
+			key, val, ok := splitKV(line)
+			if !ok {
+				continue
+			}
+			switch key {
+			case "schedule":
+				job.Schedule = val
+			case "container":
+				job.Container = val
+			case "command":
+				job.Command = val
+			}
+		}
+		jobs = append(jobs, job)
 	}
 	return jobs
+}
+
+// uniqueCronComment returns base unchanged if no job in existing already
+// uses it as its comment, otherwise it appends "-1", "-2", etc. until it
+// finds a name that isn't taken. Used when a new job's comment is left
+// empty and defaults to the container name, so scheduling several jobs
+// against the same container doesn't silently collide (e.g. "apache",
+// "apache-1", "apache-2").
+func uniqueCronComment(existing []CronJob, base string) string {
+	taken := make(map[string]bool, len(existing))
+	for _, j := range existing {
+		taken[j.Comment] = true
+	}
+	if !taken[base] {
+		return base
+	}
+	for n := 1; ; n++ {
+		candidate := fmt.Sprintf("%s-%d", base, n)
+		if !taken[candidate] {
+			return candidate
+		}
+	}
+}
+
+// ValidateCronFileFormat enforces the format required by the table/GUI view
+// for content saved from the raw file editor (?view=code):
+//
+//	[job-exec "name"]
+//	schedule = ...
+//	container = ...
+//	command = ...
+//	no-overlap   (optional)
+//
+// with exactly one blank line separating each block. Returns "" when the
+// content is well-formed (or empty), otherwise a human-readable message
+// describing the first problem found.
+func ValidateCronFileFormat(content string) string {
+	for i, block := range splitCronBlocks(content) {
+		lines := strings.Split(block, "\n")
+		for li := range lines {
+			lines[li] = strings.TrimSpace(lines[li])
+		}
+
+		jobLabel := fmt.Sprintf("Job #%d", i+1)
+
+		headerMatch := cronJobHeaderRE.FindStringSubmatch(lines[0])
+		if headerMatch == nil || !strings.HasPrefix(lines[0], "[job-exec") || !strings.HasSuffix(lines[0], "]") {
+			return fmt.Sprintf(`%s: expected a [job-exec "name"] header, got %q.`, jobLabel, lines[0])
+		}
+		name := strings.TrimSpace(headerMatch[1])
+		if name == "" {
+			return fmt.Sprintf(`%s: [job-exec "..."] name cannot be empty.`, jobLabel)
+		}
+		jobLabel = fmt.Sprintf(`Job "%s"`, name)
+
+		if len(lines) < 4 {
+			return fmt.Sprintf(`%s: expected schedule, container, and command lines after the header.`, jobLabel)
+		}
+
+		for idx, expectedKey := range []string{"schedule", "container", "command"} {
+			key, val, ok := splitKV(lines[idx+1])
+			if !ok || key != expectedKey || val == "" {
+				return fmt.Sprintf(`%s: expected "%s = ..." on line %d, got %q.`, jobLabel, expectedKey, idx+2, lines[idx+1])
+			}
+		}
+
+		switch {
+		case len(lines) == 5 && lines[4] != "no-overlap":
+			return fmt.Sprintf(`%s: unexpected line %q — only "no-overlap" is allowed after command.`, jobLabel, lines[4])
+		case len(lines) > 5:
+			return fmt.Sprintf(`%s: too many lines in this block — make sure exactly one empty line separates each [job-exec] block.`, jobLabel)
+		}
+	}
+	return ""
 }
 
 // serviceNames mirrors the containers = load_compose_config(context)["services"]

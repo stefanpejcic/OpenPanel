@@ -104,12 +104,13 @@ type crJob struct {
 	Schedule  string `json:"schedule"`
 	Container string `json:"container"`
 	Command   string `json:"command"`
+	NoOverlap bool   `json:"no_overlap"`
 }
 
 func toAPIJobs(jobs []CronJob) []crJob {
 	out := make([]crJob, 0, len(jobs))
 	for _, j := range jobs {
-		out = append(out, crJob{Comment: j.Comment, Schedule: j.Schedule, Container: j.Container, Command: j.Command})
+		out = append(out, crJob{Comment: j.Comment, Schedule: j.Schedule, Container: j.Container, Command: j.Command, NoOverlap: j.NoOverlap})
 	}
 	return out
 }
@@ -201,13 +202,15 @@ func apiCronsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		Command   string `json:"command"`
 		Container string `json:"container"`
 		Comment   string `json:"comment"`
+		NoOverlap bool   `json:"no_overlap"`
 	}
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	schedule := strings.TrimSpace(body.Schedule)
 	command := strings.TrimSpace(body.Command)
 	container := strings.TrimSpace(body.Container)
 	comment := strings.TrimSpace(body.Comment)
-	if comment == "" {
+	autoComment := comment == ""
+	if autoComment {
 		comment = container
 	}
 
@@ -228,6 +231,12 @@ func apiCronsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if autoComment {
+		if existingContent, readErr := os.ReadFile(path); readErr == nil {
+			comment = uniqueCronComment(ParseCronFile(string(existingContent)), comment)
+		}
+	}
+
 	truncatedComment := comment
 	if len(truncatedComment) > 30 {
 		truncatedComment = truncatedComment[:30]
@@ -238,6 +247,9 @@ func apiCronsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		"schedule = " + schedule + "\n" +
 		"container = " + container + "\n" +
 		"command = " + command
+	if body.NoOverlap {
+		cronJobBlock += "\nno-overlap"
+	}
 
 	if writeErr := writeCronFile(path, cronJobBlock, false); writeErr != nil {
 		writeAPICronsJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
@@ -249,7 +261,7 @@ func apiCronsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	writeAPICronsJSON(w, http.StatusCreated, map[string]any{
 		"message": "Cron job created",
-		"job":     crJob{Comment: comment, Schedule: schedule, Container: container, Command: command},
+		"job":     crJob{Comment: comment, Schedule: schedule, Container: container, Command: command, NoOverlap: body.NoOverlap},
 	})
 }
 
@@ -272,6 +284,7 @@ func apiCronsEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		Command           string `json:"command"`
 		Container         string `json:"container"`
 		Comment           string `json:"comment"`
+		NoOverlap         bool   `json:"no_overlap"`
 		OriginalSchedule  string `json:"original_schedule"`
 		OriginalCommand   string `json:"original_command"`
 		OriginalContainer string `json:"original_container"`
@@ -318,7 +331,11 @@ func apiCronsEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	updatedSection := "[job-exec \"" + updatedComment + "\"]\n" +
 		"schedule = " + schedule + "\n" +
 		"container = " + container + "\n" +
-		"command = " + command + "\n\n"
+		"command = " + command
+	if body.NoOverlap {
+		updatedSection += "\nno-overlap"
+	}
+	updatedSection += "\n\n"
 
 	updated := false
 	for i, section := range sections {

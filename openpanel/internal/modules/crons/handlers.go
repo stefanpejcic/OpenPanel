@@ -213,7 +213,8 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	command := r.Form.Get("command")
 	container := r.Form.Get("container")
 	comment := r.Form.Get("comment")
-	if comment == "" {
+	autoComment := comment == ""
+	if autoComment {
 		comment = container
 	}
 	crontabContent := r.Form.Get("crontab_content")
@@ -242,10 +243,19 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		truncatedComment = strings.ReplaceAll(truncatedComment, `"`, `\"`)
 
+		if autoComment {
+			if existingContent, readErr := os.ReadFile(resolvedPath); readErr == nil {
+				truncatedComment = uniqueCronComment(ParseCronFile(string(existingContent)), truncatedComment)
+			}
+		}
+
 		cronJobBlock := "[job-exec \"" + truncatedComment + "\"]\n" +
 			"schedule = " + schedule + "\n" +
 			"container = " + container + "\n" +
 			"command = " + command
+		if r.Form.Get("no_overlap") != "" {
+			cronJobBlock += "\nno-overlap"
+		}
 
 		if writeErr := writeCronFile(resolvedPath, cronJobBlock, false); writeErr != nil {
 			flashAndRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs/new")
@@ -267,6 +277,10 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	if containsAnyPattern(crontabContent, execPatterns) {
 		flashAndRedirect(a, w, r, "error", "job-run, job-local, and job-service-run are not allowed in crontab.", "/cronjobs?view=code")
+		return
+	}
+	if errMsg := ValidateCronFileFormat(crontabContent); errMsg != "" {
+		flashAndRedirect(a, w, r, "error", "Invalid crontab format: "+errMsg, "/cronjobs?view=code")
 		return
 	}
 
@@ -369,7 +383,11 @@ func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	updatedSection := "[job-exec \"" + updatedComment + "\"]\n" +
 		"schedule = " + schedule + "\n" +
 		"container = " + container + "\n" +
-		"command = " + command + "\n\n"
+		"command = " + command
+	if r.Form.Get("no_overlap") != "" {
+		updatedSection += "\nno-overlap"
+	}
+	updatedSection += "\n\n"
 
 	updated := false
 	for i, section := range sections {
