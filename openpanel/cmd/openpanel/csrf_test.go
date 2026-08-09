@@ -46,12 +46,19 @@ func TestCSRFFieldNameMatchesTemplates(t *testing.T) {
 	modules.RegisterAll(mux, a)
 
 	csrfKey := sha256.Sum256(a.SecretKey)
-	protected := csrf.Protect(csrfKey[:],
+	csrfMiddleware := csrf.Protect(csrfKey[:],
 		csrf.Path("/"),
 		csrf.CookieName("OPENPANEL_CSRF"),
 		csrf.Secure(false),
 		csrf.FieldName("csrf_token"),
-	)(mux)
+	)
+	// Goes through the real exemptAPIFromCSRF wiring (not a bare
+	// csrf.Protect(...)(mux)) so this also covers the requestScheme /
+	// PlaintextHTTPRequest handling main.go does for it - httptest requests
+	// carry no TLS/X-Forwarded-Proto, matching a real plain-http://ip:port
+	// request, which is exactly what gorilla/csrf >=1.7.3 would otherwise
+	// reject as a missing Referer.
+	protected := exemptAPIFromCSRF(csrfMiddleware, mux)
 
 	// GET /login: issues the CSRF cookie and renders the token into the form.
 	getReq := httptest.NewRequest(http.MethodGet, "/login", nil)

@@ -145,8 +145,33 @@ func exemptAPIFromCSRF(csrfMiddleware func(http.Handler) http.Handler, next http
 			next.ServeHTTP(w, r)
 			return
 		}
+		// gorilla/csrf >=1.7.3 assumes HTTPS and rejects plain-HTTP
+		// Referers by default (fixing GHSA-w7r5-hrhh-6h4v, which had made
+		// that check a no-op). This panel's own listener is almost always
+		// plain HTTP behind a Caddy TLS-terminating reverse proxy (see also
+		// account.rpIDAndOrigin) - and is also reachable directly over
+		// plain http://ip:port before a domain/cert is configured - so it
+		// must tell gorilla/csrf when the client-facing request genuinely
+		// isn't HTTPS, or every such POST gets wrongly rejected.
+		if requestScheme(r) != "https" {
+			r = csrf.PlaintextHTTPRequest(r)
+		}
 		protected.ServeHTTP(w, r)
 	})
+}
+
+// requestScheme returns the client-facing scheme ("http" or "https") for r,
+// trusting X-Forwarded-Proto first since Caddy terminates TLS in front of
+// this process (r.TLS is nil on that connection even when the browser is on
+// https); r.TLS covers the case where this process terminates TLS itself.
+func requestScheme(r *http.Request) string {
+	if proto := r.Header.Get("X-Forwarded-Proto"); proto != "" {
+		return strings.ToLower(strings.TrimSpace(strings.SplitN(proto, ",", 2)[0]))
+	}
+	if r.TLS != nil {
+		return "https"
+	}
+	return "http"
 }
 
 func envOrDefault(key, def string) string {
