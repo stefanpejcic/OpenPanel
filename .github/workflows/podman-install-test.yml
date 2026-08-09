@@ -1,0 +1,73 @@
+name: PODMAN_INSTALL.sh OS test
+
+# On-demand real-VPS test of PODMAN_INSTALL.sh: reinstalls the dedicated test
+# VPS with the chosen OS, runs this checkout's PODMAN_INSTALL.sh, creates a
+# test user with opencli, waits for the user panel on port 2083, checks that
+# opencli's autologin link reaches /dashboard, and pushes the result into the
+# OS_TEST_RESULTS table in README.md.
+#
+# Runs on a self-hosted runner because the installer refuses to run inside a
+# container, and only the existing OS-test controller box holds the
+# Virtualizor API credentials + SSH key for the single reusable test VPS.
+# Since that VPS is reinstalled in place for each OS, only one OS can be
+# tested at a time -- "all" runs them one after another, not in parallel.
+#
+# Setup required before this can run:
+#   - A self-hosted runner registered on the controller box with the label
+#     used below (`openpanel-os-test`).
+#   - Repo secrets: VIRTUALIZOR_API, API_KEY, API_HASH, VPSID, VPS_IP,
+#     TEST_PASS, SSH_PRIVATE_KEY, TEST_ADMIN_PASS (and optionally
+#     TEST_ADMIN_USER, DISCORD_WEBHOOK). No extra token is needed for the
+#     README push -- it uses the built-in GITHUB_TOKEN, granted contents:
+#     write below.
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      os:
+        description: "OS to test (all = every supported OS, one after another)"
+        type: choice
+        default: all
+        options:
+          - all
+          - ubuntu-22
+          - ubuntu-24
+          - ubuntu-26
+          - debian-11
+          - debian-12
+          - debian-13
+          - almalinux-8
+          - almalinux-9
+          - almalinux-10
+          - rocky-8
+          - rocky-10
+          - centos-10
+
+concurrency:
+  group: podman-install-test
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: [self-hosted, openpanel-os-test]
+    timeout-minutes: 300
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run PODMAN_INSTALL.sh test
+        env:
+          VIRTUALIZOR_API: ${{ secrets.VIRTUALIZOR_API }}
+          API_KEY: ${{ secrets.API_KEY }}
+          API_HASH: ${{ secrets.API_HASH }}
+          VPSID: ${{ secrets.VPSID }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          TEST_PASS: ${{ secrets.TEST_PASS }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          TEST_ADMIN_USER: ${{ secrets.TEST_ADMIN_USER }}
+          TEST_ADMIN_PASS: ${{ secrets.TEST_ADMIN_PASS }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: bash .github/scripts/podman_install_test.sh "${{ inputs.os }}"
