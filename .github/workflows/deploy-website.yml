@@ -2,6 +2,11 @@ name: Deploy Website to GitHub Pages
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'website/**'
 
 permissions:
   contents: read
