@@ -24,9 +24,6 @@ The status of the Mail Server service is displayed at the top of the page, where
 
 Displays the total number of email accounts currently active on the server. This includes all accounts across all domains configured on the system.
 
-![openadmin_emails_settings_count](/img/admin/2.0/openadmin_emails_settings_count.png)
-
-
 ## Webmail
 
 - Status - displays current webmail service status
