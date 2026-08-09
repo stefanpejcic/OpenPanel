@@ -43,6 +43,34 @@
     "tailwindcss": "^3.3.5",
     "title-case": "^3.0.3"
   },
+  "overrides": {
+    "brace-expansion": "1.1.18",
+    "braces": "3.0.3",
+    "cross-spawn": "7.0.5",
+    "diff": "5.2.2",
+    "follow-redirects": "1.16.0",
+    "js-yaml": "4.3.1",
+    "loader-utils": "2.0.4",
+    "lodash": "4.18.1",
+    "micromatch": "4.0.8",
+    "nanoid": "3.3.17",
+    "path-to-regexp": "1.9.0",
+    "picomatch": "2.3.2",
+    "serialize-javascript": "7.0.5",
+    "undici": "7.29.0",
+    "uuid": "11.1.1",
+    "websocket-driver": "0.7.5",
+    "yaml": "2.8.3",
+    "schema-utils@3.1.1": {
+      "ajv": "6.14.0"
+    },
+    "schema-utils@4.3.3": {
+      "ajv": "8.18.0"
+    },
+    "webpack-bundle-analyzer": {
+      "ws": "7.5.11"
+    }
+  },
   "browserslist": {
     "production": [
       ">0.5%",
