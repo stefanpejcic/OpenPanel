@@ -20,6 +20,7 @@ RUN apk add --no-cache \
     zip \
     unzip \
     jq \
+    openssl \
     podman \
     podman-compose \
     tzdata \
@@ -30,6 +31,7 @@ RUN apk add --no-cache \
     attr \
     shadow \
     quota-tools
+
 
 # OpenCLI
 COPY opencli /usr/local/bin/opencli
