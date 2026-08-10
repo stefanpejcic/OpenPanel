@@ -278,16 +278,13 @@ function sendPID(pid, container, btn) {
         },
         body: JSON.stringify(requestData),
     })
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
+        .then(response => response.json().catch(() => ({})))
         .then(data => {
             if (data.success) {
                 showToast(`${i18n.pidPrefix} ${pid} ${i18n.terminatedSuffix}`, 'success');
                 row.remove();
             } else {
-                showToast(data.error_message || `${i18n.killingPid} ${pid} ${i18n.failedSuffix}`, 'error');
+                showToast(data.error_message || data.error || `${i18n.killingPid} ${pid} ${i18n.failedSuffix}`, 'error');
             }
         })
         .catch(error => {

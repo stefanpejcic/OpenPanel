@@ -74,7 +74,7 @@ func apiProcessKill(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	argv := podmanmanager.PodmanArgv(userContext, "exec", container, "kill", "-9", strconv.Itoa(pidInt))
+	argv := podmanmanager.PodmanArgv(userContext, "exec", "--user", "root", container, "kill", "-9", strconv.Itoa(pidInt))
 	cmd := podmanmanager.Command(ctx, userContext, argv)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr

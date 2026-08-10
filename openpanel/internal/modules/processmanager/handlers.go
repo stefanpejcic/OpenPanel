@@ -47,12 +47,12 @@ func handleProcessManager(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		_ = json.NewDecoder(r.Body).Decode(&payload)
 
 		if payload.PIDToKill == "" || payload.Container == "" {
-			writeJSONError(w, http.StatusBadRequest, "No PID provided")
+			writeJSON(w, http.StatusOK, map[string]any{"success": false, "error_message": "No PID provided"})
 			return
 		}
 
 		if !valid[processKey(payload.Container, payload.PIDToKill)] {
-			writeJSONError(w, http.StatusForbidden, "PID not found or not allowed")
+			writeJSON(w, http.StatusOK, map[string]any{"success": false, "error_message": "PID not found or not allowed"})
 			return
 		}
 
@@ -62,7 +62,7 @@ func handleProcessManager(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			return
 		}
 
-		argv := podmanmanager.PodmanArgv(userContext, "exec", payload.Container, "kill", "-9", strconv.Itoa(pidInt))
+		argv := podmanmanager.PodmanArgv(userContext, "exec", "--user", "root", payload.Container, "kill", "-9", strconv.Itoa(pidInt))
 		cmd := podmanmanager.Command(r.Context(), userContext, argv)
 		var stderr bytes.Buffer
 		cmd.Stderr = &stderr
