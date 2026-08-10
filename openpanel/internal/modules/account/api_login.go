@@ -93,12 +93,7 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	checkIfUserShouldBeNotified(a, ctx, result.UserID, result.Username, "notify_account_login",
 		loginNotifyMessage("password", ip))
 
-	claims := jwt.MapClaims{
-		"sub": strconv.Itoa(result.UserID),
-		"iat": time.Now().Unix(),
-		"exp": time.Now().Add(jwtExpSeconds * time.Second).Unix(),
-	}
-	token, signErr := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(a.SecretKey)
+	token, signErr := mintAPIToken(a, result.UserID)
 	if signErr != nil {
 		writeAPIJSON(w, http.StatusInternalServerError, map[string]any{"error": "token_generation_failed"})
 		return
@@ -107,6 +102,19 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIJSON(w, http.StatusOK, map[string]any{
 		"token": token, "user_id": result.UserID, "expires_in": jwtExpSeconds,
 	})
+}
+
+// mintAPIToken signs a Bearer JWT for userID, the same shape handleAPILogin
+// issues after a password check - reused by the /account/api Swagger page
+// to pre-authorize "Try it out" for an already-session-authenticated user,
+// without asking them to type their password again.
+func mintAPIToken(a *appctx.App, userID int) (string, error) {
+	claims := jwt.MapClaims{
+		"sub": strconv.Itoa(userID),
+		"iat": time.Now().Unix(),
+		"exp": time.Now().Add(jwtExpSeconds * time.Second).Unix(),
+	}
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(a.SecretKey)
 }
 
 // apiLoginErrorCode maps verifyPassword's translated error message back to

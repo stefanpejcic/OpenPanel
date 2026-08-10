@@ -42,6 +42,7 @@ var (
 	loginHistoryPage   = loadPage("user/loginlog.html")
 	mcpPage            = loadPage("user/mcp.html")
 	apiDocsPage        = loadPage("user/api_docs.html")
+	apiSwaggerPage     = loadPage("user/api_swagger.html")
 )
 
 // AccountPageData is user/account.html's template context.
@@ -249,5 +250,23 @@ func renderAPIDocsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	if err := apiDocsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - api docs template render error: %v", err)
+	}
+}
+
+// APISwaggerPageData is user/api_swagger.html's template context.
+type APISwaggerPageData struct {
+	web.LayoutData
+	Token string
+}
+
+func renderAPISwaggerPage(a *appctx.App, w http.ResponseWriter, r *http.Request, token string) {
+	layout, _, err := web.BuildLayoutData(a, w, r, "API Reference")
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data := APISwaggerPageData{LayoutData: layout, Token: token}
+	if err := apiSwaggerPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("ACCOUNT - api swagger template render error: %v", err)
 	}
 }
