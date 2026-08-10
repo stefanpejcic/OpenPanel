@@ -241,7 +241,7 @@ const Phone = (props: { className?: string }) => {
 
 const Github = (props: { id?: string }) => {
     return (
-        <Link to="https://community.openpanel.org/" className="no-underline">
+        <Link to="https://github.com/stefanpejcic/OpenPanel/discussions" className="no-underline">
             <div
                 className={clsx(
                     "border-t dark:border-gray-700 border-gray-300",
@@ -254,7 +254,7 @@ const Github = (props: { id?: string }) => {
                 <div
                     className={clsx("ml-4", "dark:text-gray-400 text-gray-600")}
                 >
-                    If you like OpenPanel, please help us improve it!
+                    Join the Discussions on GitHub!
                 </div>
             </div>
         </Link>

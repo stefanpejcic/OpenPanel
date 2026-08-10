@@ -61,9 +61,9 @@ export const MENU_ITEMS: MenuItemType[] = [
         icon: IntegrationsIcon,
       },
       {
-        label: "Forums",
+        label: "Discussions",
         description: "Join our growing community!",
-        link: "https://community.openpanel.org/",
+        link: "https://github.com/stefanpejcic/OpenPanel/discussions",
         icon: ContributeIcon,
       },
       {

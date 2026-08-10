@@ -301,7 +301,7 @@ const Roadmap: React.FC = () => {
                                 Join Discord
                             </Link>
                             <Link
-                                to="https://community.openpanel.org/"
+                                to="https://github.com/stefanpejcic/OpenPanel/discussions"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={clsx(
@@ -319,7 +319,7 @@ const Roadmap: React.FC = () => {
                                     "text-base font-semibold",
                                 )}
                             >
-                                Community forum
+                                Discussions
                             </Link>
                         </div>
                     </div>
