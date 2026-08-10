@@ -36,6 +36,8 @@ export const DocSurveyWidget = ({ className }: Props) => {
         }, 150);
 
         if (survey) {
+            // the survey was already created (first emoji click), so any
+            // further emoji click just updates that same survey id
             const data = await updateSurvey({
                 surveyId: survey.id,
                 body: { response: option },
@@ -43,6 +45,8 @@ export const DocSurveyWidget = ({ className }: Props) => {
             if (!data) return;
             setSurvey(data);
         } else {
+            // first emoji click for this widget instance: create the survey
+            // once and keep its id around for subsequent updates
             const data = await createSurvey({
                 body: {
                     response: option,
@@ -55,14 +59,12 @@ export const DocSurveyWidget = ({ className }: Props) => {
     };
 
     const handleSurveyTextSubmit = async (text: string) => {
-        if (text.trim() === "") {
+        if (text.trim() === "" || selectedOption === null || !survey) {
             return;
         }
 
-        const currentSurveyId = survey?.id || generateRandomSurveyId();
-        
         const data = await updateSurvey({
-            surveyId: currentSurveyId,
+            surveyId: survey.id,
             body: { response: selectedOption, responseText: text },
         });
         if (!data) return;
@@ -323,8 +325,6 @@ const createSurvey = async ({ body }: { body: DocSurveyCreateDto }) => {
     return data;
 };
 
-
-
 const updateSurvey = async ({
     surveyId,
     body,
@@ -347,7 +347,6 @@ const updateSurvey = async ({
     const data: DocSurveyResponse = await response.json();
     return data;
 };
-
 
 const surveyOptions: {
     value: SurveyOption;
