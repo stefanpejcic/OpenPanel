@@ -95,6 +95,7 @@ func buildDashboardSections(allowed map[string]bool) []Section {
 			{"email_default", "/emails/default", "bi-envelope-at", "Default Address", ""},
 			{"email_import", "/emails/import", "bi-envelope-arrow-up", "Address Importer", ""},
 			{"email_export", "/emails/export", "bi-envelope-arrow-down", "Address Exporter", ""},
+			{"webmail", "/webmail/", "bi-box-arrow-up-right", "Webmail", "_blank"},
 		}},
 		{Key: "php", Title: "PHP", Items: []SectionItem{
 			{"php", "/php/domains", "bi-code-square", "Select PHP version", ""},

@@ -227,13 +227,16 @@ func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 	}
 
 	// Emails group
-	if has("emails", "email_filters", "email_aliases", "email_default", "email_import", "email_deliverability") {
+	if has("emails", "email_filters", "email_aliases", "email_default", "email_import", "email_deliverability", "webmail") {
 		var links []NavLink
 		if allowed["emails"] {
 			links = append(links,
 				NavLink{"/emails", "Email Accounts", path == "/emails", ""},
 				NavLink{"/emails/new", "Create New Account", strings.HasPrefix(path, "/emails/new"), ""},
 			)
+		}
+		if allowed["webmail"] {
+			links = append(links, NavLink{"/webmail/", "Webmail", false, "_blank"})
 		}
 		if allowed["email_filters"] {
 			links = append(links, NavLink{"/emails/filter", "Filters", strings.HasPrefix(path, "/emails/filter"), ""})
