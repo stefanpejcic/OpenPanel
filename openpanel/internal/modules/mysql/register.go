@@ -6,6 +6,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
 var initOnce sync.Once
@@ -100,6 +101,12 @@ func RegisterRootPassword(mux *http.ServeMux, a *appctx.App) {
 	}
 	mux.Handle("GET /mysql/root-password", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRootPasswordMySQL(a, w, r) }))
 	mux.Handle("POST /mysql/root-password", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRootPasswordMySQL(a, w, r) }))
+
+	// API equivalent, gated by the same "mysql_root_password" feature as the
+	// web route above (unlike the import API route, this path doesn't
+	// collide with any wildcard registered elsewhere, so it can carry its
+	// own feature gate instead of borrowing RegisterAPI's "mysql" one).
+	apiregistry.Handle(mux, a, "mysql_root_password", "PUT /api/mysql/root-password", func(w http.ResponseWriter, r *http.Request) { apiMySQLSetRootPassword(a, w, r) })
 }
 
 // RegisterRemote wires the remote-MySQL-access routes onto mux.

@@ -484,28 +484,18 @@ func getMySQLVersion(a *appctx.App, r *http.Request, userContext string) string 
 	return version
 }
 
-// handleWebsiteWPInfo returns a WordPress site's database credentials, WP
-// version, PHP version, and MySQL version for the site-manager info panel.
-func handleWebsiteWPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+// wpInfoForSite resolves a WordPress site's database credentials, WP
+// version, PHP version, and MySQL version. Shared by the UI's
+// handleWebsiteWPInfo and the API's apiWPInfo. Returns ok=false if the
+// domain's docroot couldn't be found.
+func wpInfoForSite(a *appctx.App, r *http.Request, userContext, siteName string) (map[string]any, bool) {
 	ctx := r.Context()
-	userID, _, userContext, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	siteName := r.PathValue("site_name")
 	domainNameUsed, folderParam := splitDomainAndFolder(siteName)
-
-	if !a.CheckDomainBelongsToUser(ctx, userID, domainNameUsed) {
-		http.Error(w, "You do not own this domain.", http.StatusForbidden)
-		return
-	}
 
 	var docroot string
 	row := a.DB.QueryRowContext(ctx, "SELECT docroot FROM domains WHERE domain_url = ?", domainNameUsed)
 	if scanErr := row.Scan(&docroot); scanErr != nil {
-		flashAndRedirect(a, w, r, "error", "Unable to detect docroot for the domain.", "/sites")
-		return
+		return nil, false
 	}
 	if folderParam != "" {
 		docroot = docroot + "/" + folderParam
@@ -517,10 +507,36 @@ func handleWebsiteWPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	phpVersion := php.GetPHPVForDomain(ctx, a, userContext, domainNameUsed)
 	mysqlVersion := getMySQLVersion(a, r, userContext)
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	return map[string]any{
 		"database_info": databaseInfo, "wp_version": wpVersion,
 		"php_version": phpVersion, "mysql_version": mysqlVersion,
-	})
+	}, true
+}
+
+// handleWebsiteWPInfo returns a WordPress site's database credentials, WP
+// version, PHP version, and MySQL version for the site-manager info panel.
+func handleWebsiteWPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, _, userContext, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	siteName := r.PathValue("site_name")
+	domainNameUsed, _ := splitDomainAndFolder(siteName)
+
+	if !a.CheckDomainBelongsToUser(ctx, userID, domainNameUsed) {
+		http.Error(w, "You do not own this domain.", http.StatusForbidden)
+		return
+	}
+
+	info, ok := wpInfoForSite(a, r, userContext, siteName)
+	if !ok {
+		flashAndRedirect(a, w, r, "error", "Unable to detect docroot for the domain.", "/sites")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, info)
 }
 
 // ---------------------- DISTINCT WP-CLI PASSTHROUGH ---------------------- //

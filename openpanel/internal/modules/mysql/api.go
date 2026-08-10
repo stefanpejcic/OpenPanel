@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -36,9 +37,12 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 
 	apiregistry.Add("POST /api/mysql/databases/{db_name}/optimize")
 	apiregistry.Add("POST /api/mysql/databases/{db_name}/repair")
+	apiregistry.Add("POST /api/mysql/databases/{db_name}/import")
 	mux.Handle("POST /api/mysql/databases/{rest...}", auth.RequireAPI(a, "mysql")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiMySQLDatabasesPostDispatch(a, w, r) })))
 
 	apiregistry.Handle(mux, a, "mysql", "DELETE /api/mysql/databases/{db_name}", func(w http.ResponseWriter, r *http.Request) { apiMySQLDeleteDatabase(a, w, r) })
+
+	apiregistry.Handle(mux, a, "mysql", "GET /api/mysql/size", func(w http.ResponseWriter, r *http.Request) { apiMySQLDatabasesSize(a, w, r) })
 
 	apiregistry.Handle(mux, a, "mysql", "GET /api/mysql/users", func(w http.ResponseWriter, r *http.Request) { apiMySQLListUsers(a, w, r) })
 	apiregistry.Handle(mux, a, "mysql", "POST /api/mysql/users", func(w http.ResponseWriter, r *http.Request) { apiMySQLCreateUser(a, w, r) })
@@ -94,6 +98,9 @@ func apiMySQLDatabasesPostDispatch(a *appctx.App, w http.ResponseWriter, r *http
 	case strings.HasSuffix(rest, "/repair"):
 		r.SetPathValue("db_name", strings.TrimSuffix(rest, "/repair"))
 		apiMySQLDBMaintenance(a, w, r, "repair")
+	case strings.HasSuffix(rest, "/import"):
+		r.SetPathValue("db_name", strings.TrimSuffix(rest, "/import"))
+		apiMySQLImportDatabase(a, w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -419,6 +426,54 @@ func apiMySQLExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/sql")
 	w.Header().Set("Content-Disposition", `attachment; filename="`+dbName+`.sql"`)
 	_, _ = w.Write(dumpOutput)
+}
+
+// apiMySQLDatabasesSize returns per-database disk usage (data_length +
+// index_length, summed across every table) in a configurable unit. This is
+// the API equivalent of GET /json/mysql-size - distinct from
+// GET /api/mysql/databases (names + assigned users, no size) and
+// GET /api/mysql/databases/{db_name}/tables (per-table size for one db).
+func apiMySQLDatabasesSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	_, userContext, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	unit := strings.ToLower(r.URL.Query().Get("unit"))
+	if unit == "" {
+		unit = "mb"
+	}
+	divisors := map[string]int64{"bytes": 1, "kb": 1024, "mb": 1024 * 1024, "gb": 1024 * 1024 * 1024}
+	divisor, ok := divisors[unit]
+	if !ok {
+		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": `Invalid unit parameter. Use "bytes", "kb", "mb", or "gb".`})
+		return
+	}
+	showAll := r.URL.Query().Get("show_all") != ""
+
+	whereClause := ""
+	if !showAll {
+		whereClause = "WHERE table_schema NOT IN (" + restricted.dbsSQL + ") "
+	}
+	query := "SELECT table_schema, ROUND(SUM(data_length + index_length) / " + strconv.FormatInt(divisor, 10) + ", 2) FROM information_schema.TABLES " + whereClause + "GROUP BY table_schema"
+
+	rows, execErr := mysqlmanager.Exec(ctx, userContext, query, "")
+	if execErr != nil {
+		writeAPIMySQLJSON(w, http.StatusInternalServerError, map[string]string{"error": mysqlAPIError(execErr)})
+		return
+	}
+
+	type dbSizeEntry struct {
+		Database string  `json:"database"`
+		Size     float64 `json:"size"`
+	}
+	sizes := make([]dbSizeEntry, 0, len(rows))
+	for _, row := range rows {
+		sizes = append(sizes, dbSizeEntry{Database: toStringCell(row[0]), Size: toFloatCell(row[1])})
+	}
+	writeAPIMySQLJSON(w, http.StatusOK, map[string]any{"unit": strings.ToUpper(unit), "sizes": sizes, "total": len(sizes)})
 }
 
 // ── Users ────────────────────────────────────────────────────────────────

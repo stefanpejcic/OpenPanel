@@ -47,6 +47,8 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Add("GET /api/domains/{domain}/dns")
 	apiregistry.Add("GET /api/domains/{domain}/dns/export")
 	apiregistry.Add("GET /api/domains/{domain}/logs")
+	apiregistry.Add("GET /api/domains/{domain}/capitalize")
+	apiregistry.Add("GET /api/domains/{domain}/tlsa-hash")
 	mux.Handle("GET /api/domains/{rest...}", auth.RequireAPI(a, "domains")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDomainsGetDispatch(a, w, r) })))
 
 	apiregistry.Add("PUT /api/domains/{domain}/docroot")
@@ -54,6 +56,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Add("PUT /api/domains/{domain}/vhost")
 	apiregistry.Add("PUT /api/domains/{domain}/dns")
 	apiregistry.Add("PUT /api/domains/{domain}/dns/records/{row_id}")
+	apiregistry.Add("PUT /api/domains/{domain}/capitalize")
 	mux.Handle("PUT /api/domains/{rest...}", auth.RequireAPI(a, "domains")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDomainsPutDispatch(a, w, r) })))
 
 	apiregistry.Add("DELETE /api/domains/{domain}")
@@ -127,6 +130,12 @@ func apiDomainsGetDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 	case strings.HasSuffix(rest, "/logs"):
 		r.SetPathValue("domain", strings.TrimSuffix(rest, "/logs"))
 		apiDomainsLogs(a, w, r)
+	case strings.HasSuffix(rest, "/capitalize"):
+		r.SetPathValue("domain", strings.TrimSuffix(rest, "/capitalize"))
+		apiDomainsGetCapitalize(a, w, r)
+	case strings.HasSuffix(rest, "/tlsa-hash"):
+		r.SetPathValue("domain", strings.TrimSuffix(rest, "/tlsa-hash"))
+		handleGetTLSAHash(a, w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -178,6 +187,9 @@ func apiDomainsPutDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 	case strings.HasSuffix(rest, "/dns"):
 		r.SetPathValue("domain", strings.TrimSuffix(rest, "/dns"))
 		apiDomainsSaveDNS(a, w, r)
+	case strings.HasSuffix(rest, "/capitalize"):
+		r.SetPathValue("domain", strings.TrimSuffix(rest, "/capitalize"))
+		apiDomainsSetCapitalize(a, w, r)
 	default:
 		http.NotFound(w, r)
 	}

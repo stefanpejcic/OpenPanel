@@ -24,30 +24,13 @@ func temporaryLinkSetting(ctx context.Context, a *appctx.App) string {
 	return setting
 }
 
-// handleTemporaryLink requests a preview link from the temporary-links
+// temporaryLinkForDomain requests a preview link from the temporary-links
 // service for the given domain. The response is memoized for 800s (~13m)
 // per user+domain since the upstream link doesn't change that often and
-// the request is relatively expensive.
-func handleTemporaryLink(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	domain := r.URL.Query().Get("domain")
-	if domain == "" {
-		http.Error(w, "Domain name not provided.", http.StatusBadRequest)
-		return
-	}
-
-	apexDomain, _ := splitDomainAndFolder(domain)
-	if !a.CheckDomainBelongsToUser(ctx, userID, apexDomain) {
-		http.Error(w, "You do not own this domain.", http.StatusForbidden)
-		return
-	}
-
+// the request is relatively expensive. Returns the response payload and the
+// HTTP status it should be written with. Shared by the UI's
+// handleTemporaryLink and the API's apiTemporaryLink.
+func temporaryLinkForDomain(ctx context.Context, a *appctx.App, currentUsername, domain string) (map[string]any, int) {
 	cacheKey := "temporary_link:" + currentUsername + ":" + domain
 	result, _ := cache.Memoize(ctx, a.Cache, cacheKey, 800*time.Second, func() (map[string]any, error) {
 		serverIP := a.GetCachedIPForUserOrPublicIPv4(ctx, currentUsername)
@@ -95,5 +78,31 @@ func handleTemporaryLink(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			status = http.StatusInternalServerError
 		}
 	}
+	return result, status
+}
+
+// handleTemporaryLink is the UI-facing handler for GET /domains/temporary-link
+// (domain passed as a query param).
+func handleTemporaryLink(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, currentUsername, _, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	domain := r.URL.Query().Get("domain")
+	if domain == "" {
+		http.Error(w, "Domain name not provided.", http.StatusBadRequest)
+		return
+	}
+
+	apexDomain, _ := splitDomainAndFolder(domain)
+	if !a.CheckDomainBelongsToUser(ctx, userID, apexDomain) {
+		http.Error(w, "You do not own this domain.", http.StatusForbidden)
+		return
+	}
+
+	result, status := temporaryLinkForDomain(ctx, a, currentUsername, domain)
 	writeJSON(w, status, result)
 }

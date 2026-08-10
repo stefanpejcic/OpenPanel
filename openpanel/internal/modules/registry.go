@@ -60,8 +60,11 @@ var alwaysOn = []Registrar{
 	account.RegisterAPILogin,      // /api/login, no additional API-key gate
 	api.Register,                  // /api/endpoints, gated internally via apiregistry.Handle
 	dashboard.Register,
+	dashboard.RegisterAPI, // gated internally via apiregistry.Handle
 	serverinfo.RegisterHostingJSON,    // core helper endpoint, always available
+	serverinfo.RegisterHostingAPI,     // API twin of RegisterHostingJSON, always available
 	appinstall.RegisterShared,         // docker tags + check_if_file_exists helpers
+	appinstall.RegisterSharedAPI,      // API twin of RegisterShared, gated internally via apiregistry.Handle
 	appinstall.RegisterPM2,            // pm2 logs/action/delete
 	appinstall.RegisterPM2API,         // gated internally via apiregistry.Handle ("pm2" feature)
 	filemanager.RegisterDirectorySize, // get_folder_size helper
@@ -69,6 +72,7 @@ var alwaysOn = []Registrar{
 	websites.Register,                 // part of mainModules = ["dashboard", "websites"] (see internal/app)
 	websites.RegisterSitesAPI,         // gated internally via apiregistry.Handle
 	plugins.Register,                  // only registers a route if plugin_names is non-empty, gated internally
+	plugins.RegisterAPI,               // same guard, API twin
 }
 
 // configured maps openpanel.config's enabled_modules entries to their Go
@@ -80,16 +84,20 @@ var alwaysOn = []Registrar{
 // expected, normal state during an incremental port, not a broken install.
 var configured = map[string]Registrar{
 	// mysql and the rest land here as their phases are ported.
-	"docker":          func(mux *http.ServeMux, a *appctx.App) { docker.Register(mux, a); docker.RegisterAPI(mux, a) },
+	"docker": func(mux *http.ServeMux, a *appctx.App) {
+		docker.Register(mux, a)
+		docker.RegisterAPI(mux, a)
+		docker.RegisterContainerManageAPI(mux, a)
+	},
 	"services":        func(mux *http.ServeMux, a *appctx.App) { services.Register(mux, a); services.RegisterAPI(mux, a) },
 	"filemanager":     filemanager.Register,
 	"disk_usage":      func(mux *http.ServeMux, a *appctx.App) { diskusage.Register(mux, a); diskusage.RegisterAPI(mux, a) },
 	"inodes":          func(mux *http.ServeMux, a *appctx.App) { inodes.Register(mux, a); inodes.RegisterAPI(mux, a) },
-	"fix_permissions": fixpermissions.Register,
+	"fix_permissions": func(mux *http.ServeMux, a *appctx.App) { fixpermissions.Register(mux, a); fixpermissions.RegisterAPI(mux, a) },
 	"malware_scan":    func(mux *http.ServeMux, a *appctx.App) { malwarescan.Register(mux, a); malwarescan.RegisterAPI(mux, a) },
 	"trash":           trash.Register,
 	"ftp":             func(mux *http.ServeMux, a *appctx.App) { ftp.Register(mux, a); ftp.RegisterAPI(mux, a) },
-	"backup_wizard":   backupwizard.Register,
+	"backup_wizard":   func(mux *http.ServeMux, a *appctx.App) { backupwizard.Register(mux, a); backupwizard.RegisterAPI(mux, a) },
 	"backups":         backups.Register,
 	"domains":         func(mux *http.ServeMux, a *appctx.App) { domains.Register(mux, a); domains.RegisterAPI(mux, a) },
 	"goaccess":        func(mux *http.ServeMux, a *appctx.App) { goaccess.Register(mux, a); goaccess.RegisterAPI(mux, a) },
@@ -98,6 +106,8 @@ var configured = map[string]Registrar{
 		php.RegisterOptionsAPI(mux, a)
 		php.RegisterIniAPI(mux, a)
 		php.RegisterExtensionsAPI(mux, a)
+		php.RegisterDefaultAPI(mux, a)
+		php.RegisterDomainsAPI(mux, a)
 	},
 	"dns":         func(mux *http.ServeMux, a *appctx.App) { dns.Register(mux, a); dns.RegisterAPI(mux, a) },
 	"dynamic_dns": func(mux *http.ServeMux, a *appctx.App) { dynamicdns.Register(mux, a); dynamicdns.RegisterAPI(mux, a) },
@@ -132,9 +142,15 @@ var configured = map[string]Registrar{
 	"email_aliases":        emails.RegisterAliases,
 	"email_default":        emails.RegisterDefault,
 	"email_deliverability": emails.RegisterDeliverability,
-	"email_export":         emails.RegisterExport,
-	"email_filters":        emails.RegisterFilters,
-	"email_import":         emails.RegisterImport,
+	"email_export": func(mux *http.ServeMux, a *appctx.App) {
+		emails.RegisterExport(mux, a)
+		emails.RegisterEmailExportAPI(mux, a)
+	},
+	"email_filters": emails.RegisterFilters,
+	"email_import": func(mux *http.ServeMux, a *appctx.App) {
+		emails.RegisterImport(mux, a)
+		emails.RegisterEmailImportAPI(mux, a)
+	},
 	"webmail": func(mux *http.ServeMux, a *appctx.App) {
 		emails.RegisterWebmail(mux, a)
 		emails.RegisterWebmailAPI(mux, a)
@@ -159,25 +175,35 @@ var configured = map[string]Registrar{
 		account.RegisterSettings(mux, a)
 		account.RegisterAccountAPI(mux, a)
 	},
-	"locale":        account.RegisterLocale,
-	"twofa":         account.RegisterTwofa,
-	"passkeys":      account.RegisterPasskeys,
-	"notifications": account.RegisterNotifications,
-	"favorites":     account.RegisterFavorites,
-	"sessions":      account.RegisterSessions,
-	"activity":      account.RegisterActivity,
-	"login_history": account.RegisterLoginHistory,
+	"locale": func(mux *http.ServeMux, a *appctx.App) { account.RegisterLocale(mux, a); account.RegisterLocaleAPI(mux, a) },
+	"twofa":  func(mux *http.ServeMux, a *appctx.App) { account.RegisterTwofa(mux, a); account.RegisterTwofaAPI(mux, a) },
+	"passkeys": func(mux *http.ServeMux, a *appctx.App) {
+		account.RegisterPasskeys(mux, a)
+		account.RegisterPasskeysAPI(mux, a)
+	},
+	"notifications": func(mux *http.ServeMux, a *appctx.App) {
+		account.RegisterNotifications(mux, a)
+		account.RegisterNotificationsAPI(mux, a)
+	},
+	"favorites": func(mux *http.ServeMux, a *appctx.App) { account.RegisterFavorites(mux, a); account.RegisterFavoritesAPI(mux, a) },
+	"sessions":  account.RegisterSessions,
+	"activity":  account.RegisterActivity,
+	"login_history": func(mux *http.ServeMux, a *appctx.App) {
+		account.RegisterLoginHistory(mux, a)
+		account.RegisterLoginHistoryAPI(mux, a)
+	},
 	"mcp": func(mux *http.ServeMux, a *appctx.App) {
 		account.RegisterMCP(mux, a)
 		account.RegisterMCPEndpoint(mux, a)
+		account.RegisterMCPAPI(mux, a)
 	},
 	"api":               account.RegisterAPIDocs,
 	"postgresql":        func(mux *http.ServeMux, a *appctx.App) { postgresql.Register(mux, a); postgresql.RegisterAPI(mux, a) },
 	"postgresql_conf":   postgresql.RegisterConf,
 	"postgresql_import": postgresql.RegisterImport,
 	"remote_postgresql": postgresql.RegisterRemote,
-	"python":            python.Register,
-	"nodejs":            nodejs.Register,
+	"python": func(mux *http.ServeMux, a *appctx.App) { python.Register(mux, a); python.RegisterAPI(mux, a) },
+	"nodejs": func(mux *http.ServeMux, a *appctx.App) { nodejs.Register(mux, a); nodejs.RegisterAPI(mux, a) },
 	"autoinstaller": func(mux *http.ServeMux, a *appctx.App) {
 		autoinstaller.Register(mux, a)
 		autoinstaller.RegisterAPI(mux, a)

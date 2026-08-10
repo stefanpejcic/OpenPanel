@@ -98,24 +98,30 @@ outer:
 	return ips
 }
 
-// handleVisitors returns the recent unique-visitor-IP count/list for a
-// domain. Notably, this doesn't check domain ownership - any logged-in
-// user can query any domain's recent visitor count/IPs.
-func handleVisitors(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	domain := r.PathValue("domain")
+// visitorsForDomain returns the recent unique-visitor-IP count/list payload
+// for a domain. Shared by the UI's handleVisitors and the API's apiVisitors.
+func visitorsForDomain(domain string, seconds int) map[string]any {
 	domain, _ = splitDomainAndFolder(domain)
+	logFile := "/var/log/caddy/domlogs/" + domain + "/access.log"
+	ips := readRecentVisitorIPs(logFile, seconds)
+	return map[string]any{"domain": domain, "seconds": seconds, "count": len(ips), "ips": ips}
+}
 
+// visitorsSeconds parses the "seconds" query param, defaulting to 60.
+func visitorsSeconds(r *http.Request) int {
 	seconds := 60
 	if v := r.URL.Query().Get("seconds"); v != "" {
 		if parsed, err := strconv.Atoi(v); err == nil {
 			seconds = parsed
 		}
 	}
+	return seconds
+}
 
-	logFile := "/var/log/caddy/domlogs/" + domain + "/access.log"
-	ips := readRecentVisitorIPs(logFile, seconds)
-
-	writeJSON(w, http.StatusOK, map[string]any{
-		"domain": domain, "seconds": seconds, "count": len(ips), "ips": ips,
-	})
+// handleVisitors returns the recent unique-visitor-IP count/list for a
+// domain. Notably, this doesn't check domain ownership - any logged-in
+// user can query any domain's recent visitor count/IPs.
+func handleVisitors(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	domain := r.PathValue("domain")
+	writeJSON(w, http.StatusOK, visitorsForDomain(domain, visitorsSeconds(r)))
 }

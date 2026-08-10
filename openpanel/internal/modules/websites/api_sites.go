@@ -18,7 +18,8 @@ import (
 
 // RegisterSitesAPI wires the /api/sites routes onto mux. Several of these
 // routes share a <domain> prefix with a literal suffix (e.g.
-// /api/sites/{domain}/safebrowsing), and a domain itself may contain
+// /api/sites/{domain}/safebrowsing, /temporary-link, /visitors, /wp-info),
+// and a domain itself may contain
 // slashes (subfolder installs) - so the most specific literal suffix has
 // to win over treating the whole tail as the domain. Go's http.ServeMux
 // requires a "{...}" wildcard to be the final segment, so a single
@@ -34,6 +35,9 @@ func RegisterSitesAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Add("GET /api/sites/{domain}/safebrowsing")
 	apiregistry.Add("GET /api/sites/{domain}/pagespeed")
 	apiregistry.Add("GET /api/sites/{domain}/wp-vulnerability")
+	apiregistry.Add("GET /api/sites/{domain}/temporary-link")
+	apiregistry.Add("GET /api/sites/{domain}/visitors")
+	apiregistry.Add("GET /api/sites/{domain}/wp-info")
 	mux.Handle("GET /api/sites/{rest...}", auth.RequireAPI(a, "websites")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiSitesGetDispatch(a, w, r) })))
 
 	apiregistry.Add("POST /api/sites/{domain}/pagespeed")
@@ -42,7 +46,7 @@ func RegisterSitesAPI(mux *http.ServeMux, a *appctx.App) {
 }
 
 // apiSitesGetDispatch resolves the literal-suffix-wins routing for
-// GET /api/sites/{domain}[/safebrowsing|/pagespeed|/wp-vulnerability].
+// GET /api/sites/{domain}[/safebrowsing|/pagespeed|/wp-vulnerability|/temporary-link|/visitors|/wp-info].
 func apiSitesGetDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	rest := r.PathValue("rest")
 	switch {
@@ -55,6 +59,15 @@ func apiSitesGetDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	case strings.HasSuffix(rest, "/wp-vulnerability"):
 		r.SetPathValue("domain", strings.TrimSuffix(rest, "/wp-vulnerability"))
 		apiWPVulnerabilityGet(a, w, r)
+	case strings.HasSuffix(rest, "/temporary-link"):
+		r.SetPathValue("domain", strings.TrimSuffix(rest, "/temporary-link"))
+		apiTemporaryLink(a, w, r)
+	case strings.HasSuffix(rest, "/visitors"):
+		r.SetPathValue("domain", strings.TrimSuffix(rest, "/visitors"))
+		apiVisitors(a, w, r)
+	case strings.HasSuffix(rest, "/wp-info"):
+		r.SetPathValue("domain", strings.TrimSuffix(rest, "/wp-info"))
+		apiWPInfo(a, w, r)
 	default:
 		r.SetPathValue("domain", rest)
 		apiSiteDetail(a, w, r)
