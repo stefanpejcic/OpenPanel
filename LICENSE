@@ -24,67 +24,94 @@ Part 1 — OpenAdmin and OpenPanel UI (`openpanel/`): End User License
 Agreement (EULA)
 ================================================================================
 
-Last updated: 05.06.2026
+Last updated: 10.08.2026
 
 This End User License Agreement ("Agreement") is a legal agreement
 between you ("Licensee") and OpenPanel, LLC ("Licensor") for the use of
 the software applications known as OpenAdmin and OpenPanel (User
 Interface) (collectively, the "Software").
 
-By installing, copying, or otherwise using the Software, you agree to be
-bound by the terms of this Agreement.
+By installing, copying, forking, modifying, or otherwise using the
+Software, you agree to be bound by the terms of this Agreement.
 
 1. License Grant
 
-Licensor grants you a non-exclusive, non-transferable, non-sublicensable
-license to use the Software for internal purposes only. This license
-does not grant you the right to:
+Licensor grants you a worldwide, royalty-free, non-exclusive license to
+install, run, copy, modify, and fork the Software for personal,
+educational, evaluation, non-commercial, and internal business purposes,
+including self-hosting it in production for your own organization's use
+(subject to the Community Edition's published limits — see
+https://openpanel.com/enterprise).
 
-  - Distribute, resell, or share the Software.
-  - Modify, reverse engineer, decompile, or disassemble the Software.
-  - Use the Software for any commercial offering without Licensor's
-    written consent.
+This license does not grant you the right to:
+
+  - Use the Software, or any fork or modified version of it, to provide
+    a commercial offering to third parties — including hosting it as a
+    paid or ad-supported service, reselling it, or operating a hosting
+    or reseller business built on it — without a valid OpenPanel
+    Enterprise license or Licensor's separate written consent.
+  - Use OpenPanel's name, logo, or other trademarks to imply endorsement
+    of, or affiliation with, any fork or derivative work.
 
 2. Ownership
 
-The Software is licensed, not sold. Licensor retains all rights, titles,
-and interests in and to the Software, including all copyrights,
-trademarks, and intellectual property.
+Licensor retains all rights, title, and interest in and to the Software,
+including all copyrights, trademarks, and intellectual property. This
+Agreement does not transfer ownership of the Software or any component
+of it.
 
-3. Restrictions
+3. Forks and Redistribution
+
+If you publish a fork, mirror, or modified version of the Software, you
+must:
+
+  - Clearly and prominently identify it as a fork or modified version of
+    OpenPanel, with a visible link back to the original project
+    (https://github.com/stefanpejcic/OpenPanel).
+  - Retain all copyright, trademark, and proprietary notices included in
+    the Software.
+
+Commercial use of a fork or modified version is subject to the same
+licensing requirements as the unmodified Software (see Section 1).
+
+4. Restrictions
 
 You shall not:
 
-  - Copy or distribute the Software or any portion thereof.
-  - Remove or alter any proprietary notices or labels.
+  - Circumvent, disable, or tamper with the Software's license-key
+    verification or feature-gating mechanism in order to access
+    Enterprise features without a valid license.
+  - Remove or alter any proprietary or trademark notices except as
+    permitted under Section 3.
   - Use the Software in any manner that violates applicable laws or
     regulations.
 
-4. Termination
+5. Termination
 
 This Agreement is effective until terminated. Licensor may terminate
-this Agreement at any time if you breach any term. Upon termination, you
-must destroy all copies of the Software in your possession.
+this Agreement, and revoke any active Enterprise license key, at any
+time if you breach any term. Upon termination, you must stop any
+commercial use of the Software until you obtain a valid license.
 
-5. No Warranty
+6. No Warranty
 
 The Software is provided "as is" without warranty of any kind. Licensor
 disclaims all warranties, express or implied, including fitness for a
 particular purpose and non-infringement.
 
-6. Limitation of Liability
+7. Limitation of Liability
 
 In no event shall Licensor be liable for any damages (including lost
 profits or data) arising out of the use or inability to use the
 Software, even if Licensor has been advised of the possibility of such
 damages.
 
-7. Governing Law
+8. Governing Law
 
 This Agreement shall be governed by the laws of the State of Delaware
 and the United States of America.
 
-8. Purchases & Refunds
+9. Purchases & Refunds
 
 Purchases of OpenPanel Enterprise licenses are subject to our Refund
 Policy available at https://openpanel.com/refund-policy
@@ -96,7 +123,7 @@ on any server or environment, all sales are final.
 We offer a free Community Edition and a 30-day Enterprise trial to
 evaluate the software before purchase.
 
-9. Entire Agreement
+10. Entire Agreement
 
 This Agreement constitutes the entire agreement between the parties
 concerning the Software and supersedes all prior agreements.
