@@ -32,6 +32,7 @@ RUN apk add --no-cache \
     shadow \
     quota-tools
 
+
 # OpenCLI
 COPY opencli /usr/local/bin/opencli
 RUN chmod +x /usr/local/bin/opencli
