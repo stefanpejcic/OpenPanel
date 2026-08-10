@@ -67,7 +67,6 @@ func buildDashboardSections(allowed map[string]bool) []Section {
 			{"postgresql", "/postgresql/users", "bi-people", "Users", ""},
 			{"postgresql", "/postgresql/wizard", "bi-database-add", "Database Wizard", ""},
 			{"postgresql_import", "/postgresql/import", "bi-database-fill-add", "Import Database", ""},
-			{"pgadmin", "/postgresql/pgadmin", "bi-box-arrow-up-right", "pgAdmin", ""},
 			{"postgresql", "/postgresql/processlist", "bi-database-slash", "Process List", ""},
 			{"remote_postgresql", "/postgresql/remote-postgresql", "bi-diagram-3", "Remote Access", ""},
 			{"postgresql_conf", "/postgresql/configuration", "bi-database-lock", "PostgreSQL Configuration", ""},

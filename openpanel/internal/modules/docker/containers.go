@@ -17,7 +17,7 @@ import (
 // removed through the delete-container flow.
 var UndeletableServices = map[string]bool{
 	"elasticsearch": true, "redis": true, "valkey": true, "postgres": true,
-	"mysql": true, "mariadb": true, "phpmyadmin": true, "pgadmin": true,
+	"mysql": true, "mariadb": true, "phpmyadmin": true,
 	"opensearch": true, "memcached": true, "openresty": true, "nginx": true,
 	"apache": true, "openlitespeed": true, "litespeed": true, "varnish": true,
 	"cron": true, "backup": true, "tor": true,

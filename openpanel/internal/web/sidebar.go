@@ -162,9 +162,6 @@ func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 			{"/postgresql", "Databases", path == "/postgresql", ""},
 			{"/postgresql/users", "Users", path == "/postgresql/users", ""},
 		}
-		if allowed["pgadmin"] {
-			links = append(links, NavLink{"/postgresql/pgadmin", "pgAdmin", path == "/postgresql/pgadmin", ""})
-		}
 		links = append(links,
 			NavLink{"/postgresql/wizard", "Database Wizard", path == "/postgresql/wizard", ""},
 			NavLink{"/postgresql/new", "Create Database", path == "/postgresql/new", ""},

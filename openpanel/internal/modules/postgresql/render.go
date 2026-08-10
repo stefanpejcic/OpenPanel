@@ -38,27 +38,7 @@ var (
 	processlistPage        = loadPage("psql/processlist.html")
 	remotePostgresPage     = loadPage("psql/remote_psql.html")
 	configurationPage      = loadPage("psql/configuration.html")
-	pgadminUnavailablePage = loadPage("psql/pgadmin_unavailable.html")
 )
-
-// PGAdminUnavailablePageData is psql/pgadmin_unavailable.html's template
-// context.
-type PGAdminUnavailablePageData struct {
-	web.LayoutData
-	ErrorMessage string
-}
-
-func renderPGAdminUnavailablePage(a *appctx.App, w http.ResponseWriter, r *http.Request, errorMessage string, status int) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "pgAdmin")
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data := PGAdminUnavailablePageData{LayoutData: layout, ErrorMessage: errorMessage}
-	if err := pgadminUnavailablePage.Render(w, status, data); err != nil {
-		log.Printf("POSTGRESQL - pgadmin unavailable template render error: %v", err)
-	}
-}
 
 // ServiceStatusData is the container_state/health_status view-model shared
 // by databases.html and users.html.

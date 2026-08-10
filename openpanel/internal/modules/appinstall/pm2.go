@@ -32,7 +32,7 @@ var undeletableAppActions = map[string]bool{"start": true, "stop": true, "update
 // refuse to touch even if asked.
 var undeletableServices = map[string]bool{
 	"elasticsearch": true, "redis": true, "valkey": true, "postgres": true, "mysql": true,
-	"mariadb": true, "phpmyadmin": true, "pgadmin": true, "opensearch": true, "memcached": true,
+	"mariadb": true, "phpmyadmin": true, "opensearch": true, "memcached": true,
 	"openresty": true, "nginx": true, "apache": true, "openlitespeed": true, "litespeed": true,
 	"varnish": true, "cron": true, "backup": true, "tor": true,
 }

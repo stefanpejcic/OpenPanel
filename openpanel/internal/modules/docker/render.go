@@ -33,7 +33,7 @@ var containersPage = web.MustLoadPage(
 // never show Edit/Delete (built-in, not user-added).
 var coreServices = map[string]bool{
 	"elasticsearch": true, "redis": true, "valkey": true, "postgres": true,
-	"mysql": true, "mariadb": true, "phpmyadmin": true, "pgadmin": true,
+	"mysql": true, "mariadb": true, "phpmyadmin": true,
 	"opensearch": true, "memcached": true, "openresty": true, "nginx": true,
 	"apache": true, "openlitespeed": true, "litespeed": true, "varnish": true,
 	"cron": true, "backup": true, "tor": true, "docker-proxy": true,
@@ -42,7 +42,7 @@ var coreServices = map[string]bool{
 // imageTrustKeywords mirrors containers.html's keywords list: image
 // references containing one of these get the "verified" badge.
 var imageTrustKeywords = []string{
-	"httpd", "openlitespeed", "litespeed", "offen/docker-volume-backup", "mcuadros/ofelia", "openresty", "postgres", "pgadmin",
+	"httpd", "openlitespeed", "litespeed", "offen/docker-volume-backup", "mcuadros/ofelia", "openresty", "postgres",
 	"elasticsearch", "mariadb", "memcached", "mysql", "redis", "valkey", "opensearchproject/opensearch",
 	"nginx", "-fpm", "openpanel", "phpmyadmin", "varnish", "docker-socket-proxy", "mongo",
 }

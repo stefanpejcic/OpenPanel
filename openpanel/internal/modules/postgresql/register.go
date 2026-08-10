@@ -30,12 +30,6 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 		return auth.RequireLogin(a, "postgresql")(h)
 	}
 
-	requirePGAdminLogin := func(h http.HandlerFunc) http.Handler {
-		return auth.RequireLogin(a, "pgadmin")(h)
-	}
-	mux.Handle("GET /pgadmin/", requirePGAdminLogin(func(w http.ResponseWriter, r *http.Request) { handlePGAdminRedirect(a, w, r) }))
-	mux.Handle("GET /postgresql/pgadmin", requirePGAdminLogin(func(w http.ResponseWriter, r *http.Request) { handlePGAdminRedirect(a, w, r) }))
-
 	mux.Handle("GET /postgresql", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabases(a, w, r) }))
 	mux.Handle("GET /postgresql/new", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesNew(a, w, r) }))
 	mux.Handle("POST /postgresql/new", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesNew(a, w, r) }))

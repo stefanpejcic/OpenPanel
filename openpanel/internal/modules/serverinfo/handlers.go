@@ -209,7 +209,7 @@ func getEnvPort(context, key string) string {
 }
 
 // handleSystemHostingPorts returns the host-exposed ports for the user's
-// MySQL, Postgres, and pgAdmin containers.
+// MySQL and Postgres containers.
 func handleSystemHostingPorts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	data, err := injected(a, r)
 	if err != nil {
@@ -221,6 +221,5 @@ func handleSystemHostingPorts(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	writeJSON(w, http.StatusOK, map[string]any{
 		"remote_mysql_port":    getEnvPort(username, "MYSQL_PORT"),
 		"remote_postgres_port": getEnvPort(username, "POSTGRES_PORT"),
-		"pgadmin_port":         getEnvPort(username, "PGADMIN_PORT"),
 	})
 }

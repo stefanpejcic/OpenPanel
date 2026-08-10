@@ -228,13 +228,7 @@
         "name": "PostgreSQL Database Wizard"
     },
     {
-      "description": "pgAdmin configuration.",
-      "link": "/postgresql/pgadmin",
-      "module": "pgadmin",
-      "name": "pgAdmin"
-    },
-    {
-      "description": "Allow remote access to all PostgreSQL databases.", 
+      "description": "Allow remote access to all PostgreSQL databases.",
       "link": "/postgresql/remote-postgresql", 
       "module": "remote_postgresql", 
       "name": "Remote PostgreSQL"

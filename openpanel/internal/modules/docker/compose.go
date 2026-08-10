@@ -167,11 +167,7 @@ func SetEnvValue(userContext, variableName, newValue string) string {
 	for i, line := range lines {
 		if trimmed := strings.TrimSpace(line); trimmed != "" && !strings.HasPrefix(trimmed, "#") {
 			if k, _, ok := strings.Cut(trimmed, "="); ok && strings.TrimSpace(k) == variableName {
-				if variableName == "PGADMIN_MAIL" || variableName == "PGADMIN_PW" {
-					lines[i] = variableName + "=" + newValue
-				} else {
-					lines[i] = variableName + `="` + newValue + `"`
-				}
+				lines[i] = variableName + `="` + newValue + `"`
 				updated = true
 				break
 			}
