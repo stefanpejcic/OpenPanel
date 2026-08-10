@@ -267,7 +267,7 @@ def build_spec(same_origin=False):
          "`error` field and use standard HTTP status codes (400, 401, 403, 404, 409, 500, "
          "503, 504)."),
         ("contact", OrderedDict([("name", "OpenPanel"), ("url", "https://openpanel.com")])),
-        ("license", OrderedDict([("name", "GPL-3.0"), ("url", "https://github.com/stefanpejcic/OpenPanel/blob/main/LICENSE")])),
+        ("license", OrderedDict([("name", "OpenPanel EULA"), ("url", "https://openpanel.com/LICENSE")])),
     ])
     if same_origin:
         # In-app copy is loaded by Swagger UI from the same host it runs

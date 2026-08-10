@@ -1,0 +1,126 @@
+OpenPanel — License
+
+This repository contains several components distributed under different
+terms:
+
+  - OpenAdmin and OpenPanel UI (the `openpanel/` directory: the admin and
+    user-facing web applications) are distributed under the End User
+    License Agreement (EULA) below.
+  - OpenCLI and configuration files (the `opencli/` and `configuration/`
+    directories) are distributed under the Creative Commons
+    Attribution-NonCommercial 4.0 International license (CC BY-NC 4.0).
+
+The source of all components is published here for transparency,
+security review, and self-hosted evaluation. Publishing the source does
+not itself grant redistribution, resale, or unrestricted commercial-use
+rights beyond what each license below permits — see the EULA's License
+Grant and Restrictions sections in particular.
+
+"OpenPanel" and the OpenPanel logo are trademarks of OpenPanel, LLC and
+are not licensed under either license below.
+
+================================================================================
+Part 1 — OpenAdmin and OpenPanel UI (`openpanel/`): End User License
+Agreement (EULA)
+================================================================================
+
+Last updated: 05.06.2026
+
+This End User License Agreement ("Agreement") is a legal agreement
+between you ("Licensee") and OpenPanel, LLC ("Licensor") for the use of
+the software applications known as OpenAdmin and OpenPanel (User
+Interface) (collectively, the "Software").
+
+By installing, copying, or otherwise using the Software, you agree to be
+bound by the terms of this Agreement.
+
+1. License Grant
+
+Licensor grants you a non-exclusive, non-transferable, non-sublicensable
+license to use the Software for internal purposes only. This license
+does not grant you the right to:
+
+  - Distribute, resell, or share the Software.
+  - Modify, reverse engineer, decompile, or disassemble the Software.
+  - Use the Software for any commercial offering without Licensor's
+    written consent.
+
+2. Ownership
+
+The Software is licensed, not sold. Licensor retains all rights, titles,
+and interests in and to the Software, including all copyrights,
+trademarks, and intellectual property.
+
+3. Restrictions
+
+You shall not:
+
+  - Copy or distribute the Software or any portion thereof.
+  - Remove or alter any proprietary notices or labels.
+  - Use the Software in any manner that violates applicable laws or
+    regulations.
+
+4. Termination
+
+This Agreement is effective until terminated. Licensor may terminate
+this Agreement at any time if you breach any term. Upon termination, you
+must destroy all copies of the Software in your possession.
+
+5. No Warranty
+
+The Software is provided "as is" without warranty of any kind. Licensor
+disclaims all warranties, express or implied, including fitness for a
+particular purpose and non-infringement.
+
+6. Limitation of Liability
+
+In no event shall Licensor be liable for any damages (including lost
+profits or data) arising out of the use or inability to use the
+Software, even if Licensor has been advised of the possibility of such
+damages.
+
+7. Governing Law
+
+This Agreement shall be governed by the laws of the State of Delaware
+and the United States of America.
+
+8. Purchases & Refunds
+
+Purchases of OpenPanel Enterprise licenses are subject to our Refund
+Policy available at https://openpanel.com/refund-policy
+
+Refunds are only available within 7 days of purchase and solely for
+licenses that have not been activated. Once a license key is activated
+on any server or environment, all sales are final.
+
+We offer a free Community Edition and a 30-day Enterprise trial to
+evaluate the software before purchase.
+
+9. Entire Agreement
+
+This Agreement constitutes the entire agreement between the parties
+concerning the Software and supersedes all prior agreements.
+
+OpenPanel
+Website: https://openpanel.com
+Contact: info@openpanel.com
+
+The canonical, most current version of this Agreement is published at
+https://openpanel.com/LICENSE.
+
+================================================================================
+Part 2 — OpenCLI and configuration files (`opencli/`, `configuration/`):
+Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+================================================================================
+
+OpenCLI and the configuration files in this repository are licensed
+under the Creative Commons Attribution-NonCommercial 4.0 International
+License (CC BY-NC 4.0).
+
+You are free to share and adapt this material for any non-commercial
+purpose, provided you give appropriate credit to OpenPanel, LLC, link to
+the license, and indicate if changes were made. Commercial use requires
+a separate license from OpenPanel, LLC — contact info@openpanel.com.
+
+Full legal text: https://creativecommons.org/licenses/by-nc/4.0/legalcode
+Human-readable summary: https://creativecommons.org/licenses/by-nc/4.0/

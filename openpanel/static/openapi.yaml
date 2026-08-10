@@ -14,8 +14,8 @@ info:
     name: OpenPanel
     url: https://openpanel.com
   license:
-    name: GPL-3.0
-    url: https://github.com/stefanpejcic/OpenPanel/blob/main/LICENSE
+    name: OpenPanel EULA
+    url: https://openpanel.com/LICENSE
 servers:
 - url: /
   description: This OpenPanel installation
