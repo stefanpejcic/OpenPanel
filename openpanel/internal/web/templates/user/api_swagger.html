@@ -8,91 +8,16 @@
 <script src="/static/vendor/swagger-ui/swagger-ui-standalone-preset.js"></script>
 
 <style>
-    /* Minimal dark-mode pass for vendored Swagger UI, which otherwise only
-       ships a light theme - scoped under html.dark to match this panel's
-       own toggle (see partials/theme_switcher.html). Not exhaustive, just
-       enough that the page doesn't glare white inside an otherwise dark UI. */
-    html.dark .swagger-ui,
-    html.dark .swagger-ui .info .title,
-    html.dark .swagger-ui .opblock-tag,
-    html.dark .swagger-ui table thead tr td,
-    html.dark .swagger-ui table thead tr th,
-    html.dark .swagger-ui .parameter__name,
-    html.dark .swagger-ui .parameter__type,
-    html.dark .swagger-ui .response-col_status,
-    html.dark .swagger-ui .opblock .opblock-summary-description,
-    html.dark .swagger-ui .opblock-description-wrapper p,
-    html.dark .swagger-ui .model-title,
-    html.dark .swagger-ui .model,
-    html.dark .swagger-ui label {
-        color: #e5e7eb;
-    }
-    html.dark .swagger-ui { background: transparent; }
-    html.dark .swagger-ui .scheme-container,
-    html.dark .swagger-ui .opblock-tag,
-    html.dark .swagger-ui .opblock .opblock-section-header,
-    html.dark .swagger-ui section.models,
-    html.dark .swagger-ui .model-box,
-    html.dark .swagger-ui .responses-inner,
-    html.dark .swagger-ui .btn { background: #111827; border-color: #1f2937; }
-    html.dark .swagger-ui .opblock { background: #0b0f19; border-color: #1f2937; }
-    html.dark .swagger-ui input,
-    html.dark .swagger-ui select,
-    html.dark .swagger-ui textarea { background: #111827; color: #e5e7eb; border-color: #374151; }
-    html.dark .swagger-ui .highlight-code,
-    html.dark .swagger-ui pre { background: #0b0f19; }
-    html.dark .swagger-ui .opblock-summary-path,
-    html.dark .swagger-ui .opblock-summary-path__deprecated { color: #f3f4f6; }
-    html.dark .swagger-ui .tab li { color: #e5e7eb; }
-    html.dark .swagger-ui .opblock .opblock-summary-operation-id,
-    html.dark .swagger-ui .opblock .opblock-summary-path-description-wrapper,
-    html.dark .swagger-ui .response-col_description,
-    html.dark .swagger-ui .response-col_links,
-    html.dark .swagger-ui .renderedMarkdown p,
-    html.dark .swagger-ui .markdown p,
-    html.dark .swagger-ui .property.primitive,
-    html.dark .swagger-ui table.model tr,
-    html.dark .swagger-ui .prop-type,
-    html.dark .swagger-ui .parameter__deprecated,
-    html.dark .swagger-ui .parameter__in,
-    html.dark .swagger-ui .opblock-section-header h4,
-    html.dark .swagger-ui .opblock-section-header label,
-    html.dark .swagger-ui .checkbox label,
-    html.dark .swagger-ui .dialog-ux .modal-ux-header h3,
-    html.dark .swagger-ui .dialog-ux .modal-ux-content h4,
-    html.dark .swagger-ui .dialog-ux .modal-ux-content p,
-    html.dark .swagger-ui .servers > label,
-    html.dark .swagger-ui .servers-title { color: #e5e7eb; }
-    html.dark .swagger-ui .opblock-body pre.microlight,
-    html.dark .swagger-ui .highlight-code > .microlight,
-    html.dark .swagger-ui .body-param-content-type-select,
-    html.dark .swagger-ui .dialog-ux .modal-ux,
-    html.dark .swagger-ui .dialog-ux .modal-ux-header,
-    html.dark .swagger-ui .servers > select,
-    html.dark .swagger-ui .opblock-summary { background: #111827; }
-    html.dark .swagger-ui .dialog-ux .backdrop-ux { background: rgba(0,0,0,.7); }
-    html.dark .swagger-ui .opblock-tag { border-color: #1f2937; }
-    html.dark .swagger-ui .opblock-tag:hover { background: #111827; }
-    html.dark .swagger-ui .btn { color: #e5e7eb; }
-    html.dark .swagger-ui .btn.authorize,
-    html.dark .swagger-ui .btn.try-out__btn { color: #93c5fd; border-color: #374151; }
-    html.dark .swagger-ui .btn.authorize svg,
-    html.dark .swagger-ui .authorization__btn svg { fill: #93c5fd; }
-    html.dark .swagger-ui svg:not(.arrow) { fill: #9ca3af; }
-    html.dark .swagger-ui .opblock-summary-control:focus-visible,
-    html.dark .swagger-ui .expand-methods svg,
-    html.dark .swagger-ui .expand-operation svg { fill: #9ca3af; }
-    html.dark .swagger-ui .copy-to-clipboard { background: #374151; }
-    html.dark .swagger-ui section.models { border-color: #1f2937; }
-    html.dark .swagger-ui section.models.is-open h4 { border-color: #1f2937; color: #e5e7eb; }
-    html.dark .swagger-ui .model-toggle:after { filter: invert(1); }
-    /* The URL bar in the Swagger UI topbar is intentionally inert - see
-       the disable-topbar-explore script below - style it as disabled in
-       both themes rather than leaving it looking interactive. */
-    .swagger-ui .topbar { background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
-    html.dark .swagger-ui .topbar { background: #030712; border-bottom: 1px solid #1f2937; }
-    .swagger-ui .topbar .download-url-input[disabled] { background: #f3f4f6; color: #6b7280; cursor: not-allowed; }
-    html.dark .swagger-ui .topbar .download-url-input[disabled] { background: #111827; color: #6b7280; border-color: #374151; }
+    /* Swagger UI ships its own complete dark theme (html.dark-mode, see
+       vendor/swagger-ui/swagger-ui.css) plus a lightbulb toggle button
+       that flips it based on the OS color-scheme preference at mount
+       time. We don't want a second, independent theme control - the
+       disable-topbar-explore script below keeps html.dark-mode in sync
+       with this panel's own dark/light toggle (html.dark, see
+       partials/theme_switcher.html) instead, so hide Swagger's toggle
+       button since clicking it would fight that sync. */
+    .swagger-ui .topbar .dark-mode-toggle { display: none; }
+    .swagger-ui .topbar .download-url-input[disabled],
     .swagger-ui .topbar .download-url-button[disabled] { opacity: .5; cursor: not-allowed; }
     #swagger-ui-container { min-height: 60vh; }
 </style>
@@ -125,7 +50,19 @@
 </section>
 
 <script>
+    // Swagger UI's own dark theme is keyed off a `dark-mode` class on
+    // <html>, seeded once from the OS color-scheme preference by its
+    // bundled (now-hidden) toggle button - not from this panel's own
+    // dark/light setting. Mirror the panel's `dark` class onto it instead,
+    // so Swagger UI always matches what the user has chosen for the panel.
+    function syncSwaggerDarkMode() {
+        var isDark = document.documentElement.classList.contains('dark');
+        document.documentElement.classList.toggle('dark-mode', isDark);
+    }
+
     window.addEventListener('load', function () {
+        syncSwaggerDarkMode();
+
         window.ui = SwaggerUIBundle({
             url: '/static/openapi.yaml',
             dom_id: '#swagger-ui',
@@ -136,6 +73,10 @@
                 {{if .Token}}
                 window.ui.preauthorizeApiKey('bearerAuth', {{.Token}});
                 {{end}}
+                // Re-sync: Swagger UI's own toggle component may have just
+                // overridden dark-mode with its OS-preference guess during
+                // mount, above.
+                syncSwaggerDarkMode();
                 // This page only ever serves this panel's own spec - the
                 // topbar's URL field and "Explore" button would otherwise
                 // let a user point Swagger UI at an arbitrary spec/URL.
@@ -144,6 +85,12 @@
                 var exploreBtn = document.querySelector('.download-url-button');
                 if (exploreBtn) { exploreBtn.disabled = true; }
             }
+        });
+
+        // Keep it in sync live as the user flips the panel's own toggle
+        // (partials/theme_switcher.html), which only ever touches `dark`.
+        new MutationObserver(syncSwaggerDarkMode).observe(document.documentElement, {
+            attributes: true, attributeFilter: ['class']
         });
     });
 </script>
