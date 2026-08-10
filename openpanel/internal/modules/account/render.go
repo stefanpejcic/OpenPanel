@@ -1,12 +1,10 @@
 package account
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/apidocs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -41,7 +39,6 @@ var (
 	activityPage       = loadPage("user/activity.html")
 	loginHistoryPage   = loadPage("user/loginlog.html")
 	mcpPage            = loadPage("user/mcp.html")
-	apiDocsPage        = loadPage("user/api_docs.html")
 	apiSwaggerPage     = loadPage("user/api_swagger.html")
 )
 
@@ -229,27 +226,6 @@ func renderMCPPage(a *appctx.App, w http.ResponseWriter, r *http.Request, tokens
 	data := MCPPageData{LayoutData: layout, Tokens: tokens, MCPURL: mcpURL, NewToken: newToken}
 	if err := mcpPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - mcp template render error: %v", err)
-	}
-}
-
-// APIDocsPageData is user/api_docs.html's template context.
-type APIDocsPageData struct {
-	web.LayoutData
-	EndpointsJSON template.JS
-}
-
-func renderAPIDocsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "API Reference")
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data := APIDocsPageData{
-		LayoutData:    layout,
-		EndpointsJSON: template.JS(apidocs.EndpointsJSON), //nolint:gosec // server-embedded documentation data, not user input
-	}
-	if err := apiDocsPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("ACCOUNT - api docs template render error: %v", err)
 	}
 }
 

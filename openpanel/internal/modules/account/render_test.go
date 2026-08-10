@@ -2,13 +2,11 @@ package account
 
 import (
 	"database/sql"
-	"html/template"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/apidocs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -459,28 +457,3 @@ func TestRenderMCPPage(t *testing.T) {
 	})
 }
 
-func TestRenderAPIDocsPage(t *testing.T) {
-	mgr := i18n.NewManager(t.TempDir(), nil)
-
-	data := APIDocsPageData{
-		LayoutData:    baseLayout(mgr, "/account/api"),
-		EndpointsJSON: template.JS(apidocs.EndpointsJSON), //nolint:gosec // test uses the real embedded documentation data
-	}
-	w := httptest.NewRecorder()
-	if err := apiDocsPage.Render(w, 200, data); err != nil {
-		t.Fatalf("Render: %v", err)
-	}
-	body := w.Body.String()
-	if !strings.Contains(body, `id="api-endpoints-data"`) {
-		t.Error("expected embedded endpoints data script tag")
-	}
-	if !strings.Contains(body, "API Reference") {
-		t.Error("expected page title")
-	}
-	if len(apidocs.EndpointsJSON) == 0 {
-		t.Fatal("apidocs.EndpointsJSON is empty")
-	}
-	if !strings.Contains(body, `"group"`) {
-		t.Error("expected endpoint group JSON embedded in page")
-	}
-}

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Generates the OpenAPI spec from internal/core/apidocs/api_endpoints.json,
-the same structured data source that drives the /account/api/reference docs
-page and the app's own MCP tool registry. Writes two copies:
-  - website/static/openpanel-openapi.yaml (public docs site download link)
+the same structured data source that drives the app's own MCP tool
+registry. Writes two copies:
+  - website/static/openpanel-openapi.yaml (public docs site download link,
+    with an example.com placeholder server since it's downloaded standalone)
   - openpanel/static/openapi.yaml (same-origin copy the in-app Swagger UI
-    at /account/api loads - CORS-free since it's served by the app itself)
+    at /account/api loads - a relative server URL so it resolves against
+    whatever domain/port the panel is actually running on)
 
 Usage: python3 website/scripts/generate_openapi.py
 Requires: pip install pyyaml
@@ -155,7 +157,7 @@ def slug_for_path(path):
     return slug or "root"
 
 
-def build_spec():
+def build_spec(same_origin=False):
     paths = OrderedDict()
     tags = []
     seen_tags = set()
@@ -264,12 +266,21 @@ def build_spec():
          "endpoints stream a file download instead). Error responses always include an "
          "`error` field and use standard HTTP status codes (400, 401, 403, 404, 409, 500, "
          "503, 504)."),
-        ("contact", OrderedDict([("name", "OpenPanel"), ("url", "https://openpanel.org")])),
+        ("contact", OrderedDict([("name", "OpenPanel"), ("url", "https://openpanel.com")])),
         ("license", OrderedDict([("name", "GPL-3.0"), ("url", "https://github.com/stefanpejcic/OpenPanel/blob/main/LICENSE")])),
     ])
-    spec["servers"] = [
-        {"url": "https://panel.example.com", "description": "Your OpenPanel installation (default port 2083)"},
-    ]
+    if same_origin:
+        # In-app copy is loaded by Swagger UI from the same host it runs
+        # on, so a relative server URL resolves against whatever domain
+        # and port the panel is actually reachable on instead of a
+        # hardcoded placeholder.
+        spec["servers"] = [
+            {"url": "/", "description": "This OpenPanel installation"},
+        ]
+    else:
+        spec["servers"] = [
+            {"url": "https://panel.example.com", "description": "Your OpenPanel installation (default port 2083)"},
+        ]
     spec["tags"] = tags
     spec["paths"] = paths
     spec["components"] = OrderedDict([
@@ -323,16 +334,20 @@ NoAliasDumper.add_representer(str, represent_str)
 
 
 def main():
-    spec = build_spec()
-    for out in OUT_PATHS:
+    website_out, app_out = OUT_PATHS
+    specs = [
+        (website_out, build_spec(same_origin=False)),
+        (app_out, build_spec(same_origin=True)),
+    ]
+    for out, spec in specs:
         with open(out, 'w') as f:
             f.write("# Auto-generated from internal/core/apidocs/api_endpoints.json by generate_openapi.py.\n")
             f.write("# To update: regenerate rather than hand-editing this file directly.\n")
             yaml.dump(spec, f, Dumper=NoAliasDumper, sort_keys=False, allow_unicode=True, default_flow_style=False, width=100)
         print(f"Wrote {out}")
 
-    total_ops = sum(len(v) for v in spec["paths"].values())
-    print(f"paths: {len(spec['paths'])}, operations: {total_ops}, tags: {len(spec['tags'])}")
+    total_ops = sum(len(v) for v in specs[0][1]["paths"].values())
+    print(f"paths: {len(specs[0][1]['paths'])}, operations: {total_ops}, tags: {len(specs[0][1]['tags'])}")
 
 
 if __name__ == "__main__":

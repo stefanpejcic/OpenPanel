@@ -44,6 +44,56 @@
     html.dark .swagger-ui .opblock-summary-path,
     html.dark .swagger-ui .opblock-summary-path__deprecated { color: #f3f4f6; }
     html.dark .swagger-ui .tab li { color: #e5e7eb; }
+    html.dark .swagger-ui .opblock .opblock-summary-operation-id,
+    html.dark .swagger-ui .opblock .opblock-summary-path-description-wrapper,
+    html.dark .swagger-ui .response-col_description,
+    html.dark .swagger-ui .response-col_links,
+    html.dark .swagger-ui .renderedMarkdown p,
+    html.dark .swagger-ui .markdown p,
+    html.dark .swagger-ui .property.primitive,
+    html.dark .swagger-ui table.model tr,
+    html.dark .swagger-ui .prop-type,
+    html.dark .swagger-ui .parameter__deprecated,
+    html.dark .swagger-ui .parameter__in,
+    html.dark .swagger-ui .opblock-section-header h4,
+    html.dark .swagger-ui .opblock-section-header label,
+    html.dark .swagger-ui .checkbox label,
+    html.dark .swagger-ui .dialog-ux .modal-ux-header h3,
+    html.dark .swagger-ui .dialog-ux .modal-ux-content h4,
+    html.dark .swagger-ui .dialog-ux .modal-ux-content p,
+    html.dark .swagger-ui .servers > label,
+    html.dark .swagger-ui .servers-title { color: #e5e7eb; }
+    html.dark .swagger-ui .opblock-body pre.microlight,
+    html.dark .swagger-ui .highlight-code > .microlight,
+    html.dark .swagger-ui .body-param-content-type-select,
+    html.dark .swagger-ui .dialog-ux .modal-ux,
+    html.dark .swagger-ui .dialog-ux .modal-ux-header,
+    html.dark .swagger-ui .servers > select,
+    html.dark .swagger-ui .opblock-summary { background: #111827; }
+    html.dark .swagger-ui .dialog-ux .backdrop-ux { background: rgba(0,0,0,.7); }
+    html.dark .swagger-ui .opblock-tag { border-color: #1f2937; }
+    html.dark .swagger-ui .opblock-tag:hover { background: #111827; }
+    html.dark .swagger-ui .btn { color: #e5e7eb; }
+    html.dark .swagger-ui .btn.authorize,
+    html.dark .swagger-ui .btn.try-out__btn { color: #93c5fd; border-color: #374151; }
+    html.dark .swagger-ui .btn.authorize svg,
+    html.dark .swagger-ui .authorization__btn svg { fill: #93c5fd; }
+    html.dark .swagger-ui svg:not(.arrow) { fill: #9ca3af; }
+    html.dark .swagger-ui .opblock-summary-control:focus-visible,
+    html.dark .swagger-ui .expand-methods svg,
+    html.dark .swagger-ui .expand-operation svg { fill: #9ca3af; }
+    html.dark .swagger-ui .copy-to-clipboard { background: #374151; }
+    html.dark .swagger-ui section.models { border-color: #1f2937; }
+    html.dark .swagger-ui section.models.is-open h4 { border-color: #1f2937; color: #e5e7eb; }
+    html.dark .swagger-ui .model-toggle:after { filter: invert(1); }
+    /* The URL bar in the Swagger UI topbar is intentionally inert - see
+       the disable-topbar-explore script below - style it as disabled in
+       both themes rather than leaving it looking interactive. */
+    .swagger-ui .topbar { background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+    html.dark .swagger-ui .topbar { background: #030712; border-bottom: 1px solid #1f2937; }
+    .swagger-ui .topbar .download-url-input[disabled] { background: #f3f4f6; color: #6b7280; cursor: not-allowed; }
+    html.dark .swagger-ui .topbar .download-url-input[disabled] { background: #111827; color: #6b7280; border-color: #374151; }
+    .swagger-ui .topbar .download-url-button[disabled] { opacity: .5; cursor: not-allowed; }
     #swagger-ui-container { min-height: 60vh; }
 </style>
 
@@ -63,9 +113,6 @@
             {{end}}
         </div>
         <div class="mt-2 flex gap-2 sm:mt-0">
-            <a href="/account/api/reference" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit w-full gap-x-1.5 whitespace-nowrap bg-white text-gray-700 hover:bg-gray-50">
-                {{.T.Get "View as list"}}
-            </a>
             <a href="/static/openapi.yaml" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-full sm:mt-0">
                 {{.T.Get "Download spec"}}
             </a>
@@ -89,6 +136,13 @@
                 {{if .Token}}
                 window.ui.preauthorizeApiKey('bearerAuth', {{.Token}});
                 {{end}}
+                // This page only ever serves this panel's own spec - the
+                // topbar's URL field and "Explore" button would otherwise
+                // let a user point Swagger UI at an arbitrary spec/URL.
+                var urlInput = document.getElementById('download-url-input');
+                if (urlInput) { urlInput.disabled = true; }
+                var exploreBtn = document.querySelector('.download-url-button');
+                if (exploreBtn) { exploreBtn.disabled = true; }
             }
         });
     });

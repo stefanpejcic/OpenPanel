@@ -12,7 +12,7 @@ info:
     Success responses are JSON objects (`200`) unless noted otherwise (a handful of endpoints stream a file download instead). Error responses always include an `error` field and use standard HTTP status codes (400, 401, 403, 404, 409, 500, 503, 504).
   contact:
     name: OpenPanel
-    url: https://openpanel.org
+    url: https://openpanel.com
   license:
     name: GPL-3.0
     url: https://github.com/stefanpejcic/OpenPanel/blob/main/LICENSE
