@@ -75,17 +75,42 @@ func TestGetValidatedFloat(t *testing.T) {
 
 func TestBuildAppRunCommand(t *testing.T) {
 	cases := []struct {
-		pyOrNode, requirements, customCmd, startupFile, want string
+		pyOrNode, requirements, customCmd, startupFile, gitURL, want string
 	}{
-		{"PY", "1", "", "", "pip install -r requirements.txt && python app.py"},
-		{"PY", "", "", "app/main.py", "python app/main.py"},
-		{"PY", "", "gunicorn app:app", "main.py", "gunicorn app:app"},
-		{"NODE", "1", "", "", "npm install && node index.js"},
-		{"NODE", "", "", "server.js", "node server.js"},
+		{"PY", "1", "", "", "", "pip install -r requirements.txt && python app.py"},
+		{"PY", "", "", "app/main.py", "", "python app/main.py"},
+		{"PY", "", "gunicorn app:app", "main.py", "", "gunicorn app:app"},
+		{"NODE", "1", "", "", "", "npm install && node index.js"},
+		{"NODE", "", "", "server.js", "", "node server.js"},
+		{
+			"NODE", "1", "", "", "https://github.com/user/repo.git",
+			"(command -v git >/dev/null 2>&1 || (apt-get update -qq && apt-get install -y -qq git)) && " +
+				"(git rev-parse --is-inside-work-tree >/dev/null 2>&1 || git init -q) && " +
+				"(git remote get-url origin >/dev/null 2>&1 || git remote add origin 'https://github.com/user/repo.git') && " +
+				"git fetch --depth 1 origin HEAD && git reset --hard FETCH_HEAD && " +
+				"npm install && node index.js",
+		},
 	}
 	for _, c := range cases {
-		if got := buildAppRunCommand(c.pyOrNode, c.requirements, c.customCmd, c.startupFile); got != c.want {
-			t.Errorf("buildAppRunCommand(%q,%q,%q,%q) = %q, want %q", c.pyOrNode, c.requirements, c.customCmd, c.startupFile, got, c.want)
+		if got := buildAppRunCommand(c.pyOrNode, c.requirements, c.customCmd, c.startupFile, c.gitURL); got != c.want {
+			t.Errorf("buildAppRunCommand(%q,%q,%q,%q,%q) = %q, want %q", c.pyOrNode, c.requirements, c.customCmd, c.startupFile, c.gitURL, got, c.want)
+		}
+	}
+}
+
+func TestIsValidGitURL(t *testing.T) {
+	cases := map[string]bool{
+		"":                                    true,
+		"https://github.com/user/repo.git":    true,
+		"https://token@github.com/user/r.git": true,
+		"http://github.com/user/repo.git":     false,
+		"git@github.com:user/repo.git":        false,
+		"https://evil.com/x'; rm -rf /":       false,
+		"https://has space.com/repo.git":      false,
+	}
+	for in, want := range cases {
+		if got := isValidGitURL(in); got != want {
+			t.Errorf("isValidGitURL(%q) = %v, want %v", in, got, want)
 		}
 	}
 }

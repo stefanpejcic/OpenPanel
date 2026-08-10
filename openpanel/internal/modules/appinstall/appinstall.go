@@ -85,6 +85,24 @@ func isValidCustomCommand(cmd string) bool {
 	return !strings.ContainsAny(cmd, "\n\r")
 }
 
+// isValidGitURL is deliberately restrictive: the URL ends up single-quoted
+// inside the container's startup shell command (see buildAppRunCommand), so
+// a single quote would break out of that quoting, and only https:// is
+// supported - there's no SSH deploy-key infrastructure to authenticate a
+// git:// or ssh:// clone with. Empty is valid (git deploy is optional).
+func isValidGitURL(url string) bool {
+	if url == "" {
+		return true
+	}
+	if len(url) > 500 {
+		return false
+	}
+	if !strings.HasPrefix(url, "https://") {
+		return false
+	}
+	return !strings.ContainsAny(url, "'\n\r \t")
+}
+
 // isValidRequirements accepts only "" (No) or "1" (Yes).
 func isValidRequirements(req string) bool {
 	return req == "" || req == "1"
@@ -110,7 +128,41 @@ func getValidatedFloat(value, def string) float64 {
 	return d
 }
 
-func buildAppRunCommand(pyOrNode, requirements, customCmd, startupFile string) string {
+// gitBootstrapCmd returns the shell snippet that makes sure `git` is on
+// PATH (the official node/python images it runs in don't include it, and
+// - being official images - can't be edited, only the compose file that
+// launches them), then fetches the repo's default branch and hard-resets
+// the working tree to it, every time the container starts (first install
+// and every later restart alike). gitURL is trusted to already be
+// validated by isValidGitURL (https://-only, no quote/whitespace/newline
+// chars), so single-quoting it here is safe.
+//
+// This deliberately avoids both `git clone` and `git pull`:
+//   - `git clone` refuses to clone into a non-empty directory, but a repo
+//     can be connected later from an already-installed app (see the
+//     manage page), whose docroot then already has files in it - `init`
+//     (idempotent - skipped if already a repo from a prior start) +
+//     `remote add` (idempotent - skipped if already configured) + `fetch`
+//     + `reset --hard` adopts the existing directory in place instead.
+//   - `git pull` depends on the current branch having upstream tracking
+//     info, which `reset --hard FETCH_HEAD` deliberately doesn't set up
+//     (it leaves a detached HEAD) - so a plain `pull` on the next restart
+//     would fail outright. Fetching+resetting every time sidesteps branch
+//     tracking entirely and works the same way on every start.
+//
+// `fetch origin HEAD` resolves the remote's actual default branch without
+// needing to name it.
+func gitBootstrapCmd(gitURL string) string {
+	if gitURL == "" {
+		return ""
+	}
+	return "(command -v git >/dev/null 2>&1 || (apt-get update -qq && apt-get install -y -qq git)) && " +
+		"(git rev-parse --is-inside-work-tree >/dev/null 2>&1 || git init -q) && " +
+		"(git remote get-url origin >/dev/null 2>&1 || git remote add origin '" + gitURL + "') && " +
+		"git fetch --depth 1 origin HEAD && git reset --hard FETCH_HEAD && "
+}
+
+func buildAppRunCommand(pyOrNode, requirements, customCmd, startupFile, gitURL string) string {
 	var installCmd, defaultRun string
 	if pyOrNode == "NODE" {
 		if requirements == "1" {
@@ -136,7 +188,7 @@ func buildAppRunCommand(pyOrNode, requirements, customCmd, startupFile string) s
 	if runCmd == "" {
 		runCmd = defaultRun
 	}
-	return installCmd + runCmd
+	return gitBootstrapCmd(gitURL) + installCmd + runCmd
 }
 
 // normalizeRequirements maps common truthy strings to "1", everything

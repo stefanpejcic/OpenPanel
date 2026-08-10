@@ -235,6 +235,7 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 	workdir := strings.TrimSpace(r.FormValue("workdir"))
 	cpu := strings.TrimSpace(r.FormValue("cpu"))
 	ram := strings.TrimSpace(r.FormValue("ram"))
+	gitRepoURL := strings.TrimSpace(r.FormValue("git_repo_url"))
 
 	hasError := false
 	if !isValidVersion(version) {
@@ -265,6 +266,10 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 		flashAndRedirectApp(a, w, r, "error", "Error saving: Memory limit provided is not a positive integer.", redirectPath)
 		hasError = true
 	}
+	if !isValidGitURL(gitRepoURL) {
+		flashAndRedirectApp(a, w, r, "error", "Error saving: Invalid git repository URL. Only https:// URLs are supported.", redirectPath)
+		hasError = true
+	}
 	if hasError {
 		return
 	}
@@ -289,8 +294,9 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 	docker.SetEnvValue(userContext, prefix+"CPU", cpu)
 	docker.SetEnvValue(userContext, prefix+"RAM", ramValue)
 	docker.SetEnvValue(userContext, prefix+"CUSTOM_CMD", customCmd)
+	docker.SetEnvValue(userContext, prefix+"GIT_URL", gitRepoURL)
 
-	resolvedCommand := buildAppRunCommand(pyOrNode, requirements, customCmd, startupFile)
+	resolvedCommand := buildAppRunCommand(pyOrNode, requirements, customCmd, startupFile, gitRepoURL)
 	composeData, loadErr := docker.LoadCompose(userContext)
 	if loadErr == nil {
 		if services, ok := composeData["services"].(map[string]any); ok {

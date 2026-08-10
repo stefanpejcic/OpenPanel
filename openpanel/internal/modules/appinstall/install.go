@@ -168,6 +168,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	customCmd := r.FormValue("custom_cmd")
 	requirements := normalizeRequirements(r.FormValue("requirements"))
+	gitRepoURL := strings.TrimSpace(r.FormValue("git_repo_url"))
 
 	if !isValidSubdirectory(subdirectory) {
 		emit(map[string]any{"error": "Invalid subdirectory."})
@@ -183,6 +184,10 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	if customCmd != "" && !isValidCustomCommand(customCmd) {
 		emit(map[string]any{"error": "Invalid custom command."})
+		return
+	}
+	if !isValidGitURL(gitRepoURL) {
+		emit(map[string]any{"error": "Invalid git repository URL. Only https:// URLs are supported."})
 		return
 	}
 
@@ -205,7 +210,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	templateStr := string(templateBytes)
 
-	resolvedCommand := buildAppRunCommand(kind.PyOrNode, requirements, customCmd, startupFile)
+	resolvedCommand := buildAppRunCommand(kind.PyOrNode, requirements, customCmd, startupFile, gitRepoURL)
 
 	nestedCommandPattern := "${SERVICE_NAME_" + kind.PyOrNode + "_REQUIREMENTS:+" + requirementsInstallToken(kind.PyOrNode) + " &&} " +
 		"${SERVICE_NAME_" + kind.PyOrNode + "_CUSTOM_CMD:-" + defaultRunToken(kind.PyOrNode) + " ${SERVICE_NAME_" + kind.PyOrNode + "_STARTUP_FILE:-" + defaultStartupFile(kind.PyOrNode) + "}}"
@@ -270,6 +275,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	envVariables += "\n" + serviceNameUp + "_" + kind.PyOrNode + "_STARTUP_FILE=\"" + startupFile + "\"" +
 		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_CUSTOM_CMD=\"" + customCmd + "\"" +
+		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_GIT_URL=\"" + gitRepoURL + "\"" +
 		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_WORKDIR=\"" + installPath + "\"" +
 		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_CPU=\"" + formatPyFloat(cpuLimit) + "\"" +
 		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_RAM=\"" + formatPyFloat(memLimit) + "G\"\n"

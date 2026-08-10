@@ -120,7 +120,7 @@ type PythonNodeAppsPageData struct {
 	Type string
 	// PM2Status is pm2_data.status stringified ("true"/"false"/"unknown").
 	PM2Status                                                       string
-	CPU, RAM, PIDs, StartupFile, CustomCmd, Workdir, CurrentVersion string
+	CPU, RAM, PIDs, StartupFile, CustomCmd, Workdir, CurrentVersion, GitRepoURL string
 	RequirementsSelected                                            bool
 }
 
@@ -156,6 +156,7 @@ func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	data.CustomCmd = pm2val("CUSTOM_CMD")
 	data.Workdir = pm2val("WORKDIR")
 	data.CurrentVersion = pm2val("TAG")
+	data.GitRepoURL = pm2val("GIT_URL")
 	data.RequirementsSelected = pm2val("REQUIREMENTS") == "1"
 
 	if idx := strings.Index(data.Container.Container, "_"); idx != -1 {

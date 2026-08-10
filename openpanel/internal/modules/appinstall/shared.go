@@ -107,6 +107,7 @@ func RegisterShared(mux *http.ServeMux, a *appctx.App) {
 	}
 	mux.Handle("GET /docker/tags/{type}", requireLogin(func(w http.ResponseWriter, r *http.Request) { HandleDockerTags(a, w, r) }))
 	mux.Handle("POST /json/check_if_file_exists", requireLogin(func(w http.ResponseWriter, r *http.Request) { HandleCheckFileExists(a, w, r) }))
+	mux.Handle("POST /json/detect_git_startup_file", requireLogin(func(w http.ResponseWriter, r *http.Request) { HandleDetectGitStartupFile(a, w, r) }))
 }
 
 func injectedContext(a *appctx.App, r *http.Request) (username, userContext string, err error) {

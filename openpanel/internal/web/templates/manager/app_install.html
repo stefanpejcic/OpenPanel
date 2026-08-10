@@ -61,6 +61,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("Error:", data);
             });
     });
+
+    var gitUrlInput = document.querySelector("#git_repo_url");
+    gitUrlInput.addEventListener('blur', function() {
+        var url = this.value.trim();
+        var resultDiv = document.querySelector("#git-detect-result");
+        resultDiv.innerHTML = '';
+        if (url === '') return;
+
+        resultDiv.innerHTML = {{toJSON (.T.Get "Detecting startup file from repository...")}};
+
+        const params = new URLSearchParams({ git_repo_url: url, app_type: {{toJSON .Kind.AppType}} });
+        fetch("/json/detect_git_startup_file", {
+            method: "POST",
+            headers: {
+                'X-CSRF-TOKEN': csrf_token,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params.toString()
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.startup_file) {
+                    startupFileInput.value = data.startup_file;
+                    startupFileInput.dispatchEvent(new Event('input'));
+                    resultDiv.innerHTML = '<i class="bi bi-check-lg" style="color:green;"></i> ' +
+                        {{toJSON (.T.Get "Detected startup file from repository, feel free to edit it below.")}};
+                } else {
+                    resultDiv.innerHTML = '<i class="bi bi-exclamation-lg" style="color:orange;"></i> ' +
+                        (data.error || {{toJSON (.T.Get "Could not detect a startup file, please set it manually.")}});
+                }
+            })
+            .catch(data => {
+                resultDiv.innerHTML = '';
+                console.log("Error:", data);
+            });
+    });
 });
 </script>
 
@@ -103,14 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
 
-        <div class="mb-4">
-            <label class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Type"}}</label>
-            <div class="flex items-center gap-3 rounded border px-4 py-3 shadow-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800">
-                {{.Display.Icon}}
-                <span class="font-medium text-sm text-gray-900 dark:text-gray-50">{{.Display.Label}}</span>
-                <span id="run_command" class="hidden">{{.Display.RunCommand}}</span>
-            </div>
-        </div>
+        <span id="run_command" class="hidden">{{.Display.RunCommand}}</span>
 
         <div>
             <label class="flex justify-between mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="version" x-data="{tooltip: false }">
@@ -125,6 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </label>
             <select name="version" id="version"
                 class="peer w-full cursor-pointer appearance-none truncate rounded border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"></select>
+        </div>
 
             <script>
             let versionsFetched = false;
@@ -164,7 +194,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             updateVersionOptions();
             </script>
-        </div>
     </div>
 
     <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
@@ -261,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </script>
     </div>
 
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4" x-data="{ showCustomCommand: false }">
+    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4" x-data="{ showCustomCommand: false, showGitRepo: false }">
         <div class="flex items-center gap-2.5 mb-2">
             <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">3</div>
             <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Startup"}}</span>
@@ -284,23 +313,43 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
 
         <div class="mb-4">
-            <span
-                id="open_custom_command_field"
-                @click="showCustomCommand = !showCustomCommand"
-                class="cursor-pointer text-xs text-blue-600 hover:underline mb-1 flex items-center gap-1 w-fit"
-            >
-                <template x-if="!showCustomCommand">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-                    </svg>
-                </template>
-                <template x-if="showCustomCommand">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
-                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
-                    </svg>
-                </template>
-                <span>{{.T.Get "Custom startup command"}}</span>
-            </span>
+            <div class="flex items-center gap-4 mb-1">
+                <span
+                    id="open_custom_command_field"
+                    @click="showCustomCommand = !showCustomCommand"
+                    class="cursor-pointer text-xs text-blue-600 hover:underline flex items-center gap-1 w-fit"
+                >
+                    <template x-if="!showCustomCommand">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                        </svg>
+                    </template>
+                    <template x-if="showCustomCommand">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
+                            <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                        </svg>
+                    </template>
+                    <span>{{.T.Get "Custom startup command"}}</span>
+                </span>
+
+                <span
+                    id="open_git_repo_field"
+                    @click="showGitRepo = !showGitRepo"
+                    class="cursor-pointer text-xs text-blue-600 hover:underline flex items-center gap-1 w-fit"
+                >
+                    <template x-if="!showGitRepo">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                        </svg>
+                    </template>
+                    <template x-if="showGitRepo">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-dash" viewBox="0 0 16 16">
+                            <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                        </svg>
+                    </template>
+                    <span>{{.T.Get "Git repository URL"}}</span>
+                </span>
+            </div>
 
             <div id="custom_command_field" x-show="showCustomCommand" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
                 <label class="flex justify-between mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="custom_cmd" x-data="{tooltip: false }">
@@ -318,6 +367,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 </label>
                 <input type="text" name="custom_cmd" id="custom_cmd" placeholder=""
                     class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+            </div>
+
+            <div id="git_repo_field" x-show="showGitRepo" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                <label class="flex justify-between mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="git_repo_url" x-data="{tooltip: false }">
+                    <span>{{.T.Get "Git repository URL"}}</span>
+                    <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+</svg>
+                        <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-lg bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">{{.T.Get "Optional. If set, the app's code is fetched from this repository and reset to its latest commit every time the container starts, before install/startup runs."}}</div>
+                    </span>
+                </label>
+                <input type="text" name="git_repo_url" id="git_repo_url" placeholder="https://github.com/user/repo.git"
+                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                <p class="mt-1.5 text-xs text-gray-400 dark:text-gray-500">{{.T.Get "Only https:// URLs are supported, and only public repositories - for a private repo, generate a personal access token and embed it in the URL, e.g."}} <code>https://&lt;token&gt;@github.com/user/repo.git</code></p>
+                <div id="git-detect-result" class="mt-1.5 text-xs">&nbsp;</div>
             </div>
         </div>
 
