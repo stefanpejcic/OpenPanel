@@ -366,6 +366,43 @@ install_packages() {
 
     wait_for_pkg_lock
     install_pkgs_batch "${packages[@]}"
+    if [[ "$OS_ID" == "almalinux" ]] && [[ "$PACKAGE_MANAGER" =~ ^(dnf|yum)$ ]]; then
+        check_kernel_modules_reboot
+    fi
+}
+
+check_kernel_modules_reboot() {
+    [[ "$PACKAGE_MANAGER" =~ ^(dnf|yum)$ ]] || return 0
+
+    local running installed
+    running=$(uname -r)
+    installed=$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' kernel 2>/dev/null | sort -V | tail -1)
+
+    [[ -n "$installed" ]] || return 0
+
+    if [[ "$running" == "$installed" ]]; then
+        ok "Running kernel ($running) matches the newest installed kernel."
+        return 0
+    fi
+
+    warn "Running kernel ($running) is older than the newest installed kernel ($installed)."
+    echo "Installing kernel-modules-extra for kernel $installed..."
+    run "$PACKAGE_MANAGER" install -y "kernel-modules-extra"
+   
+    echo
+    echo "After the reboot you can run the install command again."
+
+    read -rp "Do you want to perform a reboot now? [y/N] (auto-cancel in 15s): " -t 15 answer
+    case "$answer" in
+        [yY]|[yY][eE][sS])
+            echo "Rebooting..."
+            reboot
+            ;;
+        *)
+            echo "Reboot skipped - See: https://github.com/stefanpejcic/OpenPanel/issues/745 on why reboot is needed or choose another distribution."
+            exit 1
+            ;;
+    esac
 }
 
 clone_repos() {
