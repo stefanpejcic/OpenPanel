@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org/)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           09.08.2026
+# Last Modified:           10.08.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -606,6 +606,10 @@ setup_compose() {
         sed -i "/# openpanel/,/# openadmin/ s/:[0-9]\+/:$USER_PORT/g" "${ETC_DIR}nginx/vhosts/openpanel_proxy.conf"
     }
 
+    # pgadmin
+    sed -i "s|PGADMIN_PW=.*|PGADMIN_PW=${root_pw}|" /root/.env
+
+    # mysql
     sed -i "s|MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=${root_pw}|" /root/.env
     ln -s "${ETC_DIR}mysql/host_my.cnf" "$mysql_cnf"
     sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/host_my.cnf"
