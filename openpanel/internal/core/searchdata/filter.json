@@ -390,6 +390,12 @@
       "name": "Login History"
     },
     {
+        "description": "Run docker containers.", 
+        "link": "/containers/new", 
+        "module": "docker",
+        "name": "Run Containers"
+    },
+    {
         "description": "Setup a containerized NodeJS application.",
         "link": "/nodejs/install",
         "module": "nodejs",
