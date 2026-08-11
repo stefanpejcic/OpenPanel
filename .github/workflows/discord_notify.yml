@@ -1,0 +1,62 @@
+name: GitHub Notifications to Discord
+
+on:
+  issues:
+    types: [labeled]
+  discussion:
+    types: [created]
+
+jobs:
+  notify-discord:
+    if: |
+      (github.event_name == 'issues' && github.event.label.name == 'bug') ||
+      (github.event_name == 'discussion' && (
+        github.event.discussion.category.slug == 'ideas' ||
+        github.event.discussion.category.slug == 'q-a'
+      ))
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Discord Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          EVENT_NAME: ${{ github.event_name }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          LABEL_NAME: ${{ github.event.label.name }}
+          DISCUSSION_TITLE: ${{ github.event.discussion.title }}
+          DISCUSSION_URL: ${{ github.event.discussion.html_url }}
+          DISCUSSION_CATEGORY: ${{ github.event.discussion.category.slug }}
+        run: |
+          if [ "$EVENT_NAME" = "issues" ] && [ "$LABEL_NAME" = "bug" ]; then
+            EMOJI="🐞"
+            TYPE="New [BUG] issue reported"
+            TITLE="$ISSUE_TITLE"
+            URL="$ISSUE_URL"
+
+          elif [ "$DISCUSSION_CATEGORY" = "ideas" ]; then
+            EMOJI="💡"
+            TYPE="New idea discussion"
+            TITLE="$DISCUSSION_TITLE"
+            URL="$DISCUSSION_URL"
+
+          elif [ "$DISCUSSION_CATEGORY" = "q-a" ]; then
+            EMOJI="❓"
+            TYPE="New question asked"
+            TITLE="$DISCUSSION_TITLE"
+            URL="$DISCUSSION_URL"
+
+          else
+            exit 0
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg content "$EMOJI **$TYPE:** $TITLE\n🔗 $URL" \
+            '{content: $content}')
+
+          curl -sS \
+            -H "Content-Type: application/json" \
+            -X POST \
+            -d "$PAYLOAD" \
+            "$DISCORD_WEBHOOK"
