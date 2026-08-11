@@ -12,7 +12,7 @@
 
 <!-- form -->
 <div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" method="POST" action="/remove_user_from_db" id="userDbForm2">
+    <form class="mt-8" method="POST" action="/mysql/remove_user_from_db" id="userDbForm2">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
     <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
