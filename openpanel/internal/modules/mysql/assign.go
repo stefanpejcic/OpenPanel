@@ -175,16 +175,16 @@ func handleRemoveUserFromDB(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 	switch {
 	case dbUser == "":
-		flashAndRedirect(a, w, r, "error", "User name is required.", "/remove_user_from_db")
+		flashAndRedirect(a, w, r, "error", "User name is required.", "/mysql/remove_user_from_db")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		flashAndRedirect(a, w, r, "error", "Name "+dbUser+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "/remove_user_from_db")
+		flashAndRedirect(a, w, r, "error", "Name "+dbUser+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "/mysql/remove_user_from_db")
 		return
 	case databaseName == "":
-		flashAndRedirect(a, w, r, "error", "Database name is required.", "/remove_user_from_db")
+		flashAndRedirect(a, w, r, "error", "Database name is required.", "/mysql/remove_user_from_db")
 		return
 	case !validators.IsValidIdentifier(databaseName):
-		flashAndRedirect(a, w, r, "error", "Name "+databaseName+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "/remove_user_from_db")
+		flashAndRedirect(a, w, r, "error", "Name "+databaseName+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "/mysql/remove_user_from_db")
 		return
 	case isRestrictedDatabase(strings.ToLower(databaseName)):
 		flashAndRedirect(a, w, r, "error", "This is a system database that can not be edited.", "/mysql/users")
