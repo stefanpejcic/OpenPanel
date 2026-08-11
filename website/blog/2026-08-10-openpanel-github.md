@@ -4,7 +4,7 @@ description: OpenPanel's source code is publicly available on GitHub. Here's wha
 slug: openpanel-built-in-the-open
 authors: stefanpejcic
 tags: [OpenPanel, GitHub, open-source, licensing, Community, Enterprise]
-image: [https://openpanel.com/img/blog/openpanel_is_opensource.png]
+image: https://openpanel.com/img/blog/openpanel_is_opensource.png
 hide_table_of_contents: true
 is_featured: false
 ---
