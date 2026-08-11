@@ -4,7 +4,7 @@ description: OpenPanel 2.0 moves new installations from Docker to Podman - here'
 slug: podman-switch-openpanel-2
 authors: stefanpejcic
 tags: [OpenPanel, podman, docker, containers, performance]
-image: https://openpanel.com/img/blog/OPENPANEL BLOG 1500x800.png
+image: https://openpanel.com/img/blog/openpanel_podman.png
 hide_table_of_contents: true
 is_featured: false
 ---
