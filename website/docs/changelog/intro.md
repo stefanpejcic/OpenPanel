@@ -4,9 +4,9 @@
 
 | Version| Release date | 
 |---|---|
+|__[2.0.2](/docs/changelog/2.0.2)__| August 20, 2026 |
 |__[1.7.67](/docs/changelog/1.7.67)__|  |
 |__[2.0.0](/docs/changelog/2.0.0)__|  |
-|__[2.0.2](/docs/changelog/2.0.2)__|  |
 
 ### Latest
 
