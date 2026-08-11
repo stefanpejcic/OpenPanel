@@ -3,9 +3,9 @@ OpenPanel — License
 This repository contains several components distributed under different
 terms:
 
-  - OpenAdmin and OpenPanel UI (the `openpanel/` directory: the admin and
-    user-facing web applications) are distributed under the End User
-    License Agreement (EULA) below.
+  - OpenAdmin and OpenPanel UI (the `openpanel/` and `openadmin/` directories:
+    the admin and user-facing web applications) are distributed under the
+    End User License Agreement (EULA) below.
   - OpenCLI and configuration files (the `opencli/` and `configuration/`
     directories) are distributed under the Creative Commons
     Attribution-NonCommercial 4.0 International license (CC BY-NC 4.0).
