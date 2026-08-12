@@ -72,11 +72,13 @@ func handleRemoteMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
 		ipAddress := reqip.ClientIP(r)
+		portChanged := false
 		switch r.Form.Get("action") {
 		case "enable":
 			docker.SetEnvValue(userContext, "MYSQL_PORT", remoteMySQLPortOnly+":3306")
 			_ = logger.RecordUserAction(a.Config, currentUsername, "enabled remote MySQL", ipAddress)
 			flashSess(a, w, r, "success", "Remote MySQL access is now enabled.")
+			portChanged = true
 		case "disable":
 			if strings.Contains(mysqlRemotePortOriginal, "127.0.0.1") {
 				flashSess(a, w, r, "info", "Remote MySQL access is already disabled.")
@@ -84,10 +86,19 @@ func handleRemoteMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				docker.SetEnvValue(userContext, "MYSQL_PORT", "127.0.0.1:"+remoteMySQLPortOnly+":3306")
 				_ = logger.RecordUserAction(a.Config, currentUsername, "disabled remote MySQL", ipAddress)
 				flashSess(a, w, r, "success", "Remote MySQL access is now disabled.")
+				portChanged = true
 			}
 		}
-		docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
-	}
+    if portChanged {
+        realServiceName, _ := docker.GetEnvValue(userContext, "MYSQL_TYPE") // "sql" -> "mariadb"/"mysql"
+        result := docker.RestartContainer(ctx, userContext, realServiceName)
+        if !result.Success {
+            flashSess(a, w, r, "error", "Port changed but the MySQL service failed to restart. Try restarting it manually from Services.")
+        }
+    } else {
+        docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
+    }
+}
 
 	mysqlRemotePortOriginal = webserver.GetEnvFileValue(userContext, "MYSQL_PORT")
 	remoteMySQLDisplay := "ON"
