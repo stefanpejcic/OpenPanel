@@ -638,8 +638,7 @@
 
                 <div class="relative w-full mt-2">
                     <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-                        id="pids" disabled name="ram" type="number" min="10" max="1000" value="{{.PIDs}}">
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "PIDs can not currently be configured in Docker compose"}} - <a href="https://github.com/docker/cli/issues/5009#issuecomment-2122396421" class="text-red-600 dark:text-red-400" target="_blank">Issue #5009</a></p>
+                        required id="pids" name="pids" type="number" min="10" max="1000" step="1" value="{{.PIDs}}">
                         </div>
             </div>
 

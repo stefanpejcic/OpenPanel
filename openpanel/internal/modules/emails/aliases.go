@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 )
 
 // AliasEntry is one parsed alias source -> targets mapping.
@@ -311,6 +312,11 @@ func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				flashSess(a, w, r, "error", "Error: "+field+" not provided.")
 			}
 			http.Redirect(w, r, "/emails/aliases/new", http.StatusFound)
+			return
+		}
+
+		if !validators.IsValidEmailUsername(username) {
+			flashAndRedirect(a, w, r, "error", "Username can only contain letters, numbers, and . _ % + - (no @).", "/emails/aliases/new")
 			return
 		}
 

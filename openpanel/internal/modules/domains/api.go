@@ -499,7 +499,10 @@ func apiDomainsGetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeAPIDomainsJSON(w, http.StatusOK, map[string]string{"domain": domain, "redirect_url": getRedirectURL(domain)})
 }
 
-var apiHTTPURLRE = regexp.MustCompile(`^(https?://)`)
+// apiHTTPURLRE requires the whole value to be a scheme plus at least one
+// non-whitespace character - see httpURLRE in redirect.go for why a mere
+// prefix check isn't enough here.
+var apiHTTPURLRE = regexp.MustCompile(`^https?://\S+$`)
 
 // apiDomainsSetRedirect sets or replaces a domain's redirect rule.
 func apiDomainsSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {

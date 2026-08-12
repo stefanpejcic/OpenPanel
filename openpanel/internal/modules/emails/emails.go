@@ -372,6 +372,11 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if !validators.IsValidEmailUsername(username) {
+			flashAndRedirect(a, w, r, "error", "Username can only contain letters, numbers, and . _ % + - (no @).", "/emails/new")
+			return
+		}
+
 		threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
 		if !validators.IsPasswordStrongEnough(password, threshold) {
 			flashAndRedirect(a, w, r, "error", "Password does not meet the required strength.", "/emails/new")

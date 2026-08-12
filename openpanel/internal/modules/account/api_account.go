@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 )
 
 // RegisterAccountAPI wires the /api/account routes onto mux.
@@ -103,6 +104,10 @@ func apiAccountUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if newUsername != "" && newUsername != currentUsername {
 		if a.Config.Get("permit_username_change_by_user", "no") != "yes" {
 			writeAPIAccountJSON(w, http.StatusForbidden, map[string]string{"error": "Username change is not permitted on this server"})
+			return
+		}
+		if !validators.IsValidPanelUsername(newUsername) {
+			writeAPIAccountJSON(w, http.StatusBadRequest, map[string]string{"error": "Username must be 3-20 characters, letters and numbers only"})
 			return
 		}
 		out, runErr := exec.CommandContext(ctx, "opencli", "user-rename", currentUsername, newUsername).CombinedOutput()

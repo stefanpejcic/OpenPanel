@@ -127,6 +127,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	startupFile := r.FormValue("startup_file")
 	cpuLimit := getValidatedFloat(r.FormValue("cpu_limit"), "1.0")
 	memLimit := getValidatedFloat(r.FormValue("mem_limit"), "1.0")
+	pidsLimit := getValidatedInt(r.FormValue("pids_limit"), "100")
 
 	var appPort int
 	if portStr := r.FormValue("port"); portStr != "" {
@@ -210,6 +211,13 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	templateStr := string(templateBytes)
 
+	// The vendored SERVICE.yml templates hardcode "pids: 100" (not
+	// editable). Swap it for an env-var placeholder here, before the
+	// "SERVICE_NAME" -> serviceNameUp replace below, so it picks up that
+	// same substitution and PIDs becomes as editable as CPU/RAM post-install
+	// (see handlePM2Update in pm2.go).
+	templateStr = strings.ReplaceAll(templateStr, "pids: 100", `pids: "${SERVICE_NAME_`+kind.PyOrNode+`_PIDS:-100}"`)
+
 	resolvedCommand := buildAppRunCommand(kind.PyOrNode, requirements, customCmd, startupFile, gitRepoURL)
 
 	nestedCommandPattern := "${SERVICE_NAME_" + kind.PyOrNode + "_REQUIREMENTS:+" + requirementsInstallToken(kind.PyOrNode) + " &&} " +
@@ -278,7 +286,8 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_GIT_URL=\"" + gitRepoURL + "\"" +
 		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_WORKDIR=\"" + installPath + "\"" +
 		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_CPU=\"" + formatPyFloat(cpuLimit) + "\"" +
-		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_RAM=\"" + formatPyFloat(memLimit) + "G\"\n"
+		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_RAM=\"" + formatPyFloat(memLimit) + "G\"" +
+		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_PIDS=\"" + strconv.Itoa(pidsLimit) + "\"\n"
 
 	if envF, openErr := os.OpenFile(envFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644); openErr == nil {
 		_, _ = envF.WriteString(envVariables)

@@ -18,6 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sieveparser"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 )
 
 // RegisterEmailsAPI wires the emails API routes onto mux. Literal
@@ -155,6 +156,10 @@ func apiEmailsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !apiOwnDomainOr403(a, w, r, userID, domain) {
+		return
+	}
+	if !validators.IsValidEmailUsername(username) {
+		writeAPIEmailsJSON(w, http.StatusBadRequest, map[string]string{"error": "username can only contain letters, numbers, and . _ % + - (no @)"})
 		return
 	}
 
@@ -515,6 +520,10 @@ func apiEmailAliasesCreate(a *appctx.App, w http.ResponseWriter, r *http.Request
 		writeAPIEmailsJSON(w, http.StatusBadRequest, map[string]string{"error": "username, domain, and target are required"})
 		return
 	}
+	if !validators.IsValidEmailUsername(username) {
+		writeAPIEmailsJSON(w, http.StatusBadRequest, map[string]string{"error": "username can only contain letters, numbers, and . _ % + - (no @)"})
+		return
+	}
 	if !isValidEmail(target) {
 		writeAPIEmailsJSON(w, http.StatusBadRequest, map[string]string{"error": "target must be a valid email address"})
 		return
@@ -704,6 +713,11 @@ func apiEmailDefaultPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		body.Destination = r.Form.Get("destination")
 	}
 	destination := strings.TrimSpace(body.Destination)
+
+	if destination != "" && !isValidEmail(destination) {
+		writeAPIEmailsJSON(w, http.StatusBadRequest, map[string]string{"error": "destination must be a valid email address"})
+		return
+	}
 
 	if setErr := setDefaultAliasForDomain(domain, destination); setErr != nil {
 		writeAPIEmailsJSON(w, http.StatusInternalServerError, map[string]string{"error": setErr.Error()})

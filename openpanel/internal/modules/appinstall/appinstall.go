@@ -128,6 +128,16 @@ func getValidatedFloat(value, def string) float64 {
 	return d
 }
 
+// getValidatedInt returns a positive int, or the parsed default (assumed
+// itself valid - every call site passes a literal like "100").
+func getValidatedInt(value, def string) int {
+	if v, err := strconv.Atoi(value); err == nil && v > 0 {
+		return v
+	}
+	d, _ := strconv.Atoi(def)
+	return d
+}
+
 // gitBootstrapCmd returns the shell snippet that makes sure `git` is on
 // PATH (the official node/python images it runs in don't include it, and
 // - being official images - can't be edited, only the compose file that

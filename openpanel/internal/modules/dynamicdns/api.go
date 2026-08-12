@@ -86,6 +86,14 @@ func apiDynamicDNSCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and subdomain are required"})
 		return
 	}
+	if !validateSubdomain(subdomain) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid subdomain"})
+		return
+	}
+	if !validateIP(ip) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid IP address"})
+		return
+	}
 	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
 		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
@@ -130,6 +138,18 @@ func apiDynamicDNSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	if domain == "" || !lineOK || lineNumber == 0 || subdomain == "" || ip == "" || token == "" {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain, line_number, subdomain, ip, and token are required"})
+		return
+	}
+	if !validateSubdomain(subdomain) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid subdomain"})
+		return
+	}
+	if !validateIP(ip) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid IP address"})
+		return
+	}
+	if !dynDNSTokenRE.MatchString(token) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid token"})
 		return
 	}
 	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {

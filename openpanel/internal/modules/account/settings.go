@@ -148,6 +148,12 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 		if permitUsernameChange == "yes" {
 			newUsername := r.Form.Get("username")
 			if newUsername != "" && newUsername != currentUsername {
+				if !validators.IsValidPanelUsername(newUsername) {
+					flash.Add(sess, "error", "Username must be 3-20 characters, letters and numbers only.")
+					_ = a.Sessions.Save(r, w, sess)
+					http.Redirect(w, r, "/account", http.StatusFound)
+					return
+				}
 				out, runErr := exec.CommandContext(ctx, "opencli", "user-rename", currentUsername, newUsername).CombinedOutput()
 				output := string(out)
 				if runErr == nil && strings.Contains(strings.ToLower(output), "successfully") {

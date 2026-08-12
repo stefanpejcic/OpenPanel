@@ -285,6 +285,13 @@ func apiDNSAddRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	for _, v := range []string{name, ttl, recordType, record, priority, domain} {
+		if strings.ContainsAny(v, "\n\r") {
+			writeAPIDNSJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid characters in submitted data"})
+			return
+		}
+	}
+
 	if strings.HasSuffix(name, domain) {
 		name += "."
 	}

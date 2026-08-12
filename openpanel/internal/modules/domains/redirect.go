@@ -13,7 +13,11 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-var httpURLRE = regexp.MustCompile(`^(https?://)`)
+// httpURLRE requires the whole value to be a scheme plus at least one
+// non-whitespace character - not just a prefix check - so a redirect_url
+// can't smuggle a newline into the shared Caddyfile that
+// insertOrReplaceRedirect() splices this into as a raw config line.
+var httpURLRE = regexp.MustCompile(`^https?://\S+$`)
 
 func domainConfPath(domainURL string) string {
 	return "/etc/openpanel/caddy/domains/" + domainURL + ".conf"

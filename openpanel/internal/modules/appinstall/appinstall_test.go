@@ -73,6 +73,18 @@ func TestGetValidatedFloat(t *testing.T) {
 	}
 }
 
+func TestGetValidatedInt(t *testing.T) {
+	if v := getValidatedInt("250", "100"); v != 250 {
+		t.Errorf("got %v, want 250", v)
+	}
+	if v := getValidatedInt("-1", "100"); v != 100 {
+		t.Errorf("got %v, want 100 (default on invalid)", v)
+	}
+	if v := getValidatedInt("not-a-number", "50"); v != 50 {
+		t.Errorf("got %v, want 50 (default on invalid)", v)
+	}
+}
+
 func TestBuildAppRunCommand(t *testing.T) {
 	cases := []struct {
 		pyOrNode, requirements, customCmd, startupFile, gitURL, want string

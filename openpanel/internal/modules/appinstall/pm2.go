@@ -235,6 +235,7 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 	workdir := strings.TrimSpace(r.FormValue("workdir"))
 	cpu := strings.TrimSpace(r.FormValue("cpu"))
 	ram := strings.TrimSpace(r.FormValue("ram"))
+	pids := strings.TrimSpace(r.FormValue("pids"))
 	gitRepoURL := strings.TrimSpace(r.FormValue("git_repo_url"))
 
 	hasError := false
@@ -266,6 +267,10 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 		flashAndRedirectApp(a, w, r, "error", "Error saving: Memory limit provided is not a positive integer.", redirectPath)
 		hasError = true
 	}
+	if !docker.IsValidPIDsLimit(pids) {
+		flashAndRedirectApp(a, w, r, "error", "Error saving: PIDs limit must be a positive whole number.", redirectPath)
+		hasError = true
+	}
 	if !isValidGitURL(gitRepoURL) {
 		flashAndRedirectApp(a, w, r, "error", "Error saving: Invalid git repository URL. Only https:// URLs are supported.", redirectPath)
 		hasError = true
@@ -293,6 +298,7 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 	docker.SetEnvValue(userContext, prefix+"WORKDIR", workdir)
 	docker.SetEnvValue(userContext, prefix+"CPU", cpu)
 	docker.SetEnvValue(userContext, prefix+"RAM", ramValue)
+	docker.SetEnvValue(userContext, prefix+"PIDS", pids)
 	docker.SetEnvValue(userContext, prefix+"CUSTOM_CMD", customCmd)
 	docker.SetEnvValue(userContext, prefix+"GIT_URL", gitRepoURL)
 
@@ -302,6 +308,17 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 		if services, ok := composeData["services"].(map[string]any); ok {
 			if svc, svcOK := services[containerName].(map[string]any); svcOK {
 				svc["command"] = `sh -c "` + resolvedCommand + `"`
+				// Installs from before PIDs became editable have "pids: 100"
+				// hardcoded rather than referencing prefix+PIDS - point it
+				// at the env var here so a saved edit actually takes effect
+				// on the next restart, not just future installs.
+				if deploy, ok := svc["deploy"].(map[string]any); ok {
+					if resources, ok := deploy["resources"].(map[string]any); ok {
+						if limits, ok := resources["limits"].(map[string]any); ok {
+							limits["pids"] = "${" + prefix + "PIDS:-100}"
+						}
+					}
+				}
 				_ = docker.SaveCompose(userContext, composeData)
 			}
 		}

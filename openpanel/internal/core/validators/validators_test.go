@@ -1,6 +1,9 @@
 package validators
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestIsValidIdentifier(t *testing.T) {
 	if !IsValidIdentifier("user_123") {
@@ -19,6 +22,36 @@ func TestIsValidHost(t *testing.T) {
 	}
 	if IsValidHost("bad host!") {
 		t.Error("expected 'bad host!' to be invalid")
+	}
+}
+
+func TestIsValidEmailUsername(t *testing.T) {
+	valid := []string{"john", "john.doe", "john_doe", "john+tag", "john%doe", "john-doe", "j123"}
+	invalid := []string{"", "john@doe", "@proba.digital", "john@", "john doe", "john\ndoe"}
+	for _, s := range valid {
+		if !IsValidEmailUsername(s) {
+			t.Errorf("expected %q to be a valid email username", s)
+		}
+	}
+	for _, s := range invalid {
+		if IsValidEmailUsername(s) {
+			t.Errorf("expected %q to be an invalid email username", s)
+		}
+	}
+}
+
+func TestIsValidPanelUsername(t *testing.T) {
+	valid := []string{"joh", "johndoe", "john123", "JohnDoe2026"}
+	invalid := []string{"", "jo", strings.Repeat("a", 21), "john doe", "john-doe", "john_doe", "john@doe", "john.doe"}
+	for _, s := range valid {
+		if !IsValidPanelUsername(s) {
+			t.Errorf("expected %q to be a valid panel username", s)
+		}
+	}
+	for _, s := range invalid {
+		if IsValidPanelUsername(s) {
+			t.Errorf("expected %q to be an invalid panel username", s)
+		}
 	}
 }
 

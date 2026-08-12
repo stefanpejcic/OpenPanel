@@ -6,6 +6,21 @@ import (
 	"testing"
 )
 
+func TestHTTPURLRERejectsEmbeddedWhitespace(t *testing.T) {
+	valid := []string{"http://example.com", "https://example.com/path?q=1"}
+	invalid := []string{"", "ftp://example.com", "http://example.com\nDirective evil", "http://exa mple.com", "http://example.com\r\nDirective evil"}
+	for _, s := range valid {
+		if !httpURLRE.MatchString(s) {
+			t.Errorf("expected %q to match httpURLRE", s)
+		}
+	}
+	for _, s := range invalid {
+		if httpURLRE.MatchString(s) {
+			t.Errorf("expected %q to be rejected by httpURLRE", s)
+		}
+	}
+}
+
 func TestBuildPageEntries(t *testing.T) {
 	entries := buildPageEntries(5, 10)
 	var numbers []int
