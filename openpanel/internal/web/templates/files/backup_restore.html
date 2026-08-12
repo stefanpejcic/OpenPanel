@@ -160,7 +160,7 @@
     <div class="mt-4 px-4 sm:px-6 lg:px-8 pb-8">
         {{if .Backups}}
         <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <table class="w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-900">
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -203,11 +203,6 @@
                                 {{range .Types}}
                                     <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 ring-1 ring-inset ring-indigo-600/20">
                                         {{.}}
-                                    </span>
-                                {{end}}
-                                {{if .HasCrons}}
-                                    <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 ring-1 ring-inset ring-gray-500/20">
-                                        crons
                                     </span>
                                 {{end}}
                                 </div>
@@ -441,7 +436,7 @@
             x-transition:leave="ease-in duration-150"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="relative w-full max-w-md rounded-lg bg-white dark:bg-gray-900 shadow-xl ring-1 ring-black/5 dark:ring-white/10"
+            class="relative w-full max-w-xl rounded-lg bg-white dark:bg-gray-900 shadow-xl ring-1 ring-black/5 dark:ring-white/10"
         >
             <!-- Modal header -->
             <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-5 py-4">
