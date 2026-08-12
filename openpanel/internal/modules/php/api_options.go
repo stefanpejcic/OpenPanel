@@ -69,7 +69,12 @@ func apiPHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	updatePHPConfigFile(ctx, userContext, version, availableKeys, newConfig)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "edited PHP "+version+" configuration using PHP Selector", reqip.ClientIP(r))
 	container := apiPHPContainer(userContext, version)
-	docker.StartComposeServiceIfNotRunning(ctx, userContext, container)
+	if result := docker.RestartContainer(ctx, userContext, container); !result.Success {
+		writeJSON(w, http.StatusOK, map[string]any{
+			"message": "Options updated, but " + container + " failed to restart. Try restarting it manually from Services.", "version": version, "updated": newConfig,
+		})
+		return
+	}
 
 	writeJSON(w, http.StatusOK, map[string]any{
 		"message": "Options updated and " + container + " restarted", "version": version, "updated": newConfig,

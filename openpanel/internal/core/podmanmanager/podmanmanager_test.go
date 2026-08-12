@@ -72,7 +72,7 @@ func TestBuildComposeUpDownCommand(t *testing.T) {
 	if dir != "/home/someuser" {
 		t.Errorf("dir = %q, want /home/someuser", dir)
 	}
-	want := "podman-compose up -d mysql"
+	want := "podman-compose up -d --no-deps mysql"
 	if strings.Join(argv, " ") != want {
 		t.Errorf("argv = %q, want %q", strings.Join(argv, " "), want)
 	}

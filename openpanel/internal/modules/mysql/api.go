@@ -999,7 +999,11 @@ func apiMySQLRemoteAccessToggle(a *appctx.App, w http.ResponseWriter, r *http.Re
 		enabled = false
 	}
 
-	docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
+	realServiceName, _ := docker.GetEnvValue(userContext, "MYSQL_TYPE") // "sql" -> "mariadb"/"mysql"
+	if result := docker.RestartContainer(ctx, userContext, realServiceName); !result.Success {
+		writeAPIMySQLJSON(w, http.StatusInternalServerError, map[string]string{"error": "Port changed but the MySQL service failed to restart. Try restarting it manually from Services."})
+		return
+	}
 	action2 := "disabled"
 	if enabled {
 		action2 = "enabled"

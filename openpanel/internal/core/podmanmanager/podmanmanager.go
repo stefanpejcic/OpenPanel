@@ -133,11 +133,20 @@ func BuildWPCLIBaseCommand(userContext, phpContainer string) []string {
 // BuildComposeUpDownCommand returns the `podman-compose up -d`/`down`
 // argv and working directory for a container. ok is false for an
 // unrecognized action.
+//
+// "up" always passes --no-deps: callers already start each container's
+// real dependencies themselves (e.g. varnish's caller stops/starts the
+// active webserver explicitly), and letting podman-compose resolve
+// depends_on itself is actively harmful here - the vendored podman-compose
+// crashes with a KeyError while resolving a `${VAR:-default}`-interpolated
+// depends_on entry (e.g. `depends_on: ["${WEB_SERVER:-nginx}"]`), which
+// aborts the whole "up" before it starts anything and looks like the
+// activate silently failed.
 func BuildComposeUpDownCommand(userContext, containerName, action string) (argv []string, dir string, ok bool) {
 	dir = "/home/" + userContext
 	switch action {
 	case "activate":
-		return PodmanComposeArgv("up", "-d", containerName), dir, true
+		return PodmanComposeArgv("up", "-d", "--no-deps", containerName), dir, true
 	case "deactivate":
 		return PodmanComposeArgv("down", containerName), dir, true
 	default:

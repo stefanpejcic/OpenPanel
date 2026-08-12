@@ -134,19 +134,18 @@ func updateContainerRAMOrCPU(a *appctx.App, ctx context.Context, userContext str
 }
 
 // RestartContainer stops and re-starts a single compose service via
-// `podman-compose down`/`up -d`.
+// `podman-compose down`/`up -d --no-deps`.
 func RestartContainer(ctx context.Context, userContext, containerName string) StartStopResult {
-	env := podmanmanager.PodmanEnv(userContext)
-	dir := homePath(userContext)
-
-	down := exec.CommandContext(ctx, "podman-compose", "down", containerName)
-	down.Dir, down.Env = dir, env
+	downArgv, dir, _ := podmanmanager.BuildComposeUpDownCommand(userContext, containerName, "deactivate")
+	down := podmanmanager.Command(ctx, userContext, downArgv)
+	down.Dir = dir
 	if err := down.Run(); err != nil {
 		return StartStopResult{Success: false, Message: "Command failed with error. Please try again."}
 	}
 
-	up := exec.CommandContext(ctx, "podman-compose", "up", "-d", containerName)
-	up.Dir, up.Env = dir, env
+	upArgv, _, _ := podmanmanager.BuildComposeUpDownCommand(userContext, containerName, "activate")
+	up := podmanmanager.Command(ctx, userContext, upArgv)
+	up.Dir = dir
 	if err := up.Run(); err != nil {
 		return StartStopResult{Success: false, Message: "Command failed with error. Please try again."}
 	}

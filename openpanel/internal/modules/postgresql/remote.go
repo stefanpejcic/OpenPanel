@@ -36,11 +36,13 @@ func handleRemotePostgres(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
 		ipAddress := reqip.ClientIP(r)
+		portChanged := false
 		switch r.Form.Get("action") {
 		case "enable":
 			docker.SetEnvValue(userContext, "POSTGRES_PORT", remotePostgresPortOnly+":5432")
 			_ = logger.RecordUserAction(a.Config, currentUsername, "enabled remote PostgreSQL", ipAddress)
 			flashSess(a, w, r, "success", "Remote PostgreSQL access is now enabled.")
+			portChanged = true
 		case "disable":
 			if strings.Contains(postgresRemotePortOriginal, "127.0.0.1") {
 				flashSess(a, w, r, "info", "Remote PostgreSQL access is already disabled.")
@@ -48,9 +50,16 @@ func handleRemotePostgres(a *appctx.App, w http.ResponseWriter, r *http.Request)
 				docker.SetEnvValue(userContext, "POSTGRES_PORT", "127.0.0.1:"+remotePostgresPortOnly+":5432")
 				_ = logger.RecordUserAction(a.Config, currentUsername, "disabled remote PostgreSQL", ipAddress)
 				flashSess(a, w, r, "success", "Remote PostgreSQL access is now disabled.")
+				portChanged = true
 			}
 		}
-		docker.StartComposeServiceIfNotRunning(ctx, userContext, "postgres")
+		if portChanged {
+			if result := docker.RestartContainer(ctx, userContext, "postgres"); !result.Success {
+				flashSess(a, w, r, "error", "Port changed but the PostgreSQL service failed to restart. Try restarting it manually from Services.")
+			}
+		} else {
+			docker.StartComposeServiceIfNotRunning(ctx, userContext, "postgres")
+		}
 	}
 
 	postgresRemotePortOriginal = webserver.GetEnvFileValue(userContext, "POSTGRES_PORT")

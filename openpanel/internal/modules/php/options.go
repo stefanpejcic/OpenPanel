@@ -289,11 +289,13 @@ func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, ver
 		} else {
 			phpContainer, text = "php-fpm-"+version, "PHP-FPM"
 		}
-		docker.StartComposeServiceIfNotRunning(ctx, userContext, phpContainer)
-
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "edited PHP "+version+" configuration using PHP Selector", ipAddress)
-		flashSess(a, w, r, "success", "Configuration edited successfully and "+text+" service restarted to apply new settings.")
+		if result := docker.RestartContainer(ctx, userContext, phpContainer); result.Success {
+			flashSess(a, w, r, "success", "Configuration edited successfully and "+text+" service restarted to apply new settings.")
+		} else {
+			flashSess(a, w, r, "error", "Configuration edited successfully, but "+text+" failed to restart. Try restarting it manually from Services.")
+		}
 		http.Redirect(w, r, "/php/php"+version+"/options", http.StatusFound)
 		return
 	}

@@ -736,7 +736,10 @@ func apiPsqlRemoteAccessToggle(a *appctx.App, w http.ResponseWriter, r *http.Req
 		enabled = false
 	}
 
-	docker.StartComposeServiceIfNotRunning(ctx, userContext, "postgres")
+	if result := docker.RestartContainer(ctx, userContext, "postgres"); !result.Success {
+		writeAPIPsqlJSON(w, http.StatusInternalServerError, map[string]string{"error": "Port changed but the PostgreSQL service failed to restart. Try restarting it manually from Services."})
+		return
+	}
 	action2 := "disabled"
 	if enabled {
 		action2 = "enabled"
