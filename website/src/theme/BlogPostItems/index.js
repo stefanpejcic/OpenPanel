@@ -1,6 +1,5 @@
 import React from "react";
 import { BlogPostProvider } from "@docusaurus/plugin-content-blog/client";
-import TagsList from "@theme/TagsList";
 
 import BlogPostItem from "@theme/BlogPostItem";
 import clsx from "clsx";
@@ -63,7 +62,6 @@ export default function BlogPostItems({
                             helpful tips to improve your hosting business.
                         </p>
                     </div>
-                    <TagsList tags={tags} />
                 </>
             )}
 
