@@ -34,10 +34,23 @@ func loadPrivateKey(path, passphrase string) (ssh.Signer, error) {
 // dialSSH connects to the remote backup host and unconditionally trusts
 // its host key (a known, pre-existing security tradeoff, not something
 // introduced here).
+//
+// Auth mirrors what the "backup" container's own docker-volume-backup tool
+// accepts for its SSH/SFTP target: a private key (SSH_IDENTITY_FILE) when
+// present, otherwise a plain password (SSH_PASSWORD) - backup.env's ssh
+// section documents both as valid, and a destination configured with only
+// a password (no identity file) is a normal, supported setup, not a
+// misconfiguration.
 func dialSSH(config map[string]string) (*ssh.Client, error) {
-	signer, err := loadPrivateKey(config["SSH_IDENTITY_FILE"], config["SSH_IDENTITY_PASSPHRASE"])
-	if err != nil {
-		return nil, err
+	var authMethod ssh.AuthMethod
+	if keyPath := config["SSH_IDENTITY_FILE"]; keyPath != "" {
+		signer, err := loadPrivateKey(keyPath, config["SSH_IDENTITY_PASSPHRASE"])
+		if err != nil {
+			return nil, err
+		}
+		authMethod = ssh.PublicKeys(signer)
+	} else {
+		authMethod = ssh.Password(config["SSH_PASSWORD"])
 	}
 
 	port := config["SSH_PORT"]
@@ -47,7 +60,7 @@ func dialSSH(config map[string]string) (*ssh.Client, error) {
 
 	clientConfig := &ssh.ClientConfig{
 		User:            config["SSH_USER"],
-		Auth:            []ssh.AuthMethod{ssh.PublicKeys(signer)},
+		Auth:            []ssh.AuthMethod{authMethod},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec // trusts the remote host key on first connect, see dialSSH doc comment
 		Timeout:         15 * time.Second,
 	}

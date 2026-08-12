@@ -16,6 +16,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
@@ -95,6 +96,59 @@ func restoreMySQLFromSQL(ctx context.Context, userContext, dbName, sqlContent st
 	return nil
 }
 
+// restorePostgresFromSQL drops/recreates the database, then executes the
+// dump the same tolerant way restoreMySQLFromSQL does (pg_dump output uses
+// the same "statement;\n" shape, and also emits harmless SET/comment lines
+// that can fail depending on server config/extensions installed).
+func restorePostgresFromSQL(ctx context.Context, userContext, dbName, sqlContent string) error {
+	safeDB := strings.ReplaceAll(dbName, `"`, `""`)
+	if _, err := postgresmanager.Exec(ctx, userContext, `DROP DATABASE IF EXISTS "`+safeDB+`"`, ""); err != nil {
+		return err
+	}
+	if _, err := postgresmanager.Exec(ctx, userContext, `CREATE DATABASE "`+safeDB+`"`, ""); err != nil {
+		return err
+	}
+
+	for _, stmt := range strings.Split(sqlContent, ";\n") {
+		stmt = strings.TrimSpace(stmt)
+		if stmt == "" {
+			continue
+		}
+		if _, err := postgresmanager.Exec(ctx, userContext, stmt, dbName); err != nil {
+			upper := strings.ToUpper(stmt)
+			if !strings.HasPrefix(upper, "SET") && !strings.HasPrefix(stmt, "/*") && !strings.HasPrefix(stmt, "--") {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// restoreSQLMember dispatches a tarSQLMember to the right engine based on
+// which backup/<engine>/ folder it came from - a backup archive can contain
+// both MySQL and PostgreSQL dumps side by side (see the "backup" service's
+// volume mounts in docker-compose.yml: mysql_dumps -> backup/mysql,
+// pg_data -> backup/postgres), and running a Postgres dump through
+// mysqlmanager (or vice versa) would fail outright or, worse, silently
+// corrupt the wrong engine's database of the same name.
+func restoreSQLMember(ctx context.Context, userContext string, member tarSQLMember, dbName string) error {
+	if member.Engine == "postgres" {
+		return restorePostgresFromSQL(ctx, userContext, dbName, member.Content)
+	}
+	return restoreMySQLFromSQL(ctx, userContext, dbName, member.Content)
+}
+
+// chownAncestors chowns dir and every parent directory up to (but not
+// including) root - root already belongs to the account's bind-mounted
+// volume and is already correctly owned; this only needs to fix up any new
+// subdirectories os.MkdirAll just created (as real host root) beneath it.
+func chownAncestors(dir, root string, uid int) {
+	for dir != root && dir != "." && dir != string(filepath.Separator) && strings.HasPrefix(dir, root) {
+		_ = os.Chown(dir, uid, uid)
+		dir = filepath.Dir(dir)
+	}
+}
+
 var restoreFilesPathMap = func(userContext string) map[string]string {
 	userHome := "/home/" + userContext
 	return map[string]string{
@@ -106,8 +160,14 @@ var restoreFilesPathMap = func(userContext string) map[string]string {
 }
 
 // restoreFilesFromTar extracts html/vhosts/mail/crons entries from the
-// archive into their host paths.
-func restoreFilesFromTar(localPath, userContext string) ([]string, error) {
+// archive into their host paths. uid is the account's rootless-container
+// UID (from appctx.App.GetUID); every path this writes is chowned to it
+// afterward, since the writing process itself runs as real host root - a
+// file left root-owned on a bind-mounted volume is unreadable/undeletable
+// from inside the account's own (rootless, UID-remapped) containers, same
+// as internal/modules/filemanager's chownRecursive has to do after writing
+// into these volumes as root.
+func restoreFilesFromTar(localPath, userContext string, uid int) ([]string, error) {
 	pathMap := restoreFilesPathMap(userContext)
 
 	f, err := os.Open(localPath)
@@ -137,10 +197,11 @@ func restoreFilesFromTar(localPath, userContext string) ([]string, error) {
 		}
 		name := strings.Trim(header.Name, "/")
 
-		var dest string
+		var dest, root string
 		for prefix, hostPath := range pathMap {
 			if strings.HasPrefix(name, prefix+"/") || name == prefix {
 				relative := strings.TrimPrefix(strings.TrimPrefix(name, prefix), "/")
+				root = hostPath
 				if info, statErr := os.Stat(hostPath); statErr == nil && info.IsDir() {
 					dest = filepath.Join(hostPath, relative)
 				} else if name == prefix {
@@ -153,8 +214,12 @@ func restoreFilesFromTar(localPath, userContext string) ([]string, error) {
 		if dest == "" {
 			continue
 		}
-		if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
+		destDir := filepath.Dir(dest)
+		if err := os.MkdirAll(destDir, 0o755); err != nil {
 			continue
+		}
+		if uid > 0 {
+			chownAncestors(destDir, root, uid)
 		}
 		out, err := os.Create(dest)
 		if err != nil {
@@ -165,6 +230,9 @@ func restoreFilesFromTar(localPath, userContext string) ([]string, error) {
 			continue
 		}
 		out.Close()
+		if uid > 0 {
+			_ = os.Chown(dest, uid, uid)
+		}
 		extracted = append(extracted, dest)
 	}
 
@@ -172,10 +240,13 @@ func restoreFilesFromTar(localPath, userContext string) ([]string, error) {
 }
 
 // tarSQLMember is one *.sql entry found while scanning a downloaded
-// backup archive.
+// backup archive. Engine is "mysql" or "postgres", inferred from which
+// backup/<engine>/ top-level folder the entry lives under (see
+// restoreSQLMember).
 type tarSQLMember struct {
 	Name    string
 	Content string
+	Engine  string
 }
 
 // scanSQLMembers collects every *.sql entry from a downloaded archive in a
@@ -210,7 +281,12 @@ func scanSQLMembers(localPath string) ([]tarSQLMember, error) {
 		if err != nil {
 			return members, err
 		}
-		members = append(members, tarSQLMember{Name: header.Name, Content: string(content)})
+		engine := "mysql"
+		name := strings.Trim(header.Name, "/")
+		if name == "backup/postgres" || strings.HasPrefix(name, "backup/postgres/") {
+			engine = "postgres"
+		}
+		members = append(members, tarSQLMember{Name: header.Name, Content: string(content), Engine: engine})
 	}
 	return members, nil
 }
@@ -312,10 +388,11 @@ func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	defer cleanup()
 
 	ctx := r.Context()
+	uid, _ := a.GetUID(ctx, userContext)
 
 	switch restoreTarget {
 	case "all":
-		if _, err := restoreFilesFromTar(localPath, userContext); err != nil {
+		if _, err := restoreFilesFromTar(localPath, userContext, uid); err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
@@ -326,7 +403,7 @@ func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		}
 		for _, member := range sqlMembers {
 			dbName := strings.TrimSuffix(filepath.Base(member.Name), ".sql")
-			if err := restoreMySQLFromSQL(ctx, userContext, dbName, member.Content); err != nil {
+			if err := restoreSQLMember(ctx, userContext, member, dbName); err != nil {
 				writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 				return
 			}
@@ -355,7 +432,7 @@ func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			writeJSON(w, http.StatusNotFound, map[string]string{"error": "Database '" + database + "' not found in this backup."})
 			return
 		}
-		if err := restoreMySQLFromSQL(ctx, userContext, database, found.Content); err != nil {
+		if err := restoreSQLMember(ctx, userContext, *found, database); err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
@@ -363,7 +440,7 @@ func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		writeJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Database '" + database + "' restored successfully."})
 
 	case "files":
-		extracted, err := restoreFilesFromTar(localPath, userContext)
+		extracted, err := restoreFilesFromTar(localPath, userContext, uid)
 		if err != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
