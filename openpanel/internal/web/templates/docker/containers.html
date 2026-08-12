@@ -176,6 +176,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     var memUsage = parseFloat(container.MemPerc.replace('%', '')) || 0;
 
+                    var allocatedPidsInput = document.querySelector('#pids-allocated-' + containerId);
+                    var allocatedPids = allocatedPidsInput ? (parseFloat(allocatedPidsInput.value) || 0) : 0;
+                    var rawPidsUsage = parseFloat(container.PIDs) || 0;
+                    var pidsUsage = allocatedPids > 0 ? (rawPidsUsage / allocatedPids) * 100 : 0;
+
                     var cpuDashOffset = 78.54 * (1 - cpuUsage / 100);
                     var memDashOffset = 78.54 * (1 - memUsage / 100);
 
@@ -247,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (startItem) startItem.classList.add('hidden');
                     if (stopItem) stopItem.classList.remove('hidden');
 
-                    if (cpuUsage >= 90 || memUsage >= 90) {
+                    if (cpuUsage >= 90 || memUsage >= 90 || pidsUsage >= 90) {
                         highUsageContainers.push(containerName);
                     }
 
@@ -258,11 +263,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (typeof reportHealthIssues === 'function' && highUsageContainers.length) {
                     let issue;
                     if (highUsageContainers.length === 1) {
-                        issue = { id: 'resource-limit:' + highUsageContainers[0], severity: 'warning', message: "{{.T.Get "Container"}} " + highUsageContainers[0] + " {{.T.Get "is reaching its CPU/RAM limit."}}" };
+                        issue = { id: 'resource-limit:' + highUsageContainers[0], severity: 'warning', message: "{{.T.Get "Container"}} " + highUsageContainers[0] + " {{.T.Get "is reaching its CPU/RAM/PIDs limit."}}" };
                     } else if (highUsageContainers.length === 2) {
-                        issue = { id: 'resource-limit:' + highUsageContainers.join(','), severity: 'warning', message: "{{.T.Get "Containers"}} " + highUsageContainers.join(', ') + " {{.T.Get "are reaching their CPU/RAM limit."}}" };
+                        issue = { id: 'resource-limit:' + highUsageContainers.join(','), severity: 'warning', message: "{{.T.Get "Containers"}} " + highUsageContainers.join(', ') + " {{.T.Get "are reaching their CPU/RAM/PIDs limit."}}" };
                     } else {
-                        issue = { id: 'resource-limit:multiple', severity: 'warning', message: highUsageContainers.length + " {{.T.Get "containers are reaching their CPU/RAM limit."}}" };
+                        issue = { id: 'resource-limit:multiple', severity: 'warning', message: highUsageContainers.length + " {{.T.Get "containers are reaching their CPU/RAM/PIDs limit."}}" };
                     }
                     reportHealthIssues('containers', [issue], 24);
                 }
@@ -439,6 +444,7 @@ class="relative group cursor-pointer p-4 text-sm whitespace-nowrap text-gray-600
 }" class="relative group cursor-pointer p-4 text-sm whitespace-nowrap text-gray-600 dark:text-gray-400 text-left">
 
     <span x-show="!editing">
+        <input id="pids-allocated-{{$row.Service}}" type="hidden" value="{{if $row.PIDsUnlimited}}0{{else}}{{$row.PIDsValue}}{{end}}">
         <span class="font-medium" id="pids-usage-{{$row.Service}}">--</span> / <span class="font-medium" x-text="value"></span>
         <a href="#" @click.prevent="editing = !editing" class="transform hidden group-hover:inline-block text-gray-400 hover:text-gray-600"><i class="bi bi-pencil-fill"></i></a>
     </span>
