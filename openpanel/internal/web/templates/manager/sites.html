@@ -62,6 +62,7 @@
                             {{else if contains $group.Type "java"}}Java Applications
                             {{else if contains $group.Type "mautic"}}Mautic
                             {{else if contains $group.Type "fossbilling"}}FOSSBilling
+                            {{else if eq $group.Type "php"}}PHP Applications
                             {{else if eq $group.Type "websitebuilder"}}Website Builder
                             {{else if eq $group.Type "flarum"}}Flarum
                             {{else}}{{title $group.Type}}

@@ -34,6 +34,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/nodejs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/phpapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/plugins"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/postgresql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/processmanager"
@@ -108,6 +109,8 @@ var configured = map[string]Registrar{
 		php.RegisterExtensionsAPI(mux, a)
 		php.RegisterDefaultAPI(mux, a)
 		php.RegisterDomainsAPI(mux, a)
+		phpapp.Register(mux, a)
+		phpapp.RegisterAPI(mux, a)
 	},
 	"dns":         func(mux *http.ServeMux, a *appctx.App) { dns.Register(mux, a); dns.RegisterAPI(mux, a) },
 	"dynamic_dns": func(mux *http.ServeMux, a *appctx.App) { dynamicdns.Register(mux, a); dynamicdns.RegisterAPI(mux, a) },

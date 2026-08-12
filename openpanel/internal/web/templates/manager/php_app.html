@@ -1,0 +1,253 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/manager/php_app.html -->
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('logs', { rawMode: false });
+    });
+</script>
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8 sm:flex sm:items-center sm:justify-between">
+    <div class="group">
+        <div class="flex items-center gap-x-3">
+            <img alt="{{.CurrentDomain}} Favicon" loading="lazy" width="5" height="5" decoding="async" class="h-4 w-4 rounded-full object-cover shadow-lg shadow-indigo-500/50 ring-2 ring-white dark:ring-gray-700" style="color:transparent" src="/json/favicon/{{.CurrentDomain}}">
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.CurrentDomain}}</h1>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-500 hover:underline"><a href="http://{{.CurrentDomain}}" class="hover:underline" target="_blank">https://{{.CurrentDomain}}</a></p>
+    </div>
+
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        {{template "temp_link" .}}
+    </div>
+</div>
+
+<div class="m-6 grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4">
+
+    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+
+        <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: 'dashboard' }">
+
+    <div class="border-b border-gray-200 dark:border-gray-700">
+        <ul id="php-tab" data-tabs-toggle="#php-tab-content" role="tablist" class="grid grid-cols-4 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+            <li role="presentation">
+                <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
+                   @click="activeTab = 'dashboard'"
+                   :class="activeTab === 'dashboard' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M2 10h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1m9-9h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m0 9a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1zm0-10a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM2 9a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2zm7 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2zM0 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.354.854a.5.5 0 1 0-.708-.708L3 3.793l-.646-.647a.5.5 0 1 0-.708.708l1 1a.5.5 0 0 0 .708 0z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Overview"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#composer" id="composer-tab" data-tabs-target="#composer" role="tab" aria-controls="composer" aria-selected="false"
+                   @click="activeTab = 'composer'"
+                   :class="activeTab === 'composer' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Composer"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#logs" id="logs-tab" data-tabs-target="#logs" role="tab" aria-controls="logs" aria-selected="false"
+                   @click="activeTab = 'logs'; loadPHPAppLogs();"
+                   :class="activeTab === 'logs' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Logs"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
+                   @click="activeTab = 'remove'"
+                   :class="activeTab === 'remove' ? 'bg-white text-red-600 shadow-sm dark:bg-gray-900 dark:text-red-400' : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Remove"}}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div id="php-tab-content">
+
+        <div class="hidden p-4 rounded" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Overview"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "This PHP application runs inside the domain's own PHP-FPM container - it has no dedicated container of its own."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <table class="w-full text-sm">
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                            <tr>
+                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Docroot"}}</td>
+                                <td class="py-2 text-right font-mono text-gray-900 dark:text-gray-50">{{.Docroot}}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "PHP version"}}</td>
+                                <td class="py-2 text-right">
+                                    <span class="font-mono text-gray-900 dark:text-gray-50">{{if eq .PHPVersion "/"}}{{.T.Get "Not set"}}{{else}}{{.PHPVersion}}{{end}}</span>
+                                    <a href="/php/domains" class="ml-2 text-xs text-blue-600 dark:text-blue-400 hover:underline">{{.T.Get "Change"}}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Initial project"}}</td>
+                                <td class="py-2 text-right font-mono text-gray-900 dark:text-gray-50">{{if .InitialProject}}{{.InitialProject}}{{else}}—{{end}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="hidden p-4 rounded" id="composer" role="tabpanel" aria-labelledby="composer-tab">
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Composer"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Run Composer against this project's composer.json, inside the PHP container."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2 space-y-3">
+                    <div class="flex items-start gap-2">
+                        <input type="checkbox" id="optimize_autoloader" {{if .ComposerOptimizeAutoloader}}checked{{end}}
+                            class="mt-0.5 rounded border-gray-300 dark:border-gray-700 text-blue-600 focus:ring-blue-500">
+                        <label for="optimize_autoloader" class="text-sm text-gray-700 dark:text-gray-300">
+                            {{.T.Get "Optimize autoloader on next update (--optimize-autoloader)"}}
+                        </label>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="runComposer('install')" id="composer-install-btn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Composer install"}}</button>
+                        <button type="button" onclick="runComposer('update')" id="composer-update-btn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "Composer update"}}</button>
+                        <a href="/file-manager/edit-file/{{replace .Docroot "/var/www/html/" ""}}/{{.T.Get "composer.json"}}?new=true" target="_blank" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full gap-x-0.5 whitespace-nowrap sm:mt-0">{{.T.Get "Edit composer.json"}}</a>
+                    </div>
+
+                    <pre id="composer-output" class="hidden text-xs bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded p-3 overflow-x-auto max-h-64"></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+            <pre id="php-app-logs" class="text-xs bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded p-3 overflow-x-auto max-h-[32rem]">{{.T.Get "Loading..."}}</pre>
+        </div>
+
+        <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
+            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Removes it from Site Manager interface."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                    <i class="bi bi-trash3 mr-2"></i> {{.T.Get "Delete Application"}}
+                                </button>
+                                <div x-show="open">
+                                    <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Removes this application from Site Manager interface."}}</p>
+                                    <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "All website data such as files and database remains."}}</p>
+                                    <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
+                                        <button onclick="confirmRemovePHPApp()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
+                                        {{.T.Get "Confirm delete"}}
+                                        </button>
+                                        <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                        {{.T.Get "Cancel"}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+        </div>
+
+    </div>
+
+    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "waf_panel" .}}
+
+    </div>
+
+</div>
+
+<script>
+const PHP_APP_SITE_NAME = {{toJSON .Container.SiteName}};
+
+function runComposer(action) {
+    const installBtn = document.getElementById('composer-install-btn');
+    const updateBtn = document.getElementById('composer-update-btn');
+    installBtn.disabled = true;
+    updateBtn.disabled = true;
+    showToast({{toJSON (.T.Get "Running composer")}} + ' ' + action + {{toJSON (.T.Get "... this can take a while.")}}, 'loading');
+
+    const params = new URLSearchParams();
+    params.set('csrf_token', csrf_token);
+    if (action === 'update' && document.getElementById('optimize_autoloader').checked) {
+        params.set('optimize_autoloader', '1');
+    }
+
+    fetch(`/php/manage/composer-${action}/${encodeURIComponent(PHP_APP_SITE_NAME)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+    })
+    .then(res => res.json())
+    .then(data => {
+        installBtn.disabled = false;
+        updateBtn.disabled = false;
+        const output = document.getElementById('composer-output');
+        output.classList.remove('hidden');
+        output.textContent = data.output || data.error || '';
+        showToast(data.message || data.error, data.error ? 'error' : 'success');
+    })
+    .catch(err => {
+        installBtn.disabled = false;
+        updateBtn.disabled = false;
+        showToast({{toJSON (.T.Get "Request failed.")}}, 'error');
+        console.error(err);
+    });
+}
+
+let _phpAppLogsLoaded = false;
+function loadPHPAppLogs() {
+    if (_phpAppLogsLoaded) return;
+    _phpAppLogsLoaded = true;
+    fetch(`/php/manage/logs/${encodeURIComponent(PHP_APP_SITE_NAME)}`)
+        .then(res => res.text())
+        .then(text => { document.getElementById('php-app-logs').textContent = text; })
+        .catch(() => { document.getElementById('php-app-logs').textContent = {{toJSON (.T.Get "Failed to load logs.")}}; });
+}
+
+function confirmRemovePHPApp() {
+    showToast({{toJSON (.T.Get "Application removal started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', `/php/manage/delete/${encodeURIComponent(PHP_APP_SITE_NAME)}`, true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            window.location.href = '/sites';
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token));
+}
+</script>
+
+<!-- END templates/manager/php_app.html -->
+{{end}}

@@ -26,6 +26,30 @@ type pageData struct {
 // by every dispatch branch's literal struct above.
 func (p pageData) PagespeedAPIKey() string { return p.PagespeedAPIKeyValue }
 
+var phpAppPage = loadPage("manager/php_app.html")
+
+// PHPAppPageData is manager/php_app.html's template context.
+type PHPAppPageData struct {
+	pageData
+	Container                  ContainerInfo
+	PHPVersion                 string
+	InitialProject             string
+	AutorunComposerInstall     bool
+	ComposerOptimizeAutoloader bool
+}
+
+func renderPHPAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PHPAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	if err := phpAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - php_app template render error: %v", err)
+	}
+}
+
 var websiteBuilderPage = loadPage("manager/websitebuilder.html")
 
 // WebsiteBuilderPageData is manager/websitebuilder.html's template context.
@@ -119,9 +143,9 @@ type PythonNodeAppsPageData struct {
 	// Type is Container.Type lowercased ("python" or "nodejs").
 	Type string
 	// PM2Status is pm2_data.status stringified ("true"/"false"/"unknown").
-	PM2Status                                                       string
+	PM2Status                                                                   string
 	CPU, RAM, PIDs, StartupFile, CustomCmd, Workdir, CurrentVersion, GitRepoURL string
-	RequirementsSelected                                            bool
+	RequirementsSelected                                                        bool
 }
 
 func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PythonNodeAppsPageData) {

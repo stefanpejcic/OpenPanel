@@ -160,6 +160,18 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			PM2Data:   pm2Data,
 		})
 
+	case "php":
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		settings := getPHPAppSettings(userContext, websiteParam)
+		renderPHPAppPage(a, w, r, PHPAppPageData{
+			pageData:                   pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Container:                  container,
+			PHPVersion:                 currentPHPVersion,
+			InitialProject:             settings.initialProject,
+			AutorunComposerInstall:     settings.autorunComposerInstall,
+			ComposerOptimizeAutoloader: settings.composerOptimizeAutoloader,
+		})
+
 	case "websitebuilder", "sitebuilder":
 		renderWebsiteBuilderPage(a, w, r, WebsiteBuilderPageData{
 			pageData:  pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
@@ -169,6 +181,31 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 	default:
 		// drupal/mautic/anything else: not a supported CMS type here.
 		writeJSON(w, http.StatusOK, map[string]string{"error": "Unknown CMS type"})
+	}
+}
+
+// phpAppSettings is a PHP app's .env-stored settings, written by
+// internal/modules/phpapp's install/manage handlers.
+type phpAppSettings struct {
+	initialProject             string
+	autorunComposerInstall     bool
+	composerOptimizeAutoloader bool
+}
+
+// getPHPAppSettings reads a PHP app's settings from .env. There's no
+// dedicated container to key them off of (unlike NodeJS/Python's
+// getPM2ForApplication, keyed by container name) - php apps use a synthetic
+// prefix derived from the site name instead (see
+// internal/modules/phpapp/install.go's phpAppEnvPrefix, duplicated here).
+func getPHPAppSettings(userContext, siteName string) phpAppSettings {
+	prefix := docker.ServiceKeyPrefix(strings.ReplaceAll(siteName, "/", "_")) + "_PHP_"
+	initialProject, _ := docker.GetEnvValue(userContext, prefix+"INITIAL_PROJECT")
+	autorun, _ := docker.GetEnvValue(userContext, prefix+"AUTORUN_COMPOSER_INSTALL")
+	optimize, _ := docker.GetEnvValue(userContext, prefix+"COMPOSER_OPTIMIZE_AUTOLOADER")
+	return phpAppSettings{
+		initialProject:             initialProject,
+		autorunComposerInstall:     autorun == "1",
+		composerOptimizeAutoloader: optimize == "1",
 	}
 }
 

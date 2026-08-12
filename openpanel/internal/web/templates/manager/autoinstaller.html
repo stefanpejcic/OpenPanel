@@ -177,7 +177,6 @@
                     <div class="flex items-center space-x-3">
                         <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 32 32"><defs><linearGradient id="A" x1="811.527" y1="574.895" x2="665.255" y2="573.732" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#366a96"/><stop offset="1" stop-color="#3679b0"/></linearGradient><linearGradient id="B" x1="862.824" y1="642.176" x2="573.276" y2="642.176" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffc836"/><stop offset="1" stop-color="#ffe873"/></linearGradient></defs><g transform="matrix(.1617 0 0 .158089 -107.53764 -81.66187)"><path d="M716.255 544.487c0-13.623 3.653-21.034 23.822-24.563 13.693-2.4 31.25-2.7 47.627 0 12.935 2.135 23.822 11.77 23.822 24.563v44.945c0 13.182-10.57 23.98-23.822 23.98h-47.627c-16.164 0-29.787 13.782-29.787 29.363v21.564h-16.376c-13.852 0-21.917-9.988-25.305-23.964-4.57-18.776-4.376-29.963 0-47.945 3.794-15.687 15.917-23.964 29.77-23.964h65.52v-6h-47.645v-17.98z" fill="url(#A)"/><path d="M811.527 688.32c0 13.623-11.823 20.523-23.822 23.964-18.052 5.188-32.54 4.394-47.627 0-12.6-3.67-23.822-11.17-23.822-23.964v-44.945c0-12.935 10.782-23.98 23.822-23.98h47.627c15.864 0 29.787-13.71 29.787-29.963v-20.964h17.858c13.87 0 20.4 10.305 23.822 23.964 4.764 18.97 4.976 33.157 0 47.945-4.817 14.364-9.97 23.964-23.822 23.964H763.9v6h47.627v17.98z" fill="url(#B)"/><path d="M728.166 541.505c0-4.976 3.988-9 8.93-9 4.923 0 8.93 4.023 8.93 9 0 4.96-4.006 8.982-8.93 8.982-4.94 0-8.93-4.023-8.93-8.982zm53.59 149.798c0-4.96 4.006-8.982 8.93-8.982 4.94 0 8.93 4.023 8.93 8.982 0 4.976-3.988 9-8.93 9-4.923 0-8.93-4.023-8.93-9z" fill="#fff"/></g></svg>
-<span class="absolute right-0 top-0 flex size-4 shrink-0 items-center justify-center rounded-full bg-blue-500 ring-2 ring-white dark:bg-blue-500 dark:ring-[#090E1A]"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-2.5 text-white dark:text-white"><path d="M11.9998 17L6.12197 20.5902L7.72007 13.8906L2.48926 9.40983L9.35479 8.85942L11.9998 2.5L14.6449 8.85942L21.5104 9.40983L16.2796 13.8906L17.8777 20.5902L11.9998 17Z"></path></svg></span>
                         </span>
                         <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
                             <a href="/python/install">{{.T.Get "Python"}}</a>
@@ -196,6 +195,35 @@
             </a>
             <div class="border-t border-gray-200 px-6 py-3 dark:border-gray-900">
                 <a href="/python/install" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Setup Python Application"}}</a>
+            </div>
+        </div>
+    {{end}}
+
+    {{if .UserAllowed.php}}
+        <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0">
+            <div class="p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#777BB4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" id="php"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M2 12a10 9 0 1 0 20 0a10 9 0 1 0 -20 0"></path><path d="M5.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M15.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M12 7.5l-1 5.5"></path><path d="M11.6 10h2.4l-.5 3"></path></svg>
+                        </span>
+                        <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
+                            <a href="/php/install">{{.T.Get "PHP"}}</a>
+                        </dt>
+                    </div>
+                </div>
+                <dd class="text-gray-600 dark:text-gray-400 mt-3 text-sm/6">{{.T.Get "Set up a Composer project in an existing domain."}}</dd>
+            </div>
+            <a href="/sites">
+            <div class="border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-900 dark:bg-[#090E1A]">
+                <div class="flex items-center space-x-2">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 text-gray-400 dark:text-gray-600"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path></svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{if eq (index .Counts "php") 0}}{{.T.Get "No"}}{{else}}{{index .Counts "php"}}{{end}} {{.T.Get "existing installation"}}{{if ne (index .Counts "php") 1}}{{.T.Get "s"}}{{end}}</p>
+                </div>
+            </div>
+            </a>
+            <div class="border-t border-gray-200 px-6 py-3 dark:border-gray-900">
+                <a href="/php/install" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Setup PHP Application"}}</a>
             </div>
         </div>
     {{end}}
