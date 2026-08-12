@@ -200,6 +200,40 @@
         </div>
     {{end}}
 
+    {{if .UserAllowed.docker}}
+        <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0">
+            <div class="p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" id="docker"><path fill="#2496ED" d="M22.033 9.98c-.607-.428-2.006-.588-3.094-.385a4.336 4.336 0 0 0-.617-1.71l-.293-.44-.44.294a2.836 2.836 0 0 0-1.187 1.885c-.106.578-.02 1.203.24 1.71-.294.16-.755.294-1.43.294H1.24l-.053.32c-.16 1.05-.16 4.316 1.897 6.815 1.55 1.884 3.874 2.844 6.92 2.844 6.573 0 11.437-3.026 13.735-8.526 1.056.026 3.286 0 4.395-2.15l.16-.32-.293-.16c-1.216-.658-2.79-.712-3.694-.63l-.213.02M4.128 9.928h2.24v2.24h-2.24zm2.844 0h2.24v2.24h-2.24zm2.844 0h2.24v2.24H9.816zm2.845 0h2.24v2.24h-2.24zM6.972 7.084h2.24v2.24h-2.24zm2.844 0h2.24v2.24H9.816zm2.845 0h2.24v2.24h-2.24zm0-2.844h2.24v2.24h-2.24zM6.972 12.772h2.24v2.24h-2.24z"/></svg>
+                            <span class="absolute right-0 top-0 flex size-4 shrink-0 items-center justify-center rounded-full bg-blue-500 ring-2 ring-white dark:bg-blue-500 dark:ring-[#090E1A]">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-2.5 text-white dark:text-white">
+                                    <path d="M11.9998 17L6.12197 20.5902L7.72007 13.8906L2.48926 9.40983L9.35479 8.85942L11.9998 2.5L14.6449 8.85942L21.5104 9.40983L16.2796 13.8906L17.8777 20.5902L11.9998 17Z"></path>
+                                </svg>
+                            </span>
+                        </span>
+                        <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
+                            <a href="/containers/new">{{.T.Get "Docker"}}</a>
+                        </dt>
+                    </div>
+                </div>
+                <dd class="text-gray-600 dark:text-gray-400 mt-3 text-sm/6">{{.T.Get "Run any Docker image as a container on your account."}}</dd>
+            </div>
+            <a href="/containers">
+            <div class="border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-900 dark:bg-[#090E1A]">
+                <div class="flex items-center space-x-2">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 text-gray-400 dark:text-gray-600"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path></svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View your running containers"}}</p>
+                </div>
+            </div>
+            </a>
+            <div class="border-t border-gray-200 px-6 py-3 dark:border-gray-900">
+                <a href="/containers/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Run Container"}}</a>
+            </div>
+        </div>
+    {{end}}
+
     </dl>
 </div>
 
