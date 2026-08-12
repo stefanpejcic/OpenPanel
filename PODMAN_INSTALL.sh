@@ -268,7 +268,7 @@ pkg_install_with_retry() {
     $PACKAGE_MANAGER install -y "$pkg" >/dev/null 2>&1 && return
 
     case "$pkg" in
-        podman-compose) $PACKAGE_MANAGER install -y install podman-compose >/dev/null 2>&1; command -v podman-compose &>/dev/null && return ;;
+        podman-compose) $PACKAGE_MANAGER install -y podman-compose >/dev/null 2>&1; command -v podman-compose &>/dev/null && return ;;
         linux-image-amd64) $PACKAGE_MANAGER install -y linux-image >/dev/null 2>&1 && return ;;
         dbus-user-session) $PACKAGE_MANAGER install -y dbus >/dev/null 2>&1 && return ;;
         uidmap)       $PACKAGE_MANAGER install -y shadow-utils >/dev/null 2>&1 && return ;;
