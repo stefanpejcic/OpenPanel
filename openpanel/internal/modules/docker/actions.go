@@ -94,20 +94,8 @@ func updateContainerRAMOrCPU(a *appctx.App, ctx context.Context, userContext str
 		value += "G"
 	}
 
-	envPath := homePath(userContext, ".env")
-	data, err := os.ReadFile(envPath)
-	if err != nil {
-		return fmt.Sprintf(".env file not found at %s", envPath), false
-	}
-	lines := strings.Split(string(data), "\n")
-	prefix := envVar + "="
-	for i, line := range lines {
-		if strings.HasPrefix(line, prefix) {
-			lines[i] = envVar + `="` + value + `"`
-		}
-	}
-	if err := os.WriteFile(envPath, []byte(strings.Join(lines, "\n")), 0o644); err != nil {
-		return fmt.Sprintf("Failed to update .env: %s", err), false
+	if err := setContainerEnvLimit(userContext, envVar, value); err != "" {
+		return err, false
 	}
 
 	if containerExists(ctx, userContext, containerName) {
@@ -131,6 +119,61 @@ func updateContainerRAMOrCPU(a *appctx.App, ctx context.Context, userContext str
 		return fmt.Sprintf("%s limits for container %s removed and set to max available on the plan.", strings.ToUpper(action), containerName), true
 	}
 	return fmt.Sprintf("Max %s for container %s set to %s", strings.ToUpper(action), containerName, value), true
+}
+
+// updateContainerPIDs updates a container's PIDs (max process count) limit,
+// both in its .env entry and live via `podman update`. Unlike RAM/CPU,
+// PIDs has no plan-level cap to fall back to, so "0" means literally
+// unlimited (podman's --pids-limit -1) rather than "reset to plan max".
+// Returns (message, success).
+func updateContainerPIDs(ctx context.Context, userContext, containerName, providedValue string) (string, bool) {
+	envVar := ServiceKeyPrefix(containerName) + "_PIDS"
+
+	if err := setContainerEnvLimit(userContext, envVar, providedValue); err != "" {
+		return err, false
+	}
+
+	if containerExists(ctx, userContext, containerName) {
+		podmanValue := providedValue
+		if podmanValue == "0" {
+			podmanValue = "-1"
+		}
+		argv := podmanmanager.PodmanArgv(userContext, "update", "--pids-limit", podmanValue, containerName)
+		cmd := podmanmanager.Command(ctx, userContext, argv)
+		cmd.Dir = homePath(userContext)
+		if err := cmd.Run(); err != nil {
+			if _, ok := err.(*exec.ExitError); ok {
+				return "Docker command failed. Try again.", false
+			}
+			return "Unexpected error. Contact Administrator.", false
+		}
+	}
+
+	if providedValue == "0" {
+		return fmt.Sprintf("PIDs limit for container %s removed (unlimited).", containerName), true
+	}
+	return fmt.Sprintf("Max PIDs for container %s set to %s", containerName, providedValue), true
+}
+
+// setContainerEnvLimit rewrites envVar's value in the user's .env file.
+// Returns a non-empty error message on failure, "" on success.
+func setContainerEnvLimit(userContext, envVar, value string) string {
+	envPath := homePath(userContext, ".env")
+	data, err := os.ReadFile(envPath)
+	if err != nil {
+		return fmt.Sprintf(".env file not found at %s", envPath)
+	}
+	lines := strings.Split(string(data), "\n")
+	prefix := envVar + "="
+	for i, line := range lines {
+		if strings.HasPrefix(line, prefix) {
+			lines[i] = envVar + `="` + value + `"`
+		}
+	}
+	if err := os.WriteFile(envPath, []byte(strings.Join(lines, "\n")), 0o644); err != nil {
+		return fmt.Sprintf("Failed to update .env: %s", err)
+	}
+	return ""
 }
 
 // RestartContainer stops and re-starts a single compose service via
@@ -205,6 +248,17 @@ func handleManageContainer(a *appctx.App, w http.ResponseWriter, r *http.Request
 		message, success := updateContainerRAMOrCPU(a, ctx, userContext, planID, containerName, action, value)
 		if success {
 			_ = logger.RecordUserAction(a.Config, username, fmt.Sprintf("updated %s limit for %s to: %s", action, containerName, value), reqip.ClientIP(r))
+		}
+		flashAndRedirect(a, w, r, successCategory(success), message, "/containers")
+		return
+	}
+
+	if action == "pids" {
+		_ = r.ParseForm()
+		value := r.Form.Get("value")
+		message, success := updateContainerPIDs(ctx, userContext, containerName, value)
+		if success {
+			_ = logger.RecordUserAction(a.Config, username, fmt.Sprintf("updated pids limit for %s to: %s", containerName, value), reqip.ClientIP(r))
 		}
 		flashAndRedirect(a, w, r, successCategory(success), message, "/containers")
 		return

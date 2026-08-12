@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     var blockioCell = document.querySelector('#blockio-' + containerId);
                     var netioCell = document.querySelector('#netio-' + containerId);
-                    var pidsCell = document.querySelector('#pids-' + containerId);
+                    var pidsCell = document.querySelector('#pids-usage-' + containerId);
                     var ramCell = document.querySelector('#ram-' + containerId);
                     var startItem = document.querySelector('#start-item-' + containerId);
                     var stopItem = document.querySelector('#stop-item-' + containerId);
@@ -428,7 +428,26 @@ class="relative group cursor-pointer p-4 text-sm whitespace-nowrap text-gray-600
 
     <td x-show="columns.blockio" id="blockio-{{$row.Service}}" class="text-sm text-gray-600 dark:text-gray-400 py-2">--</td>
     <td x-show="columns.netio" id="netio-{{$row.Service}}" class="text-sm text-gray-600 dark:text-gray-400 py-2">--</td>
-    <td x-show="columns.pids" id="pids-{{$row.Service}}" class="text-sm text-gray-600 dark:text-gray-400 py-2">--</td>
+    <td x-show="columns.pids"
+    x-data="{
+    editing: false,
+    rawValue: '{{if $row.PIDsUnlimited}}{{else}}{{$row.PIDsValue}}{{end}}',
+    PIDsinputValue: '{{if $row.PIDsUnlimited}}0{{else}}{{$row.PIDsValue}}{{end}}',
+    get isUnlimited() { return this.rawValue === '' || this.rawValue === '0'; },
+    get value() { return this.isUnlimited ? '∞' : this.rawValue; },
+    set value(val) { this.rawValue = val; this.PIDsinputValue = val; }
+}" class="relative group cursor-pointer p-4 text-sm whitespace-nowrap text-gray-600 dark:text-gray-400 text-left">
+
+    <span x-show="!editing">
+        <span class="font-medium" id="pids-usage-{{$row.Service}}">--</span> / <span class="font-medium" x-text="value"></span>
+        <a href="#" @click.prevent="editing = !editing" class="transform hidden group-hover:inline-block text-gray-400 hover:text-gray-600"><i class="bi bi-pencil-fill"></i></a>
+    </span>
+    <form action="/containers/pids/{{$row.Service}}" method="POST" x-show="editing" @click.stop="editing = true" class="flex items-center gap-2">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <input x-model="PIDsinputValue" title='{{$t.Get "Max processes that this service can run. 0 = unlimited"}}' name="value" type="number" min="0" step="1" class="w-20 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white" />
+        <button type="submit" class="px-2 py-1 text-white bg-blue-500 rounded hover:bg-blue-600">{{$t.Get "Save"}}</button>
+    </form>
+    </td>
 
     <td x-show="columns.status" id="status-{{$row.Service}}" class="py-1">
         <span class="w-full relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-2 py-1 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0 text-gray-400 dark:text-gray-600"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 10.5858L9.17157 7.75736L7.75736 9.17157L10.5858 12L7.75736 14.8284L9.17157 16.2426L12 13.4142L14.8284 16.2426L16.2426 14.8284L13.4142 12L16.2426 9.17157L14.8284 7.75736L12 10.5858Z"></path></svg>{{$t.Get "Disabled"}}</button>

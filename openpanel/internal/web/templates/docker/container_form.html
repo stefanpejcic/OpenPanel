@@ -17,8 +17,6 @@
 
 
 
-<div class="rounded-lg m-8 bg-gray-50 p-6 ring-1 ring-inset ring-gray-200 dark:bg-gray-400/10 dark:ring-gray-800"><h4 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Experimental feature"}}</h4><p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">{{.T.Get "Adding containers is an experimental feature and should not be used in production."}} <a href="https://community.openpanel.org/" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-500">{{.T.Get "Please share feedback"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg></a></p></div>
-
 
   <script>
     function suggestName() {
@@ -112,6 +110,14 @@
             <label for="cpu" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Memory Limit (e.g., 0.5G):"}}<span class="text-red-500 dark:text-red-500">*</span></label>
             <div class="flex rounded-lg shadow-sm">
 <input class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" type="text" id="ram" name="ram" required pattern="^[0-9]+[gG]$" title="{{.T.Get "Example: 1G"}}" value="{{.RAM}}">
+
+            </div>
+        </div>
+
+        <div class="col-span">
+            <label for="pids" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "PIDs Limit (e.g., 100):"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+            <div class="flex rounded-lg shadow-sm">
+<input class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" type="number" id="pids" name="pids" required min="1" step="1" title="{{.T.Get "Max number of processes this service can run"}}" value="{{if .PIDs}}{{.PIDs}}{{else}}100{{end}}">
 
             </div>
         </div>

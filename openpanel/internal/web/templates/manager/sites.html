@@ -42,7 +42,6 @@
                     <tr class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Type"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Site Name"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Admin Email"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Created"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Version"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Speed"}}</th>
@@ -53,7 +52,7 @@
 
                 {{range $group := .Groups}}
                     <tr x-show="searchQuery === '' || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
-                        <th class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="7">
+                        <th class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="6">
                             {{if eq $group.Type "wordpress"}}WordPress
                             {{else if eq $group.Type "drupal"}}Drupal
                             {{else if contains $group.Type "nodejs"}}NodeJS Containers
@@ -143,7 +142,6 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
                                 </div>
                             </div>
                         </th>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{$site.AdminEmail}}</td>
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" x-data="{ rawDate: {{toJSON $site.CreatedDate}}, date: new Date({{toJSON $site.CreatedDate}}), relative: '' }" x-init="relative = formatRelativeDay(date)">
                             <span x-text="relative" :title="rawDate"></span>
                         </td>

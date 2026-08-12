@@ -203,6 +203,14 @@ func IsValidRAMLimit(ram string) bool {
 	return ramRE.MatchString(ram)
 }
 
+// IsValidPIDsLimit reports whether pids parses as a positive integer.
+// Unlike CPU/RAM, 0 isn't accepted here - the add/edit container form
+// requires an explicit positive value (see validateServiceForm).
+func IsValidPIDsLimit(pids string) bool {
+	val, err := strconv.Atoi(pids)
+	return err == nil && val > 0
+}
+
 var envKeyReplacer = strings.NewReplacer("-", "_", ".", "_")
 
 // ServiceKeyPrefix uppercases serviceName and replaces '-' and '.' with

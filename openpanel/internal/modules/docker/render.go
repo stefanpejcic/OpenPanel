@@ -54,11 +54,13 @@ type ContainerRow struct {
 	DisplayName  string
 	Image        string
 	ImageTrusted bool
-	CPUUnlimited bool
-	CPUValue     string
-	RAMUnlimited bool
-	RAMGB        string
-	ShowManage   bool
+	CPUUnlimited  bool
+	CPUValue      string
+	RAMUnlimited  bool
+	RAMGB         string
+	PIDsUnlimited bool
+	PIDsValue     string
+	ShowManage    bool
 }
 
 // ContainersPageData is containers.html's full template context.
@@ -163,9 +165,17 @@ func buildContainerRows(services map[string]any) []ContainerRow {
 			} else {
 				row.RAMUnlimited = true
 			}
+
+			pidsRaw := serviceLimit(details, "pids")
+			if pidsRaw == "" || pidsRaw == "0" {
+				row.PIDsUnlimited = true
+			} else {
+				row.PIDsValue = pidsRaw
+			}
 		} else {
 			row.CPUUnlimited = true
 			row.RAMUnlimited = true
+			row.PIDsUnlimited = true
 		}
 
 		row.ShowManage = !coreServices[name] && !strings.HasPrefix(name, "php-fpm-")
@@ -217,6 +227,7 @@ type prefilledContainerForm struct {
 	Environment string
 	CPU         string
 	RAM         string
+	PIDs        string
 	Volumes     []VolumeEntry
 	AddSocket   bool
 	Network     string
@@ -253,6 +264,7 @@ type ContainerFormPageData struct {
 	Environment          string
 	CPU                  string
 	RAM                  string
+	PIDs                 string
 	Network              string
 	Healthcheck          string
 	AddSocket            bool
@@ -301,6 +313,7 @@ func renderContainerFormPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		data.Environment = p.Environment
 		data.CPU = p.CPU
 		data.RAM = p.RAM
+		data.PIDs = p.PIDs
 		data.Network = p.Network
 		data.Healthcheck = p.Healthcheck
 		data.AddSocket = p.AddSocket
@@ -311,12 +324,14 @@ func renderContainerFormPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		data.Environment = v.FormData.Get("environment")
 		data.CPU = v.FormData.Get("cpu")
 		data.RAM = v.FormData.Get("ram")
+		data.PIDs = v.FormData.Get("pids")
 		data.Network = v.FormData.Get("network")
 		data.Healthcheck = v.FormData.Get("healthcheck")
 		data.AddSocket = v.FormData.Get("add_socket") != ""
 	default:
 		data.CPU = "0.5"
 		data.RAM = "1G"
+		data.PIDs = "100"
 	}
 
 	if err := containerFormPage.Render(w, http.StatusOK, data); err != nil {

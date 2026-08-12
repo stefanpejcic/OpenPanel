@@ -51,6 +51,21 @@ func TestIsValidRAMLimit(t *testing.T) {
 	}
 }
 
+func TestIsValidPIDsLimit(t *testing.T) {
+	valid := []string{"1", "100", "5000"}
+	invalid := []string{"0", "-1", "abc", "", "1.5"}
+	for _, s := range valid {
+		if !IsValidPIDsLimit(s) {
+			t.Errorf("expected %q to be a valid PIDs limit", s)
+		}
+	}
+	for _, s := range invalid {
+		if IsValidPIDsLimit(s) {
+			t.Errorf("expected %q to be an invalid PIDs limit", s)
+		}
+	}
+}
+
 func TestServiceKeyPrefix(t *testing.T) {
 	cases := map[string]string{
 		"mysql":      "MYSQL",

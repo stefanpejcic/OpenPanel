@@ -105,9 +105,10 @@ func handleContainersList(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	renderContainersPage(a, w, r, totalCPU, totalRAM, mysqlType, webserver, dockerData)
 }
 
-// containerFormValidation runs the shared service_name/cpu/ram validation
-// add_container() and edit_container() both do, returning "" if all valid.
-func validateServiceForm(serviceName, cpu, ram string) string {
+// containerFormValidation runs the shared service_name/cpu/ram/pids
+// validation add_container() and edit_container() both do, returning ""
+// if all valid.
+func validateServiceForm(serviceName, cpu, ram, pids string) string {
 	if !IsValidServiceName(serviceName) {
 		return "Invalid service name. Must start with a letter, contain only lowercase letters and digits, and be at least 3 characters long."
 	}
@@ -116,6 +117,9 @@ func validateServiceForm(serviceName, cpu, ram string) string {
 	}
 	if !IsValidRAMLimit(ram) {
 		return "Memory limit must be a positive number followed by 'M' or 'G' (e.g., 512M or 1.5G)."
+	}
+	if !IsValidPIDsLimit(pids) {
+		return "PIDs limit must be a positive whole number."
 	}
 	return ""
 }
@@ -159,6 +163,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	image := strings.TrimSpace(r.Form.Get("image"))
 	cpu := strings.TrimSpace(r.Form.Get("cpu"))
 	ram := strings.TrimSpace(r.Form.Get("ram"))
+	pids := strings.TrimSpace(r.Form.Get("pids"))
 	network := strings.TrimSpace(r.Form.Get("network"))
 	healthcheck := strings.TrimSpace(r.Form.Get("healthcheck"))
 
@@ -187,13 +192,19 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		renderContainerFormPage(a, w, r, formView)
 		return
 	}
+	if !IsValidPIDsLimit(pids) {
+		formView.Error = "PIDs limit must be a positive whole number."
+		renderContainerFormPage(a, w, r, formView)
+		return
+	}
 
 	servicePrefix := ServiceKeyPrefix(serviceName)
 	environmentVars, newEnvVars := ParseEnvVars(strings.Split(r.Form.Get("environment"), "\n"), servicePrefix)
 
-	cpuKey, ramKey := servicePrefix+"_CPU", servicePrefix+"_RAM"
+	cpuKey, ramKey, pidsKey := servicePrefix+"_CPU", servicePrefix+"_RAM", servicePrefix+"_PIDS"
 	newEnvVars[cpuKey] = cpu
 	newEnvVars[ramKey] = ram
+	newEnvVars[pidsKey] = pids
 	UpdateEnvFileWithVars(userContext, newEnvVars)
 
 	mappedVolumes := ParseVolumeEntries(
@@ -204,7 +215,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		"image": image, "container_name": serviceName, "restart": "always",
 		"volumes": mappedVolumes,
 		"deploy": map[string]any{"resources": map[string]any{"limits": map[string]any{
-			"cpus": "${" + cpuKey + ":-" + cpu + "}", "memory": "${" + ramKey + ":-" + ram + "}", "pids": 100,
+			"cpus": "${" + cpuKey + ":-" + cpu + "}", "memory": "${" + ramKey + ":-" + ram + "}", "pids": "${" + pidsKey + ":-" + pids + "}",
 		}}},
 		"networks": []string{network},
 	}
@@ -269,6 +280,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		image := strings.TrimSpace(r.Form.Get("image"))
 		cpu := strings.TrimSpace(r.Form.Get("cpu"))
 		ram := strings.TrimSpace(r.Form.Get("ram"))
+		pids := strings.TrimSpace(r.Form.Get("pids"))
 		network := r.Form.Get("network")
 		healthcheck := strings.TrimSpace(r.Form.Get("healthcheck"))
 
@@ -297,13 +309,19 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			renderContainerFormPage(a, w, r, formView)
 			return
 		}
+		if !IsValidPIDsLimit(pids) {
+			formView.Error = "PIDs limit must be a positive whole number."
+			renderContainerFormPage(a, w, r, formView)
+			return
+		}
 
 		servicePrefix := ServiceKeyPrefix(serviceName)
 		environmentVars, newEnvVars := ParseEnvVars(strings.Split(r.Form.Get("environment"), "\n"), servicePrefix)
 
-		cpuKey, ramKey := servicePrefix+"_CPU", servicePrefix+"_RAM"
+		cpuKey, ramKey, pidsKey := servicePrefix+"_CPU", servicePrefix+"_RAM", servicePrefix+"_PIDS"
 		newEnvVars[cpuKey] = cpu
 		newEnvVars[ramKey] = ram
+		newEnvVars[pidsKey] = pids
 
 		currentEnv := LoadEnvFile(userContext)
 		prefix := servicePrefix + "_"
@@ -325,7 +343,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			"image": image, "container_name": serviceName, "restart": "always",
 			"volumes": mappedVolumes, "networks": []string{network},
 			"deploy": map[string]any{"resources": map[string]any{"limits": map[string]any{
-				"cpus": "${" + cpuKey + "}", "memory": "${" + ramKey + "}", "pids": 100,
+				"cpus": "${" + cpuKey + "}", "memory": "${" + ramKey + "}", "pids": "${" + pidsKey + "}",
 			}}},
 		}
 		if len(environmentVars) > 0 {
@@ -362,17 +380,19 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		envLines = append(envLines, k+": ")
 	}
 
-	// .deploy.resources.limits.pids is intentionally not surfaced here -
-	// nothing in the form or template context consumes it.
 	env := LoadEnvFile(userContext)
-	var cpu, ram string
+	var cpu, ram, pids string
 	if deploy, ok := svc["deploy"].(map[string]any); ok {
 		if resources, ok := deploy["resources"].(map[string]any); ok {
 			if limits, ok := resources["limits"].(map[string]any); ok {
 				cpu = ResolveEnvPlaceholder(toStr(limits["cpus"]), env)
 				ram = ResolveEnvPlaceholder(toStr(limits["memory"]), env)
+				pids = ResolveEnvPlaceholder(toStr(limits["pids"]), env)
 			}
 		}
+	}
+	if pids == "" {
+		pids = "100"
 	}
 
 	var volumeEntries []VolumeEntry
@@ -407,7 +427,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		ExistingServices: existingServices, Title: title, Editing: true,
 		PrefilledForm: &prefilledContainerForm{
 			ServiceName: service, Image: toStr(svc["image"]), Environment: strings.Join(envLines, "\n"),
-			CPU: cpu, RAM: ram, Volumes: volumeEntries, AddSocket: addSocket,
+			CPU: cpu, RAM: ram, PIDs: pids, Volumes: volumeEntries, AddSocket: addSocket,
 			Network: network, Healthcheck: healthcheck,
 		},
 	})
