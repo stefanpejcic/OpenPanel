@@ -1,7 +1,11 @@
 package backups
 
 import (
+	"archive/tar"
+	"compress/gzip"
+	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -129,8 +133,46 @@ func shellQuoteArg(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
 }
 
-// doReindex runs in a background goroutine, connects over SSH, lists the
-// remote backup directory, classifies each archive (3 at a time), writes
+// classifyLocalArchive is classifyTarListing's counterpart for a backup
+// archive that's already been downloaded to a local file, used by every
+// remoteStore backend that has no way to inspect an archive's contents
+// without downloading it first (see classifyViaDownload in store.go). It
+// walks the same tar+gzip structure restoreFilesFromTar/scanSQLMembers
+// read, collecting just the entry names, then reuses classifyTarListing's
+// classification logic so both code paths agree on what "html"/"mysql"/
+// "crons" etc. mean.
+func classifyLocalArchive(backup, localPath string) (BackupInfo, error) {
+	f, err := os.Open(localPath)
+	if err != nil {
+		return BackupInfo{}, err
+	}
+	defer f.Close()
+
+	gz, err := gzip.NewReader(f)
+	if err != nil {
+		return BackupInfo{}, err
+	}
+	defer gz.Close()
+
+	var names []string
+	tr := tar.NewReader(gz)
+	for {
+		header, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return BackupInfo{}, err
+		}
+		names = append(names, header.Name)
+	}
+
+	return classifyTarListing(backup, strings.Join(names, "\n")), nil
+}
+
+// doReindex runs in a background goroutine, connects to whichever
+// destination is currently configured (s3/webdav/ssh/azure/dropbox), lists
+// the remote backups, classifies each archive (3 at a time), writes
 // jsonFile, and always removes lockFile.
 func doReindex(userHome string, config map[string]string, jsonFile, lockFile string) {
 	defer os.Remove(lockFile)
@@ -140,25 +182,17 @@ func doReindex(userHome string, config map[string]string, jsonFile, lockFile str
 		_ = os.WriteFile(jsonFile, b, 0o644)
 	}
 
-	client, err := dialSSH(config)
+	store, err := newRemoteStore(config)
 	if err != nil {
 		writeError(err.Error())
 		return
 	}
-	defer client.Close()
 
-	remotePath := config["SSH_REMOTE_PATH"]
-	out, err := runSSHCommand(client, "ls -1 "+shellQuoteArg(remotePath))
-	if err != nil && out == "" {
+	ctx := context.Background()
+	backupNames, err := store.List(ctx)
+	if err != nil {
 		writeError(err.Error())
 		return
-	}
-
-	var backupNames []string
-	for _, line := range strings.Split(out, "\n") {
-		if line != "" {
-			backupNames = append(backupNames, line)
-		}
 	}
 
 	results := make([]BackupInfo, len(backupNames))
@@ -170,7 +204,11 @@ func doReindex(userHome string, config map[string]string, jsonFile, lockFile str
 		go func(i int, name string) {
 			defer wg.Done()
 			defer func() { <-sem }()
-			results[i] = processBackup(client, name, remotePath)
+			info, err := store.Classify(ctx, name)
+			if err != nil {
+				info = BackupInfo{BackupFile: name, Types: []string{}, Databases: []string{}, Error: err.Error()}
+			}
+			results[i] = info
 		}(i, name)
 	}
 	wg.Wait()

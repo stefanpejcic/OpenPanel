@@ -12,61 +12,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pkg/sftp"
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
-
-// fetchBackupViaSSH downloads one backup archive from the SSH/SFTP
-// destination into a local temp file. The caller must call cleanup() once
-// done with the local copy.
-func fetchBackupViaSSH(config map[string]string, backupFilename string) (localPath string, cleanup func(), err error) {
-	client, err := dialSSH(config)
-	if err != nil {
-		return "", nil, err
-	}
-	defer client.Close()
-
-	sftpClient, err := sftp.NewClient(client)
-	if err != nil {
-		return "", nil, err
-	}
-	defer sftpClient.Close()
-
-	remotePath := strings.TrimRight(config["SSH_REMOTE_PATH"], "/")
-	remoteFilePath := remotePath + "/" + backupFilename
-
-	tmpDir, err := os.MkdirTemp("", "backup_restore_")
-	if err != nil {
-		return "", nil, err
-	}
-	cleanup = func() { _ = os.RemoveAll(tmpDir) }
-
-	remoteFile, err := sftpClient.Open(remoteFilePath)
-	if err != nil {
-		cleanup()
-		return "", nil, err
-	}
-	defer remoteFile.Close()
-
-	localPath = filepath.Join(tmpDir, backupFilename)
-	localFile, err := os.Create(localPath)
-	if err != nil {
-		cleanup()
-		return "", nil, err
-	}
-	defer localFile.Close()
-
-	if _, err := io.Copy(localFile, remoteFile); err != nil {
-		cleanup()
-		return "", nil, err
-	}
-
-	return localPath, cleanup, nil
-}
 
 // restoreMySQLFromSQL drops/recreates the database, then executes the
 // dump in ";\n"-delimited chunks, tolerating failures on statements that
@@ -379,15 +330,21 @@ func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 
 	config, _ := readBackupEnv(userContext)
+	store, storeErr := newRemoteStore(config)
+	if storeErr != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": storeErr.Error()})
+		return
+	}
 
-	localPath, cleanup, fetchErr := fetchBackupViaSSH(config, safeName)
+	ctx := r.Context()
+
+	localPath, cleanup, fetchErr := store.Fetch(ctx, safeName)
 	if fetchErr != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": fetchErr.Error()})
 		return
 	}
 	defer cleanup()
 
-	ctx := r.Context()
 	uid, _ := a.GetUID(ctx, userContext)
 
 	switch restoreTarget {
@@ -477,8 +434,13 @@ func handleDownloadBackup(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	config, _ := readBackupEnv(userContext)
+	store, storeErr := newRemoteStore(config)
+	if storeErr != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": storeErr.Error()})
+		return
+	}
 
-	localPath, cleanup, fetchErr := fetchBackupViaSSH(config, safeName)
+	localPath, cleanup, fetchErr := store.Fetch(r.Context(), safeName)
 	if fetchErr != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": fetchErr.Error()})
 		return
