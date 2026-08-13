@@ -1,6 +1,7 @@
 package domains
 
 import (
+	"syscall"
 	"bufio"
 	"fmt"
 	"net/http"
