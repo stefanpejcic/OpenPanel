@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -145,7 +146,9 @@ func RestartDNSService(domainURL string) {
 
 	cctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	_ = exec.CommandContext(cctx, "podman", "exec", "openpanel_dns", "rndc", "reload", domainURL).Run()
+	if out, err := exec.CommandContext(cctx, "podman", "exec", "openpanel_dns", "rndc", "reload", domainURL).CombinedOutput(); err != nil {
+		log.Printf("DNS - rndc reload %s failed: %v: %s", domainURL, err, strings.TrimSpace(string(out)))
+	}
 }
 
 // cnameNameRE builds the per-call regex used to detect an existing CNAME
