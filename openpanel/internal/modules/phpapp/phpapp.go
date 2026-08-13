@@ -47,6 +47,21 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "php", "POST /api/php/install", func(w http.ResponseWriter, r *http.Request) {
 		HandleInstall(a, w, r)
 	})
+
+	// Manage-surface for already-installed Composer apps, reusing the same
+	// handlers as Register's UI routes as-is - they already write JSON (or,
+	// for logs, plain text) directly and have no session/flash dependency.
+	// The "{site_name...}" wildcard must be the last path segment (net/http
+	// mux requirement), so the action stays a literal prefix, mirroring the
+	// UI routes' own ordering.
+	apiregistry.Handle(mux, a, "php", "POST /api/php/apps/composer-install/{site_name...}", func(w http.ResponseWriter, r *http.Request) {
+		handleComposerAction(a, w, r, "install")
+	})
+	apiregistry.Handle(mux, a, "php", "POST /api/php/apps/composer-update/{site_name...}", func(w http.ResponseWriter, r *http.Request) {
+		handleComposerAction(a, w, r, "update")
+	})
+	apiregistry.Handle(mux, a, "php", "GET /api/php/apps/logs/{site_name...}", func(w http.ResponseWriter, r *http.Request) { handleComposerLogs(a, w, r) })
+	apiregistry.Handle(mux, a, "php", "DELETE /api/php/apps/{site_name...}", func(w http.ResponseWriter, r *http.Request) { handleDelete(a, w, r) })
 }
 
 func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {

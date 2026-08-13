@@ -15,4 +15,5 @@ import (
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "dashboard", "GET /api/dashboard/resource-usage", func(w http.ResponseWriter, r *http.Request) { handleResourceUsage(a, w, r) })
 	apiregistry.Handle(mux, a, "dashboard", "GET /api/dashboard/disk-inodes", func(w http.ResponseWriter, r *http.Request) { handleDiskInodes(a, w, r) })
+	apiregistry.Handle(mux, a, "dashboard", "POST /api/dashboard/tour/complete", func(w http.ResponseWriter, r *http.Request) { handleTourComplete(a, w, r) })
 }

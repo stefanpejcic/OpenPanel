@@ -38,11 +38,30 @@ func RegisterSitesAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Add("GET /api/sites/{domain}/temporary-link")
 	apiregistry.Add("GET /api/sites/{domain}/visitors")
 	apiregistry.Add("GET /api/sites/{domain}/wp-info")
+	apiregistry.Add("GET /api/sites/{domain}/favicon")
+	apiregistry.Add("GET /api/sites/{domain}/screenshot")
+	// More specific than the "{rest...}" catch-all below, so it wins for
+	// this literal prefix - the site-manager's own scoped wp-cli passthrough
+	// (distinct from the global POST /api/wp-cli/{action}), reusing
+	// handleWordPressWPCLI as-is since it already reads everything from the
+	// query string/PathValue and writes JSON directly.
+	apiregistry.Handle(mux, a, "websites", "GET /api/sites/wp-cli/{action}", func(w http.ResponseWriter, r *http.Request) { handleWordPressWPCLI(a, w, r) })
+	// database-size takes domain/docroot/database as query params, not a
+	// path segment - a more specific literal match than "{rest...}", so it
+	// wins for this exact path.
+	apiregistry.Handle(mux, a, "websites", "GET /api/sites/database-size", func(w http.ResponseWriter, r *http.Request) { handleDatabaseSize(a, w, r) })
+
 	mux.Handle("GET /api/sites/{rest...}", auth.RequireAPI(a, "websites")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiSitesGetDispatch(a, w, r) })))
 
 	apiregistry.Add("POST /api/sites/{domain}/pagespeed")
 	apiregistry.Add("POST /api/sites/{domain}/wp-vulnerability")
+	apiregistry.Add("POST /api/sites/{domain}/screenshot")
 	mux.Handle("POST /api/sites/{rest...}", auth.RequireAPI(a, "websites")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiSitesPostDispatch(a, w, r) })))
+
+	// install_type is a fixed small enum (pip/npm/pnpm), so it's a plain
+	// path segment rather than folded into the domain-suffix dispatch above -
+	// mirrors the UI's own POST /pm2/install/{install_type}/{selected_domain}.
+	apiregistry.Handle(mux, a, "websites", "POST /api/sites/{selected_domain}/packages/{install_type}", func(w http.ResponseWriter, r *http.Request) { handleInstallPackages(a, w, r) })
 }
 
 // apiSitesGetDispatch resolves the literal-suffix-wins routing for
@@ -68,6 +87,12 @@ func apiSitesGetDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	case strings.HasSuffix(rest, "/wp-info"):
 		r.SetPathValue("domain", strings.TrimSuffix(rest, "/wp-info"))
 		apiWPInfo(a, w, r)
+	case strings.HasSuffix(rest, "/favicon"):
+		r.SetPathValue("domain", strings.TrimSuffix(rest, "/favicon"))
+		handleFavicon(a, w, r)
+	case strings.HasSuffix(rest, "/screenshot"):
+		r.SetPathValue("domain", strings.TrimSuffix(rest, "/screenshot"))
+		handleScreenshot(a, w, r)
 	default:
 		r.SetPathValue("domain", rest)
 		apiSiteDetail(a, w, r)
@@ -85,6 +110,9 @@ func apiSitesPostDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	case strings.HasSuffix(rest, "/wp-vulnerability"):
 		r.SetPathValue("domain", strings.TrimSuffix(rest, "/wp-vulnerability"))
 		apiWPVulnerabilityScan(a, w, r)
+	case strings.HasSuffix(rest, "/screenshot"):
+		r.SetPathValue("domain", strings.TrimSuffix(rest, "/screenshot"))
+		handleScreenshot(a, w, r)
 	default:
 		http.NotFound(w, r)
 	}

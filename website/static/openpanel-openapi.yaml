@@ -46,6 +46,8 @@ tags:
   description: Requires the `ip_blocker` feature to be enabled on the account's plan.
 - name: PHP
   description: Requires the `php_ini` feature to be enabled on the account's plan.
+- name: PHP App Manager
+  description: Requires the `php` feature to be enabled on the account's plan.
 - name: Account
   description: Requires the `account` feature to be enabled on the account's plan.
 - name: Passkeys
@@ -3640,7 +3642,7 @@ paths:
       - bearerAuth: []
   /api/containers/{service}/resources:
     patch:
-      summary: Update CPU/RAM limits.
+      summary: Update CPU/RAM/PIDs limits.
       operationId: containers_service_resources
       tags:
       - Docker / Containers
@@ -3663,9 +3665,13 @@ paths:
                 ram:
                   type: string
                   example: 512m
+                pids:
+                  type: string
+                  example: '512'
               example:
                 cpu: '1'
                 ram: 512m
+                pids: '512'
       responses:
         '200':
           description: Success.
@@ -4543,6 +4549,134 @@ paths:
               example:
                 domain: example.com
                 version: '8.2'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/php/install:
+    post:
+      summary: Install a Composer-based PHP project into an existing domain's docroot (form-encoded body;
+        response streams newline-delimited JSON progress events).
+      operationId: php_install
+      tags:
+      - PHP App Manager
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/php/apps/composer-install/{site_name}:
+    post:
+      summary: Re-run `composer install` for an already-installed PHP app.
+      operationId: php_apps_composer_install_site_name
+      tags:
+      - PHP App Manager
+      parameters:
+      - name: site_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/php/apps/composer-update/{site_name}:
+    post:
+      summary: Re-run `composer update` for an already-installed PHP app.
+      operationId: php_apps_composer_update_site_name
+      tags:
+      - PHP App Manager
+      parameters:
+      - name: site_name
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                optimize_autoloader:
+                  type: string
+                  example: 'true'
+              example:
+                optimize_autoloader: 'true'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/php/apps/logs/{site_name}:
+    get:
+      summary: Get the Composer run log for a PHP app.
+      operationId: php_apps_logs_site_name
+      tags:
+      - PHP App Manager
+      parameters:
+      - name: site_name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/php/apps/{site_name}:
+    delete:
+      summary: Remove a PHP app's tracking entry and .env settings. Docroot files and the database, if
+        any, are left untouched.
+      operationId: php_apps_site_name
+      tags:
+      - PHP App Manager
+      parameters:
+      - name: site_name
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: Success.
@@ -6431,10 +6565,308 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/sites/wp-cli/{action}:
+    get:
+      summary: Site-manager scoped WP-CLI passthrough (site info, debug flags, update preferences) - distinct
+        action set from POST /api/wp-cli/<action>.
+      operationId: sites_wp_cli_action
+      tags:
+      - Sites & Websites
+      parameters:
+      - name: action
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/sites/{domain}/favicon:
+    get:
+      summary: Redirect to the site's favicon (Google favicon service, or a configured favicon proxy).
+      operationId: sites_domain_favicon
+      tags:
+      - Sites & Websites
+      parameters:
+      - name: domain
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/sites/{domain}/screenshot:
+    get:
+      summary: Get a cached screenshot of the site (fetches and caches one if not already cached).
+      operationId: get_sites_domain_screenshot
+      tags:
+      - Sites & Websites
+      parameters:
+      - name: domain
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    post:
+      summary: Force-refresh the cached screenshot.
+      operationId: post_sites_domain_screenshot
+      tags:
+      - Sites & Websites
+      parameters:
+      - name: domain
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/sites/database-size:
+    get:
+      summary: Get a WordPress install's on-disk DB size (via `wp db size`) or a raw database's size,
+        depending on which query parameter is supplied.
+      operationId: sites_database_size
+      tags:
+      - Sites & Websites
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/sites/{domain}/packages/{install_type}:
+    post:
+      summary: Re-run the package install (pip/npm/pnpm) for an already-created Node.js/Python app.
+      operationId: sites_domain_packages_install_type
+      tags:
+      - Sites & Websites
+      parameters:
+      - name: domain
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: install_type
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/wordpress:
     get:
       summary: List all WordPress installations.
       operationId: wordpress
+      tags:
+      - WordPress
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/wordpress/install:
+    post:
+      summary: Install WordPress on a domain. Streams newline-delimited JSON progress events as the install
+        runs (download, extract, DB setup, wp core install, plugin/theme sets), same as the panel's own
+        install page.
+      operationId: wordpress_install
+      tags:
+      - WordPress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                website_name:
+                  type: string
+                  example: My Blog
+                site_description:
+                  type: string
+                  example: My WordPress Blog
+                admin_username:
+                  type: string
+                  example: admin
+                admin_password:
+                  type: string
+                  example: changeme
+                wordpress_version:
+                  type: string
+                  example: latest
+                subdirectory:
+                  type: string
+                  example: ''
+                db_name:
+                  type: string
+                  example: ''
+                db_user:
+                  type: string
+                  example: ''
+                db_password:
+                  type: string
+                  example: ''
+                db_prefix:
+                  type: string
+                  example: wp_
+              example:
+                domain_id: '42'
+                admin_email: admin@example.com
+                website_name: My Blog
+                site_description: My WordPress Blog
+                admin_username: admin
+                admin_password: changeme
+                wordpress_version: latest
+                subdirectory: ''
+                db_name: ''
+                db_user: ''
+                db_password: ''
+                db_prefix: wp_
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/wordpress/clone:
+    post:
+      summary: Clone an existing WordPress site to another domain (or subdirectory).
+      operationId: wordpress_clone
+      tags:
+      - WordPress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source_domain:
+                  type: string
+                  example: example.com
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                source_db:
+                  type: string
+                  example: wp_source
+                source_folder:
+                  type: string
+                  example: ''
+                subdirectory:
+                  type: string
+                  example: ''
+                target_db:
+                  type: string
+                  example: ''
+                target_db_user:
+                  type: string
+                  example: ''
+                target_db_user_password:
+                  type: string
+                  example: ''
+              example:
+                source_domain: example.com
+                target_domain: clone.example.com
+                source_db: wp_source
+                source_folder: ''
+                subdirectory: ''
+                target_db: ''
+                target_db_user: ''
+                target_db_user_password: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/wordpress/scan:
+    get:
+      summary: Scan the filesystem for WordPress installations not yet tracked by WP Manager and register
+        any found. Distinct from POST /api/wordpress/reload, which only refreshes info for installations
+        already tracked.
+      operationId: wordpress_scan
       tags:
       - WordPress
       responses:
@@ -7851,6 +8283,24 @@ paths:
     get:
       summary: Get the dashboard's disk/inode usage widget data.
       operationId: dashboard_disk_inodes
+      tags:
+      - Dashboard
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/dashboard/tour/complete:
+    post:
+      summary: Mark the onboarding tour as completed so it doesn't reappear.
+      operationId: dashboard_tour_complete
       tags:
       - Dashboard
       responses:

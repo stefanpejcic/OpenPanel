@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -51,6 +52,10 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "wordpress", "POST /api/wordpress/reload", func(w http.ResponseWriter, r *http.Request) { apiWordPressReload(a, w, r) })
 
 	apiregistry.Handle(mux, a, "wordpress", "POST /api/wp-cli/{action}", func(w http.ResponseWriter, r *http.Request) { apiWPCLI(a, w, r) })
+
+	apiregistry.Handle(mux, a, "wordpress", "POST /api/wordpress/install", func(w http.ResponseWriter, r *http.Request) { apiWordPressInstall(a, w, r) })
+	apiregistry.Handle(mux, a, "wordpress", "POST /api/wordpress/clone", func(w http.ResponseWriter, r *http.Request) { apiWordPressClone(a, w, r) })
+	apiregistry.Handle(mux, a, "wordpress", "GET /api/wordpress/scan", func(w http.ResponseWriter, r *http.Request) { apiWordPressScan(a, w, r) })
 }
 
 func writeAPIWPJSON(w http.ResponseWriter, status int, v any) {
@@ -762,4 +767,175 @@ func apiWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIWPJSON(w, http.StatusOK, map[string]any{
 		"action": action, "domain": domainParam, "stdout": strings.TrimSpace(string(out)), "stderr": "", "returncode": returnCode,
 	})
+}
+
+// ── Install / Clone / Scan ───────────────────────────────────────────────
+
+// withWPForm clones r as a POST carrying the given values as both Form and
+// PostForm, so a UI handler that reads r.FormValue(...)/r.Form after its
+// own (no-op, since r.Form is already set) parse call sees exactly the
+// fields the API's JSON body supplied.
+func withWPForm(r *http.Request, values url.Values) *http.Request {
+	clone := r.Clone(r.Context())
+	clone.Method = http.MethodPost
+	clone.Form = values
+	clone.PostForm = values
+	return clone
+}
+
+// apiWordPressInstall delegates straight to handleInstallPage (which
+// itself calls handleInstallStream on POST): same website-limit check,
+// same MySQL-ensure-running step, same NDJSON progress stream written
+// directly to the response - just fed from the API's JSON body instead of
+// a UI form post.
+func apiWordPressInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		DomainID         string `json:"domain_id"`
+		AdminEmail       string `json:"admin_email"`
+		WebsiteName      string `json:"website_name"`
+		SiteDescription  string `json:"site_description"`
+		AdminUsername    string `json:"admin_username"`
+		AdminPassword    string `json:"admin_password"`
+		WordPressVersion string `json:"wordpress_version"`
+		Subdirectory     string `json:"subdirectory"`
+		DBName           string `json:"db_name"`
+		DBUser           string `json:"db_user"`
+		DBPassword       string `json:"db_password"`
+		DBPrefix         string `json:"db_prefix"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		writeAPIWPJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
+		return
+	}
+	if body.DomainID == "" || body.AdminUsername == "" || body.AdminPassword == "" {
+		writeAPIWPJSON(w, http.StatusBadRequest, map[string]string{"error": "domain_id, admin_username and admin_password are required"})
+		return
+	}
+
+	form := url.Values{
+		"domain_id": {body.DomainID}, "admin_email": {body.AdminEmail}, "website_name": {body.WebsiteName},
+		"site_description": {body.SiteDescription}, "admin_username": {body.AdminUsername}, "admin_password": {body.AdminPassword},
+		"wordpress_version": {body.WordPressVersion}, "subdirectory": {body.Subdirectory},
+		"db_name": {body.DBName}, "db_user": {body.DBUser}, "db_password": {body.DBPassword}, "db_prefix": {body.DBPrefix},
+	}
+	handleInstallPage(a, w, withWPForm(r, form))
+}
+
+// apiWordPressClone delegates straight to handleCloneWordPress, which
+// already writes a JSON response as-is.
+func apiWordPressClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		SourceDomain         string `json:"source_domain"`
+		TargetDomain         string `json:"target_domain"`
+		SourceDB             string `json:"source_db"`
+		SourceFolder         string `json:"source_folder"`
+		Subdirectory         string `json:"subdirectory"`
+		TargetDB             string `json:"target_db"`
+		TargetDBUser         string `json:"target_db_user"`
+		TargetDBUserPassword string `json:"target_db_user_password"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		writeAPIWPJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
+		return
+	}
+
+	form := url.Values{
+		"source_domain": {body.SourceDomain}, "target_domain": {body.TargetDomain},
+		"source_db": {body.SourceDB}, "source_folder": {body.SourceFolder}, "subdirectory": {body.Subdirectory},
+		"target_db": {body.TargetDB}, "target_db_user": {body.TargetDBUser}, "target_db_user_password": {body.TargetDBUserPassword},
+	}
+	handleCloneWordPress(a, w, withWPForm(r, form))
+}
+
+// apiWordPressScan mirrors handleScanWordPress's filesystem walk (finding
+// WP installs not yet tracked in the sites table and inserting them - the
+// same "checkSiteAlreadyExistsForUser" gate, just inverted from
+// apiWordPressReload's "only touch what's already tracked"), returning a
+// structured JSON list instead of a plain-text summary.
+func apiWordPressScan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, currentUsername, userContext, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	lockPath := lockFilePath(currentUsername)
+	if info, statErr := os.Stat(lockPath); statErr == nil {
+		if time.Since(info.ModTime()) < time.Minute {
+			writeAPIWPJSON(w, http.StatusConflict, map[string]string{"error": "A WordPress installation is currently running"})
+			return
+		}
+		_ = os.Remove(lockPath)
+	}
+
+	_ = logger.RecordUserAction(a.Config, currentUsername, "initiated scan for WordPress installations", reqip.ClientIP(r))
+
+	wwwBaseDirectory := "/var/www/html/"
+	baseDirectory := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
+	phpContainer := phpContainerForUser(userContext)
+	wpBase := podmanmanager.BuildWPCLIBaseCommand(userContext, phpContainer)
+
+	type foundSite struct {
+		ConfigFile string `json:"config_file"`
+		Domain     string `json:"domain"`
+		Email      string `json:"admin_email"`
+		Version    string `json:"version"`
+	}
+	installations := []foundSite{}
+
+	walkForWPConfig(baseDirectory, func(root string) {
+		containerRoot := strings.Replace(root, baseDirectory, wwwBaseDirectory, 1)
+		configFilePath := strings.TrimPrefix(containerRoot, "/")
+
+		siteURLArgv := append(append([]string{}, wpBase...), "--skip-themes", "--allow-root", "--path="+containerRoot, "option", "get", "siteurl")
+		out, runErr := podmanmanager.Command(ctx, userContext, siteURLArgv).Output()
+		if runErr != nil {
+			return
+		}
+		lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+		siteURL := ""
+		for _, l := range lines {
+			if strings.TrimSpace(l) != "" {
+				siteURL = strings.TrimSpace(l)
+			}
+		}
+		siteName := strings.TrimPrefix(strings.TrimPrefix(siteURL, "http://"), "https://")
+		domainName := siteName
+		if idx := strings.Index(siteName, "/"); idx != -1 {
+			domainName = siteName[:idx]
+		}
+
+		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+			return
+		}
+		if checkSiteAlreadyExistsForUser(ctx, a, siteName) {
+			return
+		}
+
+		emailArgv := append(append([]string{}, wpBase...), "--skip-themes", "--allow-root", "--path="+containerRoot, "option", "get", "admin_email")
+		emailOut, emailErr := podmanmanager.Command(ctx, userContext, emailArgv).Output()
+		adminEmail := strings.TrimSpace(string(emailOut))
+		if emailErr != nil || !strings.Contains(adminEmail, "@") {
+			return
+		}
+
+		versionArgv := append(append([]string{}, wpBase...), "--skip-themes", "--allow-root", "--path="+containerRoot, "core", "version")
+		versionOut, versionErr := podmanmanager.Command(ctx, userContext, versionArgv).Output()
+		if versionErr != nil {
+			return
+		}
+		version := strings.TrimSpace(string(versionOut))
+
+		domainID, _ := getDomainID(ctx, a, domainName)
+		if _, insertErr := a.DB.ExecContext(ctx, "INSERT INTO sites (site_name, domain_id, admin_email, version, type) VALUES (?, ?, ?, ?, ?)",
+			siteName, domainID, adminEmail, version, "WordPress"); insertErr != nil {
+			return
+		}
+		_ = a.Cache.Delete(ctx, fmt.Sprintf("get_user_websites:%d", userID))
+
+		installations = append(installations, foundSite{ConfigFile: configFilePath, Domain: domainName, Email: adminEmail, Version: version})
+	})
+
+	writeAPIWPJSON(w, http.StatusOK, map[string]any{"message": "Scan completed", "installations": installations, "count": len(installations)})
 }

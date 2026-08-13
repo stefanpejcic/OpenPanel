@@ -895,10 +895,11 @@
       {
         "method": "PATCH",
         "path": "/api/containers/<service>/resources",
-        "description": "Update CPU/RAM limits.",
+        "description": "Update CPU/RAM/PIDs limits.",
         "body": {
           "cpu": "1",
-          "ram": "512m"
+          "ram": "512m",
+          "pids": "512"
         }
       },
       {
@@ -1139,6 +1140,40 @@
           "domain": "example.com",
           "version": "8.2"
         }
+      }
+    ]
+  },
+  {
+    "group": "PHP App Manager",
+    "feature": "php",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/php/install",
+        "description": "Install a Composer-based PHP project into an existing domain's docroot (form-encoded body; response streams newline-delimited JSON progress events)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/php/apps/composer-install/<site_name>",
+        "description": "Re-run `composer install` for an already-installed PHP app."
+      },
+      {
+        "method": "POST",
+        "path": "/api/php/apps/composer-update/<site_name>",
+        "description": "Re-run `composer update` for an already-installed PHP app.",
+        "body": {
+          "optimize_autoloader": "true"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/php/apps/logs/<site_name>",
+        "description": "Get the Composer run log for a PHP app."
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/php/apps/<site_name>",
+        "description": "Remove a PHP app's tracking entry and .env settings. Docroot files and the database, if any, are left untouched."
       }
     ]
   },
@@ -1701,6 +1736,39 @@
         "method": "GET",
         "path": "/api/sites/<domain>/wp-info",
         "description": "Get PHP/MySQL/WordPress versions and database credentials for a WordPress site."
+      },
+      {
+        "method": "GET",
+        "path": "/api/sites/wp-cli/<action>",
+        "description": "Site-manager scoped WP-CLI passthrough (site info, debug flags, update preferences) - distinct action set from POST /api/wp-cli/<action>.",
+        "params": "action: site_info, update_debug, update_site_information, update_now, update_update_preferences, debug_info, update_info; query: website (or domain), docroot"
+      },
+      {
+        "method": "GET",
+        "path": "/api/sites/<domain>/favicon",
+        "description": "Redirect to the site's favicon (Google favicon service, or a configured favicon proxy)."
+      },
+      {
+        "method": "GET",
+        "path": "/api/sites/<domain>/screenshot",
+        "description": "Get a cached screenshot of the site (fetches and caches one if not already cached)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/sites/<domain>/screenshot",
+        "description": "Force-refresh the cached screenshot."
+      },
+      {
+        "method": "GET",
+        "path": "/api/sites/database-size",
+        "description": "Get a WordPress install's on-disk DB size (via `wp db size`) or a raw database's size, depending on which query parameter is supplied.",
+        "params": "query: domain + docroot (WordPress), or database (raw MySQL database)"
+      },
+      {
+        "method": "POST",
+        "path": "/api/sites/<domain>/packages/<install_type>",
+        "description": "Re-run the package install (pip/npm/pnpm) for an already-created Node.js/Python app.",
+        "params": "install_type: pip, npm, pnpm"
       }
     ]
   },
@@ -1712,6 +1780,45 @@
         "method": "GET",
         "path": "/api/wordpress",
         "description": "List all WordPress installations."
+      },
+      {
+        "method": "POST",
+        "path": "/api/wordpress/install",
+        "description": "Install WordPress on a domain. Streams newline-delimited JSON progress events as the install runs (download, extract, DB setup, wp core install, plugin/theme sets), same as the panel's own install page.",
+        "body": {
+          "domain_id": "42",
+          "admin_email": "admin@example.com",
+          "website_name": "My Blog",
+          "site_description": "My WordPress Blog",
+          "admin_username": "admin",
+          "admin_password": "changeme",
+          "wordpress_version": "latest",
+          "subdirectory": "",
+          "db_name": "",
+          "db_user": "",
+          "db_password": "",
+          "db_prefix": "wp_"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/wordpress/clone",
+        "description": "Clone an existing WordPress site to another domain (or subdirectory).",
+        "body": {
+          "source_domain": "example.com",
+          "target_domain": "clone.example.com",
+          "source_db": "wp_source",
+          "source_folder": "",
+          "subdirectory": "",
+          "target_db": "",
+          "target_db_user": "",
+          "target_db_user_password": ""
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/wordpress/scan",
+        "description": "Scan the filesystem for WordPress installations not yet tracked by WP Manager and register any found. Distinct from POST /api/wordpress/reload, which only refreshes info for installations already tracked."
       },
       {
         "method": "GET",
@@ -2099,6 +2206,11 @@
         "method": "GET",
         "path": "/api/dashboard/disk-inodes",
         "description": "Get the dashboard's disk/inode usage widget data."
+      },
+      {
+        "method": "POST",
+        "path": "/api/dashboard/tour/complete",
+        "description": "Mark the onboarding tour as completed so it doesn't reappear."
       }
     ]
   },

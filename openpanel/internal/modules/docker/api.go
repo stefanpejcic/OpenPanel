@@ -213,13 +213,15 @@ func apiContainerResources(a *appctx.App, w http.ResponseWriter, r *http.Request
 	planID, _ := injected["hosting_plan"].(int)
 
 	var body struct {
-		CPU string `json:"cpu"`
-		RAM string `json:"ram"`
+		CPU  string `json:"cpu"`
+		RAM  string `json:"ram"`
+		PIDs string `json:"pids"`
 	}
 	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
 		_ = r.ParseForm()
 		body.CPU = r.Form.Get("cpu")
 		body.RAM = r.Form.Get("ram")
+		body.PIDs = r.Form.Get("pids")
 	}
 
 	results := map[string]any{}
@@ -236,8 +238,18 @@ func apiContainerResources(a *appctx.App, w http.ResponseWriter, r *http.Request
 		_ = logger.RecordUserAction(a.Config, currentUsername, "updated "+resource.name+" limit for "+service+" to "+resource.value, reqip.ClientIP(r))
 	}
 
+	if pids := strings.TrimSpace(body.PIDs); pids != "" {
+		message, success := updateContainerPIDs(ctx, userContext, service, pids)
+		if !success {
+			writeAPIDockerJSON(w, http.StatusInternalServerError, map[string]string{"error": message})
+			return
+		}
+		results["pids"] = message
+		_ = logger.RecordUserAction(a.Config, currentUsername, "updated pids limit for "+service+" to "+pids, reqip.ClientIP(r))
+	}
+
 	if len(results) == 0 {
-		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Provide cpu and/or ram in request body"})
+		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Provide cpu, ram and/or pids in request body"})
 		return
 	}
 	writeAPIDockerJSON(w, http.StatusOK, map[string]any{"message": "Resources updated", "results": results})
