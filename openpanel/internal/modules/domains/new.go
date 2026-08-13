@@ -171,6 +171,9 @@ func handleDomainsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	flusher, canFlush := w.(http.Flusher)
 
 	cmd := exec.Command("opencli", args...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+    Setsid: true,
+}
 	stdout, pipeErr := cmd.StdoutPipe()
 	if pipeErr != nil {
 		fmt.Fprintf(w, "Error: %s\n\n", pipeErr.Error())
