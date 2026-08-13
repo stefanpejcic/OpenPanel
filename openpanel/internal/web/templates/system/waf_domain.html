@@ -3,19 +3,16 @@
 {{define "content"}}
 <!-- START templates/system/waf_domain.html -->
 
-<form method="post" action="/server/waf">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-                <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WAF"}}</h1></div>
-                <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Manage WAF settings for a domain."}}</p>
-        </div>
-
-        <div class="mt-2 gap-2 sm:mt-0 flex sm:inline">
-            <button class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 border-transparent text-white dark:text-gray-900 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-500 dark:hover:bg-indigo-600 disabled:bg-indigo-100 disabled:text-gray-400 disabled:dark:bg-indigo-800 disabled:dark:text-indigo-400" type="submit">{{.T.Get "Save"}}</button>
-        </div>
+<div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WAF"}}</h1></div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Manage WAF settings for a domain."}}</p>
     </div>
+
+    <div class="mt-2 gap-2 sm:mt-0 flex sm:inline">
+        <button class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 border-transparent text-white dark:text-gray-900 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-500 dark:hover:bg-indigo-600 disabled:bg-indigo-100 disabled:text-gray-400 disabled:dark:bg-indigo-800 disabled:dark:text-indigo-400" type="submit" form="waf-rules-form">{{.T.Get "Save"}}</button>
+    </div>
+</div>
 
   <div class="m-8">
 
@@ -31,7 +28,8 @@
                 <div class="relative w-full mt-2">
                     <div class="row form-selectgroup form-selectgroup-boxes d-flex">
                         <div class="mt-4 grid grid-cols-1 gap-4">
-                                <label class="inline-flex items-center me-5 cursor-pointer">
+                                <form method="post" action="/server/waf" class="inline-flex items-center me-5 cursor-pointer">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
         <input type="hidden" name="domain_name" value="{{.Domain}}">
         <input type="hidden" name="modsec_action" :value="enabled ? 'Off' : 'On'">
 
@@ -44,6 +42,7 @@
                 class="pointer-events-none relative inline-block transform appearance-none rounded-full border-none shadow-lg outline-none transition-all duration-150 ease-in-out bg-white dark:bg-gray-50 h-4 w-4">
             </span>
         </button>
+                                </form>
                         </div>
                     </div>
                 </div>
@@ -54,6 +53,8 @@
 </div>
 <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
 
+<form id="waf-rules-form" method="post" action="/server/waf/{{.Domain}}">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
 <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
     <div>
@@ -225,11 +226,9 @@
 </div>
 <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
 
-
+</form>
 
 </div>
-
-</form>
 
 <!-- END templates/system/waf_domain.html -->
 {{end}}
