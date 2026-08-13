@@ -18,6 +18,7 @@ To customize OpenPanel, you have the following options:
 - [Create a custom module for OpenPanel](#create-custom-module)
 - [Self-hosted temporary links for SiteManager](/docs/articles/dev-experience/selfhosted-temporary-links-api/)
 - [Self-hosted screenshots for SiteManager](/docs/articles/dev-experience/selfhosted-screenshots-api/)
+- [Customize robots.txt and security.txt](/docs/articles/security/robots-and-security-txt/)
 
 
 

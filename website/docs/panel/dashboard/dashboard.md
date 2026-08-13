@@ -44,3 +44,11 @@ If enabled by the Administrator, the How-to guides section will display links to
 ## Favorites
 
 When [Favorites feature](/docs/admin/settings/openpanel/#enable-features) is enabled by Administrator, users can bookmark up to 10 pages from the OpenPanel interface. These pages will appear in the sidebar menu. To add a page to favorites, simply left-click the star icon in the top-right corner of any page. To remove a page, right-click the same icon.
+
+## Search
+
+The search box in the sidebar searches across pages/features, files and folders, websites, domains, email accounts, FTP accounts, containers, services, cron jobs, and MySQL/PostgreSQL databases and users. Results are limited to what's enabled on your plan — some entity types (databases, domains, emails, FTP, containers, services, websites, cron jobs) additionally require an Enterprise license.
+
+## Getting Started Tour
+
+On first login, a short guided tour highlights the main areas of the interface. You can skip it at any time; it won't reappear once dismissed.

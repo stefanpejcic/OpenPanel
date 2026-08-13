@@ -125,6 +125,14 @@ You can also [add your own PageSpeed Insights API key](/docs/articles/websites/g
 
 ![speed](/img/panel/v2/speed.png)
 
+### Safe Browsing
+
+Checks your domain against the **Google Safe Browsing** API for malware, social engineering, unwanted software, and other flagged threats. Results are cached for 12 hours.
+
+### Vulnerability Scan
+
+Scans the site's WordPress core, plugin, and theme versions for known vulnerabilities. A fresh scan runs automatically if no cached report exists yet, or can be triggered manually.
+
 ### Cache
 
 Cache widget displays the current [wp cache type](https://developer.wordpress.org/cli/commands/cache/type/) on your website and an option to purge the cache.
