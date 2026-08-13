@@ -34,6 +34,45 @@ var webserverHideFilters = map[string][]string{
 	"openresty":     {"apache", "nginx", "openlitespeed", "litespeed"},
 }
 
+// filterContainerServices drops every OTHER webserver's service (per
+// webserverHideFilters) and the inactive MySQL/MariaDB variant, using exact
+// name matches - NOT strings.Contains, which would make "openlitespeed"
+// hide itself since it contains "litespeed" as a substring.
+func filterContainerServices(services map[string]any, webserver, mysqlType string) map[string]any {
+	filtered := map[string]any{}
+	hide := webserverHideFilters[webserver]
+	for name, details := range services {
+		lower := strings.ToLower(name)
+		skip := false
+		for _, h := range hide {
+			if lower == h {
+				skip = true
+				break
+			}
+		}
+		if skip {
+			continue
+		}
+		filtered[name] = details
+	}
+
+	if mysqlType == "mysql" {
+		for name := range filtered {
+			if strings.Contains(strings.ToLower(name), "mariadb") {
+				delete(filtered, name)
+			}
+		}
+	} else if mysqlType == "mariadb" {
+		for name := range filtered {
+			if strings.Contains(strings.ToLower(name), "mysql") {
+				delete(filtered, name)
+			}
+		}
+	}
+
+	return filtered
+}
+
 // handleContainersList serves the containers page, with services filtered
 // to the active webserver and MySQL/MariaDB variant.
 func handleContainersList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -61,38 +100,7 @@ func handleContainersList(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		log.Printf("DOCKER - user %s: failed to load compose config, showing 0 containers: %v", userContext, dataErr)
 		dockerData = map[string]any{"error": "Failed to fetch container data", "details": dataErr.Error()}
 	} else if services, ok := dockerData["services"].(map[string]any); ok {
-		filtered := map[string]any{}
-		hide := webserverHideFilters[webserver]
-		for name, details := range services {
-			lower := strings.ToLower(name)
-			skip := false
-			for _, h := range hide {
-				if strings.Contains(lower, h) {
-					skip = true
-					break
-				}
-			}
-			if skip {
-				continue
-			}
-			filtered[name] = details
-		}
-
-		if mysqlType == "mysql" {
-			for name := range filtered {
-				if strings.Contains(strings.ToLower(name), "mariadb") {
-					delete(filtered, name)
-				}
-			}
-		} else if mysqlType == "mariadb" {
-			for name := range filtered {
-				if strings.Contains(strings.ToLower(name), "mysql") {
-					delete(filtered, name)
-				}
-			}
-		}
-
-		dockerData["services"] = filtered
+		dockerData["services"] = filterContainerServices(services, webserver, mysqlType)
 	} else {
 		dockerData = map[string]any{"error": "Invalid data format", "details": "docker_data does not contain 'services'."}
 	}
