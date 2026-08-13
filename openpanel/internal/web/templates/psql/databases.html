@@ -108,36 +108,70 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-                    {{if .Databases}}
-                    {{range .Databases}}
-                    {{$db := .}}
-                    <tr x-show="searchQuery === '' || {{toJSON $db.Database}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $db.AssignedUsers}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{$db.Database}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 db_size"></td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{$db.AssignedUsers}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                            <div class="flex gap-2">
-                                {{if $db.IsSystem}}
-                                <span class="bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">{{$.T.Get "System Database"}}</span>
-                                {{else}}
-                                    {{if $.UserAllowed.postgresql_import}}
-                                    <a href="/postgresql/import/{{$db.Database}}" class="btn btn-primary" type="button"><i class="bi bi-database-fill-add mr-1"></i>{{$.T.Get "Import"}}</a>
+                {{if eq .ContainerState "running"}}
+                    {{if eq .HealthStatus "healthy"}}
+                        {{if .Databases}}
+                        {{range .Databases}}
+                        {{$db := .}}
+                        <tr x-show="searchQuery === '' || {{toJSON $db.Database}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $db.AssignedUsers}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{$db.Database}}</td>
+                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 db_size"></td>
+                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{$db.AssignedUsers}}</td>
+                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                                <div class="flex gap-2">
+                                    {{if $db.IsSystem}}
+                                    <span class="bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">{{$.T.Get "System Database"}}</span>
+                                    {{else}}
+                                        {{if $.UserAllowed.postgresql_import}}
+                                        <a href="/postgresql/import/{{$db.Database}}" class="btn btn-primary" type="button"><i class="bi bi-database-fill-add mr-1"></i>{{$.T.Get "Import"}}</a>
+                                        {{end}}
+                                        <form method="POST" action="/postgresql/delete">
+                                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                                            <input type="hidden" name="database_name" value="{{$db.Database}}">
+                                            <button class="btn btn-danger" type="button" onclick="confirmDelete(this);"><i class="bi bi-trash3"></i> {{$.T.Get "Delete"}}</button>
+                                        </form>
                                     {{end}}
-                                    <form method="POST" action="/postgresql/delete">
-                                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
-                                        <input type="hidden" name="database_name" value="{{$db.Database}}">
-                                        <button class="btn btn-danger" type="button" onclick="confirmDelete(this);"><i class="bi bi-trash3"></i> {{$.T.Get "Delete"}}</button>
-                                    </form>
-                                {{end}}
-                            </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {{end}}
+                        {{else}}
+                        <tr>
+                            <td colspan="4" class="p-6 text-center">{{.T.Get "No databases yet."}} <a href="/postgresql/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Create your first database"}}</a></td>
+                        </tr>
+                        {{end}}
+                    {{else}}
+                    <tr>
+                        <td colspan="4" class="p-6 text-center">
+                            {{.StatusDetail}}
+                            <br><span id="refresh-message"></span>
                         </td>
                     </tr>
                     {{end}}
-                    {{else}}
+                {{else}}
                     <tr>
-                        <td colspan="4" class="text-center p-4 text-gray-500">{{.T.Get "No databases"}}</td>
+                        <td colspan="4" class="p-6 text-center">
+                            {{.StatusDetail}}
+                            <br>
+                            <span id="refresh-message"></span>
+                        </td>
                     </tr>
-                    {{end}}
+                {{end}}
+                {{if ne .HealthStatus "healthy"}}
+                <script>
+                    let countdown = 5;
+                    const messageEl = document.getElementById('refresh-message');
+                    const interval = setInterval(() => {
+                        if (countdown > 0) {
+                            messageEl.textContent = `{{.T.Get "The page will refresh in"}} ${countdown} {{.T.Get "seconds"}}`;
+                            countdown--;
+                        } else {
+                            clearInterval(interval);
+                            window.location.reload();
+                        }
+                    }, 1000);
+                </script>
+                {{end}}
                 </tbody>
             </table>
         </div>

@@ -66,6 +66,43 @@ func filteredRolesSQL() string {
 	return out
 }
 
+// postgresContainerStatusDetail builds the explanatory text shown in the
+// databases table's empty-state row while the service isn't
+// running/healthy - mirrors mysqlContainerStatusDetail so both templates
+// give users the same guidance. Returns "" for the running+healthy case,
+// where the real table rows render instead.
+func postgresContainerStatusDetail(containerState, healthStatus string) string {
+	switch containerState {
+	case "not_found":
+		return "Service installation is underway and may take up to one minute."
+	case "created":
+		return "Service has been created but not yet started. Start it from the Services page."
+	case "restarting":
+		return "Service is restarting. This may indicate a configuration error or a crash — check the logs on the Services page."
+	case "paused":
+		return "Service is paused. Resume it from the Services page."
+	case "exited":
+		return "Service has stopped. This is usually caused by resource exhaustion — increase resource limits for this service and then restart it from the Services page."
+	case "removing":
+		return "Service is being deleted. Please wait for the process to complete."
+	case "dead":
+		return "Service has crashed and cannot recover. This is usually caused by resource exhaustion — check the logs on the Services page."
+	case "running":
+		switch healthStatus {
+		case "healthy":
+			return ""
+		case "unhealthy":
+			return "Service is unhealthy. Try restarting it from Services, or contact your administrator."
+		case "starting":
+			return "Service is active, but the databases are still initializing."
+		default:
+			return "Unable to retrieve service status. Please contact your administrator."
+		}
+	default:
+		return "Unable to retrieve service status. Please contact your administrator."
+	}
+}
+
 func isSystemDatabase(name string) bool {
 	switch name {
 	case "postgres", "template0", "public", "template1":

@@ -54,6 +54,10 @@ type DatabasesPageData struct {
 	Databases []DatabaseRow
 	Unit      string
 	ShowAll   bool
+	// StatusDetail is the longer explanatory text shown in the table's
+	// empty-state row while the service isn't running/healthy ("" when
+	// running+healthy, since the real rows render instead).
+	StatusDetail string
 }
 
 func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, databases []DatabaseRow, unit string, showAll bool) {
@@ -66,6 +70,7 @@ func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		LayoutData:        layout,
 		ServiceStatusData: ServiceStatusData{ContainerState: status.State, HealthStatus: status.Health},
 		Databases:         databases, Unit: unit, ShowAll: showAll,
+		StatusDetail: postgresContainerStatusDetail(status.State, status.Health),
 	}
 	if err := databasesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - databases template render error: %v", err)

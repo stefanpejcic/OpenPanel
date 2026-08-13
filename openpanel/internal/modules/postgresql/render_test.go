@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
@@ -35,6 +36,28 @@ func TestRenderAllPages(t *testing.T) {
 			Databases: []DatabaseRow{{Database: "mydb", AssignedUsers: "bob", IsSystem: false}, {Database: "postgres", IsSystem: true}}}
 		if err := databasesPage.Render(w, 200, data); err != nil {
 			t.Fatalf("databases: %v", err)
+		}
+	})
+	t.Run("databases service not running", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		data := DatabasesPageData{
+			LayoutData:        layout,
+			ServiceStatusData: ServiceStatusData{ContainerState: "exited", HealthStatus: ""},
+			Unit:              "mb",
+			StatusDetail:      postgresContainerStatusDetail("exited", ""),
+		}
+		if err := databasesPage.Render(w, 200, data); err != nil {
+			t.Fatalf("databases: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, "Service has stopped") {
+			t.Error("expected StatusDetail message in body when service isn't running")
+		}
+		if !strings.Contains(body, "refresh-message") || !strings.Contains(body, "window.location.reload()") {
+			t.Error("expected the countdown-and-reload script when not healthy")
+		}
+		if !strings.Contains(body, "cursor-not-allowed") {
+			t.Error("New Database button should render as disabled while the service isn't running")
 		}
 	})
 	t.Run("new", func(t *testing.T) {
