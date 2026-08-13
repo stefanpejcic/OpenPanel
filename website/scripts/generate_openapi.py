@@ -92,6 +92,8 @@ QUERY_PARAMS = {
     ("GET", "/api/pm2/{domain}/logs"): ["lines"],
     ("GET", "/api/file-manager/download-file/{filename}"): ["path_param"],
     ("GET", "/api/file-manager/view-file/{filename}"): ["path_param"],
+    ("GET", "/api/account/activity"): ["page", "search", "show_all"],
+    ("GET", "/api/search/{what}"): ["q", "folder", "ext"],
 }
 
 # File-download responses, keyed by (method, openapi_path) -> content type.
@@ -106,6 +108,7 @@ FILE_RESPONSES = {
     ("GET", "/api/postgresql/databases/{db_name}/export"): "application/sql",
     ("GET", "/api/ftp/configuration/{config_type}/{account}"): "application/xml",
     ("GET", "/api/file-manager/view-file/{filename}"): "text/plain",
+    ("POST", "/api/backups/download"): "application/gzip",
 }
 
 # Multipart/form endpoints, keyed by openapi_path -> (content_type, schema)

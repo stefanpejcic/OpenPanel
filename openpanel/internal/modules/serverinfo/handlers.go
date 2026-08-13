@@ -105,6 +105,27 @@ func handleUsageHistory(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderUsageHistoryPage(a, w, r, chartsMode, showAll, itemsPerPage, totalPages, totalLines, currentPage, paginated)
 }
 
+// buildHostingInfo gathers platform/uname info, uptime, load average, and
+// the server's public IP - the data behind both /json/system/hosting/info
+// and /api/hosting/info (and, combined with buildHostingPlan/Ports, the
+// single-call /api/server/info).
+func buildHostingInfo(a *appctx.App, r *http.Request, username string) map[string]any {
+	uptime, loadAvg := getUptimeAndLoad()
+	platform := getPlatformInfo()
+
+	return map[string]any{
+		"system":    platform.System,
+		"node":      platform.Node,
+		"release":   platform.Release,
+		"version":   platform.Version,
+		"machine":   platform.Machine,
+		"processor": platform.Processor,
+		"ip":        a.GetCachedIPForUserOrPublicIPv4(r.Context(), username),
+		"uptime":    uptime,
+		"load_avg":  loadAvg,
+	}
+}
+
 // handleSystemHostingInfo returns platform/uname info, uptime, load
 // average, and the server's public IP.
 func handleSystemHostingInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -115,33 +136,14 @@ func handleSystemHostingInfo(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 	username, _ := data["current_username"].(string)
 
-	uptime, loadAvg := getUptimeAndLoad()
-	platform := getPlatformInfo()
-
-	writeJSON(w, http.StatusOK, map[string]any{
-		"system":    platform.System,
-		"node":      platform.Node,
-		"release":   platform.Release,
-		"version":   platform.Version,
-		"machine":   platform.Machine,
-		"processor": platform.Processor,
-		"ip":        a.GetCachedIPForUserOrPublicIPv4(r.Context(), username),
-		"uptime":    uptime,
-		"load_avg":  loadAvg,
-	})
+	writeJSON(w, http.StatusOK, buildHostingInfo(a, r, username))
 }
 
-// handleSystemHostingPlan returns the user's hosting plan limits plus the
-// webserver/mysql type and nameservers configured for their context.
-func handleSystemHostingPlan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	data, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	userContext, _ := data["context"].(string)
-	planID, _ := data["hosting_plan"].(int)
-
+// buildHostingPlan gathers the user's hosting plan limits plus the
+// webserver/mysql type and nameservers configured for their context - the
+// data behind both /json/system/hosting/plan and /api/hosting/plan (and,
+// combined with buildHostingInfo/Ports, the single-call /api/server/info).
+func buildHostingPlan(a *appctx.App, r *http.Request, userContext string, planID int) map[string]any {
 	plan := appctx.PlanDetails{
 		DomainsLimit: "0", WebsitesLimit: "0", DBLimit: "0", CPU: "0", RAM: "0",
 		EmailLimit: "0", FTPLimit: "0", DiskLimit: "0", InodesLimit: "0",
@@ -161,7 +163,7 @@ func handleSystemHostingPlan(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		ns4 = a.Config.Get("ns4", "")
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	return map[string]any{
 		"context":              userContext,
 		"plan_webserver":       webserver.GetEnvFileValue(userContext, "WEB_SERVER"),
 		"plan_mysql":           webserver.GetEnvFileValue(userContext, "MYSQL_TYPE"),
@@ -178,7 +180,21 @@ func handleSystemHostingPlan(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		"plan_inodes_limit":    plan.InodesLimit,
 		"plan_bandwidth":       plan.Bandwidth,
 		"ns1":                  ns1, "ns2": ns2, "ns3": ns3, "ns4": ns4,
-	})
+	}
+}
+
+// handleSystemHostingPlan returns the user's hosting plan limits plus the
+// webserver/mysql type and nameservers configured for their context.
+func handleSystemHostingPlan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	data, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	userContext, _ := data["context"].(string)
+	planID, _ := data["hosting_plan"].(int)
+
+	writeJSON(w, http.StatusOK, buildHostingPlan(a, r, userContext, planID))
 }
 
 // getEnvPort reads /home/<context>/.env and, for host:port style values,
@@ -208,6 +224,17 @@ func getEnvPort(context, key string) string {
 	return ""
 }
 
+// buildHostingPorts gathers the host-exposed ports for the user's MySQL
+// and Postgres containers - the data behind both
+// /json/system/hosting/ports and /api/hosting/ports (and, combined with
+// buildHostingInfo/Plan, the single-call /api/server/info).
+func buildHostingPorts(username string) map[string]any {
+	return map[string]any{
+		"remote_mysql_port":    getEnvPort(username, "MYSQL_PORT"),
+		"remote_postgres_port": getEnvPort(username, "POSTGRES_PORT"),
+	}
+}
+
 // handleSystemHostingPorts returns the host-exposed ports for the user's
 // MySQL and Postgres containers.
 func handleSystemHostingPorts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -218,8 +245,5 @@ func handleSystemHostingPorts(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	username, _ := data["current_username"].(string)
 
-	writeJSON(w, http.StatusOK, map[string]any{
-		"remote_mysql_port":    getEnvPort(username, "MYSQL_PORT"),
-		"remote_postgres_port": getEnvPort(username, "POSTGRES_PORT"),
-	})
+	writeJSON(w, http.StatusOK, buildHostingPorts(username))
 }

@@ -61,7 +61,7 @@ var alwaysOn = []Registrar{
 	account.RegisterAPILogin,      // /api/login, no additional API-key gate
 	api.Register,                  // /api/endpoints, gated internally via apiregistry.Handle
 	dashboard.Register,
-	dashboard.RegisterAPI, // gated internally via apiregistry.Handle
+	dashboard.RegisterAPI,             // gated internally via apiregistry.Handle
 	serverinfo.RegisterHostingJSON,    // core helper endpoint, always available
 	serverinfo.RegisterHostingAPI,     // API twin of RegisterHostingJSON, always available
 	appinstall.RegisterShared,         // docker tags + check_if_file_exists helpers
@@ -70,6 +70,7 @@ var alwaysOn = []Registrar{
 	appinstall.RegisterPM2API,         // gated internally via apiregistry.Handle ("pm2" feature)
 	filemanager.RegisterDirectorySize, // get_folder_size helper
 	search.Register,                   // unconditional, gated per-what internally
+	search.RegisterAPI,                // API twin of search.Register, gated internally via apiregistry.Handle
 	websites.Register,                 // part of mainModules = ["dashboard", "websites"] (see internal/app)
 	websites.RegisterSitesAPI,         // gated internally via apiregistry.Handle
 	plugins.Register,                  // only registers a route if plugin_names is non-empty, gated internally
@@ -90,18 +91,24 @@ var configured = map[string]Registrar{
 		docker.RegisterAPI(mux, a)
 		docker.RegisterContainerManageAPI(mux, a)
 	},
-	"services":        func(mux *http.ServeMux, a *appctx.App) { services.Register(mux, a); services.RegisterAPI(mux, a) },
-	"filemanager":     func(mux *http.ServeMux, a *appctx.App) { filemanager.Register(mux, a); filemanager.RegisterAPI(mux, a) },
-	"disk_usage":      func(mux *http.ServeMux, a *appctx.App) { diskusage.Register(mux, a); diskusage.RegisterAPI(mux, a) },
-	"inodes":          func(mux *http.ServeMux, a *appctx.App) { inodes.Register(mux, a); inodes.RegisterAPI(mux, a) },
-	"fix_permissions": func(mux *http.ServeMux, a *appctx.App) { fixpermissions.Register(mux, a); fixpermissions.RegisterAPI(mux, a) },
-	"malware_scan":    func(mux *http.ServeMux, a *appctx.App) { malwarescan.Register(mux, a); malwarescan.RegisterAPI(mux, a) },
-	"trash":           func(mux *http.ServeMux, a *appctx.App) { trash.Register(mux, a); trash.RegisterAPI(mux, a) },
-	"ftp":             func(mux *http.ServeMux, a *appctx.App) { ftp.Register(mux, a); ftp.RegisterAPI(mux, a) },
-	"backup_wizard":   func(mux *http.ServeMux, a *appctx.App) { backupwizard.Register(mux, a); backupwizard.RegisterAPI(mux, a) },
-	"backups":         backups.Register,
-	"domains":         func(mux *http.ServeMux, a *appctx.App) { domains.Register(mux, a); domains.RegisterAPI(mux, a) },
-	"goaccess":        func(mux *http.ServeMux, a *appctx.App) { goaccess.Register(mux, a); goaccess.RegisterAPI(mux, a) },
+	"services":    func(mux *http.ServeMux, a *appctx.App) { services.Register(mux, a); services.RegisterAPI(mux, a) },
+	"filemanager": func(mux *http.ServeMux, a *appctx.App) { filemanager.Register(mux, a); filemanager.RegisterAPI(mux, a) },
+	"disk_usage":  func(mux *http.ServeMux, a *appctx.App) { diskusage.Register(mux, a); diskusage.RegisterAPI(mux, a) },
+	"inodes":      func(mux *http.ServeMux, a *appctx.App) { inodes.Register(mux, a); inodes.RegisterAPI(mux, a) },
+	"fix_permissions": func(mux *http.ServeMux, a *appctx.App) {
+		fixpermissions.Register(mux, a)
+		fixpermissions.RegisterAPI(mux, a)
+	},
+	"malware_scan": func(mux *http.ServeMux, a *appctx.App) { malwarescan.Register(mux, a); malwarescan.RegisterAPI(mux, a) },
+	"trash":        func(mux *http.ServeMux, a *appctx.App) { trash.Register(mux, a); trash.RegisterAPI(mux, a) },
+	"ftp":          func(mux *http.ServeMux, a *appctx.App) { ftp.Register(mux, a); ftp.RegisterAPI(mux, a) },
+	"backup_wizard": func(mux *http.ServeMux, a *appctx.App) {
+		backupwizard.Register(mux, a)
+		backupwizard.RegisterAPI(mux, a)
+	},
+	"backups":  func(mux *http.ServeMux, a *appctx.App) { backups.Register(mux, a); backups.RegisterAPI(mux, a) },
+	"domains":  func(mux *http.ServeMux, a *appctx.App) { domains.Register(mux, a); domains.RegisterAPI(mux, a) },
+	"goaccess": func(mux *http.ServeMux, a *appctx.App) { goaccess.Register(mux, a); goaccess.RegisterAPI(mux, a) },
 	"php": func(mux *http.ServeMux, a *appctx.App) {
 		php.Register(mux, a)
 		php.RegisterOptionsAPI(mux, a)
@@ -159,7 +166,10 @@ var configured = map[string]Registrar{
 		emails.RegisterWebmailAPI(mux, a)
 	},
 	"crons": func(mux *http.ServeMux, a *appctx.App) { crons.Register(mux, a); crons.RegisterAPI(mux, a) },
-	"info":  serverinfo.RegisterInfo,
+	"info": func(mux *http.ServeMux, a *appctx.App) {
+		serverinfo.RegisterInfo(mux, a)
+		serverinfo.RegisterInfoAPI(mux, a)
+	},
 	"usage": func(mux *http.ServeMux, a *appctx.App) {
 		serverinfo.RegisterUsage(mux, a)
 		serverinfo.RegisterUsageAPI(mux, a)
@@ -178,8 +188,14 @@ var configured = map[string]Registrar{
 		account.RegisterSettings(mux, a)
 		account.RegisterAccountAPI(mux, a)
 	},
-	"locale": func(mux *http.ServeMux, a *appctx.App) { account.RegisterLocale(mux, a); account.RegisterLocaleAPI(mux, a) },
-	"twofa":  func(mux *http.ServeMux, a *appctx.App) { account.RegisterTwofa(mux, a); account.RegisterTwofaAPI(mux, a) },
+	"locale": func(mux *http.ServeMux, a *appctx.App) {
+		account.RegisterLocale(mux, a)
+		account.RegisterLocaleAPI(mux, a)
+	},
+	"twofa": func(mux *http.ServeMux, a *appctx.App) {
+		account.RegisterTwofa(mux, a)
+		account.RegisterTwofaAPI(mux, a)
+	},
 	"passkeys": func(mux *http.ServeMux, a *appctx.App) {
 		account.RegisterPasskeys(mux, a)
 		account.RegisterPasskeysAPI(mux, a)
@@ -188,9 +204,15 @@ var configured = map[string]Registrar{
 		account.RegisterNotifications(mux, a)
 		account.RegisterNotificationsAPI(mux, a)
 	},
-	"favorites": func(mux *http.ServeMux, a *appctx.App) { account.RegisterFavorites(mux, a); account.RegisterFavoritesAPI(mux, a) },
-	"sessions":  account.RegisterSessions,
-	"activity":  account.RegisterActivity,
+	"favorites": func(mux *http.ServeMux, a *appctx.App) {
+		account.RegisterFavorites(mux, a)
+		account.RegisterFavoritesAPI(mux, a)
+	},
+	"sessions": account.RegisterSessions,
+	"activity": func(mux *http.ServeMux, a *appctx.App) {
+		account.RegisterActivity(mux, a)
+		account.RegisterActivityAPI(mux, a)
+	},
 	"login_history": func(mux *http.ServeMux, a *appctx.App) {
 		account.RegisterLoginHistory(mux, a)
 		account.RegisterLoginHistoryAPI(mux, a)
@@ -205,8 +227,8 @@ var configured = map[string]Registrar{
 	"postgresql_conf":   postgresql.RegisterConf,
 	"postgresql_import": postgresql.RegisterImport,
 	"remote_postgresql": postgresql.RegisterRemote,
-	"python": func(mux *http.ServeMux, a *appctx.App) { python.Register(mux, a); python.RegisterAPI(mux, a) },
-	"nodejs": func(mux *http.ServeMux, a *appctx.App) { nodejs.Register(mux, a); nodejs.RegisterAPI(mux, a) },
+	"python":            func(mux *http.ServeMux, a *appctx.App) { python.Register(mux, a); python.RegisterAPI(mux, a) },
+	"nodejs":            func(mux *http.ServeMux, a *appctx.App) { nodejs.Register(mux, a); nodejs.RegisterAPI(mux, a) },
 	"autoinstaller": func(mux *http.ServeMux, a *appctx.App) {
 		autoinstaller.Register(mux, a)
 		autoinstaller.RegisterAPI(mux, a)

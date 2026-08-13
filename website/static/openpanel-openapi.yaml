@@ -110,6 +110,12 @@ tags:
   description: Requires the `dashboard` feature to be enabled on the account's plan.
 - name: Plugins
   description: Requires the `app` feature to be enabled on the account's plan.
+- name: Search
+  description: Requires the `search` feature to be enabled on the account's plan.
+- name: Activity Log
+  description: Requires the `activity` feature to be enabled on the account's plan.
+- name: Backups
+  description: Requires the `backups` feature to be enabled on the account's plan.
 paths:
   /api/login:
     post:
@@ -5141,6 +5147,24 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/server/info:
+    get:
+      summary: Get combined server info, hosting plan, and remote-access ports in one call.
+      operationId: server_info
+      tags:
+      - Hosting Info
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/disk-usage:
     get:
       summary: Disk usage per top-level subdirectory.
@@ -7855,6 +7879,294 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/search/{what}:
+    get:
+      summary: Search the sidebar entity index (files, folders, features, websites, mysql_databases, mysql_users,
+        postgresql_databases, postgresql_users, domains, emails, ftp, containers, services, crons).
+      operationId: search_what
+      tags:
+      - Search
+      parameters:
+      - name: what
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: folder
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: ext
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/account/activity:
+    get:
+      summary: Get the account's activity log, paginated and optionally filtered.
+      operationId: account_activity
+      tags:
+      - Activity Log
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: show_all
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups:
+    get:
+      summary: Get backup status summary (active target, whether the backup service is running).
+      operationId: backups
+      tags:
+      - Backups
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/settings:
+    get:
+      summary: Get the configured backup schedule/retention settings and active target's values.
+      operationId: get_backups_settings
+      tags:
+      - Backups
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update backup schedule/retention settings and/or the active target's credentials.
+      operationId: put_backups_settings
+      tags:
+      - Backups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                values:
+                  type: object
+                  properties:
+                    AWS_ACCESS_KEY_ID:
+                      type: string
+                      example: '...'
+                  example:
+                    AWS_ACCESS_KEY_ID: '...'
+                settings:
+                  type: object
+                  properties:
+                    BACKUP_RETENTION_DAYS:
+                      type: string
+                      example: '7'
+                  example:
+                    BACKUP_RETENTION_DAYS: '7'
+              example:
+                values:
+                  AWS_ACCESS_KEY_ID: '...'
+                settings:
+                  BACKUP_RETENTION_DAYS: '7'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/destination:
+    get:
+      summary: Get the active backup destination and list of available destination types.
+      operationId: get_backups_destination
+      tags:
+      - Backups
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    put:
+      summary: Switch the active backup destination.
+      operationId: put_backups_destination
+      tags:
+      - Backups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target:
+                  type: string
+                  example: s3
+              example:
+                target: s3
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/list:
+    get:
+      summary: List backups available at the configured destination.
+      operationId: backups_list
+      tags:
+      - Backups
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/restore:
+    post:
+      summary: Restore all files, a single database, or files only from a backup archive.
+      operationId: backups_restore
+      tags:
+      - Backups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                backup_file:
+                  type: string
+                  example: user-2026-08-01T00-00-00.tar.gz
+                restore_target:
+                  type: string
+                  example: all
+                database:
+                  type: string
+                  example: ''
+              example:
+                backup_file: user-2026-08-01T00-00-00.tar.gz
+                restore_target: all
+                database: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/download:
+    post:
+      summary: Download a backup archive.
+      operationId: backups_download
+      tags:
+      - Backups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                backup_file:
+                  type: string
+                  example: user-2026-08-01T00-00-00.tar.gz
+              example:
+                backup_file: user-2026-08-01T00-00-00.tar.gz
+      responses:
+        '200':
+          description: File download.
+          content:
+            application/gzip:
+              schema:
+                type: string
+                format: binary
         default:
           $ref: '#/components/responses/Error'
       security:

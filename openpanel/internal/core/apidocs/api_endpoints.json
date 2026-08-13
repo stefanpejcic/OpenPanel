@@ -1,1 +1,2203 @@
-[{"group":"Authentication","feature":"api","endpoints":[{"method":"POST","path":"/api/login","description":"Obtain a JWT Bearer token.","body":{"username":"user","password":"pass"},"response":{"token":"eyJ...","expires_in":86400}}]},{"group":"MySQL","feature":"mysql","endpoints":[{"method":"GET","path":"/api/mysql/databases","description":"List all databases (with assigned users)."},{"method":"POST","path":"/api/mysql/databases","description":"Create a new database.","body":{"name":"mydb"}},{"method":"DELETE","path":"/api/mysql/databases/<db_name>","description":"Drop database."},{"method":"GET","path":"/api/mysql/databases/<db_name>/tables","description":"List tables with row/size info for database."},{"method":"POST","path":"/api/mysql/databases/<db_name>/optimize","description":"Run OPTIMIZE TABLE on every table in the database."},{"method":"POST","path":"/api/mysql/databases/<db_name>/repair","description":"Run REPAIR TABLE on every table in the database."},{"method":"GET","path":"/api/mysql/databases/<db_name>/export","description":"Download a database dump (sql or gzip).","params":"?format=sql"},{"method":"GET","path":"/api/mysql/users","description":"List all database users."},{"method":"POST","path":"/api/mysql/users","description":"Create a database user.","body":{"username":"u","password":"p","host":"%"}},{"method":"DELETE","path":"/api/mysql/users/<db_user>","description":"Delete a database user.","params":"?host=%"},{"method":"PATCH","path":"/api/mysql/users/<db_user>/password","description":"Change a database user's password.","body":{"password":"newpass","host":"%"}},{"method":"GET","path":"/api/mysql/users/<db_user>/privileges/<db_name>","description":"Get a user's privileges on a database.","params":"?host=%"},{"method":"POST","path":"/api/mysql/grants","description":"Grant privileges to a user on a database.","body":{"username":"u","database":"mydb","privileges":["ALL PRIVILEGES"],"host":"%"}},{"method":"DELETE","path":"/api/mysql/grants","description":"Revoke all privileges from a user on a database.","body":{"username":"u","database":"mydb","host":"%"}},{"method":"GET","path":"/api/mysql/info","description":"Get databases, users, and assigned-databases summary."},{"method":"GET","path":"/api/mysql/processlist","description":"Show full MySQL processlist."},{"method":"GET","path":"/api/mysql/remote-access","description":"Get remote access status, port, and per-user hosts."},{"method":"POST","path":"/api/mysql/remote-access","description":"Enable/disable remote access.","body":{"action":"enable"}},{"method":"POST","path":"/api/mysql/remote-access/entries","description":"Grant a user remote access from a host.","body":{"username":"u","host":"1.2.3.4","password":"p"}},{"method":"PATCH","path":"/api/mysql/remote-access/entries","description":"Change the host a remote access entry is valid from.","body":{"username":"u","old_host":"1.2.3.4","new_host":"5.6.7.8"}},{"method":"DELETE","path":"/api/mysql/remote-access/entries","description":"Remove a remote access entry.","body":{"username":"u","host":"1.2.3.4"}},{"method":"GET","path":"/api/mysql/configuration","description":"Get MySQL server configuration."},{"method":"PUT","path":"/api/mysql/configuration","description":"Update MySQL server configuration (restarts the service).","body":{"max_connections":"200"}},{"method":"POST","path":"/api/mysql/databases/<db_name>/import","description":"Import a SQL dump into the database (multipart/form-data, field name 'file')."},{"method":"GET","path":"/api/mysql/size","description":"Get per-database disk usage."}]},{"group":"MySQL Root Password","feature":"mysql_root_password","endpoints":[{"method":"PUT","path":"/api/mysql/root-password","description":"Set the MySQL root password.","body":{"password":"newRootPass123"}}]},{"group":"PostgreSQL","feature":"postgresql","endpoints":[{"method":"GET","path":"/api/postgresql/databases","description":"List all databases (with assigned users)."},{"method":"POST","path":"/api/postgresql/databases","description":"Create a new database.","body":{"name":"mydb"}},{"method":"DELETE","path":"/api/postgresql/databases/<db_name>","description":"Drop database."},{"method":"GET","path":"/api/postgresql/databases/<db_name>/export","description":"Download a database dump (sql)."},{"method":"POST","path":"/api/postgresql/databases/<db_name>/import","description":"Import a SQL dump into the database (multipart/form-data, field name 'file')."},{"method":"GET","path":"/api/postgresql/users","description":"List all PostgreSQL users."},{"method":"POST","path":"/api/postgresql/users","description":"Create PostgreSQL user.","body":{"username":"u","password":"p"}},{"method":"DELETE","path":"/api/postgresql/users/<db_user>","description":"Drop PostgreSQL user (revokes access from all databases first)."},{"method":"PATCH","path":"/api/postgresql/users/<db_user>/password","description":"Change a PostgreSQL user's password.","body":{"password":"newpass"}},{"method":"POST","path":"/api/postgresql/grants","description":"Grant all privileges on a database to a user.","body":{"username":"u","database":"mydb"}},{"method":"DELETE","path":"/api/postgresql/grants","description":"Revoke all privileges from a user on a database.","body":{"username":"u","database":"mydb"}},{"method":"GET","path":"/api/postgresql/info","description":"Get databases, users, and assigned-databases summary."},{"method":"GET","path":"/api/postgresql/processlist","description":"Show active connections (pg_stat_activity)."},{"method":"GET","path":"/api/postgresql/remote-access","description":"Get remote access status and port."},{"method":"POST","path":"/api/postgresql/remote-access","description":"Enable/disable remote access.","body":{"action":"enable"}},{"method":"GET","path":"/api/postgresql/configuration","description":"Get PostgreSQL server configuration."},{"method":"PUT","path":"/api/postgresql/configuration","description":"Update PostgreSQL server configuration (restarts the service).","body":{"max_connections":"200"}}]},{"group":"Domains","feature":"domains","endpoints":[{"method":"GET","path":"/api/domains","description":"List all domains."},{"method":"POST","path":"/api/domains","description":"Add a new domain (docroot defaults to /var/www/html/; .onion domains also require hs_ed25519_public_key and hs_ed25519_secret_key).","body":{"domain":"example.com"}},{"method":"DELETE","path":"/api/domains/<domain>","description":"Remove a domain."},{"method":"GET","path":"/api/domains/<domain>/status","description":"Get SSL/suspend/redirect status for a domain."},{"method":"POST","path":"/api/domains/<domain>/suspend","description":"Suspend a domain."},{"method":"POST","path":"/api/domains/<domain>/unsuspend","description":"Unsuspend a domain."},{"method":"GET","path":"/api/domains/<domain>/docroot","description":"Get the domain's document root."},{"method":"PUT","path":"/api/domains/<domain>/docroot","description":"Change the domain's document root (must be inside /var/www/html/).","body":{"docroot":"/var/www/html/example.com"}},{"method":"GET","path":"/api/domains/<domain>/redirect","description":"Get the domain's redirect URL, if any."},{"method":"PUT","path":"/api/domains/<domain>/redirect","description":"Set a redirect for the domain.","body":{"redirect_url":"https://example.com"}},{"method":"DELETE","path":"/api/domains/<domain>/redirect","description":"Remove the domain's redirect."},{"method":"GET","path":"/api/domains/<domain>/ssl","description":"Get SSL status."},{"method":"POST","path":"/api/domains/<domain>/ssl","description":"Issue/renew SSL cert (action: autossl, generate, switch_and_generate, or custom; custom also requires public_path and private_path).","body":{"action":"autossl"}},{"method":"GET","path":"/api/domains/<domain>/vhost","description":"Get the domain's VHost config content."},{"method":"PUT","path":"/api/domains/<domain>/vhost","description":"Save the domain's VHost config content.","body":{"vhost":"...vhost content..."}},{"method":"GET","path":"/api/domains/<domain>/dns","description":"Get parsed DNS records + serial for the domain's zone."},{"method":"PUT","path":"/api/domains/<domain>/dns","description":"Save raw DNS zone content.","body":{"zone_content":"$ORIGIN example.com.\n..."}},{"method":"POST","path":"/api/domains/<domain>/dns/records","description":"Add a DNS record.","body":{"name":"www","ttl":"3600","type":"A","value":"1.2.3.4"}},{"method":"PUT","path":"/api/domains/<domain>/dns/records/<row_id>","description":"Update a DNS record by line number.","body":{"content":"www 3600 IN A 5.6.7.8","end_row_id":5,"serial":"2025010101"}},{"method":"DELETE","path":"/api/domains/<domain>/dns/records/<row_id>","description":"Delete a DNS record by line number.","body":{"end_row_id":5}},{"method":"POST","path":"/api/domains/<domain>/dns/restart","description":"Reset the domain's DNS zone to the default template."},{"method":"GET","path":"/api/domains/<domain>/dns/export","description":"Export the domain's zone file."},{"method":"GET","path":"/api/domains/<domain>/logs","description":"Get access logs for the domain.","params":"?page=1&show_all=false"},{"method":"GET","path":"/api/domains/<domain>/capitalize","description":"Get the domain's display-case override."},{"method":"PUT","path":"/api/domains/<domain>/capitalize","description":"Set the domain's display-case override.","body":{"capitalized_domain":"Example.com"}},{"method":"GET","path":"/api/domains/<domain>/tlsa-hash","description":"Get the TLSA record hash for the domain's SSL certificate."}]},{"group":"Email","feature":"emails","endpoints":[{"method":"GET","path":"/api/emails","description":"List all mailboxes."},{"method":"POST","path":"/api/emails","description":"Create mailbox (optional gb + format for a custom quota).","body":{"domain":"b.com","username":"a","password":"p"}},{"method":"GET","path":"/api/emails/<email>","description":"Get mailbox details."},{"method":"PATCH","path":"/api/emails/<email>","description":"Update mailbox (any of gb+format, incoming, outgoing, password \u2014 at least one required).","body":{"password":"newpass"}},{"method":"DELETE","path":"/api/emails/<email>","description":"Delete mailbox."},{"method":"GET","path":"/api/emails/configuration/<config_type>/<account>","description":"Download mail client config (config_type: thunderbird, outlook, apple).","params":"?ssl=true"},{"method":"GET","path":"/api/emails/aliases","description":"List email aliases."},{"method":"POST","path":"/api/emails/aliases","description":"Create alias.","body":{"username":"a","domain":"b.com","target":"c@d.com"}},{"method":"GET","path":"/api/emails/aliases/<email>","description":"Get targets for one alias."},{"method":"POST","path":"/api/emails/aliases/<email>","description":"Add a target to an existing alias.","body":{"target":"c@d.com"}},{"method":"DELETE","path":"/api/emails/aliases/<email>","description":"Delete one target ({\"target\":...}), or the whole alias ({\"delete_all\":true}).","body":{"target":"c@d.com"}},{"method":"GET","path":"/api/emails/default/<domain>","description":"Get catch-all address."},{"method":"PUT","path":"/api/emails/default/<domain>","description":"Set catch-all address (omit/empty destination to remove it).","body":{"destination":"catch@example.com"}},{"method":"GET","path":"/api/emails/deliverability","description":"Check SPF/DKIM/DMARC for all domains."},{"method":"GET","path":"/api/emails/deliverability/<domain>","description":"Check deliverability for a domain."},{"method":"GET","path":"/api/emails/filters/<email>","description":"Get Sieve mail filters (raw script + parsed rules)."},{"method":"PUT","path":"/api/emails/filters/<email>","description":"Update Sieve filters.","body":{"content":"...sieve script..."}},{"method":"GET","path":"/api/emails/export","description":"Export mailboxes as CSV."},{"method":"POST","path":"/api/emails/import","description":"Validate a CSV upload and preview the import (multipart/form-data, field name 'file')."},{"method":"POST","path":"/api/emails/import/confirm","description":"Confirm a previewed import and create the mailboxes.","body":{"import_token":"..."}}]},{"group":"FTP","feature":"ftp","endpoints":[{"method":"GET","path":"/api/ftp","description":"List FTP accounts."},{"method":"POST","path":"/api/ftp","description":"Create FTP account (path must start with /var/www/html/).","body":{"username":"u","password":"p","domain":"example.com","path":"/var/www/html/"}},{"method":"DELETE","path":"/api/ftp/<username>","description":"Delete FTP account."},{"method":"PATCH","path":"/api/ftp/<username>/password","description":"Change FTP password.","body":{"password":"newpass"}},{"method":"PATCH","path":"/api/ftp/<username>/path","description":"Change FTP home path.","body":{"path":"/var/www/html"}},{"method":"GET","path":"/api/ftp/connections","description":"List active FTP connections."},{"method":"GET","path":"/api/ftp/configuration/<config_type>/<account>","description":"Download FTP client config (config_type: cyberduck, filezilla)."}]},{"group":"Cron Jobs","feature":"crons","endpoints":[{"method":"GET","path":"/api/crons","description":"List all cron jobs."},{"method":"POST","path":"/api/crons","description":"Create cron job (comment defaults to the container name).","body":{"schedule":"0 * * * *","command":"/usr/bin/php script.php","container":"php-fpm-8.1","comment":"my job"}},{"method":"PATCH","path":"/api/crons","description":"Edit cron job. All original_* fields must match the existing job exactly.","body":{"original_schedule":"0 * * * *","original_command":"...","original_container":"php-fpm-8.1","original_comment":"my job","schedule":"30 * * * *","command":"...","container":"php-fpm-8.1","comment":"my job"}},{"method":"DELETE","path":"/api/crons","description":"Delete cron job (all fields must match the existing job exactly).","body":{"schedule":"0 * * * *","command":"...","container":"php-fpm-8.1","comment":"my job"}},{"method":"GET","path":"/api/crons/raw","description":"Get raw crontab."},{"method":"PUT","path":"/api/crons/raw","description":"Save raw crontab.","body":{"content":"0 * * * * /usr/bin/php ..."}},{"method":"GET","path":"/api/crons/log","description":"Tail cron log.","params":"?job=<filter>&lines=100"}]},{"group":"Cache Services","feature":"redis","endpoints":[{"method":"GET","path":"/api/cache/redis","description":"Redis status."},{"method":"POST","path":"/api/cache/redis","description":"Enable/disable/restart Redis.","body":{"action":"enable"}},{"method":"GET","path":"/api/cache/valkey","description":"Valkey status."},{"method":"POST","path":"/api/cache/valkey","description":"Enable/disable/restart Valkey.","body":{"action":"disable"}},{"method":"GET","path":"/api/cache/memcached","description":"Memcached status."},{"method":"POST","path":"/api/cache/memcached","description":"Enable/disable/restart Memcached.","body":{"action":"enable"}},{"method":"GET","path":"/api/cache/elasticsearch","description":"Elasticsearch status."},{"method":"POST","path":"/api/cache/elasticsearch","description":"Enable/disable/restart Elasticsearch.","body":{"action":"enable"}},{"method":"GET","path":"/api/cache/opensearch","description":"OpenSearch status."},{"method":"POST","path":"/api/cache/opensearch","description":"Enable/disable/restart OpenSearch.","body":{"action":"enable"}},{"method":"GET","path":"/api/cache/varnish","description":"Varnish status + domain list."},{"method":"POST","path":"/api/cache/varnish","description":"Enable/disable Varnish.","body":{"action":"enable"}},{"method":"GET","path":"/api/cache/varnish/stats","description":"Varnish hit ratio and traffic stats."},{"method":"GET","path":"/api/cache/varnish/domains","description":"Per-domain Varnish status."},{"method":"POST","path":"/api/cache/varnish/domains/<domain>","description":"Toggle Varnish for domain.","body":{"status":"On"}}]},{"group":"Docker / Containers","feature":"docker","endpoints":[{"method":"GET","path":"/api/containers","description":"List compose services."},{"method":"GET","path":"/api/containers/status","description":"List running container names."},{"method":"GET","path":"/api/containers/<service>/status","description":"Get container state and health."},{"method":"POST","path":"/api/containers/<service>/start","description":"Start container.","body":{"pull":false}},{"method":"POST","path":"/api/containers/<service>/stop","description":"Stop container."},{"method":"POST","path":"/api/containers/<service>/restart","description":"Restart container."},{"method":"PATCH","path":"/api/containers/<service>/resources","description":"Update CPU/RAM limits.","body":{"cpu":"1","ram":"512m"}},{"method":"GET","path":"/api/containers/<service>/logs","description":"Tail container logs.","params":"?lines=100"},{"method":"POST","path":"/api/containers","description":"Add a new compose service.","body":{"service_name":"myservice","image":"myimage:tag","cpu":"1","ram":"512m"}},{"method":"PATCH","path":"/api/containers/<service>","description":"Edit a compose service's definition.","body":{"cpu":"1","ram":"512m"}},{"method":"DELETE","path":"/api/containers/<service>","description":"Remove a compose service."},{"method":"POST","path":"/api/containers/mysql","description":"Switch the MySQL/MariaDB variant (wipes the old data volume).","body":{"new_sql":"mysql:8.0"}},{"method":"POST","path":"/api/containers/webserver","description":"Switch the active webserver.","body":{"new_ws":"nginx"}},{"method":"PATCH","path":"/api/containers/<service>/image","description":"Change a service's image.","body":{"new_tag":"myimage:tag"}}]},{"group":"WAF","feature":"waf","endpoints":[{"method":"GET","path":"/api/waf","description":"WAF status for all domains."},{"method":"GET","path":"/api/waf/<domain>","description":"WAF status + excluded rules for domain."},{"method":"POST","path":"/api/waf/<domain>","description":"Toggle WAF On/Off.","body":{"status":"On"}},{"method":"PUT","path":"/api/waf/<domain>/rules","description":"Update excluded rule IDs/tags.","body":{"remove_by_id":["920170"],"remove_by_tag":[]}},{"method":"GET","path":"/api/waf/log/<domain>","description":"Paginated WAF log entries.","params":"?page=1&per_page=25"},{"method":"GET","path":"/api/waf/stats/<domain>","description":"Block/check counts for domain.","params":"?seconds=3600"},{"method":"GET","path":"/api/waf/ids/ids","description":"List all WAF rule IDs."},{"method":"GET","path":"/api/waf/ids/tags","description":"List all WAF rule tags."}]},{"group":"IP Blocker","feature":"ip_blocker","endpoints":[{"method":"GET","path":"/api/ip-blocker","description":"List all blocked IPs."},{"method":"POST","path":"/api/ip-blocker","description":"Block IPs.","body":{"ips":["1.2.3.4","5.6.7.8"]}},{"method":"DELETE","path":"/api/ip-blocker","description":"Unblock all IPs."}]},{"group":"PHP","feature":"php_ini","endpoints":[{"method":"GET","path":"/api/php/versions","description":"List installed PHP versions."},{"method":"GET","path":"/api/php/<version>/ini","description":"Get php.ini content."},{"method":"PUT","path":"/api/php/<version>/ini","description":"Save php.ini.","body":{"content":"...ini content..."}},{"method":"GET","path":"/api/php/<version>/options","description":"Get PHP option keys + values."},{"method":"PUT","path":"/api/php/<version>/options","description":"Update specific PHP options.","body":{"memory_limit":"256M","upload_max_filesize":"64M"}},{"method":"GET","path":"/api/php/<version>/extensions","description":"List extensions with state."},{"method":"POST","path":"/api/php/<version>/extensions","description":"Enable/disable an extension (restarts PHP-FPM).","body":{"extension":"imagick","enable":true}},{"method":"GET","path":"/api/php/<version>/extensions/available","description":"List all supported extensions."},{"method":"POST","path":"/api/php/<version>/extensions/install","description":"Install one or more extensions (async \u2014 poll the status endpoint).","body":{"extensions":["imagick"]}},{"method":"GET","path":"/api/php/<version>/extensions/install/status","description":"Poll install progress.","params":"?install_id=<id>"},{"method":"GET","path":"/api/php/default","description":"Get the server-wide default PHP version."},{"method":"PUT","path":"/api/php/default","description":"Set the server-wide default PHP version.","body":{"version":"8.2"}},{"method":"GET","path":"/api/php/domains","description":"List every domain with its assigned PHP version."},{"method":"PUT","path":"/api/php/domains","description":"Change a domain's PHP version.","body":{"domain":"example.com","version":"8.2"}}]},{"group":"Account","feature":"account","endpoints":[{"method":"GET","path":"/api/account","description":"Get account info."},{"method":"PATCH","path":"/api/account","description":"Update email/password/username.","body":{"email":"new@example.com"}},{"method":"GET","path":"/api/account/sessions","description":"List active sessions."},{"method":"DELETE","path":"/api/account/sessions/<token>","description":"Terminate a session."}]},{"group":"Passkeys","feature":"passkeys","endpoints":[{"method":"GET","path":"/api/account/passkeys","description":"List registered passkeys."},{"method":"DELETE","path":"/api/account/passkeys/<id>","description":"Revoke a passkey."}]},{"group":"Two-Factor Authentication","feature":"twofa","endpoints":[{"method":"GET","path":"/api/account/2fa","description":"Get 2FA status."},{"method":"POST","path":"/api/account/2fa/setup","description":"Generate a pending TOTP secret."},{"method":"POST","path":"/api/account/2fa/confirm","description":"Confirm setup and enable 2FA.","body":{"otp_code":"123456"}},{"method":"DELETE","path":"/api/account/2fa","description":"Disable 2FA."}]},{"group":"MCP Tokens","feature":"mcp","endpoints":[{"method":"GET","path":"/api/account/mcp","description":"List MCP tokens."},{"method":"POST","path":"/api/account/mcp","description":"Create an MCP token.","body":{"name":"my token","read_only":true,"expires_in_days":30}},{"method":"DELETE","path":"/api/account/mcp/<id>","description":"Revoke an MCP token."}]},{"group":"Favorites","feature":"favorites","endpoints":[{"method":"GET","path":"/api/account/favorites","description":"List favorites."},{"method":"POST","path":"/api/account/favorites","description":"Add a favorite.","body":{"link":"dashboard","title":"Dashboard"}},{"method":"DELETE","path":"/api/account/favorites","description":"Remove a favorite.","body":{"link":"dashboard"}}]},{"group":"Language","feature":"locale","endpoints":[{"method":"GET","path":"/api/account/language","description":"Get available locales and the current language."},{"method":"PUT","path":"/api/account/language","description":"Set the preferred UI language.","body":{"locale":"de"}}]},{"group":"Login History","feature":"login_history","endpoints":[{"method":"GET","path":"/api/account/login-history","description":"Get recent login attempts."}]},{"group":"Notifications","feature":"notifications","endpoints":[{"method":"GET","path":"/api/account/notifications","description":"Get notification preferences."},{"method":"PUT","path":"/api/account/notifications","description":"Update notification preferences.","body":{"preferences":{"notify_account_login":false}}}]},{"group":"Resource Usage","feature":"usage","endpoints":[{"method":"GET","path":"/api/usage","description":"Latest resource snapshot (CPU, RAM, bandwidth)."},{"method":"GET","path":"/api/usage/history","description":"Paginated usage history.","params":"?page=1&per_page=25"}]},{"group":"Hosting Info","feature":"info","endpoints":[{"method":"GET","path":"/api/hosting/info","description":"Get general hosting/server info."},{"method":"GET","path":"/api/hosting/plan","description":"Get hosting plan details."},{"method":"GET","path":"/api/hosting/ports","description":"Get allocated remote-access ports."}]},{"group":"Disk & Inodes","feature":"disk_usage","endpoints":[{"method":"GET","path":"/api/disk-usage","description":"Disk usage per top-level subdirectory."},{"method":"GET","path":"/api/disk-usage/<path>","description":"Disk usage for a specific path."},{"method":"GET","path":"/api/inodes","description":"Inode count per top-level subdirectory."},{"method":"GET","path":"/api/inodes/<path>","description":"Inode counts for a specific path."}]},{"group":"Malware Scanner","feature":"malware_scan","endpoints":[{"method":"GET","path":"/api/malware-scanner/quarantine","description":"List quarantined files."},{"method":"POST","path":"/api/malware-scanner/scan","description":"Run ClamAV scan.","body":{"directory":"/var/www/html"}}]},{"group":"Backup Wizard","feature":"backup_wizard","endpoints":[{"method":"GET","path":"/api/backup-wizard/status","description":"Get backup status and list existing backups."},{"method":"POST","path":"/api/backup-wizard/create","description":"Start a full-account backup."},{"method":"GET","path":"/api/backup-wizard/download/<filename>","description":"Download a backup archive."}]},{"group":"File Manager","feature":"filemanager","endpoints":[{"method":"GET","path":"/api/files/<path>","description":"List a directory."},{"method":"GET","path":"/api/folders/<path>","description":"List subfolders (for a copy/move destination picker)."},{"method":"POST","path":"/api/file-manager/new-file","description":"Create a file.","body":{"path":"subdir","filename":"notes.txt"}},{"method":"POST","path":"/api/file-manager/new-directory","description":"Create a directory.","body":{"path":"subdir","foldername":"images"}},{"method":"POST","path":"/api/file-manager/upload","description":"Upload files (multipart/form-data, field name 'files')."},{"method":"POST","path":"/api/file-manager/rename","description":"Rename a file or directory.","body":{"path":"subdir","old_name":"old.txt","new_name":"new.txt"}},{"method":"DELETE","path":"/api/file-manager/delete","description":"Delete a file or directory (permanently, or move to trash)."},{"method":"POST","path":"/api/file-manager/permissions","description":"Change permissions on one or more files.","body":{"path":"subdir","filenames":["a.txt"],"permissions":"644"}},{"method":"POST","path":"/api/file-manager/copy","description":"Copy a file or directory."},{"method":"POST","path":"/api/file-manager/move","description":"Move a file or directory."},{"method":"GET","path":"/api/file-manager/edit-file/<path>","description":"Get a file's content."},{"method":"PUT","path":"/api/file-manager/edit-file/<path>","description":"Save a file's content.","body":{"content":"new file content"}},{"method":"GET","path":"/api/file-manager/download-file/<path>","description":"Download a file."},{"method":"GET","path":"/api/file-manager/view-file/<path>","description":"View a file's raw content."},{"method":"POST","path":"/api/file-manager/extract-archive","description":"Extract an archive.","body":{"archive_name":"backup.zip","path":"subdir","extract_destination":"subdir/extracted"}},{"method":"POST","path":"/api/file-manager/create-archive","description":"Create an archive from selected files.","body":{"archive_name":"backup","extension":"zip","path":"subdir","selected_files":["a.txt","b.txt"]}},{"method":"POST","path":"/api/file-manager/wget","description":"Download a file from a URL (multipart/form-data)."},{"method":"GET","path":"/api/file-manager/wget/status/<download_id>","description":"Poll a URL download's progress."}]},{"group":"Trash","feature":"trash","endpoints":[{"method":"GET","path":"/api/trash/<path>","description":"List trashed items."},{"method":"POST","path":"/api/trash/restore","description":"Restore one item from trash."},{"method":"DELETE","path":"/api/trash/delete","description":"Permanently delete one item from trash."},{"method":"POST","path":"/api/trash/restore-all","description":"Restore every item in trash."},{"method":"POST","path":"/api/trash/delete-all","description":"Empty the trash."}]},{"group":"Webserver Config","feature":"webserver_conf","endpoints":[{"method":"GET","path":"/api/webserver-conf","description":"Get webserver config file content."},{"method":"PUT","path":"/api/webserver-conf","description":"Save webserver config and restart service.","body":{"content":"...conf content..."}}]},{"group":"Process Manager","feature":"process_manager","endpoints":[{"method":"GET","path":"/api/process-manager","description":"List running container processes."},{"method":"DELETE","path":"/api/process-manager/<pid>","description":"Kill a process by PID."}]},{"group":"Fix Permissions","feature":"fix_permissions","endpoints":[{"method":"GET","path":"/api/fix-permissions","description":"List directories."},{"method":"POST","path":"/api/fix-permissions","description":"Fix ownership/permissions for a directory (or the whole account).","body":{"directory":"/var/www/html/example.com"}}]},{"group":"Sites & Websites","feature":"websites","endpoints":[{"method":"GET","path":"/api/sites","description":"List all websites."},{"method":"GET","path":"/api/sites/<domain>","description":"Get website details."},{"method":"GET","path":"/api/sites/<domain>/safebrowsing","description":"Google Safe Browsing check."},{"method":"GET","path":"/api/sites/<domain>/pagespeed","description":"Get PageSpeed data."},{"method":"POST","path":"/api/sites/<domain>/pagespeed","description":"Trigger PageSpeed refresh."},{"method":"GET","path":"/api/sites/<domain>/wp-vulnerability","description":"Get WP vulnerability data."},{"method":"POST","path":"/api/sites/<domain>/wp-vulnerability","description":"Run vulnerability scan."},{"method":"GET","path":"/api/sites/<domain>/temporary-link","description":"Generate a temporary preview link for a site."},{"method":"GET","path":"/api/sites/<domain>/visitors","description":"Get recent unique visitors for a domain."},{"method":"GET","path":"/api/sites/<domain>/wp-info","description":"Get PHP/MySQL/WordPress versions and database credentials for a WordPress site."}]},{"group":"WordPress","feature":"wordpress","endpoints":[{"method":"GET","path":"/api/wordpress","description":"List all WordPress installations."},{"method":"GET","path":"/api/wordpress/<domain>/backups","description":"List available backups."},{"method":"POST","path":"/api/wordpress/<domain>/backups","description":"Create backup.","body":{"backup_database":true,"backup_files":true}},{"method":"POST","path":"/api/wordpress/<domain>/restore","description":"Restore a backup.","body":{"backup_date":"2025-01-15_12-00-00"}},{"method":"GET","path":"/api/wordpress/secure","description":"List available hardening rules."},{"method":"GET","path":"/api/wordpress/<domain>/secure","description":"Get active hardening rules."},{"method":"PUT","path":"/api/wordpress/<domain>/secure","description":"Apply/remove hardening rules.","body":{"rules":["wp_manager_xmlrpc"],"disable_all":false}},{"method":"DELETE","path":"/api/wordpress/sites/<id>","description":"Uninstall WordPress (removes files + DB)."},{"method":"POST","path":"/api/wordpress/sites/<id>/detach","description":"Detach from WordPress Manager (keeps files)."},{"method":"POST","path":"/api/wordpress/reload","description":"Rescan filesystem to refresh WP data."},{"method":"POST","path":"/api/wp-cli/<action>","description":"Run a WP-CLI action.","body":{"domain":"example.com"},"params":"action: core_update, core_update_check, plugin_update_all, theme_update_all, list_plugins, list_themes, cache_flush, cron_run"}]},{"group":"Node.js / Python Apps","feature":["nodejs","python"],"endpoints":[{"method":"GET","path":"/api/pm2/<domain>/logs","description":"Tail app logs.","params":"?lines=100"},{"method":"POST","path":"/api/pm2/<domain>/start","description":"Start application container."},{"method":"POST","path":"/api/pm2/<domain>/stop","description":"Stop application container."},{"method":"POST","path":"/api/pm2/<domain>/restart","description":"Pull latest image and restart."},{"method":"PATCH","path":"/api/pm2/<domain>","description":"Update app settings.","body":{"version":"20","cpu":"1","ram":"1"}},{"method":"DELETE","path":"/api/pm2/<domain>","description":"Delete app and remove from compose."}]},{"group":"App Installer","feature":["nodejs","python"],"endpoints":[{"method":"POST","path":"/api/nodejs/install","description":"Install a new Node.js app (form-encoded body; response streams newline-delimited JSON progress events)."},{"method":"POST","path":"/api/python/install","description":"Install a new Python app (form-encoded body; response streams newline-delimited JSON progress events)."}]},{"group":"Helpers","feature":"helpers","endpoints":[{"method":"GET","path":"/api/docker/tags/<type>","description":"Get available Node.js/Python runtime versions (type: nodejs, python)."},{"method":"POST","path":"/api/helpers/check-file-exists","description":"Check whether a file exists in the app's docroot.","body":{"file":"app.py"}},{"method":"POST","path":"/api/helpers/detect-git-startup-file","description":"Detect a Git repository's startup file.","body":{"git_repo_url":"https://github.com/user/repo.git","app_type":"nodejs"}}]},{"group":"Auto Installer","feature":"autoinstaller","endpoints":[{"method":"GET","path":"/api/autoinstaller","description":"List installed apps grouped by technology."}]},{"group":"Dynamic DNS","feature":"dynamic_dns","endpoints":[{"method":"GET","path":"/api/dynamic-dns","description":"List all dynamic DNS entries."},{"method":"POST","path":"/api/dynamic-dns","description":"Create entry.","body":{"domain":"example.com","subdomain":"home","ip":"0.0.0.0"}},{"method":"PUT","path":"/api/dynamic-dns","description":"Update entry.","body":{"domain":"example.com","line_number":42,"subdomain":"home","ip":"1.2.3.4","token":"abc123"}},{"method":"DELETE","path":"/api/dynamic-dns","description":"Delete entry.","body":{"domain":"example.com","line_number":42}}]},{"group":"DNS Zone Editor","feature":"dns","endpoints":[{"method":"GET","path":"/api/dns","description":"List all domains with zone file status."},{"method":"GET","path":"/api/dns/<domain>","description":"Get parsed DNS records + serial."},{"method":"GET","path":"/api/dns/<domain>/raw","description":"Get raw zone file content."},{"method":"PUT","path":"/api/dns/<domain>/raw","description":"Save raw zone file.","body":{"content":"$ORIGIN example.com.\n..."}},{"method":"POST","path":"/api/dns/<domain>/records","description":"Add a DNS record.","body":{"name":"www","ttl":"3600","type":"A","record":"1.2.3.4"}},{"method":"PATCH","path":"/api/dns/<domain>/records/<row_id>","description":"Update a DNS record by line number.","body":{"content":"www 3600 IN A 5.6.7.8","serial":"2025010101"}},{"method":"DELETE","path":"/api/dns/<domain>/records/<row_id>","description":"Delete a DNS record by line number."},{"method":"POST","path":"/api/dns/<domain>/reset","description":"Reset zone to default template."},{"method":"GET","path":"/api/dns/<domain>/export","description":"Export zone file content."}]},{"group":"Traffic Stats (GoAccess)","feature":"goaccess","endpoints":[{"method":"GET","path":"/api/stats","description":"List domains with stats availability."},{"method":"GET","path":"/api/stats/<domain>","description":"Get GoAccess HTML report for domain."}]},{"group":"System Services","feature":"services","endpoints":[{"method":"GET","path":"/api/services","description":"List all services with state."},{"method":"GET","path":"/api/services/<service>","description":"Get service status."},{"method":"POST","path":"/api/services/<service>","description":"Start/stop service.","body":{"action":"enable"}}]},{"group":"Webmail","feature":"webmail","endpoints":[{"method":"GET","path":"/api/webmail","description":"Get webmail URL and running status."},{"method":"POST","path":"/api/webmail/<email>","description":"Generate auto-login token for an email account."}]},{"group":"Website Builder","feature":"website_builder","endpoints":[{"method":"GET","path":"/api/website-builder/<domain>","description":"Get HTML and CSS content."},{"method":"PUT","path":"/api/website-builder/<domain>","description":"Save HTML and CSS content.","body":{"html":"<html>...</html>","css":"body {}"}},{"method":"POST","path":"/api/website-builder","description":"Create new site.","body":{"domain_id":1,"subdirectory":""}},{"method":"DELETE","path":"/api/website-builder/sites/<id>","description":"Remove site (deletes files)."},{"method":"POST","path":"/api/website-builder/sites/<id>/detach","description":"Detach site from manager."}]},{"group":"Dashboard","feature":"dashboard","endpoints":[{"method":"GET","path":"/api/dashboard/resource-usage","description":"Get the dashboard's resource usage widget data."},{"method":"GET","path":"/api/dashboard/disk-inodes","description":"Get the dashboard's disk/inode usage widget data."}]},{"group":"Plugins","feature":"app","endpoints":[{"method":"GET","path":"/api/plugins","description":"List installed plugins."}]}]
+[
+  {
+    "group": "Authentication",
+    "feature": "api",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/login",
+        "description": "Obtain a JWT Bearer token.",
+        "body": {
+          "username": "user",
+          "password": "pass"
+        },
+        "response": {
+          "token": "eyJ...",
+          "expires_in": 86400
+        }
+      }
+    ]
+  },
+  {
+    "group": "MySQL",
+    "feature": "mysql",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/mysql/databases",
+        "description": "List all databases (with assigned users)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/mysql/databases",
+        "description": "Create a new database.",
+        "body": {
+          "name": "mydb"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/mysql/databases/<db_name>",
+        "description": "Drop database."
+      },
+      {
+        "method": "GET",
+        "path": "/api/mysql/databases/<db_name>/tables",
+        "description": "List tables with row/size info for database."
+      },
+      {
+        "method": "POST",
+        "path": "/api/mysql/databases/<db_name>/optimize",
+        "description": "Run OPTIMIZE TABLE on every table in the database."
+      },
+      {
+        "method": "POST",
+        "path": "/api/mysql/databases/<db_name>/repair",
+        "description": "Run REPAIR TABLE on every table in the database."
+      },
+      {
+        "method": "GET",
+        "path": "/api/mysql/databases/<db_name>/export",
+        "description": "Download a database dump (sql or gzip).",
+        "params": "?format=sql"
+      },
+      {
+        "method": "GET",
+        "path": "/api/mysql/users",
+        "description": "List all database users."
+      },
+      {
+        "method": "POST",
+        "path": "/api/mysql/users",
+        "description": "Create a database user.",
+        "body": {
+          "username": "u",
+          "password": "p",
+          "host": "%"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/mysql/users/<db_user>",
+        "description": "Delete a database user.",
+        "params": "?host=%"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/mysql/users/<db_user>/password",
+        "description": "Change a database user's password.",
+        "body": {
+          "password": "newpass",
+          "host": "%"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/mysql/users/<db_user>/privileges/<db_name>",
+        "description": "Get a user's privileges on a database.",
+        "params": "?host=%"
+      },
+      {
+        "method": "POST",
+        "path": "/api/mysql/grants",
+        "description": "Grant privileges to a user on a database.",
+        "body": {
+          "username": "u",
+          "database": "mydb",
+          "privileges": [
+            "ALL PRIVILEGES"
+          ],
+          "host": "%"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/mysql/grants",
+        "description": "Revoke all privileges from a user on a database.",
+        "body": {
+          "username": "u",
+          "database": "mydb",
+          "host": "%"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/mysql/info",
+        "description": "Get databases, users, and assigned-databases summary."
+      },
+      {
+        "method": "GET",
+        "path": "/api/mysql/processlist",
+        "description": "Show full MySQL processlist."
+      },
+      {
+        "method": "GET",
+        "path": "/api/mysql/remote-access",
+        "description": "Get remote access status, port, and per-user hosts."
+      },
+      {
+        "method": "POST",
+        "path": "/api/mysql/remote-access",
+        "description": "Enable/disable remote access.",
+        "body": {
+          "action": "enable"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/mysql/remote-access/entries",
+        "description": "Grant a user remote access from a host.",
+        "body": {
+          "username": "u",
+          "host": "1.2.3.4",
+          "password": "p"
+        }
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/mysql/remote-access/entries",
+        "description": "Change the host a remote access entry is valid from.",
+        "body": {
+          "username": "u",
+          "old_host": "1.2.3.4",
+          "new_host": "5.6.7.8"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/mysql/remote-access/entries",
+        "description": "Remove a remote access entry.",
+        "body": {
+          "username": "u",
+          "host": "1.2.3.4"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/mysql/configuration",
+        "description": "Get MySQL server configuration."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/mysql/configuration",
+        "description": "Update MySQL server configuration (restarts the service).",
+        "body": {
+          "max_connections": "200"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/mysql/databases/<db_name>/import",
+        "description": "Import a SQL dump into the database (multipart/form-data, field name 'file')."
+      },
+      {
+        "method": "GET",
+        "path": "/api/mysql/size",
+        "description": "Get per-database disk usage."
+      }
+    ]
+  },
+  {
+    "group": "MySQL Root Password",
+    "feature": "mysql_root_password",
+    "endpoints": [
+      {
+        "method": "PUT",
+        "path": "/api/mysql/root-password",
+        "description": "Set the MySQL root password.",
+        "body": {
+          "password": "newRootPass123"
+        }
+      }
+    ]
+  },
+  {
+    "group": "PostgreSQL",
+    "feature": "postgresql",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/postgresql/databases",
+        "description": "List all databases (with assigned users)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/postgresql/databases",
+        "description": "Create a new database.",
+        "body": {
+          "name": "mydb"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/postgresql/databases/<db_name>",
+        "description": "Drop database."
+      },
+      {
+        "method": "GET",
+        "path": "/api/postgresql/databases/<db_name>/export",
+        "description": "Download a database dump (sql)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/postgresql/databases/<db_name>/import",
+        "description": "Import a SQL dump into the database (multipart/form-data, field name 'file')."
+      },
+      {
+        "method": "GET",
+        "path": "/api/postgresql/users",
+        "description": "List all PostgreSQL users."
+      },
+      {
+        "method": "POST",
+        "path": "/api/postgresql/users",
+        "description": "Create PostgreSQL user.",
+        "body": {
+          "username": "u",
+          "password": "p"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/postgresql/users/<db_user>",
+        "description": "Drop PostgreSQL user (revokes access from all databases first)."
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/postgresql/users/<db_user>/password",
+        "description": "Change a PostgreSQL user's password.",
+        "body": {
+          "password": "newpass"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/postgresql/grants",
+        "description": "Grant all privileges on a database to a user.",
+        "body": {
+          "username": "u",
+          "database": "mydb"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/postgresql/grants",
+        "description": "Revoke all privileges from a user on a database.",
+        "body": {
+          "username": "u",
+          "database": "mydb"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/postgresql/info",
+        "description": "Get databases, users, and assigned-databases summary."
+      },
+      {
+        "method": "GET",
+        "path": "/api/postgresql/processlist",
+        "description": "Show active connections (pg_stat_activity)."
+      },
+      {
+        "method": "GET",
+        "path": "/api/postgresql/remote-access",
+        "description": "Get remote access status and port."
+      },
+      {
+        "method": "POST",
+        "path": "/api/postgresql/remote-access",
+        "description": "Enable/disable remote access.",
+        "body": {
+          "action": "enable"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/postgresql/configuration",
+        "description": "Get PostgreSQL server configuration."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/postgresql/configuration",
+        "description": "Update PostgreSQL server configuration (restarts the service).",
+        "body": {
+          "max_connections": "200"
+        }
+      }
+    ]
+  },
+  {
+    "group": "Domains",
+    "feature": "domains",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/domains",
+        "description": "List all domains."
+      },
+      {
+        "method": "POST",
+        "path": "/api/domains",
+        "description": "Add a new domain (docroot defaults to /var/www/html/; .onion domains also require hs_ed25519_public_key and hs_ed25519_secret_key).",
+        "body": {
+          "domain": "example.com"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/domains/<domain>",
+        "description": "Remove a domain."
+      },
+      {
+        "method": "GET",
+        "path": "/api/domains/<domain>/status",
+        "description": "Get SSL/suspend/redirect status for a domain."
+      },
+      {
+        "method": "POST",
+        "path": "/api/domains/<domain>/suspend",
+        "description": "Suspend a domain."
+      },
+      {
+        "method": "POST",
+        "path": "/api/domains/<domain>/unsuspend",
+        "description": "Unsuspend a domain."
+      },
+      {
+        "method": "GET",
+        "path": "/api/domains/<domain>/docroot",
+        "description": "Get the domain's document root."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/domains/<domain>/docroot",
+        "description": "Change the domain's document root (must be inside /var/www/html/).",
+        "body": {
+          "docroot": "/var/www/html/example.com"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/domains/<domain>/redirect",
+        "description": "Get the domain's redirect URL, if any."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/domains/<domain>/redirect",
+        "description": "Set a redirect for the domain.",
+        "body": {
+          "redirect_url": "https://example.com"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/domains/<domain>/redirect",
+        "description": "Remove the domain's redirect."
+      },
+      {
+        "method": "GET",
+        "path": "/api/domains/<domain>/ssl",
+        "description": "Get SSL status."
+      },
+      {
+        "method": "POST",
+        "path": "/api/domains/<domain>/ssl",
+        "description": "Issue/renew SSL cert (action: autossl, generate, switch_and_generate, or custom; custom also requires public_path and private_path).",
+        "body": {
+          "action": "autossl"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/domains/<domain>/vhost",
+        "description": "Get the domain's VHost config content."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/domains/<domain>/vhost",
+        "description": "Save the domain's VHost config content.",
+        "body": {
+          "vhost": "...vhost content..."
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/domains/<domain>/dns",
+        "description": "Get parsed DNS records + serial for the domain's zone."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/domains/<domain>/dns",
+        "description": "Save raw DNS zone content.",
+        "body": {
+          "zone_content": "$ORIGIN example.com.\n..."
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/domains/<domain>/dns/records",
+        "description": "Add a DNS record.",
+        "body": {
+          "name": "www",
+          "ttl": "3600",
+          "type": "A",
+          "value": "1.2.3.4"
+        }
+      },
+      {
+        "method": "PUT",
+        "path": "/api/domains/<domain>/dns/records/<row_id>",
+        "description": "Update a DNS record by line number.",
+        "body": {
+          "content": "www 3600 IN A 5.6.7.8",
+          "end_row_id": 5,
+          "serial": "2025010101"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/domains/<domain>/dns/records/<row_id>",
+        "description": "Delete a DNS record by line number.",
+        "body": {
+          "end_row_id": 5
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/domains/<domain>/dns/restart",
+        "description": "Reset the domain's DNS zone to the default template."
+      },
+      {
+        "method": "GET",
+        "path": "/api/domains/<domain>/dns/export",
+        "description": "Export the domain's zone file."
+      },
+      {
+        "method": "GET",
+        "path": "/api/domains/<domain>/logs",
+        "description": "Get access logs for the domain.",
+        "params": "?page=1&show_all=false"
+      },
+      {
+        "method": "GET",
+        "path": "/api/domains/<domain>/capitalize",
+        "description": "Get the domain's display-case override."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/domains/<domain>/capitalize",
+        "description": "Set the domain's display-case override.",
+        "body": {
+          "capitalized_domain": "Example.com"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/domains/<domain>/tlsa-hash",
+        "description": "Get the TLSA record hash for the domain's SSL certificate."
+      }
+    ]
+  },
+  {
+    "group": "Email",
+    "feature": "emails",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/emails",
+        "description": "List all mailboxes."
+      },
+      {
+        "method": "POST",
+        "path": "/api/emails",
+        "description": "Create mailbox (optional gb + format for a custom quota).",
+        "body": {
+          "domain": "b.com",
+          "username": "a",
+          "password": "p"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/emails/<email>",
+        "description": "Get mailbox details."
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/emails/<email>",
+        "description": "Update mailbox (any of gb+format, incoming, outgoing, password \u2014 at least one required).",
+        "body": {
+          "password": "newpass"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/emails/<email>",
+        "description": "Delete mailbox."
+      },
+      {
+        "method": "GET",
+        "path": "/api/emails/configuration/<config_type>/<account>",
+        "description": "Download mail client config (config_type: thunderbird, outlook, apple).",
+        "params": "?ssl=true"
+      },
+      {
+        "method": "GET",
+        "path": "/api/emails/aliases",
+        "description": "List email aliases."
+      },
+      {
+        "method": "POST",
+        "path": "/api/emails/aliases",
+        "description": "Create alias.",
+        "body": {
+          "username": "a",
+          "domain": "b.com",
+          "target": "c@d.com"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/emails/aliases/<email>",
+        "description": "Get targets for one alias."
+      },
+      {
+        "method": "POST",
+        "path": "/api/emails/aliases/<email>",
+        "description": "Add a target to an existing alias.",
+        "body": {
+          "target": "c@d.com"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/emails/aliases/<email>",
+        "description": "Delete one target ({\"target\":...}), or the whole alias ({\"delete_all\":true}).",
+        "body": {
+          "target": "c@d.com"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/emails/default/<domain>",
+        "description": "Get catch-all address."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/emails/default/<domain>",
+        "description": "Set catch-all address (omit/empty destination to remove it).",
+        "body": {
+          "destination": "catch@example.com"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/emails/deliverability",
+        "description": "Check SPF/DKIM/DMARC for all domains."
+      },
+      {
+        "method": "GET",
+        "path": "/api/emails/deliverability/<domain>",
+        "description": "Check deliverability for a domain."
+      },
+      {
+        "method": "GET",
+        "path": "/api/emails/filters/<email>",
+        "description": "Get Sieve mail filters (raw script + parsed rules)."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/emails/filters/<email>",
+        "description": "Update Sieve filters.",
+        "body": {
+          "content": "...sieve script..."
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/emails/export",
+        "description": "Export mailboxes as CSV."
+      },
+      {
+        "method": "POST",
+        "path": "/api/emails/import",
+        "description": "Validate a CSV upload and preview the import (multipart/form-data, field name 'file')."
+      },
+      {
+        "method": "POST",
+        "path": "/api/emails/import/confirm",
+        "description": "Confirm a previewed import and create the mailboxes.",
+        "body": {
+          "import_token": "..."
+        }
+      }
+    ]
+  },
+  {
+    "group": "FTP",
+    "feature": "ftp",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/ftp",
+        "description": "List FTP accounts."
+      },
+      {
+        "method": "POST",
+        "path": "/api/ftp",
+        "description": "Create FTP account (path must start with /var/www/html/).",
+        "body": {
+          "username": "u",
+          "password": "p",
+          "domain": "example.com",
+          "path": "/var/www/html/"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/ftp/<username>",
+        "description": "Delete FTP account."
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/ftp/<username>/password",
+        "description": "Change FTP password.",
+        "body": {
+          "password": "newpass"
+        }
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/ftp/<username>/path",
+        "description": "Change FTP home path.",
+        "body": {
+          "path": "/var/www/html"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/ftp/connections",
+        "description": "List active FTP connections."
+      },
+      {
+        "method": "GET",
+        "path": "/api/ftp/configuration/<config_type>/<account>",
+        "description": "Download FTP client config (config_type: cyberduck, filezilla)."
+      }
+    ]
+  },
+  {
+    "group": "Cron Jobs",
+    "feature": "crons",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/crons",
+        "description": "List all cron jobs."
+      },
+      {
+        "method": "POST",
+        "path": "/api/crons",
+        "description": "Create cron job (comment defaults to the container name).",
+        "body": {
+          "schedule": "0 * * * *",
+          "command": "/usr/bin/php script.php",
+          "container": "php-fpm-8.1",
+          "comment": "my job"
+        }
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/crons",
+        "description": "Edit cron job. All original_* fields must match the existing job exactly.",
+        "body": {
+          "original_schedule": "0 * * * *",
+          "original_command": "...",
+          "original_container": "php-fpm-8.1",
+          "original_comment": "my job",
+          "schedule": "30 * * * *",
+          "command": "...",
+          "container": "php-fpm-8.1",
+          "comment": "my job"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/crons",
+        "description": "Delete cron job (all fields must match the existing job exactly).",
+        "body": {
+          "schedule": "0 * * * *",
+          "command": "...",
+          "container": "php-fpm-8.1",
+          "comment": "my job"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/crons/raw",
+        "description": "Get raw crontab."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/crons/raw",
+        "description": "Save raw crontab.",
+        "body": {
+          "content": "0 * * * * /usr/bin/php ..."
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/crons/log",
+        "description": "Tail cron log.",
+        "params": "?job=<filter>&lines=100"
+      }
+    ]
+  },
+  {
+    "group": "Cache Services",
+    "feature": "redis",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/cache/redis",
+        "description": "Redis status."
+      },
+      {
+        "method": "POST",
+        "path": "/api/cache/redis",
+        "description": "Enable/disable/restart Redis.",
+        "body": {
+          "action": "enable"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/cache/valkey",
+        "description": "Valkey status."
+      },
+      {
+        "method": "POST",
+        "path": "/api/cache/valkey",
+        "description": "Enable/disable/restart Valkey.",
+        "body": {
+          "action": "disable"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/cache/memcached",
+        "description": "Memcached status."
+      },
+      {
+        "method": "POST",
+        "path": "/api/cache/memcached",
+        "description": "Enable/disable/restart Memcached.",
+        "body": {
+          "action": "enable"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/cache/elasticsearch",
+        "description": "Elasticsearch status."
+      },
+      {
+        "method": "POST",
+        "path": "/api/cache/elasticsearch",
+        "description": "Enable/disable/restart Elasticsearch.",
+        "body": {
+          "action": "enable"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/cache/opensearch",
+        "description": "OpenSearch status."
+      },
+      {
+        "method": "POST",
+        "path": "/api/cache/opensearch",
+        "description": "Enable/disable/restart OpenSearch.",
+        "body": {
+          "action": "enable"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/cache/varnish",
+        "description": "Varnish status + domain list."
+      },
+      {
+        "method": "POST",
+        "path": "/api/cache/varnish",
+        "description": "Enable/disable Varnish.",
+        "body": {
+          "action": "enable"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/cache/varnish/stats",
+        "description": "Varnish hit ratio and traffic stats."
+      },
+      {
+        "method": "GET",
+        "path": "/api/cache/varnish/domains",
+        "description": "Per-domain Varnish status."
+      },
+      {
+        "method": "POST",
+        "path": "/api/cache/varnish/domains/<domain>",
+        "description": "Toggle Varnish for domain.",
+        "body": {
+          "status": "On"
+        }
+      }
+    ]
+  },
+  {
+    "group": "Docker / Containers",
+    "feature": "docker",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/containers",
+        "description": "List compose services."
+      },
+      {
+        "method": "GET",
+        "path": "/api/containers/status",
+        "description": "List running container names."
+      },
+      {
+        "method": "GET",
+        "path": "/api/containers/<service>/status",
+        "description": "Get container state and health."
+      },
+      {
+        "method": "POST",
+        "path": "/api/containers/<service>/start",
+        "description": "Start container.",
+        "body": {
+          "pull": false
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/containers/<service>/stop",
+        "description": "Stop container."
+      },
+      {
+        "method": "POST",
+        "path": "/api/containers/<service>/restart",
+        "description": "Restart container."
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/containers/<service>/resources",
+        "description": "Update CPU/RAM limits.",
+        "body": {
+          "cpu": "1",
+          "ram": "512m"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/containers/<service>/logs",
+        "description": "Tail container logs.",
+        "params": "?lines=100"
+      },
+      {
+        "method": "POST",
+        "path": "/api/containers",
+        "description": "Add a new compose service.",
+        "body": {
+          "service_name": "myservice",
+          "image": "myimage:tag",
+          "cpu": "1",
+          "ram": "512m"
+        }
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/containers/<service>",
+        "description": "Edit a compose service's definition.",
+        "body": {
+          "cpu": "1",
+          "ram": "512m"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/containers/<service>",
+        "description": "Remove a compose service."
+      },
+      {
+        "method": "POST",
+        "path": "/api/containers/mysql",
+        "description": "Switch the MySQL/MariaDB variant (wipes the old data volume).",
+        "body": {
+          "new_sql": "mysql:8.0"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/containers/webserver",
+        "description": "Switch the active webserver.",
+        "body": {
+          "new_ws": "nginx"
+        }
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/containers/<service>/image",
+        "description": "Change a service's image.",
+        "body": {
+          "new_tag": "myimage:tag"
+        }
+      }
+    ]
+  },
+  {
+    "group": "WAF",
+    "feature": "waf",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/waf",
+        "description": "WAF status for all domains."
+      },
+      {
+        "method": "GET",
+        "path": "/api/waf/<domain>",
+        "description": "WAF status + excluded rules for domain."
+      },
+      {
+        "method": "POST",
+        "path": "/api/waf/<domain>",
+        "description": "Toggle WAF On/Off.",
+        "body": {
+          "status": "On"
+        }
+      },
+      {
+        "method": "PUT",
+        "path": "/api/waf/<domain>/rules",
+        "description": "Update excluded rule IDs/tags.",
+        "body": {
+          "remove_by_id": [
+            "920170"
+          ],
+          "remove_by_tag": []
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/waf/log/<domain>",
+        "description": "Paginated WAF log entries.",
+        "params": "?page=1&per_page=25"
+      },
+      {
+        "method": "GET",
+        "path": "/api/waf/stats/<domain>",
+        "description": "Block/check counts for domain.",
+        "params": "?seconds=3600"
+      },
+      {
+        "method": "GET",
+        "path": "/api/waf/ids/ids",
+        "description": "List all WAF rule IDs."
+      },
+      {
+        "method": "GET",
+        "path": "/api/waf/ids/tags",
+        "description": "List all WAF rule tags."
+      }
+    ]
+  },
+  {
+    "group": "IP Blocker",
+    "feature": "ip_blocker",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/ip-blocker",
+        "description": "List all blocked IPs."
+      },
+      {
+        "method": "POST",
+        "path": "/api/ip-blocker",
+        "description": "Block IPs.",
+        "body": {
+          "ips": [
+            "1.2.3.4",
+            "5.6.7.8"
+          ]
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/ip-blocker",
+        "description": "Unblock all IPs."
+      }
+    ]
+  },
+  {
+    "group": "PHP",
+    "feature": "php_ini",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/php/versions",
+        "description": "List installed PHP versions."
+      },
+      {
+        "method": "GET",
+        "path": "/api/php/<version>/ini",
+        "description": "Get php.ini content."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/php/<version>/ini",
+        "description": "Save php.ini.",
+        "body": {
+          "content": "...ini content..."
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/php/<version>/options",
+        "description": "Get PHP option keys + values."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/php/<version>/options",
+        "description": "Update specific PHP options.",
+        "body": {
+          "memory_limit": "256M",
+          "upload_max_filesize": "64M"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/php/<version>/extensions",
+        "description": "List extensions with state."
+      },
+      {
+        "method": "POST",
+        "path": "/api/php/<version>/extensions",
+        "description": "Enable/disable an extension (restarts PHP-FPM).",
+        "body": {
+          "extension": "imagick",
+          "enable": true
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/php/<version>/extensions/available",
+        "description": "List all supported extensions."
+      },
+      {
+        "method": "POST",
+        "path": "/api/php/<version>/extensions/install",
+        "description": "Install one or more extensions (async \u2014 poll the status endpoint).",
+        "body": {
+          "extensions": [
+            "imagick"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/php/<version>/extensions/install/status",
+        "description": "Poll install progress.",
+        "params": "?install_id=<id>"
+      },
+      {
+        "method": "GET",
+        "path": "/api/php/default",
+        "description": "Get the server-wide default PHP version."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/php/default",
+        "description": "Set the server-wide default PHP version.",
+        "body": {
+          "version": "8.2"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/php/domains",
+        "description": "List every domain with its assigned PHP version."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/php/domains",
+        "description": "Change a domain's PHP version.",
+        "body": {
+          "domain": "example.com",
+          "version": "8.2"
+        }
+      }
+    ]
+  },
+  {
+    "group": "Account",
+    "feature": "account",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/account",
+        "description": "Get account info."
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/account",
+        "description": "Update email/password/username.",
+        "body": {
+          "email": "new@example.com"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/account/sessions",
+        "description": "List active sessions."
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/account/sessions/<token>",
+        "description": "Terminate a session."
+      }
+    ]
+  },
+  {
+    "group": "Passkeys",
+    "feature": "passkeys",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/account/passkeys",
+        "description": "List registered passkeys."
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/account/passkeys/<id>",
+        "description": "Revoke a passkey."
+      }
+    ]
+  },
+  {
+    "group": "Two-Factor Authentication",
+    "feature": "twofa",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/account/2fa",
+        "description": "Get 2FA status."
+      },
+      {
+        "method": "POST",
+        "path": "/api/account/2fa/setup",
+        "description": "Generate a pending TOTP secret."
+      },
+      {
+        "method": "POST",
+        "path": "/api/account/2fa/confirm",
+        "description": "Confirm setup and enable 2FA.",
+        "body": {
+          "otp_code": "123456"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/account/2fa",
+        "description": "Disable 2FA."
+      }
+    ]
+  },
+  {
+    "group": "MCP Tokens",
+    "feature": "mcp",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/account/mcp",
+        "description": "List MCP tokens."
+      },
+      {
+        "method": "POST",
+        "path": "/api/account/mcp",
+        "description": "Create an MCP token.",
+        "body": {
+          "name": "my token",
+          "read_only": true,
+          "expires_in_days": 30
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/account/mcp/<id>",
+        "description": "Revoke an MCP token."
+      }
+    ]
+  },
+  {
+    "group": "Favorites",
+    "feature": "favorites",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/account/favorites",
+        "description": "List favorites."
+      },
+      {
+        "method": "POST",
+        "path": "/api/account/favorites",
+        "description": "Add a favorite.",
+        "body": {
+          "link": "dashboard",
+          "title": "Dashboard"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/account/favorites",
+        "description": "Remove a favorite.",
+        "body": {
+          "link": "dashboard"
+        }
+      }
+    ]
+  },
+  {
+    "group": "Language",
+    "feature": "locale",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/account/language",
+        "description": "Get available locales and the current language."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/account/language",
+        "description": "Set the preferred UI language.",
+        "body": {
+          "locale": "de"
+        }
+      }
+    ]
+  },
+  {
+    "group": "Login History",
+    "feature": "login_history",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/account/login-history",
+        "description": "Get recent login attempts."
+      }
+    ]
+  },
+  {
+    "group": "Notifications",
+    "feature": "notifications",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/account/notifications",
+        "description": "Get notification preferences."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/account/notifications",
+        "description": "Update notification preferences.",
+        "body": {
+          "preferences": {
+            "notify_account_login": false
+          }
+        }
+      }
+    ]
+  },
+  {
+    "group": "Resource Usage",
+    "feature": "usage",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/usage",
+        "description": "Latest resource snapshot (CPU, RAM, bandwidth)."
+      },
+      {
+        "method": "GET",
+        "path": "/api/usage/history",
+        "description": "Paginated usage history.",
+        "params": "?page=1&per_page=25"
+      }
+    ]
+  },
+  {
+    "group": "Hosting Info",
+    "feature": "info",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/hosting/info",
+        "description": "Get general hosting/server info."
+      },
+      {
+        "method": "GET",
+        "path": "/api/hosting/plan",
+        "description": "Get hosting plan details."
+      },
+      {
+        "method": "GET",
+        "path": "/api/hosting/ports",
+        "description": "Get allocated remote-access ports."
+      },
+      {
+        "method": "GET",
+        "path": "/api/server/info",
+        "description": "Get combined server info, hosting plan, and remote-access ports in one call."
+      }
+    ]
+  },
+  {
+    "group": "Disk & Inodes",
+    "feature": "disk_usage",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/disk-usage",
+        "description": "Disk usage per top-level subdirectory."
+      },
+      {
+        "method": "GET",
+        "path": "/api/disk-usage/<path>",
+        "description": "Disk usage for a specific path."
+      },
+      {
+        "method": "GET",
+        "path": "/api/inodes",
+        "description": "Inode count per top-level subdirectory."
+      },
+      {
+        "method": "GET",
+        "path": "/api/inodes/<path>",
+        "description": "Inode counts for a specific path."
+      }
+    ]
+  },
+  {
+    "group": "Malware Scanner",
+    "feature": "malware_scan",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/malware-scanner/quarantine",
+        "description": "List quarantined files."
+      },
+      {
+        "method": "POST",
+        "path": "/api/malware-scanner/scan",
+        "description": "Run ClamAV scan.",
+        "body": {
+          "directory": "/var/www/html"
+        }
+      }
+    ]
+  },
+  {
+    "group": "Backup Wizard",
+    "feature": "backup_wizard",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/backup-wizard/status",
+        "description": "Get backup status and list existing backups."
+      },
+      {
+        "method": "POST",
+        "path": "/api/backup-wizard/create",
+        "description": "Start a full-account backup."
+      },
+      {
+        "method": "GET",
+        "path": "/api/backup-wizard/download/<filename>",
+        "description": "Download a backup archive."
+      }
+    ]
+  },
+  {
+    "group": "File Manager",
+    "feature": "filemanager",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/files/<path>",
+        "description": "List a directory."
+      },
+      {
+        "method": "GET",
+        "path": "/api/folders/<path>",
+        "description": "List subfolders (for a copy/move destination picker)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/file-manager/new-file",
+        "description": "Create a file.",
+        "body": {
+          "path": "subdir",
+          "filename": "notes.txt"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/file-manager/new-directory",
+        "description": "Create a directory.",
+        "body": {
+          "path": "subdir",
+          "foldername": "images"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/file-manager/upload",
+        "description": "Upload files (multipart/form-data, field name 'files')."
+      },
+      {
+        "method": "POST",
+        "path": "/api/file-manager/rename",
+        "description": "Rename a file or directory.",
+        "body": {
+          "path": "subdir",
+          "old_name": "old.txt",
+          "new_name": "new.txt"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/file-manager/delete",
+        "description": "Delete a file or directory (permanently, or move to trash)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/file-manager/permissions",
+        "description": "Change permissions on one or more files.",
+        "body": {
+          "path": "subdir",
+          "filenames": [
+            "a.txt"
+          ],
+          "permissions": "644"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/file-manager/copy",
+        "description": "Copy a file or directory."
+      },
+      {
+        "method": "POST",
+        "path": "/api/file-manager/move",
+        "description": "Move a file or directory."
+      },
+      {
+        "method": "GET",
+        "path": "/api/file-manager/edit-file/<path>",
+        "description": "Get a file's content."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/file-manager/edit-file/<path>",
+        "description": "Save a file's content.",
+        "body": {
+          "content": "new file content"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/file-manager/download-file/<path>",
+        "description": "Download a file."
+      },
+      {
+        "method": "GET",
+        "path": "/api/file-manager/view-file/<path>",
+        "description": "View a file's raw content."
+      },
+      {
+        "method": "POST",
+        "path": "/api/file-manager/extract-archive",
+        "description": "Extract an archive.",
+        "body": {
+          "archive_name": "backup.zip",
+          "path": "subdir",
+          "extract_destination": "subdir/extracted"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/file-manager/create-archive",
+        "description": "Create an archive from selected files.",
+        "body": {
+          "archive_name": "backup",
+          "extension": "zip",
+          "path": "subdir",
+          "selected_files": [
+            "a.txt",
+            "b.txt"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/file-manager/wget",
+        "description": "Download a file from a URL (multipart/form-data)."
+      },
+      {
+        "method": "GET",
+        "path": "/api/file-manager/wget/status/<download_id>",
+        "description": "Poll a URL download's progress."
+      }
+    ]
+  },
+  {
+    "group": "Trash",
+    "feature": "trash",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/trash/<path>",
+        "description": "List trashed items."
+      },
+      {
+        "method": "POST",
+        "path": "/api/trash/restore",
+        "description": "Restore one item from trash."
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/trash/delete",
+        "description": "Permanently delete one item from trash."
+      },
+      {
+        "method": "POST",
+        "path": "/api/trash/restore-all",
+        "description": "Restore every item in trash."
+      },
+      {
+        "method": "POST",
+        "path": "/api/trash/delete-all",
+        "description": "Empty the trash."
+      }
+    ]
+  },
+  {
+    "group": "Webserver Config",
+    "feature": "webserver_conf",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/webserver-conf",
+        "description": "Get webserver config file content."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/webserver-conf",
+        "description": "Save webserver config and restart service.",
+        "body": {
+          "content": "...conf content..."
+        }
+      }
+    ]
+  },
+  {
+    "group": "Process Manager",
+    "feature": "process_manager",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/process-manager",
+        "description": "List running container processes."
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/process-manager/<pid>",
+        "description": "Kill a process by PID."
+      }
+    ]
+  },
+  {
+    "group": "Fix Permissions",
+    "feature": "fix_permissions",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/fix-permissions",
+        "description": "List directories."
+      },
+      {
+        "method": "POST",
+        "path": "/api/fix-permissions",
+        "description": "Fix ownership/permissions for a directory (or the whole account).",
+        "body": {
+          "directory": "/var/www/html/example.com"
+        }
+      }
+    ]
+  },
+  {
+    "group": "Sites & Websites",
+    "feature": "websites",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/sites",
+        "description": "List all websites."
+      },
+      {
+        "method": "GET",
+        "path": "/api/sites/<domain>",
+        "description": "Get website details."
+      },
+      {
+        "method": "GET",
+        "path": "/api/sites/<domain>/safebrowsing",
+        "description": "Google Safe Browsing check."
+      },
+      {
+        "method": "GET",
+        "path": "/api/sites/<domain>/pagespeed",
+        "description": "Get PageSpeed data."
+      },
+      {
+        "method": "POST",
+        "path": "/api/sites/<domain>/pagespeed",
+        "description": "Trigger PageSpeed refresh."
+      },
+      {
+        "method": "GET",
+        "path": "/api/sites/<domain>/wp-vulnerability",
+        "description": "Get WP vulnerability data."
+      },
+      {
+        "method": "POST",
+        "path": "/api/sites/<domain>/wp-vulnerability",
+        "description": "Run vulnerability scan."
+      },
+      {
+        "method": "GET",
+        "path": "/api/sites/<domain>/temporary-link",
+        "description": "Generate a temporary preview link for a site."
+      },
+      {
+        "method": "GET",
+        "path": "/api/sites/<domain>/visitors",
+        "description": "Get recent unique visitors for a domain."
+      },
+      {
+        "method": "GET",
+        "path": "/api/sites/<domain>/wp-info",
+        "description": "Get PHP/MySQL/WordPress versions and database credentials for a WordPress site."
+      }
+    ]
+  },
+  {
+    "group": "WordPress",
+    "feature": "wordpress",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/wordpress",
+        "description": "List all WordPress installations."
+      },
+      {
+        "method": "GET",
+        "path": "/api/wordpress/<domain>/backups",
+        "description": "List available backups."
+      },
+      {
+        "method": "POST",
+        "path": "/api/wordpress/<domain>/backups",
+        "description": "Create backup.",
+        "body": {
+          "backup_database": true,
+          "backup_files": true
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/wordpress/<domain>/restore",
+        "description": "Restore a backup.",
+        "body": {
+          "backup_date": "2025-01-15_12-00-00"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/wordpress/secure",
+        "description": "List available hardening rules."
+      },
+      {
+        "method": "GET",
+        "path": "/api/wordpress/<domain>/secure",
+        "description": "Get active hardening rules."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/wordpress/<domain>/secure",
+        "description": "Apply/remove hardening rules.",
+        "body": {
+          "rules": [
+            "wp_manager_xmlrpc"
+          ],
+          "disable_all": false
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/wordpress/sites/<id>",
+        "description": "Uninstall WordPress (removes files + DB)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/wordpress/sites/<id>/detach",
+        "description": "Detach from WordPress Manager (keeps files)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/wordpress/reload",
+        "description": "Rescan filesystem to refresh WP data."
+      },
+      {
+        "method": "POST",
+        "path": "/api/wp-cli/<action>",
+        "description": "Run a WP-CLI action.",
+        "body": {
+          "domain": "example.com"
+        },
+        "params": "action: core_update, core_update_check, plugin_update_all, theme_update_all, list_plugins, list_themes, cache_flush, cron_run"
+      }
+    ]
+  },
+  {
+    "group": "Node.js / Python Apps",
+    "feature": [
+      "nodejs",
+      "python"
+    ],
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/pm2/<domain>/logs",
+        "description": "Tail app logs.",
+        "params": "?lines=100"
+      },
+      {
+        "method": "POST",
+        "path": "/api/pm2/<domain>/start",
+        "description": "Start application container."
+      },
+      {
+        "method": "POST",
+        "path": "/api/pm2/<domain>/stop",
+        "description": "Stop application container."
+      },
+      {
+        "method": "POST",
+        "path": "/api/pm2/<domain>/restart",
+        "description": "Pull latest image and restart."
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/pm2/<domain>",
+        "description": "Update app settings.",
+        "body": {
+          "version": "20",
+          "cpu": "1",
+          "ram": "1"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/pm2/<domain>",
+        "description": "Delete app and remove from compose."
+      }
+    ]
+  },
+  {
+    "group": "App Installer",
+    "feature": [
+      "nodejs",
+      "python"
+    ],
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/nodejs/install",
+        "description": "Install a new Node.js app (form-encoded body; response streams newline-delimited JSON progress events)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/python/install",
+        "description": "Install a new Python app (form-encoded body; response streams newline-delimited JSON progress events)."
+      }
+    ]
+  },
+  {
+    "group": "Helpers",
+    "feature": "helpers",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/docker/tags/<type>",
+        "description": "Get available Node.js/Python runtime versions (type: nodejs, python)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/helpers/check-file-exists",
+        "description": "Check whether a file exists in the app's docroot.",
+        "body": {
+          "file": "app.py"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/helpers/detect-git-startup-file",
+        "description": "Detect a Git repository's startup file.",
+        "body": {
+          "git_repo_url": "https://github.com/user/repo.git",
+          "app_type": "nodejs"
+        }
+      }
+    ]
+  },
+  {
+    "group": "Auto Installer",
+    "feature": "autoinstaller",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/autoinstaller",
+        "description": "List installed apps grouped by technology."
+      }
+    ]
+  },
+  {
+    "group": "Dynamic DNS",
+    "feature": "dynamic_dns",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/dynamic-dns",
+        "description": "List all dynamic DNS entries."
+      },
+      {
+        "method": "POST",
+        "path": "/api/dynamic-dns",
+        "description": "Create entry.",
+        "body": {
+          "domain": "example.com",
+          "subdomain": "home",
+          "ip": "0.0.0.0"
+        }
+      },
+      {
+        "method": "PUT",
+        "path": "/api/dynamic-dns",
+        "description": "Update entry.",
+        "body": {
+          "domain": "example.com",
+          "line_number": 42,
+          "subdomain": "home",
+          "ip": "1.2.3.4",
+          "token": "abc123"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/dynamic-dns",
+        "description": "Delete entry.",
+        "body": {
+          "domain": "example.com",
+          "line_number": 42
+        }
+      }
+    ]
+  },
+  {
+    "group": "DNS Zone Editor",
+    "feature": "dns",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/dns",
+        "description": "List all domains with zone file status."
+      },
+      {
+        "method": "GET",
+        "path": "/api/dns/<domain>",
+        "description": "Get parsed DNS records + serial."
+      },
+      {
+        "method": "GET",
+        "path": "/api/dns/<domain>/raw",
+        "description": "Get raw zone file content."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/dns/<domain>/raw",
+        "description": "Save raw zone file.",
+        "body": {
+          "content": "$ORIGIN example.com.\n..."
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/dns/<domain>/records",
+        "description": "Add a DNS record.",
+        "body": {
+          "name": "www",
+          "ttl": "3600",
+          "type": "A",
+          "record": "1.2.3.4"
+        }
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/dns/<domain>/records/<row_id>",
+        "description": "Update a DNS record by line number.",
+        "body": {
+          "content": "www 3600 IN A 5.6.7.8",
+          "serial": "2025010101"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/dns/<domain>/records/<row_id>",
+        "description": "Delete a DNS record by line number."
+      },
+      {
+        "method": "POST",
+        "path": "/api/dns/<domain>/reset",
+        "description": "Reset zone to default template."
+      },
+      {
+        "method": "GET",
+        "path": "/api/dns/<domain>/export",
+        "description": "Export zone file content."
+      }
+    ]
+  },
+  {
+    "group": "Traffic Stats (GoAccess)",
+    "feature": "goaccess",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/stats",
+        "description": "List domains with stats availability."
+      },
+      {
+        "method": "GET",
+        "path": "/api/stats/<domain>",
+        "description": "Get GoAccess HTML report for domain."
+      }
+    ]
+  },
+  {
+    "group": "System Services",
+    "feature": "services",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/services",
+        "description": "List all services with state."
+      },
+      {
+        "method": "GET",
+        "path": "/api/services/<service>",
+        "description": "Get service status."
+      },
+      {
+        "method": "POST",
+        "path": "/api/services/<service>",
+        "description": "Start/stop service.",
+        "body": {
+          "action": "enable"
+        }
+      }
+    ]
+  },
+  {
+    "group": "Webmail",
+    "feature": "webmail",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/webmail",
+        "description": "Get webmail URL and running status."
+      },
+      {
+        "method": "POST",
+        "path": "/api/webmail/<email>",
+        "description": "Generate auto-login token for an email account."
+      }
+    ]
+  },
+  {
+    "group": "Website Builder",
+    "feature": "website_builder",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/website-builder/<domain>",
+        "description": "Get HTML and CSS content."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/website-builder/<domain>",
+        "description": "Save HTML and CSS content.",
+        "body": {
+          "html": "<html>...</html>",
+          "css": "body {}"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/website-builder",
+        "description": "Create new site.",
+        "body": {
+          "domain_id": 1,
+          "subdirectory": ""
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/website-builder/sites/<id>",
+        "description": "Remove site (deletes files)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/website-builder/sites/<id>/detach",
+        "description": "Detach site from manager."
+      }
+    ]
+  },
+  {
+    "group": "Dashboard",
+    "feature": "dashboard",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/dashboard/resource-usage",
+        "description": "Get the dashboard's resource usage widget data."
+      },
+      {
+        "method": "GET",
+        "path": "/api/dashboard/disk-inodes",
+        "description": "Get the dashboard's disk/inode usage widget data."
+      }
+    ]
+  },
+  {
+    "group": "Plugins",
+    "feature": "app",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/plugins",
+        "description": "List installed plugins."
+      }
+    ]
+  },
+  {
+    "group": "Search",
+    "feature": "search",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/search/<what>",
+        "description": "Search the sidebar entity index (files, folders, features, websites, mysql_databases, mysql_users, postgresql_databases, postgresql_users, domains, emails, ftp, containers, services, crons)."
+      }
+    ]
+  },
+  {
+    "group": "Activity Log",
+    "feature": "activity",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/account/activity",
+        "description": "Get the account's activity log, paginated and optionally filtered."
+      }
+    ]
+  },
+  {
+    "group": "Backups",
+    "feature": "backups",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/backups",
+        "description": "Get backup status summary (active target, whether the backup service is running)."
+      },
+      {
+        "method": "GET",
+        "path": "/api/backups/settings",
+        "description": "Get the configured backup schedule/retention settings and active target's values."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/backups/settings",
+        "description": "Update backup schedule/retention settings and/or the active target's credentials.",
+        "body": {
+          "values": {
+            "AWS_ACCESS_KEY_ID": "..."
+          },
+          "settings": {
+            "BACKUP_RETENTION_DAYS": "7"
+          }
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/backups/destination",
+        "description": "Get the active backup destination and list of available destination types."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/backups/destination",
+        "description": "Switch the active backup destination.",
+        "body": {
+          "target": "s3"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/backups/list",
+        "description": "List backups available at the configured destination."
+      },
+      {
+        "method": "POST",
+        "path": "/api/backups/restore",
+        "description": "Restore all files, a single database, or files only from a backup archive.",
+        "body": {
+          "backup_file": "user-2026-08-01T00-00-00.tar.gz",
+          "restore_target": "all",
+          "database": ""
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/backups/download",
+        "description": "Download a backup archive.",
+        "body": {
+          "backup_file": "user-2026-08-01T00-00-00.tar.gz"
+        }
+      }
+    ]
+  }
+]
