@@ -71,12 +71,13 @@ func buildDashboardSections(allowed map[string]bool) []Section {
 			{"remote_postgresql", "/postgresql/remote-postgresql", "bi-diagram-3", "Remote Access", ""},
 			{"postgresql_conf", "/postgresql/configuration", "bi-database-lock", "PostgreSQL Configuration", ""},
 		}},
-		// mautic/flarum/drupal omitted: legacy code slated for removal
-		// entirely, not ported here (per user decision).
+		// mautic/flarum omitted: legacy code slated for removal entirely,
+		// not ported here (per user decision).
 		{Key: "websites", Title: "Websites", Items: []SectionItem{
 			{"websites", "/sites", "bi-app-indicator", "Site Manager", ""},
 			{"autoinstaller", "/auto-installer", "bi-download", "Auto Installer", ""},
 			{"wordpress", "/wordpress", "bi-wordpress", "WP Manager", ""},
+			{"drupal", "/drupal", "bi-droplet", "Drupal Manager", ""},
 		}},
 		{Key: "cache", Title: "Cache", Items: []SectionItem{
 			{"redis", "/cache/redis", "bi-database-fill-lock", "Redis", ""},

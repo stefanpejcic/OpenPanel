@@ -178,8 +178,18 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			Container: container,
 		})
 
+	case "drupal":
+		dbInfo := extractDrupalDatabaseInfo(userContext, docroot)
+		drupalVersion := getDrupalVersion(userContext, docroot)
+		renderDrupalAppPage(a, w, r, DrupalAppPageData{
+			pageData:      pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Container:     container,
+			DrupalVersion: drupalVersion,
+			DBInfo:        dbInfo,
+		})
+
 	default:
-		// drupal/mautic/anything else: not a supported CMS type here.
+		// mautic/anything else: not a supported CMS type here.
 		writeJSON(w, http.StatusOK, map[string]string{"error": "Unknown CMS type"})
 	}
 }

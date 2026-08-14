@@ -67,9 +67,9 @@ func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 	}
 
 	// Websites group.
-	// mautic/flarum/drupal are excluded: legacy code slated for removal
-	// from the codebase entirely, not ported here (per user decision).
-	if has("wordpress", "website_builder", "nodejs", "python") {
+	// mautic/flarum are excluded: legacy code slated for removal from the
+	// codebase entirely, not ported here (per user decision).
+	if has("wordpress", "drupal", "website_builder", "nodejs", "python") {
 		var links []NavLink
 		if allowed["autoinstaller"] {
 			links = append(links, NavLink{"/auto-installer", "Auto Installer",
@@ -80,7 +80,10 @@ func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 		if allowed["wordpress"] {
 			links = append(links, NavLink{"/wordpress", "WordPress Manager", strings.HasPrefix(path, "/wordpress"), ""})
 		}
-		open := hasAnyPrefix(path, "/auto-installer", "/sites", "/website", "/wordpress", "/pm2", "/nodejs", "/python")
+		if allowed["drupal"] {
+			links = append(links, NavLink{"/drupal", "Drupal Manager", strings.HasPrefix(path, "/drupal"), ""})
+		}
+		open := hasAnyPrefix(path, "/auto-installer", "/sites", "/website", "/wordpress", "/drupal", "/pm2", "/nodejs", "/python")
 		groups = append(groups, NavGroup{"Websites", websitesIcon, "websites-menu", links, open, open})
 	}
 

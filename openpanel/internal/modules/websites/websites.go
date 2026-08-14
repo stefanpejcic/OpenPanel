@@ -2,7 +2,7 @@
 // CMS-type dispatcher, and the side JSON endpoints (safebrowsing,
 // PageSpeed, WP vulnerability scan, pm2 package installs, WP info, and the
 // distinct /wordpress/wp-cli/<action> passthrough used by the site-manager
-// UI). Drupal and Mautic are not supported CMS types.
+// UI). Mautic is not a supported CMS type.
 package websites
 
 import (
@@ -457,6 +457,79 @@ func getWPVersion(userContext, realPath string) string {
 	}
 	if m := wpVersionRE.FindStringSubmatch(string(content)); m != nil {
 		return strings.TrimSpace(m[1])
+	}
+	return "Unknown"
+}
+
+// ---------------------- DRUPAL INFO ---------------------- //
+
+// extractDrupalDatabaseInfo parses the $databases['default']['default']
+// array out of settings.php - the live-read-from-config approach, same as
+// extractDatabaseInfo above does for wp-config.php, so no DB credentials
+// need to be persisted anywhere else.
+func extractDrupalDatabaseInfo(userContext, directory string) map[string]string {
+	const wwwPrefix = "/var/www/html/"
+	if !strings.HasPrefix(directory, wwwPrefix) {
+		return nil
+	}
+	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
+	content, err := os.ReadFile(filepath.Join(mappedDir, "web", "sites", "default", "settings.php"))
+	if err != nil {
+		return map[string]string{"error": "settings.php not found"}
+	}
+
+	// Drupal's stock settings.php has a large documentation block near the
+	// top with placeholder 'database' => 'database_name' style example
+	// lines inside a /** ... */ comment (every line prefixed with '*') -
+	// drop those before matching so the real $databases['default'] array
+	// drush appends near the end of the file is what actually matches.
+	var codeLines []string
+	for _, line := range strings.Split(string(content), "\n") {
+		if strings.HasPrefix(strings.TrimSpace(line), "*") {
+			continue
+		}
+		codeLines = append(codeLines, line)
+	}
+	text := strings.Join(codeLines, "\n")
+
+	info := map[string]string{}
+	for key, field := range map[string]string{
+		"database_name": "database", "database_user": "username",
+		"database_password": "password", "database_host": "host",
+	} {
+		re := regexp.MustCompile(`'` + field + `'\s*=>\s*'([^']*)'`)
+		if m := re.FindStringSubmatch(text); m != nil {
+			info[key] = m[1]
+		}
+	}
+	if len(info) == 0 {
+		return map[string]string{"error": "No database information found in settings.php"}
+	}
+	return info
+}
+
+// getDrupalVersion reads drupal/core-recommended's resolved version out of
+// composer.lock, mirroring getWPVersion's live-read-from-disk approach.
+func getDrupalVersion(userContext, realPath string) string {
+	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
+	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "composer.lock")
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "Unknown"
+	}
+	var lock struct {
+		Packages []struct {
+			Name    string `json:"name"`
+			Version string `json:"version"`
+		} `json:"packages"`
+	}
+	if json.Unmarshal(content, &lock) != nil {
+		return "Unknown"
+	}
+	for _, pkg := range lock.Packages {
+		if pkg.Name == "drupal/core-recommended" || pkg.Name == "drupal/core" {
+			return pkg.Version
+		}
 	}
 	return "Unknown"
 }

@@ -50,6 +50,28 @@ func renderPHPAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dat
 	}
 }
 
+var drupalAppPage = loadPage("manager/drupal_app.html")
+
+// DrupalAppPageData is manager/drupal_app.html's template context.
+type DrupalAppPageData struct {
+	pageData
+	Container     ContainerInfo
+	DrupalVersion string
+	DBInfo        map[string]string
+}
+
+func renderDrupalAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data DrupalAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	if err := drupalAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - drupal_app template render error: %v", err)
+	}
+}
+
 var websiteBuilderPage = loadPage("manager/websitebuilder.html")
 
 // WebsiteBuilderPageData is manager/websitebuilder.html's template context.

@@ -1773,6 +1773,39 @@
     ]
   },
   {
+    "group": "Drupal",
+    "feature": "drupal",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/drupal",
+        "description": "List all Drupal installations."
+      },
+      {
+        "method": "POST",
+        "path": "/api/drupal/install",
+        "description": "Install Drupal on a domain via `composer create-project drupal/recommended-project` + `drush site:install`. Streams newline-delimited JSON progress events as the install runs (Composer project creation, database setup, drush install).",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "site_name": "My Drupal Site",
+          "drupal_version": "",
+          "admin_username": "admin",
+          "admin_password": "changeme",
+          "admin_email": "admin@example.com",
+          "db_name": "",
+          "db_user": "",
+          "db_password": ""
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/drupal/sites/<id>",
+        "description": "Uninstall Drupal: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      }
+    ]
+  },
+  {
     "group": "WordPress",
     "feature": "wordpress",
     "endpoints": [

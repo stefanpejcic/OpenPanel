@@ -86,6 +86,8 @@ tags:
   description: Requires the `fix_permissions` feature to be enabled on the account's plan.
 - name: Sites & Websites
   description: Requires the `websites` feature to be enabled on the account's plan.
+- name: Drupal
+  description: Requires the `drupal` feature to be enabled on the account's plan.
 - name: WordPress
   description: Requires the `wordpress` feature to be enabled on the account's plan.
 - name: Node.js / Python Apps
@@ -6693,6 +6695,117 @@ paths:
         schema:
           type: string
       - name: install_type
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/drupal:
+    get:
+      summary: List all Drupal installations.
+      operationId: drupal
+      tags:
+      - Drupal
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/drupal/install:
+    post:
+      summary: Install Drupal on a domain via `composer create-project drupal/recommended-project` + `drush
+        site:install`. Streams newline-delimited JSON progress events as the install runs (Composer project
+        creation, database setup, drush install).
+      operationId: drupal_install
+      tags:
+      - Drupal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                site_name:
+                  type: string
+                  example: My Drupal Site
+                drupal_version:
+                  type: string
+                  example: ''
+                admin_username:
+                  type: string
+                  example: admin
+                admin_password:
+                  type: string
+                  example: changeme
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                db_name:
+                  type: string
+                  example: ''
+                db_user:
+                  type: string
+                  example: ''
+                db_password:
+                  type: string
+                  example: ''
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                site_name: My Drupal Site
+                drupal_version: ''
+                admin_username: admin
+                admin_password: changeme
+                admin_email: admin@example.com
+                db_name: ''
+                db_user: ''
+                db_password: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/drupal/sites/{id}:
+    delete:
+      summary: 'Uninstall Drupal: drops the database and user, deletes every file in the docroot, and
+        removes it from Site Manager.'
+      operationId: drupal_sites_id
+      tags:
+      - Drupal
+      parameters:
+      - name: id
         in: path
         required: true
         schema:
