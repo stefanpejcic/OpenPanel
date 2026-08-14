@@ -24,28 +24,7 @@ func loadPage(files ...string) *web.Page {
 	return web.MustLoadPage(append(append([]string{}, pageFiles...), files...)...)
 }
 
-var (
-	listPage    = loadPage("manager/drupal_list.html")
-	installPage = loadPage("manager/drupal_install.html")
-)
-
-// ListPageData is manager/drupal_list.html's template context.
-type ListPageData struct {
-	web.LayoutData
-	Sites []SiteRow
-}
-
-func renderListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, sites []SiteRow) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Drupal Manager")
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data := ListPageData{LayoutData: layout, Sites: sites}
-	if err := listPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("DRUPAL - list template render error: %v", err)
-	}
-}
+var installPage = loadPage("manager/drupal_install.html")
 
 // InstallPageData is manager/drupal_install.html's template context.
 type InstallPageData struct {

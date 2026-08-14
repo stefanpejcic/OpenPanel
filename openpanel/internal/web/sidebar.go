@@ -80,9 +80,6 @@ func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 		if allowed["wordpress"] {
 			links = append(links, NavLink{"/wordpress", "WordPress Manager", strings.HasPrefix(path, "/wordpress"), ""})
 		}
-		if allowed["drupal"] {
-			links = append(links, NavLink{"/drupal", "Drupal Manager", strings.HasPrefix(path, "/drupal"), ""})
-		}
 		open := hasAnyPrefix(path, "/auto-installer", "/sites", "/website", "/wordpress", "/drupal", "/pm2", "/nodejs", "/python")
 		groups = append(groups, NavGroup{"Websites", websitesIcon, "websites-menu", links, open, open})
 	}

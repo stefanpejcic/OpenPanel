@@ -77,7 +77,6 @@ func buildDashboardSections(allowed map[string]bool) []Section {
 			{"websites", "/sites", "bi-app-indicator", "Site Manager", ""},
 			{"autoinstaller", "/auto-installer", "bi-download", "Auto Installer", ""},
 			{"wordpress", "/wordpress", "bi-wordpress", "WP Manager", ""},
-			{"drupal", "/drupal", "bi-droplet", "Drupal Manager", ""},
 		}},
 		{Key: "cache", Title: "Cache", Items: []SectionItem{
 			{"redis", "/cache/redis", "bi-database-fill-lock", "Redis", ""},

@@ -1,5 +1,9 @@
 {{define "alpine_plugins"}}{{end}}
 
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
 {{define "content"}}
 <!-- START templates/manager/drupal_app.html -->
 
@@ -49,49 +53,236 @@
     <div id="drupal-tab-content">
 
         <div class="hidden p-4 rounded" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
-            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-                <div>
-                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Overview"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "This Drupal site runs inside the domain's own PHP-FPM container - it has no dedicated container of its own."}}</p>
+
+            <!-- screenshot -->
+            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
+                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+                        {{template "screenshot" .}}
+                    </div>
                 </div>
-                <div class="sm:max-w-3xl md:col-span-2">
-                    <table class="w-full text-sm">
-                        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-                            <tr>
-                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Docroot"}}</td>
-                                <td class="py-2 text-right font-mono text-gray-900 dark:text-gray-50">{{.Docroot}}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Drupal version"}}</td>
-                                <td class="py-2 text-right font-mono text-gray-900 dark:text-gray-50">{{if .DrupalVersion}}{{.DrupalVersion}}{{else}}{{.T.Get "Unknown"}}{{end}}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Created"}}</td>
-                                <td class="py-2 text-right font-mono text-gray-900 dark:text-gray-50">{{.Container.CreatedDate}}</td>
-                            </tr>
-                            {{if .DBInfo.error}}
-                            <tr>
-                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Database"}}</td>
-                                <td class="py-2 text-right text-gray-500 dark:text-gray-500">{{.DBInfo.error}}</td>
-                            </tr>
-                            {{else}}
-                            <tr>
-                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Database name"}}</td>
-                                <td class="py-2 text-right font-mono text-gray-900 dark:text-gray-50">{{.DBInfo.database_name}}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Database user"}}</td>
-                                <td class="py-2 text-right font-mono text-gray-900 dark:text-gray-50">{{.DBInfo.database_user}}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Database host"}}</td>
-                                <td class="py-2 text-right font-mono text-gray-900 dark:text-gray-50">{{.DBInfo.database_host}}</td>
-                            </tr>
+                <div class="grid h-full space-y-2 pb-2 gap-2 grid-cols-2 sm:grid-cols-1">
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Drupal:"}}</h2>
+                        </div>
+                        <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{if .DrupalVersion}}{{.DrupalVersion}}{{else}}{{.T.Get "Unknown"}}{{end}}</h3>
+                    </div>
+
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800" x-data="{ phpEditOpen: false }">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "PHP:"}}</h2>
+                            {{if and .UserAllowed.php (not .IsSubdirectory)}}
+                            <button type="button" @click="phpEditOpen = !phpEditOpen" data-tooltip-target="tooltip-drupal-php-link" data-tooltip-placement="left" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5"><path fill-rule="evenodd" d="M0 10.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H3V1.5a.5.5 0 0 0-1 0V10H.5a.5.5 0 0 0-.5.5M2.5 12a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5m3-6.5A.5.5 0 0 0 6 6h1.5v8.5a.5.5 0 0 0 1 0V6H10a.5.5 0 0 0 0-1H6a.5.5 0 0 0-.5.5M8 1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2A.5.5 0 0 0 8 1m3 9.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H14V1.5a.5.5 0 0 0-1 0V10h-1.5a.5.5 0 0 0-.5.5m2.5 1.5a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5"></path></svg>
+                            </button>
+                            <div id="tooltip-drupal-php-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                {{.T.Get "Click to change"}}
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
                             {{end}}
-                        </tbody>
-                    </table>
+                        </div>
+
+                        <h3 x-show="!phpEditOpen" class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{.PHPVersion}}</h3>
+
+                        {{if .IsSubdirectory}}
+                        <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">{{.T.Get "Inherits PHP version from %(domain)s" "domain" .MainDomain}}</p>
+                        {{else if .UserAllowed.php}}
+                        <form x-show="phpEditOpen" x-cloak method="POST" action="/php/domains" class="mt-1">
+                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                            <input type="hidden" name="domain_url" value="{{.MainDomain}}">
+                            <input type="hidden" name="old_php_version" value="{{.CurrentPHPVersion}}">
+                            <input type="hidden" name="redirect_to" value="/website?domain={{.CurrentDomain}}">
+                            <div x-data="{ current: {{toJSON .CurrentPHPVersion}}, selected: {{toJSON .CurrentPHPVersion}} }" class="flex rounded-lg">
+                                <select x-model="selected" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="new_php_version">
+                                    {{range .AvailablePHPVersions}}
+                                        <option value="{{.}}" {{if eq . $.CurrentPHPVersion}}selected disabled{{end}}>{{.}}</option>
+                                    {{end}}
+                                </select>
+                                <div class="input-group-append flex">
+                                    <button type="submit" :disabled="selected === current" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                                        {{.T.Get "Change"}}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        {{end}}
+                    </div>
+
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "MariaDB:"}}</h2>
+                        </div>
+                        <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{.MySQLVersion}}</h3>
+                    </div>
+
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Created:"}}</h2>
+                        </div>
+                        <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl" data-relative-date="{{.Container.CreatedDate}}">{{.Container.CreatedDate}}</h3>
+                    </div>
                 </div>
             </div>
+            <!-- END screenshot -->
+
+            <dl class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-4">
+
+                <!-- files info -->
+                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
+                        <a
+                            type="button"
+                            {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}
+                            target="_blank"
+                            data-tooltip-target="tooltip-filemanager-link" data-tooltip-placement="left"
+                            class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                        >
+                            <svg class="hi-mini hi-archive-box inline-block size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M2 3a1 1 0 00-1 1v1a1 1 0 001 1h16a1 1 0 001-1V4a1 1 0 00-1-1H2z"></path>
+                        <path fill-rule="evenodd" d="M2 7.5h16l-.811 7.71a2 2 0 01-1.99 1.79H4.802a2 2 0 01-1.99-1.79L2 7.5zM7 11a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        </a>
+                        <div id="tooltip-filemanager-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                        {{.T.Get "Open folder in File Manager"}}
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Folder:"}}</span>
+                            <span class="font-medium truncate"><a class="domain_link relative font-medium hover:underline" {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}>{{.Docroot}}</a></span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Folder Size:"}}</span>
+                            <span class="font-medium" id="filesSize">{{.T.Get "Calculating.."}}</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- END files info -->
+
+                <!-- database info -->
+                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
+                        {{if .UserAllowed.mysql}}
+                        <a
+                            type="button"
+                            id="db-link"
+                            href="/mysql"
+                            target="_blank"
+                            data-tooltip-target="tooltip-db-link" data-tooltip-placement="left"
+                            class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <div id="tooltip-db-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                            {{.T.Get "Manage MySQL databases"}}
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                        {{end}}
+                    </div>
+
+                    {{if .DBInfo.error}}
+                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                        <span class="text-sm text-gray-500 dark:text-gray-500">{{.DBInfo.error}}</span>
+                    </div>
+                    {{else}}
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50" id="database-size-row">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Size:"}}</span>
+                            <span class="font-medium" id="databaseSize">{{.T.Get "Calculating.."}}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Host:"}}</span>
+                            <span class="font-medium">{{.DBInfo.database_host}}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Name:"}}</span>
+                            <span class="font-medium">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql" class="hover:underline">{{.DBInfo.database_name}}</a>
+                            {{else}}
+                                {{.DBInfo.database_name}}
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database User:"}}</span>
+                            <span class="font-medium">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql/users" class="hover:underline">{{.DBInfo.database_user}}</a>
+                            {{else}}
+                                {{.DBInfo.database_user}}
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Password:"}}</span>
+                            <span class="font-medium" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealDrupalDBPassword()">{{.DBInfo.database_password}}</span>
+                        </div>
+
+                        {{if .UserAllowed.phpmyadmin}}
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "phpMyAdmin:"}}</span>
+                            <span class="font-medium flex items-center gap-1.5"><a
+                                        type="button"
+                                        id="phpmyadmin-link"
+                                        href="/phpmyadmin"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                            <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open database in phpMyAdmin"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
+                                    <a
+                                        type="button"
+                                        id="phpmyadmin-link-manual"
+                                        href="/phpmyadmin/link"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link-manual" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-right-end-on-rectangle inline-block size-5">
+                                            <path fill-rule="evenodd" d="M6 3.75A2.75 2.75 0 0 1 8.75 1h4.5A2.75 2.75 0 0 1 16 3.75v12.5A2.75 2.75 0 0 1 13.25 19h-4.5A2.75 2.75 0 0 1 6 16.25v-1a.75.75 0 0 1 1.5 0v1c0 .69.56 1.25 1.25 1.25h4.5c.69 0 1.25-.56 1.25-1.25V3.75c0-.69-.56-1.25-1.25-1.25h-4.5c-.69 0-1.25.56-1.25 1.25v1a.75.75 0 0 1-1.5 0v-1Z" clip-rule="evenodd"></path>
+                                            <path fill-rule="evenodd" d="M1 10a.75.75 0 0 1 .75-.75h9.546l-1.048-.943a.75.75 0 1 1 1.004-1.114l2.5 2.25a.75.75 0 0 1 0 1.114l-2.5 2.25a.75.75 0 1 1-1.004-1.114l1.048-.943H1.75A.75.75 0 0 1 1 10Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link-manual" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open phpMyAdmin login form"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div></span>
+                        </div>
+                        {{end}}
+                    </div>
+                    {{end}}
+                </div>
+                <!-- END database info -->
+
+                <script>
+                    function revealDrupalDBPassword() {
+                        var passwordSpan = document.getElementById("database-password");
+                        passwordSpan.style.filter = passwordSpan.style.filter === "blur(5px)" ? "none" : "blur(5px)";
+                    }
+                </script>
+
+            </dl>
         </div>
 
         <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
@@ -160,6 +351,30 @@ function confirmRemoveDrupal() {
     };
     xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(DRUPAL_SITE_ID));
 }
+</script>
+
+<script>
+(function() {
+    const destinationPath = {{toJSON (replace .Docroot "/var/www/html/" "")}};
+    fetch(`/json/directory-size?folder=${encodeURIComponent(destinationPath)}`)
+        .then(response => response.json())
+        .then(data => { document.getElementById("filesSize").textContent = data.size; })
+        .catch(error => console.error("An error occurred fetching folder size from the container:", error));
+
+    const databaseName = {{toJSON .DBInfo.database_name}};
+    const databaseHost = {{toJSON .DBInfo.database_host}};
+    const databaseSizeSpan = document.getElementById("databaseSize");
+    if (databaseSizeSpan) {
+        if (databaseHost === "localhost" || databaseHost === "mysql" || databaseHost === "mariadb" || databaseHost === "127.0.0.1") {
+            fetch(`/json/database-size?database=${encodeURIComponent(databaseName)}`)
+                .then(response => response.json())
+                .then(data => { databaseSizeSpan.textContent = data.size; })
+                .catch(error => console.error("An error occurred fetching DB size from MySQL:", error));
+        } else {
+            document.getElementById("database-size-row")?.classList.add('hidden');
+        }
+    }
+})();
 </script>
 
 <!-- END templates/manager/drupal_app.html -->

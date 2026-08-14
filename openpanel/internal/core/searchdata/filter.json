@@ -114,12 +114,6 @@
       "name": "WordPress Manager"
     },
     {
-      "description": "Manage your Drupal websites.",
-      "link": "/drupal",
-      "module": "drupal",
-      "name": "Drupal Manager"
-    },
-    {
       "description": "Install Drupal CMS.",
       "link": "/drupal/install",
       "module": "drupal",

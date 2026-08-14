@@ -55,9 +55,15 @@ var drupalAppPage = loadPage("manager/drupal_app.html")
 // DrupalAppPageData is manager/drupal_app.html's template context.
 type DrupalAppPageData struct {
 	pageData
-	Container     ContainerInfo
-	DrupalVersion string
-	DBInfo        map[string]string
+	Container            ContainerInfo
+	DrupalVersion        string
+	PHPVersion           string
+	MySQLVersion         string
+	DBInfo               map[string]string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
 }
 
 func renderDrupalAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data DrupalAppPageData) {
@@ -67,6 +73,7 @@ func renderDrupalAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
 	if err := drupalAppPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WEBSITES - drupal_app template render error: %v", err)
 	}

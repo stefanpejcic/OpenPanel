@@ -205,6 +205,23 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// drupal/recommended-project's docroot is the web/ subdirectory, not the
+	// composer project root - but OpenPanel's per-domain (or subdirectory)
+	// docroot always maps directly to installPath. Symlinking web/'s entries
+	// up into installPath (rather than moving them) makes installPath itself
+	// servable without touching web/'s own relative includes (autoload.php's
+	// `__DIR__ . '/../vendor/autoload.php'` still resolves correctly, since
+	// PHP resolves __DIR__/__FILE__ against the symlink target).
+	emit(map[string]any{"status": "Linking web root into docroot"})
+	linkScript := `cd "$1/web" && for f in .[!.]* ..?* *; do [ -e "$f" ] || continue; ln -sfn "web/$f" "$1/$f"; done`
+	linkArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "sh", "-c", linkScript, "sh"), installPath)
+	out, runErr = podmanmanager.Command(ctx, userContext, linkArgv).CombinedOutput()
+	if runErr != nil {
+		emit(map[string]any{"error": "Linking web root into docroot failed: " + strings.TrimSpace(string(out))})
+		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		return
+	}
+
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
 		uidStr := strconv.Itoa(uid)

@@ -1777,11 +1777,6 @@
     "feature": "drupal",
     "endpoints": [
       {
-        "method": "GET",
-        "path": "/api/drupal",
-        "description": "List all Drupal installations."
-      },
-      {
         "method": "POST",
         "path": "/api/drupal/install",
         "description": "Install Drupal on a domain via `composer create-project drupal/recommended-project` + `drush site:install`. Streams newline-delimited JSON progress events as the install runs (Composer project creation, database setup, drush install).",

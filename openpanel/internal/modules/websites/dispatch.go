@@ -181,11 +181,20 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 	case "drupal":
 		dbInfo := extractDrupalDatabaseInfo(userContext, docroot)
 		drupalVersion := getDrupalVersion(userContext, docroot)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		mysqlVersion := getMySQLVersion(a, r, userContext)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderDrupalAppPage(a, w, r, DrupalAppPageData{
-			pageData:      pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
-			Container:     container,
-			DrupalVersion: drupalVersion,
-			DBInfo:        dbInfo,
+			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Container:            container,
+			DrupalVersion:        drupalVersion,
+			PHPVersion:           currentPHPVersion,
+			MySQLVersion:         mysqlVersion,
+			DBInfo:               dbInfo,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
 		})
 
 	default:

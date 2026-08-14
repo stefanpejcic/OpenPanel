@@ -6711,24 +6711,6 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
-  /api/drupal:
-    get:
-      summary: List all Drupal installations.
-      operationId: drupal
-      tags:
-      - Drupal
-      responses:
-        '200':
-          description: Success.
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: true
-        default:
-          $ref: '#/components/responses/Error'
-      security:
-      - bearerAuth: []
   /api/drupal/install:
     post:
       summary: Install Drupal on a domain via `composer create-project drupal/recommended-project` + `drush

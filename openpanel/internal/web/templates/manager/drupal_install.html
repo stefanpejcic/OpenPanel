@@ -29,6 +29,33 @@
     <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
         <div class="flex items-center gap-2.5 mb-2">
             <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">1</div>
+            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Site details"}}</span>
+        </div>
+
+        <div class="mb-3">
+            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="site_name">
+                {{.T.Get "Website name"}}<span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="site_name" id="site_name" placeholder="{{.T.Get "My Drupal Site"}}" required
+                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+        </div>
+
+        <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="drupal_version">
+                {{.T.Get "Drupal version"}}<span class="text-red-500">*</span>
+            </label>
+            <select name="drupal_version" id="drupal_version"
+                class="relative block w-full cursor-pointer appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                <option value="">{{.T.Get "Latest"}}</option>
+                <option value="^11">Drupal 11</option>
+                <option value="^10">Drupal 10</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+        <div class="flex items-center gap-2.5 mb-2">
+            <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">2</div>
             <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domain & location"}}</span>
         </div>
 
@@ -37,7 +64,7 @@
                 {{.T.Get "Domain"}}<span class="text-red-500">*</span>
             </label>
             <div class="flex rounded-lg shadow-sm">
-                <select name="domain_id" id="domain_id" onchange="updateDocroot()"
+                <select name="domain_id" id="domain_id" onchange="updateDocroot(); updateEmailFromDomain()"
                     class="peer flex-1 min-w-0 cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
                     <option selected disabled value="">{{.T.Get "Select a domain"}}</option>
                     {{range .Domains}}
@@ -69,11 +96,25 @@
                 document.getElementById('path').textContent = docroot || '/var/www/html/';
             }
 
+            function updateEmailFromDomain() {
+                const selectedOption = document.querySelector("#domain_id option:checked");
+                if (!selectedOption || !selectedOption.value) return;
+                const selectedDomain = selectedOption.textContent.trim();
+                const adminEmailInput = document.getElementById("admin_email");
+                const currentEmail = adminEmailInput.value;
+                const atIndex = currentEmail.indexOf('@');
+                if (atIndex !== -1) {
+                    adminEmailInput.value = currentEmail.substring(0, atIndex + 1) + selectedDomain;
+                } else {
+                    adminEmailInput.value = 'admin@' + selectedDomain;
+                }
+            }
+
             window.onload = function() {
                 const domainSelect = document.getElementById('domain_id');
                 if (domainSelect) {
                     const selectedOption = domainSelect.options[domainSelect.selectedIndex];
-                    if (selectedOption && selectedOption.value) updateDocroot();
+                    if (selectedOption && selectedOption.value) { updateDocroot(); updateEmailFromDomain(); }
                 }
             };
         </script>
@@ -81,43 +122,115 @@
 
     <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
         <div class="flex items-center gap-2.5 mb-2">
-            <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">2</div>
-            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Site details"}}</span>
-        </div>
-
-        <div class="mb-3">
-            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="site_name">{{.T.Get "Site name"}}</label>
-            <input type="text" name="site_name" id="site_name" value="My Drupal Site"
-                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
-        </div>
-
-        <div class="mb-3">
-            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="drupal_version">{{.T.Get "Drupal version"}}</label>
-            <select name="drupal_version" id="drupal_version"
-                class="relative block w-full cursor-pointer appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
-                <option value="">{{.T.Get "Latest"}}</option>
-                <option value="^11">Drupal 11</option>
-                <option value="^10">Drupal 10</option>
-            </select>
+            <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">3</div>
+            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Admin credentials"}}</span>
+            <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-500 border border-gray-100 dark:border-gray-800">{{.T.Get "auto-generated"}}</span>
         </div>
 
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_username">{{.T.Get "Admin username"}}</label>
-                <input type="text" name="admin_username" id="admin_username" value="admin"
-                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_email">
+                    {{.T.Get "Email"}}<span class="text-red-500">*</span>
+                </label>
+                <input type="email" name="admin_email" id="admin_email" placeholder="admin@example.com" required
+                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
             </div>
             <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_password">{{.T.Get "Admin password"}}</label>
-                <input type="text" name="admin_password" id="admin_password" placeholder="{{.T.Get "Leave blank to generate one"}}"
-                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_username">
+                    {{.T.Get "Username"}}<span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="admin_username" id="admin_username" value="admin" required
+                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
             </div>
         </div>
 
-        <div class="mt-3">
-            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_email">{{.T.Get "Admin email"}}</label>
-            <input type="email" name="admin_email" id="admin_email" placeholder="admin@example.com"
-                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+        <div
+            class="mt-3"
+            x-data="passwordStrength({
+                weak: '{{.T.Get "Weak password"}}',
+                medium: '{{.T.Get "Medium strength password"}}',
+                strong: '{{.T.Get "Strong password"}}',
+                tooWeak: '{{.T.Get "Password does not meet the required strength."}}'
+            }, {{.PasswordStrength}})"
+            x-init="checkStrength()"
+        >
+            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_password">
+                {{.T.Get "Password"}}<span class="text-red-500">*</span>
+            </label>
+            <div class="flex rounded-lg shadow-sm">
+                <input type="password" name="admin_password" id="admin_password" required
+                    x-model="password"
+                    x-ref="input"
+                    @input="checkStrength(); password = password.replace(/\s/g, '')"
+                    @keydown.space.prevent
+                    class="relative block w-full appearance-none rounded-l border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"/>
+                <button type="button" id="generatePassword"
+                    class="px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-900 border-t border-b border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors whitespace-nowrap">{{.T.Get "Regenerate"}}</button>
+                <button type="button" id="togglePassword"
+                    class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-r hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+
+            <div class="mt-2 h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-300"
+                    :class="{
+                        'bg-red-500': strength === 'Weak',
+                        'bg-orange-500': strength === 'Medium',
+                        'bg-emerald-500': strength === 'Strong'
+                    }"
+                    :style="{
+                        width: strength === 'Weak' ? '33%' : strength === 'Medium' ? '66%' : strength === 'Strong' ? '100%' : '0%'
+                    }"></div>
+            </div>
+            <p class="mt-1 text-xs font-medium"
+                :class="{
+                    'text-red-500': strength === 'Weak',
+                    'text-orange-500': strength === 'Medium',
+                    'text-emerald-600 dark:text-emerald-400': strength === 'Strong'
+                }">
+                <span x-text="strengthMessage"></span>
+            </p>
+        </div>
+
+        <div class="mt-3" x-data="{ showDB: false }">
+            <button type="button" @click="showDB = !showDB"
+                class="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors w-full text-left py-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16"
+                    :class="showDB ? 'rotate-180' : ''"
+                    class="transition-transform duration-200">
+                    <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                </svg>
+                {{.T.Get "Database settings"}}
+                <span class="text-gray-300 dark:text-gray-600">·</span>
+                <span>{{.T.Get "auto-generated · click to review"}}</span>
+            </button>
+
+            <div x-show="showDB" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="db_name">
+                            {{.T.Get "Database name"}}<span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="db_name" id="db_name" required
+                            class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="db_user">
+                            {{.T.Get "DB username"}}<span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="db_user" id="db_user" required
+                            class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="db_password">
+                            {{.T.Get "DB password"}}<span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="db_password" id="db_password" required
+                            class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -232,7 +345,7 @@ const ICON_ERROR = `<svg class="size-5 shrink-0 text-red-500" viewBox="0 0 24 24
 const INSTALL_STEPS = [
   { id: 'step-preflight', triggers: ['Checking if existing installation', 'Validating provided data'] },
   { id: 'step-container', triggers: ['Starting PHP container'] },
-  { id: 'step-project',   triggers: ['Creating Composer project', 'Requiring drush', 'Setting files permissions'] },
+  { id: 'step-project',   triggers: ['Creating Composer project', 'Requiring drush', 'Linking web root', 'Setting files permissions'] },
   { id: 'step-database',  triggers: ['Testing database connection', 'Creating database'] },
   { id: 'step-drush',     triggers: ['Running drush site:install'] },
   { id: 'step-done',      triggers: ['Saving website information', 'installation completed'] },
@@ -389,6 +502,56 @@ document.getElementById("installForm").addEventListener("submit", function(event
       console.error("Fetch error:", error);
     });
 });
+</script>
+
+<script type="module">
+    function generateRandomStrongPassword(length) {
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";
+        let result = "";
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            result += charset.charAt(randomIndex);
+        }
+        return result;
+    }
+
+    function generateInitialPassword() {
+        const passwordField = document.getElementById("admin_password");
+        passwordField.value = generateRandomStrongPassword(16);
+        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    generateInitialPassword();
+
+    document.getElementById("generatePassword").addEventListener("click", function() {
+        const generatedPassword = generateRandomStrongPassword(16);
+        const passwordField = document.getElementById("admin_password");
+        passwordField.value = generatedPassword;
+        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+        }
+    });
+
+    document.getElementById("togglePassword").addEventListener("click", function() {
+        const passwordField = document.getElementById("admin_password");
+        passwordField.type = passwordField.type === "password" ? "text" : "password";
+    });
+</script>
+
+<script src="{{static "js/generator.js"}}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dbNameField = document.getElementById("db_name");
+        dbNameField.value = "drupal_" + generateString(6).toLowerCase();
+        dbNameField.dispatchEvent(new Event('input', { bubbles: true }));
+        const dbUserField = document.getElementById("db_user");
+        dbUserField.value = generateString(10).toLowerCase();
+        dbUserField.dispatchEvent(new Event('input', { bubbles: true }));
+        const dbPasswordField = document.getElementById("db_password");
+        dbPasswordField.value = generateString(16);
+        dbPasswordField.dispatchEvent(new Event('input', { bubbles: true }));
+    });
 </script>
 
 {{else}}
