@@ -7,7 +7,7 @@
     <header>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Auto Installer"}}</h1>
         <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Quickly install a variety of applications such as"}}
-{{if .UserAllowed.wordpress}}WordPress, {{end}}{{if .UserAllowed.drupal}}Drupal, {{end}}{{if .UserAllowed.python}}Python, {{end}}{{if .UserAllowed.nodejs}}Node.js, {{end}}{{.T.Get "and others."}}</p>
+{{if .UserAllowed.wordpress}}WordPress, {{end}}{{if .UserAllowed.drupal}}Drupal, {{end}}{{if .UserAllowed.joomla}}Joomla, {{end}}{{if .UserAllowed.python}}Python, {{end}}{{if .UserAllowed.nodejs}}Node.js, {{end}}{{.T.Get "and others."}}</p>
     </header>
 </div>
 
@@ -77,6 +77,35 @@
             </a>
             <div class="border-t border-gray-200 px-6 py-3 dark:border-gray-900">
                 <a href="/drupal/install" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Install Drupal"}}</a>
+            </div>
+        </div>
+    {{end}}
+
+    {{if .UserAllowed.joomla}}
+        <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0">
+            <div class="p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="#F44321" id="joomla"><path d="M16.719 14.759L14.22 17.26l-2.37 2.37-.462.466c-1.368 1.365-3.297 1.83-5.047 1.397-.327 1.424-1.604 2.49-3.13 2.49C1.438 23.983 0 22.547 0 20.772c0-1.518 1.055-2.789 2.469-3.123-.446-1.76.016-3.705 1.396-5.08l.179-.18 2.37 2.37-.184.181c-.769.779-.769 2.024 0 2.789.771.78 2.022.78 2.787 0l.465-.465 2.367-2.371 2.502-2.506 2.368 2.372zm.924 6.652c-1.822.563-3.885.12-5.328-1.318l-.18-.185 2.365-2.369.18.184c.771.768 2.018.768 2.787 0 .765-.765.769-2.01-.004-2.781l-.466-.465-2.365-2.37-2.502-2.503 2.37-2.369 2.499 2.505 2.367 2.37.464.464c1.365 1.36 1.846 3.278 1.411 5.021 1.56.224 2.759 1.56 2.759 3.18 0 1.784-1.439 3.21-3.209 3.21-1.545 0-2.851-1.096-3.135-2.565l-.013-.009zM6.975 9.461l2.508-2.505 2.37-2.369.462-.461C13.74 2.7 15.772 2.251 17.58 2.79c.212-1.561 1.555-2.775 3.179-2.775 1.772 0 3.211 1.437 3.211 3.209 0 1.631-1.216 2.978-2.79 3.186.519 1.799.068 3.816-1.35 5.234l-.182.184-2.369-2.369.184-.184c.769-.77.769-2.016 0-2.783-.766-.766-2.011-.768-2.781.003l-.462.461-2.37 2.369-2.505 2.502-2.37-2.366zm-2.653 2.647l-.461-.462C2.43 10.215 1.986 8.17 2.529 6.358 1.1 6.029.03 4.754.03 3.224.03 1.454 1.47.015 3.24.015c1.596 0 2.92 1.166 3.17 2.691 1.73-.405 3.626.065 4.979 1.415l.184.185-2.37 2.37-.183-.181c-.77-.765-2.016-.765-2.785 0-.771.781-.77 2.025-.005 2.79l.465.466 2.37 2.369 2.505 2.505-2.367 2.37-2.51-2.505-2.371-2.37v-.012z"/></svg>
+                        </span>
+                        <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
+                            <a href="/joomla/install">{{.T.Get "Joomla"}}</a>
+                        </dt>
+                    </div>
+                </div>
+                <dd class="text-gray-600 dark:text-gray-400 mt-3 text-sm/6">{{.T.Get "Install Joomla CMS in a few clicks."}}</dd>
+            </div>
+            <a href="/sites">
+            <div class="border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-900 dark:bg-[#090E1A]">
+                <div class="flex items-center space-x-2">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 text-gray-400 dark:text-gray-600"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path></svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{if eq (index .Counts "joomla") 0}}{{.T.Get "No"}}{{else}}{{index .Counts "joomla"}}{{end}} {{.T.Get "existing installation"}}{{if ne (index .Counts "joomla") 1}}{{.T.Get "s"}}{{end}}</p>
+                </div>
+            </div>
+            </a>
+            <div class="border-t border-gray-200 px-6 py-3 dark:border-gray-900">
+                <a href="/joomla/install" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Install Joomla"}}</a>
             </div>
         </div>
     {{end}}

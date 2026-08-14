@@ -534,6 +534,59 @@ func getDrupalVersion(userContext, realPath string) string {
 	return "Unknown"
 }
 
+// extractJoomlaDatabaseInfo parses the $host/$user/$password/$db/$dbprefix
+// properties out of configuration.php - much simpler than
+// extractDrupalDatabaseInfo's settings.php scrape, since Joomla's installer
+// writes a plain generated PHP class with no preceding documentation/
+// placeholder block to accidentally match first.
+func extractJoomlaDatabaseInfo(userContext, directory string) map[string]string {
+	const wwwPrefix = "/var/www/html/"
+	if !strings.HasPrefix(directory, wwwPrefix) {
+		return nil
+	}
+	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
+	content, err := os.ReadFile(filepath.Join(mappedDir, "configuration.php"))
+	if err != nil {
+		return map[string]string{"error": "configuration.php not found"}
+	}
+	text := string(content)
+
+	info := map[string]string{}
+	for key, field := range map[string]string{
+		"database_name": "db", "database_user": "user",
+		"database_password": "password", "database_host": "host", "database_prefix": "dbprefix",
+	} {
+		re := regexp.MustCompile(`\$` + field + `\s*=\s*'([^']*)'`)
+		if m := re.FindStringSubmatch(text); m != nil {
+			info[key] = m[1]
+		}
+	}
+	if len(info) == 0 {
+		return map[string]string{"error": "No database information found in configuration.php"}
+	}
+	return info
+}
+
+// getJoomlaVersion reads the MAJOR/MINOR/PATCH version constants out of
+// libraries/src/Version.php, mirroring getDrupalVersion's live-read-from-
+// disk approach (no persisted version tracking anywhere else).
+func getJoomlaVersion(userContext, realPath string) string {
+	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
+	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "libraries", "src", "Version.php")
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "Unknown"
+	}
+	text := string(content)
+	major := regexp.MustCompile(`MAJOR_VERSION\s*=\s*(\d+)`).FindStringSubmatch(text)
+	minor := regexp.MustCompile(`MINOR_VERSION\s*=\s*(\d+)`).FindStringSubmatch(text)
+	patch := regexp.MustCompile(`PATCH_VERSION\s*=\s*(\d+)`).FindStringSubmatch(text)
+	if major == nil || minor == nil || patch == nil {
+		return "Unknown"
+	}
+	return major[1] + "." + minor[1] + "." + patch[1]
+}
+
 // getMySQLVersion resolves the running MySQL/MariaDB version, memoized for
 // 1 hour since it changes only on upgrade.
 func getMySQLVersion(a *appctx.App, r *http.Request, userContext string) string {

@@ -79,6 +79,35 @@ func renderDrupalAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	}
 }
 
+var joomlaAppPage = loadPage("manager/joomla_app.html")
+
+// JoomlaAppPageData is manager/joomla_app.html's template context.
+type JoomlaAppPageData struct {
+	pageData
+	Container            ContainerInfo
+	JoomlaVersion        string
+	PHPVersion           string
+	MySQLVersion         string
+	DBInfo               map[string]string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderJoomlaAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data JoomlaAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := joomlaAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - joomla_app template render error: %v", err)
+	}
+}
+
 var websiteBuilderPage = loadPage("manager/websitebuilder.html")
 
 // WebsiteBuilderPageData is manager/websitebuilder.html's template context.

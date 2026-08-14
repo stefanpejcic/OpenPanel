@@ -120,6 +120,12 @@
       "name": "Install Drupal"
     },
     {
+      "description": "Install Joomla CMS.",
+      "link": "/joomla/install",
+      "module": "joomla",
+      "name": "Install Joomla"
+    },
+    {
       "description": "Manage your files and folders.", 
       "link": "/files", 
       "module": "filemanager", 

@@ -88,6 +88,8 @@ tags:
   description: Requires the `websites` feature to be enabled on the account's plan.
 - name: Drupal
   description: Requires the `drupal` feature to be enabled on the account's plan.
+- name: Joomla
+  description: Requires the `joomla` feature to be enabled on the account's plan.
 - name: WordPress
   description: Requires the `wordpress` feature to be enabled on the account's plan.
 - name: Node.js / Python Apps
@@ -6786,6 +6788,103 @@ paths:
       operationId: drupal_sites_id
       tags:
       - Drupal
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/joomla/install:
+    post:
+      summary: Install Joomla on a domain by downloading the release archive from GitHub and running Joomla's
+        own `installation/joomla.php install` CLI installer. Streams newline-delimited JSON progress events
+        as the install runs (download, extraction, database setup, CLI install).
+      operationId: joomla_install
+      tags:
+      - Joomla
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                site_name:
+                  type: string
+                  example: My Joomla Site
+                joomla_version:
+                  type: string
+                  example: ''
+                admin_name:
+                  type: string
+                  example: Administrator
+                admin_username:
+                  type: string
+                  example: admin
+                admin_password:
+                  type: string
+                  example: changeme
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                db_name:
+                  type: string
+                  example: ''
+                db_user:
+                  type: string
+                  example: ''
+                db_password:
+                  type: string
+                  example: ''
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                site_name: My Joomla Site
+                joomla_version: ''
+                admin_name: Administrator
+                admin_username: admin
+                admin_password: changeme
+                admin_email: admin@example.com
+                db_name: ''
+                db_user: ''
+                db_password: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/joomla/sites/{id}:
+    delete:
+      summary: 'Uninstall Joomla: drops the database and user, deletes every file in the docroot, and
+        removes it from Site Manager.'
+      operationId: joomla_sites_id
+      tags:
+      - Joomla
       parameters:
       - name: id
         in: path

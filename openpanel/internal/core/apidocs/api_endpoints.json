@@ -1801,6 +1801,35 @@
     ]
   },
   {
+    "group": "Joomla",
+    "feature": "joomla",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/joomla/install",
+        "description": "Install Joomla on a domain by downloading the release archive from GitHub and running Joomla's own `installation/joomla.php install` CLI installer. Streams newline-delimited JSON progress events as the install runs (download, extraction, database setup, CLI install).",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "site_name": "My Joomla Site",
+          "joomla_version": "",
+          "admin_name": "Administrator",
+          "admin_username": "admin",
+          "admin_password": "changeme",
+          "admin_email": "admin@example.com",
+          "db_name": "",
+          "db_user": "",
+          "db_password": ""
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/joomla/sites/<id>",
+        "description": "Uninstall Joomla: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      }
+    ]
+  },
+  {
     "group": "WordPress",
     "feature": "wordpress",
     "endpoints": [

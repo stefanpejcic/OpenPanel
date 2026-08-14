@@ -1,7 +1,7 @@
 // Package autoinstaller implements the "Auto Installer" hub page listing
-// every one-click app type (WordPress, Drupal, Website Builder, Mautic,
-// NodeJS, Python), each showing how many instances of that type this user
-// already has installed.
+// every one-click app type (WordPress, Drupal, Joomla, Website Builder,
+// Mautic, NodeJS, Python), each showing how many instances of that type
+// this user already has installed.
 package autoinstaller
 
 import (
@@ -20,7 +20,7 @@ import (
 // wordpress/drupal/sitebuilder (website_builder)/mautic/node/python have a
 // card in the template - the rest are counted but never displayed.
 var technologies = []string{
-	"wordpress", "drupal", "sitebuilder", "node", "python", "php",
+	"wordpress", "drupal", "joomla", "sitebuilder", "node", "python", "php",
 	"java", "ruby", "bun", "mautic", "flarum", "fossbilling",
 }
 
