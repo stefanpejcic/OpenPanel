@@ -43,12 +43,12 @@
 
 {{if .UserAllowed.services}}
     <span class="h-4 w-px bg-gray-200 dark:bg-gray-800"></span>
-    <a href="/services/{{.Service}}" class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-500">
+    <a href="/services/{{lower .Service}}" class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-500">
         {{.T.Get "Manage"}}
     </a>
 {{else if .UserAllowed.docker}}
     <span class="h-4 w-px bg-gray-200 dark:bg-gray-800"></span>
-    <a href="/containers?s={{.Service}}" class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-500">
+    <a href="/containers?s={{lower .Service}}" class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-500">
         {{.T.Get "Manage"}}
     </a>
 {{end}}

@@ -18,8 +18,57 @@
 
     <div class="mt-2 gap-2 sm:mt-0 sm:flex">
         {{template "temp_link" .}}
+        <button type="button" id="drupal_login_button"
+            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit w-full mt-2 sm:mt-0 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">
+            <span id="drupal_login_button_text">{{.T.Get "Login as Admin"}}</span>
+        </button>
     </div>
 </div>
+
+<script>
+(function() {
+    var loginButton = document.getElementById('drupal_login_button');
+    var buttonText = document.getElementById('drupal_login_button_text');
+
+    loginButton.addEventListener('click', function() {
+        loginButton.disabled = true;
+        buttonText.innerHTML = '<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Generating..';
+        showToast({{toJSON (.T.Get "Generating auto-login link..")}}, 'loading', true);
+
+        var url = '/drupal/login?domain=' + encodeURIComponent({{toJSON .CurrentDomain}}) + '&docroot=' + encodeURIComponent({{toJSON .Docroot}});
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                loginButton.disabled = false;
+                buttonText.innerHTML = {{toJSON (.T.Get "Login as Admin")}};
+
+                if (xhr.status === 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response && response.login_link) {
+                            showToast({{toJSON (.T.Get "Auto-login link:")}} + " " + response.login_link, 'success');
+                            window.open(response.login_link, '_blank');
+                        } else if (response && response.error) {
+                            showToast(`${response.error}`, 'warning');
+                        } else {
+                            showToast({{toJSON (.T.Get "Unexpected response from Drush.")}}, 'error');
+                        }
+                    } catch (e) {
+                        showToast({{toJSON (.T.Get "Error parsing backend response.")}}, 'error');
+                    }
+                } else {
+                    showToast({{toJSON (.T.Get "Failed to generate auto-login link.")}}, 'error');
+                }
+            }
+        };
+
+        xhr.send();
+    });
+})();
+</script>
 
 <div class="m-6 grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4">
 
@@ -28,7 +77,7 @@
         <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="drupal-tab" data-tabs-toggle="#drupal-tab-content" role="tablist" class="grid grid-cols-2 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+        <ul id="drupal-tab" data-tabs-toggle="#drupal-tab-content" role="tablist" class="grid grid-cols-4 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
             <li role="presentation">
                 <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
                    @click="activeTab = 'dashboard'"
@@ -36,6 +85,15 @@
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M2 10h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1m9-9h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m0 9a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1zm0-10a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM2 9a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2zm7 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2zM0 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.354.854a.5.5 0 1 0-.708-.708L3 3.793l-.646-.647a.5.5 0 1 0-.708.708l1 1a.5.5 0 0 0 .708 0z"/></svg>
                     <span class="hidden md:inline">{{.T.Get "Overview"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#logs" id="logs-tab" data-tabs-target="#logs" role="tab" aria-controls="logs" aria-selected="false"
+                   @click="activeTab = 'logs'"
+                   :class="activeTab === 'logs' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Logs"}}</span>
                 </a>
             </li>
             <li role="presentation">
@@ -285,6 +343,74 @@
             </dl>
         </div>
 
+        <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="drupal-log-title" class="font-semibold text-gray-900 dark:text-gray-50">
+                    {{.T.Get "Loading watchdog log.."}}
+                </h3>
+                <div class="flex space-x-2">
+                    <button title="{{.T.Get "Copy to clipboard"}}"
+                        class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                        onclick="copyDrupalLogs()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
+                    </button>
+                    <button title="{{.T.Get "Refresh"}}"
+                        class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                        onclick="loadDrupalLogs()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="drupal-log" class="overflow-y-auto h-72 p-2 rounded border border-dashed border-gray-300 dark:border-gray-800"><pre></pre></div>
+
+            <script>
+                let __drupalLogsLoaded = false;
+                let __drupalLogsText = '';
+
+                function loadDrupalLogs() {
+                    const domain = {{toJSON .CurrentDomain}};
+                    const docroot = {{toJSON .Docroot}};
+                    const titleEl = document.getElementById('drupal-log-title');
+                    const bodyEl = document.getElementById('drupal-log');
+                    titleEl.textContent = {{toJSON (.T.Get "Loading watchdog log..")}};
+
+                    fetch(`/drupal/logs?domain=${encodeURIComponent(domain)}&docroot=${encodeURIComponent(docroot)}`, {
+                        headers: { 'X-CSRF-Token': csrf_token }
+                    })
+                        .then(response => response.text())
+                        .then(data => {
+                            __drupalLogsText = data;
+                            titleEl.textContent = {{toJSON (.T.Get "Watchdog log for")}} + " " + domain;
+                            bodyEl.innerHTML = '';
+                            const pre = document.createElement('pre');
+                            pre.textContent = data;
+                            bodyEl.appendChild(pre);
+                        })
+                        .catch(error => {
+                            showToast({{toJSON (.T.Get "Error fetching watchdog log.")}}, 'warning');
+                            console.error({{toJSON (.T.Get "Error fetching watchdog log:")}}, error);
+                        });
+                }
+
+                function copyDrupalLogs() {
+                    if (!__drupalLogsText) return;
+                    copyToClipboard(__drupalLogsText)
+                        .then(() => { showToast({{toJSON (.T.Get "Logs copied to clipboard.")}}, "success"); })
+                        .catch(err => {
+                            console.error("Clipboard copy failed:", err);
+                            showToast({{toJSON (.T.Get "Failed to copy logs.")}}, "warning");
+                        });
+                }
+
+                document.querySelector('html').addEventListener('click', function(e) {
+                    if (!e.target.closest('#logs-tab')) return;
+                    if (__drupalLogsLoaded) return;
+                    __drupalLogsLoaded = true;
+                    loadDrupalLogs();
+                });
+            </script>
+        </div>
+
         <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
             <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
                 <div>
@@ -330,6 +456,8 @@
         {{template "visitors" .}}
 
         {{template "waf_panel" .}}
+
+        {{template "drupal_cache" .}}
 
     </div>
 
@@ -378,4 +506,75 @@ function confirmRemoveDrupal() {
 </script>
 
 <!-- END templates/manager/drupal_app.html -->
+{{end}}
+
+{{define "drupal_cache"}}
+<!-- START drupal_cache widget -->
+<div x-data="drupalCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+  <div class="mb-2 flex items-center justify-between gap-4 relative">
+    <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+    <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Cache"}}</h2>
+    <svg aria-hidden="true" class="lucide lucide-compass size-5 shrink-0" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor" fill="none" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"></path><circle cx="12" cy="12" r="10"></circle></svg>
+  </div>
+
+    <div class="grid grid-cols-1 gap-2">
+        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Rebuild Drupal cache:"}}</span>
+            <span class="font-medium">
+
+        <button
+        @click="rebuildCache"
+        data-tooltip-target="tooltip-drupal_rebuild_cache-link" data-tooltip-placement="left"
+        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 cursor-pointer"
+        type="button"
+        aria-label="Rebuild Drupal Cache"
+        >
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash size-5 shrink-0"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        {{.T.Get "Clear Cache"}}
+        </button>
+            </span>
+        </div>
+    </div>
+
+    <div id="tooltip-drupal_rebuild_cache-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+      {{.T.Get "Runs drush cache:rebuild - clears every cache bin (render, page, config, etc.)"}}
+      <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+</div>
+
+<script>
+  function drupalCacheComponent() {
+    return {
+      domain: {{toJSON .CurrentDomain}},
+      docroot: {{toJSON .Docroot}},
+
+      rebuildCache() {
+        if (!this.domain || !this.docroot) {
+          return;
+        }
+        showToast({{toJSON (.T.Get "Rebuilding cache...")}}, 'loading', true);
+        fetch(`/drupal/cache?domain=${encodeURIComponent(this.domain)}&docroot=${encodeURIComponent(this.docroot)}`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrf_token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({})
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            showToast(data.error, 'danger');
+          } else {
+            showToast(data.message || {{toJSON (.T.Get "Cache rebuilt successfully!")}}, 'success');
+          }
+        })
+        .catch(() => {
+          showToast({{toJSON (.T.Get "Failed to rebuild cache")}}, 'danger');
+        });
+      }
+    }
+  }
+</script>
+<!-- END drupal_cache widget -->
 {{end}}

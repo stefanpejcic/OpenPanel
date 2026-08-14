@@ -47,8 +47,6 @@
             <select name="drupal_version" id="drupal_version"
                 class="relative block w-full cursor-pointer appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
                 <option value="">{{.T.Get "Latest"}}</option>
-                <option value="^11">Drupal 11</option>
-                <option value="^10">Drupal 10</option>
             </select>
         </div>
     </div>
@@ -552,6 +550,44 @@ document.getElementById("installForm").addEventListener("submit", function(event
         dbPasswordField.value = generateString(16);
         dbPasswordField.dispatchEvent(new Event('input', { bubbles: true }));
     });
+</script>
+
+<script>
+    fetch('https://api.github.com/repos/drupal/drupal/tags?per_page=100')
+        .then(response => response.json())
+        .then(data => {
+            if (!Array.isArray(data)) throw new Error('Unexpected response');
+
+            const versionRe = /^\d+\.\d+\.\d+$/;
+            const versions = data
+                .map(t => t.name)
+                .filter(name => versionRe.test(name))
+                .sort(compareVersions);
+
+            const latestVersions = versions.slice(0, 12);
+            const selectElement = document.getElementById('drupal_version');
+            latestVersions.forEach((version, i) => {
+                const option = document.createElement('option');
+                option.value = version;
+                option.textContent = i === 0 ? `${version} (latest)` : version;
+                selectElement.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching Drupal versions:', error);
+        });
+
+    function compareVersions(a, b) {
+        const versionA = a.split('.').map(Number);
+        const versionB = b.split('.').map(Number);
+        for (let i = 0; i < Math.max(versionA.length, versionB.length); i++) {
+            const partA = versionA[i] || 0;
+            const partB = versionB[i] || 0;
+            if (partA < partB) return 1;
+            if (partA > partB) return -1;
+        }
+        return 0;
+    }
 </script>
 
 {{else}}

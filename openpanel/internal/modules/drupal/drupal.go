@@ -3,9 +3,11 @@
 // site:install`) inside an existing domain's docroot, run in the domain's
 // existing php-fpm container - same shape as internal/modules/phpapp, not
 // internal/modules/wordpress. Deliberately minimal: no cloning, no
-// scan-for-existing-installs, no hardening rules, no drush passthrough, no
-// dedicated backup/restore system, no auto-login - just install, a small
-// read-only manage/overview page, and uninstall. MySQL/MariaDB only.
+// scan-for-existing-installs, no hardening rules, no drush passthrough
+// console, no dedicated backup/restore system - just install, a small
+// read-only manage/overview page, a one-time admin login link (via Drush's
+// own `user:login`, no custom mu-plugin needed the way WordPress's
+// auto-login requires), and uninstall. MySQL/MariaDB only.
 package drupal
 
 import (

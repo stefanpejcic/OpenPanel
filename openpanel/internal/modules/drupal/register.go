@@ -17,6 +17,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}
 	mux.Handle("/drupal/install", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleInstallPage(a, w, r) }))
 	mux.Handle("POST /drupal/remove", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemoveDrupal(a, w, r) }))
+	mux.Handle("GET /drupal/login", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDrupalLogin(a, w, r) }))
+	mux.Handle("POST /drupal/cache", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDrupalCacheRebuild(a, w, r) }))
+	mux.Handle("GET /drupal/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDrupalLogs(a, w, r) }))
 }
 
 // withDrupalForm clones r as a POST carrying the given values as both Form

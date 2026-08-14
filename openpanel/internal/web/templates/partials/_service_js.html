@@ -3,7 +3,7 @@
 <script>
 document.addEventListener('alpine:init', () => {
     Alpine.data('serviceStatus', () => ({
-        serviceName: '{{.Service}}',
+        serviceName: '{{lower .Service}}',
         status: 'checking',
         label: '{{.T.Get "Checking"}}',
         stats: {},
