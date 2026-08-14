@@ -24,6 +24,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/domains"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/drupal"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/joomla"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/opencart"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dynamicdns"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/emails"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/filemanager"
@@ -112,6 +113,7 @@ var configured = map[string]Registrar{
 	"domains":  func(mux *http.ServeMux, a *appctx.App) { domains.Register(mux, a); domains.RegisterAPI(mux, a) },
 	"drupal":   func(mux *http.ServeMux, a *appctx.App) { drupal.Register(mux, a); drupal.RegisterAPI(mux, a) },
 	"joomla":   func(mux *http.ServeMux, a *appctx.App) { joomla.Register(mux, a); joomla.RegisterAPI(mux, a) },
+	"opencart": func(mux *http.ServeMux, a *appctx.App) { opencart.Register(mux, a); opencart.RegisterAPI(mux, a) },
 	"goaccess": func(mux *http.ServeMux, a *appctx.App) { goaccess.Register(mux, a); goaccess.RegisterAPI(mux, a) },
 	"php": func(mux *http.ServeMux, a *appctx.App) {
 		php.Register(mux, a)

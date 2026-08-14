@@ -216,6 +216,25 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			AvailablePHPVersions: availablePHPVersions,
 		})
 
+	case "opencart":
+		dbInfo := extractOpenCartDatabaseInfo(userContext, docroot)
+		openCartVersion := getOpenCartVersion(userContext, docroot)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		mysqlVersion := getMySQLVersion(a, r, userContext)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
+		renderOpenCartAppPage(a, w, r, OpenCartAppPageData{
+			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Container:            container,
+			OpenCartVersion:      openCartVersion,
+			PHPVersion:           currentPHPVersion,
+			MySQLVersion:         mysqlVersion,
+			DBInfo:               dbInfo,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
+		})
+
 	default:
 		// mautic/anything else: not a supported CMS type here.
 		writeJSON(w, http.StatusOK, map[string]string{"error": "Unknown CMS type"})

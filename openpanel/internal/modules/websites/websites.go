@@ -587,6 +587,55 @@ func getJoomlaVersion(userContext, realPath string) string {
 	return major[1] + "." + minor[1] + "." + patch[1]
 }
 
+// extractOpenCartDatabaseInfo parses the DB_HOSTNAME/DB_USERNAME/
+// DB_PASSWORD/DB_DATABASE/DB_PREFIX constants out of config.php - same
+// plain-define()-list shape as Joomla's configuration.php, no comment-block
+// gotcha to work around.
+func extractOpenCartDatabaseInfo(userContext, directory string) map[string]string {
+	const wwwPrefix = "/var/www/html/"
+	if !strings.HasPrefix(directory, wwwPrefix) {
+		return nil
+	}
+	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
+	content, err := os.ReadFile(filepath.Join(mappedDir, "config.php"))
+	if err != nil {
+		return map[string]string{"error": "config.php not found"}
+	}
+	text := string(content)
+
+	info := map[string]string{}
+	for key, field := range map[string]string{
+		"database_name": "DB_DATABASE", "database_user": "DB_USERNAME",
+		"database_password": "DB_PASSWORD", "database_host": "DB_HOSTNAME", "database_prefix": "DB_PREFIX",
+	} {
+		re := regexp.MustCompile(field + `'\s*,\s*'([^']*)'`)
+		if m := re.FindStringSubmatch(text); m != nil {
+			info[key] = m[1]
+		}
+	}
+	if len(info) == 0 {
+		return map[string]string{"error": "No database information found in config.php"}
+	}
+	return info
+}
+
+// getOpenCartVersion reads the VERSION constant out of the top-level
+// index.php, mirroring getJoomlaVersion/getDrupalVersion's live-read-from-
+// disk approach (no persisted version tracking anywhere else).
+func getOpenCartVersion(userContext, realPath string) string {
+	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
+	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "index.php")
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "Unknown"
+	}
+	m := regexp.MustCompile(`VERSION'\s*,\s*'([^']*)'`).FindStringSubmatch(string(content))
+	if m == nil {
+		return "Unknown"
+	}
+	return m[1]
+}
+
 // getMySQLVersion resolves the running MySQL/MariaDB version, memoized for
 // 1 hour since it changes only on upgrade.
 func getMySQLVersion(a *appctx.App, r *http.Request, userContext string) string {

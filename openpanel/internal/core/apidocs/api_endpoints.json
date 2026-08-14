@@ -1830,6 +1830,33 @@
     ]
   },
   {
+    "group": "OpenCart",
+    "feature": "opencart",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/opencart/install",
+        "description": "Install OpenCart on a domain by downloading the release archive from GitHub and running OpenCart's own `install/cli_install.php install` CLI installer. Streams newline-delimited JSON progress events as the install runs (download, extraction, database setup, CLI install).",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "opencart_version": "",
+          "admin_username": "admin",
+          "admin_password": "changeme",
+          "admin_email": "admin@example.com",
+          "db_name": "",
+          "db_user": "",
+          "db_password": ""
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/opencart/sites/<id>",
+        "description": "Uninstall OpenCart: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      }
+    ]
+  },
+  {
     "group": "WordPress",
     "feature": "wordpress",
     "endpoints": [

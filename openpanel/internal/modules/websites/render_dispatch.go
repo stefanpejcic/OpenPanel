@@ -108,6 +108,35 @@ func renderJoomlaAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	}
 }
 
+var openCartAppPage = loadPage("manager/opencart_app.html")
+
+// OpenCartAppPageData is manager/opencart_app.html's template context.
+type OpenCartAppPageData struct {
+	pageData
+	Container            ContainerInfo
+	OpenCartVersion      string
+	PHPVersion           string
+	MySQLVersion         string
+	DBInfo               map[string]string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderOpenCartAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data OpenCartAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := openCartAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - opencart_app template render error: %v", err)
+	}
+}
+
 var websiteBuilderPage = loadPage("manager/websitebuilder.html")
 
 // WebsiteBuilderPageData is manager/websitebuilder.html's template context.

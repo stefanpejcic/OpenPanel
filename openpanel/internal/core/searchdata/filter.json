@@ -126,6 +126,12 @@
       "name": "Install Joomla"
     },
     {
+      "description": "Install OpenCart.",
+      "link": "/opencart/install",
+      "module": "opencart",
+      "name": "Install OpenCart"
+    },
+    {
       "description": "Manage your files and folders.", 
       "link": "/files", 
       "module": "filemanager", 
