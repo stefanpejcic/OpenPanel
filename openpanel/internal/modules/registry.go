@@ -23,9 +23,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/domains"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/drupal"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/joomla"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/opencart"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/nextcloud"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dynamicdns"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/emails"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/filemanager"
@@ -34,13 +31,17 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/goaccess"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/inodes"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/ipblocker"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/joomla"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/malwarescan"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/nextcloud"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/nodejs"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/opencart"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/phpapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/plugins"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/postgresql"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/prestashop"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/processmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/python"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/search"
@@ -110,13 +111,14 @@ var configured = map[string]Registrar{
 		backupwizard.Register(mux, a)
 		backupwizard.RegisterAPI(mux, a)
 	},
-	"backups":  func(mux *http.ServeMux, a *appctx.App) { backups.Register(mux, a); backups.RegisterAPI(mux, a) },
-	"domains":  func(mux *http.ServeMux, a *appctx.App) { domains.Register(mux, a); domains.RegisterAPI(mux, a) },
-	"drupal":   func(mux *http.ServeMux, a *appctx.App) { drupal.Register(mux, a); drupal.RegisterAPI(mux, a) },
-	"joomla":   func(mux *http.ServeMux, a *appctx.App) { joomla.Register(mux, a); joomla.RegisterAPI(mux, a) },
-	"opencart": func(mux *http.ServeMux, a *appctx.App) { opencart.Register(mux, a); opencart.RegisterAPI(mux, a) },
-	"nextcloud": func(mux *http.ServeMux, a *appctx.App) { nextcloud.Register(mux, a); nextcloud.RegisterAPI(mux, a) },
-	"goaccess": func(mux *http.ServeMux, a *appctx.App) { goaccess.Register(mux, a); goaccess.RegisterAPI(mux, a) },
+	"backups":    func(mux *http.ServeMux, a *appctx.App) { backups.Register(mux, a); backups.RegisterAPI(mux, a) },
+	"domains":    func(mux *http.ServeMux, a *appctx.App) { domains.Register(mux, a); domains.RegisterAPI(mux, a) },
+	"drupal":     func(mux *http.ServeMux, a *appctx.App) { drupal.Register(mux, a); drupal.RegisterAPI(mux, a) },
+	"joomla":     func(mux *http.ServeMux, a *appctx.App) { joomla.Register(mux, a); joomla.RegisterAPI(mux, a) },
+	"opencart":   func(mux *http.ServeMux, a *appctx.App) { opencart.Register(mux, a); opencart.RegisterAPI(mux, a) },
+	"nextcloud":  func(mux *http.ServeMux, a *appctx.App) { nextcloud.Register(mux, a); nextcloud.RegisterAPI(mux, a) },
+	"prestashop": func(mux *http.ServeMux, a *appctx.App) { prestashop.Register(mux, a); prestashop.RegisterAPI(mux, a) },
+	"goaccess":   func(mux *http.ServeMux, a *appctx.App) { goaccess.Register(mux, a); goaccess.RegisterAPI(mux, a) },
 	"php": func(mux *http.ServeMux, a *appctx.App) {
 		php.Register(mux, a)
 		php.RegisterOptionsAPI(mux, a)

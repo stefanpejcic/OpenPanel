@@ -137,6 +137,35 @@ func renderOpenCartAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 }
 
+var prestashopAppPage = loadPage("manager/prestashop_app.html")
+
+// PrestashopAppPageData is manager/prestashop_app.html's template context.
+type PrestashopAppPageData struct {
+	pageData
+	Container            ContainerInfo
+	PrestashopVersion    string
+	PHPVersion           string
+	MySQLVersion         string
+	DBInfo               map[string]string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderPrestashopAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PrestashopAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := prestashopAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - prestashop_app template render error: %v", err)
+	}
+}
+
 var nextcloudAppPage = loadPage("manager/nextcloud_app.html")
 
 // NextcloudAppPageData is manager/nextcloud_app.html's template context.

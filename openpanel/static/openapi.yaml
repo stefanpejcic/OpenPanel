@@ -94,6 +94,8 @@ tags:
   description: Requires the `opencart` feature to be enabled on the account's plan.
 - name: Nextcloud
   description: Requires the `nextcloud` feature to be enabled on the account's plan.
+- name: PrestaShop
+  description: Requires the `prestashop` feature to be enabled on the account's plan.
 - name: WordPress
   description: Requires the `wordpress` feature to be enabled on the account's plan.
 - name: Node.js / Python Apps
@@ -7068,6 +7070,100 @@ paths:
       operationId: nextcloud_sites_id
       tags:
       - Nextcloud
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/prestashop/install:
+    post:
+      summary: Install PrestaShop on a domain by downloading the release archive from GitHub and running
+        PrestaShop's own `install/index_cli.php` CLI installer. Streams newline-delimited JSON progress
+        events as the install runs (download, extraction, database setup, CLI install, admin directory
+        rename).
+      operationId: prestashop_install
+      tags:
+      - PrestaShop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                prestashop_version:
+                  type: string
+                  example: ''
+                admin_firstname:
+                  type: string
+                  example: Admin
+                admin_lastname:
+                  type: string
+                  example: User
+                admin_password:
+                  type: string
+                  example: changeme
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                db_name:
+                  type: string
+                  example: ''
+                db_user:
+                  type: string
+                  example: ''
+                db_password:
+                  type: string
+                  example: ''
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                prestashop_version: ''
+                admin_firstname: Admin
+                admin_lastname: User
+                admin_password: changeme
+                admin_email: admin@example.com
+                db_name: ''
+                db_user: ''
+                db_password: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/prestashop/sites/{id}:
+    delete:
+      summary: 'Uninstall PrestaShop: drops the database and user, deletes every file in the docroot,
+        and removes it from Site Manager.'
+      operationId: prestashop_sites_id
+      tags:
+      - PrestaShop
       parameters:
       - name: id
         in: path

@@ -235,6 +235,25 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			AvailablePHPVersions: availablePHPVersions,
 		})
 
+	case "prestashop":
+		dbInfo := extractPrestashopDatabaseInfo(userContext, docroot)
+		prestashopVersion := getPrestashopVersion(userContext, docroot)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		mysqlVersion := getMySQLVersion(a, r, userContext)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
+		renderPrestashopAppPage(a, w, r, PrestashopAppPageData{
+			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Container:            container,
+			PrestashopVersion:    prestashopVersion,
+			PHPVersion:           currentPHPVersion,
+			MySQLVersion:         mysqlVersion,
+			DBInfo:               dbInfo,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
+		})
+
 	case "nextcloud":
 		dbInfo := extractNextcloudDatabaseInfo(userContext, docroot)
 		nextcloudVersion := getNextcloudVersion(userContext, docroot)

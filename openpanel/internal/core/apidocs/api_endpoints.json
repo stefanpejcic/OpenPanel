@@ -1884,6 +1884,34 @@
     ]
   },
   {
+    "group": "PrestaShop",
+    "feature": "prestashop",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/prestashop/install",
+        "description": "Install PrestaShop on a domain by downloading the release archive from GitHub and running PrestaShop's own `install/index_cli.php` CLI installer. Streams newline-delimited JSON progress events as the install runs (download, extraction, database setup, CLI install, admin directory rename).",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "prestashop_version": "",
+          "admin_firstname": "Admin",
+          "admin_lastname": "User",
+          "admin_password": "changeme",
+          "admin_email": "admin@example.com",
+          "db_name": "",
+          "db_user": "",
+          "db_password": ""
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/prestashop/sites/<id>",
+        "description": "Uninstall PrestaShop: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      }
+    ]
+  },
+  {
     "group": "WordPress",
     "feature": "wordpress",
     "endpoints": [

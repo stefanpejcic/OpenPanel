@@ -684,6 +684,55 @@ func getNextcloudVersion(userContext, realPath string) string {
 	return m[1]
 }
 
+// extractPrestashopDatabaseInfo parses the database_name/database_user/
+// database_password/database_host/database_prefix entries out of
+// app/config/parameters.php's `<?php return array('parameters' =>
+// array(...))` literal.
+func extractPrestashopDatabaseInfo(userContext, directory string) map[string]string {
+	const wwwPrefix = "/var/www/html/"
+	if !strings.HasPrefix(directory, wwwPrefix) {
+		return nil
+	}
+	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
+	content, err := os.ReadFile(filepath.Join(mappedDir, "app", "config", "parameters.php"))
+	if err != nil {
+		return map[string]string{"error": "app/config/parameters.php not found"}
+	}
+	text := string(content)
+
+	info := map[string]string{}
+	for key, field := range map[string]string{
+		"database_name": "database_name", "database_user": "database_user",
+		"database_password": "database_password", "database_host": "database_host", "database_prefix": "database_prefix",
+	} {
+		re := regexp.MustCompile(`'` + field + `'\s*=>\s*'([^']*)'`)
+		if m := re.FindStringSubmatch(text); m != nil {
+			info[key] = m[1]
+		}
+	}
+	if len(info) == 0 {
+		return map[string]string{"error": "No database information found in app/config/parameters.php"}
+	}
+	return info
+}
+
+// getPrestashopVersion reads the VERSION const out of src/Core/Version.php,
+// mirroring getNextcloudVersion/getOpenCartVersion's live-read-from-disk
+// approach.
+func getPrestashopVersion(userContext, realPath string) string {
+	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
+	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "src", "Core", "Version.php")
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "Unknown"
+	}
+	m := regexp.MustCompile(`const VERSION\s*=\s*'([^']*)'`).FindStringSubmatch(string(content))
+	if m == nil {
+		return "Unknown"
+	}
+	return m[1]
+}
+
 // getMySQLVersion resolves the running MySQL/MariaDB version, memoized for
 // 1 hour since it changes only on upgrade.
 func getMySQLVersion(a *appctx.App, r *http.Request, userContext string) string {

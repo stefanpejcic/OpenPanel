@@ -138,6 +138,12 @@
       "name": "Install Nextcloud"
     },
     {
+      "description": "Install PrestaShop.",
+      "link": "/prestashop/install",
+      "module": "prestashop",
+      "name": "Install PrestaShop"
+    },
+    {
       "description": "Manage your files and folders.", 
       "link": "/files", 
       "module": "filemanager", 
