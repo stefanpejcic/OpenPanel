@@ -18,6 +18,19 @@ const openpanelLoginFileName = "openpanel-login.php"
 // rather than relying on OpenCart's own url library with a relative path,
 // for the same subdirectory-safety reason documented in
 // joomla/login_php.go.
+//
+// The session cookie is re-issued explicitly with SameSite=Lax right
+// before redirecting - confirmed live: OpenCart's installer defaults
+// config_session_samesite to "Strict", and framework.php's own
+// startup/session bootstrap sets the cookie with that flag. The "Login as
+// Admin" button opens this script via window.open() from the OpenPanel
+// dashboard, a different origin - browsers correctly treat that as a
+// cross-site-initiated navigation and silently drop a Strict cookie on it
+// (curl has no SameSite enforcement at all, which is why testing via curl
+// missed this entirely: it worked every time there, but real browsers,
+// incognito included, landed back on the login form with OpenCart's own
+// "Invalid token session" warning). Lax still permits the cookie on this
+// kind of top-level GET navigation, which is exactly the case here.
 const openpanelLoginPHP = `<?php
 /**
  * OpenPanel one-time admin login handler.
@@ -67,6 +80,18 @@ if (!$userCheck->num_rows) {
 
 $session->data['user_id'] = $userId;
 $session->data['user_token'] = oc_token(32);
+$session->close();
+
+$config = $registry->get('config');
+$option = [
+    'expires'  => 0,
+    'path'     => $config->get('session_path'),
+    'domain'   => $config->get('session_domain'),
+    'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+    'httponly' => true,
+    'samesite' => 'Lax',
+];
+setcookie($config->get('session_name'), $session->getId(), $option);
 
 $base = dirname($_SERVER['SCRIPT_NAME']);
 if ($base === '/' || $base === '\\') {
