@@ -132,6 +132,12 @@
       "name": "Install OpenCart"
     },
     {
+      "description": "Install Nextcloud.",
+      "link": "/nextcloud/install",
+      "module": "nextcloud",
+      "name": "Install Nextcloud"
+    },
+    {
       "description": "Manage your files and folders.", 
       "link": "/files", 
       "module": "filemanager", 

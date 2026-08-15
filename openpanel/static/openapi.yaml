@@ -92,6 +92,8 @@ tags:
   description: Requires the `joomla` feature to be enabled on the account's plan.
 - name: OpenCart
   description: Requires the `opencart` feature to be enabled on the account's plan.
+- name: Nextcloud
+  description: Requires the `nextcloud` feature to be enabled on the account's plan.
 - name: WordPress
   description: Requires the `wordpress` feature to be enabled on the account's plan.
 - name: Node.js / Python Apps
@@ -6976,6 +6978,96 @@ paths:
       operationId: opencart_sites_id
       tags:
       - OpenCart
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/nextcloud/install:
+    post:
+      summary: Install Nextcloud on a domain by downloading the release archive from download.nextcloud.com
+        and running Nextcloud's own `occ maintenance:install` CLI installer. Streams newline-delimited
+        JSON progress events as the install runs (download, extraction, database setup, CLI install, trusted
+        domain configuration).
+      operationId: nextcloud_install
+      tags:
+      - Nextcloud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                nextcloud_version:
+                  type: string
+                  example: ''
+                admin_username:
+                  type: string
+                  example: admin
+                admin_password:
+                  type: string
+                  example: changeme
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                db_name:
+                  type: string
+                  example: ''
+                db_user:
+                  type: string
+                  example: ''
+                db_password:
+                  type: string
+                  example: ''
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                nextcloud_version: ''
+                admin_username: admin
+                admin_password: changeme
+                admin_email: admin@example.com
+                db_name: ''
+                db_user: ''
+                db_password: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/nextcloud/sites/{id}:
+    delete:
+      summary: 'Uninstall Nextcloud: drops the database and user, deletes every file in the docroot, and
+        removes it from Site Manager.'
+      operationId: nextcloud_sites_id
+      tags:
+      - Nextcloud
       parameters:
       - name: id
         in: path

@@ -137,6 +137,35 @@ func renderOpenCartAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 }
 
+var nextcloudAppPage = loadPage("manager/nextcloud_app.html")
+
+// NextcloudAppPageData is manager/nextcloud_app.html's template context.
+type NextcloudAppPageData struct {
+	pageData
+	Container            ContainerInfo
+	NextcloudVersion     string
+	PHPVersion           string
+	MySQLVersion         string
+	DBInfo               map[string]string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderNextcloudAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data NextcloudAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := nextcloudAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - nextcloud_app template render error: %v", err)
+	}
+}
+
 var websiteBuilderPage = loadPage("manager/websitebuilder.html")
 
 // WebsiteBuilderPageData is manager/websitebuilder.html's template context.

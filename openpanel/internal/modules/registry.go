@@ -25,6 +25,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/drupal"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/joomla"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/opencart"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/nextcloud"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dynamicdns"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/emails"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/filemanager"
@@ -114,6 +115,7 @@ var configured = map[string]Registrar{
 	"drupal":   func(mux *http.ServeMux, a *appctx.App) { drupal.Register(mux, a); drupal.RegisterAPI(mux, a) },
 	"joomla":   func(mux *http.ServeMux, a *appctx.App) { joomla.Register(mux, a); joomla.RegisterAPI(mux, a) },
 	"opencart": func(mux *http.ServeMux, a *appctx.App) { opencart.Register(mux, a); opencart.RegisterAPI(mux, a) },
+	"nextcloud": func(mux *http.ServeMux, a *appctx.App) { nextcloud.Register(mux, a); nextcloud.RegisterAPI(mux, a) },
 	"goaccess": func(mux *http.ServeMux, a *appctx.App) { goaccess.Register(mux, a); goaccess.RegisterAPI(mux, a) },
 	"php": func(mux *http.ServeMux, a *appctx.App) {
 		php.Register(mux, a)

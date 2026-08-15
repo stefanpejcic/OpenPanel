@@ -636,6 +636,54 @@ func getOpenCartVersion(userContext, realPath string) string {
 	return m[1]
 }
 
+// extractNextcloudDatabaseInfo parses the dbname/dbuser/dbpassword/dbhost/
+// dbtableprefix entries out of config/config.php's `$CONFIG = array(...)`
+// literal.
+func extractNextcloudDatabaseInfo(userContext, directory string) map[string]string {
+	const wwwPrefix = "/var/www/html/"
+	if !strings.HasPrefix(directory, wwwPrefix) {
+		return nil
+	}
+	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
+	content, err := os.ReadFile(filepath.Join(mappedDir, "config", "config.php"))
+	if err != nil {
+		return map[string]string{"error": "config/config.php not found"}
+	}
+	text := string(content)
+
+	info := map[string]string{}
+	for key, field := range map[string]string{
+		"database_name": "dbname", "database_user": "dbuser",
+		"database_password": "dbpassword", "database_host": "dbhost", "database_prefix": "dbtableprefix",
+	} {
+		re := regexp.MustCompile(`'` + field + `'\s*=>\s*'([^']*)'`)
+		if m := re.FindStringSubmatch(text); m != nil {
+			info[key] = m[1]
+		}
+	}
+	if len(info) == 0 {
+		return map[string]string{"error": "No database information found in config/config.php"}
+	}
+	return info
+}
+
+// getNextcloudVersion reads $OC_VersionString out of version.php,
+// mirroring getOpenCartVersion/getJoomlaVersion's live-read-from-disk
+// approach.
+func getNextcloudVersion(userContext, realPath string) string {
+	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
+	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "version.php")
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "Unknown"
+	}
+	m := regexp.MustCompile(`OC_VersionString\s*=\s*'([^']*)'`).FindStringSubmatch(string(content))
+	if m == nil {
+		return "Unknown"
+	}
+	return m[1]
+}
+
 // getMySQLVersion resolves the running MySQL/MariaDB version, memoized for
 // 1 hour since it changes only on upgrade.
 func getMySQLVersion(a *appctx.App, r *http.Request, userContext string) string {
