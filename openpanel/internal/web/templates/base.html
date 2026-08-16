@@ -106,6 +106,58 @@
     {{template "alpine_plugins" .}}
     <script defer src="{{static "vendor/alpinejs/alpinejs3xx.min.js"}}"></script>
     {{template "flowbite_js" .}}
+    <script defer>
+        // Flowbite's data-tabs-toggle/data-tabs-target tabs only react to
+        // clicks - they never look at the URL, so a "?tab=backups"-style
+        // deep link (used by /sites' Actions-column icons) left the tab
+        // BUTTON highlighted correctly (that part is Alpine's activeTab,
+        // bound separately) while the actual panel content stayed on
+        // Dashboard until the user clicked again. Two things make this
+        // fragile to time precisely (confirmed live): the tab trigger
+        // isn't reliably queryable yet at plain defer-script time (likely
+        // still mid Alpine x-data init on that subtree), and even once
+        // found, a one-shot fix gets clobbered a moment later by
+        // Flowbite's own late init resetting every panel back to its
+        // Dashboard-only default. So this polls for the elements AND
+        // keeps re-asserting the desired state for a bounded window after
+        // load, however long either of those two other systems take.
+        (function () {
+            var tab = new URLSearchParams(window.location.search).get('tab');
+            if (!tab) return;
+
+            var observer = null;
+            var attempts = 0;
+
+            function tryApply() {
+                attempts++;
+                var trigger = document.querySelector('[data-tabs-target="#' + tab + '"]');
+                var tablist = trigger && trigger.closest('[role="tablist"]');
+                var contentSelector = tablist && tablist.getAttribute('data-tabs-toggle');
+                var content = contentSelector && document.querySelector(contentSelector);
+                if (!trigger || !tablist || !content) {
+                    if (attempts < 40) setTimeout(tryApply, 100);
+                    return;
+                }
+
+                function apply() {
+                    content.querySelectorAll('[role="tabpanel"]').forEach(function (panel) {
+                        panel.classList.toggle('hidden', panel.id !== tab);
+                    });
+                    tablist.querySelectorAll('[role="tab"]').forEach(function (tabBtn) {
+                        tabBtn.setAttribute('aria-selected', tabBtn === trigger ? 'true' : 'false');
+                    });
+                }
+                apply();
+
+                if (!observer) {
+                    observer = new MutationObserver(apply);
+                    observer.observe(content, { attributes: true, attributeFilter: ['class'], subtree: true });
+                    setTimeout(function () { observer.disconnect(); }, 5000);
+                }
+            }
+            tryApply();
+        })();
+    </script>
 
     <!-- Custom code in header: deferred until the custom_code admin feature is ported -->
 
