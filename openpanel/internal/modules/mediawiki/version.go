@@ -5,6 +5,8 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -130,6 +132,29 @@ func mediawikiBranchForVersion(version string) string {
 		return ""
 	}
 	return parts[0] + "." + parts[1]
+}
+
+// mediawikiComposerPHPRequirementRE pulls the minimum PHP version out of a
+// downloaded release's own composer.json ("php": ">=8.3.0") - read straight
+// from the archive rather than hardcoding a branch->PHP table, since the
+// minimum climbs across branches (1.39 LTS wants 7.4.3+, 1.46 wants 8.3+ -
+// confirmed live by downloading both and reading their composer.json).
+var mediawikiComposerPHPRequirementRE = regexp.MustCompile(`"php"\s*:\s*"[^0-9]*(\d+\.\d+(?:\.\d+)?)`)
+
+// minPHPVersionFromComposerJSON reads composer.json's require.php constraint
+// out of an already-extracted MediaWiki tree. Returns "" if it can't be
+// determined (e.g. some future release restructures composer.json) - the
+// caller treats that as "unknown, don't block the install".
+func minPHPVersionFromComposerJSON(installDir string) string {
+	content, err := os.ReadFile(filepath.Join(installDir, "composer.json"))
+	if err != nil {
+		return ""
+	}
+	m := mediawikiComposerPHPRequirementRE.FindSubmatch(content)
+	if m == nil {
+		return ""
+	}
+	return string(m[1])
 }
 
 // compareVersions compares two dotted numeric versions ("1.42.7" vs

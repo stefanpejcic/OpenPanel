@@ -229,6 +229,17 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// MediaWiki's minimum required PHP version climbs across branches (1.39
+	// LTS wants 7.4.3+, 1.46 wants 8.3+) - without this check an
+	// incompatible domain PHP version fails deep inside install.php with an
+	// opaque "Parse error: syntax error, unexpected '='" instead of a clear
+	// message (confirmed live: version 1.46.0 on a PHP 7.2 domain).
+	if minPHP := minPHPVersionFromComposerJSON(hostOSPath); minPHP != "" && compareVersions(phpVersion, minPHP) < 0 {
+		emit(map[string]any{"error": "MediaWiki " + version + " requires PHP " + minPHP + " or newer, but this domain is set to PHP " + phpVersion + ". Change the domain's PHP version (PHP Settings) or pick an older MediaWiki version, then try again."})
+		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		return
+	}
+
 	// Host-side chown, not `podman exec ... chown` - the archive was
 	// extracted host-side, so the files are owned by this process's own
 	// (real, unmapped) UID. A rootless container's own "root" cannot chown
@@ -345,10 +356,18 @@ func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, curr
 
 // emitCleanupFiles removes a failed install's partially-created directory -
 // always safe to blow away entirely since it's always a directory install.go
-// just created.
-func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
-	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)
-	if err := podmanmanager.Command(ctx, userContext, argv).Run(); err != nil {
+// just created. Host-side removal, not `podman exec ... rm` - once the
+// archive has been extracted (host-side, so owned by this process's own
+// real UID) a rootless container's own "root" can't write into a directory
+// it doesn't own outside its user-namespace mapping, so `podman exec rm -rf`
+// silently fails on anything cleaned up after extraction (confirmed live:
+// same class of bug as the chown step's own host-side-vs-podman-exec
+// comment below).
+func emitCleanupFiles(_ context.Context, userContext, _, installPath string, emit func(map[string]any)) {
+	htmlVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
+	docrootWithoutWWW := strings.TrimPrefix(strings.TrimPrefix(installPath, "/var/www/html/"), "/")
+	hostOSPath := filepath.Join(htmlVolume, docrootWithoutWWW)
+	if err := os.RemoveAll(hostOSPath); err != nil {
 		emit(map[string]any{"status": "Cleanup: failed to remove " + installPath + ": " + err.Error()})
 		return
 	}
