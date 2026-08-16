@@ -5,7 +5,7 @@
 {{end}}
 
 {{define "content"}}
-<!-- START templates/manager/moodle_app.html -->
+<!-- START templates/manager/mediawiki_app.html -->
 
 <div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8 sm:flex sm:items-center sm:justify-between">
     <div class="group">
@@ -18,8 +18,57 @@
 
     <div class="mt-2 gap-2 sm:mt-0 sm:flex">
         {{template "temp_link" .}}
+        <button type="button" id="mediawiki_login_button"
+            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit w-full mt-2 sm:mt-0 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">
+            <span id="mediawiki_login_button_text">{{.T.Get "Login as Admin"}}</span>
+        </button>
     </div>
 </div>
+
+<script>
+(function() {
+    var loginButton = document.getElementById('mediawiki_login_button');
+    var buttonText = document.getElementById('mediawiki_login_button_text');
+
+    loginButton.addEventListener('click', function() {
+        loginButton.disabled = true;
+        buttonText.innerHTML = '<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Generating..';
+        showToast({{toJSON (.T.Get "Generating auto-login link..")}}, 'loading', true);
+
+        var url = '/mediawiki/login?domain=' + encodeURIComponent({{toJSON .CurrentDomain}}) + '&docroot=' + encodeURIComponent({{toJSON .Docroot}});
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                loginButton.disabled = false;
+                buttonText.innerHTML = {{toJSON (.T.Get "Login as Admin")}};
+
+                if (xhr.status === 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response && response.login_link) {
+                            showToast({{toJSON (.T.Get "Auto-login link:")}} + " " + response.login_link, 'success');
+                            window.open(response.login_link, '_blank');
+                        } else if (response && response.error) {
+                            showToast(`${response.error}`, 'warning');
+                        } else {
+                            showToast({{toJSON (.T.Get "Unexpected response.")}}, 'error');
+                        }
+                    } catch (e) {
+                        showToast({{toJSON (.T.Get "Error parsing backend response.")}}, 'error');
+                    }
+                } else {
+                    showToast({{toJSON (.T.Get "Failed to generate auto-login link.")}}, 'error');
+                }
+            }
+        };
+
+        xhr.send();
+    });
+})();
+</script>
 
 <div class="m-6 grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4">
 
@@ -28,7 +77,7 @@
         <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="moodle-tab" data-tabs-toggle="#moodle-tab-content" role="tablist" class="grid grid-cols-12 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+        <ul id="mediawiki-tab" data-tabs-toggle="#mediawiki-tab-content" role="tablist" class="grid grid-cols-12 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
             <li role="presentation">
                 <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
                    @click="activeTab = 'dashboard'"
@@ -77,7 +126,7 @@
         </ul>
     </div>
 
-    <div id="moodle-tab-content">
+    <div id="mediawiki-tab-content">
 
         <div class="hidden p-4 rounded" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
 
@@ -92,9 +141,9 @@
                     <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
                         <div class="mb-2 flex items-center justify-between gap-4 relative">
                             <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Moodle:"}}</h2>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "MediaWiki:"}}</h2>
                         </div>
-                        <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{if .MoodleVersion}}{{.MoodleVersion}}{{else}}{{.T.Get "Unknown"}}{{end}}</h3>
+                        <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{if .MediaWikiVersion}}{{.MediaWikiVersion}}{{else}}{{.T.Get "Unknown"}}{{end}}</h3>
                     </div>
 
                     <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800" x-data="{ phpEditOpen: false }">
@@ -102,10 +151,10 @@
                             <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
                             <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "PHP:"}}</h2>
                             {{if and .UserAllowed.php (not .IsSubdirectory)}}
-                            <button type="button" @click="phpEditOpen = !phpEditOpen" data-tooltip-target="tooltip-moodle-php-link" data-tooltip-placement="left" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
+                            <button type="button" @click="phpEditOpen = !phpEditOpen" data-tooltip-target="tooltip-mediawiki-php-link" data-tooltip-placement="left" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5"><path fill-rule="evenodd" d="M0 10.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H3V1.5a.5.5 0 0 0-1 0V10H.5a.5.5 0 0 0-.5.5M2.5 12a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5m3-6.5A.5.5 0 0 0 6 6h1.5v8.5a.5.5 0 0 0 1 0V6H10a.5.5 0 0 0 0-1H6a.5.5 0 0 0-.5.5M8 1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2A.5.5 0 0 0 8 1m3 9.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H14V1.5a.5.5 0 0 0-1 0V10h-1.5a.5.5 0 0 0-.5.5m2.5 1.5a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5"></path></svg>
                             </button>
-                            <div id="tooltip-moodle-php-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                            <div id="tooltip-mediawiki-php-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
                                 {{.T.Get "Click to change"}}
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
@@ -260,7 +309,7 @@
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
                             <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Password:"}}</span>
-                            <span class="font-medium" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealMoodleDBPassword()">{{.DBInfo.database_password}}</span>
+                            <span class="font-medium" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealMediaWikiDBPassword()">{{.DBInfo.database_password}}</span>
                         </div>
 
                         {{if .UserAllowed.phpmyadmin}}
@@ -307,7 +356,7 @@
                 <!-- END database info -->
 
                 <script>
-                    function revealMoodleDBPassword() {
+                    function revealMediaWikiDBPassword() {
                         var passwordSpan = document.getElementById("database-password");
                         passwordSpan.style.filter = passwordSpan.style.filter === "blur(5px)" ? "none" : "blur(5px)";
                     }
@@ -319,40 +368,40 @@
         <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
 
             <div class="flex items-center justify-between mb-4">
-                <h3 id="moodle-log-title" class="font-semibold text-gray-900 dark:text-gray-50">
+                <h3 id="mediawiki-log-title" class="font-semibold text-gray-900 dark:text-gray-50">
                     {{.T.Get "Loading error log.."}}
                 </h3>
                 <div class="flex space-x-2">
                     <button title="{{.T.Get "Copy to clipboard"}}"
                         class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
-                        onclick="copyMoodleLogs()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
+                        onclick="copyMediaWikiLogs()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
                     </button>
                     <button title="{{.T.Get "Refresh"}}"
                         class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
-                        onclick="loadMoodleLogs()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg>
+                        onclick="loadMediaWikiLogs()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg>
                     </button>
                 </div>
             </div>
 
-            <div id="moodle-log" class="overflow-y-auto h-72 p-2 rounded border border-dashed border-gray-300 dark:border-gray-800"><pre></pre></div>
+            <div id="mediawiki-log" class="overflow-y-auto h-72 p-2 rounded border border-dashed border-gray-300 dark:border-gray-800"><pre></pre></div>
 
             <script>
-                let __moodleLogsLoaded = false;
-                let __moodleLogsText = '';
+                let __mediawikiLogsLoaded = false;
+                let __mediawikiLogsText = '';
 
-                function loadMoodleLogs() {
+                function loadMediaWikiLogs() {
                     const domain = {{toJSON .CurrentDomain}};
                     const docroot = {{toJSON .Docroot}};
-                    const titleEl = document.getElementById('moodle-log-title');
-                    const bodyEl = document.getElementById('moodle-log');
+                    const titleEl = document.getElementById('mediawiki-log-title');
+                    const bodyEl = document.getElementById('mediawiki-log');
                     titleEl.textContent = {{toJSON (.T.Get "Loading error log..")}};
 
-                    fetch(`/moodle/logs?domain=${encodeURIComponent(domain)}&docroot=${encodeURIComponent(docroot)}`, {
+                    fetch(`/mediawiki/logs?domain=${encodeURIComponent(domain)}&docroot=${encodeURIComponent(docroot)}`, {
                         headers: { 'X-CSRF-Token': csrf_token }
                     })
                         .then(response => response.text())
                         .then(data => {
-                            __moodleLogsText = data;
+                            __mediawikiLogsText = data;
                             titleEl.textContent = {{toJSON (.T.Get "Error log for")}} + " " + domain;
                             bodyEl.innerHTML = '';
                             const pre = document.createElement('pre');
@@ -365,9 +414,9 @@
                         });
                 }
 
-                function copyMoodleLogs() {
-                    if (!__moodleLogsText) return;
-                    copyToClipboard(__moodleLogsText)
+                function copyMediaWikiLogs() {
+                    if (!__mediawikiLogsText) return;
+                    copyToClipboard(__mediawikiLogsText)
                         .then(() => { showToast({{toJSON (.T.Get "Logs copied to clipboard.")}}, "success"); })
                         .catch(err => {
                             console.error("Clipboard copy failed:", err);
@@ -377,9 +426,9 @@
 
                 document.querySelector('html').addEventListener('click', function(e) {
                     if (!e.target.closest('#logs-tab')) return;
-                    if (__moodleLogsLoaded) return;
-                    __moodleLogsLoaded = true;
-                    loadMoodleLogs();
+                    if (__mediawikiLogsLoaded) return;
+                    __mediawikiLogsLoaded = true;
+                    loadMediaWikiLogs();
                 });
             </script>
         </div>
@@ -388,49 +437,33 @@
             <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
                 <div>
                     <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Version"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Check whether a newer Moodle version is available."}}</p>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Check whether a newer MediaWiki version is available."}}</p>
                 </div>
                 <div class="sm:max-w-3xl md:col-span-2">
                     <div class="grid grid-cols-1 gap-2">
                         <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
                             <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Installed version:"}}</span>
-                            <span class="font-medium">{{if .MoodleVersion}}{{.MoodleVersion}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
+                            <span class="font-medium">{{if .MediaWikiVersion}}{{.MediaWikiVersion}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
                         </div>
                         <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
                             <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Latest version:"}}</span>
-                            <span class="font-medium" id="moodle-latest-version">{{.T.Get "Checking..."}}</span>
+                            <span class="font-medium" id="mediawiki-latest-version">{{.T.Get "Checking..."}}</span>
                         </div>
                     </div>
-                    <p class="mt-3 text-sm/6" id="moodle-update-status"></p>
+                    <p class="mt-3 text-sm/6" id="mediawiki-update-status"></p>
                 </div>
             </div>
 
             <script>
-                function compareMoodleVersionsDesc(a, b) {
-                    const pa = a.split('.').map(Number);
-                    const pb = b.split('.').map(Number);
-                    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-                        const na = pa[i] || 0, nb = pb[i] || 0;
-                        if (na !== nb) return nb - na;
-                    }
-                    return 0;
-                }
-
-                function checkMoodleLatestVersion() {
-                    const installed = {{toJSON .MoodleVersion}};
-                    const latestEl = document.getElementById('moodle-latest-version');
-                    const statusEl = document.getElementById('moodle-update-status');
-                    fetch('https://api.github.com/repos/moodle/moodle/tags?per_page=100')
+                function checkMediaWikiLatestVersion() {
+                    const installed = {{toJSON .MediaWikiVersion}};
+                    const latestEl = document.getElementById('mediawiki-latest-version');
+                    const statusEl = document.getElementById('mediawiki-update-status');
+                    fetch('/mediawiki/versions', { headers: { 'X-CSRF-Token': csrf_token } })
                         .then(response => response.json())
                         .then(data => {
-                            if (!Array.isArray(data)) throw new Error('Unexpected response');
-                            const versionRe = /^v\d+\.\d+\.\d+$/;
-                            const versions = data
-                                .map(t => t.name)
-                                .filter(name => versionRe.test(name))
-                                .map(name => name.replace(/^v/, ''))
-                                .sort(compareMoodleVersionsDesc);
-                            const latest = versions[0];
+                            if (!data.versions || !Array.isArray(data.versions)) throw new Error('Unexpected response');
+                            const latest = data.versions[0];
                             latestEl.textContent = latest || {{toJSON (.T.Get "Unknown")}};
                             if (latest && installed && latest !== installed) {
                                 statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
@@ -440,16 +473,16 @@
                         })
                         .catch(error => {
                             latestEl.textContent = {{toJSON (.T.Get "Unknown")}};
-                            console.error('Error fetching Moodle versions:', error);
+                            console.error('Error fetching MediaWiki versions:', error);
                         });
                 }
 
-                let __moodleUpdateLoaded = false;
+                let __mediawikiUpdateLoaded = false;
                 document.querySelector('html').addEventListener('click', function(e) {
                     if (!e.target.closest('#update-tab')) return;
-                    if (__moodleUpdateLoaded) return;
-                    __moodleUpdateLoaded = true;
-                    checkMoodleLatestVersion();
+                    if (__mediawikiUpdateLoaded) return;
+                    __mediawikiUpdateLoaded = true;
+                    checkMediaWikiLatestVersion();
                 });
             </script>
         </div>
@@ -466,14 +499,14 @@
                         <div class="col-span-full">
                             <div class="relative w-full mt-2 space-y-2">
                                 <div class="flex items-center">
-                                    <input checked id="moodle-backupDatabase" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Backup Database"}} <b id="moodle-db-size-for-backup"></b></label>
+                                    <input checked id="mediawiki-backupDatabase" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Backup Database"}} <b id="mediawiki-db-size-for-backup"></b></label>
                                 </div>
                                 <div class="flex items-center">
-                                    <input checked id="moodle-backupFiles" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Backup Files"}} <b id="moodle-files-size-for-backup"></b></label>
+                                    <input checked id="mediawiki-backupFiles" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Backup Files"}} <b id="mediawiki-files-size-for-backup"></b></label>
                                 </div>
-                                <button id="moodle-runBackup" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100"><i class="bi bi-download mr-2"></i> {{.T.Get "Generate Backup"}}</button>
+                                <button id="mediawiki-runBackup" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100"><i class="bi bi-download mr-2"></i> {{.T.Get "Generate Backup"}}</button>
                             </div>
                         </div>
                     </div>
@@ -491,15 +524,15 @@
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
                         <div class="col-span-full">
                             <div class="relative w-full mt-2 space-y-2">
-                                <button id="moodle-restore-btn-or" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100" type="button">
+                                <button id="mediawiki-restore-btn-or" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100" type="button">
                                     {{.T.Get "Display Backups"}}
                                 </button>
 
-                                <div id="moodle-restore-section" class="hidden">
+                                <div id="mediawiki-restore-section" class="hidden">
                                     <p>{{.T.Get "Select a backup date:"}}</p>
-                                    <select class="peer w-full cursor-pointer appearance-none truncate rounded border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="moodle-restoreBackupDate"></select>
+                                    <select class="peer w-full cursor-pointer appearance-none truncate rounded border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="mediawiki-restoreBackupDate"></select>
 
-                                    <button data-selected-domain="{{.CurrentDomain}}" type="button" id="moodle-confirmRestore" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                    <button data-selected-domain="{{.CurrentDomain}}" type="button" id="mediawiki-confirmRestore" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
                                         <i class="bi bi-arrow-counterclockwise mr-2"></i> {{.T.Get "Start Restore"}}
                                     </button>
                                 </div>
@@ -511,9 +544,9 @@
 
             <script>
                 (function() {
-                    const restoreButton = document.getElementById("moodle-restore-btn-or");
-                    const restoreBackupDateSelect = document.getElementById("moodle-restoreBackupDate");
-                    const confirmRestoreButton = document.getElementById("moodle-confirmRestore");
+                    const restoreButton = document.getElementById("mediawiki-restore-btn-or");
+                    const restoreBackupDateSelect = document.getElementById("mediawiki-restoreBackupDate");
+                    const confirmRestoreButton = document.getElementById("mediawiki-confirmRestore");
                     const restoreDomain = {{toJSON .CurrentDomain}};
                     const docroot = {{toJSON .Docroot}};
                     let restoreConfirmed = false;
@@ -527,9 +560,9 @@
 
                     if (restoreButton) {
                         restoreButton.addEventListener("click", function () {
-                            document.getElementById("moodle-restore-section").classList.remove("hidden");
+                            document.getElementById("mediawiki-restore-section").classList.remove("hidden");
                             restoreButton.classList.add("hidden");
-                            fetch(`/moodle/backup/get_dates/${restoreDomain}?docroot=${docroot}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                            fetch(`/mediawiki/backup/get_dates/${restoreDomain}?docroot=${docroot}`, { headers: { 'X-CSRF-Token': csrf_token } })
                                 .then(response => response.json())
                                 .then(data => {
                                     restoreBackupDateSelect.innerHTML = "";
@@ -562,7 +595,7 @@
                             }
                             const selectedDate = restoreBackupDateSelect.value;
                             showToast({{toJSON (.T.Get "Restoring backup... Please wait.")}}, 'warning');
-                            fetch(`/moodle/backup/restore/${restoreDomain}?docroot=${docroot}&backup_date=${selectedDate}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                            fetch(`/mediawiki/backup/restore/${restoreDomain}?docroot=${docroot}&backup_date=${selectedDate}`, { headers: { 'X-CSRF-Token': csrf_token } })
                                 .then(response => {
                                     if (response.ok) return response.text();
                                     throw new Error({{toJSON (.T.Get "Restore request failed.")}});
@@ -583,9 +616,9 @@
                         });
                     }
 
-                    const runBackupButton = document.getElementById("moodle-runBackup");
-                    const backupDatabaseCheckbox = document.getElementById("moodle-backupDatabase");
-                    const backupFilesCheckbox = document.getElementById("moodle-backupFiles");
+                    const runBackupButton = document.getElementById("mediawiki-runBackup");
+                    const backupDatabaseCheckbox = document.getElementById("mediawiki-backupDatabase");
+                    const backupFilesCheckbox = document.getElementById("mediawiki-backupFiles");
 
                     if (runBackupButton) {
                         runBackupButton.addEventListener("click", function () {
@@ -599,7 +632,7 @@
                             const originalButtonText = runBackupButton.innerHTML;
                             runBackupButton.innerHTML = `<i class="bi bi-arrow-repeat animate-spin mr-2"></i> {{.T.Get "Generating Backup..."}}`;
                             showToast({{toJSON (.T.Get "Generating website backup.. Please wait.")}}, 'loading');
-                            fetch(`/moodle/backup/run/${restoreDomain}?docroot=${docroot}&backup_database=${backupDatabase}&backup_files=${backupFiles}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                            fetch(`/mediawiki/backup/run/${restoreDomain}?docroot=${docroot}&backup_database=${backupDatabase}&backup_files=${backupFiles}`, { headers: { 'X-CSRF-Token': csrf_token } })
                                 .then(response => {
                                     if (response.ok) return response.text();
                                     throw new Error({{toJSON (.T.Get "Backup request failed.")}});
@@ -623,20 +656,20 @@
             <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
                 <div>
                     <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Detach"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the Moodle website from Site Manager."}}</p>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the MediaWiki website from Site Manager."}}</p>
                 </div>
                 <div class="sm:max-w-3xl md:col-span-2">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
                         <div class="col-span-full">
                             <div class="relative w-full mt-2 space-y-2">
                                 <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
-                                    <i class="bi bi-x mr-2"></i> {{.T.Get "Detach Moodle"}}
+                                    <i class="bi bi-x mr-2"></i> {{.T.Get "Detach MediaWiki"}}
                                 </button>
                                 <div x-show="open">
-                                    <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the Moodle website from this manager without actually deleting any files."}}</p>
+                                    <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the MediaWiki website from this manager without actually deleting any files."}}</p>
                                     <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "All website data such as files and database remains. Use Scan on Site Manager to re-add it later."}}</p>
                                     <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
-                                        <button onclick="confirmDetachMoodle()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
+                                        <button onclick="confirmDetachMediaWiki()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
                                         {{.T.Get "Confirm Detach"}}
                                         </button>
                                         <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
@@ -655,7 +688,7 @@
             <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
                 <div>
                     <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Permanently removes this Moodle site."}}</p>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Permanently removes this MediaWiki site."}}</p>
                 </div>
                 <div class="sm:max-w-3xl md:col-span-2">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
@@ -668,7 +701,7 @@
                                     <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "This will drop the database and user, delete every file, remove the registered cron job, and remove it from Site Manager."}}</p>
                                     <p class="my-2 text-sm/6 text-red-500 dark:text-red-400">{{.T.Get "This cannot be undone."}}</p>
                                     <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
-                                        <button onclick="confirmRemoveMoodle()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
+                                        <button onclick="confirmRemoveMediaWiki()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
                                         {{.T.Get "Confirm delete"}}
                                         </button>
                                         <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
@@ -697,19 +730,17 @@
 
         {{template "waf_panel" .}}
 
-        {{template "moodle_cache" .}}
-
     </div>
 
 </div>
 
 <script>
-const MOODLE_SITE_ID = {{toJSON .Container.ID}};
+const MEDIAWIKI_SITE_ID = {{toJSON .Container.ID}};
 
-function confirmRemoveMoodle() {
-    showToast({{toJSON (.T.Get "Moodle removal started. Please wait.")}}, 'loading');
+function confirmRemoveMediaWiki() {
+    showToast({{toJSON (.T.Get "MediaWiki removal started. Please wait.")}}, 'loading');
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/moodle/remove', true);
+    xhr.open('POST', '/mediawiki/remove', true);
     xhr.setRequestHeader("X-CSRF-Token", csrf_token);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.onreadystatechange = function () {
@@ -717,11 +748,11 @@ function confirmRemoveMoodle() {
             window.location.href = '/sites';
         }
     };
-    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(MOODLE_SITE_ID));
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(MEDIAWIKI_SITE_ID));
 }
 
-function confirmDetachMoodle() {
-    showToast({{toJSON (.T.Get "Moodle detach process started. Please wait.")}}, 'loading');
+function confirmDetachMediaWiki() {
+    showToast({{toJSON (.T.Get "MediaWiki detach process started. Please wait.")}}, 'loading');
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/sites/detach', true);
     xhr.setRequestHeader("X-CSRF-Token", csrf_token);
@@ -731,11 +762,11 @@ function confirmDetachMoodle() {
             if (xhr.status === 200) {
                 window.location.href = '/sites';
             } else {
-                showToast({{toJSON (.T.Get "An error occurred while detaching Moodle. Please try again.")}}, 'error');
+                showToast({{toJSON (.T.Get "An error occurred while detaching MediaWiki. Please try again.")}}, 'error');
             }
         }
     };
-    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(MOODLE_SITE_ID));
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(MEDIAWIKI_SITE_ID));
 }
 </script>
 
@@ -746,7 +777,7 @@ function confirmDetachMoodle() {
         .then(response => response.json())
         .then(data => {
             document.getElementById("filesSize").textContent = data.size;
-            const filesSizeForBackup = document.getElementById("moodle-files-size-for-backup");
+            const filesSizeForBackup = document.getElementById("mediawiki-files-size-for-backup");
             if (filesSizeForBackup) filesSizeForBackup.textContent = `( ~ ${data.size} )`;
         })
         .catch(error => console.error("An error occurred fetching folder size from the container:", error));
@@ -760,7 +791,7 @@ function confirmDetachMoodle() {
                 .then(response => response.json())
                 .then(data => {
                     databaseSizeSpan.textContent = data.size;
-                    const dbSizeForBackup = document.getElementById("moodle-db-size-for-backup");
+                    const dbSizeForBackup = document.getElementById("mediawiki-db-size-for-backup");
                     if (dbSizeForBackup) dbSizeForBackup.textContent = `( ~ ${data.size} )`;
                 })
                 .catch(error => console.error("An error occurred fetching DB size from MySQL:", error));
@@ -771,76 +802,5 @@ function confirmDetachMoodle() {
 })();
 </script>
 
-<!-- END templates/manager/moodle_app.html -->
-{{end}}
-
-{{define "moodle_cache"}}
-<!-- START moodle_cache widget -->
-<div x-data="moodleCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
-  <div class="mb-2 flex items-center justify-between gap-4 relative">
-    <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-    <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Cache"}}</h2>
-    <svg aria-hidden="true" class="lucide lucide-compass size-5 shrink-0" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor" fill="none" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"></path><circle cx="12" cy="12" r="10"></circle></svg>
-  </div>
-
-    <div class="grid grid-cols-1 gap-2">
-        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Purge Moodle caches:"}}</span>
-            <span class="font-medium">
-
-        <button
-        @click="purgeCaches"
-        data-tooltip-target="tooltip-moodle_purge_cache-link" data-tooltip-placement="left"
-        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 cursor-pointer"
-        type="button"
-        aria-label="Purge Moodle Caches"
-        >
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash size-5 shrink-0"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-        {{.T.Get "Clear Cache"}}
-        </button>
-            </span>
-        </div>
-    </div>
-
-    <div id="tooltip-moodle_purge_cache-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
-      {{.T.Get "Runs admin/cli/purge_caches.php - purges all Moodle caches."}}
-      <div class="tooltip-arrow" data-popper-arrow></div>
-    </div>
-</div>
-
-<script>
-  function moodleCacheComponent() {
-    return {
-      domain: {{toJSON .CurrentDomain}},
-      docroot: {{toJSON .Docroot}},
-
-      purgeCaches() {
-        if (!this.domain || !this.docroot) {
-          return;
-        }
-        showToast({{toJSON (.T.Get "Purging caches...")}}, 'loading', true);
-        fetch(`/moodle/cache?domain=${encodeURIComponent(this.domain)}&docroot=${encodeURIComponent(this.docroot)}`, {
-          method: 'POST',
-          headers: {
-            'X-CSRF-TOKEN': csrf_token,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({})
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            showToast(data.error, 'danger');
-          } else {
-            showToast(data.message || {{toJSON (.T.Get "Caches purged successfully!")}}, 'success');
-          }
-        })
-        .catch(() => {
-          showToast({{toJSON (.T.Get "Failed to purge caches")}}, 'danger');
-        });
-      }
-    }
-  }
-</script>
-<!-- END moodle_cache widget -->
+<!-- END templates/manager/mediawiki_app.html -->
 {{end}}

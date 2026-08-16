@@ -325,6 +325,27 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			AvailablePHPVersions: availablePHPVersions,
 		})
 
+	case "mediawiki":
+		dbInfo := extractMediaWikiDatabaseInfo(userContext, docroot)
+		mediawikiVersion := getMediaWikiVersion(userContext, docroot)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		mysqlVersion := getMySQLVersion(a, r, userContext)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
+		renderMediaWikiAppPage(a, w, r, MediaWikiAppPageData{
+			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Domains:              domains,
+			Container:            container,
+			MediaWikiVersion:     mediawikiVersion,
+			PHPVersion:           currentPHPVersion,
+			MySQLVersion:         mysqlVersion,
+			DBInfo:               dbInfo,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
+		})
+
 	default:
 		// mautic/anything else: not a supported CMS type here.
 		writeJSON(w, http.StatusOK, map[string]string{"error": "Unknown CMS type"})

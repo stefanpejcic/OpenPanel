@@ -192,6 +192,9 @@ func handleSitesScan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if allowed["moodle"] {
 		scanMoodle(ctx, a, userID, userContext, baseDirectory, mysqlVersion, outcome)
 	}
+	if allowed["mediawiki"] {
+		scanMediaWiki(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion, outcome)
+	}
 
 	if len(outcome.found) > 0 {
 		_ = a.Cache.Delete(ctx, fmt.Sprintf("get_user_websites:%d", userID))

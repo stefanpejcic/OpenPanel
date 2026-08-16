@@ -208,6 +208,67 @@ func latestMoodleVersionForUpdates(ctx context.Context) (string, error) {
 	return versions[0], nil
 }
 
+var (
+	updatesMediaWikiBranchRE  = regexp.MustCompile(`href="(\d+\.\d+)/"`)
+	updatesMediaWikiVersionRE = regexp.MustCompile(`href="mediawiki-(\d+\.\d+\.\d+)\.tar\.gz"`)
+)
+
+// latestMediaWikiVersionForUpdates scrapes releases.wikimedia.org/mediawiki/
+// (a two-level branch/patch directory listing, not a GitHub-tags API - see
+// mediawiki/version.go's identical scraper) for the highest patch version
+// off the highest available branch.
+func latestMediaWikiVersionForUpdates(ctx context.Context) (string, error) {
+	fetch := func(url string) (string, error) {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if err != nil {
+			return "", err
+		}
+		// releases.wikimedia.org returns 403 to Go's default "Go-http-client"
+		// User-Agent - confirmed live, a plain browser/curl-like UA is required.
+		req.Header.Set("User-Agent", "OpenPanel/1.0 (+https://openpanel.com)")
+		client := &http.Client{Timeout: 10 * time.Second}
+		resp, err := client.Do(req)
+		if err != nil {
+			return "", err
+		}
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return "", err
+		}
+		return string(body), nil
+	}
+
+	body, err := fetch("https://releases.wikimedia.org/mediawiki/")
+	if err != nil {
+		return "", err
+	}
+	branchMatches := updatesMediaWikiBranchRE.FindAllStringSubmatch(body, -1)
+	var branches []string
+	for _, m := range branchMatches {
+		branches = append(branches, m[1])
+	}
+	sort.Slice(branches, func(i, j int) bool { return compareUpdateVersions(branches[i], branches[j]) > 0 })
+
+	for _, branch := range branches {
+		branchBody, branchErr := fetch("https://releases.wikimedia.org/mediawiki/" + branch + "/")
+		if branchErr != nil {
+			continue
+		}
+		versionMatches := updatesMediaWikiVersionRE.FindAllStringSubmatch(branchBody, -1)
+		var versions []string
+		for _, m := range versionMatches {
+			versions = append(versions, m[1])
+		}
+		if len(versions) == 0 {
+			continue
+		}
+		sort.Slice(versions, func(i, j int) bool { return compareUpdateVersions(versions[i], versions[j]) > 0 })
+		return versions[0], nil
+	}
+	return "", nil
+}
+
 // latestWordPressVersionForUpdates asks wordpress.org's own stable-check
 // API for the current stable release (the same source list.html's
 // client-side badge already reads per-version, just used here to get the
@@ -245,14 +306,17 @@ func latestWordPressVersionForUpdates(ctx context.Context) (string, error) {
 func latestVersionsForAllTypes(ctx context.Context, a *appctx.App) map[string]string {
 	result, _ := cache.Memoize(ctx, a.Cache, "sites_latest_versions", 6*time.Hour, func() (map[string]string, error) {
 		fetchers := map[string]func(context.Context) (string, error){
-			"wordpress":  latestWordPressVersionForUpdates,
-			"drupal":     latestDrupalVersionForUpdates,
-			"joomla":     func(ctx context.Context) (string, error) { return fetchLatestGitHubRelease(ctx, "joomla/joomla-cms") },
-			"opencart":   func(ctx context.Context) (string, error) { return fetchLatestGitHubRelease(ctx, "opencart/opencart") },
-			"nextcloud":  latestNextcloudVersionForUpdates,
-			"prestashop": func(ctx context.Context) (string, error) { return latestVersionWithZipAsset(ctx, "PrestaShop/PrestaShop") },
-			"matomo":     func(ctx context.Context) (string, error) { return latestVersionWithZipAsset(ctx, "matomo-org/matomo") },
-			"moodle":     latestMoodleVersionForUpdates,
+			"wordpress": latestWordPressVersionForUpdates,
+			"drupal":    latestDrupalVersionForUpdates,
+			"joomla":    func(ctx context.Context) (string, error) { return fetchLatestGitHubRelease(ctx, "joomla/joomla-cms") },
+			"opencart":  func(ctx context.Context) (string, error) { return fetchLatestGitHubRelease(ctx, "opencart/opencart") },
+			"nextcloud": latestNextcloudVersionForUpdates,
+			"prestashop": func(ctx context.Context) (string, error) {
+				return latestVersionWithZipAsset(ctx, "PrestaShop/PrestaShop")
+			},
+			"matomo":    func(ctx context.Context) (string, error) { return latestVersionWithZipAsset(ctx, "matomo-org/matomo") },
+			"moodle":    latestMoodleVersionForUpdates,
+			"mediawiki": latestMediaWikiVersionForUpdates,
 		}
 
 		out := make(map[string]string, len(fetchers))

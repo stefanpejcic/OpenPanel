@@ -34,6 +34,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/joomla"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/malwarescan"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/matomo"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/mediawiki"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/moodle"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/nextcloud"
@@ -122,6 +123,7 @@ var configured = map[string]Registrar{
 	"prestashop": func(mux *http.ServeMux, a *appctx.App) { prestashop.Register(mux, a); prestashop.RegisterAPI(mux, a) },
 	"matomo":     func(mux *http.ServeMux, a *appctx.App) { matomo.Register(mux, a); matomo.RegisterAPI(mux, a) },
 	"moodle":     func(mux *http.ServeMux, a *appctx.App) { moodle.Register(mux, a); moodle.RegisterAPI(mux, a) },
+	"mediawiki":  func(mux *http.ServeMux, a *appctx.App) { mediawiki.Register(mux, a); mediawiki.RegisterAPI(mux, a) },
 	"goaccess":   func(mux *http.ServeMux, a *appctx.App) { goaccess.Register(mux, a); goaccess.RegisterAPI(mux, a) },
 	"php": func(mux *http.ServeMux, a *appctx.App) {
 		php.Register(mux, a)

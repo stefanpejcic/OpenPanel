@@ -23,6 +23,13 @@ type SiteRow struct {
 	// sites.html's Actions column (unlike every other type check on this
 	// page, that one isn't lowercased first).
 	IsStatic bool
+	// Docroot is the site's full container-path docroot (the owning
+	// domain's docroot plus any subdirectory suffix parsed out of
+	// SiteName) - same computation dispatch.go's /website handler already
+	// does per-request, needed here too so the Actions column's autologin
+	// button can pass it straight through to each CMS's /<type>/login
+	// endpoint without a second lookup.
+	Docroot string
 }
 
 // SiteGroup is one type-grouped section of the /sites table (e.g. all
@@ -50,9 +57,11 @@ func handleListSites(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, execErr := a.DB.QueryContext(ctx, `
-		SELECT site_name, domain_id, admin_email, version, created_date, type, container, ports
+		SELECT sites.site_name, sites.domain_id, sites.admin_email, sites.version, sites.created_date,
+		       sites.type, sites.container, sites.ports, domains.docroot
 		FROM sites
-		WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?)`, userID)
+		JOIN domains ON domains.domain_id = sites.domain_id
+		WHERE sites.domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?)`, userID)
 	if execErr != nil {
 		_, _ = w.Write([]byte("An error occurred: " + execErr.Error()))
 		return
@@ -64,11 +73,11 @@ func handleListSites(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	for rows.Next() {
 		var (
-			s                                                                 SiteRow
-			siteName, adminEmail, version, createdDate, typ, container, ports sql.NullString
-			domainID                                                          sql.NullInt64
+			s                                                                          SiteRow
+			siteName, adminEmail, version, createdDate, typ, container, ports, docroot sql.NullString
+			domainID                                                                   sql.NullInt64
 		)
-		if scanErr := rows.Scan(&siteName, &domainID, &adminEmail, &version, &createdDate, &typ, &container, &ports); scanErr != nil {
+		if scanErr := rows.Scan(&siteName, &domainID, &adminEmail, &version, &createdDate, &typ, &container, &ports, &docroot); scanErr != nil {
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
@@ -76,6 +85,12 @@ func handleListSites(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		s.AdminEmail, s.Version, s.CreatedDate = adminEmail.String, version.String, createdDate.String
 		s.Type, s.Container, s.Ports = typ.String, container.String, ports.String
 		s.IsStatic = strings.Contains(s.Type, "static")
+
+		_, folder := splitDomainAndFolder(s.SiteName)
+		s.Docroot = docroot.String
+		if folder != "" {
+			s.Docroot = strings.TrimSuffix(s.Docroot, "/") + "/" + folder
+		}
 		key := strings.ToLower(s.Type)
 		idx, ok := groupIndex[key]
 		if !ok {

@@ -33,7 +33,7 @@
 
     <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
 
-        <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: 'dashboard' }">
+        <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
         <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" class="grid grid-cols-7 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">

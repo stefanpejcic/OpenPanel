@@ -1,4 +1,4 @@
-package opencart
+package mediawiki
 
 import (
 	"context"
@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 )
@@ -60,7 +61,7 @@ func formOr(r *http.Request, key, def string) string {
 }
 
 // ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up (mirrors joomla/drupal/phpapp's
+// polling briefly for it to come up (mirrors every other CMS module's
 // identical helper).
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
@@ -77,51 +78,15 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// unpackOpenCartArchive extracts only the zip's upload/ subtree (the actual
-// OpenCart application - the rest of the release zip is repo scaffolding:
-// docs/, .github/, composer.json, tools/) directly into destDir, flattened
-// (upload/index.php -> destDir/index.php, not destDir/upload/index.php).
-func unpackOpenCartArchive(ctx context.Context, archivePath, destDir string) error {
-	tmpDir := destDir + ".extract-tmp"
-	script := `set -e
-rm -rf "$2"
-mkdir -p "$2"
-unzip -q "$1" "upload/*" -d "$2"
-cd "$2/upload"
-for f in .[!.]* ..?* *; do
-  [ -e "$f" ] || continue
-  mv "$f" "$3/"
-done
-rm -rf "$2"
-`
-	cmd := exec.CommandContext(ctx, "sh", "-c", script, "sh", archivePath, tmpDir, destDir)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		_ = os.RemoveAll(tmpDir)
-		return &execError{msg: strings.TrimSpace(string(out)), err: err}
-	}
-	return nil
-}
-
-type execError struct {
-	msg string
-	err error
-}
-
-func (e *execError) Error() string { return e.msg }
-func (e *execError) Unwrap() error { return e.err }
-
-// handleInstallStream drives an OpenCart install end to end, streaming
-// NDJSON progress events: download the release archive from GitHub (mirrors
-// wordpress/install.go's wordpress.org download and joomla/install.go's
-// GitHub download), extract its upload/ subtree directly into the docroot,
-// create a MySQL database, copy config-dist.php -> config.php (and the
-// admin/ equivalent - OpenCart's CLI installer requires both to already
-// exist and be writable, it doesn't create them), then run OpenCart's own
-// `install/cli_install.php install` CLI installer (confirmed against a live
-// OpenCart 4 release: no --root/--uri flags needed beyond --http_server,
-// and the install/ folder is left behind afterward - we remove it
-// ourselves, matching what a manual install always recommends).
+// handleInstallStream drives a MediaWiki install end to end, streaming
+// NDJSON progress events: download the packaged tarball from
+// releases.wikimedia.org, extract it directly into the docroot (flat, like
+// Joomla - MediaWiki has no separate web/ or public/ subdirectory to
+// reconcile), create a MySQL database, run MediaWiki's own
+// `maintenance/install.php` non-interactive CLI installer, deploy the
+// admin login helper, then register a per-minute `maintenance/runJobs.php`
+// job via crons.AddJob (MediaWiki's job queue - link tables, search index,
+// email - does not run without it).
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -168,6 +133,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	siteName := formOr(r, "site_name", "MediaWiki")
 	adminUsername := formOr(r, "admin_username", "admin")
 	adminPassword := r.FormValue("admin_password")
 	if adminPassword == "" {
@@ -177,7 +143,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	dbName := strings.ToLower(r.FormValue("db_name"))
 	if dbName == "" {
-		dbName = "opencart_" + strings.ToLower(generateRandomString(6))
+		dbName = "mediawiki_" + strings.ToLower(generateRandomString(6))
 	}
 	dbUser := strings.ToLower(r.FormValue("db_user"))
 	if dbUser == "" {
@@ -225,25 +191,31 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	version := strings.TrimSpace(r.FormValue("opencart_version"))
+	version := strings.TrimSpace(r.FormValue("mediawiki_version"))
 	if version == "" {
 		var latestErr error
-		version, latestErr = latestOpenCartVersion(ctx)
+		version, latestErr = latestMediaWikiVersion(ctx)
 		if latestErr != nil {
-			emit(map[string]any{"error": "Could not determine latest OpenCart version: " + latestErr.Error()})
+			emit(map[string]any{"error": "Could not determine latest MediaWiki version: " + latestErr.Error()})
 			return
 		}
 	}
+	branch := mediawikiBranchForVersion(version)
+	if branch == "" {
+		emit(map[string]any{"error": "Could not determine MediaWiki release branch for version " + version})
+		return
+	}
 
-	archiveName := "opencart-" + version + ".zip"
-	archiveDir := "/etc/openpanel/opencart/archives"
+	archiveName := "mediawiki-" + version + ".tar.gz"
+	archiveDir := "/etc/openpanel/mediawiki/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
 	if _, statErr := os.Stat(archivePath); statErr != nil {
-		downloadURL := "https://github.com/opencart/opencart/releases/download/" + version + "/" + archiveName
+		downloadURL := "https://releases.wikimedia.org/mediawiki/" + branch + "/" + archiveName
 		emit(map[string]any{"status": "Downloading " + downloadURL})
 		_ = os.MkdirAll(archiveDir, 0o755)
-		if runErr := exec.CommandContext(ctx, "wget", "-q", "-P", archiveDir, downloadURL).Run(); runErr != nil {
-			emit(map[string]any{"error": "Error downloading OpenCart " + version + ": " + runErr.Error()})
+		if runErr := exec.CommandContext(ctx, "wget", "-q", "-O", archivePath, downloadURL).Run(); runErr != nil {
+			_ = os.Remove(archivePath)
+			emit(map[string]any{"error": "Error downloading MediaWiki " + version + ": " + runErr.Error()})
 			return
 		}
 	} else {
@@ -251,31 +223,17 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Extracting files to " + installPath})
-	if unpackErr := unpackOpenCartArchive(ctx, archivePath, hostOSPath); unpackErr != nil {
-		emit(map[string]any{"error": "Error extracting OpenCart archive: " + unpackErr.Error()})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
-		return
-	}
-
-	emit(map[string]any{"status": "Preparing config.php files"})
-	if copyErr := copyFile(filepath.Join(hostOSPath, "config-dist.php"), filepath.Join(hostOSPath, "config.php")); copyErr != nil {
-		emit(map[string]any{"error": "Error creating config.php: " + copyErr.Error()})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
-		return
-	}
-	if copyErr := copyFile(filepath.Join(hostOSPath, "admin", "config-dist.php"), filepath.Join(hostOSPath, "admin", "config.php")); copyErr != nil {
-		emit(map[string]any{"error": "Error creating admin/config.php: " + copyErr.Error()})
+	if runErr := exec.CommandContext(ctx, "tar", "-xzf", archivePath, "-C", hostOSPath, "--strip-components=1").Run(); runErr != nil {
+		emit(map[string]any{"error": "Error extracting MediaWiki archive: " + runErr.Error()})
 		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 
 	// Host-side chown, not `podman exec ... chown` - the archive was
 	// extracted host-side, so the files are owned by this process's own
-	// (real, unmapped) UID. A rootless container's own "root" is confined
-	// to its user-namespace's UID range and cannot chown files it doesn't
-	// already own outside that mapping (confirmed live while building the
-	// Joomla module: that silently failed with "Operation not permitted",
-	// leaving the docroot unwritable by the container's PHP process).
+	// (real, unmapped) UID. A rootless container's own "root" cannot chown
+	// files it doesn't already own outside its user-namespace's UID
+	// mapping (confirmed live while building the Joomla module).
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr != nil {
@@ -310,7 +268,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "Creating database " + dbName + " and user " + dbUser})
 	const dbHost = "%"
 	queries := []string{
-		"CREATE DATABASE IF NOT EXISTS `" + dbName + "`",
+		"CREATE DATABASE IF NOT EXISTS `" + dbName + "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
 		"CREATE USER IF NOT EXISTS '" + dbUser + "'@'" + dbHost + "' IDENTIFIED BY '" + dbPassword + "'",
 		"GRANT ALL PRIVILEGES ON `" + dbName + "`.* TO '" + dbUser + "'@'%'",
 		"FLUSH PRIVILEGES",
@@ -326,36 +284,33 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 	invalidateMySQLCaches(ctx, a, userContext, currentUsername)
 
-	emit(map[string]any{"status": "Running OpenCart CLI installer"})
-	httpServer := "https://" + selectedDomain + "/"
-	// cli_install.php's own argv parser only recognises space-separated
-	// `--flag value` pairs (substr($argv[$i], 2) as the key) - `--flag=value`
-	// silently fails to populate anything, confirmed live: it produced a
-	// "missing or invalid" error for every field passed that way.
+	scriptPath := ""
+	if subdirectory != "" {
+		scriptPath = "/" + subdirectory
+	}
+
+	emit(map[string]any{"status": "Running MediaWiki CLI installer (maintenance/install.php)"})
 	installArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "php"),
-		installPath+"/install/cli_install.php", "install",
-		"--username", adminUsername,
-		"--email", adminEmail,
-		"--password", adminPassword,
-		"--http_server", httpServer,
-		"--language", "en-gb",
-		"--db_driver", "mysqli",
-		"--db_hostname", mysqlVersion,
-		"--db_username", dbUser,
-		"--db_password", dbPassword,
-		"--db_database", dbName,
-		"--db_port", "3306",
-		"--db_prefix", "oc_")
+		installPath+"/maintenance/install.php",
+		"--dbtype=mysql",
+		"--dbserver="+mysqlVersion,
+		"--dbname="+dbName,
+		"--dbuser="+dbUser,
+		"--dbpass="+dbPassword,
+		"--dbprefix=mw_",
+		"--server=https://"+dom.DomainURL,
+		"--scriptpath="+scriptPath,
+		"--lang=en",
+		"--pass="+adminPassword,
+		siteName,
+		adminUsername)
 	out, runErr := podmanmanager.Command(ctx, userContext, installArgv).CombinedOutput()
-	if runErr != nil || !strings.Contains(string(out), "SUCCESS!") {
-		emit(map[string]any{"error": "OpenCart CLI installer failed: " + strings.TrimSpace(string(out))})
+	if runErr != nil {
+		emit(map[string]any{"error": "MediaWiki CLI installer failed: " + strings.TrimSpace(string(out))})
 		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		emitCleanupDatabase(ctx, userContext, dbName, dbUser, dbHost, emit)
 		return
 	}
-
-	emit(map[string]any{"status": "Removing installer folder"})
-	_ = podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath+"/install")).Run()
 
 	emit(map[string]any{"status": "Deploying admin login helper"})
 	loginFilePath := filepath.Join(hostOSPath, openpanelLoginFileName)
@@ -363,25 +318,24 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		_ = os.Chown(loginFilePath, uid, uid)
 	}
 
+	emit(map[string]any{"status": "Registering cron job (maintenance/runJobs.php, every minute)"})
+	cronComment := mediawikiCronComment(selectedDomain)
+	cronCommand := "php " + installPath + "/maintenance/runJobs.php --maxjobs=50"
+	if cronErr := crons.AddJob(ctx, userContext, cronComment, "0 * * * * *", phpContainer, cronCommand, true); cronErr != nil {
+		emit(map[string]any{"status": "Warning: MediaWiki installed, but the cron job could not be registered automatically: " + cronErr.Error() + " - add it manually from Cron Jobs: schedule '0 * * * * *', container '" + phpContainer + "', command '" + cronCommand + "'."})
+	}
+
 	emit(map[string]any{"status": "Saving website information to Site Manager"})
 	if _, insertErr := a.DB.ExecContext(ctx,
 		"INSERT INTO sites (site_name, domain_id, admin_email, version, type) VALUES (?, ?, ?, ?, ?)",
-		selectedDomain, domainID, adminEmail, version, "opencart"); insertErr != nil {
-		emit(map[string]any{"error": "OpenCart installed, but an error occurred while saving to Site Manager: " + insertErr.Error()})
+		selectedDomain, domainID, adminEmail, version, "mediawiki"); insertErr != nil {
+		emit(map[string]any{"error": "MediaWiki installed, but an error occurred while saving to Site Manager: " + insertErr.Error()})
 		return
 	}
 
-	_ = logger.RecordUserAction(a.Config, currentUsername, "installed OpenCart on domain "+selectedDomain, ipAddress)
-	flashSess(a, w, r, "success", "OpenCart installed successfully on "+selectedDomain)
-	emit(map[string]any{"status": "OpenCart installation completed!"})
-}
-
-func copyFile(src, dst string) error {
-	content, err := os.ReadFile(src)
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(dst, content, 0o644)
+	_ = logger.RecordUserAction(a.Config, currentUsername, "installed MediaWiki on domain "+selectedDomain, ipAddress)
+	flashSess(a, w, r, "success", "MediaWiki installed successfully on "+selectedDomain)
+	emit(map[string]any{"status": "MediaWiki installation completed!"})
 }
 
 func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, currentUsername string) {
@@ -390,8 +344,8 @@ func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, curr
 }
 
 // emitCleanupFiles removes a failed install's partially-created directory -
-// like joomla/drupal's identical helper, always safe to blow away entirely
-// since it's always a directory install.go just created.
+// always safe to blow away entirely since it's always a directory install.go
+// just created.
 func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)
 	if err := podmanmanager.Command(ctx, userContext, argv).Run(); err != nil {

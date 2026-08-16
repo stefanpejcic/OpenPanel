@@ -117,6 +117,7 @@
                             {{else if eq $group.Type "prestashop"}}PrestaShop
                             {{else if eq $group.Type "matomo"}}Matomo
                             {{else if eq $group.Type "moodle"}}Moodle
+                            {{else if eq $group.Type "mediawiki"}}MediaWiki
                             {{else if contains $group.Type "nodejs"}}NodeJS Containers
                             {{else if contains $group.Type "bun"}}Bun Applications
                             {{else if contains $group.Type "python"}}Python Containers
@@ -173,6 +174,10 @@
                             {{else if eq $typeLower "moodle"}}
 <a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mx-auto"><path d="M12 0C5.3726 0 0 5.3726 0 12s5.3726 12 12 12 12-5.3726 12-12S18.6274 0 12 0Zm1.1348 5.7402.0351.123-2.7363 1.9903c.3694.2606.7968.609 1.0078.8438l.0762.1035c-1.2878 2.2571-3.737 3.0557-6.3164 2.1816l.0195-.1601h-.002c-.0784-.5679-.0962-1.0524-.0585-1.463-.7507-.003-1.5298-.0402-2.2832-.0663l-.5157.0175c-.0994.8449-.0351 2.135-.0254 2.3223.3492 1.2819.2977 2.2907.295 3.5293-.4134-1.0028-.8995-2.097-.416-3.4668l-.0098-.3183c-.0007-.0143-.0683-1.1532.037-2.0625l-.4081.0136-.0371-.1191C5.7922 6.8402 8.5032 6.218 13.1348 5.7402Zm1.623 2.5137c1.2202 0 2.1885.2691 2.9043.8066.8138.601 1.2207 1.4866 1.2207 2.6582v5.6856h-2.7344v-5.3691c0-1.1225-.4634-1.6836-1.3906-1.6836-.9278 0-1.3906.561-1.3906 1.6836v5.3691h-2.7344v-5.3691c0-.5183-.0986-.9144-.293-1.1934.6172-.435 1.1534-1.0124 1.5723-1.7246.0297.029.0597.0574.0879.0879.5044-.6349 1.4233-.9512 2.7578-.9512zm-9.6094 3.2344c.932.3 1.8614.393 2.7364.287a3.5455 3.5455 0 0 0-.0098.2599v5.3691H5.1426v-5.6855c0-.0787.0022-.1544.0058-.2305z"/></svg>
+</a>
+                            {{else if eq $typeLower "mediawiki"}}
+<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100" fill="currentColor" class="mx-auto"><path d="M33.6,14.8a16.938,16.938,0,0,0,3.116,11.142,11.457,11.457,0,0,0,6.858,4.3,3.033,3.033,0,0,0,2.385-.713,11.924,11.924,0,0,0,3.634-10.837c-1.257-7.54-6.19-12.43-12.4-17A32.468,32.468,0,0,0,33.6,14.8Z"/><path d="M25.117,20.232a16.938,16.938,0,0,0,5.893,9.956,11.457,11.457,0,0,0,7.738,2.381,3.033,3.033,0,0,0,2.119-1.306,11.924,11.924,0,0,0,.705-11.409C38.406,12.9,32.376,9.449,25.2,6.642A32.468,32.468,0,0,0,25.117,20.232Z"/><path d="M18.329,27.677A16.937,16.937,0,0,0,26.6,35.769a11.457,11.457,0,0,0,8.09.3,3.033,3.033,0,0,0,1.709-1.81,11.924,11.924,0,0,0-2.271-11.2c-4.859-5.9-11.576-7.67-19.237-8.523A32.466,32.466,0,0,0,18.329,27.677Z"/><path d="M13.7,36.626A16.938,16.938,0,0,0,23.781,42.3a11.457,11.457,0,0,0,7.891-1.807A3.033,3.033,0,0,0,32.854,38.3a11.924,11.924,0,0,0-5.093-10.233c-6.221-4.443-13.167-4.412-20.787-3.254A32.468,32.468,0,0,0,13.7,36.626Z"/><path d="M11.543,46.468a16.938,16.938,0,0,0,11.208,2.873,11.457,11.457,0,0,0,7.155-3.788,3.034,3.034,0,0,0,.575-2.422,11.924,11.924,0,0,0-7.568-8.566C15.753,31.884,9.052,33.711,1.99,36.8A32.468,32.468,0,0,0,11.543,46.468Z"/><path d="M12.008,56.532a16.938,16.938,0,0,0,11.569-.126,11.457,11.457,0,0,0,5.931-5.51,3.033,3.033,0,0,0-.072-2.488,11.924,11.924,0,0,0-9.527-6.315C12.3,41.356,6.3,44.855.279,49.669A32.467,32.467,0,0,0,12.008,56.532Z"/><path d="M15.062,66.134A16.938,16.938,0,0,0,26.2,63.018a11.457,11.457,0,0,0,4.3-6.858,3.033,3.033,0,0,0-.713-2.385,11.924,11.924,0,0,0-10.837-3.634c-7.54,1.257-12.43,6.19-17,12.4A32.468,32.468,0,0,0,15.062,66.134Z"/><path d="M20.5,74.618a16.938,16.938,0,0,0,9.956-5.893,11.457,11.457,0,0,0,2.381-7.738,3.033,3.033,0,0,0-1.306-2.119,11.925,11.925,0,0,0-11.409-.705c-6.958,3.166-10.4,9.2-13.212,16.376A32.466,32.466,0,0,0,20.5,74.618Z"/><path d="M27.943,81.406a16.938,16.938,0,0,0,8.092-8.269,11.457,11.457,0,0,0,.3-8.09,3.033,3.033,0,0,0-1.81-1.709,11.924,11.924,0,0,0-11.2,2.271c-5.9,4.859-7.67,11.576-8.523,19.237A32.467,32.467,0,0,0,27.943,81.406Z"/><path d="M36.891,86.035a16.938,16.938,0,0,0,5.676-10.082,11.457,11.457,0,0,0-1.807-7.891,3.033,3.033,0,0,0-2.191-1.182,11.924,11.924,0,0,0-10.233,5.094c-4.443,6.221-4.412,13.167-3.254,20.787A32.467,32.467,0,0,0,36.891,86.035Z"/><path d="M46.733,88.191a16.937,16.937,0,0,0,2.873-11.207,11.457,11.457,0,0,0-3.788-7.155,3.033,3.033,0,0,0-2.422-.575,11.924,11.924,0,0,0-8.566,7.568c-2.681,7.159-.854,13.86,2.237,20.921A32.465,32.465,0,0,0,46.733,88.191Z"/><path d="M56.8,87.726a16.937,16.937,0,0,0-.125-11.569,11.457,11.457,0,0,0-5.511-5.931,3.033,3.033,0,0,0-2.488.072,11.924,11.924,0,0,0-6.315,9.528c-0.737,7.609,2.762,13.609,7.576,19.629A32.466,32.466,0,0,0,56.8,87.726Z"/><path d="M66.4,84.672A16.938,16.938,0,0,0,63.284,73.53a11.457,11.457,0,0,0-6.858-4.3,3.033,3.033,0,0,0-2.385.713,11.924,11.924,0,0,0-3.634,10.837c1.257,7.54,6.19,12.43,12.4,17A32.468,32.468,0,0,0,66.4,84.672Z"/><path d="M74.883,79.237a16.937,16.937,0,0,0-5.893-9.956A11.456,11.456,0,0,0,61.252,66.9a3.033,3.033,0,0,0-2.119,1.306,11.924,11.924,0,0,0-.705,11.409c3.166,6.958,9.2,10.4,16.375,13.212A32.468,32.468,0,0,0,74.883,79.237Z"/><path d="M81.671,71.792A16.938,16.938,0,0,0,73.4,63.7a11.457,11.457,0,0,0-8.09-.3,3.033,3.033,0,0,0-1.708,1.81,11.924,11.924,0,0,0,2.271,11.2c4.859,5.9,11.576,7.67,19.237,8.523A32.466,32.466,0,0,0,81.671,71.792Z"/><path d="M86.3,62.843a16.938,16.938,0,0,0-10.082-5.676,11.457,11.457,0,0,0-7.891,1.807,3.033,3.033,0,0,0-1.182,2.191A11.924,11.924,0,0,0,72.239,71.4c6.221,4.443,13.167,4.412,20.787,3.254A32.467,32.467,0,0,0,86.3,62.843Z"/><path d="M88.457,53a16.938,16.938,0,0,0-11.207-2.873,11.457,11.457,0,0,0-7.155,3.788,3.033,3.033,0,0,0-.574,2.422A11.925,11.925,0,0,0,77.088,64.9c7.158,2.681,13.86.854,20.921-2.237A32.467,32.467,0,0,0,88.457,53Z"/><path d="M87.992,42.936a16.938,16.938,0,0,0-11.569.126,11.457,11.457,0,0,0-5.931,5.511,3.033,3.033,0,0,0,.072,2.488,11.924,11.924,0,0,0,9.527,6.315C87.7,58.113,93.7,54.614,99.721,49.8A32.468,32.468,0,0,0,87.992,42.936Z"/><path d="M84.938,33.335A16.938,16.938,0,0,0,73.8,36.451a11.457,11.457,0,0,0-4.3,6.858,3.033,3.033,0,0,0,.714,2.385,11.924,11.924,0,0,0,10.837,3.634c7.54-1.257,12.43-6.19,17-12.4A32.466,32.466,0,0,0,84.938,33.335Z"/><path d="M79.5,24.851a16.938,16.938,0,0,0-9.956,5.893,11.457,11.457,0,0,0-2.381,7.738A3.033,3.033,0,0,0,68.472,40.6a11.924,11.924,0,0,0,11.409.705c6.958-3.166,10.4-9.2,13.212-16.375A32.468,32.468,0,0,0,79.5,24.851Z"/><path d="M72.057,18.063a16.938,16.938,0,0,0-8.092,8.269,11.457,11.457,0,0,0-.3,8.09,3.033,3.033,0,0,0,1.81,1.709,11.924,11.924,0,0,0,11.2-2.271c5.9-4.859,7.67-11.576,8.523-19.237A32.467,32.467,0,0,0,72.057,18.063Z"/><path d="M63.109,13.434a16.937,16.937,0,0,0-5.676,10.082,11.457,11.457,0,0,0,1.807,7.891,3.033,3.033,0,0,0,2.191,1.182A11.924,11.924,0,0,0,71.664,27.5c4.443-6.221,4.412-13.167,3.254-20.787A32.466,32.466,0,0,0,63.109,13.434Z"/><path d="M53.267,11.278a16.937,16.937,0,0,0-2.873,11.207,11.456,11.456,0,0,0,3.788,7.155,3.033,3.033,0,0,0,2.422.575,11.924,11.924,0,0,0,8.566-7.568c2.681-7.159.854-13.86-2.237-20.921A32.466,32.466,0,0,0,53.267,11.278Z"/><path d="M43.2,11.743a16.938,16.938,0,0,0,.126,11.569,11.457,11.457,0,0,0,5.511,5.931,3.033,3.033,0,0,0,2.488-.072,11.924,11.924,0,0,0,6.315-9.528C58.379,12.034,54.88,6.034,50.066.014A32.468,32.468,0,0,0,43.2,11.743Z"/></svg>
 </a>
                             {{else if eq $typeLower "mautic"}}
 <a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
@@ -236,11 +241,44 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
                             <div class="speed_data" data-site-name="{{$site.SiteName}}" id="speed_data_{{replace $site.SiteName "." "_"}}"></div>
                         </td>
                         <td class="whitespace-nowrap p-4 text-sm text-right text-gray-600 dark:text-gray-400">
-                            {{if $site.IsStatic}}
-                            <a {{if $.UserAllowed.filemanager}}href="/files/{{$site.SiteName}}"{{end}} type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{$.T.Get "Manage"}}</a>
-                            {{else}}
-                            <a href="/website?domain={{$site.SiteName}}" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{$.T.Get "Manage"}}</a>
-                            {{end}}
+                            {{$isCMS := or (eq $typeLower "wordpress") (eq $typeLower "joomla") (eq $typeLower "opencart") (eq $typeLower "nextcloud") (eq $typeLower "prestashop") (eq $typeLower "drupal") (eq $typeLower "matomo") (eq $typeLower "moodle") (eq $typeLower "mediawiki")}}
+                            {{$hasAutologin := or (eq $typeLower "wordpress") (eq $typeLower "joomla") (eq $typeLower "opencart") (eq $typeLower "nextcloud") (eq $typeLower "prestashop") (eq $typeLower "drupal") (eq $typeLower "matomo") (eq $typeLower "mediawiki")}}
+                            {{$hasClone := or (eq $typeLower "wordpress") (eq $typeLower "joomla") (eq $typeLower "opencart") (eq $typeLower "nextcloud") (eq $typeLower "prestashop") (eq $typeLower "drupal")}}
+                            <div class="flex items-center justify-end gap-1.5">
+                                {{if $hasAutologin}}
+                                <button type="button" class="autologin-btn inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white"
+                                    data-site-name="{{$site.SiteName}}" data-site-type="{{$typeLower}}" data-docroot="{{$site.Docroot}}"
+                                    title="{{$.T.Get "Login as Admin"}}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z"/><path d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/></svg>
+                                </button>
+                                {{end}}
+
+                                {{if $site.IsStatic}}
+                                <a {{if $.UserAllowed.filemanager}}href="/files/{{$site.SiteName}}"{{end}} title="{{$.T.Get "Manage"}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/></svg>
+                                </a>
+                                {{else}}
+                                <a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Manage"}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/></svg>
+                                </a>
+                                {{end}}
+
+                                {{if $hasClone}}
+                                <a href="/website?domain={{$site.SiteName}}&tab=clone" title="{{$.T.Get "Clone"}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
+                                </a>
+                                {{end}}
+
+                                {{if $isCMS}}
+                                <a href="/website?domain={{$site.SiteName}}&tab=backups" title="{{$.T.Get "Backups"}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
+                                </a>
+
+                                <a href="/website?domain={{$site.SiteName}}&tab=remove" title="{{$.T.Get "Delete"}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 active:bg-red-50 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5z"/></svg>
+                                </a>
+                                {{end}}
+                            </div>
                         </td>
                     </tr>
                     {{end}}
@@ -274,6 +312,45 @@ function noSpeedDataLink(siteName) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".autologin-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const siteName = btn.dataset.siteName;
+            const siteType = btn.dataset.siteType;
+            const docroot = btn.dataset.docroot;
+
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>';
+
+            // WordPress's autologin lives at /wp-cli/login (no docroot
+            // needed - wp-cli itself resolves the site from wp-config.php
+            // it finds via the domain). Every other CMS module's own
+            // /<type>/login needs domain+docroot, same as each manager
+            // page's own "Login as Admin" button already sends.
+            const url = siteType === "wordpress"
+                ? `/wp-cli/login?domain=${encodeURIComponent(siteName)}`
+                : `/${siteType}/login?domain=${encodeURIComponent(siteName)}&docroot=${encodeURIComponent(docroot)}`;
+
+            fetch(url, { headers: { 'X-CSRF-Token': csrf_token } })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.login_link) {
+                        window.open(data.login_link, '_blank');
+                    } else {
+                        showToast(data.error || {{toJSON (.T.Get "Failed to generate auto-login link.")}}, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error("Error generating auto-login link:", error);
+                    showToast({{toJSON (.T.Get "Failed to generate auto-login link.")}}, 'error');
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                });
+        });
+    });
+
     document.querySelectorAll(".speed_data").forEach(div => {
         const siteName = div.dataset.siteName;
         const url = `/json/page_speed/${siteName}`;

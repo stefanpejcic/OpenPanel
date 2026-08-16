@@ -138,7 +138,7 @@
     <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
 
 <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3"
-     x-data="{ activeTab: 'dashboard' }">
+     x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
     <!-- tabs -->
     <div class="border-b border-gray-200 dark:border-gray-700">

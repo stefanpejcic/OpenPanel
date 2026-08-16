@@ -272,6 +272,12 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emit(map[string]any{"status": mysqlVersion + " container is healthy, proceeding with database operations.."})
 	}
 
+	if mysql.DatabaseLimitReached(ctx, a, userID, currentUsername, userContext) {
+		emit(map[string]any{"error": "You have reached the maximum number of databases allowed on your plan."})
+		emitCleanupFiles(hostOSPath, emit)
+		return
+	}
+
 	emit(map[string]any{"status": "Creating database " + dbName + " and user " + dbUser})
 	const dbHost = "%"
 	queries := []string{

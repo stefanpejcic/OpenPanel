@@ -69,20 +69,20 @@ func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 	// Websites group.
 	// mautic/flarum are excluded: legacy code slated for removal from the
 	// codebase entirely, not ported here (per user decision).
-	if has("wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "website_builder", "nodejs", "python") {
+	if has("wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "website_builder", "nodejs", "python") {
 		var links []NavLink
 		if allowed["autoinstaller"] {
 			links = append(links, NavLink{"/auto-installer", "Auto Installer",
 				hasAnyPrefix(path, "/auto-installer", "/pm2", "/nodejs", "/python", "/website-builder/install",
 					"/drupal/install", "/joomla/install", "/opencart/install", "/nextcloud/install",
-					"/prestashop/install", "/matomo/install", "/moodle/install"), ""})
+					"/prestashop/install", "/matomo/install", "/moodle/install", "/mediawiki/install"), ""})
 		}
 		links = append(links, NavLink{"/sites", "Site Manager",
 			hasAnyPrefix(path, "/sites") || (strings.HasPrefix(path, "/website") && !strings.HasPrefix(path, "/website-builder")), ""})
 		if allowed["wordpress"] {
 			links = append(links, NavLink{"/wordpress", "WordPress Manager", strings.HasPrefix(path, "/wordpress"), ""})
 		}
-		open := hasAnyPrefix(path, "/auto-installer", "/sites", "/website", "/wordpress", "/drupal", "/joomla", "/opencart", "/nextcloud", "/prestashop", "/matomo", "/moodle", "/pm2", "/nodejs", "/python")
+		open := hasAnyPrefix(path, "/auto-installer", "/sites", "/website", "/wordpress", "/drupal", "/joomla", "/opencart", "/nextcloud", "/prestashop", "/matomo", "/moodle", "/mediawiki", "/pm2", "/nodejs", "/python")
 		groups = append(groups, NavGroup{"Websites", websitesIcon, "websites-menu", links, open, open})
 	}
 

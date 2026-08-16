@@ -847,6 +847,56 @@ func getMoodleVersion(userContext, directory string) string {
 	return m[1]
 }
 
+// extractMediaWikiDatabaseInfo parses the $wgDBname/$wgDBuser/$wgDBpassword/
+// $wgDBserver/$wgDBprefix plain-variable assignments out of the docroot's
+// LocalSettings.php - MediaWiki is installed flat (no approot/public split
+// like Moodle), so this reads directly from directory, mirroring
+// extractJoomlaDatabaseInfo's shape.
+func extractMediaWikiDatabaseInfo(userContext, directory string) map[string]string {
+	const wwwPrefix = "/var/www/html/"
+	if !strings.HasPrefix(directory, wwwPrefix) {
+		return nil
+	}
+	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
+	content, err := os.ReadFile(filepath.Join(mappedDir, "LocalSettings.php"))
+	if err != nil {
+		return map[string]string{"error": "LocalSettings.php not found"}
+	}
+	text := string(content)
+
+	info := map[string]string{}
+	for key, field := range map[string]string{
+		"database_name": "wgDBname", "database_user": "wgDBuser",
+		"database_password": "wgDBpassword", "database_host": "wgDBserver", "database_prefix": "wgDBprefix",
+	} {
+		re := regexp.MustCompile(`\$` + field + `\s*=\s*"([^"]*)"`)
+		if m := re.FindStringSubmatch(text); m != nil {
+			info[key] = m[1]
+		}
+	}
+	if len(info) == 0 {
+		return map[string]string{"error": "No database information found in LocalSettings.php"}
+	}
+	return info
+}
+
+// getMediaWikiVersion reads the $wgVersion constant out of
+// includes/Defines.php (every MediaWiki release ships this - confirmed
+// live against a real 1.42 release tarball).
+func getMediaWikiVersion(userContext, directory string) string {
+	const wwwPrefix = "/var/www/html/"
+	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
+	content, err := os.ReadFile(filepath.Join(mappedDir, "includes", "Defines.php"))
+	if err != nil {
+		return "Unknown"
+	}
+	m := regexp.MustCompile(`define\(\s*'MW_VERSION',\s*'([^']*)'\s*\)`).FindStringSubmatch(string(content))
+	if m == nil {
+		return "Unknown"
+	}
+	return m[1]
+}
+
 // getMySQLVersion resolves the running MySQL/MariaDB version, memoized for
 // 1 hour since it changes only on upgrade.
 func getMySQLVersion(a *appctx.App, r *http.Request, userContext string) string {

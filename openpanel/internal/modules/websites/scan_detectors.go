@@ -658,6 +658,66 @@ func scanReadVersionSimple(path string, re *regexp.Regexp) string {
 // CAUTION for callers: replacement goes through regexp.ReplaceAllString,
 // where a literal "$" is NOT literal - Go's regexp package treats $name as
 // a capture-group reference (expanding an unmatched one to "") and $$ as
+// ---------------------- MediaWiki ---------------------- //
+
+var (
+	scanMediaWikiHostRE   = regexp.MustCompile(`\$wgDBserver\s*=\s*"([^"]*)"`)
+	scanMediaWikiDBNameRE = regexp.MustCompile(`\$wgDBname\s*=\s*"([^"]*)"`)
+)
+
+func scanMediaWiki(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion string, outcome *scanOutcome) {
+	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if d.IsDir() {
+			if scanSkipDirs[d.Name()] {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if d.Name() != "LocalSettings.php" {
+			return nil
+		}
+		root := filepath.Dir(path)
+		containerRoot := strings.Replace(root, baseDirectory, wwwBaseDirectory, 1)
+		siteName, domainName := siteNameAndDomain(containerRoot, wwwBaseDirectory)
+
+		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) || scanCheckSiteExists(a, siteName) {
+			return nil
+		}
+
+		content, readErr := os.ReadFile(path)
+		if readErr != nil {
+			return nil
+		}
+		text := string(content)
+		nameMatch := scanMediaWikiDBNameRE.FindStringSubmatch(text)
+		if nameMatch == nil {
+			return nil
+		}
+		dbName := nameMatch[1]
+
+		if _, ok := scanRepairHostInFile(path, text, scanMediaWikiHostRE, `$$wgDBserver = "`+mysqlVersion+`"`); !ok {
+			outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in LocalSettings.php)")
+			return nil
+		}
+
+		if !scanVerifyDB(ctx, userContext, dbName) {
+			outcome.skipped = append(outcome.skipped, siteName+" (database '"+dbName+"' not reachable)")
+			return nil
+		}
+
+		version := scanReadVersionSimple(filepath.Join(root, "includes", "Defines.php"), regexp.MustCompile(`define\(\s*'MW_VERSION',\s*'([^']*)'\s*\)`))
+		if insertErr := insertScannedSite(ctx, a, siteName, domainName, "mediawiki", version); insertErr != nil {
+			outcome.skipped = append(outcome.skipped, siteName+" (insert failed: "+insertErr.Error()+")")
+		} else {
+			outcome.found = append(outcome.found, scanFound{cmsType: "mediawiki", path: strings.TrimPrefix(containerRoot, wwwBaseDirectory), version: version})
+		}
+		return nil
+	})
+}
+
 // an escaped literal "$". Two live bugs here already came from getting
 // this wrong in opposite directions:
 //   - Joomla's hostRE (`\$host\s*=...`) INCLUDES the "$" in the match, so
@@ -668,6 +728,7 @@ func scanReadVersionSimple(path string, re *regexp.Regexp) string {
 //     untouched), so its replacement must NOT add another "$" prefix at
 //     all - an over-cautious "$$CFG->dbhost" doubled up into a literal
 //     "$$CFG->dbhost" in the file.
+//
 // Always check whether hostRE's own pattern starts with `\$` before
 // deciding whether replacement needs one too.
 func scanRepairHostInFile(path, currentText string, hostRE *regexp.Regexp, replacement string) (bool, bool) {

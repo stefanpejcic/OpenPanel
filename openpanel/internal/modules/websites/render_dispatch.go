@@ -260,6 +260,36 @@ func renderMoodleAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	}
 }
 
+var mediawikiAppPage = loadPage("manager/mediawiki_app.html")
+
+// MediaWikiAppPageData is manager/mediawiki_app.html's template context.
+type MediaWikiAppPageData struct {
+	pageData
+	Domains              []appctx.Domain
+	Container            ContainerInfo
+	MediaWikiVersion     string
+	PHPVersion           string
+	MySQLVersion         string
+	DBInfo               map[string]string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderMediaWikiAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data MediaWikiAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := mediawikiAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - mediawiki_app template render error: %v", err)
+	}
+}
+
 var websiteBuilderPage = loadPage("manager/websitebuilder.html")
 
 // WebsiteBuilderPageData is manager/websitebuilder.html's template context.
