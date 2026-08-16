@@ -19,6 +19,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}
 	mux.Handle("/matomo/install", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleInstallPage(a, w, r) }))
 	mux.Handle("POST /matomo/remove", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemoveMatomo(a, w, r) }))
+	mux.Handle("POST /matomo/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMatomoClone(a, w, r) }))
 	mux.Handle("GET /matomo/login", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMatomoLogin(a, w, r) }))
 	mux.Handle("POST /matomo/cache", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMatomoCacheClean(a, w, r) }))
 	mux.Handle("GET /matomo/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMatomoLogs(a, w, r) }))

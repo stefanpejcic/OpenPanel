@@ -19,6 +19,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}
 	mux.Handle("/moodle/install", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleInstallPage(a, w, r) }))
 	mux.Handle("POST /moodle/remove", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemoveMoodle(a, w, r) }))
+	mux.Handle("POST /moodle/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleClone(a, w, r) }))
 	mux.Handle("POST /moodle/cache", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleCacheClean(a, w, r) }))
 	mux.Handle("GET /moodle/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleLogs(a, w, r) }))
 	mux.Handle("GET /moodle/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleGetBackupDates(a, w, r) }))

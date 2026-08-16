@@ -19,6 +19,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/mediawiki/install", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleInstallPage(a, w, r) }))
 	mux.Handle("GET /mediawiki/versions", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiVersions(a, w, r) }))
 	mux.Handle("POST /mediawiki/remove", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemoveMediaWiki(a, w, r) }))
+	mux.Handle("POST /mediawiki/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiClone(a, w, r) }))
 	mux.Handle("GET /mediawiki/login", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiLogin(a, w, r) }))
 	mux.Handle("GET /mediawiki/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiLogs(a, w, r) }))
 	mux.Handle("GET /mediawiki/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiGetBackupDates(a, w, r) }))

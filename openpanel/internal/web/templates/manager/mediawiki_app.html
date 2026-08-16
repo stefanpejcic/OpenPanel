@@ -106,6 +106,15 @@
                 </a>
             </li>
             <li role="presentation">
+                <a href="#" id="clone-tab" data-tabs-target="#clone" role="tab" aria-controls="clone" aria-selected="false"
+                   @click="activeTab = 'clone'"
+                   :class="activeTab === 'clone' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Clone"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
                 <a href="#" id="backups-tab" data-tabs-target="#backups" role="tab" aria-controls="backups" aria-selected="false"
                    @click="activeTab = 'backups'"
                    :class="activeTab === 'backups' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
@@ -485,6 +494,128 @@
                     checkMediaWikiLatestVersion();
                 });
             </script>
+        </div>
+
+        <div class="hidden p-4 rounded" id="clone" role="tabpanel" aria-labelledby="clone-tab">
+
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Clone a MediaWiki instance with its database and files."}}</p>
+
+            <form id="mediawiki-CloneForm">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="source_domain" value="{{.CurrentDomain}}">
+                <input type="hidden" name="source_folder" value="{{.Docroot}}">
+                <input type="hidden" name="source_db" value="{{.DBInfo.database_name}}">
+                <input type="hidden" name="mediawiki_version" value="{{.MediaWikiVersion}}">
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Location"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Please choose the URL to install the software"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="mediawiki-source_domain">{{.T.Get "Source"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="mediawiki-source_domain" type="text" value="{{.CurrentDomain}}" disabled />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="mediawiki-target_domain">{{.T.Get "Target"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                <div class="relative w-full mt-2">
+                                    <div class="flex">
+                                        <select class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" name="target_domain" id="mediawiki-target_domain">
+                                            <option selected disabled value="">{{.T.Get "Select a domain"}}</option>
+                                            {{range .Domains}}
+                                                <option class="punycode" docroot="{{.Docroot}}" value="{{.DomainURL}}">{{.DomainURL}}</option>
+                                            {{end}}
+                                        </select>
+                                        <div class="input-group-append flex">
+                                            <input type="text" name="subdirectory" id="mediawiki-subdirectory" placeholder="subfolder" class="relative block w-full appearance-none rounded-r-md border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                                        </div>
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Make sure that the domain or the subdomain selected as a target is not being used by an existing website. During cloning, website data that exists on the destination may be overwritten and irrevocably lost."}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Database name and user to use for the clone (optional)"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="mediawiki-target_db">{{.T.Get "Database Name"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="mediawiki-target_db" name="target_db" type="text" minlength="6" maxlength="30" title="{{.T.Get "Database name must be between 6 and 30 characters."}}" />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="mediawiki-target_db_user">{{.T.Get "Database user"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="mediawiki-target_db_user" name="target_db_user" type="text" minlength="6" maxlength="30" title="{{.T.Get "Username must be between 6 and 30 characters."}}" />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="mediawiki-target_db_user_password">{{.T.Get "User password"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="mediawiki-target_db_user_password" name="target_db_user_password" type="password" minlength="8" maxlength="30" title="{{.T.Get "Password must be between 8 and 30 characters."}}" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="flex items-center justify-end space-x-4">
+                    <button type="button" id="mediawiki-startCloneBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-100 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Clone website"}}</button>
+                </div>
+            </form>
+
+            <script>
+                document.getElementById('mediawiki-startCloneBtn').addEventListener('click', function() {
+                    var btn = this;
+                    btn.disabled = true;
+                    btn.textContent = {{toJSON (.T.Get "Cloning...")}};
+                    var formData = new URLSearchParams(new FormData(document.getElementById('mediawiki-CloneForm')));
+                    showToast({{toJSON (.T.Get "Cloning process started... Please wait.")}}, 'loading');
+
+                    fetch("/mediawiki/clone", {
+                        method: "POST",
+                        headers: { 'X-CSRF-TOKEN': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData.toString()
+                    })
+                        .then(response => response.json().then(data => {
+                            if (!response.ok) throw data;
+                            return data;
+                        }))
+                        .then(response => {
+                            if (response.status === 'success') {
+                                showToast(`Cloned to ${response.target} successfully!`, 'success');
+                                btn.textContent = {{toJSON (.T.Get "Clone Complete")}};
+                            } else {
+                                showToast(`Error cloning site`, 'error');
+                                btn.disabled = false;
+                                btn.textContent = {{toJSON (.T.Get "Try Again")}};
+                            }
+                        })
+                        .catch(error => {
+                            showToast(`${error?.error || error}`, 'error');
+                            btn.disabled = false;
+                            btn.textContent = {{toJSON (.T.Get "Retry Clone")}};
+                        });
+                });
+            </script>
+
         </div>
 
         <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
