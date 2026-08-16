@@ -35,6 +35,12 @@ func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	websiteCount, _ := countUserWebsites(a, userID)
 
 	if websitesLimit != 0 && websiteCount >= websitesLimit {
+		if r.Method == http.MethodPost {
+			w.Header().Set("Content-Type", "application/x-ndjson")
+			flusher, canFlush := w.(http.Flusher)
+			writeNDJSON(w, flusher, canFlush, map[string]any{"error": "You have reached the maximum number of sites allowed."})
+			return
+		}
 		flashSess(a, w, r, "warning", "You have reached the maximum number of sites allowed.")
 	} else if r.Method == http.MethodPost {
 		handleInstallStream(a, w, r)

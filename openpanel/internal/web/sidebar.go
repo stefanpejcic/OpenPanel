@@ -73,7 +73,9 @@ func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 		var links []NavLink
 		if allowed["autoinstaller"] {
 			links = append(links, NavLink{"/auto-installer", "Auto Installer",
-				hasAnyPrefix(path, "/auto-installer", "/pm2", "/nodejs", "/python", "/website-builder/install"), ""})
+				hasAnyPrefix(path, "/auto-installer", "/pm2", "/nodejs", "/python", "/website-builder/install",
+					"/drupal/install", "/joomla/install", "/opencart/install", "/nextcloud/install",
+					"/prestashop/install", "/matomo/install", "/moodle/install"), ""})
 		}
 		links = append(links, NavLink{"/sites", "Site Manager",
 			hasAnyPrefix(path, "/sites") || (strings.HasPrefix(path, "/website") && !strings.HasPrefix(path, "/website-builder")), ""})
