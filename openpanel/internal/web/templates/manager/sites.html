@@ -107,7 +107,7 @@
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
 
                 {{range $group := .Groups}}
-                    <tr data-group-header x-show="searchQuery === '' || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+                    <tr data-group-header data-group-type="{{lower $group.Type}}" x-show="searchQuery === '' || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
                         <th class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="6">
                             {{if eq $group.Type "wordpress"}}WordPress
                             {{else if eq $group.Type "drupal"}}Drupal
@@ -134,7 +134,7 @@
                     </tr>
 
                     {{range $site := $group.Sites}}
-                    <tr id="site-row-{{$site.SiteName}}" x-show="searchQuery === '' || {{toJSON $site.SiteName}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $site.AdminEmail}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-gray-50 hover:dark:bg-gray-900">
+                    <tr id="site-row-{{$site.SiteName}}" data-row-type="{{lower $site.Type}}" x-show="searchQuery === '' || {{toJSON $site.SiteName}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $site.AdminEmail}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-gray-50 hover:dark:bg-gray-900">
 
                         <td class="p-4 text-sm text-gray-600 dark:text-gray-400 text-center align-middle" data-sort-col="type" data-sort-value="{{lower $site.Type}}">
                             {{$typeLower := lower $site.Type}}
@@ -385,7 +385,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const badge = td.querySelector('span[id^="update-badge-"]');
                 if (!badge) return;
-                badge.innerHTML = `<span class="bg-orange-100 text-orange-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-orange-900 dark:text-orange-300" title="${i18n.updateAvailableTitle.replace('%s', latest)}">${i18n.updateAvailable}</span>`;
+                badge.innerHTML = `<span class="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300" title="${i18n.updateAvailableTitle.replace('%s', latest)}">${i18n.updateAvailable}</span>`;
             });
         })
         .catch(error => console.error("Error fetching latest CMS versions:", error));
@@ -438,10 +438,21 @@ document.addEventListener("DOMContentLoaded", function () {
             // Sorting flattens the type-grouping (same flat-list behavior
             // as /mysql) instead of sorting within each group - most
             // groups here only have one site, so a per-group sort was a
-            // silent no-op for almost every row. Group header rows are
-            // hidden rather than reordered once a sort is active.
+            // silent no-op for almost every row. Each type's header row
+            // isn't hidden - it's kept in the DOM and re-inserted directly
+            // above the first row of its type as encountered in the new
+            // sort order, so a manual style.display toggle never fights
+            // Alpine's own x-show reactivity on that same element (that
+            // fight was the earlier bug: after a sort, typing in the
+            // search box made Alpine reassert x-show and pop every header
+            // back to its stale original position at the top).
+            const headersByType = {};
+            tbody.querySelectorAll('[data-group-header]').forEach(header => {
+                headersByType[header.dataset.groupType] = header;
+            });
+
             const selector = '[data-sort-col="' + CSS.escape(key) + '"]';
-            const rows = Array.from(tbody.rows).filter(row => row.querySelector(selector));
+            const rows = Array.from(tbody.rows).filter(row => !row.hasAttribute('data-group-header') && row.querySelector(selector));
 
             rows.sort((rowA, rowB) => {
                 const cellA = rowA.querySelector(selector);
@@ -451,10 +462,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 return compareSitesValues(valueA, valueB, type, direction);
             });
 
-            tbody.querySelectorAll('[data-group-header]').forEach(header => {
-                header.style.display = 'none';
+            let lastType = null;
+            rows.forEach(row => {
+                const rowType = row.dataset.rowType;
+                if (rowType !== lastType) {
+                    const header = headersByType[rowType];
+                    if (header) tbody.appendChild(header);
+                    lastType = rowType;
+                }
+                tbody.appendChild(row);
             });
-            rows.forEach(row => tbody.appendChild(row));
 
             table.querySelectorAll('a[data-sort-key]').forEach(function (l) {
                 const isActive = l.dataset.sortKey === key && l.dataset.direction === direction;
