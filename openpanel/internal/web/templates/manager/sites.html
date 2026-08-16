@@ -29,21 +29,77 @@
         </div>
 
         <div class="flex flex-col items-center gap-2 sm:flex-row">
+            <button type="button" id="scanForSitesButton" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 text-center font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-2 py-1.5 text-base sm:w-fit sm:text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" class="shrink-0"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>
+                {{.T.Get "Scan"}}
+            </button>
             <a class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 text-center font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-2 py-1.5 text-base sm:w-fit sm:text-sm" href="/auto-installer">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>
                 {{.T.Get "New"}}
             </a>
         </div>
     </div>
+
+    <div id="scanForSitesExplain" class="hidden mx-4 mb-6 sm:mx-6 rounded border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900">
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "This will scan for installations that exist on disk but aren't in Site Manager yet - files will be scanned, detected, and (if reachable) imported automatically."}}</p>
+        <div class="mt-3 flex gap-2">
+            <button type="button" id="scanForSitesConfirm" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent bg-black text-white hover:bg-gray-800 w-100">
+                {{.T.Get "Start Scan"}}
+            </button>
+            <button type="button" id="scanForSitesCancel" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100">
+                {{.T.Get "Cancel"}}
+            </button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const scanButton = document.getElementById("scanForSitesButton");
+            const explainArea = document.getElementById("scanForSitesExplain");
+            const confirmButton = document.getElementById("scanForSitesConfirm");
+            const cancelButton = document.getElementById("scanForSitesCancel");
+            if (!scanButton) return;
+
+            scanButton.addEventListener("click", function() {
+                explainArea.classList.remove("hidden");
+            });
+            cancelButton.addEventListener("click", function() {
+                explainArea.classList.add("hidden");
+            });
+            confirmButton.addEventListener("click", function() {
+                confirmButton.disabled = true;
+                confirmButton.textContent = {{toJSON (.T.Get "Scanning...")}};
+                showToast({{toJSON (.T.Get "Scanning started... this may take a while.")}}, 'loading');
+
+                fetch("/sites/scan", { headers: { 'X-CSRF-Token': csrf_token } })
+                    .then(response => response.text())
+                    .then(resultText => {
+                        if (resultText.trim() === "Scan completed. Found installations:") {
+                            showToast({{toJSON (.T.Get "No new installations found.")}}, 'warning');
+                        } else {
+                            showToast(resultText, 'success');
+                        }
+                        setTimeout(() => { window.location.reload(); }, 1500);
+                    })
+                    .catch(error => {
+                        console.error('Error during scan:', error);
+                        showToast({{toJSON (.T.Get "Error occurred during scan. Try again.")}}, 'error');
+                        confirmButton.disabled = false;
+                        confirmButton.textContent = {{toJSON (.T.Get "Start Scan")}};
+                    });
+            });
+        })();
+    </script>
+
     <div class="overflow-x-auto relative overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 h-screen">
         <div class="whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
             <table id="sites-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Type"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Site Name"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Created"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Version"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Type") "Key" "type" "Type" "string")}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Site Name") "Key" "name" "Type" "string")}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Created") "Key" "created" "Type" "string")}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Version") "Key" "version" "Type" "string")}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Speed"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-right text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
                     </tr>
@@ -51,7 +107,7 @@
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
 
                 {{range $group := .Groups}}
-                    <tr x-show="searchQuery === '' || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+                    <tr data-group-header x-show="searchQuery === '' || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
                         <th class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="6">
                             {{if eq $group.Type "wordpress"}}WordPress
                             {{else if eq $group.Type "drupal"}}Drupal
@@ -59,6 +115,8 @@
                             {{else if eq $group.Type "opencart"}}OpenCart
                             {{else if eq $group.Type "nextcloud"}}Nextcloud
                             {{else if eq $group.Type "prestashop"}}PrestaShop
+                            {{else if eq $group.Type "matomo"}}Matomo
+                            {{else if eq $group.Type "moodle"}}Moodle
                             {{else if contains $group.Type "nodejs"}}NodeJS Containers
                             {{else if contains $group.Type "bun"}}Bun Applications
                             {{else if contains $group.Type "python"}}Python Containers
@@ -78,7 +136,7 @@
                     {{range $site := $group.Sites}}
                     <tr id="site-row-{{$site.SiteName}}" x-show="searchQuery === '' || {{toJSON $site.SiteName}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $site.AdminEmail}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-gray-50 hover:dark:bg-gray-900">
 
-                        <td class="p-4 text-sm text-gray-600 dark:text-gray-400 text-center align-middle">
+                        <td class="p-4 text-sm text-gray-600 dark:text-gray-400 text-center align-middle" data-sort-col="type" data-sort-value="{{lower $site.Type}}">
                             {{$typeLower := lower $site.Type}}
                             {{if eq $typeLower "wordpress"}}
 <a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
@@ -107,6 +165,14 @@
                             {{else if eq $typeLower "prestashop"}}
 <a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto" viewBox="0 0 24 24"><path d="M11.558 1.034C5.174 1.034 0 6.21 0 12.592c0 1.258.201 2.47.574 3.597l.002-.007a12.415 12.415 0 0 1 .53-1.787l.011-.03c.085-.222.179-.442.277-.66l.084-.181c.08-.171.165-.34.253-.507c.036-.068.07-.136.108-.203c.02-.038.044-.073.064-.11c.094-.166.19-.332.29-.493l.075-.114c.125-.195.256-.386.393-.573l.035-.05c.144-.193.295-.38.451-.563l.1-.118c.155-.177.315-.35.481-.517l.099-.097a10.321 10.321 0 0 1 .546-.503c.74-2.48 3.005-4.285 5.686-4.285c1.079 0 2.152.31 3.071.873a6.017 6.017 0 0 1 2.211 2.407l.007.015l.04.074v.003l.004.002a9.925 9.925 0 0 1 1.567 1.198c.04.037.081.071.12.109c.002 0 .006.005.007.006l-.002-.006l-.001-.004v-.003l.042-.084c.377-2.384 1.43-4.102 2.67-4.102c.934 0 1.762.975 2.276 2.476l.005.016l.001.002c.145.158.287.331.424.521l.007.01l.021.067l-.02-.078c-1.542-4.569-5.863-7.857-10.952-7.857zM9.927 5.477C7.586 5.52 5.34 7.132 4.574 9.365l-.012.034a10.14 10.14 0 0 1 1.315-.895c2.806-1.656 6.479-1.646 9.278.016c-.895-1.653-2.631-2.819-4.5-3.004a5.14 5.14 0 0 0-.728-.039zm9.834.5a1.36 1.36 0 0 0-.39.067c-1.265.562-1.719 2.073-2.031 3.303l-.016.072c.365-.62.808-1.215 1.396-1.642c.835-.687 2.105-.655 2.916.053c.308.326.141.008.031-.22c-.342-.75-1.025-1.653-1.906-1.634zM21.67 7.98zm-9.32.335l-1.07 3.27l-.002.005l-.006.002l-4.498 1.112h-.009l4.456 1.087c.105.11.227.205.36.28h.002c.042.024.085.045.129.065l.01.005c.041.018.083.033.126.047l.021.008c.04.013.08.023.12.032l.033.008a1.677 1.677 0 0 0 .318.033a1.546 1.546 0 0 0 1.43-.948c.08-.186.123-.39.123-.604v-.011l-.001-.012a1.696 1.696 0 0 0-.01-.16l-.001-.002a1.506 1.506 0 0 0-.026-.153l-.001-.004a1.511 1.511 0 0 0-.096-.288v-.003a1.521 1.521 0 0 0-.348-.49v-.003zm3.148.626c.048 1.008.036 2.046-.1 3.057c-.17 2.018-1.19 3.798-1.972 5.616l-.03.08l-.035.086c1.51-1.522 3.17-3.04 3.969-5.082c.383-.636.118-1.342-.115-1.976c-.17-.877-1.069-1.278-1.717-1.781zm6.172.572l-.588 2.688a1.764 1.764 0 0 0-.047.2c-.002.02-.007.04-.01.06a1.76 1.76 0 0 0-.016.222l-.002.031h.003c0 .628.297 1.136.663 1.137a.41.41 0 0 0 .182-.045l.027-.015a.537.537 0 0 0 .07-.047c.013-.01.024-.022.036-.033a.752.752 0 0 0 .137-.168l.03-.054a1.23 1.23 0 0 0 .052-.108l.017-.04c.02-.053.038-.108.053-.166l.002-.002l.001-.003l.404-.451l-.407-.456v.001l-.02-.063zm-4.381.856c.69 1.716.85 3.707.091 5.43c-.49 1.368-1.587 2.463-1.874 3.905c.73.115 1.468.176 2.21.186c2.166.029 4.332-.42 6.284-1.365c-2.04-2.869-4.121-5.755-6.711-8.156zm-4.948.977a.583.583 0 1 1 0 1.166a.583.583 0 0 1 0-1.166zm9.352.37c.138 0 .249.19.249.426s-.111.426-.249.426c-.137 0-.248-.19-.248-.426c0-.235.11-.426.248-.426zm-4.044.184a4.59 4.59 0 0 1-.05.29l-.006.023c-.01.05-.022.094-.033.128c-.48 1.417-1.275 2.52-2.36 3.697c-.147.16-.301.32-.459.484a58.883 58.883 0 0 1-1.196 1.205c-.112.11-.259.261-.425.436c-.103.287-.22.61-.318.95c-.044-.016-.086-.031-.131-.049c-2.108-.815-3.519-1.904-3.519-1.904s1.086 1.414 2.915 2.74c.177.129.351.24.522.339c-.075 1.194.452 2.34 2.83 2.682a4.81 4.81 0 0 0 1.228.008l-.01-.029a.062.062 0 0 0-.004-.01s-.167-.133-.379-.377a3.842 3.842 0 0 1-.584-.897a3.382 3.382 0 0 1-.266-.862a3.176 3.176 0 0 1-.006-.972c.017-.12.04-.241.072-.366c.093-.374.255-.772.507-1.192l.002-.003l.241-.404c1.103-1.86 1.797-3.275 1.506-5.441a8.943 8.943 0 0 0-.078-.476zm4.668.576zm.013.203l.003.036v.01c0 .013-.003.025-.003.038c0-.014.003-.028.003-.043c0-.014-.002-.026-.003-.04zm-.012.275v.001l-.002.01l-.002.014l.004-.025zm1.353 5.928c-2.553 1.138-5.44 1.44-8.192 1.007c-.14 1.108.384 2.218 1.214 2.93l.012.01c2.703-.433 4.975-2.168 6.966-3.946z"/></svg>
+</a>
+                            {{else if eq $typeLower "matomo"}}
+<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mx-auto"><path d="M6.664 15.37a3.336 3.336 0 0 1-3.332 3.332C1.495 18.702 0 17.208 0 15.37s1.495-3.333 3.332-3.333a3.338 3.338 0 0 1 3.332 3.333zm11.565-3.644a3.658 3.658 0 0 1-1.987.591 3.642 3.642 0 0 1-1.872-.529l.008.012a3.728 3.728 0 0 1-1.235-1.19l-2.612-3.693a.17.17 0 0 1-.027-.033A3.312 3.312 0 0 0 7.67 5.298a3.318 3.318 0 0 0-2.848 1.586.146.146 0 0 1-.021.028l-3.428 5.343a3.663 3.663 0 0 1 5.094 1.18.13.13 0 0 1 .015.018l2.756 3.869a3.305 3.305 0 0 0 2.699 1.38 3.31 3.31 0 0 0 2.711-1.379l.009-.013c.073-.103.137-.202.195-.305l1.442-2.255 1.935-3.024zm5.275 1.902l-.014-.028-.044-.066a1.109 1.109 0 0 0-.029-.044l-3.525-5.37c.024.168.052.335.052.51 0 .741-.219 1.457-.634 2.068l-2.803 4.38 1.416 2.179-.002.002a.131.131 0 0 1 .024.028 3.338 3.338 0 0 0 2.723 1.415A3.335 3.335 0 0 0 24 15.37c0-.613-.171-1.216-.496-1.742zm-7.262-1.666a3.336 3.336 0 0 0 3.332-3.333 3.336 3.336 0 0 0-3.332-3.332 3.336 3.336 0 0 0-3.332 3.332 3.338 3.338 0 0 0 3.332 3.333z"/></svg>
+</a>
+                            {{else if eq $typeLower "moodle"}}
+<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mx-auto"><path d="M12 0C5.3726 0 0 5.3726 0 12s5.3726 12 12 12 12-5.3726 12-12S18.6274 0 12 0Zm1.1348 5.7402.0351.123-2.7363 1.9903c.3694.2606.7968.609 1.0078.8438l.0762.1035c-1.2878 2.2571-3.737 3.0557-6.3164 2.1816l.0195-.1601h-.002c-.0784-.5679-.0962-1.0524-.0585-1.463-.7507-.003-1.5298-.0402-2.2832-.0663l-.5157.0175c-.0994.8449-.0351 2.135-.0254 2.3223.3492 1.2819.2977 2.2907.295 3.5293-.4134-1.0028-.8995-2.097-.416-3.4668l-.0098-.3183c-.0007-.0143-.0683-1.1532.037-2.0625l-.4081.0136-.0371-.1191C5.7922 6.8402 8.5032 6.218 13.1348 5.7402Zm1.623 2.5137c1.2202 0 2.1885.2691 2.9043.8066.8138.601 1.2207 1.4866 1.2207 2.6582v5.6856h-2.7344v-5.3691c0-1.1225-.4634-1.6836-1.3906-1.6836-.9278 0-1.3906.561-1.3906 1.6836v5.3691h-2.7344v-5.3691c0-.5183-.0986-.9144-.293-1.1934.6172-.435 1.1534-1.0124 1.5723-1.7246.0297.029.0597.0574.0879.0879.5044-.6349 1.4233-.9512 2.7578-.9512zm-9.6094 3.2344c.932.3 1.8614.393 2.7364.287a3.5455 3.5455 0 0 0-.0098.2599v5.3691H5.1426v-5.6855c0-.0787.0022-.1544.0058-.2305z"/></svg>
 </a>
                             {{else if eq $typeLower "mautic"}}
 <a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
@@ -148,7 +214,7 @@ c6.183-2.355,12.954,0.883,15.31,7.066c7.066,19.138,10.6,39.453,10.6,60.063C653.7
                             {{end}}
                         </td>
 
-                        <th scope="row" class="flex items-center text-start px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        <th scope="row" class="flex items-center text-start px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" data-sort-col="name" data-sort-value="{{$site.SiteName}}">
                             <img class="w-5 h-5 rounded-full" src="/json/favicon/{{$site.SiteName}}" alt="{{$site.SiteName}} Favicon" title="{{$site.SiteName}} Favicon">
                             <div class="pl-3">
                                 <div class="text-left text-base font-semibold">{{$site.SiteName}}</div>
@@ -159,11 +225,12 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
                                 </div>
                             </div>
                         </th>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" x-data="{ rawDate: {{toJSON $site.CreatedDate}}, date: new Date({{toJSON $site.CreatedDate}}), relative: '' }" x-init="relative = formatRelativeDay(date)">
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="created" data-sort-value="{{$site.CreatedDate}}" x-data="{ rawDate: {{toJSON $site.CreatedDate}}, date: new Date({{toJSON $site.CreatedDate}}), relative: '' }" x-init="relative = formatRelativeDay(date)">
                             <span x-text="relative" :title="rawDate"></span>
                         </td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="version" data-sort-value="{{$site.Version}}" data-site-type="{{lower $site.Type}}" data-site-version="{{$site.Version}}">
                             {{if $site.Version}}<span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">{{$site.Version}}</span>{{end}}
+                            <span id="update-badge-{{replace $site.SiteName "." "_"}}"></span>
                         </td>
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
                             <div class="speed_data" data-site-name="{{$site.SiteName}}" id="speed_data_{{replace $site.SiteName "." "_"}}"></div>
@@ -191,8 +258,21 @@ const i18n = {
     speedIndex: {{toJSON (.T.Get "Speed Index:")}},
     timeToInteractive: {{toJSON (.T.Get "Time to Interactive:")}},
     measuredAt: {{toJSON (.T.Get "Measured at")}},
-    update: {{toJSON (.T.Get "Update")}}
+    update: {{toJSON (.T.Get "Update")}},
+    checkOnPageSpeed: {{toJSON (.T.Get "No speed data yet - check on Google PageSpeed Insights")}},
+    updateAvailable: {{toJSON (.T.Get "Update available")}},
+    updateAvailableTitle: {{toJSON (.T.Get "A newer version (%s) is available")}}
 };
+function noSpeedDataLink(siteName) {
+    const pageSpeedURL = "https://pagespeed.web.dev/report?url=" + encodeURIComponent("https://" + siteName);
+    return `<a href="${pageSpeedURL}" target="_blank" rel="noopener" title="${i18n.checkOnPageSpeed}" class="inline-flex items-center text-gray-400 hover:text-gray-600 dark:text-gray-600 dark:hover:text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-speedometer2" viewBox="0 0 16 16">
+            <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/>
+            <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A8 8 0 0 1 0 10m8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3"/>
+        </svg>
+    </a>`;
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".speed_data").forEach(div => {
         const siteName = div.dataset.siteName;
@@ -275,14 +355,40 @@ document.addEventListener("DOMContentLoaded", function () {
                               </div>
                         </div>`;
                 } else {
-                    div.innerHTML = "";
+                    div.innerHTML = noSpeedDataLink(siteName);
                 }
             })
             .catch(error => {
                 console.error("Error fetching speed data:", error);
-                div.innerHTML = "";
+                div.innerHTML = noSpeedDataLink(siteName);
             });
     });
+
+    fetch('/sites/updates', { headers: { 'X-CSRF-Token': csrf_token } })
+        .then(response => response.json())
+        .then(latestVersions => {
+            document.querySelectorAll('[data-site-type]').forEach(td => {
+                const cmsType = td.dataset.siteType;
+                const installed = td.dataset.siteVersion;
+                const latest = latestVersions[cmsType];
+                if (!installed || !latest || installed === latest) return;
+
+                const parts = v => v.split('.').map(n => parseInt(n, 10) || 0);
+                const installedParts = parts(installed);
+                const latestParts = parts(latest);
+                let isOlder = false;
+                for (let i = 0; i < Math.max(installedParts.length, latestParts.length); i++) {
+                    const iv = installedParts[i] || 0, lv = latestParts[i] || 0;
+                    if (iv !== lv) { isOlder = iv < lv; break; }
+                }
+                if (!isOlder) return;
+
+                const badge = td.querySelector('span[id^="update-badge-"]');
+                if (!badge) return;
+                badge.innerHTML = `<span class="bg-orange-100 text-orange-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-orange-900 dark:text-orange-300" title="${i18n.updateAvailableTitle.replace('%s', latest)}">${i18n.updateAvailable}</span>`;
+            });
+        })
+        .catch(error => console.error("Error fetching latest CMS versions:", error));
 });
 </script>
 
@@ -301,5 +407,72 @@ document.addEventListener("DOMContentLoaded", function () {
 </div>
 {{end}}
 
+<script>
+    (function() {
+        function compareSitesValues(valueA, valueB, type, direction) {
+            if (type === 'number') {
+                const numA = parseFloat(valueA) || 0;
+                const numB = parseFloat(valueB) || 0;
+                return direction === 'asc' ? numA - numB : numB - numA;
+            }
+            const strA = String(valueA).toLowerCase();
+            const strB = String(valueB).toLowerCase();
+            if (strA < strB) return direction === 'asc' ? -1 : 1;
+            if (strA > strB) return direction === 'asc' ? 1 : -1;
+            return 0;
+        }
+
+        // Sorts within each type-group block (bounded by [data-group-header]
+        // rows) rather than the whole table, so column sorting doesn't
+        // destroy the existing group-by-CMS-type layout - unlike /mysql's
+        // flat table, this table is grouped, so the shared table-sort.js
+        // (which sorts the whole tbody as one list) isn't reused here.
+        window.sortSitesTable = function(event, link) {
+            event.preventDefault();
+            const key = link.dataset.sortKey;
+            const type = link.dataset.sortType || 'string';
+            const direction = link.dataset.direction;
+            const table = document.getElementById('sites-table');
+            const tbody = table.tBodies[0];
+
+            // Sorting flattens the type-grouping (same flat-list behavior
+            // as /mysql) instead of sorting within each group - most
+            // groups here only have one site, so a per-group sort was a
+            // silent no-op for almost every row. Group header rows are
+            // hidden rather than reordered once a sort is active.
+            const selector = '[data-sort-col="' + CSS.escape(key) + '"]';
+            const rows = Array.from(tbody.rows).filter(row => row.querySelector(selector));
+
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.querySelector(selector);
+                const cellB = rowB.querySelector(selector);
+                const valueA = cellA.dataset.sortValue ?? cellA.textContent.trim();
+                const valueB = cellB.dataset.sortValue ?? cellB.textContent.trim();
+                return compareSitesValues(valueA, valueB, type, direction);
+            });
+
+            tbody.querySelectorAll('[data-group-header]').forEach(header => {
+                header.style.display = 'none';
+            });
+            rows.forEach(row => tbody.appendChild(row));
+
+            table.querySelectorAll('a[data-sort-key]').forEach(function (l) {
+                const isActive = l.dataset.sortKey === key && l.dataset.direction === direction;
+                l.querySelector('svg').classList.toggle('opacity-30', !isActive);
+            });
+        };
+    })();
+</script>
+
 <!-- END templates/manager/sites.html -->
+{{end}}
+
+{{define "sort_header"}}
+<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+    <span>{{.Label}}</span>
+    <div class="-space-y-2">
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortSitesTable(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortSitesTable(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+    </div>
+</div>
 {{end}}

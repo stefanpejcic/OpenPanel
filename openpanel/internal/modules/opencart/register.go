@@ -21,6 +21,11 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /opencart/login", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOpenCartLogin(a, w, r) }))
 	mux.Handle("POST /opencart/cache", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOpenCartCacheClean(a, w, r) }))
 	mux.Handle("GET /opencart/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOpenCartLogs(a, w, r) }))
+	mux.Handle("/opencart/maintenance", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOpenCartMaintenance(a, w, r) }))
+	mux.Handle("GET /opencart/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOpenCartGetBackupDates(a, w, r) }))
+	mux.Handle("GET /opencart/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOpenCartRestoreBackup(a, w, r) }))
+	mux.Handle("GET /opencart/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOpenCartRunBackup(a, w, r) }))
+	mux.Handle("POST /opencart/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOpenCartClone(a, w, r) }))
 }
 
 // withOpenCartForm clones r as a POST carrying the given values as both

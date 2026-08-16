@@ -55,6 +55,7 @@ var drupalAppPage = loadPage("manager/drupal_app.html")
 // DrupalAppPageData is manager/drupal_app.html's template context.
 type DrupalAppPageData struct {
 	pageData
+	Domains              []appctx.Domain
 	Container            ContainerInfo
 	DrupalVersion        string
 	PHPVersion           string
@@ -84,6 +85,7 @@ var joomlaAppPage = loadPage("manager/joomla_app.html")
 // JoomlaAppPageData is manager/joomla_app.html's template context.
 type JoomlaAppPageData struct {
 	pageData
+	Domains              []appctx.Domain
 	Container            ContainerInfo
 	JoomlaVersion        string
 	PHPVersion           string
@@ -113,6 +115,7 @@ var openCartAppPage = loadPage("manager/opencart_app.html")
 // OpenCartAppPageData is manager/opencart_app.html's template context.
 type OpenCartAppPageData struct {
 	pageData
+	Domains              []appctx.Domain
 	Container            ContainerInfo
 	OpenCartVersion      string
 	PHPVersion           string
@@ -142,6 +145,7 @@ var prestashopAppPage = loadPage("manager/prestashop_app.html")
 // PrestashopAppPageData is manager/prestashop_app.html's template context.
 type PrestashopAppPageData struct {
 	pageData
+	Domains              []appctx.Domain
 	Container            ContainerInfo
 	PrestashopVersion    string
 	PHPVersion           string
@@ -171,6 +175,7 @@ var nextcloudAppPage = loadPage("manager/nextcloud_app.html")
 // NextcloudAppPageData is manager/nextcloud_app.html's template context.
 type NextcloudAppPageData struct {
 	pageData
+	Domains              []appctx.Domain
 	Container            ContainerInfo
 	NextcloudVersion     string
 	PHPVersion           string
@@ -192,6 +197,66 @@ func renderNextcloudAppPage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
 	if err := nextcloudAppPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WEBSITES - nextcloud_app template render error: %v", err)
+	}
+}
+
+var matomoAppPage = loadPage("manager/matomo_app.html")
+
+// MatomoAppPageData is manager/matomo_app.html's template context.
+type MatomoAppPageData struct {
+	pageData
+	Domains              []appctx.Domain
+	Container            ContainerInfo
+	MatomoVersion        string
+	PHPVersion           string
+	MySQLVersion         string
+	DBInfo               map[string]string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderMatomoAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data MatomoAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := matomoAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - matomo_app template render error: %v", err)
+	}
+}
+
+var moodleAppPage = loadPage("manager/moodle_app.html")
+
+// MoodleAppPageData is manager/moodle_app.html's template context.
+type MoodleAppPageData struct {
+	pageData
+	Domains              []appctx.Domain
+	Container            ContainerInfo
+	MoodleVersion        string
+	PHPVersion           string
+	MySQLVersion         string
+	DBInfo               map[string]string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderMoodleAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data MoodleAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := moodleAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - moodle_app template render error: %v", err)
 	}
 }
 

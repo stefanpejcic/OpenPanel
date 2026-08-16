@@ -181,11 +181,13 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 	case "drupal":
 		dbInfo := extractDrupalDatabaseInfo(userContext, docroot)
 		drupalVersion := getDrupalVersion(userContext, docroot)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderDrupalAppPage(a, w, r, DrupalAppPageData{
 			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Domains:              domains,
 			Container:            container,
 			DrupalVersion:        drupalVersion,
 			PHPVersion:           currentPHPVersion,
@@ -200,11 +202,13 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 	case "joomla":
 		dbInfo := extractJoomlaDatabaseInfo(userContext, docroot)
 		joomlaVersion := getJoomlaVersion(userContext, docroot)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderJoomlaAppPage(a, w, r, JoomlaAppPageData{
 			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Domains:              domains,
 			Container:            container,
 			JoomlaVersion:        joomlaVersion,
 			PHPVersion:           currentPHPVersion,
@@ -219,11 +223,13 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 	case "opencart":
 		dbInfo := extractOpenCartDatabaseInfo(userContext, docroot)
 		openCartVersion := getOpenCartVersion(userContext, docroot)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderOpenCartAppPage(a, w, r, OpenCartAppPageData{
 			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Domains:              domains,
 			Container:            container,
 			OpenCartVersion:      openCartVersion,
 			PHPVersion:           currentPHPVersion,
@@ -238,11 +244,13 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 	case "prestashop":
 		dbInfo := extractPrestashopDatabaseInfo(userContext, docroot)
 		prestashopVersion := getPrestashopVersion(userContext, docroot)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderPrestashopAppPage(a, w, r, PrestashopAppPageData{
 			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Domains:              domains,
 			Container:            container,
 			PrestashopVersion:    prestashopVersion,
 			PHPVersion:           currentPHPVersion,
@@ -257,13 +265,57 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 	case "nextcloud":
 		dbInfo := extractNextcloudDatabaseInfo(userContext, docroot)
 		nextcloudVersion := getNextcloudVersion(userContext, docroot)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderNextcloudAppPage(a, w, r, NextcloudAppPageData{
 			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Domains:              domains,
 			Container:            container,
 			NextcloudVersion:     nextcloudVersion,
+			PHPVersion:           currentPHPVersion,
+			MySQLVersion:         mysqlVersion,
+			DBInfo:               dbInfo,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
+		})
+
+	case "matomo":
+		dbInfo := extractMatomoDatabaseInfo(userContext, docroot)
+		matomoVersion := getMatomoVersion(userContext, docroot)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		mysqlVersion := getMySQLVersion(a, r, userContext)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
+		renderMatomoAppPage(a, w, r, MatomoAppPageData{
+			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Domains:              domains,
+			Container:            container,
+			MatomoVersion:        matomoVersion,
+			PHPVersion:           currentPHPVersion,
+			MySQLVersion:         mysqlVersion,
+			DBInfo:               dbInfo,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
+		})
+
+	case "moodle":
+		dbInfo := extractMoodleDatabaseInfo(userContext, docroot)
+		moodleVersion := getMoodleVersion(userContext, docroot)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		mysqlVersion := getMySQLVersion(a, r, userContext)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
+		renderMoodleAppPage(a, w, r, MoodleAppPageData{
+			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Domains:              domains,
+			Container:            container,
+			MoodleVersion:        moodleVersion,
 			PHPVersion:           currentPHPVersion,
 			MySQLVersion:         mysqlVersion,
 			DBInfo:               dbInfo,

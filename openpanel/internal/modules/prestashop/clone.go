@@ -1,0 +1,241 @@
+package prestashop
+
+import (
+	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"regexp"
+	"strings"
+
+	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+)
+
+// This file mirrors wordpress/manage.go's handleCloneWordPress in
+// structure (site-limit check, file copy, DB create+dump-pipe, config
+// rewrite, sites-table insert). Unlike Joomla/Drupal, PrestaShop DOES
+// hardcode its domain in the DB - the `{prefix}shop_url` table's
+// domain/domain_ssl/physical_uri columns (confirmed live against a real
+// installed PrestaShop: `id_shop_url, id_shop, domain, domain_ssl,
+// physical_uri, virtual_uri, main, active`) - so after the DB import this
+// updates that row to point the clone at its own new domain/subdirectory,
+// the PrestaShop equivalent of wp-cli's search-replace step.
+//
+// cloneValidateDocroot accepts the real "/var/www/html/..." absolute-path
+// form .Docroot actually uses everywhere else in this codebase -
+// WordPress's own validateDocroot() rejects any leading "/", which would
+// reject its own clone form's real source_folder value. Not replicating
+// that bug here.
+
+var (
+	cloneValidDomainRE = regexp.MustCompile(`^[a-zA-Z0-9.-]+$`)
+	cloneValidDBRE     = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+)
+
+func cloneValidateDomain(name string) bool { return name != "" && cloneValidDomainRE.MatchString(name) }
+func cloneValidateDB(name string) bool     { return name != "" && cloneValidDBRE.MatchString(name) }
+func cloneValidateDocroot(path string) bool {
+	return path != "" && !strings.Contains(path, "..") && strings.HasPrefix(path, "/var/www/html/")
+}
+
+var (
+	clonePrestaDBNameRE   = regexp.MustCompile(`'database_name'\s*=>\s*'.*?',`)
+	clonePrestaDBUserRE   = regexp.MustCompile(`'database_user'\s*=>\s*'.*?',`)
+	clonePrestaDBPasswdRE = regexp.MustCompile(`'database_password'\s*=>\s*'.*?',`)
+)
+
+// handlePrestashopClone mirrors wordpress/manage.go's handleCloneWordPress.
+func handlePrestashopClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, currentUsername, userContext, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	injectedData, _ := a.InjectData(ctx, userID)
+	planID, _ := injectedData["hosting_plan"].(int)
+	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
+	websitesLimit := atoiDefault(plan.WebsitesLimit, 0)
+	websiteCount, _ := countUserWebsites(a, userID)
+	if websitesLimit != 0 && websiteCount >= websitesLimit {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed"})
+		return
+	}
+
+	providedDomain := r.FormValue("source_domain")
+	dstDomain := r.FormValue("target_domain")
+	srcDB := r.FormValue("source_db")
+	srcFolder := r.FormValue("source_folder")
+	dstFolder := r.FormValue("subdirectory")
+
+	dstDB := strings.ToLower(formOr(r, "target_db", "presta_clone_"+generateRandomString(6)))
+	dstDBUser := strings.ToLower(formOr(r, "target_db_user", dstDB))
+	dstDBUserPassword := formOr(r, "target_db_user_password", generateRandomString(16))
+
+	if providedDomain == "" || dstDomain == "" || srcDB == "" || srcFolder == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing required form fields"})
+		return
+	}
+
+	var domainID int
+	var docroot, phpVersion string
+	row := a.DB.QueryRowContext(ctx, "SELECT domain_id, docroot, php_version FROM domains WHERE domain_url = ?", dstDomain)
+	if scanErr := row.Scan(&domainID, &docroot, &phpVersion); scanErr != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Destination domain not found in database"})
+		return
+	}
+
+	dstDomainWithSubdir := dstDomain
+	dstSubdirURI := "/"
+	if dstFolder != "" {
+		docroot = filepath.Join(docroot, dstFolder)
+		dstDomainWithSubdir = dstDomain + "/" + dstFolder
+		dstSubdirURI = "/" + dstFolder + "/"
+	}
+
+	srcDomain := strings.Split(providedDomain, "/")[0]
+
+	if !cloneValidateDomain(srcDomain) || !cloneValidateDomain(dstDomain) || !cloneValidateDB(srcDB) || !cloneValidateDB(dstDB) ||
+		!cloneValidateDB(dstDBUser) || !cloneValidateDocroot(srcFolder) || !cloneValidateDocroot(docroot) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid input or unsafe docroot"})
+		return
+	}
+	if !a.CheckDomainBelongsToUser(ctx, userID, srcDomain) || !a.CheckDomainBelongsToUser(ctx, userID, dstDomain) {
+		http.Error(w, "You do not own this domain.", http.StatusForbidden)
+		return
+	}
+
+	mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
+	var dumpCmd string
+	switch mysqlVersion {
+	case "mysql":
+		dumpCmd = "mysqldump --column-statistics=0 --set-gtid-purged=OFF"
+	case "mariadb":
+		dumpCmd = "mariadb-dump --gtid"
+	default:
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unsupported MYSQL_TYPE: " + mysqlVersion})
+		return
+	}
+
+	const wwwBaseDirectory = "/var/www/html/"
+	baseDirectory := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
+	srcPath := strings.Replace(filepath.Clean(srcFolder), wwwBaseDirectory, baseDirectory, 1)
+	dstPath := strings.Replace(filepath.Clean(docroot), wwwBaseDirectory, baseDirectory, 1)
+
+	if info, statErr := os.Stat(srcPath); statErr != nil || !info.IsDir() {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Source folder not found: " + srcFolder})
+		return
+	}
+	if mkErr := os.MkdirAll(dstPath, 0o755); mkErr != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy PrestaShop files: " + mkErr.Error()})
+		return
+	}
+	if cpErr := exec.CommandContext(ctx, "cp", "-a", srcPath+"/.", dstPath+"/").Run(); cpErr != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy PrestaShop files: " + cpErr.Error()})
+		return
+	}
+	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
+		_ = exec.CommandContext(ctx, "chown", "-R", itoa(uid)+":"+itoa(uid), dstPath).Run()
+	}
+	// PrestaShop's Symfony var/cache/{prod,dev} holds a compiled service
+	// container with the SOURCE site's DB credentials baked in - a plain
+	// file copy carries that stale cache along, which makes the clone 500
+	// on its very first request even though parameters.php itself is
+	// correct (confirmed live: clearing this directory was the fix).
+	// PrestaShop regenerates it automatically on the next request.
+	_ = os.RemoveAll(filepath.Join(dstPath, "var", "cache", "prod"))
+	_ = os.RemoveAll(filepath.Join(dstPath, "var", "cache", "dev"))
+
+	escapedPassword := strings.ReplaceAll(strings.ReplaceAll(dstDBUserPassword, `\`, `\\`), `'`, `\'`)
+	cloneQueries := []string{
+		"CREATE DATABASE IF NOT EXISTS `" + dstDB + "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+		"CREATE USER IF NOT EXISTS '" + dstDBUser + "'@'%' IDENTIFIED BY '" + escapedPassword + "'",
+		"GRANT ALL PRIVILEGES ON `" + dstDB + "`.* TO '" + dstDBUser + "'@'%'",
+		"FLUSH PRIVILEGES",
+	}
+	for _, q := range cloneQueries {
+		if _, execErr := mysqlmanager.Exec(ctx, userContext, q, ""); execErr != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": execErr.Error()})
+			return
+		}
+	}
+
+	// srcDB/dstDB are already validated against ^[a-zA-Z0-9_]+$ by
+	// cloneValidateDB, so no identifier quoting is needed here - backticks
+	// would be actively wrong: bash -c interprets an unescaped backtick as
+	// command substitution, not as passed-through SQL quoting, which
+	// silently truncated this exact command when copied from WordPress's
+	// clone (verified live: bash treated `srcDB` as "run srcDB as a command").
+	dumpTablesCmd := dumpCmd + " --single-transaction --quick " + srcDB + " | " + mysqlVersion + " " + dstDB
+	fullDBArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, "bash", "-c", dumpTablesCmd)
+	if runErr := podmanmanager.Command(ctx, userContext, fullDBArgv).Run(); runErr != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed"})
+		return
+	}
+
+	parametersFile := filepath.Join(dstPath, "app", "config", "parameters.php")
+	content, readErr := os.ReadFile(parametersFile)
+	if readErr != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": readErr.Error()})
+		return
+	}
+	strContent := string(content)
+	strContent = clonePrestaDBNameRE.ReplaceAllString(strContent, "'database_name' => '"+escapePHPSingleQuoted(dstDB)+"',")
+	strContent = clonePrestaDBUserRE.ReplaceAllString(strContent, "'database_user' => '"+escapePHPSingleQuoted(dstDBUser)+"',")
+	strContent = clonePrestaDBPasswdRE.ReplaceAllString(strContent, "'database_password' => '"+escapePHPSingleQuoted(dstDBUserPassword)+"',")
+	if writeErr := os.WriteFile(parametersFile, []byte(strContent), 0o644); writeErr != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": writeErr.Error()})
+		return
+	}
+	if !strings.Contains(strContent, dstDB) {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "Failed to set database_name in parameters.php"})
+		return
+	}
+
+	// Point the clone's own ps_shop_url row at its new domain/subdirectory -
+	// the same fix install.go applies at install time via --domain/--base_uri,
+	// see that file's comment on why domain and physical_uri must stay split.
+	escapedDstDomain := escapeMySQLString(dstDomain)
+	escapedURI := escapeMySQLString(dstSubdirURI)
+	_, _ = mysqlmanager.Exec(ctx, userContext,
+		"UPDATE `ps_shop_url` SET domain = '"+escapedDstDomain+"', domain_ssl = '"+escapedDstDomain+"', physical_uri = '"+escapedURI+"'",
+		dstDB)
+
+	_ = a.Cache.Delete(ctx, "get_user_websites:"+itoa(userID))
+
+	adminEmail := formOr(r, "admin_email", "admin@"+dstDomain)
+	prestashopVersion := formOr(r, "prestashop_version", "latest")
+	if _, insertErr := a.DB.ExecContext(ctx, `
+		INSERT INTO sites (site_name, domain_id, admin_email, version, type)
+		VALUES (?, ?, ?, ?, ?)
+		ON DUPLICATE KEY UPDATE domain_id = VALUES(domain_id), admin_email = VALUES(admin_email), version = VALUES(version), type = VALUES(type)`,
+		dstDomainWithSubdir, domainID, adminEmail, prestashopVersion, "prestashop"); insertErr != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": insertErr.Error()})
+		return
+	}
+
+	_ = logger.RecordUserAction(a.Config, currentUsername, "cloned PrestaShop website from "+providedDomain+" to "+dstDomainWithSubdir, reqip.ClientIP(r))
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"status": "success", "source": providedDomain, "target": dstDomainWithSubdir,
+		"source_path": srcPath, "target_path": dstPath, "target_db": dstDB,
+	})
+}
+
+func escapePHPSingleQuoted(value string) string {
+	value = strings.ReplaceAll(value, `\`, `\\`)
+	value = strings.ReplaceAll(value, `'`, `\'`)
+	return value
+}
+
+func escapeMySQLString(value string) string {
+	value = strings.ReplaceAll(value, `\`, `\\`)
+	value = strings.ReplaceAll(value, `'`, `\'`)
+	return value
+}

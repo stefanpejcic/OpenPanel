@@ -16,6 +16,15 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /sites", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleListSites(a, w, r)
 	})))
+	mux.Handle("GET /sites/scan", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleSitesScan(a, w, r)
+	})))
+	mux.Handle("POST /sites/detach", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleSitesDetach(a, w, r)
+	})))
+	mux.Handle("GET /sites/updates", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleSitesUpdates(a, w, r)
+	})))
 	mux.Handle("/website", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleWebsiteDispatch(a, w, r)
 	})))

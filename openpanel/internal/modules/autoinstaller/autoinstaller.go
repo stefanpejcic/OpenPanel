@@ -20,7 +20,7 @@ import (
 // wordpress/drupal/sitebuilder (website_builder)/mautic/node/python have a
 // card in the template - the rest are counted but never displayed.
 var technologies = []string{
-	"wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "sitebuilder", "node", "python", "php",
+	"wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "sitebuilder", "node", "python", "php",
 	"java", "ruby", "bun", "mautic", "flarum", "fossbilling",
 }
 

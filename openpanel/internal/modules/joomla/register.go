@@ -21,6 +21,11 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /joomla/login", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaLogin(a, w, r) }))
 	mux.Handle("POST /joomla/cache", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaCacheClean(a, w, r) }))
 	mux.Handle("GET /joomla/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaLogs(a, w, r) }))
+	mux.Handle("/joomla/maintenance", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaMaintenance(a, w, r) }))
+	mux.Handle("GET /joomla/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaGetBackupDates(a, w, r) }))
+	mux.Handle("GET /joomla/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaRestoreBackup(a, w, r) }))
+	mux.Handle("GET /joomla/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaRunBackup(a, w, r) }))
+	mux.Handle("POST /joomla/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaClone(a, w, r) }))
 }
 
 // withJoomlaForm clones r as a POST carrying the given values as both Form
@@ -39,4 +44,5 @@ func withJoomlaForm(r *http.Request, values url.Values) *http.Request {
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "joomla", "POST /api/joomla/install", func(w http.ResponseWriter, r *http.Request) { apiInstallJoomla(a, w, r) })
 	apiregistry.Handle(mux, a, "joomla", "DELETE /api/joomla/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemoveJoomla(a, w, r) })
+	apiregistry.Handle(mux, a, "joomla", "POST /api/joomla/clone", func(w http.ResponseWriter, r *http.Request) { apiCloneJoomla(a, w, r) })
 }

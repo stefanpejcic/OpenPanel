@@ -23,6 +23,11 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /nextcloud/cache", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudCacheClean(a, w, r) }))
 	mux.Handle("GET /nextcloud/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudLogs(a, w, r) }))
 	mux.Handle("GET /nextcloud/versions", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudVersions(a, w, r) }))
+	mux.Handle("/nextcloud/maintenance", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudMaintenance(a, w, r) }))
+	mux.Handle("GET /nextcloud/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudGetBackupDates(a, w, r) }))
+	mux.Handle("GET /nextcloud/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudRestoreBackup(a, w, r) }))
+	mux.Handle("GET /nextcloud/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudRunBackup(a, w, r) }))
+	mux.Handle("POST /nextcloud/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudClone(a, w, r) }))
 }
 
 // withNextcloudForm clones r as a POST carrying the given values as both

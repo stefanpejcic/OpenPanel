@@ -733,6 +733,120 @@ func getPrestashopVersion(userContext, realPath string) string {
 	return m[1]
 }
 
+// extractMatomoDatabaseInfo parses the dbname/username/password/host/
+// tables_prefix entries out of config/config.ini.php's [database] section -
+// Matomo's own generated config, an INI file (not a PHP array/define()
+// list the way every other CMS here writes its config), so this matches on
+// `key = "value"` lines instead.
+func extractMatomoDatabaseInfo(userContext, directory string) map[string]string {
+	const wwwPrefix = "/var/www/html/"
+	if !strings.HasPrefix(directory, wwwPrefix) {
+		return nil
+	}
+	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
+	content, err := os.ReadFile(filepath.Join(mappedDir, "config", "config.ini.php"))
+	if err != nil {
+		return map[string]string{"error": "config/config.ini.php not found"}
+	}
+	text := string(content)
+
+	info := map[string]string{}
+	for key, field := range map[string]string{
+		"database_name": "dbname", "database_user": "username",
+		"database_password": "password", "database_host": "host", "database_prefix": "tables_prefix",
+	} {
+		re := regexp.MustCompile(`(?m)^` + field + `\s*=\s*"([^"]*)"`)
+		if m := re.FindStringSubmatch(text); m != nil {
+			info[key] = m[1]
+		}
+	}
+	if len(info) == 0 {
+		return map[string]string{"error": "No database information found in config/config.ini.php"}
+	}
+	return info
+}
+
+// getMatomoVersion reads the VERSION const out of core/Version.php,
+// mirroring getPrestashopVersion/getNextcloudVersion's live-read-from-disk
+// approach.
+func getMatomoVersion(userContext, realPath string) string {
+	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
+	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "core", "Version.php")
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "Unknown"
+	}
+	m := regexp.MustCompile(`VERSION\s*=\s*'([^']*)'`).FindStringSubmatch(string(content))
+	if m == nil {
+		return "Unknown"
+	}
+	return m[1]
+}
+
+// moodleApprootDir maps a Moodle site's docroot (a symlink to
+// <approot>/public - see internal/modules/moodle's package doc comment for
+// why) to its backing "app root" directory, where config.php/admin/lib/
+// actually live. directory's relative-to-docroot part IS the site's slash-
+// joined domain+subdirectory site name (docroot is literally
+// "/var/www/html/"+that), so this reapplies moodle.siteSlug's exact
+// domain/dot -> underscore substitution to find the sibling
+// "<slug>_moodleapp" directory install.go created, without needing to
+// resolve the symlink.
+func moodleApprootDir(userContext, directory string) string {
+	const wwwPrefix = "/var/www/html/"
+	relPath := strings.TrimPrefix(directory, wwwPrefix)
+	slug := strings.ReplaceAll(strings.ReplaceAll(relPath, "/", "_"), ".", "_")
+	return "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + slug + "_moodleapp"
+}
+
+// extractMoodleDatabaseInfo parses the $CFG->dbname/dbuser/dbpass/dbhost/
+// prefix plain-variable assignments out of the approot's config.php -
+// Moodle's own generated config, not reachable via the docroot symlink
+// (that only leads to public/config.php, a thin shim, not the real one).
+func extractMoodleDatabaseInfo(userContext, directory string) map[string]string {
+	const wwwPrefix = "/var/www/html/"
+	if !strings.HasPrefix(directory, wwwPrefix) {
+		return nil
+	}
+	content, err := os.ReadFile(filepath.Join(moodleApprootDir(userContext, directory), "config.php"))
+	if err != nil {
+		return map[string]string{"error": "config.php not found"}
+	}
+	text := string(content)
+
+	info := map[string]string{}
+	for key, field := range map[string]string{
+		"database_name": "dbname", "database_user": "dbuser",
+		"database_password": "dbpass", "database_host": "dbhost", "database_prefix": "prefix",
+	} {
+		re := regexp.MustCompile(`CFG->` + field + `\s*=\s*'([^']*)'`)
+		if m := re.FindStringSubmatch(text); m != nil {
+			info[key] = m[1]
+		}
+	}
+	if len(info) == 0 {
+		return map[string]string{"error": "No database information found in config.php"}
+	}
+	return info
+}
+
+// getMoodleVersion reads $release out of public/version.php (the
+// human-readable "5.2.1+ (Build: 20260807)"-style string every Moodle
+// release ships, confirmed live against a real 5.2 release tarball -
+// $version is the internal numeric build timestamp, not a human version;
+// version.php itself lives under public/, unlike config.php).
+func getMoodleVersion(userContext, directory string) string {
+	content, err := os.ReadFile(filepath.Join(moodleApprootDir(userContext, directory), "public", "version.php"))
+	if err != nil {
+		return "Unknown"
+	}
+	m := regexp.MustCompile(`\$release\s*=\s*'([^']*)'`).FindStringSubmatch(string(content))
+	if m == nil {
+		return "Unknown"
+	}
+	return m[1]
+}
+
 // getMySQLVersion resolves the running MySQL/MariaDB version, memoized for
 // 1 hour since it changes only on upgrade.
 func getMySQLVersion(a *appctx.App, r *http.Request, userContext string) string {

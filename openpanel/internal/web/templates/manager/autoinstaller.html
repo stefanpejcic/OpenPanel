@@ -193,6 +193,64 @@
         </div>
     {{end}}
 
+    {{if .UserAllowed.moodle}}
+        <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0">
+            <div class="p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="#F98012" id="moodle"><path d="M12 0C5.3726 0 0 5.3726 0 12s5.3726 12 12 12 12-5.3726 12-12S18.6274 0 12 0Zm1.1348 5.7402.0351.123-2.7363 1.9903c.3694.2606.7968.609 1.0078.8438l.0762.1035c-1.2878 2.2571-3.737 3.0557-6.3164 2.1816l.0195-.1601h-.002c-.0784-.5679-.0962-1.0524-.0585-1.463-.7507-.003-1.5298-.0402-2.2832-.0663l-.5157.0175c-.0994.8449-.0351 2.135-.0254 2.3223.3492 1.2819.2977 2.2907.295 3.5293-.4134-1.0028-.8995-2.097-.416-3.4668l-.0098-.3183c-.0007-.0143-.0683-1.1532.037-2.0625l-.4081.0136-.0371-.1191C5.7922 6.8402 8.5032 6.218 13.1348 5.7402Zm1.623 2.5137c1.2202 0 2.1885.2691 2.9043.8066.8138.601 1.2207 1.4866 1.2207 2.6582v5.6856h-2.7344v-5.3691c0-1.1225-.4634-1.6836-1.3906-1.6836-.9278 0-1.3906.561-1.3906 1.6836v5.3691h-2.7344v-5.3691c0-.5183-.0986-.9144-.293-1.1934.6172-.435 1.1534-1.0124 1.5723-1.7246.0297.029.0597.0574.0879.0879.5044-.6349 1.4233-.9512 2.7578-.9512zm-9.6094 3.2344c.932.3 1.8614.393 2.7364.287a3.5455 3.5455 0 0 0-.0098.2599v5.3691H5.1426v-5.6855c0-.0787.0022-.1544.0058-.2305z"/></svg>
+                        </span>
+                        <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
+                            <a href="/moodle/install">{{.T.Get "Moodle"}}</a>
+                        </dt>
+                    </div>
+                </div>
+                <dd class="text-gray-600 dark:text-gray-400 mt-3 text-sm/6">{{.T.Get "Moodle learning management system (LMS)."}}</dd>
+            </div>
+            <a href="/sites">
+            <div class="border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-900 dark:bg-[#090E1A]">
+                <div class="flex items-center space-x-2">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 text-gray-400 dark:text-gray-600"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path></svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{if eq (index .Counts "moodle") 0}}{{.T.Get "No"}}{{else}}{{index .Counts "moodle"}}{{end}} {{.T.Get "existing installation"}}{{if ne (index .Counts "moodle") 1}}{{.T.Get "s"}}{{end}}</p>
+                </div>
+            </div>
+            </a>
+            <div class="border-t border-gray-200 px-6 py-3 dark:border-gray-900">
+                <a href="/moodle/install" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Install Moodle"}}</a>
+            </div>
+        </div>
+    {{end}}
+
+    {{if .UserAllowed.matomo}}
+        <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0">
+            <div class="p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="#3152A0" id="matomo"><path d="M6.664 15.37a3.336 3.336 0 0 1-3.332 3.332C1.495 18.702 0 17.208 0 15.37s1.495-3.333 3.332-3.333a3.338 3.338 0 0 1 3.332 3.333zm11.565-3.644a3.658 3.658 0 0 1-1.987.591 3.642 3.642 0 0 1-1.872-.529l.008.012a3.728 3.728 0 0 1-1.235-1.19l-2.612-3.693a.17.17 0 0 1-.027-.033A3.312 3.312 0 0 0 7.67 5.298a3.318 3.318 0 0 0-2.848 1.586.146.146 0 0 1-.021.028l-3.428 5.343a3.663 3.663 0 0 1 5.094 1.18.13.13 0 0 1 .015.018l2.756 3.869a3.305 3.305 0 0 0 2.699 1.38 3.31 3.31 0 0 0 2.711-1.379l.009-.013c.073-.103.137-.202.195-.305l1.442-2.255 1.935-3.024zm5.275 1.902l-.014-.028-.044-.066a1.109 1.109 0 0 0-.029-.044l-3.525-5.37c.024.168.052.335.052.51 0 .741-.219 1.457-.634 2.068l-2.803 4.38 1.416 2.179-.002.002a.131.131 0 0 1 .024.028 3.338 3.338 0 0 0 2.723 1.415A3.335 3.335 0 0 0 24 15.37c0-.613-.171-1.216-.496-1.742zm-7.262-1.666a3.336 3.336 0 0 0 3.332-3.333 3.336 3.336 0 0 0-3.332-3.332 3.336 3.336 0 0 0-3.332 3.332 3.338 3.338 0 0 0 3.332 3.333z"/></svg>
+                        </span>
+                        <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
+                            <a href="/matomo/install">{{.T.Get "Matomo"}}</a>
+                        </dt>
+                    </div>
+                </div>
+                <dd class="text-gray-600 dark:text-gray-400 mt-3 text-sm/6">{{.T.Get "Matomo web analytics platform."}}</dd>
+            </div>
+            <a href="/sites">
+            <div class="border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-900 dark:bg-[#090E1A]">
+                <div class="flex items-center space-x-2">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 text-gray-400 dark:text-gray-600"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path></svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{if eq (index .Counts "matomo") 0}}{{.T.Get "No"}}{{else}}{{index .Counts "matomo"}}{{end}} {{.T.Get "existing installation"}}{{if ne (index .Counts "matomo") 1}}{{.T.Get "s"}}{{end}}</p>
+                </div>
+            </div>
+            </a>
+            <div class="border-t border-gray-200 px-6 py-3 dark:border-gray-900">
+                <a href="/matomo/install" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Install Matomo"}}</a>
+            </div>
+        </div>
+    {{end}}
+
     {{if .UserAllowed.website_builder}}
         <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0">
             <div class="p-6">

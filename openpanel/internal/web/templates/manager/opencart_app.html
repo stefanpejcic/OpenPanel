@@ -77,7 +77,7 @@
         <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="opencart-tab" data-tabs-toggle="#opencart-tab-content" role="tablist" class="grid grid-cols-4 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+        <ul id="opencart-tab" data-tabs-toggle="#opencart-tab-content" role="tablist" class="grid grid-cols-12 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
             <li role="presentation">
                 <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
                    @click="activeTab = 'dashboard'"
@@ -94,6 +94,42 @@
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"/></svg>
                     <span class="hidden md:inline">{{.T.Get "Logs"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#" id="maintenance-tab" data-tabs-target="#maintenance" role="tab" aria-controls="maintenance" aria-selected="false"
+                   @click="activeTab = 'maintenance'"
+                   :class="activeTab === 'maintenance' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5m5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Maintenance"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#" id="update-tab" data-tabs-target="#update" role="tab" aria-controls="update" aria-selected="false"
+                   @click="activeTab = 'update'"
+                   :class="activeTab === 'update' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a7 7 0 1 1 2.898 5.673c-.167-.121-.216-.406-.002-.62l1.8-1.8a3.5 3.5 0 0 0 4.572-.328l1.414-1.415a.5.5 0 0 0 0-.707l-.707-.707 1.559-1.563a.5.5 0 1 0-.708-.706l-1.559 1.562-1.414-1.414 1.56-1.562a.5.5 0 1 0-.707-.706l-1.56 1.56-.707-.706a.5.5 0 0 0-.707 0L5.318 5.975a3.5 3.5 0 0 0-.328 4.571l-1.8 1.8c-.58.58-.62 1.6.121 2.137A8 8 0 1 0 0 8a.5.5 0 0 0 1 0"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Update"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#" id="clone-tab" data-tabs-target="#clone" role="tab" aria-controls="clone" aria-selected="false"
+                   @click="activeTab = 'clone'"
+                   :class="activeTab === 'clone' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Clone"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#" id="backups-tab" data-tabs-target="#backups" role="tab" aria-controls="backups" aria-selected="false"
+                   @click="activeTab = 'backups'"
+                   :class="activeTab === 'backups' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Backups"}}</span>
                 </a>
             </li>
             <li role="presentation">
@@ -415,7 +451,476 @@
             </script>
         </div>
 
+        <div class="hidden p-4 rounded" id="maintenance" role="tabpanel" aria-labelledby="maintenance-tab">
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Maintenance Mode"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Show visitors a maintenance page while you make changes."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                        <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Status:"}}</span>
+                        <span class="font-medium" id="opencart-maintenance-status">{{.T.Get "Checking..."}}</span>
+                    </div>
+                    <div class="mt-4">
+                        <button type="button" id="opencart-maintenance-toggle" onclick="toggleOpenCartMaintenance()"
+                            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap w-100">
+                            {{.T.Get "Loading..."}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                let __opencartMaintenanceLoaded = false;
+                let __opencartMaintenanceStatus = null;
+
+                function refreshOpenCartMaintenanceStatus() {
+                    const domain = {{toJSON .CurrentDomain}};
+                    const docroot = {{toJSON .Docroot}};
+                    const statusEl = document.getElementById('opencart-maintenance-status');
+                    const btn = document.getElementById('opencart-maintenance-toggle');
+                    fetch(`/opencart/maintenance?domain=${encodeURIComponent(domain)}&docroot=${encodeURIComponent(docroot)}`, {
+                        headers: { 'X-CSRF-Token': csrf_token }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            __opencartMaintenanceStatus = data.status;
+                            if (data.status === 'enabled') {
+                                statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "Enabled")}} + '</span>';
+                                btn.textContent = {{toJSON (.T.Get "Disable Maintenance Mode")}};
+                            } else {
+                                statusEl.innerHTML = '<span class="text-green-600">' + {{toJSON (.T.Get "Disabled")}} + '</span>';
+                                btn.textContent = {{toJSON (.T.Get "Enable Maintenance Mode")}};
+                            }
+                        })
+                        .catch(error => {
+                            statusEl.textContent = {{toJSON (.T.Get "Unknown")}};
+                            console.error('Error fetching maintenance mode status:', error);
+                        });
+                }
+
+                function toggleOpenCartMaintenance() {
+                    const domain = {{toJSON .CurrentDomain}};
+                    const docroot = {{toJSON .Docroot}};
+                    const action = __opencartMaintenanceStatus === 'enabled' ? 'disable' : 'enable';
+                    showToast({{toJSON (.T.Get "Updating maintenance mode...")}}, 'loading', true);
+                    fetch(`/opencart/maintenance?domain=${encodeURIComponent(domain)}&docroot=${encodeURIComponent(docroot)}`, {
+                        method: 'POST',
+                        headers: { 'X-CSRF-Token': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'action=' + action
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                showToast(data.error, 'danger');
+                            } else {
+                                showToast(data.message || {{toJSON (.T.Get "Maintenance mode updated.")}}, 'success');
+                                refreshOpenCartMaintenanceStatus();
+                            }
+                        })
+                        .catch(() => showToast({{toJSON (.T.Get "Failed to update maintenance mode")}}, 'danger'));
+                }
+
+                document.querySelector('html').addEventListener('click', function(e) {
+                    if (!e.target.closest('#maintenance-tab')) return;
+                    if (__opencartMaintenanceLoaded) return;
+                    __opencartMaintenanceLoaded = true;
+                    refreshOpenCartMaintenanceStatus();
+                });
+            </script>
+        </div>
+
+        <div class="hidden p-4 rounded" id="update" role="tabpanel" aria-labelledby="update-tab">
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Version"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Check whether a newer OpenCart version is available."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Installed version:"}}</span>
+                            <span class="font-medium">{{if .OpenCartVersion}}{{.OpenCartVersion}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Latest version:"}}</span>
+                            <span class="font-medium" id="opencart-latest-version">{{.T.Get "Checking..."}}</span>
+                        </div>
+                    </div>
+                    <p class="mt-3 text-sm/6" id="opencart-update-status"></p>
+                </div>
+            </div>
+
+            <script>
+                function compareOpenCartVersionsDesc(a, b) {
+                    const pa = a.split('.').map(Number);
+                    const pb = b.split('.').map(Number);
+                    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+                        const na = pa[i] || 0, nb = pb[i] || 0;
+                        if (na !== nb) return nb - na;
+                    }
+                    return 0;
+                }
+
+                function checkOpenCartLatestVersion() {
+                    const installed = {{toJSON .OpenCartVersion}};
+                    const latestEl = document.getElementById('opencart-latest-version');
+                    const statusEl = document.getElementById('opencart-update-status');
+                    fetch('https://api.github.com/repos/opencart/opencart/releases?per_page=100')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!Array.isArray(data)) throw new Error('Unexpected response');
+                            const versionRe = /^\d+\.\d+\.\d+(\.\d+)?$/;
+                            const versions = data
+                                .filter(r => !r.prerelease && !r.draft)
+                                .map(r => r.tag_name.replace(/^v/, ''))
+                                .filter(name => versionRe.test(name))
+                                .sort(compareOpenCartVersionsDesc);
+                            const latest = versions[0];
+                            latestEl.textContent = latest || {{toJSON (.T.Get "Unknown")}};
+                            if (latest && installed && latest !== installed) {
+                                statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
+                            } else if (latest && installed) {
+                                statusEl.innerHTML = '<span class="text-green-600">' + {{toJSON (.T.Get "You are running the latest version.")}} + '</span>';
+                            }
+                        })
+                        .catch(error => {
+                            latestEl.textContent = {{toJSON (.T.Get "Unknown")}};
+                            console.error('Error fetching OpenCart versions:', error);
+                        });
+                }
+
+                let __opencartUpdateLoaded = false;
+                document.querySelector('html').addEventListener('click', function(e) {
+                    if (!e.target.closest('#update-tab')) return;
+                    if (__opencartUpdateLoaded) return;
+                    __opencartUpdateLoaded = true;
+                    checkOpenCartLatestVersion();
+                });
+            </script>
+        </div>
+
+        <div class="hidden p-4 rounded" id="clone" role="tabpanel" aria-labelledby="clone-tab">
+
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Clone a OpenCart instance with its database and files."}}</p>
+
+            <form id="opencart-CloneForm">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="source_domain" value="{{.CurrentDomain}}">
+                <input type="hidden" name="source_folder" value="{{.Docroot}}">
+                <input type="hidden" name="source_db" value="{{.DBInfo.database_name}}">
+                <input type="hidden" name="opencart_version" value="{{.OpenCartVersion}}">
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Location"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Please choose the URL to install the software"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="opencart-source_domain">{{.T.Get "Source"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="opencart-source_domain" type="text" value="{{.CurrentDomain}}" disabled />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="opencart-target_domain">{{.T.Get "Target"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                <div class="relative w-full mt-2">
+                                    <div class="flex">
+                                        <select class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" name="target_domain" id="opencart-target_domain">
+                                            <option selected disabled value="">{{.T.Get "Select a domain"}}</option>
+                                            {{range .Domains}}
+                                                <option class="punycode" docroot="{{.Docroot}}" value="{{.DomainURL}}">{{.DomainURL}}</option>
+                                            {{end}}
+                                        </select>
+                                        <div class="input-group-append flex">
+                                            <input type="text" name="subdirectory" id="opencart-subdirectory" placeholder="subfolder" class="relative block w-full appearance-none rounded-r-md border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                                        </div>
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Make sure that the domain or the subdomain selected as a target is not being used by an existing website. During cloning, website data that exists on the destination may be overwritten and irrevocably lost."}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Database name and user to use for the clone (optional)"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="opencart-target_db">{{.T.Get "Database Name"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="opencart-target_db" name="target_db" type="text" minlength="6" maxlength="30" title="{{.T.Get "Database name must be between 6 and 30 characters."}}" />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="opencart-target_db_user">{{.T.Get "Database user"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="opencart-target_db_user" name="target_db_user" type="text" minlength="6" maxlength="30" title="{{.T.Get "Username must be between 6 and 30 characters."}}" />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="opencart-target_db_user_password">{{.T.Get "User password"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="opencart-target_db_user_password" name="target_db_user_password" type="password" minlength="8" maxlength="30" title="{{.T.Get "Password must be between 8 and 30 characters."}}" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="flex items-center justify-end space-x-4">
+                    <button type="button" id="opencart-startCloneBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Clone website"}}</button>
+                </div>
+            </form>
+
+            <script>
+                document.getElementById('opencart-startCloneBtn').addEventListener('click', function() {
+                    var btn = this;
+                    btn.disabled = true;
+                    btn.textContent = {{toJSON (.T.Get "Cloning...")}};
+                    var formData = new URLSearchParams(new FormData(document.getElementById('opencart-CloneForm')));
+                    showToast({{toJSON (.T.Get "Cloning process started... Please wait.")}}, 'loading');
+
+                    fetch("/opencart/clone", {
+                        method: "POST",
+                        headers: { 'X-CSRF-TOKEN': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData.toString()
+                    })
+                        .then(response => response.json().then(data => {
+                            if (!response.ok) throw data;
+                            return data;
+                        }))
+                        .then(response => {
+                            if (response.status === 'success') {
+                                showToast(`Cloned to ${response.target} successfully!`, 'success');
+                                btn.textContent = {{toJSON (.T.Get "Clone Complete")}};
+                            } else {
+                                showToast(`Error cloning site`, 'error');
+                                btn.disabled = false;
+                                btn.textContent = {{toJSON (.T.Get "Try Again")}};
+                            }
+                        })
+                        .catch(error => {
+                            showToast(`${error?.error || error}`, 'error');
+                            btn.disabled = false;
+                            btn.textContent = {{toJSON (.T.Get "Retry Clone")}};
+                        });
+                });
+            </script>
+
+        </div>
+
+        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create a Backup"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Generate a backup of files and/or database."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <div class="flex items-center">
+                                    <input checked id="opencart-backupDatabase" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Backup Database"}} <b id="opencart-db-size-for-backup"></b></label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input checked id="opencart-backupFiles" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Backup Files"}} <b id="opencart-files-size-for-backup"></b></label>
+                                </div>
+                                <button id="opencart-runBackup" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100"><i class="bi bi-download mr-2"></i> {{.T.Get "Generate Backup"}}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div></div></div>
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore from Backups"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Restore files and/or database from a backup."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button id="opencart-restore-btn-or" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100" type="button">
+                                    {{.T.Get "Display Backups"}}
+                                </button>
+
+                                <div id="opencart-restore-section" class="hidden">
+                                    <p>{{.T.Get "Select a backup date:"}}</p>
+                                    <select class="peer w-full cursor-pointer appearance-none truncate rounded border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="opencart-restoreBackupDate"></select>
+
+                                    <button data-selected-domain="{{.CurrentDomain}}" type="button" id="opencart-confirmRestore" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                        <i class="bi bi-arrow-counterclockwise mr-2"></i> {{.T.Get "Start Restore"}}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                (function() {
+                    const restoreButton = document.getElementById("opencart-restore-btn-or");
+                    const restoreBackupDateSelect = document.getElementById("opencart-restoreBackupDate");
+                    const confirmRestoreButton = document.getElementById("opencart-confirmRestore");
+                    const restoreDomain = {{toJSON .CurrentDomain}};
+                    const docroot = {{toJSON .Docroot}};
+                    let restoreConfirmed = false;
+
+                    function backupTypeLabel(hasDbBackup, hasFilesBackup) {
+                        if (hasDbBackup && hasFilesBackup) return {{toJSON (.T.Get "Database and Files Backup")}};
+                        if (hasDbBackup) return {{toJSON (.T.Get "Database Backup")}};
+                        if (hasFilesBackup) return {{toJSON (.T.Get "Files Backup")}};
+                        return {{toJSON (.T.Get "Unknown Backup Type")}};
+                    }
+
+                    if (restoreButton) {
+                        restoreButton.addEventListener("click", function () {
+                            document.getElementById("opencart-restore-section").classList.remove("hidden");
+                            restoreButton.classList.add("hidden");
+                            fetch(`/opencart/backup/get_dates/${restoreDomain}?docroot=${docroot}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                                .then(response => response.json())
+                                .then(data => {
+                                    restoreBackupDateSelect.innerHTML = "";
+                                    if (data.length > 0) {
+                                        data.forEach(dateInfo => {
+                                            const option = document.createElement("option");
+                                            option.value = dateInfo.date;
+                                            option.textContent = `${dateInfo.date} (${backupTypeLabel(dateInfo.hasDbBackup, dateInfo.hasFilesBackup)})`;
+                                            restoreBackupDateSelect.appendChild(option);
+                                        });
+                                    } else {
+                                        const option = document.createElement("option");
+                                        option.textContent = {{toJSON (.T.Get "No backups available")}};
+                                        option.disabled = true;
+                                        restoreBackupDateSelect.appendChild(option);
+                                    }
+                                })
+                                .catch(error => console.error("Error fetching backup dates:", error));
+                        });
+                    }
+
+                    if (confirmRestoreButton) {
+                        confirmRestoreButton.addEventListener("click", function () {
+                            if (!restoreConfirmed) {
+                                confirmRestoreButton.textContent = {{toJSON (.T.Get "Click again to confirm")}};
+                                confirmRestoreButton.classList.remove("bg-black", "hover:bg-gray-800");
+                                confirmRestoreButton.classList.add("bg-red-600", "hover:bg-red-700");
+                                restoreConfirmed = true;
+                                return;
+                            }
+                            const selectedDate = restoreBackupDateSelect.value;
+                            showToast({{toJSON (.T.Get "Restoring backup... Please wait.")}}, 'warning');
+                            fetch(`/opencart/backup/restore/${restoreDomain}?docroot=${docroot}&backup_date=${selectedDate}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                                .then(response => {
+                                    if (response.ok) return response.text();
+                                    throw new Error({{toJSON (.T.Get "Restore request failed.")}});
+                                })
+                                .then(result => {
+                                    showToast(`${result}`, 'success');
+                                    setTimeout(() => {
+                                        restoreConfirmed = false;
+                                        confirmRestoreButton.textContent = {{toJSON (.T.Get "Start Restore")}};
+                                        confirmRestoreButton.classList.remove("bg-red-600", "hover:bg-red-700");
+                                        confirmRestoreButton.classList.add("bg-black", "hover:bg-gray-800");
+                                    }, 5000);
+                                })
+                                .catch(error => {
+                                    console.error("Error during restore:", error);
+                                    showToast(`${error.message}`, 'error');
+                                });
+                        });
+                    }
+
+                    const runBackupButton = document.getElementById("opencart-runBackup");
+                    const backupDatabaseCheckbox = document.getElementById("opencart-backupDatabase");
+                    const backupFilesCheckbox = document.getElementById("opencart-backupFiles");
+
+                    if (runBackupButton) {
+                        runBackupButton.addEventListener("click", function () {
+                            const backupDatabase = backupDatabaseCheckbox.checked;
+                            const backupFiles = backupFilesCheckbox.checked;
+                            if (!backupDatabase && !backupFiles) {
+                                showToast({{toJSON (.T.Get "No options selected to backup. Please ensure that at least one of the Database or Files is selected.")}}, 'error');
+                                return;
+                            }
+                            runBackupButton.disabled = true;
+                            const originalButtonText = runBackupButton.innerHTML;
+                            runBackupButton.innerHTML = `<i class="bi bi-arrow-repeat animate-spin mr-2"></i> {{.T.Get "Generating Backup..."}}`;
+                            showToast({{toJSON (.T.Get "Generating website backup.. Please wait.")}}, 'loading');
+                            fetch(`/opencart/backup/run/${restoreDomain}?docroot=${docroot}&backup_database=${backupDatabase}&backup_files=${backupFiles}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                                .then(response => {
+                                    if (response.ok) return response.text();
+                                    throw new Error({{toJSON (.T.Get "Backup request failed.")}});
+                                })
+                                .then(result => showToast(`${result}`, 'success'))
+                                .catch(error => {
+                                    showToast(`${error.message}`, 'error');
+                                    console.error("Error during backup:", error);
+                                })
+                                .finally(() => {
+                                    runBackupButton.disabled = false;
+                                    runBackupButton.innerHTML = originalButtonText;
+                                });
+                        });
+                    }
+                })();
+            </script>
+        </div>
+
         <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
+            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Detach"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the OpenCart website from Site Manager."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                    <i class="bi bi-x mr-2"></i> {{.T.Get "Detach OpenCart"}}
+                                </button>
+                                <div x-show="open">
+                                    <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the OpenCart website from this manager without actually deleting any files."}}</p>
+                                    <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "All website data such as files and database remains. Use Scan on Site Manager to re-add it later."}}</p>
+                                    <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
+                                        <button onclick="confirmDetachOpenCart()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
+                                        {{.T.Get "Confirm Detach"}}
+                                        </button>
+                                        <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                        {{.T.Get "Cancel"}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div></div></div>
+
             <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
                 <div>
                     <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete"}}</h2>
@@ -483,6 +988,24 @@ function confirmRemoveOpenCart() {
     };
     xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(OPENCART_SITE_ID));
 }
+
+function confirmDetachOpenCart() {
+    showToast({{toJSON (.T.Get "OpenCart detach process started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/sites/detach', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                window.location.href = '/sites';
+            } else {
+                showToast({{toJSON (.T.Get "An error occurred while detaching OpenCart. Please try again.")}}, 'error');
+            }
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(OPENCART_SITE_ID));
+}
 </script>
 
 <script>
@@ -490,7 +1013,11 @@ function confirmRemoveOpenCart() {
     const destinationPath = {{toJSON (replace .Docroot "/var/www/html/" "")}};
     fetch(`/json/directory-size?folder=${encodeURIComponent(destinationPath)}`)
         .then(response => response.json())
-        .then(data => { document.getElementById("filesSize").textContent = data.size; })
+        .then(data => {
+            document.getElementById("filesSize").textContent = data.size;
+            const filesSizeForBackup = document.getElementById("opencart-files-size-for-backup");
+            if (filesSizeForBackup) filesSizeForBackup.textContent = `( ~ ${data.size} )`;
+        })
         .catch(error => console.error("An error occurred fetching folder size from the container:", error));
 
     const databaseName = {{toJSON .DBInfo.database_name}};
@@ -500,7 +1027,11 @@ function confirmRemoveOpenCart() {
         if (databaseHost === "localhost" || databaseHost === "mysql" || databaseHost === "mariadb" || databaseHost === "127.0.0.1") {
             fetch(`/json/database-size?database=${encodeURIComponent(databaseName)}`)
                 .then(response => response.json())
-                .then(data => { databaseSizeSpan.textContent = data.size; })
+                .then(data => {
+                    databaseSizeSpan.textContent = data.size;
+                    const dbSizeForBackup = document.getElementById("opencart-db-size-for-backup");
+                    if (dbSizeForBackup) dbSizeForBackup.textContent = `( ~ ${data.size} )`;
+                })
                 .catch(error => console.error("An error occurred fetching DB size from MySQL:", error));
         } else {
             document.getElementById("database-size-row")?.classList.add('hidden');

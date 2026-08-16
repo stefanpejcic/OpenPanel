@@ -62,3 +62,28 @@ func apiRemoveJoomla(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	cloned.URL.RawQuery = q.Encode()
 	handleRemoveJoomla(a, w, cloned)
 }
+
+// apiCloneJoomla delegates straight to handleJoomlaClone, which already
+// writes a JSON response as-is.
+func apiCloneJoomla(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		SourceDomain         string `json:"source_domain"`
+		TargetDomain         string `json:"target_domain"`
+		SourceDB             string `json:"source_db"`
+		SourceFolder         string `json:"source_folder"`
+		Subdirectory         string `json:"subdirectory"`
+		TargetDB             string `json:"target_db"`
+		TargetDBUser         string `json:"target_db_user"`
+		TargetDBUserPassword string `json:"target_db_user_password"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
+		return
+	}
+	form := url.Values{
+		"source_domain": {body.SourceDomain}, "target_domain": {body.TargetDomain},
+		"source_db": {body.SourceDB}, "source_folder": {body.SourceFolder}, "subdirectory": {body.Subdirectory},
+		"target_db": {body.TargetDB}, "target_db_user": {body.TargetDBUser}, "target_db_user_password": {body.TargetDBUserPassword},
+	}
+	handleJoomlaClone(a, w, withJoomlaForm(r, form))
+}

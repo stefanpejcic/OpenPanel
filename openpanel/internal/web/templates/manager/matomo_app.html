@@ -1,0 +1,879 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/manager/matomo_app.html -->
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8 sm:flex sm:items-center sm:justify-between">
+    <div class="group">
+        <div class="flex items-center gap-x-3">
+            <img alt="{{.CurrentDomain}} Favicon" loading="lazy" width="5" height="5" decoding="async" class="h-4 w-4 rounded-full object-cover shadow-lg shadow-indigo-500/50 ring-2 ring-white dark:ring-gray-700" style="color:transparent" src="/json/favicon/{{.CurrentDomain}}">
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.CurrentDomain}}</h1>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-500 hover:underline"><a href="http://{{.CurrentDomain}}" class="hover:underline" target="_blank">https://{{.CurrentDomain}}</a></p>
+    </div>
+
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        {{template "temp_link" .}}
+        <button type="button" id="matomo_login_button"
+            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit w-full mt-2 sm:mt-0 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">
+            <span id="matomo_login_button_text">{{.T.Get "Login as Admin"}}</span>
+        </button>
+    </div>
+</div>
+
+<script>
+(function() {
+    var loginButton = document.getElementById('matomo_login_button');
+    var buttonText = document.getElementById('matomo_login_button_text');
+
+    loginButton.addEventListener('click', function() {
+        loginButton.disabled = true;
+        buttonText.innerHTML = '<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Generating..';
+        showToast({{toJSON (.T.Get "Generating auto-login link..")}}, 'loading', true);
+
+        var url = '/matomo/login?domain=' + encodeURIComponent({{toJSON .CurrentDomain}}) + '&docroot=' + encodeURIComponent({{toJSON .Docroot}});
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                loginButton.disabled = false;
+                buttonText.innerHTML = {{toJSON (.T.Get "Login as Admin")}};
+
+                if (xhr.status === 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response && response.login_link) {
+                            showToast({{toJSON (.T.Get "Auto-login link:")}} + " " + response.login_link, 'success');
+                            window.open(response.login_link, '_blank');
+                        } else if (response && response.error) {
+                            showToast(`${response.error}`, 'warning');
+                        } else {
+                            showToast({{toJSON (.T.Get "Unexpected response.")}}, 'error');
+                        }
+                    } catch (e) {
+                        showToast({{toJSON (.T.Get "Error parsing backend response.")}}, 'error');
+                    }
+                } else {
+                    showToast({{toJSON (.T.Get "Failed to generate auto-login link.")}}, 'error');
+                }
+            }
+        };
+
+        xhr.send();
+    });
+})();
+</script>
+
+<div class="m-6 grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4">
+
+    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+
+        <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: 'dashboard' }">
+
+    <div class="border-b border-gray-200 dark:border-gray-700">
+        <ul id="matomo-tab" data-tabs-toggle="#matomo-tab-content" role="tablist" class="grid grid-cols-12 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+            <li role="presentation">
+                <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
+                   @click="activeTab = 'dashboard'"
+                   :class="activeTab === 'dashboard' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M2 10h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1m9-9h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m0 9a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1zm0-10a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM2 9a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2zm7 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2zM0 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.354.854a.5.5 0 1 0-.708-.708L3 3.793l-.646-.647a.5.5 0 1 0-.708.708l1 1a.5.5 0 0 0 .708 0z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Overview"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#logs" id="logs-tab" data-tabs-target="#logs" role="tab" aria-controls="logs" aria-selected="false"
+                   @click="activeTab = 'logs'"
+                   :class="activeTab === 'logs' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Logs"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#" id="update-tab" data-tabs-target="#update" role="tab" aria-controls="update" aria-selected="false"
+                   @click="activeTab = 'update'"
+                   :class="activeTab === 'update' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a7 7 0 1 1 2.898 5.673c-.167-.121-.216-.406-.002-.62l1.8-1.8a3.5 3.5 0 0 0 4.572-.328l1.414-1.415a.5.5 0 0 0 0-.707l-.707-.707 1.559-1.563a.5.5 0 1 0-.708-.706l-1.559 1.562-1.414-1.414 1.56-1.562a.5.5 0 1 0-.707-.706l-1.56 1.56-.707-.706a.5.5 0 0 0-.707 0L5.318 5.975a3.5 3.5 0 0 0-.328 4.571l-1.8 1.8c-.58.58-.62 1.6.121 2.137A8 8 0 1 0 0 8a.5.5 0 0 0 1 0"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Update"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#" id="backups-tab" data-tabs-target="#backups" role="tab" aria-controls="backups" aria-selected="false"
+                   @click="activeTab = 'backups'"
+                   :class="activeTab === 'backups' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Backups"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
+                   @click="activeTab = 'remove'"
+                   :class="activeTab === 'remove' ? 'bg-white text-red-600 shadow-sm dark:bg-gray-900 dark:text-red-400' : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Remove"}}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div id="matomo-tab-content">
+
+        <div class="hidden p-4 rounded" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+
+            <!-- screenshot -->
+            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
+                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+                        {{template "screenshot" .}}
+                    </div>
+                </div>
+                <div class="grid h-full space-y-2 pb-2 gap-2 grid-cols-2 sm:grid-cols-1">
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Matomo:"}}</h2>
+                        </div>
+                        <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{if .MatomoVersion}}{{.MatomoVersion}}{{else}}{{.T.Get "Unknown"}}{{end}}</h3>
+                    </div>
+
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800" x-data="{ phpEditOpen: false }">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "PHP:"}}</h2>
+                            {{if and .UserAllowed.php (not .IsSubdirectory)}}
+                            <button type="button" @click="phpEditOpen = !phpEditOpen" data-tooltip-target="tooltip-matomo-php-link" data-tooltip-placement="left" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5"><path fill-rule="evenodd" d="M0 10.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H3V1.5a.5.5 0 0 0-1 0V10H.5a.5.5 0 0 0-.5.5M2.5 12a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5m3-6.5A.5.5 0 0 0 6 6h1.5v8.5a.5.5 0 0 0 1 0V6H10a.5.5 0 0 0 0-1H6a.5.5 0 0 0-.5.5M8 1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2A.5.5 0 0 0 8 1m3 9.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H14V1.5a.5.5 0 0 0-1 0V10h-1.5a.5.5 0 0 0-.5.5m2.5 1.5a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5"></path></svg>
+                            </button>
+                            <div id="tooltip-matomo-php-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                {{.T.Get "Click to change"}}
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                            {{end}}
+                        </div>
+
+                        <h3 x-show="!phpEditOpen" class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{.PHPVersion}}</h3>
+
+                        {{if .IsSubdirectory}}
+                        <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">{{.T.Get "Inherits PHP version from %(domain)s" "domain" .MainDomain}}</p>
+                        {{else if .UserAllowed.php}}
+                        <form x-show="phpEditOpen" x-cloak method="POST" action="/php/domains" class="mt-1">
+                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                            <input type="hidden" name="domain_url" value="{{.MainDomain}}">
+                            <input type="hidden" name="old_php_version" value="{{.CurrentPHPVersion}}">
+                            <input type="hidden" name="redirect_to" value="/website?domain={{.CurrentDomain}}">
+                            <div x-data="{ current: {{toJSON .CurrentPHPVersion}}, selected: {{toJSON .CurrentPHPVersion}} }" class="flex rounded-lg">
+                                <select x-model="selected" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="new_php_version">
+                                    {{range .AvailablePHPVersions}}
+                                        <option value="{{.}}" {{if eq . $.CurrentPHPVersion}}selected disabled{{end}}>{{.}}</option>
+                                    {{end}}
+                                </select>
+                                <div class="input-group-append flex">
+                                    <button type="submit" :disabled="selected === current" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                                        {{.T.Get "Change"}}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        {{end}}
+                    </div>
+
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "MariaDB:"}}</h2>
+                        </div>
+                        <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{.MySQLVersion}}</h3>
+                    </div>
+
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Created:"}}</h2>
+                        </div>
+                        <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl" data-relative-date="{{.Container.CreatedDate}}">{{.Container.CreatedDate}}</h3>
+                    </div>
+                </div>
+            </div>
+            <!-- END screenshot -->
+
+            <dl class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-4">
+
+                <!-- files info -->
+                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
+                        <a
+                            type="button"
+                            {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}
+                            target="_blank"
+                            data-tooltip-target="tooltip-filemanager-link" data-tooltip-placement="left"
+                            class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                        >
+                            <svg class="hi-mini hi-archive-box inline-block size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M2 3a1 1 0 00-1 1v1a1 1 0 001 1h16a1 1 0 001-1V4a1 1 0 00-1-1H2z"></path>
+                        <path fill-rule="evenodd" d="M2 7.5h16l-.811 7.71a2 2 0 01-1.99 1.79H4.802a2 2 0 01-1.99-1.79L2 7.5zM7 11a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        </a>
+                        <div id="tooltip-filemanager-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                        {{.T.Get "Open folder in File Manager"}}
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Folder:"}}</span>
+                            <span class="font-medium truncate"><a class="domain_link relative font-medium hover:underline" {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}>{{.Docroot}}</a></span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Folder Size:"}}</span>
+                            <span class="font-medium" id="filesSize">{{.T.Get "Calculating.."}}</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- END files info -->
+
+                <!-- database info -->
+                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
+                        {{if .UserAllowed.mysql}}
+                        <a
+                            type="button"
+                            id="db-link"
+                            href="/mysql"
+                            target="_blank"
+                            data-tooltip-target="tooltip-db-link" data-tooltip-placement="left"
+                            class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <div id="tooltip-db-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                            {{.T.Get "Manage MySQL databases"}}
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                        {{end}}
+                    </div>
+
+                    {{if .DBInfo.error}}
+                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                        <span class="text-sm text-gray-500 dark:text-gray-500">{{.DBInfo.error}}</span>
+                    </div>
+                    {{else}}
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50" id="database-size-row">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Size:"}}</span>
+                            <span class="font-medium" id="databaseSize">{{.T.Get "Calculating.."}}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Host:"}}</span>
+                            <span class="font-medium">{{.DBInfo.database_host}}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Name:"}}</span>
+                            <span class="font-medium">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql" class="hover:underline">{{.DBInfo.database_name}}</a>
+                            {{else}}
+                                {{.DBInfo.database_name}}
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database User:"}}</span>
+                            <span class="font-medium">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql/users" class="hover:underline">{{.DBInfo.database_user}}</a>
+                            {{else}}
+                                {{.DBInfo.database_user}}
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Table prefix:"}}</span>
+                            <span class="font-medium">{{.DBInfo.database_prefix}}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Password:"}}</span>
+                            <span class="font-medium" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealMatomoDBPassword()">{{.DBInfo.database_password}}</span>
+                        </div>
+
+                        {{if .UserAllowed.phpmyadmin}}
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "phpMyAdmin:"}}</span>
+                            <span class="font-medium flex items-center gap-1.5"><a
+                                        type="button"
+                                        id="phpmyadmin-link"
+                                        href="/phpmyadmin"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                            <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open database in phpMyAdmin"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
+                                    <a
+                                        type="button"
+                                        id="phpmyadmin-link-manual"
+                                        href="/phpmyadmin/link"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link-manual" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-right-end-on-rectangle inline-block size-5">
+                                            <path fill-rule="evenodd" d="M6 3.75A2.75 2.75 0 0 1 8.75 1h4.5A2.75 2.75 0 0 1 16 3.75v12.5A2.75 2.75 0 0 1 13.25 19h-4.5A2.75 2.75 0 0 1 6 16.25v-1a.75.75 0 0 1 1.5 0v1c0 .69.56 1.25 1.25 1.25h4.5c.69 0 1.25-.56 1.25-1.25V3.75c0-.69-.56-1.25-1.25-1.25h-4.5c-.69 0-1.25.56-1.25 1.25v1a.75.75 0 0 1-1.5 0v-1Z" clip-rule="evenodd"></path>
+                                            <path fill-rule="evenodd" d="M1 10a.75.75 0 0 1 .75-.75h9.546l-1.048-.943a.75.75 0 1 1 1.004-1.114l2.5 2.25a.75.75 0 0 1 0 1.114l-2.5 2.25a.75.75 0 1 1-1.004-1.114l1.048-.943H1.75A.75.75 0 0 1 1 10Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link-manual" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open phpMyAdmin login form"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div></span>
+                        </div>
+                        {{end}}
+                    </div>
+                    {{end}}
+                </div>
+                <!-- END database info -->
+
+                <script>
+                    function revealMatomoDBPassword() {
+                        var passwordSpan = document.getElementById("database-password");
+                        passwordSpan.style.filter = passwordSpan.style.filter === "blur(5px)" ? "none" : "blur(5px)";
+                    }
+                </script>
+
+            </dl>
+        </div>
+
+        <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="matomo-log-title" class="font-semibold text-gray-900 dark:text-gray-50">
+                    {{.T.Get "Loading Matomo log.."}}
+                </h3>
+                <div class="flex space-x-2">
+                    <button title="{{.T.Get "Copy to clipboard"}}"
+                        class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                        onclick="copyMatomoLogs()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
+                    </button>
+                    <button title="{{.T.Get "Refresh"}}"
+                        class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+                        onclick="loadMatomoLogs()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="matomo-log" class="overflow-y-auto h-72 p-2 rounded border border-dashed border-gray-300 dark:border-gray-800"><pre></pre></div>
+
+            <script>
+                let __matomoLogsLoaded = false;
+                let __matomoLogsText = '';
+
+                function loadMatomoLogs() {
+                    const domain = {{toJSON .CurrentDomain}};
+                    const docroot = {{toJSON .Docroot}};
+                    const titleEl = document.getElementById('matomo-log-title');
+                    const bodyEl = document.getElementById('matomo-log');
+                    titleEl.textContent = {{toJSON (.T.Get "Loading Matomo log..")}};
+
+                    fetch(`/matomo/logs?domain=${encodeURIComponent(domain)}&docroot=${encodeURIComponent(docroot)}`, {
+                        headers: { 'X-CSRF-Token': csrf_token }
+                    })
+                        .then(response => response.text())
+                        .then(data => {
+                            __matomoLogsText = data;
+                            titleEl.textContent = {{toJSON (.T.Get "Matomo log for")}} + " " + domain;
+                            bodyEl.innerHTML = '';
+                            const pre = document.createElement('pre');
+                            pre.textContent = data;
+                            bodyEl.appendChild(pre);
+                        })
+                        .catch(error => {
+                            showToast({{toJSON (.T.Get "Error fetching Matomo log.")}}, 'warning');
+                            console.error({{toJSON (.T.Get "Error fetching Matomo log:")}}, error);
+                        });
+                }
+
+                function copyMatomoLogs() {
+                    if (!__matomoLogsText) return;
+                    copyToClipboard(__matomoLogsText)
+                        .then(() => { showToast({{toJSON (.T.Get "Logs copied to clipboard.")}}, "success"); })
+                        .catch(err => {
+                            console.error("Clipboard copy failed:", err);
+                            showToast({{toJSON (.T.Get "Failed to copy logs.")}}, "warning");
+                        });
+                }
+
+                document.querySelector('html').addEventListener('click', function(e) {
+                    if (!e.target.closest('#logs-tab')) return;
+                    if (__matomoLogsLoaded) return;
+                    __matomoLogsLoaded = true;
+                    loadMatomoLogs();
+                });
+            </script>
+        </div>
+
+        <div class="hidden p-4 rounded" id="update" role="tabpanel" aria-labelledby="update-tab">
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Version"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Check whether a newer Matomo version is available."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Installed version:"}}</span>
+                            <span class="font-medium">{{if .MatomoVersion}}{{.MatomoVersion}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Latest version:"}}</span>
+                            <span class="font-medium" id="matomo-latest-version">{{.T.Get "Checking..."}}</span>
+                        </div>
+                    </div>
+                    <p class="mt-3 text-sm/6" id="matomo-update-status"></p>
+                </div>
+            </div>
+
+            <script>
+                function checkMatomoLatestVersion() {
+                    const installed = {{toJSON .MatomoVersion}};
+                    const latestEl = document.getElementById('matomo-latest-version');
+                    const statusEl = document.getElementById('matomo-update-status');
+                    fetch('/matomo/versions', { headers: { 'X-CSRF-Token': csrf_token } })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.versions || !Array.isArray(data.versions)) throw new Error('Unexpected response');
+                            const latest = data.versions[0];
+                            latestEl.textContent = latest || {{toJSON (.T.Get "Unknown")}};
+                            if (latest && installed && latest !== installed) {
+                                statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
+                            } else if (latest && installed) {
+                                statusEl.innerHTML = '<span class="text-green-600">' + {{toJSON (.T.Get "You are running the latest version.")}} + '</span>';
+                            }
+                        })
+                        .catch(error => {
+                            latestEl.textContent = {{toJSON (.T.Get "Unknown")}};
+                            console.error('Error fetching Matomo versions:', error);
+                        });
+                }
+
+                let __matomoUpdateLoaded = false;
+                document.querySelector('html').addEventListener('click', function(e) {
+                    if (!e.target.closest('#update-tab')) return;
+                    if (__matomoUpdateLoaded) return;
+                    __matomoUpdateLoaded = true;
+                    checkMatomoLatestVersion();
+                });
+            </script>
+        </div>
+
+        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create a Backup"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Generate a backup of files and/or database."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <div class="flex items-center">
+                                    <input checked id="matomo-backupDatabase" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Backup Database"}} <b id="matomo-db-size-for-backup"></b></label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input checked id="matomo-backupFiles" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Backup Files"}} <b id="matomo-files-size-for-backup"></b></label>
+                                </div>
+                                <button id="matomo-runBackup" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100"><i class="bi bi-download mr-2"></i> {{.T.Get "Generate Backup"}}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div></div></div>
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore from Backups"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Restore files and/or database from a backup."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button id="matomo-restore-btn-or" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100" type="button">
+                                    {{.T.Get "Display Backups"}}
+                                </button>
+
+                                <div id="matomo-restore-section" class="hidden">
+                                    <p>{{.T.Get "Select a backup date:"}}</p>
+                                    <select class="peer w-full cursor-pointer appearance-none truncate rounded border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="matomo-restoreBackupDate"></select>
+
+                                    <button data-selected-domain="{{.CurrentDomain}}" type="button" id="matomo-confirmRestore" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                        <i class="bi bi-arrow-counterclockwise mr-2"></i> {{.T.Get "Start Restore"}}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                (function() {
+                    const restoreButton = document.getElementById("matomo-restore-btn-or");
+                    const restoreBackupDateSelect = document.getElementById("matomo-restoreBackupDate");
+                    const confirmRestoreButton = document.getElementById("matomo-confirmRestore");
+                    const restoreDomain = {{toJSON .CurrentDomain}};
+                    const docroot = {{toJSON .Docroot}};
+                    let restoreConfirmed = false;
+
+                    function backupTypeLabel(hasDbBackup, hasFilesBackup) {
+                        if (hasDbBackup && hasFilesBackup) return {{toJSON (.T.Get "Database and Files Backup")}};
+                        if (hasDbBackup) return {{toJSON (.T.Get "Database Backup")}};
+                        if (hasFilesBackup) return {{toJSON (.T.Get "Files Backup")}};
+                        return {{toJSON (.T.Get "Unknown Backup Type")}};
+                    }
+
+                    if (restoreButton) {
+                        restoreButton.addEventListener("click", function () {
+                            document.getElementById("matomo-restore-section").classList.remove("hidden");
+                            restoreButton.classList.add("hidden");
+                            fetch(`/matomo/backup/get_dates/${restoreDomain}?docroot=${docroot}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                                .then(response => response.json())
+                                .then(data => {
+                                    restoreBackupDateSelect.innerHTML = "";
+                                    if (data.length > 0) {
+                                        data.forEach(dateInfo => {
+                                            const option = document.createElement("option");
+                                            option.value = dateInfo.date;
+                                            option.textContent = `${dateInfo.date} (${backupTypeLabel(dateInfo.hasDbBackup, dateInfo.hasFilesBackup)})`;
+                                            restoreBackupDateSelect.appendChild(option);
+                                        });
+                                    } else {
+                                        const option = document.createElement("option");
+                                        option.textContent = {{toJSON (.T.Get "No backups available")}};
+                                        option.disabled = true;
+                                        restoreBackupDateSelect.appendChild(option);
+                                    }
+                                })
+                                .catch(error => console.error("Error fetching backup dates:", error));
+                        });
+                    }
+
+                    if (confirmRestoreButton) {
+                        confirmRestoreButton.addEventListener("click", function () {
+                            if (!restoreConfirmed) {
+                                confirmRestoreButton.textContent = {{toJSON (.T.Get "Click again to confirm")}};
+                                confirmRestoreButton.classList.remove("bg-black", "hover:bg-gray-800");
+                                confirmRestoreButton.classList.add("bg-red-600", "hover:bg-red-700");
+                                restoreConfirmed = true;
+                                return;
+                            }
+                            const selectedDate = restoreBackupDateSelect.value;
+                            showToast({{toJSON (.T.Get "Restoring backup... Please wait.")}}, 'warning');
+                            fetch(`/matomo/backup/restore/${restoreDomain}?docroot=${docroot}&backup_date=${selectedDate}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                                .then(response => {
+                                    if (response.ok) return response.text();
+                                    throw new Error({{toJSON (.T.Get "Restore request failed.")}});
+                                })
+                                .then(result => {
+                                    showToast(`${result}`, 'success');
+                                    setTimeout(() => {
+                                        restoreConfirmed = false;
+                                        confirmRestoreButton.textContent = {{toJSON (.T.Get "Start Restore")}};
+                                        confirmRestoreButton.classList.remove("bg-red-600", "hover:bg-red-700");
+                                        confirmRestoreButton.classList.add("bg-black", "hover:bg-gray-800");
+                                    }, 5000);
+                                })
+                                .catch(error => {
+                                    console.error("Error during restore:", error);
+                                    showToast(`${error.message}`, 'error');
+                                });
+                        });
+                    }
+
+                    const runBackupButton = document.getElementById("matomo-runBackup");
+                    const backupDatabaseCheckbox = document.getElementById("matomo-backupDatabase");
+                    const backupFilesCheckbox = document.getElementById("matomo-backupFiles");
+
+                    if (runBackupButton) {
+                        runBackupButton.addEventListener("click", function () {
+                            const backupDatabase = backupDatabaseCheckbox.checked;
+                            const backupFiles = backupFilesCheckbox.checked;
+                            if (!backupDatabase && !backupFiles) {
+                                showToast({{toJSON (.T.Get "No options selected to backup. Please ensure that at least one of the Database or Files is selected.")}}, 'error');
+                                return;
+                            }
+                            runBackupButton.disabled = true;
+                            const originalButtonText = runBackupButton.innerHTML;
+                            runBackupButton.innerHTML = `<i class="bi bi-arrow-repeat animate-spin mr-2"></i> {{.T.Get "Generating Backup..."}}`;
+                            showToast({{toJSON (.T.Get "Generating website backup.. Please wait.")}}, 'loading');
+                            fetch(`/matomo/backup/run/${restoreDomain}?docroot=${docroot}&backup_database=${backupDatabase}&backup_files=${backupFiles}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                                .then(response => {
+                                    if (response.ok) return response.text();
+                                    throw new Error({{toJSON (.T.Get "Backup request failed.")}});
+                                })
+                                .then(result => showToast(`${result}`, 'success'))
+                                .catch(error => {
+                                    showToast(`${error.message}`, 'error');
+                                    console.error("Error during backup:", error);
+                                })
+                                .finally(() => {
+                                    runBackupButton.disabled = false;
+                                    runBackupButton.innerHTML = originalButtonText;
+                                });
+                        });
+                    }
+                })();
+            </script>
+        </div>
+
+        <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
+            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Detach"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the Matomo website from Site Manager."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                    <i class="bi bi-x mr-2"></i> {{.T.Get "Detach Matomo"}}
+                                </button>
+                                <div x-show="open">
+                                    <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the Matomo website from this manager without actually deleting any files."}}</p>
+                                    <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "All website data such as files and database remains. Use Scan on Site Manager to re-add it later."}}</p>
+                                    <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
+                                        <button onclick="confirmDetachMatomo()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
+                                        {{.T.Get "Confirm Detach"}}
+                                        </button>
+                                        <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                        {{.T.Get "Cancel"}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div></div></div>
+
+            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Permanently removes this Matomo site."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                    <i class="bi bi-trash3 mr-2"></i> {{.T.Get "Delete Application"}}
+                                </button>
+                                <div x-show="open">
+                                    <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "This will drop the database and user, delete every file in the docroot, and remove it from Site Manager."}}</p>
+                                    <p class="my-2 text-sm/6 text-red-500 dark:text-red-400">{{.T.Get "This cannot be undone."}}</p>
+                                    <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
+                                        <button onclick="confirmRemoveMatomo()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
+                                        {{.T.Get "Confirm delete"}}
+                                        </button>
+                                        <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                        {{.T.Get "Cancel"}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+        </div>
+
+    </div>
+
+    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "waf_panel" .}}
+
+        {{template "matomo_cache" .}}
+
+    </div>
+
+</div>
+
+<script>
+const NEXTCLOUD_SITE_ID = {{toJSON .Container.ID}};
+
+function confirmRemoveMatomo() {
+    showToast({{toJSON (.T.Get "Matomo removal started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/matomo/remove', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            window.location.href = '/sites';
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(NEXTCLOUD_SITE_ID));
+}
+
+function confirmDetachMatomo() {
+    showToast({{toJSON (.T.Get "Matomo detach process started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/sites/detach', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                window.location.href = '/sites';
+            } else {
+                showToast({{toJSON (.T.Get "An error occurred while detaching Matomo. Please try again.")}}, 'error');
+            }
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(NEXTCLOUD_SITE_ID));
+}
+</script>
+
+<script>
+(function() {
+    const destinationPath = {{toJSON (replace .Docroot "/var/www/html/" "")}};
+    fetch(`/json/directory-size?folder=${encodeURIComponent(destinationPath)}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("filesSize").textContent = data.size;
+            const filesSizeForBackup = document.getElementById("matomo-files-size-for-backup");
+            if (filesSizeForBackup) filesSizeForBackup.textContent = `( ~ ${data.size} )`;
+        })
+        .catch(error => console.error("An error occurred fetching folder size from the container:", error));
+
+    const databaseName = {{toJSON .DBInfo.database_name}};
+    const databaseHost = {{toJSON .DBInfo.database_host}};
+    const databaseSizeSpan = document.getElementById("databaseSize");
+    if (databaseSizeSpan) {
+        if (databaseHost === "localhost" || databaseHost === "mysql" || databaseHost === "mariadb" || databaseHost === "127.0.0.1") {
+            fetch(`/json/database-size?database=${encodeURIComponent(databaseName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    databaseSizeSpan.textContent = data.size;
+                    const dbSizeForBackup = document.getElementById("matomo-db-size-for-backup");
+                    if (dbSizeForBackup) dbSizeForBackup.textContent = `( ~ ${data.size} )`;
+                })
+                .catch(error => console.error("An error occurred fetching DB size from MySQL:", error));
+        } else {
+            document.getElementById("database-size-row")?.classList.add('hidden');
+        }
+    }
+})();
+</script>
+
+<!-- END templates/manager/matomo_app.html -->
+{{end}}
+
+{{define "matomo_cache"}}
+<!-- START matomo_cache widget -->
+<div x-data="matomoCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+  <div class="mb-2 flex items-center justify-between gap-4 relative">
+    <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+    <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Cache"}}</h2>
+    <svg aria-hidden="true" class="lucide lucide-compass size-5 shrink-0" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor" fill="none" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"></path><circle cx="12" cy="12" r="10"></circle></svg>
+  </div>
+
+    <div class="grid grid-cols-1 gap-2">
+        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Rebuild Matomo cache:"}}</span>
+            <span class="font-medium">
+
+        <button
+        @click="rebuildCache"
+        data-tooltip-target="tooltip-matomo_rebuild_cache-link" data-tooltip-placement="left"
+        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 cursor-pointer"
+        type="button"
+        aria-label="Rebuild Matomo Cache"
+        >
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash size-5 shrink-0"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        {{.T.Get "Clear Cache"}}
+        </button>
+            </span>
+        </div>
+    </div>
+
+    <div id="tooltip-matomo_rebuild_cache-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+      {{.T.Get "Clears Matomo's cache (console core:clear-caches)."}}
+      <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+</div>
+
+<script>
+  function matomoCacheComponent() {
+    return {
+      domain: {{toJSON .CurrentDomain}},
+      docroot: {{toJSON .Docroot}},
+
+      rebuildCache() {
+        if (!this.domain || !this.docroot) {
+          return;
+        }
+        showToast({{toJSON (.T.Get "Rebuilding cache...")}}, 'loading', true);
+        fetch(`/matomo/cache?domain=${encodeURIComponent(this.domain)}&docroot=${encodeURIComponent(this.docroot)}`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrf_token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({})
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            showToast(data.error, 'danger');
+          } else {
+            showToast(data.message || {{toJSON (.T.Get "Cache rebuilt successfully!")}}, 'success');
+          }
+        })
+        .catch(() => {
+          showToast({{toJSON (.T.Get "Failed to rebuild cache")}}, 'danger');
+        });
+      }
+    }
+  }
+</script>
+<!-- END matomo_cache widget -->
+{{end}}
