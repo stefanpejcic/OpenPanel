@@ -118,97 +118,6 @@ func handleVarnishStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 func round4(v float64) float64 { return math.Round(v*10000) / 10000 }
 
-// toggleProxyHTTPPort comments or uncomments the PROXY_HTTP_PORT line in a
-// user's .env file, enabling or disabling the port varnish listens on.
-func toggleProxyHTTPPort(userContext, state string) error {
-	path := "/home/" + userContext + "/.env"
-	content, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(path, []byte(rewriteProxyHTTPPortLines(string(content), state)), 0o644)
-}
-
-// rewriteProxyHTTPPortLines is toggleProxyHTTPPort()'s pure line-rewriting
-// half, split out for testability without touching the filesystem.
-func rewriteProxyHTTPPortLines(content, state string) string {
-	lines := strings.SplitAfter(content, "\n")
-	var out strings.Builder
-	for _, line := range lines {
-		if !strings.Contains(line, "PROXY_HTTP_PORT=") {
-			out.WriteString(line)
-			continue
-		}
-		switch state {
-		case "on":
-			out.WriteString(strings.TrimLeft(line, "# "))
-		case "off":
-			if !strings.HasPrefix(strings.TrimSpace(line), "#") {
-				out.WriteString("#" + line)
-			} else {
-				out.WriteString(line)
-			}
-		default:
-			out.WriteString(line)
-		}
-	}
-	return out.String()
-}
-
-// proxyPortSwapPair picks the old/new port-variable pair to swap when
-// toggling varnish on or off.
-func proxyPortSwapPair(state string) (old, replacement string, err error) {
-	switch state {
-	case "on":
-		return "${HTTP_PORT}", "${PROXY_HTTP_PORT}", nil
-	case "off":
-		return "${PROXY_HTTP_PORT}", "${HTTP_PORT}", nil
-	default:
-		return "", "", fmt.Errorf("state must be either 'on' or 'off'")
-	}
-}
-
-// swapWebserverComposePort swaps the active webserver's port-mapping
-// variable in place. podman-compose can't resolve a ${VAR} nested inside
-// another ${VAR:-default}, so docker-compose.yml keeps the active
-// webserver's port mapping flat rather than using a fallback expression -
-// the swap is scoped to the block between the webserver's own
-// `container_name:` line and its `HTTPS_PORT` line, so only that
-// service's port mapping is touched.
-func swapWebserverComposePort(userContext, webserver, state string) error {
-	old, replacement, err := proxyPortSwapPair(state)
-	if err != nil {
-		return err
-	}
-
-	path := "/home/" + userContext + "/docker-compose.yml"
-	content, err := os.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(path, []byte(rewriteComposePortBlock(string(content), webserver, old, replacement)), 0o644)
-}
-
-// rewriteComposePortBlock is swapWebserverComposePort()'s pure block-scoped
-// rewrite, split out for testability without touching the filesystem.
-func rewriteComposePortBlock(content, webserver, old, replacement string) string {
-	lines := strings.SplitAfter(content, "\n")
-
-	inBlock := false
-	for i, line := range lines {
-		if strings.HasSuffix(strings.TrimRight(line, " \t\r\n"), "container_name: "+webserver) {
-			inBlock = true
-		}
-		if inBlock && strings.Contains(line, old) {
-			lines[i] = strings.ReplaceAll(line, old, replacement)
-		}
-		if inBlock && strings.Contains(line, "HTTPS_PORT") {
-			inBlock = false
-		}
-	}
-	return strings.Join(lines, "")
-}
-
 // handleVarnish serves the varnish page and handles its enable/disable/
 // per-domain-toggle form actions.
 func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -231,8 +140,8 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		switch action {
 		case "enable":
 			if !docker.IsServiceRunning(ctx, userContext, service) {
-				_ = toggleProxyHTTPPort(userContext, "on")
-				_ = swapWebserverComposePort(userContext, webserver, "on")
+				_ = docker.ToggleProxyHTTPPort(userContext, "on")
+				_ = docker.SwapWebserverComposePort(userContext, webserver, "on")
 				docker.ComposeContainer(ctx, userContext, webserver, "stop")
 
 				// Checks the actual running state rather than sniffing the
@@ -241,9 +150,9 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				// identical fix in internal/modules/php/extensions.go).
 				result := docker.StartOrStopContainer(ctx, userContext, service, "activate", "run")
 				if !result.Success || !docker.IsServiceRunning(ctx, userContext, service) {
-					_ = swapWebserverComposePort(userContext, webserver, "off")
+					_ = docker.SwapWebserverComposePort(userContext, webserver, "off")
 					docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "")
-					_ = toggleProxyHTTPPort(userContext, "off")
+					_ = docker.ToggleProxyHTTPPort(userContext, "off")
 					flashAndRedirect(a, w, r, "error", fmt.Sprintf("Failed to start %s: %s", service, result.Message), "/cache/varnish")
 					return
 				}
@@ -255,8 +164,8 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		case "disable":
 			if docker.IsServiceRunning(ctx, userContext, service) {
-				_ = toggleProxyHTTPPort(userContext, "off")
-				_ = swapWebserverComposePort(userContext, webserver, "off")
+				_ = docker.ToggleProxyHTTPPort(userContext, "off")
+				_ = docker.SwapWebserverComposePort(userContext, webserver, "off")
 				docker.ComposeContainer(ctx, userContext, webserver, "stop")
 				docker.ComposeContainer(ctx, userContext, service, "stop")
 

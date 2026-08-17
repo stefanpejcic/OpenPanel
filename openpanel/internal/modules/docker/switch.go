@@ -126,6 +126,20 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 		_ = r.ParseForm()
 		newWebserver := r.Form.Get("new_ws")
 		if newWebserver != "" && containsString(available, newWebserver) {
+			// Varnish only ever proxies to whichever webserver is currently
+			// active, so its docker-compose.yml block is the only one kept
+			// on PROXY_HTTP_PORT (the rest, including a freshly-activated
+			// new webserver, default to the flat HTTP_PORT that varnish
+			// itself listens on - see SwapWebserverComposePort). Without
+			// re-pointing that swap at the new webserver here, both varnish
+			// and the new webserver end up trying to bind the same public
+			// port.
+			varnishRunning := IsServiceRunning(ctx, userContext, "varnish")
+			if varnishRunning {
+				_ = SwapWebserverComposePort(userContext, newWebserver, "on")
+				_ = SwapWebserverComposePort(userContext, webserver, "off")
+			}
+
 			stopResp := StartOrStopContainer(ctx, userContext, webserver, "deactivate", "")
 			if !stopResp.Success {
 				flashAndRedirect(a, w, r, "error", stopResp.Message, "/containers/webserver")
@@ -141,6 +155,21 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 
 			SetEnvValue(userContext, "WEB_SERVER", newWebserver)
 			removeImage(ctx, userContext, webserver)
+
+			if varnishRunning {
+				// Varnish's backend host is baked into its container
+				// environment (and from there into its VCL) at container
+				// creation time from the WEB_SERVER env var - a plain
+				// `podman-compose restart` reuses the existing container
+				// as-is and does NOT re-resolve ${WEB_SERVER} (confirmed
+				// live: its baked-in env stayed on the old webserver after
+				// a restart), so it has to be torn down and recreated
+				// instead, same as every other container swap in this
+				// file.
+				StartOrStopContainer(ctx, userContext, "varnish", "deactivate", "")
+				StartOrStopContainer(ctx, userContext, "varnish", "activate", "run")
+			}
+
 			_ = logger.RecordUserAction(a.Config, username, "switched webserver type to: "+newWebserver, reqip.ClientIP(r))
 			flashAndRedirect(a, w, r, "success", fmt.Sprintf("Successfully switched to %s!", newWebserver), "/containers/webserver")
 			return
