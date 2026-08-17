@@ -141,7 +141,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		case "enable":
 			if !docker.IsServiceRunning(ctx, userContext, service) {
 				_ = docker.ToggleProxyHTTPPort(userContext, "on")
-				_ = docker.SwapWebserverComposePort(userContext, webserver, "on")
+				_ = docker.SwapAllWebserversComposePort(userContext, "on")
 				docker.ComposeContainer(ctx, userContext, webserver, "stop")
 
 				// Checks the actual running state rather than sniffing the
@@ -150,7 +150,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				// identical fix in internal/modules/php/extensions.go).
 				result := docker.StartOrStopContainer(ctx, userContext, service, "activate", "run")
 				if !result.Success || !docker.IsServiceRunning(ctx, userContext, service) {
-					_ = docker.SwapWebserverComposePort(userContext, webserver, "off")
+					_ = docker.SwapAllWebserversComposePort(userContext, "off")
 					docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "")
 					_ = docker.ToggleProxyHTTPPort(userContext, "off")
 					flashAndRedirect(a, w, r, "error", fmt.Sprintf("Failed to start %s: %s", service, result.Message), "/cache/varnish")
@@ -165,7 +165,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		case "disable":
 			if docker.IsServiceRunning(ctx, userContext, service) {
 				_ = docker.ToggleProxyHTTPPort(userContext, "off")
-				_ = docker.SwapWebserverComposePort(userContext, webserver, "off")
+				_ = docker.SwapAllWebserversComposePort(userContext, "off")
 				docker.ComposeContainer(ctx, userContext, webserver, "stop")
 				docker.ComposeContainer(ctx, userContext, service, "stop")
 

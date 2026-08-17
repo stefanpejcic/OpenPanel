@@ -105,11 +105,11 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		_ = docker.ToggleProxyHTTPPort(userContext, "on")
-		_ = docker.SwapWebserverComposePort(userContext, webserver, "on")
+		_ = docker.SwapAllWebserversComposePort(userContext, "on")
 		docker.ComposeContainer(ctx, userContext, webserver, "stop")
 		result := docker.StartOrStopContainer(ctx, userContext, "varnish", "activate", "run")
 		if !result.Success || !docker.IsServiceRunning(ctx, userContext, "varnish") {
-			_ = docker.SwapWebserverComposePort(userContext, webserver, "off")
+			_ = docker.SwapAllWebserversComposePort(userContext, "off")
 			docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "")
 			_ = docker.ToggleProxyHTTPPort(userContext, "off")
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start varnish: " + result.Message})
@@ -127,7 +127,7 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		_ = docker.ToggleProxyHTTPPort(userContext, "off")
-		_ = docker.SwapWebserverComposePort(userContext, webserver, "off")
+		_ = docker.SwapAllWebserversComposePort(userContext, "off")
 		docker.ComposeContainer(ctx, userContext, webserver, "stop")
 		docker.ComposeContainer(ctx, userContext, "varnish", "stop")
 		result := docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "run")

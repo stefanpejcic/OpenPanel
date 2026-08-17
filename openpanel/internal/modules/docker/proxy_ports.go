@@ -83,6 +83,25 @@ func SwapWebserverComposePort(userContext, webserver, state string) error {
 	return os.WriteFile(path, []byte(RewriteComposePortBlock(string(content), webserver, old, replacement)), 0o644)
 }
 
+// composeWebservers lists every webserver service whose ports line in
+// docker-compose.yml can use the varnish port variable. Only one of them
+// is actually running per account at a time, but the admin can switch the
+// active webserver later without re-toggling Varnish, so all of their
+// blocks need to agree on whether Varnish is on or off.
+var composeWebservers = []string{"openlitespeed", "openresty", "nginx", "apache"}
+
+// SwapAllWebserversComposePort applies SwapWebserverComposePort to every
+// webserver block in one pass, so enabling/disabling Varnish keeps the
+// compose file consistent regardless of which webserver ends up active.
+func SwapAllWebserversComposePort(userContext, state string) error {
+	for _, webserver := range composeWebservers {
+		if err := SwapWebserverComposePort(userContext, webserver, state); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // RewriteComposePortBlock is SwapWebserverComposePort()'s pure block-scoped
 // rewrite, split out for testability without touching the filesystem.
 func RewriteComposePortBlock(content, webserver, old, replacement string) string {
