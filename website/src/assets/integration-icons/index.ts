@@ -75,6 +75,10 @@ export { default as Nextcloud } from "./nextcloud";
 export { default as Nuxtjs } from "./nuxtjs";
 export { default as Laravel } from "./laravel";
 export { default as Gridsome } from "./gridsome";
+export { default as Opencart } from "./opencart";
+export { default as Moodle } from "./moodle";
+export { default as Mediawiki } from "./mediawiki";
+export { default as Matomo } from "./matomo";
 
 
 

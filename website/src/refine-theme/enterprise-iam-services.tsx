@@ -18,7 +18,13 @@ import {
     Nextcloud,
     //Nuxtjs,
     //Gridsome,
-    Laravel
+    Laravel,
+    Opencart,
+    Moodle,
+    Mediawiki,
+    Matomo,
+    Nodejs,
+    Python,
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -62,7 +68,7 @@ export const EnterpriseIAMServices = ({
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    We support all your favorite applications and frameworks without any additional configuration.
+                    These apps are available for autoinstall, without any additional configuration.
                 </p>
             </div>
 
@@ -265,6 +271,36 @@ const list = [
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Presta {...props} />,
         label: "PrestaShop",
+        tooltip: null,
+    },
+    {
+        icon: (props: SVGProps<SVGSVGElement>) => <Opencart {...props} />,
+        label: "OpenCart",
+        tooltip: null,
+    },
+    {
+        icon: (props: SVGProps<SVGSVGElement>) => <Moodle {...props} />,
+        label: "Moodle",
+        tooltip: null,
+    },
+    {
+        icon: (props: SVGProps<SVGSVGElement>) => <Mediawiki {...props} />,
+        label: "MediaWiki",
+        tooltip: null,
+    },
+    {
+        icon: (props: SVGProps<SVGSVGElement>) => <Matomo {...props} />,
+        label: "Matomo",
+        tooltip: null,
+    },
+    {
+        icon: (props: SVGProps<SVGSVGElement>) => <Nodejs {...props} />,
+        label: "Node.js",
+        tooltip: null,
+    },
+    {
+        icon: (props: SVGProps<SVGSVGElement>) => <Python {...props} />,
+        label: "Python",
         tooltip: null,
     },
 /*    {
