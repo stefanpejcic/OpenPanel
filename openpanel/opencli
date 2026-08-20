@@ -133,8 +133,10 @@ generate_commands() {
     extract_script_info() {
         local script="$1"
         local -n info_ref="$2"
+        # shellcheck disable=SC2034,SC2154 # info_ref is a nameref into the caller's assoc array (script_info); shellcheck can't resolve nameref+array-key writes
         info_ref[description]=$(grep -E "^# Description:" "$script" 2>/dev/null | sed 's/^# Description: //' || true)
         info_ref[usage]=$(grep -E "^# Usage:" "$script" 2>/dev/null | sed 's/^# Usage: //' || true)
+        # shellcheck disable=SC2034,SC2154
         info_ref[docs]=$(grep -E "^# Docs:" "$script" 2>/dev/null | sed 's/^# Docs: //' || true)
     }
     
