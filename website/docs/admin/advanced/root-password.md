@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Change Root Password
 
-Use **OpenAdmin > Advanced > Change Root Password** to securely update the SSH password for the root user.
+Use **OpenAdmin > Server > Change Root Password** to securely update the SSH password for the root user.
 
 :::info
 This page is available only to the Super Admin. Admin and Reseller logins will see a 403 error on this page.

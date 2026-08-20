@@ -18,7 +18,7 @@ See the [Configuring OpenPanel Backups](/docs/articles/backups/configuring-backu
 A single dropdown decides the mode:
 
 - **Disabled** — user configured (the default).
-- **Daily** / **Weekly** / **Monthly** — admin configured, all running at 03:00 server time. Fine-tune the exact time afterward from [System Cron Jobs](/docs/admin/advanced/crons/).
+- **Daily** / **Weekly** / **Monthly** — admin configured, all running at 03:00 server time. Fine-tune the exact time afterward from [Scheduled Actions](/docs/admin/advanced/crons/).
 
 Saving updates the `opencli docker-backup` cron entry's schedule accordingly.
 

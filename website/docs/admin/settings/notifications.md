@@ -53,7 +53,7 @@ Configure email address to be used for receiving system notifications and alerts
 
 Enter your email address in the **Email address** field. Leave it empty to disable email alerts.
 
-If email address is set, daily usage report will be sent to the address, schedule is configurable from 'Advanced > System Cron Jobs'.
+If email address is set, daily usage report will be sent to the address, schedule is configurable from 'Server > Scheduled Actions'.
 
 ![report example](/img/admin/daily_report.png)
 

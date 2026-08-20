@@ -53,7 +53,7 @@ The **System Information** widget displays information about your server:
 
 ## Resource Usage
 
-The **Resource Usage** widget displays a chart of CPU % and RAM % usage over the last hour. Click **View history** to open the full Resource Usage history page (**Advanced > Resource Usage**).
+The **Resource Usage** widget displays a chart of CPU % and RAM % usage over the last hour. Click **View history** to open the full Resource Usage history page (**Server > Resource Usage**).
 
 ## Found a Bug
 
