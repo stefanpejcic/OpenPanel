@@ -140,6 +140,27 @@ Add `?stats=1` to get live CPU/memory/network stats for that user's containers i
 }
 ```
 
+### Reset Permissions to Plan Defaults
+
+`POST /api/users/{username}/permissions/reset`
+
+Deletes the user's per-account permission overrides, so their permissions revert to following their plan's feature-set defaults instead of a custom, per-user list.
+
+### Export — Full Account Backup
+
+`GET /api/users/{username}/export/status` — whether a full-account backup is currently in progress, plus existing backup archives (name, size, created time)
+`POST /api/users/{username}/export/create` — starts a new full-account backup (`opencli user-backup`) in the background; refused with `409` if one is already running
+`GET /api/users/{username}/export/download/{filename}` — downloads a backup archive
+`POST /api/users/{username}/export/delete` — deletes a backup archive
+
+**Request Body (delete):**
+
+```json
+{ "filename": "alice_backup_2026-08-20_23-31-03.tar.gz" }
+```
+
+This is the same single-click whole-account backup OpenPanel's own self-service Backup Wizard uses (Settings → Backup Wizard on the user's own panel), triggered here on their behalf by an Administrator. Unlike the self-service wizard, this API also supports deleting an archive.
+
 ---
 
 ## Plans
@@ -506,6 +527,92 @@ Raw output of the Docker Engine `info` API call (containers, images, storage dri
 
 ---
 
+## Podman
+
+### Full Page Snapshot
+
+`GET /api/services/podman` — `podman info` text, every image/volume/network, and disk usage in one call
+
+### Images / Volumes / Networks / Disk Usage
+
+`GET /api/services/podman/images` — every image in the shared podman store (annotated with system/user container usage, plus update-check and vulnerability-scan status)
+`GET /api/services/podman/volumes`
+`GET /api/services/podman/networks`
+`GET /api/services/podman/disk-usage`
+
+### Manage an Image
+
+`POST /api/services/podman/images/{action}/{id}` — `{action}` is `delete` (id is the image's full ID) or `pull` (id is the `repository:tag` ref)
+`GET /api/services/podman/images/action-status?id={id}` — poll for progress
+
+Neither action affects any already-running container.
+
+### Check an Image for Updates
+
+`GET /api/services/podman/images/check-update?ref={repository:tag}`
+
+A cheap manifest-digest comparison against the registry. Only ever runs on demand.
+
+### Bulk Image Actions
+
+`POST /api/services/podman/images/bulk/{action}` — `{action}` is `pull-missing`, `delete-unused`, `check-updates`, or `check-vulnerabilities`
+`GET /api/services/podman/images/bulk-status` — poll for progress
+
+All four run sequentially in the background across every applicable image. `check-vulnerabilities` runs a [Trivy](https://trivy.dev/) HIGH/CRITICAL vulnerability scan against every downloaded image, installing Trivy automatically on first use if it isn't already present.
+
+### Get an Image's Vulnerability Details
+
+`GET /api/services/podman/images/vulnerabilities?ref={repository:tag}`
+
+<details>
+  <summary>Example response</summary>
+
+```json
+{
+  "checked": true,
+  "details": [
+    {
+      "id": "CVE-2024-12345",
+      "package": "openssl",
+      "installed_version": "1.1.1",
+      "fixed_version": "1.1.2",
+      "severity": "CRITICAL",
+      "title": "Buffer overflow in OpenSSL",
+      "url": "https://avd.aquasec.com/nvd/cve-2024-12345"
+    }
+  ]
+}
+```
+</details>
+
+Returns the cached findings from the last `check-vulnerabilities` bulk run — this endpoint never triggers a scan itself. `checked` is `false` if that image has never been scanned.
+
+---
+
+## Backups
+
+### System Backups
+
+`GET /api/backups/system` — destination/retention settings, run history, and existing archive files
+`POST /api/backups/system/settings` — `{ "destination": "/var/backups/openpanel", "retention_days": "30" }`
+`POST /api/backups/system/run` — starts a new config-only system backup (`opencli backup`) in the background
+`POST /api/backups/system/restore/{filename}` — restores an archive in the background
+`POST /api/backups/system/delete/{filename}` — deletes an archive (synchronous)
+`GET /api/backups/system/action-status` — poll for progress of run/restore
+
+### User Backups
+
+`GET /api/backups/user` — the central per-user backup schedule (`disabled`/`daily`/`weekly`/`monthly`)
+`POST /api/backups/user/settings` — `{ "schedule_choice": "daily" }`
+`GET /api/backups/user/configuration` — raw contents of `backup.env`, the template new accounts are provisioned with
+`POST /api/backups/user/configuration` — `{ "backup_env": "..." }` (new users only — existing users' own settings are unaffected)
+`POST /api/backups/user/run` — starts a central `opencli docker-backup` run in the background; refused with `400` unless the schedule is `daily`/`weekly`/`monthly`
+`GET /api/backups/user/action-status` — poll for progress
+
+`disabled` means each hosting user manages their own backup from their own account instead — nothing runs centrally.
+
+---
+
 ## Notifications
 
 ### List Notifications
@@ -802,6 +909,20 @@ Passkey **registration** requires a live WebAuthn ceremony in a browser and isn'
 `POST /api/server/memory/drop-cache`
 `POST /api/server/memory/drop-swap`
 
+### Swap
+
+`GET /api/server/swap` — total/used/free/percent, every active swap device, the alert threshold, and whether a managed swap file already exists
+`POST /api/server/swap/action/{action}` — `{action}` is `resize` or `drop`
+`GET /api/server/swap/action-status` — poll for progress
+
+**Request Body (resize):**
+
+```json
+{ "size_mb": 2048 }
+```
+
+`resize` recreates the managed swap file (`/swapfile` by default) at the requested size (minimum 128 MB) and re-enables it, adding it to `/etc/fstab` if needed. `drop` runs `swapoff -a; swapon -a` — the same cleanup Sentinel performs automatically, and equivalent to `POST /api/server/memory/drop-swap` above.
+
 ### Process Manager
 
 `GET /api/server/processes` — supports `?sort=cpu|memory|priority|name|owner|command|pid` (prefix with `-` to reverse)
@@ -889,6 +1010,19 @@ Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user` (with `
 ```
 
 Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user`, `reset_password`, `disable_2fa`, `disable_passkeys`. A reseller token can only manage its own account and is restricted to `reset_password`.
+
+### Resellers Enabled Toggle
+
+`GET /api/settings/resellers/enabled`
+`POST /api/settings/resellers/enabled`
+
+**Request Body:**
+
+```json
+{ "enabled": true }
+```
+
+The master on/off switch gating whether reseller accounts can be created at all — off by default. Turning it off is refused with `409` while any reseller account still exists; delete them first.
 
 ### General Settings
 
