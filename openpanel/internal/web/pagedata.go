@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 )
 
 // BuildLayoutData assembles the shared app-shell data every authenticated
@@ -55,10 +56,20 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 	panelDir, _ := injected["panel_dir"].(string)
 	isEnterprise, _ := injected["is_enterprise"].(bool)
 
+	// A reseller can set their own logo, applied instead of the global
+	// default throughout the app for every account they own (see
+	// RESELLER_LOGO_URL in opencli's user-add/admin-update-branding
+	// flow) -- except the login page, which always uses the global
+	// default regardless (built via LoginPageData, not this function).
+	logo := a.Config.Get("logo", "")
+	if resellerLogo := webserver.GetEnvFileValue(userContext, "RESELLER_LOGO_URL"); resellerLogo != "" {
+		logo = resellerLogo
+	}
+
 	layout := LayoutData{
 		Title:            title,
 		BrandName:        a.Config.Get("brand_name", ""),
-		Logo:             a.Config.Get("logo", ""),
+		Logo:             logo,
 		Favicon:          a.Config.Get("favicon", ""),
 		CSRFToken:        csrf.Token(r),
 		PanelDir:         panelDir,
