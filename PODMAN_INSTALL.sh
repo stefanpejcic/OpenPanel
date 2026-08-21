@@ -498,7 +498,7 @@ fix_selinux_storage_labels() {
     run restorecon -RF /var/lib/containers/storage /run/containers/storage "$SHARED_STORE"
 }
 
-podman_docker_alias() {
+podman_setup() {
     # https://feldspaten.org/2021/07/16/podman-graph-driver-overwritten/
     # Some VPS providers clone "fresh" servers from a template/golden image
     # that already contains podman storage state (sometimes with a blank
@@ -1128,7 +1128,7 @@ STEPS=(
     update_package_manager
     sync_el_deps
     install_packages
-    podman_docker_alias
+    podman_setup
     pull_sytem_images
     hetzner_fix
     clone_repos
