@@ -15,21 +15,41 @@ import (
 )
 
 // RegisterContainerManageAPI wires the docker-compose service management
-// REST endpoints onto mux (create/edit/delete a compose service, switch
-// MySQL/webserver variant, change a service's image tag). These are kept
-// in their own file/Register function, separate from RegisterAPI in
-// api.go, since they cover a distinct slice of docker.go's non-API routes
-// (/containers/new, /containers/edit/{service}, /containers/delete/{service},
-// /containers/mysql, /containers/webserver, /containers/image/change...)
+// REST endpoints onto mux (create/edit/delete a compose service). Kept in
+// its own file/Register function, separate from RegisterAPI in api.go,
+// since it covers a distinct slice of docker.go's non-API routes
+// (/containers/new, /containers/edit/{service}, /containers/delete/{service})
 // rather than the status/start/stop/logs endpoints RegisterAPI already
 // covers. Gated behind the same "docker" feature flag as RegisterAPI.
+//
+// The switch-MySQL/webserver and change-image-tag API twins live in
+// RegisterChangeDBAPI/RegisterChangeWSAPI/RegisterChangeImageAPI instead,
+// gated behind those routes' own feature flags rather than "docker".
 func RegisterContainerManageAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "docker", "POST /api/containers", func(w http.ResponseWriter, r *http.Request) { apiContainerCreate(a, w, r) })
 	apiregistry.Handle(mux, a, "docker", "PATCH /api/containers/{service}", func(w http.ResponseWriter, r *http.Request) { apiContainerEdit(a, w, r) })
 	apiregistry.Handle(mux, a, "docker", "DELETE /api/containers/{service}", func(w http.ResponseWriter, r *http.Request) { apiContainerDelete(a, w, r) })
-	apiregistry.Handle(mux, a, "docker", "POST /api/containers/mysql", func(w http.ResponseWriter, r *http.Request) { apiContainerSwitchMySQL(a, w, r) })
-	apiregistry.Handle(mux, a, "docker", "POST /api/containers/webserver", func(w http.ResponseWriter, r *http.Request) { apiContainerSwitchWebserver(a, w, r) })
-	apiregistry.Handle(mux, a, "docker", "PATCH /api/containers/{service}/image", func(w http.ResponseWriter, r *http.Request) { apiContainerChangeImage(a, w, r) })
+}
+
+// RegisterChangeDBAPI wires the MySQL/MariaDB-swap REST endpoint onto mux,
+// gated behind its own "change_db" feature flag (same flag as
+// docker.RegisterChangeDB's web route).
+func RegisterChangeDBAPI(mux *http.ServeMux, a *appctx.App) {
+	apiregistry.Handle(mux, a, "change_db", "POST /api/containers/mysql", func(w http.ResponseWriter, r *http.Request) { apiContainerSwitchMySQL(a, w, r) })
+}
+
+// RegisterChangeWSAPI wires the webserver-swap REST endpoint onto mux,
+// gated behind its own "change_ws" feature flag (same flag as
+// docker.RegisterChangeWS's web route).
+func RegisterChangeWSAPI(mux *http.ServeMux, a *appctx.App) {
+	apiregistry.Handle(mux, a, "change_ws", "POST /api/containers/webserver", func(w http.ResponseWriter, r *http.Request) { apiContainerSwitchWebserver(a, w, r) })
+}
+
+// RegisterChangeImageAPI wires the change-image-tag REST endpoint onto mux,
+// gated behind its own "change_image" feature flag (same flag as
+// docker.RegisterChangeImage's web route).
+func RegisterChangeImageAPI(mux *http.ServeMux, a *appctx.App) {
+	apiregistry.Handle(mux, a, "change_image", "PATCH /api/containers/{service}/image", func(w http.ResponseWriter, r *http.Request) { apiContainerChangeImage(a, w, r) })
 }
 
 // containerVolumeInput is one entry of the JSON-body "volumes" array for

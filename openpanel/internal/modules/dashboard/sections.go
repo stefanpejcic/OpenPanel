@@ -105,12 +105,12 @@ func buildDashboardSections(allowed map[string]bool) []Section {
 		}},
 		{Key: "docker", Title: "Containers", Items: []SectionItem{
 			{"docker", "/containers", "bi-boxes", "Containers", ""},
-			{"docker", "/containers/terminal", "bi-terminal", "Terminal", ""},
+			{"terminal", "/containers/terminal", "bi-terminal", "Terminal", ""},
 			{"docker", "/containers/logs", "bi-file-binary", "Logs", ""},
 			{"docker", "/containers/image/", "bi-arrow-clockwise", "Image Updates", ""},
-			{"docker", "/containers/image/change", "bi-textarea-t", "Change Image tag", ""},
-			{"docker", "/containers/webserver", "bi-toggle2-on", "Change webserver", ""},
-			{"docker", "/containers/mysql", "bi-toggle2-off", "Change MySQL Type", ""},
+			{"change_image", "/containers/image/change", "bi-textarea-t", "Change Image tag", ""},
+			{"change_ws", "/containers/webserver", "bi-toggle2-on", "Change webserver", ""},
+			{"change_db", "/containers/mysql", "bi-toggle2-off", "Change MySQL Type", ""},
 		}},
 		{Key: "advanced", Title: "Advanced", Items: []SectionItem{
 			{"services", "/services", "bi-hdd-stack", "Services", ""},

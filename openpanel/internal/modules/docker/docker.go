@@ -1,7 +1,11 @@
-// Package docker handles container list/create/edit/delete, MySQL/webserver
-// switching, image management, logs, and the interactive web terminal, all
-// built on top of the podmanmanager CLI layer (internal/core/podmanmanager)
-// and this package's own status.go/compose.go helpers.
+// Package docker handles container list/create/edit/delete, image
+// management, and logs, all built on top of the podmanmanager CLI layer
+// (internal/core/podmanmanager) and this package's own status.go/compose.go
+// helpers. MySQL/webserver switching, changing a service's image tag, and
+// the interactive web terminal live in this same package but are wired up
+// by their own Register* functions (RegisterChangeDB, RegisterChangeWS,
+// RegisterChangeImage, RegisterTerminal), each gated behind its own feature
+// flag independently of "docker" - see registry.go.
 package docker
 
 import (
@@ -40,20 +44,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/containers/delete/{service}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleDeleteContainer(a, w, r)
 	}))
-	mux.Handle("/containers/mysql", requireLogin(func(w http.ResponseWriter, r *http.Request) {
-		handleContainersMySQL(a, w, r)
-	}))
-	mux.Handle("/containers/webserver", requireLogin(func(w http.ResponseWriter, r *http.Request) {
-		handleContainersWebserver(a, w, r)
-	}))
 	mux.Handle("/containers/image/", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleContainersImage(a, w, r)
-	}))
-	mux.Handle("GET /containers/image/change", requireLogin(func(w http.ResponseWriter, r *http.Request) {
-		handleContainersChangeImage(a, w, r)
-	}))
-	mux.Handle("/containers/image/change/{service}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
-		handleContainersChangeImage(a, w, r)
 	}))
 	mux.Handle("GET /containers/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleContainerLogs(a, w, r)
@@ -70,6 +62,18 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 			handleManageContainer(a, w, r, action)
 		}))
 	}
+}
+
+// RegisterTerminal wires the interactive web terminal's routes onto mux,
+// gated behind its own "terminal" feature flag rather than "docker" - it
+// grants shell access inside a user's containers, a materially bigger
+// privilege than the rest of the docker module's container lifecycle
+// management, so admins can enable/disable it independently.
+func RegisterTerminal(mux *http.ServeMux, a *appctx.App) {
+	requireLogin := func(h http.HandlerFunc) http.Handler {
+		return auth.RequireLogin(a, "terminal")(h)
+	}
+
 	mux.Handle("GET /containers/terminal", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleDockerTerminal(a, w, r)
 	}))
@@ -78,6 +82,45 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}))
 	mux.Handle("GET /ws/containers/terminal/{container_name}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleDockerTerminalWS(a, w, r)
+	}))
+}
+
+// RegisterChangeImage wires the "change a service's image tag" routes onto
+// mux, gated behind its own "change_image" feature flag.
+func RegisterChangeImage(mux *http.ServeMux, a *appctx.App) {
+	requireLogin := func(h http.HandlerFunc) http.Handler {
+		return auth.RequireLogin(a, "change_image")(h)
+	}
+
+	mux.Handle("GET /containers/image/change", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		handleContainersChangeImage(a, w, r)
+	}))
+	mux.Handle("/containers/image/change/{service}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		handleContainersChangeImage(a, w, r)
+	}))
+}
+
+// RegisterChangeWS wires the webserver-swap routes onto mux, gated behind
+// its own "change_ws" feature flag.
+func RegisterChangeWS(mux *http.ServeMux, a *appctx.App) {
+	requireLogin := func(h http.HandlerFunc) http.Handler {
+		return auth.RequireLogin(a, "change_ws")(h)
+	}
+
+	mux.Handle("/containers/webserver", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		handleContainersWebserver(a, w, r)
+	}))
+}
+
+// RegisterChangeDB wires the MySQL/MariaDB-swap routes onto mux, gated
+// behind its own "change_db" feature flag.
+func RegisterChangeDB(mux *http.ServeMux, a *appctx.App) {
+	requireLogin := func(h http.HandlerFunc) http.Handler {
+		return auth.RequireLogin(a, "change_db")(h)
+	}
+
+	mux.Handle("/containers/mysql", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		handleContainersMySQL(a, w, r)
 	}))
 }
 

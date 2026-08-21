@@ -1,6 +1,3 @@
-// Package docker handles container status/control, compose-file and .env
-// editing, MySQL/webserver switching, image management, log viewing, and
-// the interactive web terminal.
 package docker
 
 import (

@@ -40,6 +40,12 @@ tags:
   description: Requires the `redis` feature to be enabled on the account's plan.
 - name: Docker / Containers
   description: Requires the `docker` feature to be enabled on the account's plan.
+- name: Switch MySQL Type
+  description: Requires the `change_db` feature to be enabled on the account's plan.
+- name: Switch WebServer
+  description: Requires the `change_ws` feature to be enabled on the account's plan.
+- name: Change Container Image Tag
+  description: Requires the `change_image` feature to be enabled on the account's plan.
 - name: WAF
   description: Requires the `waf` feature to be enabled on the account's plan.
 - name: IP Blocker
@@ -3791,7 +3797,7 @@ paths:
       summary: Switch the MySQL/MariaDB variant (wipes the old data volume).
       operationId: containers_mysql
       tags:
-      - Docker / Containers
+      - Switch MySQL Type
       requestBody:
         required: true
         content:
@@ -3821,7 +3827,7 @@ paths:
       summary: Switch the active webserver.
       operationId: containers_webserver
       tags:
-      - Docker / Containers
+      - Switch WebServer
       requestBody:
         required: true
         content:
@@ -3851,7 +3857,7 @@ paths:
       summary: Change a service's image.
       operationId: containers_service_image
       tags:
-      - Docker / Containers
+      - Change Container Image Tag
       parameters:
       - name: service
         in: path

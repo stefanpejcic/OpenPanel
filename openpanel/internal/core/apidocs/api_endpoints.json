@@ -932,7 +932,13 @@
         "method": "DELETE",
         "path": "/api/containers/<service>",
         "description": "Remove a compose service."
-      },
+      }
+    ]
+  },
+  {
+    "group": "Switch MySQL Type",
+    "feature": "change_db",
+    "endpoints": [
       {
         "method": "POST",
         "path": "/api/containers/mysql",
@@ -940,7 +946,13 @@
         "body": {
           "new_sql": "mysql:8.0"
         }
-      },
+      }
+    ]
+  },
+  {
+    "group": "Switch WebServer",
+    "feature": "change_ws",
+    "endpoints": [
       {
         "method": "POST",
         "path": "/api/containers/webserver",
@@ -948,7 +960,13 @@
         "body": {
           "new_ws": "nginx"
         }
-      },
+      }
+    ]
+  },
+  {
+    "group": "Change Container Image Tag",
+    "feature": "change_image",
+    "endpoints": [
       {
         "method": "PATCH",
         "path": "/api/containers/<service>/image",

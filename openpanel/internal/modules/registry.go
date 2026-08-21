@@ -99,6 +99,19 @@ var configured = map[string]Registrar{
 		docker.RegisterAPI(mux, a)
 		docker.RegisterContainerManageAPI(mux, a)
 	},
+	"terminal": docker.RegisterTerminal,
+	"change_image": func(mux *http.ServeMux, a *appctx.App) {
+		docker.RegisterChangeImage(mux, a)
+		docker.RegisterChangeImageAPI(mux, a)
+	},
+	"change_ws": func(mux *http.ServeMux, a *appctx.App) {
+		docker.RegisterChangeWS(mux, a)
+		docker.RegisterChangeWSAPI(mux, a)
+	},
+	"change_db": func(mux *http.ServeMux, a *appctx.App) {
+		docker.RegisterChangeDB(mux, a)
+		docker.RegisterChangeDBAPI(mux, a)
+	},
 	"services":    func(mux *http.ServeMux, a *appctx.App) { services.Register(mux, a); services.RegisterAPI(mux, a) },
 	"filemanager": func(mux *http.ServeMux, a *appctx.App) { filemanager.Register(mux, a); filemanager.RegisterAPI(mux, a) },
 	"disk_usage":  func(mux *http.ServeMux, a *appctx.App) { diskusage.Register(mux, a); diskusage.RegisterAPI(mux, a) },

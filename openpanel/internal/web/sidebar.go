@@ -336,15 +336,26 @@ func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 	}
 
 	// Docker group
-	if allowed["docker"] {
-		links := []NavLink{
-			{"/containers", "Containers", path == "/containers" || path == "/containers/new" || strings.HasPrefix(path, "/containers/edit"), ""},
-			{"/containers/terminal", "Terminal", strings.HasPrefix(path, "/containers/terminal"), ""},
-			{"/containers/logs", "Logs", strings.HasPrefix(path, "/containers/logs"), ""},
-			{"/containers/image/", "Image Updates", path == "/containers/image/", ""},
-			{"/containers/image/change", "Change image tag", path == "/containers/image/change", ""},
-			{"/containers/webserver", "Switch WebServer", path == "/containers/webserver", ""},
-			{"/containers/mysql", "Switch MySQL Type", path == "/containers/mysql", ""},
+	if has("docker", "terminal", "change_image", "change_ws", "change_db") {
+		var links []NavLink
+		if allowed["docker"] {
+			links = append(links, NavLink{"/containers", "Containers", path == "/containers" || path == "/containers/new" || strings.HasPrefix(path, "/containers/edit"), ""})
+		}
+		if allowed["terminal"] {
+			links = append(links, NavLink{"/containers/terminal", "Terminal", strings.HasPrefix(path, "/containers/terminal"), ""})
+		}
+		if allowed["docker"] {
+			links = append(links, NavLink{"/containers/logs", "Logs", strings.HasPrefix(path, "/containers/logs"), ""})
+			links = append(links, NavLink{"/containers/image/", "Image Updates", path == "/containers/image/", ""})
+		}
+		if allowed["change_image"] {
+			links = append(links, NavLink{"/containers/image/change", "Change image tag", path == "/containers/image/change", ""})
+		}
+		if allowed["change_ws"] {
+			links = append(links, NavLink{"/containers/webserver", "Switch WebServer", path == "/containers/webserver", ""})
+		}
+		if allowed["change_db"] {
+			links = append(links, NavLink{"/containers/mysql", "Switch MySQL Type", path == "/containers/mysql", ""})
 		}
 		open := strings.HasPrefix(path, "/containers")
 		groups = append(groups, NavGroup{"Containers", dockerIcon, "docker-menu", links, open, open})

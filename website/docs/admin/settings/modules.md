@@ -127,18 +127,60 @@ The **`docker`** module allows users to manage and add new docker containers.
 When enabled:
 * Users can access [**Docker > Containers**](/docs/panel/containers/) page to view and manage services.
 * Users can access [**Docker > Containers > New**](/docs/panel/containers/#adding-new-services) page to add new services.
-* Users can access [**Docker > Terminal**](/docs/panel/containers/terminal/) page to run docker exec commands.
 * Users can access [**Docker > Image Updates**](/docs/panel/containers/image/) page to check for available image updates.
 * Users can access [**Docker > Logs**](/docs/panel/containers/logs/) page to view service logs.
-* Users can access [**Docker > Change Image Tag**](/docs/panel/containers/change/) page to change images tag.
-* Users can access [**Docker > Switch Web Server**](/docs/panel/containers/webserver/) page to switch webservers.
-* Users can access [**Docker > Switch MySQL Type**](/docs/panel/containers/mysql/) page to switch mysql/mariadb.
 
 When disabled:
 * Users can not access any of the *Docker* pages.
 
+The web terminal, changing a service's image tag, and switching the webserver/MySQL type each live behind their own module below rather than `docker` - see **Web Terminal**, **Change Container Image Tag**, **Switch WebServer**, and **Switch MySQL Type**.
+
+
+## Web Terminal
+
+The **`terminal`** module allows users to run docker exec commands from an interactive shell inside their containers.
+
+When enabled:
+* Users can access [**Docker > Terminal**](/docs/panel/containers/terminal/) page to run docker exec commands.
+
+When disabled:
+* Users do not have access to the *Terminal* page.
+
 Customize options:
 * [Disable the Terminal](/docs/articles/dev-experience/disable-openpanel-web-terminal/)
+
+
+## Change Container Image Tag
+
+The **`change_image`** module allows users to change the image tag used by a container.
+
+When enabled:
+* Users can access [**Docker > Change Image Tag**](/docs/panel/containers/change/) page to change images tag.
+
+When disabled:
+* Users do not have access to the *Change Image Tag* page.
+
+
+## Switch WebServer
+
+The **`change_ws`** module allows users to switch the webserver used for their account.
+
+When enabled:
+* Users can access [**Docker > Switch Web Server**](/docs/panel/containers/webserver/) page to switch webservers.
+
+When disabled:
+* Users do not have access to the *Switch Web Server* page.
+
+
+## Switch MySQL Type
+
+The **`change_db`** module allows users to switch between MySQL and MariaDB for their account.
+
+When enabled:
+* Users can access [**Docker > Switch MySQL Type**](/docs/panel/containers/mysql/) page to switch mysql/mariadb.
+
+When disabled:
+* Users do not have access to the *Switch MySQL Type* page.
 
 
 ## Fix Permissions

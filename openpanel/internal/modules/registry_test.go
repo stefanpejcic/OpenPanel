@@ -27,7 +27,7 @@ func testApp(t *testing.T) *appctx.App {
 		Sessions:       session.NewStore([]byte("test-secret-key-for-registry-test")),
 		Cache:          c,
 		I18n:           i18n.NewManager(t.TempDir(), c),
-		EnabledModules: []string{"dashboard", "websites", "docker", "services", "filemanager", "disk_usage", "inodes", "fix_permissions", "malware_scan", "trash", "ftp", "backup_wizard", "backups", "domains", "php", "dns", "dynamic_dns", "redis", "memcached", "elasticsearch", "opensearch", "valkey", "varnish", "mysql", "mysql_conf", "mysql_import", "mysql_processlist", "mysql_root_password", "remote_mysql", "emails", "email_aliases", "email_default", "email_deliverability", "email_export", "email_filters", "email_import", "webmail", "crons", "info", "usage", "process_manager", "ip_blocker", "webserver_conf", "waf", "account", "locale", "twofa", "passkeys", "notifications", "favorites", "sessions", "activity", "login_history", "mcp", "api", "postgresql", "postgresql_conf", "postgresql_import", "remote_postgresql", "python", "nodejs", "autoinstaller"},
+		EnabledModules: []string{"dashboard", "websites", "docker", "services", "filemanager", "disk_usage", "inodes", "fix_permissions", "malware_scan", "trash", "ftp", "backup_wizard", "backups", "domains", "php", "dns", "dynamic_dns", "redis", "memcached", "elasticsearch", "opensearch", "valkey", "varnish", "mysql", "mysql_conf", "mysql_import", "mysql_processlist", "mysql_root_password", "remote_mysql", "emails", "email_aliases", "email_default", "email_deliverability", "email_export", "email_filters", "email_import", "webmail", "crons", "info", "usage", "process_manager", "ip_blocker", "webserver_conf", "waf", "account", "locale", "twofa", "passkeys", "notifications", "favorites", "sessions", "activity", "login_history", "mcp", "api", "postgresql", "postgresql_conf", "postgresql_import", "remote_postgresql", "python", "nodejs", "autoinstaller", "terminal", "change_image", "change_ws", "change_db"},
 	}
 }
 
@@ -123,6 +123,8 @@ func TestRegisterAllWiresRoutes(t *testing.T) {
 		"/postgresql/wizard", "/postgresql/assign", "/postgresql/remove",
 		"/postgresql/configuration", "/postgresql/import", "/postgresql/remote-postgresql",
 		"/python/install", "/nodejs/install", "/auto-installer",
+		"/containers", "/containers/terminal", "/containers/image/change",
+		"/containers/webserver", "/containers/mysql",
 	} {
 		t.Run("GET "+path+" without a session redirects to /login", func(t *testing.T) {
 			req := httptest.NewRequest(http.MethodGet, path, nil)
