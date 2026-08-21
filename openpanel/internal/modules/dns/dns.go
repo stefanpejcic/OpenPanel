@@ -157,10 +157,11 @@ func cnameNameRE(name string) *regexp.Regexp {
 	return regexp.MustCompile(`(?i)^` + regexp.QuoteMeta(name) + `\s+\d+\s+IN\s+CNAME`)
 }
 
-// cnameRecordExists checks whether a CNAME record with the given name
+// CnameRecordExists checks whether a CNAME record with the given name
 // already exists in the zone file, memoized for 10s since it's called
-// repeatedly during record validation.
-func cnameRecordExists(ctx context.Context, a *appctx.App, zoneFilePath, name string) bool {
+// repeatedly during record validation. Exported so the domains package's
+// API handlers can reuse it instead of keeping their own copy.
+func CnameRecordExists(ctx context.Context, a *appctx.App, zoneFilePath, name string) bool {
 	exists, _ := cache.Memoize(ctx, a.Cache, "cname_record_exists:"+zoneFilePath+":"+name, 10*time.Second, func() (bool, error) {
 		content, err := os.ReadFile(zoneFilePath)
 		if err != nil {

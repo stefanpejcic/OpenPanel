@@ -14,7 +14,6 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
@@ -947,7 +946,7 @@ func apiDomainsAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		newRecord = name + " " + ttl + " IN " + recordType + " " + record
 	}
 
-	if recordType == "CNAME" && cnameRecordExistsDomains(ctx, a, zonePath, name) {
+	if recordType == "CNAME" && dns.CnameRecordExists(ctx, a, zonePath, name) {
 		writeAPIDomainsJSON(w, http.StatusConflict, map[string]string{"error": "A CNAME record with this name already exists."})
 		return
 	}
@@ -972,26 +971,6 @@ func apiDomainsAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Reques
 func apiFileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
-}
-
-// cnameRecordExistsDomains checks whether a zone file already has a CNAME
-// record for name, memoized 10s. Duplicated here rather than reusing the
-// dns package's version, which is unexported.
-func cnameRecordExistsDomains(ctx context.Context, a *appctx.App, zoneFilePath, name string) bool {
-	exists, _ := cache.Memoize(ctx, a.Cache, "cname_record_exists:"+zoneFilePath+":"+name, 10*time.Second, func() (bool, error) {
-		content, err := os.ReadFile(zoneFilePath)
-		if err != nil {
-			return false, nil
-		}
-		re := regexp.MustCompile(`(?i)^` + regexp.QuoteMeta(name) + `\s+\d+\s+IN\s+CNAME`)
-		for _, line := range strings.Split(string(content), "\n") {
-			if re.MatchString(line) {
-				return true, nil
-			}
-		}
-		return false, nil
-	})
-	return exists
 }
 
 // apiDomainsUpdateDNSRecord edits one DNS record by row ID.

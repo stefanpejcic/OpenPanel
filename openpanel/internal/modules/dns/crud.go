@@ -234,7 +234,7 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		newRecord = fmt.Sprintf("%s %s IN %s %s", name, ttl, recordType, record)
 	}
 
-	if recordType == "CNAME" && cnameRecordExists(ctx, a, path, name) {
+	if recordType == "CNAME" && CnameRecordExists(ctx, a, path, name) {
 		flashAndRedirect(a, w, r, "error", "CNAME record with this name already exists.", redirectTarget)
 		return
 	}

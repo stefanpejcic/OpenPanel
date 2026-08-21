@@ -400,42 +400,102 @@ func handleInstallPackages(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusInternalServerError, map[string]string{"message": errorMsg, "error_output": output})
 }
 
-// ---------------------- WP INFO ---------------------- //
+// ---------------------- CMS DB INFO (shared) ---------------------- //
 
-// extractDatabaseInfo parses DB_NAME/DB_USER/DB_PASSWORD/DB_HOST and the
-// table prefix out of wp-config.php. Go's RE2 has no backreferences to tie
-// the opening/closing quote character together (both single or both
-// double), so each quote style is tried separately instead.
-func extractDatabaseInfo(userContext, directory string) map[string]string {
+// cmsDBField pairs an info map key with the precompiled regex that extracts
+// it from a CMS config file's text.
+type cmsDBField struct {
+	key string
+	re  *regexp.Regexp
+}
+
+// cmsMappedDir maps a site's docroot-relative directory (as stored in the
+// "/var/www/html/..." form every handler in this package uses) to its
+// backing path on the host filesystem.
+func cmsMappedDir(userContext, directory string) (string, bool) {
 	const wwwPrefix = "/var/www/html/"
 	if !strings.HasPrefix(directory, wwwPrefix) {
+		return "", false
+	}
+	return "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix), true
+}
+
+// applyCMSDBFields runs each field's regex against text, first match wins.
+func applyCMSDBFields(text string, fields []cmsDBField) map[string]string {
+	info := map[string]string{}
+	for _, f := range fields {
+		if _, exists := info[f.key]; exists {
+			continue
+		}
+		if m := f.re.FindStringSubmatch(text); m != nil {
+			info[f.key] = m[1]
+		}
+	}
+	return info
+}
+
+// readCMSConfig reads configPath and evaluates fields against its contents
+// (after an optional preprocess step), producing the same
+// {"error": "..."} / field-map shape every extract<CMS>DatabaseInfo
+// function below returns.
+func readCMSConfig(configPath, label string, fields []cmsDBField, preprocess func(string) string) map[string]string {
+	content, err := os.ReadFile(configPath)
+	if err != nil {
+		return map[string]string{"error": label + " not found"}
+	}
+	text := string(content)
+	if preprocess != nil {
+		text = preprocess(text)
+	}
+	info := applyCMSDBFields(text, fields)
+	if len(info) == 0 {
+		return map[string]string{"error": "No database information found in " + label}
+	}
+	return info
+}
+
+// ---------------------- WP INFO ---------------------- //
+
+// wpDBFieldSets holds the DB_NAME/DB_USER/DB_PASSWORD/DB_HOST and
+// $table_prefix patterns for wp-config.php, once for each quote style.
+// Go's RE2 has no backreferences to tie the opening/closing quote character
+// together (both single or both double), so each quote style is tried
+// separately - single-quote fields win when both are present, matching the
+// original per-call regexp.MustCompile behavior this replaces.
+var wpDBFieldSets = [2][]cmsDBField{
+	{
+		{"database_name", regexp.MustCompile(`define\(\s*'DB_NAME'\s*,\s*'(.+?)'\s*\)`)},
+		{"database_user", regexp.MustCompile(`define\(\s*'DB_USER'\s*,\s*'(.+?)'\s*\)`)},
+		{"database_password", regexp.MustCompile(`define\(\s*'DB_PASSWORD'\s*,\s*'(.+?)'\s*\)`)},
+		{"database_host", regexp.MustCompile(`define\(\s*'DB_HOST'\s*,\s*'(.+?)'\s*\)`)},
+		{"database_table_prefix", regexp.MustCompile(`\$table_prefix\s*=\s*'(.+?)'`)},
+	},
+	{
+		{"database_name", regexp.MustCompile(`define\(\s*"DB_NAME"\s*,\s*"(.+?)"\s*\)`)},
+		{"database_user", regexp.MustCompile(`define\(\s*"DB_USER"\s*,\s*"(.+?)"\s*\)`)},
+		{"database_password", regexp.MustCompile(`define\(\s*"DB_PASSWORD"\s*,\s*"(.+?)"\s*\)`)},
+		{"database_host", regexp.MustCompile(`define\(\s*"DB_HOST"\s*,\s*"(.+?)"\s*\)`)},
+		{"database_table_prefix", regexp.MustCompile(`\$table_prefix\s*=\s*"(.+?)"`)},
+	},
+}
+
+// extractDatabaseInfo parses DB_NAME/DB_USER/DB_PASSWORD/DB_HOST and the
+// table prefix out of wp-config.php.
+func extractDatabaseInfo(userContext, directory string) map[string]string {
+	mappedDir, ok := cmsMappedDir(userContext, directory)
+	if !ok {
 		return nil
 	}
-	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
 	content, err := os.ReadFile(filepath.Join(mappedDir, "wp-config.php"))
 	if err != nil {
 		return map[string]string{"error": "wp-config.php not found"}
 	}
 	text := string(content)
-
 	info := map[string]string{}
-	for _, quote := range []string{`'`, `"`} {
-		for key, constName := range map[string]string{
-			"database_name": "DB_NAME", "database_user": "DB_USER",
-			"database_password": "DB_PASSWORD", "database_host": "DB_HOST",
-		} {
-			if _, exists := info[key]; exists {
-				continue
-			}
-			re := regexp.MustCompile(`define\(\s*` + quote + constName + quote + `\s*,\s*` + quote + `(.+?)` + quote + `\s*\)`)
-			if m := re.FindStringSubmatch(text); m != nil {
-				info[key] = m[1]
-			}
-		}
-		re := regexp.MustCompile(`\$table_prefix\s*=\s*` + quote + `(.+?)` + quote)
-		if _, exists := info["database_table_prefix"]; !exists {
-			if m := re.FindStringSubmatch(text); m != nil {
-				info["database_table_prefix"] = m[1]
+	for _, fieldSet := range wpDBFieldSets {
+		for key, val := range applyCMSDBFields(text, fieldSet) {
+			if _, exists := info[key]; !exists {
+				info[key] = val
 			}
 		}
 	}
@@ -463,49 +523,41 @@ func getWPVersion(userContext, realPath string) string {
 
 // ---------------------- DRUPAL INFO ---------------------- //
 
-// extractDrupalDatabaseInfo parses the $databases['default']['default']
-// array out of settings.php - the live-read-from-config approach, same as
-// extractDatabaseInfo above does for wp-config.php, so no DB credentials
-// need to be persisted anywhere else.
-func extractDrupalDatabaseInfo(userContext, directory string) map[string]string {
-	const wwwPrefix = "/var/www/html/"
-	if !strings.HasPrefix(directory, wwwPrefix) {
-		return nil
-	}
-	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "web", "sites", "default", "settings.php"))
-	if err != nil {
-		return map[string]string{"error": "settings.php not found"}
-	}
+var drupalDBFields = []cmsDBField{
+	{"database_name", regexp.MustCompile(`'database'\s*=>\s*'([^']*)'`)},
+	{"database_user", regexp.MustCompile(`'username'\s*=>\s*'([^']*)'`)},
+	{"database_password", regexp.MustCompile(`'password'\s*=>\s*'([^']*)'`)},
+	{"database_host", regexp.MustCompile(`'host'\s*=>\s*'([^']*)'`)},
+}
 
-	// Drupal's stock settings.php has a large documentation block near the
-	// top with placeholder 'database' => 'database_name' style example
-	// lines inside a /** ... */ comment (every line prefixed with '*') -
-	// drop those before matching so the real $databases['default'] array
-	// drush appends near the end of the file is what actually matches.
+// stripPHPStarCommentLines drops every line whose trimmed form starts with
+// '*' - Drupal's stock settings.php has a large documentation block near
+// the top with placeholder 'database' => 'database_name' style example
+// lines inside a /** ... */ comment (every line prefixed with '*'), which
+// would otherwise match before the real $databases['default'] array drush
+// appends near the end of the file.
+func stripPHPStarCommentLines(text string) string {
 	var codeLines []string
-	for _, line := range strings.Split(string(content), "\n") {
+	for _, line := range strings.Split(text, "\n") {
 		if strings.HasPrefix(strings.TrimSpace(line), "*") {
 			continue
 		}
 		codeLines = append(codeLines, line)
 	}
-	text := strings.Join(codeLines, "\n")
+	return strings.Join(codeLines, "\n")
+}
 
-	info := map[string]string{}
-	for key, field := range map[string]string{
-		"database_name": "database", "database_user": "username",
-		"database_password": "password", "database_host": "host",
-	} {
-		re := regexp.MustCompile(`'` + field + `'\s*=>\s*'([^']*)'`)
-		if m := re.FindStringSubmatch(text); m != nil {
-			info[key] = m[1]
-		}
+// extractDrupalDatabaseInfo parses the $databases['default']['default']
+// array out of settings.php - the live-read-from-config approach, same as
+// extractDatabaseInfo above does for wp-config.php, so no DB credentials
+// need to be persisted anywhere else.
+func extractDrupalDatabaseInfo(userContext, directory string) map[string]string {
+	mappedDir, ok := cmsMappedDir(userContext, directory)
+	if !ok {
+		return nil
 	}
-	if len(info) == 0 {
-		return map[string]string{"error": "No database information found in settings.php"}
-	}
-	return info
+	configPath := filepath.Join(mappedDir, "web", "sites", "default", "settings.php")
+	return readCMSConfig(configPath, "settings.php", drupalDBFields, stripPHPStarCommentLines)
 }
 
 // getDrupalVersion reads drupal/core-recommended's resolved version out of
@@ -539,32 +591,20 @@ func getDrupalVersion(userContext, realPath string) string {
 // extractDrupalDatabaseInfo's settings.php scrape, since Joomla's installer
 // writes a plain generated PHP class with no preceding documentation/
 // placeholder block to accidentally match first.
+var joomlaDBFields = []cmsDBField{
+	{"database_name", regexp.MustCompile(`\$db\s*=\s*'([^']*)'`)},
+	{"database_user", regexp.MustCompile(`\$user\s*=\s*'([^']*)'`)},
+	{"database_password", regexp.MustCompile(`\$password\s*=\s*'([^']*)'`)},
+	{"database_host", regexp.MustCompile(`\$host\s*=\s*'([^']*)'`)},
+	{"database_prefix", regexp.MustCompile(`\$dbprefix\s*=\s*'([^']*)'`)},
+}
+
 func extractJoomlaDatabaseInfo(userContext, directory string) map[string]string {
-	const wwwPrefix = "/var/www/html/"
-	if !strings.HasPrefix(directory, wwwPrefix) {
+	mappedDir, ok := cmsMappedDir(userContext, directory)
+	if !ok {
 		return nil
 	}
-	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "configuration.php"))
-	if err != nil {
-		return map[string]string{"error": "configuration.php not found"}
-	}
-	text := string(content)
-
-	info := map[string]string{}
-	for key, field := range map[string]string{
-		"database_name": "db", "database_user": "user",
-		"database_password": "password", "database_host": "host", "database_prefix": "dbprefix",
-	} {
-		re := regexp.MustCompile(`\$` + field + `\s*=\s*'([^']*)'`)
-		if m := re.FindStringSubmatch(text); m != nil {
-			info[key] = m[1]
-		}
-	}
-	if len(info) == 0 {
-		return map[string]string{"error": "No database information found in configuration.php"}
-	}
-	return info
+	return readCMSConfig(filepath.Join(mappedDir, "configuration.php"), "configuration.php", joomlaDBFields, nil)
 }
 
 // getJoomlaVersion reads the MAJOR/MINOR/PATCH version constants out of
@@ -591,32 +631,20 @@ func getJoomlaVersion(userContext, realPath string) string {
 // DB_PASSWORD/DB_DATABASE/DB_PREFIX constants out of config.php - same
 // plain-define()-list shape as Joomla's configuration.php, no comment-block
 // gotcha to work around.
+var openCartDBFields = []cmsDBField{
+	{"database_name", regexp.MustCompile(`DB_DATABASE'\s*,\s*'([^']*)'`)},
+	{"database_user", regexp.MustCompile(`DB_USERNAME'\s*,\s*'([^']*)'`)},
+	{"database_password", regexp.MustCompile(`DB_PASSWORD'\s*,\s*'([^']*)'`)},
+	{"database_host", regexp.MustCompile(`DB_HOSTNAME'\s*,\s*'([^']*)'`)},
+	{"database_prefix", regexp.MustCompile(`DB_PREFIX'\s*,\s*'([^']*)'`)},
+}
+
 func extractOpenCartDatabaseInfo(userContext, directory string) map[string]string {
-	const wwwPrefix = "/var/www/html/"
-	if !strings.HasPrefix(directory, wwwPrefix) {
+	mappedDir, ok := cmsMappedDir(userContext, directory)
+	if !ok {
 		return nil
 	}
-	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "config.php"))
-	if err != nil {
-		return map[string]string{"error": "config.php not found"}
-	}
-	text := string(content)
-
-	info := map[string]string{}
-	for key, field := range map[string]string{
-		"database_name": "DB_DATABASE", "database_user": "DB_USERNAME",
-		"database_password": "DB_PASSWORD", "database_host": "DB_HOSTNAME", "database_prefix": "DB_PREFIX",
-	} {
-		re := regexp.MustCompile(field + `'\s*,\s*'([^']*)'`)
-		if m := re.FindStringSubmatch(text); m != nil {
-			info[key] = m[1]
-		}
-	}
-	if len(info) == 0 {
-		return map[string]string{"error": "No database information found in config.php"}
-	}
-	return info
+	return readCMSConfig(filepath.Join(mappedDir, "config.php"), "config.php", openCartDBFields, nil)
 }
 
 // getOpenCartVersion reads the VERSION constant out of the top-level
@@ -639,32 +667,20 @@ func getOpenCartVersion(userContext, realPath string) string {
 // extractNextcloudDatabaseInfo parses the dbname/dbuser/dbpassword/dbhost/
 // dbtableprefix entries out of config/config.php's `$CONFIG = array(...)`
 // literal.
+var nextcloudDBFields = []cmsDBField{
+	{"database_name", regexp.MustCompile(`'dbname'\s*=>\s*'([^']*)'`)},
+	{"database_user", regexp.MustCompile(`'dbuser'\s*=>\s*'([^']*)'`)},
+	{"database_password", regexp.MustCompile(`'dbpassword'\s*=>\s*'([^']*)'`)},
+	{"database_host", regexp.MustCompile(`'dbhost'\s*=>\s*'([^']*)'`)},
+	{"database_prefix", regexp.MustCompile(`'dbtableprefix'\s*=>\s*'([^']*)'`)},
+}
+
 func extractNextcloudDatabaseInfo(userContext, directory string) map[string]string {
-	const wwwPrefix = "/var/www/html/"
-	if !strings.HasPrefix(directory, wwwPrefix) {
+	mappedDir, ok := cmsMappedDir(userContext, directory)
+	if !ok {
 		return nil
 	}
-	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "config", "config.php"))
-	if err != nil {
-		return map[string]string{"error": "config/config.php not found"}
-	}
-	text := string(content)
-
-	info := map[string]string{}
-	for key, field := range map[string]string{
-		"database_name": "dbname", "database_user": "dbuser",
-		"database_password": "dbpassword", "database_host": "dbhost", "database_prefix": "dbtableprefix",
-	} {
-		re := regexp.MustCompile(`'` + field + `'\s*=>\s*'([^']*)'`)
-		if m := re.FindStringSubmatch(text); m != nil {
-			info[key] = m[1]
-		}
-	}
-	if len(info) == 0 {
-		return map[string]string{"error": "No database information found in config/config.php"}
-	}
-	return info
+	return readCMSConfig(filepath.Join(mappedDir, "config", "config.php"), "config/config.php", nextcloudDBFields, nil)
 }
 
 // getNextcloudVersion reads $OC_VersionString out of version.php,
@@ -688,32 +704,20 @@ func getNextcloudVersion(userContext, realPath string) string {
 // database_password/database_host/database_prefix entries out of
 // app/config/parameters.php's `<?php return array('parameters' =>
 // array(...))` literal.
+var prestashopDBFields = []cmsDBField{
+	{"database_name", regexp.MustCompile(`'database_name'\s*=>\s*'([^']*)'`)},
+	{"database_user", regexp.MustCompile(`'database_user'\s*=>\s*'([^']*)'`)},
+	{"database_password", regexp.MustCompile(`'database_password'\s*=>\s*'([^']*)'`)},
+	{"database_host", regexp.MustCompile(`'database_host'\s*=>\s*'([^']*)'`)},
+	{"database_prefix", regexp.MustCompile(`'database_prefix'\s*=>\s*'([^']*)'`)},
+}
+
 func extractPrestashopDatabaseInfo(userContext, directory string) map[string]string {
-	const wwwPrefix = "/var/www/html/"
-	if !strings.HasPrefix(directory, wwwPrefix) {
+	mappedDir, ok := cmsMappedDir(userContext, directory)
+	if !ok {
 		return nil
 	}
-	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "app", "config", "parameters.php"))
-	if err != nil {
-		return map[string]string{"error": "app/config/parameters.php not found"}
-	}
-	text := string(content)
-
-	info := map[string]string{}
-	for key, field := range map[string]string{
-		"database_name": "database_name", "database_user": "database_user",
-		"database_password": "database_password", "database_host": "database_host", "database_prefix": "database_prefix",
-	} {
-		re := regexp.MustCompile(`'` + field + `'\s*=>\s*'([^']*)'`)
-		if m := re.FindStringSubmatch(text); m != nil {
-			info[key] = m[1]
-		}
-	}
-	if len(info) == 0 {
-		return map[string]string{"error": "No database information found in app/config/parameters.php"}
-	}
-	return info
+	return readCMSConfig(filepath.Join(mappedDir, "app", "config", "parameters.php"), "app/config/parameters.php", prestashopDBFields, nil)
 }
 
 // getPrestashopVersion reads the VERSION const out of src/Core/Version.php,
@@ -738,32 +742,20 @@ func getPrestashopVersion(userContext, realPath string) string {
 // Matomo's own generated config, an INI file (not a PHP array/define()
 // list the way every other CMS here writes its config), so this matches on
 // `key = "value"` lines instead.
+var matomoDBFields = []cmsDBField{
+	{"database_name", regexp.MustCompile(`(?m)^dbname\s*=\s*"([^"]*)"`)},
+	{"database_user", regexp.MustCompile(`(?m)^username\s*=\s*"([^"]*)"`)},
+	{"database_password", regexp.MustCompile(`(?m)^password\s*=\s*"([^"]*)"`)},
+	{"database_host", regexp.MustCompile(`(?m)^host\s*=\s*"([^"]*)"`)},
+	{"database_prefix", regexp.MustCompile(`(?m)^tables_prefix\s*=\s*"([^"]*)"`)},
+}
+
 func extractMatomoDatabaseInfo(userContext, directory string) map[string]string {
-	const wwwPrefix = "/var/www/html/"
-	if !strings.HasPrefix(directory, wwwPrefix) {
+	mappedDir, ok := cmsMappedDir(userContext, directory)
+	if !ok {
 		return nil
 	}
-	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "config", "config.ini.php"))
-	if err != nil {
-		return map[string]string{"error": "config/config.ini.php not found"}
-	}
-	text := string(content)
-
-	info := map[string]string{}
-	for key, field := range map[string]string{
-		"database_name": "dbname", "database_user": "username",
-		"database_password": "password", "database_host": "host", "database_prefix": "tables_prefix",
-	} {
-		re := regexp.MustCompile(`(?m)^` + field + `\s*=\s*"([^"]*)"`)
-		if m := re.FindStringSubmatch(text); m != nil {
-			info[key] = m[1]
-		}
-	}
-	if len(info) == 0 {
-		return map[string]string{"error": "No database information found in config/config.ini.php"}
-	}
-	return info
+	return readCMSConfig(filepath.Join(mappedDir, "config", "config.ini.php"), "config/config.ini.php", matomoDBFields, nil)
 }
 
 // getMatomoVersion reads the VERSION const out of core/Version.php,
@@ -803,31 +795,21 @@ func moodleApprootDir(userContext, directory string) string {
 // prefix plain-variable assignments out of the approot's config.php -
 // Moodle's own generated config, not reachable via the docroot symlink
 // (that only leads to public/config.php, a thin shim, not the real one).
+var moodleDBFields = []cmsDBField{
+	{"database_name", regexp.MustCompile(`CFG->dbname\s*=\s*'([^']*)'`)},
+	{"database_user", regexp.MustCompile(`CFG->dbuser\s*=\s*'([^']*)'`)},
+	{"database_password", regexp.MustCompile(`CFG->dbpass\s*=\s*'([^']*)'`)},
+	{"database_host", regexp.MustCompile(`CFG->dbhost\s*=\s*'([^']*)'`)},
+	{"database_prefix", regexp.MustCompile(`CFG->prefix\s*=\s*'([^']*)'`)},
+}
+
 func extractMoodleDatabaseInfo(userContext, directory string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
 	if !strings.HasPrefix(directory, wwwPrefix) {
 		return nil
 	}
-	content, err := os.ReadFile(filepath.Join(moodleApprootDir(userContext, directory), "config.php"))
-	if err != nil {
-		return map[string]string{"error": "config.php not found"}
-	}
-	text := string(content)
-
-	info := map[string]string{}
-	for key, field := range map[string]string{
-		"database_name": "dbname", "database_user": "dbuser",
-		"database_password": "dbpass", "database_host": "dbhost", "database_prefix": "prefix",
-	} {
-		re := regexp.MustCompile(`CFG->` + field + `\s*=\s*'([^']*)'`)
-		if m := re.FindStringSubmatch(text); m != nil {
-			info[key] = m[1]
-		}
-	}
-	if len(info) == 0 {
-		return map[string]string{"error": "No database information found in config.php"}
-	}
-	return info
+	configPath := filepath.Join(moodleApprootDir(userContext, directory), "config.php")
+	return readCMSConfig(configPath, "config.php", moodleDBFields, nil)
 }
 
 // getMoodleVersion reads $release out of public/version.php (the
@@ -852,32 +834,20 @@ func getMoodleVersion(userContext, directory string) string {
 // LocalSettings.php - MediaWiki is installed flat (no approot/public split
 // like Moodle), so this reads directly from directory, mirroring
 // extractJoomlaDatabaseInfo's shape.
+var mediaWikiDBFields = []cmsDBField{
+	{"database_name", regexp.MustCompile(`\$wgDBname\s*=\s*"([^"]*)"`)},
+	{"database_user", regexp.MustCompile(`\$wgDBuser\s*=\s*"([^"]*)"`)},
+	{"database_password", regexp.MustCompile(`\$wgDBpassword\s*=\s*"([^"]*)"`)},
+	{"database_host", regexp.MustCompile(`\$wgDBserver\s*=\s*"([^"]*)"`)},
+	{"database_prefix", regexp.MustCompile(`\$wgDBprefix\s*=\s*"([^"]*)"`)},
+}
+
 func extractMediaWikiDatabaseInfo(userContext, directory string) map[string]string {
-	const wwwPrefix = "/var/www/html/"
-	if !strings.HasPrefix(directory, wwwPrefix) {
+	mappedDir, ok := cmsMappedDir(userContext, directory)
+	if !ok {
 		return nil
 	}
-	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "LocalSettings.php"))
-	if err != nil {
-		return map[string]string{"error": "LocalSettings.php not found"}
-	}
-	text := string(content)
-
-	info := map[string]string{}
-	for key, field := range map[string]string{
-		"database_name": "wgDBname", "database_user": "wgDBuser",
-		"database_password": "wgDBpassword", "database_host": "wgDBserver", "database_prefix": "wgDBprefix",
-	} {
-		re := regexp.MustCompile(`\$` + field + `\s*=\s*"([^"]*)"`)
-		if m := re.FindStringSubmatch(text); m != nil {
-			info[key] = m[1]
-		}
-	}
-	if len(info) == 0 {
-		return map[string]string{"error": "No database information found in LocalSettings.php"}
-	}
-	return info
+	return readCMSConfig(filepath.Join(mappedDir, "LocalSettings.php"), "LocalSettings.php", mediaWikiDBFields, nil)
 }
 
 // getMediaWikiVersion reads the $wgVersion constant out of

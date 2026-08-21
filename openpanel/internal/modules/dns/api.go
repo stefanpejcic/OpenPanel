@@ -301,7 +301,7 @@ func apiDNSAddRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if recordType == "TXT" && !(strings.HasPrefix(record, `"`) && strings.HasSuffix(record, `"`)) {
 		record = `"` + record + `"`
 	}
-	if recordType == "CNAME" && cnameRecordExists(ctx, a, path, name) {
+	if recordType == "CNAME" && CnameRecordExists(ctx, a, path, name) {
 		writeAPIDNSJSON(w, http.StatusConflict, map[string]string{"error": "CNAME record with this name already exists"})
 		return
 	}
