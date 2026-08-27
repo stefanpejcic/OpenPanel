@@ -9,16 +9,15 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 )
 
-// This file mirrors wordpress/manage.go's handleCloneWordPress exactly in
-// structure (site-limit check, file copy, DB create+dump-pipe, config
-// rewrite, sites-table insert) - two differences from WordPress:
+// This file mirrors wordpress/manage.go's handleCloneWordPress in overall
+// shape (site-limit check, file copy, DB create+dump-pipe, config
+// rewrite, sites-table insert), sharing everything but the docroot copy
+// and config-rewrite steps with every other CMS's clone.go via
+// internal/core/cmsclone - see that package's doc comment for why those
+// two steps stay local. Two things differ from WordPress specifically:
 //
 //  1. Drupal's base URL is request-derived at runtime and this install
 //     flow never sets $settings['trusted_host_patterns'] (confirmed via
@@ -27,22 +26,11 @@ import (
 //     hardcoded into node/content body text will still point at the source
 //     domain after cloning. Same known, deliberate limitation as
 //     joomla/clone.go documents for the same reason.
-//  2. cloneValidateDocroot below accepts the real "/var/www/html/..."
+//  2. cmsclone.ValidDocroot accepts the real "/var/www/html/..."
 //     absolute-path form .Docroot actually uses everywhere else in this
 //     codebase - WordPress's own validateDocroot() rejects any leading
 //     "/", which would reject its own clone form's real source_folder
 //     value. Not replicating that bug here.
-
-var (
-	cloneValidDomainRE = regexp.MustCompile(`^[a-zA-Z0-9.-]+$`)
-	cloneValidDBRE     = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
-)
-
-func cloneValidateDomain(name string) bool { return name != "" && cloneValidDomainRE.MatchString(name) }
-func cloneValidateDB(name string) bool     { return name != "" && cloneValidDBRE.MatchString(name) }
-func cloneValidateDocroot(path string) bool {
-	return path != "" && !strings.Contains(path, "..") && strings.HasPrefix(path, "/var/www/html/")
-}
 
 var (
 	cloneDrupalDatabaseRE = regexp.MustCompile(`'database'\s*=>\s*'.*?',`)
@@ -59,13 +47,9 @@ func handleDrupalClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	injectedData, _ := a.InjectData(ctx, userID)
-	planID, _ := injectedData["hosting_plan"].(int)
-	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	websitesLimit := atoiDefault(plan.WebsitesLimit, 0)
 	websiteCount, _ := countUserWebsites(a, userID)
-	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed"})
+	if !cmsclone.WithinSiteLimit(ctx, a, userID, websiteCount) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed" + a.UpgradeMessageForUser(ctx, userID)})
 		return
 	}
 
@@ -84,24 +68,16 @@ func handleDrupalClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var domainID int
-	var docroot, phpVersion string
-	row := a.DB.QueryRowContext(ctx, "SELECT domain_id, docroot, php_version FROM domains WHERE domain_url = ?", dstDomain)
-	if scanErr := row.Scan(&domainID, &docroot, &phpVersion); scanErr != nil {
+	domainID, docroot, _, dstDomainWithSubdir, ok := cmsclone.ResolveDestination(ctx, a, dstDomain, dstFolder)
+	if !ok {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Destination domain not found in database"})
 		return
 	}
 
-	dstDomainWithSubdir := dstDomain
-	if dstFolder != "" {
-		docroot = filepath.Join(docroot, dstFolder)
-		dstDomainWithSubdir = dstDomain + "/" + dstFolder
-	}
-
 	srcDomain := strings.Split(providedDomain, "/")[0]
 
-	if !cloneValidateDomain(srcDomain) || !cloneValidateDomain(dstDomain) || !cloneValidateDB(srcDB) || !cloneValidateDB(dstDB) ||
-		!cloneValidateDB(dstDBUser) || !cloneValidateDocroot(srcFolder) || !cloneValidateDocroot(docroot) {
+	if !cmsclone.ValidDomain(srcDomain) || !cmsclone.ValidDomain(dstDomain) || !cmsclone.ValidDB(srcDB) || !cmsclone.ValidDB(dstDB) ||
+		!cmsclone.ValidDB(dstDBUser) || !cmsclone.ValidDocroot(srcFolder) || !cmsclone.ValidDocroot(docroot) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid input or unsafe docroot"})
 		return
 	}
@@ -110,15 +86,9 @@ func handleDrupalClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
-	var dumpCmd string
-	switch mysqlVersion {
-	case "mysql":
-		dumpCmd = "mysqldump --column-statistics=0 --set-gtid-purged=OFF"
-	case "mariadb":
-		dumpCmd = "mariadb-dump --gtid"
-	default:
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unsupported MYSQL_TYPE: " + mysqlVersion})
+	dumpCmd, mysqlVersion, dumpCmdErr := cmsclone.SelectDumpCommand(userContext)
+	if dumpCmdErr != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": dumpCmdErr.Error()})
 		return
 	}
 
@@ -139,36 +109,17 @@ func handleDrupalClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy Drupal files: " + cpErr.Error()})
 		return
 	}
-	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		_ = exec.CommandContext(ctx, "chown", "-R", itoa(uid)+":"+itoa(uid), dstPath).Run()
-	}
+	cmsclone.ChownRecursive(ctx, userContext, dstPath)
 	settingsFile := filepath.Join(dstPath, "sites", "default", "settings.php")
 	_ = exec.CommandContext(ctx, "chmod", "644", settingsFile).Run()
 
-	escapedPassword := strings.ReplaceAll(strings.ReplaceAll(dstDBUserPassword, `\`, `\\`), `'`, `\'`)
-	cloneQueries := []string{
-		"CREATE DATABASE IF NOT EXISTS `" + dstDB + "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
-		"CREATE USER IF NOT EXISTS '" + dstDBUser + "'@'%' IDENTIFIED BY '" + escapedPassword + "'",
-		"GRANT ALL PRIVILEGES ON `" + dstDB + "`.* TO '" + dstDBUser + "'@'%'",
-		"FLUSH PRIVILEGES",
-	}
-	for _, q := range cloneQueries {
-		if _, execErr := mysqlmanager.Exec(ctx, userContext, q, ""); execErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": execErr.Error()})
-			return
+	_, dbErr := cmsclone.CreateDatabaseAndDump(ctx, userContext, mysqlVersion, dumpCmd, srcDB, dstDB, dstDBUser, dstDBUserPassword)
+	if dbErr != nil {
+		if cmsclone.DumpStageFailed(dbErr) {
+			writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed"})
+		} else {
+			writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": dbErr.Error()})
 		}
-	}
-
-	// srcDB/dstDB are already validated against ^[a-zA-Z0-9_]+$ by
-	// cloneValidateDB, so no identifier quoting is needed here - backticks
-	// would be actively wrong: bash -c interprets an unescaped backtick as
-	// command substitution, not as passed-through SQL quoting, which
-	// silently truncated this exact command when copied from WordPress's
-	// clone (verified live: bash treated `srcDB` as "run srcDB as a command").
-	dumpTablesCmd := dumpCmd + " --single-transaction --quick " + srcDB + " | " + mysqlVersion + " " + dstDB
-	fullDBArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, "bash", "-c", dumpTablesCmd)
-	if runErr := podmanmanager.Command(ctx, userContext, fullDBArgv).Run(); runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed"})
 		return
 	}
 
@@ -190,24 +141,14 @@ func handleDrupalClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = a.Cache.Delete(ctx, "get_user_websites:"+itoa(userID))
-
 	adminEmail := formOr(r, "admin_email", "admin@"+dstDomain)
 	drupalVersion := formOr(r, "drupal_version", "latest")
-	if _, insertErr := a.DB.ExecContext(ctx, `
-		INSERT INTO sites (site_name, domain_id, admin_email, version, type)
-		VALUES (?, ?, ?, ?, ?)
-		ON DUPLICATE KEY UPDATE domain_id = VALUES(domain_id), admin_email = VALUES(admin_email), version = VALUES(version), type = VALUES(type)`,
-		dstDomainWithSubdir, domainID, adminEmail, drupalVersion, "drupal"); insertErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": insertErr.Error()})
-		return
-	}
-
-	_ = logger.RecordUserAction(a.Config, currentUsername, "cloned Drupal website from "+providedDomain+" to "+dstDomainWithSubdir, reqip.ClientIP(r))
-
-	writeJSON(w, http.StatusOK, map[string]any{
-		"status": "success", "source": providedDomain, "target": dstDomainWithSubdir,
-		"source_path": srcPath, "target_path": dstPath, "target_db": dstDB,
+	cmsclone.FinalizeSite(ctx, w, r, cmsclone.FinalizeParams{
+		App: a, WriteJSON: writeJSON, UserID: userID, Username: currentUsername,
+		CMSDisplayName: "Drupal", CMSType: "drupal",
+		ProvidedDomain: providedDomain, DstDomainWithSubdir: dstDomainWithSubdir, DomainID: domainID,
+		AdminEmail: adminEmail, Version: drupalVersion,
+		SrcPath: srcPath, DstPath: dstPath, DstDB: dstDB,
 	})
 }
 

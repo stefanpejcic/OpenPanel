@@ -153,7 +153,7 @@ func apiWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	websitesLimit := atoiDefaultWB(plan.WebsitesLimit, 0)
 	userWebsites, _ := dashboard.GetUserWebsites(a, ctx, userID)
 	if websitesLimit != 0 && len(userWebsites) >= websitesLimit {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed" + plan.UpgradeMessage()})
 		return
 	}
 

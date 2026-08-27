@@ -66,7 +66,7 @@ func HandleInstallPage(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.
 	websiteCount, _ := countUserWebsites(a, userID)
 
 	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		flashSess(a, w, r, "warning", "You have reached the maximum number of sites allowed.")
+		flashSess(a, w, r, "warning", "You have reached the maximum number of sites allowed."+plan.UpgradeMessage())
 	} else if r.Method == http.MethodPost {
 		HandleInstall(kind, a, w, r)
 		return

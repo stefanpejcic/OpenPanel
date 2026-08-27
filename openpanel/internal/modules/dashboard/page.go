@@ -60,6 +60,15 @@ type DashboardPageData struct {
 	DBLimit       int
 	EmailLimit    int
 	FTPLimit      int
+
+	// LimitReached is set when any resource above is at/over its plan
+	// limit, so the dashboard can surface an upgrade prompt
+	// (https://github.com/stefanpejcic/OpenPanel/discussions/1079).
+	// UpgradePlanName/UpgradeURL are only non-empty when the current plan
+	// has an upsell plan configured in openadmin.
+	LimitReached    bool
+	UpgradePlanName string
+	UpgradeURL      string
 }
 
 // twofaStatusMessage builds the "2FA is <b>{status}</b> for your account."

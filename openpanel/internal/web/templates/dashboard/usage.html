@@ -5,6 +5,22 @@
         <h2 class="pl-4 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Usage"}}</h2>
     </div>
 
+    {{if .LimitReached}}
+    <div id="dashboard_usage_upgrade_banner" class="mx-2 mb-3 rounded border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-900 dark:bg-amber-950/40">
+        <p class="font-medium text-amber-800 dark:text-amber-300">{{.T.Get "You've reached one or more limits of your current plan."}}</p>
+        {{if .UpgradePlanName}}
+        <p class="mt-1 text-amber-700 dark:text-amber-400">
+            {{.T.Get "Upgrade to"}} <strong>{{.UpgradePlanName}}</strong> {{.T.Get "for higher limits."}}
+            {{if .UpgradeURL}}
+            <a href="{{.UpgradeURL}}" target="_blank" rel="noopener" class="ml-1 inline-flex items-center justify-center rounded border border-amber-300 bg-white px-2 py-1 text-xs font-medium text-amber-800 shadow-sm hover:bg-amber-100 dark:border-amber-800 dark:bg-gray-950 dark:text-amber-300 dark:hover:bg-amber-900/40">{{.T.Get "Upgrade now"}}</a>
+            {{end}}
+        </p>
+        {{else}}
+        <p class="mt-1 text-amber-700 dark:text-amber-400">{{.T.Get "Contact your hosting provider to upgrade your plan."}}</p>
+        {{end}}
+    </div>
+    {{end}}
+
     <div class="w-full divide-y divide-gray-200 border-b border-gray-200 dark:divide-gray-800 dark:border-gray-800 space-y-3">
 
         {{if or .UserAllowed.wordpress .UserAllowed.website_builder .UserAllowed.nodejs .UserAllowed.python}}

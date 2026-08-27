@@ -74,13 +74,12 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 		injectedData, _ := a.InjectData(ctx, userID)
 		planID, _ := injectedData["hosting_plan"].(int)
+		plan, _ := a.QueryPlanDetailsByID(ctx, planID)
 		dbLimit := 100
-		if plan, planErr := a.QueryPlanDetailsByID(ctx, planID); planErr == nil {
-			if v := atoiDefault(plan.DBLimit, 0); v != 0 {
-				dbLimit = v
-			} else {
-				dbLimit = 1000000
-			}
+		if v := atoiDefault(plan.DBLimit, 0); v != 0 {
+			dbLimit = v
+		} else {
+			dbLimit = 1000000
 		}
 
 		dbUsage := 0
@@ -89,7 +88,7 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 			dbUsage = postgresmanager.ToInt(rows[0][0])
 		}
 		if dbUsage >= dbLimit {
-			flashAndRedirect(a, w, r, "error", "You have reached the maximum number of databases allowed.", "/postgresql/wizard")
+			flashAndRedirect(a, w, r, "error", "You have reached the maximum number of databases allowed."+plan.UpgradeMessage(), "/postgresql/wizard")
 			return
 		}
 

@@ -284,10 +284,8 @@ func apiDomainsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
-	domainsLimit := 0
-	if plan, planErr := a.QueryPlanDetailsByID(ctx, planID); planErr == nil {
-		domainsLimit = atoiDefault(plan.DomainsLimit, 0)
-	}
+	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
+	domainsLimit := atoiDefault(plan.DomainsLimit, 0)
 	if domainsLimit != 0 {
 		existing, _ := a.AllDomainsForUser(ctx, userID)
 		urls := make([]appctx.Domain, len(existing))
@@ -296,7 +294,7 @@ func apiDomainsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		mains, _ := appctx.Categorize(urls)
 		if len(mains) >= domainsLimit {
-			writeAPIDomainsJSON(w, http.StatusConflict, map[string]string{"error": "Domain limit reached for your hosting plan."})
+			writeAPIDomainsJSON(w, http.StatusConflict, map[string]string{"error": "Domain limit reached for your hosting plan." + plan.UpgradeMessage()})
 			return
 		}
 	}

@@ -161,6 +161,35 @@ type PlanDetails struct {
 	InodesLimit   string
 	Bandwidth     string
 	MaxEmailQuota string
+
+	// Upsell fields, set by openadmin's plan editor
+	// (https://github.com/stefanpejcic/OpenPanel/discussions/1079):
+	// UpsellPlanName/UpsellURL are only non-empty when the plan has an
+	// upsell_plan_id pointing at a plan that still exists.
+	UpsellPlanID   string
+	UpsellPlanName string
+	UpsellURL      string
+}
+
+// HasUpsell reports whether this plan has an upgrade target to offer the
+// user when they hit a limit.
+func (p PlanDetails) HasUpsell() bool {
+	return p.UpsellPlanName != ""
+}
+
+// UpgradeMessage returns a sentence to append to a "you've reached your
+// plan limit" message, naming the configured upsell plan and its upgrade
+// URL (when set by the admin in openadmin's plan editor). Returns "" when
+// no upsell plan is configured, so callers can safely do
+// `msg + plan.UpgradeMessage()` unconditionally.
+func (p PlanDetails) UpgradeMessage() string {
+	if !p.HasUpsell() {
+		return ""
+	}
+	if p.UpsellURL != "" {
+		return fmt.Sprintf(" Upgrade to the %s plan for higher limits: %s", p.UpsellPlanName, p.UpsellURL)
+	}
+	return fmt.Sprintf(" Upgrade to the %s plan for higher limits.", p.UpsellPlanName)
 }
 
 // QueryPlanDetailsByID returns the full plans-table row for planID, cached
@@ -172,17 +201,36 @@ func (a *App) QueryPlanDetailsByID(ctx context.Context, planID int) (PlanDetails
 			description, domainsLimit, websitesLimit, dbLimit sql.NullString
 			cpu, ram, emailLimit, ftpLimit, diskLimit         sql.NullString
 			inodesLimit, bandwidth, maxEmailQuota             sql.NullString
+			upsellPlanID, upsellPlanName, upsellURL           sql.NullString
 		)
 		row := a.DB.QueryRowContext(ctx, `
-			SELECT description, domains_limit, websites_limit, db_limit,
-			       cpu, ram, email_limit, ftp_limit, disk_limit,
-			       inodes_limit, bandwidth, max_email_quota
-			FROM plans WHERE id = ?`, planID)
+			SELECT plans.description, plans.domains_limit, plans.websites_limit, plans.db_limit,
+			       plans.cpu, plans.ram, plans.email_limit, plans.ftp_limit, plans.disk_limit,
+			       plans.inodes_limit, plans.bandwidth, plans.max_email_quota,
+			       plans.upsell_plan_id, upsell.name, plans.upsell_url
+			FROM plans
+			LEFT JOIN plans AS upsell ON upsell.id = plans.upsell_plan_id
+			WHERE plans.id = ?`, planID)
 		err := row.Scan(&description, &domainsLimit, &websitesLimit, &dbLimit,
 			&cpu, &ram, &emailLimit, &ftpLimit, &diskLimit,
-			&inodesLimit, &bandwidth, &maxEmailQuota)
+			&inodesLimit, &bandwidth, &maxEmailQuota,
+			&upsellPlanID, &upsellPlanName, &upsellURL)
 		if err != nil {
-			return PlanDetails{}, nil //nolint:nilerr // deliberate: a missing plan returns a zero-value result, not an error
+			// The upsell_plan_id/upsell_url columns are added by openadmin's
+			// startup migration (paneldb.EnsurePlansSchema) -- on a
+			// mismatched-version deployment where openadmin hasn't run yet,
+			// fall back to the pre-upsell column set rather than losing
+			// every plan limit.
+			row := a.DB.QueryRowContext(ctx, `
+				SELECT description, domains_limit, websites_limit, db_limit,
+				       cpu, ram, email_limit, ftp_limit, disk_limit,
+				       inodes_limit, bandwidth, max_email_quota
+				FROM plans WHERE id = ?`, planID)
+			if err := row.Scan(&description, &domainsLimit, &websitesLimit, &dbLimit,
+				&cpu, &ram, &emailLimit, &ftpLimit, &diskLimit,
+				&inodesLimit, &bandwidth, &maxEmailQuota); err != nil {
+				return PlanDetails{}, nil //nolint:nilerr // deliberate: a missing plan returns a zero-value result, not an error
+			}
 		}
 		return PlanDetails{
 			Description: description.String, DomainsLimit: domainsLimit.String,
@@ -190,8 +238,21 @@ func (a *App) QueryPlanDetailsByID(ctx context.Context, planID int) (PlanDetails
 			CPU: cpu.String, RAM: ram.String,
 			EmailLimit: emailLimit.String, FTPLimit: ftpLimit.String, DiskLimit: diskLimit.String,
 			InodesLimit: inodesLimit.String, Bandwidth: bandwidth.String, MaxEmailQuota: maxEmailQuota.String,
+			UpsellPlanID: upsellPlanID.String, UpsellPlanName: upsellPlanName.String, UpsellURL: upsellURL.String,
 		}, nil
 	})
+}
+
+// UpgradeMessageForUser is a one-call convenience for call sites that only
+// have userID/ctx in scope (most CMS install/clone flows) and want to
+// append an upgrade offer to a "you've reached your plan limit" message
+// without separately looking up hosting_plan and calling
+// QueryPlanDetailsByID themselves.
+func (a *App) UpgradeMessageForUser(ctx context.Context, userID int) string {
+	injectedData, _ := a.InjectData(ctx, userID)
+	planID, _ := injectedData["hosting_plan"].(int)
+	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
+	return plan.UpgradeMessage()
 }
 
 // QueryPlanEmailMailboxLimits returns the (email_limit, max_email_quota)

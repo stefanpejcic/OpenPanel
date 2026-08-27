@@ -168,7 +168,8 @@ func apiEmailsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	emailLimit, _ := strconv.Atoi(emailLimitStr)
 
 	if emailLimit != 0 && GetEmailCount(ctx, a, userID, currentUsername, userDomains) >= emailLimit {
-		writeAPIEmailsJSON(w, http.StatusForbidden, map[string]string{"error": "Email account limit reached for your plan"})
+		plan, _ := a.QueryPlanDetailsByID(ctx, planID)
+		writeAPIEmailsJSON(w, http.StatusForbidden, map[string]string{"error": "Email account limit reached for your plan" + plan.UpgradeMessage()})
 		return
 	}
 

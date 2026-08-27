@@ -200,15 +200,13 @@ func apiMySQLCreateDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
-	dbLimit := 0
-	if plan, planErr := a.QueryPlanDetailsByID(ctx, planID); planErr == nil {
-		dbLimit = atoiDefault(plan.DBLimit, 0)
-	}
+	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
+	dbLimit := atoiDefault(plan.DBLimit, 0)
 
 	invalidateDatabaseCount(ctx, a, currentUsername)
 	dbUsage := getDatabaseCount(ctx, a, currentUsername, userContext)
 	if dbLimit != 0 && dbUsage >= dbLimit {
-		writeAPIMySQLJSON(w, http.StatusConflict, map[string]string{"error": "Database limit reached for your hosting plan."})
+		writeAPIMySQLJSON(w, http.StatusConflict, map[string]string{"error": "Database limit reached for your hosting plan." + plan.UpgradeMessage()})
 		return
 	}
 

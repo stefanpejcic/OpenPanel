@@ -197,7 +197,25 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		DBLimit:               atoiDefault(d.Plan.DBLimit, 0),
 		EmailLimit:            atoiDefault(d.Plan.EmailLimit, 0),
 		FTPLimit:              atoiDefault(d.Plan.FTPLimit, 0),
+		LimitReached:          anyPlanLimitReached(d),
+		UpgradePlanName:       d.Plan.UpsellPlanName,
+		UpgradeURL:            d.Plan.UpsellURL,
 	}
+}
+
+// anyPlanLimitReached reports whether the user is at or over any plan
+// limit shown on the dashboard's usage widget, so the upgrade banner only
+// appears when it's actually relevant.
+func anyPlanLimitReached(d DashboardData) bool {
+	atOrOver := func(usage int, limit string) bool {
+		l := atoiDefault(limit, 0)
+		return l != 0 && usage >= l
+	}
+	return atOrOver(len(d.UserWebsites), d.Plan.WebsitesLimit) ||
+		atOrOver(len(d.MainDomains), d.Plan.DomainsLimit) ||
+		atOrOver(d.DBUsage, d.Plan.DBLimit) ||
+		atOrOver(d.EmailCount, d.Plan.EmailLimit) ||
+		atOrOver(d.FTPCount, d.Plan.FTPLimit)
 }
 
 // i18nUserLocale mirrors get_locale()'s per-account locale-file tier,

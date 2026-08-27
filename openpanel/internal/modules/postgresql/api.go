@@ -172,11 +172,10 @@ func apiPsqlCreateDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
+	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
 	dbLimit := 1000000
-	if plan, planErr := a.QueryPlanDetailsByID(ctx, planID); planErr == nil {
-		if v := atoiDefault(plan.DBLimit, 0); v != 0 {
-			dbLimit = v
-		}
+	if v := atoiDefault(plan.DBLimit, 0); v != 0 {
+		dbLimit = v
 	}
 
 	rows, countErr := postgresmanager.Exec(ctx, userContext, "SELECT COUNT(*) FROM pg_database WHERE datname NOT IN ('postgres', 'template0', 'template1')", "postgres")
@@ -189,7 +188,7 @@ func apiPsqlCreateDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request
 		dbUsage = postgresmanager.ToInt(rows[0][0])
 	}
 	if dbUsage >= dbLimit {
-		writeAPIPsqlJSON(w, http.StatusConflict, map[string]string{"error": "Database limit reached for your hosting plan."})
+		writeAPIPsqlJSON(w, http.StatusConflict, map[string]string{"error": "Database limit reached for your hosting plan." + plan.UpgradeMessage()})
 		return
 	}
 

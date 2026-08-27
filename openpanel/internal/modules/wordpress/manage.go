@@ -54,7 +54,7 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	websitesLimit := atoiDefault(plan.WebsitesLimit, 0)
 	websiteCount, _ := countUserWebsites(a, userID)
 	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed" + plan.UpgradeMessage()})
 		return
 	}
 

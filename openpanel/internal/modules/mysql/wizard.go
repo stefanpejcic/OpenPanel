@@ -75,14 +75,12 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 		injectedData, _ := a.InjectData(ctx, userID)
 		planID, _ := injectedData["hosting_plan"].(int)
-		dbLimit := 0
-		if plan, planErr := a.QueryPlanDetailsByID(ctx, planID); planErr == nil {
-			dbLimit = atoiDefault(plan.DBLimit, 0)
-		}
+		plan, _ := a.QueryPlanDetailsByID(ctx, planID)
+		dbLimit := atoiDefault(plan.DBLimit, 0)
 		invalidateDatabaseCount(ctx, a, currentUsername)
 		dbUsage := getDatabaseCount(ctx, a, currentUsername, userContext)
 		if dbLimit != 0 && dbUsage >= dbLimit {
-			reRender("error", "Error creating database: '"+databaseName+"' - You have reached the maximum number of databases allowed.")
+			reRender("error", "Error creating database: '"+databaseName+"' - You have reached the maximum number of databases allowed."+plan.UpgradeMessage())
 			return
 		}
 

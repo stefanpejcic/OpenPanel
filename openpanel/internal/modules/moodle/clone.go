@@ -9,35 +9,30 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 )
 
 // This file mirrors drupal/clone.go's overall shape (site-limit check, DB
 // create+dump-pipe, config rewrite, sites-table insert, cron
-// registration), but the file-copy step is NOT a plain "copy the docroot"
-// like every other module's clone - see install.go's package doc comment
-// and its own approotHostPath/datarootHostPath/symlink construction
-// (read in full before touching this file). Moodle's docroot is a
-// symlink, not a real directory: the actual code lives in a sibling
-// "<slug>_moodleapp/" directory and user data lives in a separate sibling
-// "<slug>_moodledata/" directory, neither of which install.go's own
-// dispatch.go/websites.go plumbing exposes as "source_folder" the way it
-// does for every flat-docroot module - so this clone resolves both
-// sibling directories itself from the source domain name, the same
-// siteSlug() call install.go used to create them.
-
-var (
-	cloneValidDomainRE = regexp.MustCompile(`^[a-zA-Z0-9.-]+$`)
-	cloneValidDBRE     = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
-)
-
-func cloneValidateDomain(name string) bool { return name != "" && cloneValidDomainRE.MatchString(name) }
-func cloneValidateDB(name string) bool     { return name != "" && cloneValidDBRE.MatchString(name) }
+// registration), sharing the site-limit check, DB create+dump-pipe, and
+// sites-table-insert/log/response tail with every other CMS's clone.go via
+// internal/core/cmsclone - see that package's doc comment for why those
+// steps are shared but the file-copy and config-rewrite steps aren't. The
+// file-copy step here is NOT a plain "copy the docroot" like every other
+// module's clone - see install.go's package doc comment and its own
+// approotHostPath/datarootHostPath/symlink construction (read in full
+// before touching this file). Moodle's docroot is a symlink, not a real
+// directory: the actual code lives in a sibling "<slug>_moodleapp/"
+// directory and user data lives in a separate sibling "<slug>_moodledata/"
+// directory, neither of which install.go's own dispatch.go/websites.go
+// plumbing exposes as "source_folder" the way it does for every
+// flat-docroot module - so this clone resolves both sibling directories
+// itself from the source domain name, the same siteSlug() call install.go
+// used to create them. This is also why cmsclone.ValidDocroot is never
+// called here: there's no source_folder/docroot form field to validate the
+// way the other seven modules do.
 
 var (
 	cloneMoodleDBNameRE     = regexp.MustCompile(`CFG->dbname\s*=\s*'[^']*'`)
@@ -57,13 +52,9 @@ func handleMoodleClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	injectedData, _ := a.InjectData(ctx, userID)
-	planID, _ := injectedData["hosting_plan"].(int)
-	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	websitesLimit := atoiDefault(plan.WebsitesLimit, 0)
 	websiteCount, _ := countUserWebsites(a, userID)
-	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed"})
+	if !cmsclone.WithinSiteLimit(ctx, a, userID, websiteCount) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed" + a.UpgradeMessageForUser(ctx, userID)})
 		return
 	}
 
@@ -81,23 +72,15 @@ func handleMoodleClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var domainID int
-	var docroot, phpVersion string
-	row := a.DB.QueryRowContext(ctx, "SELECT domain_id, docroot, php_version FROM domains WHERE domain_url = ?", dstDomain)
-	if scanErr := row.Scan(&domainID, &docroot, &phpVersion); scanErr != nil {
+	domainID, docroot, phpVersion, dstDomainWithSubdir, ok := cmsclone.ResolveDestination(ctx, a, dstDomain, dstFolder)
+	if !ok {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Destination domain not found in database"})
 		return
 	}
 
-	dstDomainWithSubdir := dstDomain
-	if dstFolder != "" {
-		docroot = filepath.Join(docroot, dstFolder)
-		dstDomainWithSubdir = dstDomain + "/" + dstFolder
-	}
-
 	srcDomain := strings.Split(providedDomain, "/")[0]
 
-	if !cloneValidateDomain(srcDomain) || !cloneValidateDomain(dstDomain) || !cloneValidateDB(srcDB) || !cloneValidateDB(dstDB) || !cloneValidateDB(dstDBUser) {
+	if !cmsclone.ValidDomain(srcDomain) || !cmsclone.ValidDomain(dstDomain) || !cmsclone.ValidDB(srcDB) || !cmsclone.ValidDB(dstDB) || !cmsclone.ValidDB(dstDBUser) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid input"})
 		return
 	}
@@ -106,15 +89,9 @@ func handleMoodleClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
-	var dumpCmd string
-	switch mysqlVersion {
-	case "mysql":
-		dumpCmd = "mysqldump --column-statistics=0 --set-gtid-purged=OFF"
-	case "mariadb":
-		dumpCmd = "mariadb-dump --gtid"
-	default:
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unsupported MYSQL_TYPE: " + mysqlVersion})
+	dumpCmd, mysqlVersion, dumpCmdErr := cmsclone.SelectDumpCommand(userContext)
+	if dumpCmdErr != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": dumpCmdErr.Error()})
 		return
 	}
 
@@ -150,10 +127,7 @@ func handleMoodleClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy Moodle data files: " + cpErr.Error()})
 		return
 	}
-	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		_ = exec.CommandContext(ctx, "chown", "-R", itoa(uid)+":"+itoa(uid), dstApprootHostPath).Run()
-		_ = exec.CommandContext(ctx, "chown", "-R", itoa(uid)+":"+itoa(uid), dstDatarootHostPath).Run()
-	}
+	cmsclone.ChownRecursive(ctx, userContext, dstApprootHostPath, dstDatarootHostPath)
 	_ = exec.Command("chmod", "-R", "777", dstDatarootHostPath).Run()
 
 	// Docroot destination host path, and the symlink target must be the
@@ -177,29 +151,13 @@ func handleMoodleClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	escapedPassword := strings.ReplaceAll(dstDBUserPassword, `\`, `\\`)
-	escapedPassword = strings.ReplaceAll(escapedPassword, `'`, `\'`)
-	cloneQueries := []string{
-		"CREATE DATABASE IF NOT EXISTS `" + dstDB + "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
-		"CREATE USER IF NOT EXISTS '" + dstDBUser + "'@'%' IDENTIFIED BY '" + escapedPassword + "'",
-		"GRANT ALL PRIVILEGES ON `" + dstDB + "`.* TO '" + dstDBUser + "'@'%'",
-		"FLUSH PRIVILEGES",
-	}
-	for _, q := range cloneQueries {
-		if _, execErr := mysqlmanager.Exec(ctx, userContext, q, ""); execErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": execErr.Error()})
-			return
+	escapedPassword, dbErr := cmsclone.CreateDatabaseAndDump(ctx, userContext, mysqlVersion, dumpCmd, srcDB, dstDB, dstDBUser, dstDBUserPassword)
+	if dbErr != nil {
+		if cmsclone.DumpStageFailed(dbErr) {
+			writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed"})
+		} else {
+			writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": dbErr.Error()})
 		}
-	}
-
-	// srcDB/dstDB are already validated against ^[a-zA-Z0-9_]+$ - no
-	// identifier quoting needed, and backticks would be actively wrong
-	// (bash -c treats an unescaped backtick as command substitution) - see
-	// drupal/clone.go's identical comment, confirmed live there.
-	dumpTablesCmd := dumpCmd + " --single-transaction --quick " + srcDB + " | " + mysqlVersion + " " + dstDB
-	fullDBArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, "bash", "-c", dumpTablesCmd)
-	if runErr := podmanmanager.Command(ctx, userContext, fullDBArgv).Run(); runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed"})
 		return
 	}
 
@@ -234,23 +192,13 @@ func handleMoodleClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	cronCommand := "php " + dstApprootContainerPath + "/admin/cli/cron.php"
 	_ = crons.AddJob(ctx, userContext, cronComment, "0 * * * * *", phpContainer, cronCommand, true)
 
-	_ = a.Cache.Delete(ctx, "get_user_websites:"+itoa(userID))
-
 	adminEmail := formOr(r, "admin_email", "admin@"+dstDomain)
 	moodleVersion := formOr(r, "moodle_version", "latest")
-	if _, insertErr := a.DB.ExecContext(ctx, `
-		INSERT INTO sites (site_name, domain_id, admin_email, version, type)
-		VALUES (?, ?, ?, ?, ?)
-		ON DUPLICATE KEY UPDATE domain_id = VALUES(domain_id), admin_email = VALUES(admin_email), version = VALUES(version), type = VALUES(type)`,
-		dstDomainWithSubdir, domainID, adminEmail, moodleVersion, "moodle"); insertErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": insertErr.Error()})
-		return
-	}
-
-	_ = logger.RecordUserAction(a.Config, currentUsername, "cloned Moodle website from "+providedDomain+" to "+dstDomainWithSubdir, reqip.ClientIP(r))
-
-	writeJSON(w, http.StatusOK, map[string]any{
-		"status": "success", "source": providedDomain, "target": dstDomainWithSubdir,
-		"source_path": srcApprootHostPath, "target_path": dstApprootHostPath, "target_db": dstDB,
+	cmsclone.FinalizeSite(ctx, w, r, cmsclone.FinalizeParams{
+		App: a, WriteJSON: writeJSON, UserID: userID, Username: currentUsername,
+		CMSDisplayName: "Moodle", CMSType: "moodle",
+		ProvidedDomain: providedDomain, DstDomainWithSubdir: dstDomainWithSubdir, DomainID: domainID,
+		AdminEmail: adminEmail, Version: moodleVersion,
+		SrcPath: srcApprootHostPath, DstPath: dstApprootHostPath, DstDB: dstDB,
 	})
 }

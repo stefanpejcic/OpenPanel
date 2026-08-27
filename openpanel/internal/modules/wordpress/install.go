@@ -43,10 +43,10 @@ func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			w.Header().Set("Content-Type", "application/x-ndjson")
 			flusher, canFlush := w.(http.Flusher)
-			writeNDJSON(w, flusher, canFlush, map[string]any{"error": "You have reached the maximum number of sites allowed."})
+			writeNDJSON(w, flusher, canFlush, map[string]any{"error": "You have reached the maximum number of sites allowed." + plan.UpgradeMessage()})
 			return
 		}
-		flashSess(a, w, r, "warning", "You have reached the maximum number of sites allowed.")
+		flashSess(a, w, r, "warning", "You have reached the maximum number of sites allowed."+plan.UpgradeMessage())
 	} else {
 		mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
 		if !docker.IsServiceRunning(ctx, userContext, mysqlVersion) {
@@ -273,7 +273,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	if mysql.DatabaseLimitReached(ctx, a, userID, currentUsername, userContext) {
-		emit(map[string]any{"error": "You have reached the maximum number of databases allowed on your plan."})
+		emit(map[string]any{"error": "You have reached the maximum number of databases allowed on your plan." + a.UpgradeMessageForUser(ctx, userID)})
 		emitCleanupFiles(hostOSPath, emit)
 		return
 	}
