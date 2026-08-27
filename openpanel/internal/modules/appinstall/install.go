@@ -400,24 +400,36 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 // template (python.yml/nodejs.yml), needed here only to build the exact
 // nested-interpolation substring podman-compose can't resolve on its own.
 func requirementsInstallToken(pyOrNode string) string {
-	if pyOrNode == "NODE" {
+	switch pyOrNode {
+	case "NODE":
 		return "npm install"
+	case "RUBY":
+		return "bundle install"
+	default:
+		return "pip install -r requirements.txt"
 	}
-	return "pip install -r requirements.txt"
 }
 
 func defaultRunToken(pyOrNode string) string {
-	if pyOrNode == "NODE" {
+	switch pyOrNode {
+	case "NODE":
 		return "node"
+	case "RUBY":
+		return "ruby"
+	default:
+		return "python"
 	}
-	return "python"
 }
 
 func defaultStartupFile(pyOrNode string) string {
-	if pyOrNode == "NODE" {
+	switch pyOrNode {
+	case "NODE":
 		return "index.js"
+	case "RUBY":
+		return "app.rb"
+	default:
+		return "app.py"
 	}
-	return "app.py"
 }
 
 // formatPyFloat formats a float for the .env values written here,

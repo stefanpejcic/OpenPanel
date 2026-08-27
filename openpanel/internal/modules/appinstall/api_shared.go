@@ -81,12 +81,12 @@ func apiDetectGitStartupFile(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid or missing git repository URL."})
 		return
 	}
-	if body.AppType != "nodejs" && body.AppType != "python" {
+	if body.AppType != "nodejs" && body.AppType != "python" && body.AppType != "ruby" {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid app type."})
 		return
 	}
 
-	startupFile, err := detectStartupFile(r.Context(), body.GitRepoURL, body.AppType == "nodejs")
+	startupFile, err := detectStartupFile(r.Context(), body.GitRepoURL, body.AppType)
 	if err != nil {
 		writeJSON(w, http.StatusOK, map[string]string{"error": "Could not read repository: " + err.Error()})
 		return

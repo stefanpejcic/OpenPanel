@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 
@@ -193,10 +192,12 @@ func apiPM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	switch strings.ToLower(appType.String) {
 	case "nodejs":
 		pyOrNode = "NODE"
+	case "ruby":
+		pyOrNode = "RUBY"
 	case "python":
 		pyOrNode = "PY"
 	default:
-		writeAPIPM2JSON(w, http.StatusBadRequest, map[string]string{"error": "Only NodeJS or Python applications can be updated"})
+		writeAPIPM2JSON(w, http.StatusBadRequest, map[string]string{"error": "Only NodeJS, Python, or Ruby applications can be updated"})
 		return
 	}
 
@@ -316,10 +317,12 @@ func apiPM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	switch strings.ToLower(appType.String) {
 	case "nodejs":
 		pyOrNode = "NODE"
+	case "ruby":
+		pyOrNode = "RUBY"
 	case "python":
 		pyOrNode = "PY"
 	default:
-		writeAPIPM2JSON(w, http.StatusBadRequest, map[string]string{"error": "Only NodeJS or Python applications can be deleted"})
+		writeAPIPM2JSON(w, http.StatusBadRequest, map[string]string{"error": "Only NodeJS, Python, or Ruby applications can be deleted"})
 		return
 	}
 
@@ -330,7 +333,7 @@ func apiPM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		webServerType == "openlitespeed" || webServerType == "litespeed" {
 		revertWebserverConfig(userContext, subdirectory, webServerType, selectedDomain, serviceName.String)
 		restartArgv := podmanmanager.PodmanArgv(userContext, "restart", webServerType)
-		_ = exec.CommandContext(ctx, restartArgv[0], restartArgv[1:]...).Run()
+		_ = podmanmanager.Command(ctx, userContext, restartArgv).Run()
 	}
 
 	composeData, loadErr := docker.LoadCompose(userContext)

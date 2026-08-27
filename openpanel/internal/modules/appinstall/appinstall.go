@@ -17,15 +17,16 @@ import (
 
 // Kind captures every point where the Python and NodeJS install flows diverge.
 type Kind struct {
-	AppType        string // "python" | "nodejs", used in URLs and the compose template filename
-	DisplayAppType string // "Python" | "NodeJS", stored in sites.type and shown in messages
-	PyOrNode       string // "PY" | "NODE", the env-var/compose-template placeholder infix
+	AppType        string // "python" | "nodejs" | "ruby", used in URLs and the compose template filename
+	DisplayAppType string // "Python" | "NodeJS" | "Ruby", stored in sites.type and shown in messages
+	PyOrNode       string // "PY" | "NODE" | "RUBY", the env-var/compose-template placeholder infix
 	Title          string // page title / DISPLAY_APP_TYPE-based heading
 }
 
 var (
 	Python = Kind{AppType: "python", DisplayAppType: "Python", PyOrNode: "PY", Title: "Install Python Application"}
 	NodeJS = Kind{AppType: "nodejs", DisplayAppType: "NodeJS", PyOrNode: "NODE", Title: "Install NodeJS Application"}
+	Ruby   = Kind{AppType: "ruby", DisplayAppType: "Ruby", PyOrNode: "RUBY", Title: "Install Ruby Application"}
 )
 
 var validServiceNameRE = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
@@ -69,13 +70,13 @@ func noPathTraversal(p string) bool {
 	return true
 }
 
-// isValidStartupFile is shared between both app types: it accepts either
-// .py or .js regardless of which install form submitted it.
+// isValidStartupFile is shared between all app types: it accepts .py, .js,
+// or .rb regardless of which install form submitted it.
 func isValidStartupFile(path string) bool {
 	if !noPathTraversal(path) {
 		return false
 	}
-	return strings.HasSuffix(path, ".py") || strings.HasSuffix(path, ".js")
+	return strings.HasSuffix(path, ".py") || strings.HasSuffix(path, ".js") || strings.HasSuffix(path, ".rb")
 }
 
 func isValidCustomCommand(cmd string) bool {
@@ -174,7 +175,8 @@ func gitBootstrapCmd(gitURL string) string {
 
 func buildAppRunCommand(pyOrNode, requirements, customCmd, startupFile, gitURL string) string {
 	var installCmd, defaultRun string
-	if pyOrNode == "NODE" {
+	switch pyOrNode {
+	case "NODE":
 		if requirements == "1" {
 			installCmd = "npm install && "
 		}
@@ -183,7 +185,16 @@ func buildAppRunCommand(pyOrNode, requirements, customCmd, startupFile, gitURL s
 		} else {
 			defaultRun = "node index.js"
 		}
-	} else {
+	case "RUBY":
+		if requirements == "1" {
+			installCmd = "bundle install && "
+		}
+		if startupFile != "" {
+			defaultRun = "ruby " + startupFile
+		} else {
+			defaultRun = "ruby app.rb"
+		}
+	default:
 		if requirements == "1" {
 			installCmd = "pip install -r requirements.txt && "
 		}

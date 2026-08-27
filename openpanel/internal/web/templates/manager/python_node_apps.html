@@ -137,6 +137,7 @@
                         <h2 class="text-gray-600 dark:text-gray-400">
                             {{if eq .Type "nodejs"}}{{.T.Get "NodeJS"}}
                             {{else if eq .Type "python"}}{{.T.Get "Python"}}
+                            {{else if eq .Type "ruby"}}{{.T.Get "Ruby"}}
                             {{end}} {{.T.Get "Version:"}}</h2>
                     </div>
                     <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{.Container.Version}}</h3>
@@ -386,12 +387,12 @@
             <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
                  {{.T.Get "If no custom startup command is provided, this file is executed with command:"}}
                  <br>
-                 {{if eq .Type "nodejs"}}node{{else if eq .Type "python"}}python{{end}} {{.StartupFile}}
+                 {{if eq .Type "nodejs"}}node{{else if eq .Type "python"}}python{{else if eq .Type "ruby"}}ruby{{end}} {{.StartupFile}}
             </div>
         </span>
     </label>
 
-    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .StartupFile}}, error: false, errorMessage: '', appType: {{toJSON .Type}}, ext: {{if eq .Type "nodejs"}}'js'{{else if eq .Type "python"}}'py'{{else}}''{{end}} }">
+    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .StartupFile}}, error: false, errorMessage: '', appType: {{toJSON .Type}}, ext: {{if eq .Type "nodejs"}}'js'{{else if eq .Type "python"}}'py'{{else if eq .Type "ruby"}}'rb'{{else}}''{{end}} }">
     <input
         class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
         required id="startup_file" name="startup_file" type="text" x-model="value"
@@ -426,7 +427,7 @@
             <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
                  {{.T.Get "You can provide a custom startup command with flags to be used instead of the default:"}}
                  <br>
-                 {{if eq .Type "nodejs"}}node{{else if eq .Type "python"}}python{{end}} {{.StartupFile}}
+                 {{if eq .Type "nodejs"}}node{{else if eq .Type "python"}}python{{else if eq .Type "ruby"}}ruby{{end}} {{.StartupFile}}
             </div>
         </span>
     </label>
@@ -493,7 +494,7 @@
             <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
                  {{.T.Get "Set the working directory inside which packages are installed with command:"}}
                  <br>
-                 {{if eq .Type "nodejs"}}npm{{else if eq .Type "python"}}pip{{end}} {{.T.Get "install"}}
+                 {{if eq .Type "nodejs"}}npm{{else if eq .Type "python"}}pip{{else if eq .Type "ruby"}}bundle{{end}} {{.T.Get "install"}}
             </div>
         </span>
     </label>
@@ -530,7 +531,7 @@
             <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
                  {{.T.Get "If enabled, this command is executed before the custom startup command or startup file:"}}
                  <br>
-                 {{if eq .Type "nodejs"}}npm{{else if eq .Type "python"}}pip{{end}} {{.T.Get "install"}} {{if eq .Type "python"}}-r requirements.txt{{end}}
+                 {{if eq .Type "nodejs"}}npm{{else if eq .Type "python"}}pip{{else if eq .Type "ruby"}}bundle{{end}} {{.T.Get "install"}} {{if eq .Type "python"}}-r requirements.txt{{end}}
             </div>
         </span>
     </label>
@@ -565,7 +566,7 @@
   <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
 </svg>
             <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
-                 {{.T.Get "Select"}} {{if eq .Type "nodejs"}}NodeJS{{else if eq .Type "python"}}Python{{end}} {{.T.Get "version to use for the application."}}
+                 {{.T.Get "Select"}} {{if eq .Type "nodejs"}}NodeJS{{else if eq .Type "python"}}Python{{else if eq .Type "ruby"}}Ruby{{end}} {{.T.Get "version to use for the application."}}
             </div>
         </span>
     </label>
@@ -715,6 +716,7 @@
                 <h3 class="font-semibold text-gray-900 dark:text-gray-50 mb-4">
                     {{if eq .Type "nodejs"}}{{.T.Get "package.json"}}
                     {{else if eq .Type "python"}}{{.T.Get "requirements.txt"}}
+                    {{else if eq .Type "ruby"}}{{.T.Get "Gemfile"}}
                     {{end}}
                         {{.T.Get "file content:"}}</h3>
 
@@ -732,6 +734,8 @@
     let filename = "requirements.txt";
     if (type === "nodejs") {
         filename = "package.json";
+    } else if (type === "ruby") {
+        filename = "Gemfile";
     }
 
     const url = `/file-manager/view-file/${docroot}/${filename}`;
@@ -762,9 +766,11 @@
     <button type="button" data-pm="pnpm" class="install-btn relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "PNPM install"}}</button>
     {{else if eq .Type "python"}}
     <button type="button" data-pm="pip" class="install-btn relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "PIP install"}}</button>
+    {{else if eq .Type "ruby"}}
+    <button type="button" data-pm="bundle" class="install-btn relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Bundle install"}}</button>
     {{end}}
 
-    <a href="/file-manager/edit-file/{{replace .Workdir "/var/www/html/" ""}}/{{if eq .Type "nodejs"}}{{.T.Get "package.json"}}{{else if eq .Type "python"}}{{.T.Get "requirements.txt"}}{{end}}?new=true" target="_blank" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-0.5 whitespace-nowrap sm:mt-0" id="npm-edit-link">{{.T.Get "Edit file"}}</a>
+    <a href="/file-manager/edit-file/{{replace .Workdir "/var/www/html/" ""}}/{{if eq .Type "nodejs"}}{{.T.Get "package.json"}}{{else if eq .Type "python"}}{{.T.Get "requirements.txt"}}{{else if eq .Type "ruby"}}{{.T.Get "Gemfile"}}{{end}}?new=true" target="_blank" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-0.5 whitespace-nowrap sm:mt-0" id="npm-edit-link">{{.T.Get "Edit file"}}</a>
     </div>
 
     <div id="installPIPModal">

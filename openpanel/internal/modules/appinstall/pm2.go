@@ -9,7 +9,6 @@ import (
 	"bufio"
 	"net/http"
 	"os"
-	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
@@ -79,7 +78,7 @@ func handlePM2Logs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	argv := podmanmanager.PodmanArgv(userContext, "ps", "-aqf", "name=^"+containerName+"$", "--no-trunc")
-	out, cmdErr := exec.CommandContext(r.Context(), argv[0], argv[1:]...).CombinedOutput()
+	out, cmdErr := podmanmanager.Command(r.Context(), userContext, argv).CombinedOutput()
 	containerID := strings.TrimSpace(string(out))
 	if cmdErr != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -162,10 +161,12 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	switch strings.ToLower(lookup.Type) {
 	case "nodejs":
 		pyOrNode = "NODE"
+	case "ruby":
+		pyOrNode = "RUBY"
 	case "python":
 		pyOrNode = "PY"
 	default:
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Not a valid type, only NodeJS or Python applications can be edited."})
+		writeJSON(w, http.StatusOK, map[string]string{"error": "Not a valid type, only NodeJS, Python, or Ruby applications can be edited."})
 		return
 	}
 
@@ -357,10 +358,12 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	switch strings.ToLower(appType) {
 	case "nodejs":
 		pyOrNode = "NODE"
+	case "ruby":
+		pyOrNode = "RUBY"
 	case "python":
 		pyOrNode = "PY"
 	default:
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Not a valid type, only NodeJS or Python applications can be removed."})
+		writeJSON(w, http.StatusOK, map[string]string{"error": "Not a valid type, only NodeJS, Python, or Ruby applications can be removed."})
 		return
 	}
 
@@ -372,7 +375,7 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		webServerType == "openlitespeed", strings.Contains(strings.ToLower(webServerType), "litespeed"):
 		revertWebserverConfig(userContext, subdirectory, webServerType, selectedDomain, serviceName)
 		restartArgv := podmanmanager.PodmanArgv(userContext, "restart", webServerType)
-		_ = exec.CommandContext(ctx, restartArgv[0], restartArgv[1:]...).Run()
+		_ = podmanmanager.Command(ctx, userContext, restartArgv).Run()
 	default:
 		_, _ = w.Write([]byte("unknown"))
 		return

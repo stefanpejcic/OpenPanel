@@ -25,20 +25,31 @@ const pythonIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height
 
 const nodejsIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#339933" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 icon icon-tabler icons-tabler-outline icon-tabler-brand-nodejs"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 9v8.044a2 2 0 0 1 -2.996 1.734l-1.568 -.9a3 3 0 0 1 -1.436 -2.561v-6.635a3 3 0 0 1 1.436 -2.56l6 -3.667a3 3 0 0 1 3.128 0l6 3.667a3 3 0 0 1 1.436 2.561v6.634a3 3 0 0 1 -1.436 2.56l-6 3.667a3 3 0 0 1 -3.128 0" /><path d="M17 9h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3h-3.5" /></svg>`
 
+const rubyIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#CC342D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 icon icon-tabler icons-tabler-outline icon-tabler-diamond"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 8l4 -5h10l4 5l-11 13z" /><path d="M3 8h18" /><path d="M9 3l2 5l-2.5 10.5" /><path d="M15 3l-2 5l2.5 10.5" /></svg>`
+
 func displayFor(kind Kind) kindDisplay {
-	if kind.PyOrNode == "NODE" {
+	switch kind.PyOrNode {
+	case "NODE":
 		return kindDisplay{
 			Icon:  template.HTML(nodejsIconSVG), //nolint:gosec // static, server-defined markup, not user input
 			Label: "NodeJS", RunCommand: "node", RequiredExtension: ".js",
 			RequirementsLabel:   "Run NPM install before starting the app",
 			RequirementsTooltip: "When enabled, this option will first run npm install using the package.json file, then launch the application. If the application is already built, you can skip this option.",
 		}
-	}
-	return kindDisplay{
-		Icon:  template.HTML(pythonIconSVG), //nolint:gosec // static, server-defined markup, not user input
-		Label: "Python", RunCommand: "python", RequiredExtension: ".py",
-		RequirementsLabel:   "Run PIP install before starting the app",
-		RequirementsTooltip: "When enabled, this option will first run pip install using the requirements.txt file, then launch the application. If the application is already built, you can skip this option.",
+	case "RUBY":
+		return kindDisplay{
+			Icon:  template.HTML(rubyIconSVG), //nolint:gosec // static, server-defined markup, not user input
+			Label: "Ruby", RunCommand: "ruby", RequiredExtension: ".rb",
+			RequirementsLabel:   "Run Bundle install before starting the app",
+			RequirementsTooltip: "When enabled, this option will first run bundle install using the Gemfile, then launch the application. If the application is already built, you can skip this option.",
+		}
+	default:
+		return kindDisplay{
+			Icon:  template.HTML(pythonIconSVG), //nolint:gosec // static, server-defined markup, not user input
+			Label: "Python", RunCommand: "python", RequiredExtension: ".py",
+			RequirementsLabel:   "Run PIP install before starting the app",
+			RequirementsTooltip: "When enabled, this option will first run pip install using the requirements.txt file, then launch the application. If the application is already built, you can skip this option.",
+		}
 	}
 }
 

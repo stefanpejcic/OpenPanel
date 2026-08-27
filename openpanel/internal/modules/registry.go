@@ -48,6 +48,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/prestashop"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/processmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/python"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/ruby"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/search"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/serverinfo"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/services"
@@ -262,6 +263,7 @@ var configured = map[string]Registrar{
 	"remote_postgresql": postgresql.RegisterRemote,
 	"python":            func(mux *http.ServeMux, a *appctx.App) { python.Register(mux, a); python.RegisterAPI(mux, a) },
 	"nodejs":            func(mux *http.ServeMux, a *appctx.App) { nodejs.Register(mux, a); nodejs.RegisterAPI(mux, a) },
+	"ruby":              func(mux *http.ServeMux, a *appctx.App) { ruby.Register(mux, a); ruby.RegisterAPI(mux, a) },
 	"autoinstaller": func(mux *http.ServeMux, a *appctx.App) {
 		autoinstaller.Register(mux, a)
 		autoinstaller.RegisterAPI(mux, a)

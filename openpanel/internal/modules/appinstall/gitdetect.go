@@ -12,20 +12,21 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 )
 
-// nodeEntryCandidates/pythonEntryCandidates are checked in order when
-// package.json has no "main" field (Node) or there's no manifest to read
-// at all (Python) - matching the same default filenames
-// buildAppRunCommand() falls back to.
+// nodeEntryCandidates/pythonEntryCandidates/rubyEntryCandidates are checked
+// in order when package.json has no "main" field (Node) or there's no
+// manifest to read at all (Python, Ruby) - matching the same default
+// filenames buildAppRunCommand() falls back to.
 var (
 	nodeEntryCandidates   = []string{"index.js", "server.js", "app.js", "main.js"}
 	pythonEntryCandidates = []string{"app.py", "main.py", "manage.py", "run.py"}
+	rubyEntryCandidates   = []string{"app.rb", "main.rb", "server.rb", "config.ru"}
 )
 
 // detectStartupFile shallow-clones gitURL into a throwaway temp dir purely
 // to guess the entry point file, then discards the clone - this never
-// touches a user's actual app container or docroot. isNode picks which
+// touches a user's actual app container or docroot. appType picks which
 // candidate list / manifest format to look for.
-func detectStartupFile(ctx context.Context, gitURL string, isNode bool) (string, error) {
+func detectStartupFile(ctx context.Context, gitURL string, appType string) (string, error) {
 	tmpDir, mkErr := os.MkdirTemp("", "opdetect-*")
 	if mkErr != nil {
 		return "", mkErr
@@ -44,7 +45,8 @@ func detectStartupFile(ctx context.Context, gitURL string, isNode bool) (string,
 		return "", cloneErr
 	}
 
-	if isNode {
+	switch appType {
+	case "nodejs":
 		if pkgBytes, readErr := os.ReadFile(tmpDir + "/package.json"); readErr == nil {
 			var pkg struct {
 				Main string `json:"main"`
@@ -61,14 +63,21 @@ func detectStartupFile(ctx context.Context, gitURL string, isNode bool) (string,
 			}
 		}
 		return "", nil
-	}
-
-	for _, candidate := range pythonEntryCandidates {
-		if fileExists(tmpDir + "/" + candidate) {
-			return candidate, nil
+	case "ruby":
+		for _, candidate := range rubyEntryCandidates {
+			if fileExists(tmpDir + "/" + candidate) {
+				return candidate, nil
+			}
 		}
+		return "", nil
+	default:
+		for _, candidate := range pythonEntryCandidates {
+			if fileExists(tmpDir + "/" + candidate) {
+				return candidate, nil
+			}
+		}
+		return "", nil
 	}
-	return "", nil
 }
 
 // HandleDetectGitStartupFile powers the install form's "Git repository
@@ -84,12 +93,12 @@ func HandleDetectGitStartupFile(a *appctx.App, w http.ResponseWriter, r *http.Re
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid or missing git repository URL."})
 		return
 	}
-	if appType != "nodejs" && appType != "python" {
+	if appType != "nodejs" && appType != "python" && appType != "ruby" {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid app type."})
 		return
 	}
 
-	startupFile, err := detectStartupFile(r.Context(), gitURL, appType == "nodejs")
+	startupFile, err := detectStartupFile(r.Context(), gitURL, appType)
 	if err != nil {
 		writeJSON(w, http.StatusOK, map[string]string{"error": "Could not read repository: " + err.Error()})
 		return
