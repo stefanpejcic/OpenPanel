@@ -232,14 +232,23 @@ func (a *App) QueryPlanDetailsByID(ctx context.Context, planID int) (PlanDetails
 				return PlanDetails{}, nil //nolint:nilerr // deliberate: a missing plan returns a zero-value result, not an error
 			}
 		}
-		return PlanDetails{
+		plan := PlanDetails{
 			Description: description.String, DomainsLimit: domainsLimit.String,
 			WebsitesLimit: websitesLimit.String, DBLimit: dbLimit.String,
 			CPU: cpu.String, RAM: ram.String,
 			EmailLimit: emailLimit.String, FTPLimit: ftpLimit.String, DiskLimit: diskLimit.String,
 			InodesLimit: inodesLimit.String, Bandwidth: bandwidth.String, MaxEmailQuota: maxEmailQuota.String,
-			UpsellPlanID: upsellPlanID.String, UpsellPlanName: upsellPlanName.String, UpsellURL: upsellURL.String,
-		}, nil
+		}
+		// Upsell offers are an Enterprise-only feature: leave the fields
+		// unset on any other license so HasUpsell()/UpgradeMessage() stay
+		// silent for non-Enterprise installs regardless of what's configured
+		// in the plans table.
+		if strings.HasPrefix(a.LicenseKey, "enterprise") {
+			plan.UpsellPlanID = upsellPlanID.String
+			plan.UpsellPlanName = upsellPlanName.String
+			plan.UpsellURL = upsellURL.String
+		}
+		return plan, nil
 	})
 }
 
