@@ -114,7 +114,7 @@
     <tbody>
         {{if .UserAllowed.disk_usage}}
         <tr>
-            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Disk Usage:"}}</span></td>
+            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Disk Usage"}}:</span></td>
             <td class="text-end"><a href="{{.DiskUsageHref}}" target="_blank" class="inline-flex items-center gap-1 hover:underline" title="{{.T.Get "Open folder in Disk Usage Explorer"}}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-4">
                     <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
@@ -124,7 +124,7 @@
         {{end}}
         {{if .UserAllowed.inodes}}
         <tr>
-            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Inodes Explorer:"}}</span></td>
+            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Inodes Explorer"}}:</span></td>
             <td class="text-end"><a href="{{.InodesExplorerHref}}" target="_blank" class="inline-flex items-center gap-1 hover:underline" title="{{.T.Get "Open folder in Inodes Explorer"}}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-4">
                     <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
@@ -134,7 +134,7 @@
         {{end}}
         {{if .UserAllowed.ftp}}
         <tr>
-            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "FTP Accounts:"}}</span></td>
+            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "FTP Accounts"}}:</span></td>
             <td class="text-end"><a href="/ftp" target="_blank" class="inline-flex items-center gap-1 hover:underline" title="{{.T.Get "Open FTP Accounts"}}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-4">
                     <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
