@@ -21,7 +21,7 @@ document.addEventListener('alpine:init', () => {
                         Name: service.Name,
                         '{{.T.Get "CPU Usage"}}': service.CPUPerc,
                         '{{.T.Get "RAM Usage"}}': service.MemUsage,
-                        '{{.T.Get "Memory %%"}}': service.MemPerc,
+                        '{{.T.Get "Memory %"}}': service.MemPerc,
                         '{{.T.Get "Network I/O"}}': service.NetIO,
                         '{{.T.Get "Block I/O"}}': service.BlockIO,
                         PIDs: service.PIDs

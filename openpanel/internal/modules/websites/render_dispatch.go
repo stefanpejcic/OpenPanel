@@ -480,6 +480,23 @@ func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		data.PIDs = "100"
 	}
 	data.StartupFile = pm2val("STARTUP_FILE")
+	if data.StartupFile == "" {
+		// An empty STARTUP_FILE env var is a valid, common install-time
+		// choice (the form's startup-file field isn't actually required
+		// server-side - see appinstall/install.go's defaultStartupFile) -
+		// the docker-compose template substitutes one of these same
+		// per-type defaults at runtime (${..._STARTUP_FILE:-<default>}),
+		// so showing a blank field here would make it look like nothing
+		// is configured when the app is really just running its default.
+		switch data.Type {
+		case "nodejs":
+			data.StartupFile = "index.js"
+		case "ruby":
+			data.StartupFile = "app.rb"
+		default:
+			data.StartupFile = "app.py"
+		}
+	}
 	data.CustomCmd = pm2val("CUSTOM_CMD")
 	data.Workdir = pm2val("WORKDIR")
 	data.CurrentVersion = pm2val("TAG")
