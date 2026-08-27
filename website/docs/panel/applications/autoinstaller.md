@@ -13,9 +13,22 @@ Auto Installer allows you to one-click install applications.
 For an application to appear on the Autoinstaller page, the corresponding module must be enabled.
 
 - WordPress
+- Drupal
+- Joomla
+- OpenCart
+- Nextcloud
+- PrestaShop
+- Matomo
+- Moodle
+- MediaWiki
+- Flarum
+- SofaWiki
+- Mautic
 - NodeJS Applications*
 - Python Applications*
-- Mautic
+- Ruby Applications*
+- PHP Applications
 - Website Builder
+- Custom Docker Application
 
 `*` Indicates that the feature is available only in Enterprise editon.
