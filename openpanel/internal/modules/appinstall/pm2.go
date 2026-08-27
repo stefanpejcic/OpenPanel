@@ -6,7 +6,6 @@
 package appinstall
 
 import (
-	"bufio"
 	"net/http"
 	"os"
 	"regexp"
@@ -90,31 +89,24 @@ func handlePM2Logs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logPath := "/home/" + userContext + "/docker-data/containers/" + containerID + "/" + containerID + "-json.log"
-	f, openErr := os.Open(logPath)
-	if openErr != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Log file not found at " + logPath})
+	// `podman logs` itself, not a raw json-file-log-driver path on the
+	// host - that path assumed Docker's default logging driver layout
+	// (/home/<user>/docker-data/containers/<id>/<id>-json.log), which
+	// doesn't exist under podman (confirmed live: the directory itself
+	// isn't even created). `podman logs` works regardless of log driver
+	// and rootless/remote setup, matching how every other container
+	// operation in this codebase already goes through podmanmanager
+	// rather than assuming a host-visible file layout.
+	logsArgv := podmanmanager.PodmanArgv(userContext, "logs", "--tail", strconv.Itoa(lines), "--timestamps", containerID)
+	out, logsErr := podmanmanager.Command(r.Context(), userContext, logsArgv).CombinedOutput()
+	if logsErr != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte("Error fetching logs: " + string(out) + "\n"))
 		return
 	}
-	defer f.Close()
 
-	// Keep only the last N lines by reading sequentially (no reverse-seek
-	// optimization here).
-	ring := make([]string, 0, lines)
-	scanner := bufio.NewScanner(f)
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
-	for scanner.Scan() {
-		line := scanner.Text() + "\n"
-		if len(ring) == lines {
-			ring = ring[1:]
-		}
-		ring = append(ring, line)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	for _, line := range ring {
-		_, _ = w.Write([]byte(line))
-	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	_, _ = w.Write(out)
 }
 
 // pm2SiteLookup mirrors the "find the app type for this site" query shared
