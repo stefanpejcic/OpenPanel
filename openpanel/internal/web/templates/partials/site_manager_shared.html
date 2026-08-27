@@ -717,3 +717,155 @@ document.addEventListener("DOMContentLoaded", async () => {
 </div>
 <!-- END templates/partials/pagespeed.html -->
 {{end}}
+
+{{/* malware_scan_panel: a self-contained "Scan for Malware" section reused
+     across every app manager page's Security tab (WordPress, other CMS
+     apps, Node.js/Python apps). Runs the site's docroot through the
+     existing /start-scan endpoint (see internal/modules/malwarescan) and
+     streams per-file progress the same way /malware-scanner does. */}}
+{{define "malware_scan_panel"}}
+{{if .UserAllowed.malware_scan}}
+<!-- START templates/partials/malware_scan_panel.html -->
+<div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+    <div>
+        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Scan for Malware"}}</h2>
+    </div>
+    <div class="sm:max-w-3xl md:col-span-2">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+
+            <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Scan this site's files for malware using the ClamAV antivirus scanner."}}</p>
+
+            <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+                <button type="button" id="malwareScanBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Scan for Malware"}}</button>
+            </div>
+
+            <div id="malwareScanProgress" class="mt-4" style="display: none;">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    <span id="malwareScanCount">0</span> {{.T.Get "files scanned"}} &mdash;
+                    <span id="malwareScanCurrent"></span>
+                </p>
+            </div>
+
+            <div id="malwareScanComplete" class="mt-4 alert alert-success" style="display: none;"></div>
+
+            <div id="malwareScanResults" class="mt-4 text-sm"></div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const scanDirectory = {{toJSON .Docroot}};
+    const i18n = {
+        scanning: {{toJSON (.T.Get "Scanning...")}},
+        scanLabel: {{toJSON (.T.Get "Scan for Malware")}},
+        scanFailed: {{toJSON (.T.Get "Scan failed: ")}},
+        scanComplete: {{toJSON (.T.Get "Scan is complete!")}},
+        filesScanned: {{toJSON (.T.Get "files scanned.")}},
+        noMalwareFound: {{toJSON (.T.Get "No malware found.")}}
+    };
+
+    const btn = document.getElementById('malwareScanBtn');
+    if (!btn) return;
+
+    const progressEl = document.getElementById('malwareScanProgress');
+    const countEl = document.getElementById('malwareScanCount');
+    const currentEl = document.getElementById('malwareScanCurrent');
+    const completeEl = document.getElementById('malwareScanComplete');
+    const resultsEl = document.getElementById('malwareScanResults');
+
+    let scanLineBuffer = '';
+    let scannedCount = 0;
+    let malwareCount = 0;
+
+    function appendScanResult(line) {
+        resultsEl.innerHTML += (resultsEl.innerHTML ? '<br>' : '') + line;
+    }
+
+    // The backend emits two lines per file: "Scanning: X" (progress only,
+    // not counted) followed by "X - result" (counted). Only malware/error
+    // results are appended to the results list — a scan can cover
+    // thousands of files, so appending every "No malware found" line would
+    // grow the DOM unbounded.
+    function handleScanLine(line) {
+        if (!line) return;
+
+        if (line.startsWith('Scanning: ')) {
+            currentEl.textContent = line;
+            return;
+        }
+
+        scannedCount++;
+        countEl.textContent = scannedCount;
+        currentEl.textContent = line;
+
+        if (!line.endsWith('No malware found')) {
+            appendScanResult(line);
+            if (line.endsWith('Malware detected')) {
+                malwareCount++;
+            }
+        }
+    }
+
+    btn.addEventListener('click', function() {
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg>' + i18n.scanning;
+
+        scanLineBuffer = '';
+        scannedCount = 0;
+        malwareCount = 0;
+        resultsEl.innerHTML = '';
+        countEl.textContent = '0';
+        currentEl.textContent = '';
+        progressEl.style.display = 'block';
+        completeEl.style.display = 'none';
+
+        fetch(`/start-scan?directory=${encodeURIComponent(scanDirectory)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.body.getReader();
+            })
+            .then(reader => {
+                const decoder = new TextDecoder('utf-8');
+                return reader.read().then(function processText({ done, value }) {
+                    if (done) {
+                        if (scanLineBuffer.trim()) handleScanLine(scanLineBuffer.trim());
+                        progressEl.style.display = 'none';
+                        const summary = `${i18n.scanComplete} ${scannedCount} ${i18n.filesScanned}`;
+                        completeEl.textContent = summary;
+                        completeEl.style.display = 'block';
+                        if (scannedCount > 0 && resultsEl.innerHTML === '') {
+                            appendScanResult(i18n.noMalwareFound);
+                        }
+                        if (typeof showToast === 'function') {
+                            showToast(summary, malwareCount > 0 ? 'error' : 'success');
+                        }
+                        return;
+                    }
+                    scanLineBuffer += decoder.decode(value, { stream: true });
+                    const lines = scanLineBuffer.split('\n');
+                    scanLineBuffer = lines.pop();
+                    lines.forEach(handleScanLine);
+                    return reader.read().then(processText);
+                });
+            })
+            .catch(error => {
+                console.error('Scan failed:', error);
+                appendScanResult(i18n.scanFailed + error.message);
+                if (typeof showToast === 'function') {
+                    showToast(i18n.scanFailed + error.message, 'error');
+                }
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = i18n.scanLabel;
+            });
+    });
+})();
+</script>
+<!-- END templates/partials/malware_scan_panel.html -->
+{{end}}
+{{end}}

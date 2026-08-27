@@ -123,6 +123,17 @@
                     <span class="hidden md:inline">{{.T.Get "Backups"}}</span>
                 </a>
             </li>
+            {{if .UserAllowed.malware_scan}}
+            <li role="presentation">
+                <a href="#" id="security-tab" data-tabs-target="#security" role="tab" aria-controls="security" aria-selected="false"
+                   @click="activeTab = 'security'"
+                   :class="activeTab === 'security' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 14.933a1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Security"}}</span>
+                </a>
+            </li>
+            {{end}}
             <li role="presentation">
                 <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
                    @click="activeTab = 'remove'"
@@ -136,6 +147,13 @@
     </div>
 
     <div id="matomo-tab-content">
+
+        {{if .UserAllowed.malware_scan}}
+        <div class="hidden p-4 rounded" id="security" role="tabpanel" aria-labelledby="security-tab">
+            {{template "malware_scan_panel" .}}
+        </div>
+        {{end}}
+
 
         <div class="hidden p-4 rounded" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
 

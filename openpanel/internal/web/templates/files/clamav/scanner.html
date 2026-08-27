@@ -66,10 +66,16 @@
 <!-- END form -->
 
 
-    <!-- Scan Complete Message (Initially hidden) -->
-    <div id="scan-complete-message" class="m-4 alert alert-success" style="display: none;">
-        {{.T.Get "Scan is complete!"}}
+    <!-- Scan Progress (Initially hidden) -->
+    <div id="scan-progress" class="m-4" style="display: none;">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+            <span id="scan-progress-count">0</span> {{.T.Get "files scanned"}} &mdash;
+            <span id="scan-progress-current"></span>
+        </p>
     </div>
+
+    <!-- Scan Complete Message (Initially hidden) -->
+    <div id="scan-complete-message" class="m-4 alert alert-success" style="display: none;"></div>
 
     <!-- Scan Results Card (Initially hidden) -->
     <div id="scan-results-card" class="card card-one m-4" style="display: none;">
@@ -88,24 +94,71 @@
 
 <script>
     const i18n = {
-        scanFailed: "{{.T.Get "Scan failed: "}}"
+        scanFailed: "{{.T.Get "Scan failed: "}}",
+        scanComplete: "{{.T.Get "Scan is complete!"}}",
+        filesScanned: "{{.T.Get "files scanned."}}",
+        noMalwareFound: "{{.T.Get "No malware found."}}"
     };
 
-    function displayScanResults(result) {
-        const scanResultsDiv = document.getElementById('scan-results');
-        const lines = scanResultsDiv.innerHTML.split('<br>');
+    let scanLineBuffer = '';
+    let scannedCount = 0;
+    let malwareCount = 0;
 
-        if (result.startsWith('Scanning')) {
-            lines.push(result);
-        } else {
-            lines[lines.length - 1] = result;
+    function resetScanUI() {
+        scanLineBuffer = '';
+        scannedCount = 0;
+        malwareCount = 0;
+        document.getElementById('scan-results').innerHTML = '';
+        document.getElementById('scan-progress-count').textContent = '0';
+        document.getElementById('scan-progress-current').textContent = '';
+        document.getElementById('scan-progress').style.display = 'block';
+        document.getElementById('scan-complete-message').style.display = 'none';
+    }
+
+    function appendScanResult(line) {
+        const scanResultsDiv = document.getElementById('scan-results');
+        scanResultsDiv.innerHTML += (scanResultsDiv.innerHTML ? '<br>' : '') + line;
+    }
+
+    // The backend emits two lines per file: "Scanning: X" (progress only,
+    // not counted) followed by "X - result" (counted). Only malware/error
+    // results are appended to the persistent results list — scans can cover
+    // tens of thousands of files, so appending every "No malware found" line
+    // would grow the DOM unbounded and hang the tab.
+    function handleScanLine(line) {
+        if (!line) return;
+
+        if (line.startsWith('Scanning: ')) {
+            document.getElementById('scan-progress-current').textContent = line;
+            return;
         }
 
-        scanResultsDiv.innerHTML = lines.join('<br>');
+        scannedCount++;
+        document.getElementById('scan-progress-count').textContent = scannedCount;
+        document.getElementById('scan-progress-current').textContent = line;
+
+        if (!line.endsWith('No malware found')) {
+            appendScanResult(line);
+            if (line.endsWith('Malware detected')) {
+                malwareCount++;
+            }
+        }
     }
 
     function showScanCompleteMessage() {
-        document.getElementById('scan-complete-message').style.display = 'block';
+        document.getElementById('scan-progress').style.display = 'none';
+        const msg = document.getElementById('scan-complete-message');
+        const summary = `${i18n.scanComplete} ${scannedCount} ${i18n.filesScanned}`;
+        msg.textContent = summary;
+        msg.style.display = 'block';
+
+        if (scannedCount > 0 && document.getElementById('scan-results').innerHTML === '') {
+            appendScanResult(i18n.noMalwareFound);
+        }
+
+        if (typeof showToast === 'function') {
+            showToast(summary, malwareCount > 0 ? 'error' : 'success');
+        }
     }
 
     document.getElementById('start-scan-btn').addEventListener('click', function() {
@@ -123,20 +176,27 @@
             })
             .then(reader => {
                 document.getElementById('scan-results-card').style.display = 'block';
+                resetScanUI();
                 const decoder = new TextDecoder('utf-8');
                 return reader.read().then(function processText({ done, value }) {
                     if (done) {
+                        if (scanLineBuffer.trim()) handleScanLine(scanLineBuffer.trim());
                         showScanCompleteMessage();
                         return;
                     }
-                    const result = decoder.decode(value);
-                    displayScanResults(result);
+                    scanLineBuffer += decoder.decode(value, { stream: true });
+                    const lines = scanLineBuffer.split('\n');
+                    scanLineBuffer = lines.pop();
+                    lines.forEach(handleScanLine);
                     return reader.read().then(processText);
                 });
             })
             .catch(error => {
                 console.error('Scan failed:', error);
-                displayScanResults(i18n.scanFailed + error.message);
+                appendScanResult(i18n.scanFailed + error.message);
+                if (typeof showToast === 'function') {
+                    showToast(i18n.scanFailed + error.message, 'error');
+                }
                 document.getElementById('start-scan-btn').style.display = 'block';
             })
             .finally(() => {

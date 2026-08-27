@@ -855,6 +855,12 @@
                 </div>
             </div>
 
+            {{if .UserAllowed.malware_scan}}
+            <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+            {{template "malware_scan_panel" .}}
+            {{end}}
+
             <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
 
             <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
