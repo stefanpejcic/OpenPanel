@@ -225,8 +225,25 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 // runSofawikiExtract downloads the master branch archive and extracts it
 // into installPath. GitHub's archive wraps everything in a top-level
 // "sofawiki-master/" directory, so this extracts to a scratch location
-// first and moves that directory into place - installPath itself must not
-// already exist (checked by the caller) since `mv` won't merge into it.
+// first, then copies that directory's *contents* into installPath. A root
+// (no-subdirectory) install's installPath is the domain's docroot, which
+// already exists (created when the domain was added) even though empty -
+// `mv scratch/sofawiki-master installPath` would move the whole directory
+// INSIDE the existing installPath instead of replacing it, nesting
+// everything one level too deep (confirmed live: files landed in
+// installPath/sofawiki-master/ instead of installPath/). Copying contents
+// with `cp -a ./. installPath/` after `mkdir -p installPath` works
+// correctly whether installPath already exists (root install) or not
+// (subdirectory install).
+//
+// index.php also hardcodes `ini_set('display_errors', 1)`, so PHP
+// warnings/notices from its own legacy code (e.g. the fsockopen self-check
+// in inc/async.php that always warns on a fresh, unconfigured install) get
+// printed straight into the HTTP response body sent to visitors. This
+// platform's WAF correctly treats that as PHP error disclosure and blocks
+// the response with an empty 403 (confirmed live: PHP itself completed
+// the request fine per php-fpm's logs, but the client still got a bare
+// 403 - the WAF, not PHP, rejected it). Patched to 0 after extraction.
 func runSofawikiExtract(ctx context.Context, userContext, phpContainer, installPath string) ([]byte, error) {
 	scratch := "/tmp/openpanel-sofawiki-" + strconv.FormatInt(time.Now().UnixNano(), 36)
 	script := `set -e
@@ -234,8 +251,10 @@ rm -rf ` + scratch + ` ` + scratch + `.zip
 mkdir -p ` + scratch + `
 curl -sL -o ` + scratch + `.zip ` + sofawikiSourceZip + `
 unzip -q ` + scratch + `.zip -d ` + scratch + `
-mv ` + scratch + `/sofawiki-master ` + installPath + `
-rm -rf ` + scratch + ` ` + scratch + `.zip`
+mkdir -p ` + installPath + `
+cp -a ` + scratch + `/sofawiki-master/. ` + installPath + `/
+rm -rf ` + scratch + ` ` + scratch + `.zip
+sed -i "s/\(ini_set([\"']display_errors[\"'], \)1/\10/g" ` + installPath + `/index.php`
 
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "sh", "-c", script)
 	return podmanmanager.Command(ctx, userContext, argv).CombinedOutput()

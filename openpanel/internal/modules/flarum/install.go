@@ -216,12 +216,20 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	// flarum/flarum's docroot is the public/ subdirectory, not the composer
-	// project root - same shape as Drupal's web/ subdirectory quirk, and
-	// resolved the same way: symlink public/'s entries up into installPath
-	// (rather than moving them) so installPath itself is servable without
-	// touching public/'s own relative includes.
+	// project root - same shape as Drupal's web/ subdirectory quirk. We
+	// symlink public/'s entries up into installPath so installPath itself
+	// is servable, EXCEPT index.php: it does a literal `require
+	// '../site.php'`, which PHP resolves relative to the entry script's
+	// path as given by SCRIPT_FILENAME (the symlink's own location, not
+	// the symlinked-to real path) - so a plain symlink makes it look one
+	// directory too high and 500s on every request (confirmed live via a
+	// real install: "Failed opening required '../site.php'"). Instead we
+	// write a tiny wrapper at installPath/index.php that requires the real
+	// public/index.php by its real absolute path, so PHP resolves that
+	// file's own relative require correctly against public/.
 	emit(map[string]any{"status": "Linking public root into docroot"})
-	linkScript := `cd "$1/public" && for f in .[!.]* ..?* *; do [ -e "$f" ] || continue; ln -sfn "public/$f" "$1/$f"; done`
+	linkScript := `cd "$1/public" && for f in .[!.]* ..?* *; do [ "$f" = "index.php" ] && continue; [ -e "$f" ] || continue; ln -sfn "public/$f" "$1/$f"; done
+printf '%s\n' '<?php' 'chdir(__DIR__ . "/public"); require __DIR__ . "/public/index.php";' > "$1/index.php"`
 	linkArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "sh", "-c", linkScript, "sh"), installPath)
 	out, runErr = podmanmanager.Command(ctx, userContext, linkArgv).CombinedOutput()
 	if runErr != nil {
