@@ -28,6 +28,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /nextcloud/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudRestoreBackup(a, w, r) }))
 	mux.Handle("GET /nextcloud/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudRunBackup(a, w, r) }))
 	mux.Handle("POST /nextcloud/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudClone(a, w, r) }))
+	mux.Handle("POST /nextcloud/update", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudUpdate(a, w, r) }))
 }
 
 // withNextcloudForm clones r as a POST carrying the given values as both

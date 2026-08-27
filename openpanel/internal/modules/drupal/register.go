@@ -25,6 +25,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /drupal/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDrupalRestoreBackup(a, w, r) }))
 	mux.Handle("GET /drupal/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDrupalRunBackup(a, w, r) }))
 	mux.Handle("POST /drupal/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDrupalClone(a, w, r) }))
+	mux.Handle("POST /drupal/update", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDrupalUpdate(a, w, r) }))
 }
 
 // withDrupalForm clones r as a POST carrying the given values as both Form

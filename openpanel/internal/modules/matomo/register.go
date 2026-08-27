@@ -27,6 +27,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /matomo/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMatomoGetBackupDates(a, w, r) }))
 	mux.Handle("GET /matomo/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMatomoRestoreBackup(a, w, r) }))
 	mux.Handle("GET /matomo/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMatomoRunBackup(a, w, r) }))
+	mux.Handle("POST /matomo/update", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMatomoUpdate(a, w, r) }))
 }
 
 // withMatomoForm clones r as a POST carrying the given values as both Form

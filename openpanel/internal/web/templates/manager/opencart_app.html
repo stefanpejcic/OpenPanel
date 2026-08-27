@@ -630,6 +630,8 @@
                         </div>
                     </div>
                     <p class="mt-3 text-sm/6" id="opencart-update-status"></p>
+                    <button type="button" id="opencart-update-admin-btn" class="hidden relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">{{.T.Get "Open OpenCart Admin"}}</button>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "OpenCart has no safe unattended CLI updater, so this logs you into your own admin panel - follow OpenCart's own upgrade instructions from there. A backup is recommended first - see the Backups tab."}}</p>
                 </div>
             </div>
 
@@ -660,8 +662,10 @@
                                 .sort(compareOpenCartVersionsDesc);
                             const latest = versions[0];
                             latestEl.textContent = latest || {{toJSON (.T.Get "Unknown")}};
+                            const updateBtn = document.getElementById('opencart-update-admin-btn');
                             if (latest && installed && latest !== installed) {
                                 statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
+                                updateBtn.classList.remove('hidden');
                             } else if (latest && installed) {
                                 statusEl.innerHTML = '<span class="text-green-600">' + {{toJSON (.T.Get "You are running the latest version.")}} + '</span>';
                             }
@@ -678,6 +682,36 @@
                     if (__opencartUpdateLoaded) return;
                     __opencartUpdateLoaded = true;
                     checkOpenCartLatestVersion();
+                });
+
+                document.getElementById('opencart-update-admin-btn').addEventListener('click', function() {
+                    var btn = this;
+                    btn.disabled = true;
+                    showToast({{toJSON (.T.Get "Generating auto-login link..")}}, 'loading', true);
+                    var url = '/opencart/login?domain=' + encodeURIComponent({{toJSON .CurrentDomain}}) + '&docroot=' + encodeURIComponent({{toJSON .Docroot}});
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', url, true);
+                    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4) {
+                            btn.disabled = false;
+                            if (xhr.status === 200) {
+                                try {
+                                    var response = JSON.parse(xhr.responseText);
+                                    if (response && response.login_link) {
+                                        window.open(response.login_link, '_blank');
+                                    } else if (response && response.error) {
+                                        showToast(`${response.error}`, 'warning');
+                                    }
+                                } catch (e) {
+                                    showToast({{toJSON (.T.Get "Unexpected response from server.")}}, 'error');
+                                }
+                            } else {
+                                showToast({{toJSON (.T.Get "Failed to generate login link.")}}, 'error');
+                            }
+                        }
+                    };
+                    xhr.send();
                 });
             </script>
         </div>
