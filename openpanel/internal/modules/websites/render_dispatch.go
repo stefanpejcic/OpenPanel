@@ -19,6 +19,13 @@ type pageData struct {
 	CurrentDomain        string
 	Docroot              string
 	PagespeedAPIKeyValue string
+	// DiskUsageHref/InodesExplorerHref point into the disk-usage/
+	// inodes-explorer browsers (see internal/modules/diskusage,
+	// internal/modules/inodes) at this site's docroot - built from the
+	// account's home directory, not the container-side Docroot path, so
+	// they're computed once in handleWebsiteDispatch (see explorerHref).
+	DiskUsageHref      string
+	InodesExplorerHref string
 }
 
 // PagespeedAPIKey satisfies the field name the pagespeed_panel partial

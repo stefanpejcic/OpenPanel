@@ -3,6 +3,7 @@ package websites
 import (
 	"database/sql"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -60,6 +61,23 @@ func checkBackupFilesExist(a *appctx.App, r *http.Request, selectedDomain string
 		return len(entries) > 0, nil
 	})
 	return result
+}
+
+// explorerHref builds a disk-usage/inodes-explorer link (base is
+// "/disk-usage/" or "/inodes-explorer/") for a site's docroot. Both
+// explorers browse the account's home directory
+// (/home/<userContext>/...), not the docroot's container-side path
+// (/var/www/html/<...>) - the docroot volume is bind-mounted from
+// docker-data/volumes/<userContext>_html_data/_data/ under that home
+// directory, so that's the prefix used to translate one into the other.
+func explorerHref(base, userContext, docroot string) string {
+	rel := strings.TrimPrefix(docroot, "/var/www/html/")
+	full := "docker-data/volumes/" + userContext + "_html_data/_data/" + rel
+	segments := strings.Split(full, "/")
+	for i, s := range segments {
+		segments[i] = url.PathEscape(s)
+	}
+	return base + strings.Join(segments, "/")
 }
 
 // getPagespeedInsightsAPIKey reads the user's PageSpeed Insights API key
@@ -131,6 +149,14 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 	cmsType := strings.ToLower(container.Type)
 	pagespeedAPIKey := getPagespeedInsightsAPIKey(a, r, userContext)
 
+	basePageData := pageData{
+		CurrentDomain:        websiteParam,
+		Docroot:              docroot,
+		PagespeedAPIKeyValue: pagespeedAPIKey,
+		DiskUsageHref:        explorerHref("/disk-usage/", userContext, docroot),
+		InodesExplorerHref:   explorerHref("/inodes-explorer/", userContext, docroot),
+	}
+
 	switch cmsType {
 	case "wordpress":
 		backupFilesAvailable := checkBackupFilesExist(a, r, websiteParam)
@@ -138,7 +164,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		domains, _ := a.AllDomainsForUser(ctx, userID)
 		renderWPSinglePage(a, w, r, WPSinglePageData{
-			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:             basePageData,
 			Domains:              domains,
 			Container:            container,
 			BackupFilesAvailable: backupFilesAvailable,
@@ -155,7 +181,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		}
 		pm2Data := getPM2ForApplication(a, r, userContext, container.Container, pm2Type)
 		renderPythonNodeAppsPage(a, w, r, PythonNodeAppsPageData{
-			pageData:  pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:  basePageData,
 			Container: container,
 			PM2Data:   pm2Data,
 		})
@@ -164,7 +190,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		settings := getPHPAppSettings(userContext, websiteParam)
 		renderPHPAppPage(a, w, r, PHPAppPageData{
-			pageData:                   pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:                   basePageData,
 			Container:                  container,
 			PHPVersion:                 currentPHPVersion,
 			InitialProject:             settings.initialProject,
@@ -174,7 +200,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	case "websitebuilder", "sitebuilder":
 		renderWebsiteBuilderPage(a, w, r, WebsiteBuilderPageData{
-			pageData:  pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:  basePageData,
 			Container: container,
 		})
 
@@ -186,7 +212,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderDrupalAppPage(a, w, r, DrupalAppPageData{
-			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:             basePageData,
 			Domains:              domains,
 			Container:            container,
 			DrupalVersion:        drupalVersion,
@@ -207,7 +233,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderFlarumAppPage(a, w, r, FlarumAppPageData{
-			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:             basePageData,
 			Domains:              domains,
 			Container:            container,
 			FlarumVersion:        flarumVersion,
@@ -225,7 +251,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderSofawikiAppPage(a, w, r, SofawikiAppPageData{
-			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:             basePageData,
 			Domains:              domains,
 			Container:            container,
 			IsSubdirectory:       folderParam != "",
@@ -242,7 +268,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderJoomlaAppPage(a, w, r, JoomlaAppPageData{
-			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:             basePageData,
 			Domains:              domains,
 			Container:            container,
 			JoomlaVersion:        joomlaVersion,
@@ -263,7 +289,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderOpenCartAppPage(a, w, r, OpenCartAppPageData{
-			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:             basePageData,
 			Domains:              domains,
 			Container:            container,
 			OpenCartVersion:      openCartVersion,
@@ -284,7 +310,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderPrestashopAppPage(a, w, r, PrestashopAppPageData{
-			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:             basePageData,
 			Domains:              domains,
 			Container:            container,
 			PrestashopVersion:    prestashopVersion,
@@ -305,7 +331,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderNextcloudAppPage(a, w, r, NextcloudAppPageData{
-			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:             basePageData,
 			Domains:              domains,
 			Container:            container,
 			NextcloudVersion:     nextcloudVersion,
@@ -326,7 +352,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderMatomoAppPage(a, w, r, MatomoAppPageData{
-			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:             basePageData,
 			Domains:              domains,
 			Container:            container,
 			MatomoVersion:        matomoVersion,
@@ -347,7 +373,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderMoodleAppPage(a, w, r, MoodleAppPageData{
-			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:             basePageData,
 			Domains:              domains,
 			Container:            container,
 			MoodleVersion:        moodleVersion,
@@ -368,7 +394,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		mysqlVersion := getMySQLVersion(a, r, userContext)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderMediaWikiAppPage(a, w, r, MediaWikiAppPageData{
-			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			pageData:             basePageData,
 			Domains:              domains,
 			Container:            container,
 			MediaWikiVersion:     mediawikiVersion,
