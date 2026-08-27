@@ -95,6 +95,7 @@ func handleSitesBulk(a *appctx.App, mux *http.ServeMux, w http.ResponseWriter, r
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "ran bulk action '"+req.Action+"' on "+itoa(len(req.Sites))+" site(s)", reqip.ClientIP(r))
+	flashSess(a, w, r, bulkFlashCategory(results), bulkFlashMessage(req.Action, results))
 	writeJSON(w, http.StatusOK, map[string]any{"results": results})
 }
 
@@ -142,6 +143,56 @@ func dispatchBulkItem(a *appctx.App, mux *http.ServeMux, r *http.Request, action
 
 func itoa(n int) string {
 	return strconv.Itoa(n)
+}
+
+// bulkFlashCategory/bulkFlashMessage turn a batch of per-site results into
+// the one flash banner shown after the page reload that follows a bulk
+// action - "success"/"warning"/"danger" drive the same flash styling
+// every other redirect-based action in this app already uses.
+func bulkFlashCategory(results []bulkResult) string {
+	failed := 0
+	for _, res := range results {
+		if !res.OK {
+			failed++
+		}
+	}
+	switch {
+	case failed == 0:
+		return "success"
+	case failed == len(results):
+		return "danger"
+	default:
+		return "warning"
+	}
+}
+
+func bulkFlashMessage(action string, results []bulkResult) string {
+	var failed []bulkResult
+	for _, res := range results {
+		if !res.OK {
+			failed = append(failed, res)
+		}
+	}
+	actionTitle := strings.ToUpper(action[:1]) + action[1:]
+	if len(failed) == 0 {
+		return actionTitle + ": completed successfully for all " + itoa(len(results)) + " selected site(s)."
+	}
+
+	msg := actionTitle + ": " + itoa(len(failed)) + " of " + itoa(len(results)) + " selected site(s) failed."
+	for _, res := range failed {
+		msg += " " + res.SiteName + " (" + firstLine(res.Message) + ")."
+	}
+	return msg
+}
+
+func firstLine(s string) string {
+	if idx := strings.IndexByte(s, '\n'); idx != -1 {
+		s = s[:idx]
+	}
+	if len(s) > 150 {
+		s = s[:150]
+	}
+	return s
 }
 
 // internalDispatch replays r's already-authenticated session (cookie,

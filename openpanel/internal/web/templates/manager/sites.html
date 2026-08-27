@@ -74,7 +74,6 @@
         if (!action || sites.length === 0 || this.bulkRunning) return;
 
         this.bulkRunning = true;
-        showToast({{toJSON (.T.Get "Running bulk action...")}}, 'loading');
 
         fetch('/sites/bulk', {
             method: 'POST',
@@ -82,24 +81,18 @@
             body: JSON.stringify({ action: action, sites: sites })
         })
             .then(response => response.json())
-            .then(data => {
-                const results = data.results || [];
-                const failed = results.filter(r => !r.ok);
-                if (failed.length === 0) {
-                    showToast({{toJSON (.T.Get "Bulk action completed successfully.")}}, 'success');
-                } else if (failed.length < results.length) {
-                    showToast(failed.length + {{toJSON (.T.Get " of ")}} + results.length + {{toJSON (.T.Get " sites failed: ")}} + failed.map(r => r.site_name + ' (' + r.message + ')').join('; '), 'warning');
-                } else {
-                    showToast({{toJSON (.T.Get "Bulk action failed: ")}} + failed.map(r => r.site_name + ' (' + r.message + ')').join('; '), 'error');
-                }
-                this.clearSelection();
-                setTimeout(() => { window.location.reload(); }, 1800);
+            .then(() => {
+                // The server already recorded a dismissible flash notice
+                // summarizing the per-site results - it renders after
+                // reload and stays on screen until the user closes it,
+                // instead of a toast that fades before they can read it.
+                window.location.reload();
             })
             .catch(error => {
                 console.error('Bulk action error:', error);
                 showToast({{toJSON (.T.Get "Error occurred during bulk action.")}}, 'error');
-            })
-            .finally(() => { this.bulkRunning = false; });
+                this.bulkRunning = false;
+            });
     }
 }">
     <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
