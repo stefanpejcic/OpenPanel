@@ -35,7 +35,7 @@
         <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" class="grid {{if .UserAllowed.malware_scan}}grid-cols-5{{else}}grid-cols-4{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" class="grid {{if .UserAllowed.malware_scan}}grid-cols-6{{else}}grid-cols-5{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
             <li role="presentation">
                 <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
                    @click="activeTab = 'dashboard'"
@@ -52,6 +52,15 @@
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
                     <span class="hidden md:inline">{{.T.Get "Install Packages"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#envvars" id="envvars-tab" data-tabs-target="#envvars" role="tab" aria-controls="envvars" aria-selected="false"
+                   @click="activeTab = 'envvars'"
+                   :class="activeTab === 'envvars' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Env Vars"}}</span>
                 </a>
             </li>
             <li role="presentation">
@@ -777,6 +786,23 @@
     <div class="modal-body"></div>
     </div>
 
+                </div>
+
+                <div class="hidden p-4 rounded" id="envvars" role="tabpanel" aria-labelledby="envvars-tab">
+                    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                        <div>
+                            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Environment Variables"}}</h2>
+                            <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Custom environment variables passed to the application's container, one KEY=VALUE per line."}}</p>
+                        </div>
+                        <div class="sm:max-w-3xl md:col-span-2">
+                            <form action="/pm2/envvars/{{.Service}}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                                <textarea name="env_vars" rows="10" placeholder="API_KEY=changeme&#10;DATABASE_URL=postgres://user:pass@host/db" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 font-mono">{{.EnvVars}}</textarea>
+                                <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Restart the application from the Overview tab after saving for changes to take effect."}}</p>
+                                <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-100">{{.T.Get "Save Environment Variables"}}</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">

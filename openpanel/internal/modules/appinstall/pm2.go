@@ -24,7 +24,7 @@ import (
 
 // undeletableAppActions is a confusingly-named variable: it's actually the
 // *allowed* app_actions list, not a list of undeletable things.
-var undeletableAppActions = map[string]bool{"start": true, "stop": true, "update": true, "restart": true}
+var undeletableAppActions = map[string]bool{"start": true, "stop": true, "update": true, "restart": true, "envvars": true}
 
 // undeletableServices are core panel services app_actions/app_delete
 // refuse to touch even if asked.
@@ -210,7 +210,71 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	case "update":
 		handlePM2Update(a, w, r, currentUsername, userContext, siteName, pyOrNode, nameForManager)
 		return
+
+	case "envvars":
+		handlePM2EnvVars(a, w, r, currentUsername, userContext, siteName, nameForManager)
+		return
 	}
+}
+
+var envVarLineRE = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*=.*$`)
+
+// handlePM2EnvVars saves the Env Vars tab's textarea (one KEY=VALUE per
+// line, blank lines and #-comments ignored) as the service's
+// docker-compose.yml `environment:` list - same LoadCompose/SaveCompose
+// round-trip handlePM2Update already uses for command/pids, so this never
+// hand-edits YAML text. A full replace, not a merge: these apps have no
+// other source of truth for their env vars, so the textarea IS the
+// complete set the user wants running.
+func handlePM2EnvVars(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, containerName, nameForManager string) {
+	_ = r.ParseForm()
+	redirectPath := "/website?domain=" + nameForManager
+
+	var envLines []string
+	for _, rawLine := range strings.Split(r.FormValue("env_vars"), "\n") {
+		line := strings.TrimSpace(rawLine)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		if !envVarLineRE.MatchString(line) {
+			flashAndRedirectApp(a, w, r, "error", "Error saving: invalid line \""+line+"\" - each line must be KEY=VALUE.", redirectPath)
+			return
+		}
+		envLines = append(envLines, line)
+	}
+
+	composeData, loadErr := docker.LoadCompose(userContext)
+	if loadErr != nil {
+		flashAndRedirectApp(a, w, r, "error", "Error saving: could not read docker-compose.yml.", redirectPath)
+		return
+	}
+	services, ok := composeData["services"].(map[string]any)
+	if !ok {
+		flashAndRedirectApp(a, w, r, "error", "Error saving: docker-compose.yml has no services.", redirectPath)
+		return
+	}
+	svc, ok := services[containerName].(map[string]any)
+	if !ok {
+		flashAndRedirectApp(a, w, r, "error", "Error saving: service '"+containerName+"' not found in docker-compose.yml.", redirectPath)
+		return
+	}
+
+	envAny := make([]any, len(envLines))
+	for i, l := range envLines {
+		envAny[i] = l
+	}
+	if len(envAny) == 0 {
+		delete(svc, "environment")
+	} else {
+		svc["environment"] = envAny
+	}
+	if saveErr := docker.SaveCompose(userContext, composeData); saveErr != nil {
+		flashAndRedirectApp(a, w, r, "error", "Error saving: "+saveErr.Error(), redirectPath)
+		return
+	}
+
+	_ = logger.RecordUserAction(a.Config, currentUsername, "edited environment variables for application "+containerName, reqip.ClientIP(r))
+	flashAndRedirectApp(a, w, r, "success", "Environment variables saved, make sure to restart the application for changes to take effect.", redirectPath)
 }
 
 func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, containerName, pyOrNode, nameForManager string) {

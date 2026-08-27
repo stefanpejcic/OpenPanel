@@ -449,6 +449,10 @@ type PythonNodeAppsPageData struct {
 	PM2Status                                                                   string
 	CPU, RAM, PIDs, StartupFile, CustomCmd, Workdir, CurrentVersion, GitRepoURL string
 	RequirementsSelected                                                        bool
+	// EnvVars is the service's current `environment:` list from
+	// docker-compose.yml, one "KEY=VALUE" per line, for the Env Vars tab's
+	// textarea - empty if the service has none set yet.
+	EnvVars string
 }
 
 func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PythonNodeAppsPageData) {

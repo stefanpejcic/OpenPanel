@@ -193,6 +193,34 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	// A root-level (no subdirectory) Node/Python/Ruby install gets a
+	// catch-all `ProxyPass /` in the vhost (see webserverconfig.go), which
+	// Apache matches before any other path on that vhost - including
+	// every other site's own, more specific ProxyPass/file-serving rule,
+	// since mod_proxy matches directives in file order, not by
+	// specificity. That means a root app install would silently break
+	// every existing subdirectory site on the domain (confirmed live).
+	// The reverse also breaks: a subdirectory app installed onto a domain
+	// that already has a root-level proxy app would never be reachable,
+	// since the root's catch-all intercepts it first. Neither direction
+	// can be fixed just by reordering (both root and subdirectory rules
+	// sit at fixed positions in the vhost regardless of install order),
+	// so this blocks both rather than silently producing a site that
+	// looks installed but is actually unreachable.
+	if subdirectory == "" {
+		var otherSitesCount int
+		if countErr := a.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM sites WHERE site_name LIKE ?", topDomain+"/%").Scan(&otherSitesCount); countErr == nil && otherSitesCount > 0 {
+			emit(map[string]any{"error": "This domain already has " + strconv.Itoa(otherSitesCount) + " other site(s) installed in a subdirectory. Installing " + kind.DisplayAppType + " at the domain root would make those unreachable (a root app's reverse proxy catches every request on the domain, including existing subdirectories) - install into a subdirectory instead, or remove the other site(s) first."})
+			return
+		}
+	} else {
+		var rootAppType string
+		if scanErr := a.DB.QueryRowContext(ctx, "SELECT type FROM sites WHERE site_name = ? AND type IN ('NodeJS','Python','Ruby')", topDomain).Scan(&rootAppType); scanErr == nil {
+			emit(map[string]any{"error": "This domain already has a " + rootAppType + " application installed at its root. That root app's reverse proxy catches every request on the domain, so a new site in a subdirectory would never actually be reachable - remove the root application first, or choose a different domain."})
+			return
+		}
+	}
+
 	installPath := docroot
 	selectedDomain := topDomain
 	if subdirectory != "" {

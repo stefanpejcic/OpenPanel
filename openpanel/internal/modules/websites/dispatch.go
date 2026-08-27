@@ -186,6 +186,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			pageData:  basePageData,
 			Container: container,
 			PM2Data:   pm2Data,
+			EnvVars:   getCurrentEnvVars(userContext, container.Container),
 		})
 
 	case "php":
@@ -472,4 +473,44 @@ func getPM2ForApplication(a *appctx.App, r *http.Request, userContext, prefix, a
 		}
 	}
 	return data
+}
+
+// getCurrentEnvVars reads a Python/NodeJS/Ruby app's current
+// docker-compose.yml `environment:` list for the Env Vars tab's textarea -
+// empty string if the service has none set yet (the common case: these
+// apps ship with no environment: block at all until the tab's own save
+// handler adds one). containerName mirrors getPM2ForApplication's own
+// "strip prefix at the first underscore" normalization, since the DB's
+// sites.container value (e.g. "RUBYTEST") can carry a user-id suffix the
+// compose file's lowercase service key never has.
+func getCurrentEnvVars(userContext, containerName string) string {
+	normalized := containerName
+	if idx := strings.Index(normalized, "_"); idx != -1 {
+		normalized = normalized[:idx]
+	}
+	serviceName := strings.ToLower(normalized)
+
+	composeData, err := docker.LoadCompose(userContext)
+	if err != nil {
+		return ""
+	}
+	services, ok := composeData["services"].(map[string]any)
+	if !ok {
+		return ""
+	}
+	svc, ok := services[serviceName].(map[string]any)
+	if !ok {
+		return ""
+	}
+	rawEnv, ok := svc["environment"].([]any)
+	if !ok {
+		return ""
+	}
+	lines := make([]string, 0, len(rawEnv))
+	for _, v := range rawEnv {
+		if s, ok := v.(string); ok {
+			lines = append(lines, s)
+		}
+	}
+	return strings.Join(lines, "\n")
 }
