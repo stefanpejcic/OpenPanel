@@ -199,6 +199,41 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			AvailablePHPVersions: availablePHPVersions,
 		})
 
+	case "flarum":
+		dbInfo := extractFlarumDatabaseInfo(userContext, docroot)
+		flarumVersion := getFlarumVersion(userContext, docroot)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		mysqlVersion := getMySQLVersion(a, r, userContext)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
+		renderFlarumAppPage(a, w, r, FlarumAppPageData{
+			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Domains:              domains,
+			Container:            container,
+			FlarumVersion:        flarumVersion,
+			PHPVersion:           currentPHPVersion,
+			MySQLVersion:         mysqlVersion,
+			DBInfo:               dbInfo,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
+		})
+
+	case "sofawiki":
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
+		renderSofawikiAppPage(a, w, r, SofawikiAppPageData{
+			pageData:             pageData{CurrentDomain: websiteParam, Docroot: docroot, PagespeedAPIKeyValue: pagespeedAPIKey},
+			Domains:              domains,
+			Container:            container,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
+		})
+
 	case "joomla":
 		dbInfo := extractJoomlaDatabaseInfo(userContext, docroot)
 		joomlaVersion := getJoomlaVersion(userContext, docroot)

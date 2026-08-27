@@ -75,7 +75,7 @@
     <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No MCP tokens yet."}}</p>
     {{end}}
 
-    <form method="POST" action="/account/mcp/create" class="mt-4 space-y-2">
+    <form id="mcp-generate-form" method="POST" action="/account/mcp/create" class="mt-4 space-y-2">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
         <div class="flex items-center gap-2">
             <input type="text" name="name" placeholder="{{.T.Get "e.g. Laptop - Claude Desktop"}}" maxlength="100"
@@ -98,7 +98,7 @@
     <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">{{.T.Get "The full token is only ever shown once, right after you generate it."}}</p>
 </div>
 
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard">
+<div id="mcp-connect-section" class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard">
     <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-2">{{.T.Get "Connecting an MCP client"}}</h2>
     <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
         {{.T.Get "Generate a token above, then point your MCP client at this server's"}}

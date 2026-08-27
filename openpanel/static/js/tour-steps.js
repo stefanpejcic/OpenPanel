@@ -1075,5 +1075,149 @@ window.TOUR_STEPS.push(
         description: 'Select a suspended domain, then confirm to bring it back online.',
         side: 'bottom',
         align: 'start'
+    },
+
+    {
+        path: '/domains/new',
+        element: '#domain_url',
+        title: 'Domain Name',
+        description: 'Enter the domain name you want to add, e.g. example.com.',
+        side: 'bottom',
+        align: 'start'
+    },
+    {
+        path: '/domains/new',
+        element: '#docroot',
+        title: 'Document Root',
+        description: 'The folder this domain will serve its website from. Defaults to a folder named after the domain.',
+        side: 'bottom',
+        align: 'start'
+    },
+    {
+        path: '/domains/new',
+        element: '#installButton',
+        title: 'Add Domain',
+        description: 'Click here to create the domain. Progress is streamed below - use Show Details to follow along.',
+        side: 'top',
+        align: 'end'
+    },
+
+    {
+        path: '/domains/edit-dns-zone',
+        element: '#domains',
+        title: 'DNS Zone Editor',
+        description: 'Pick a domain to view and edit its DNS records - as a table, or as a raw zone file.',
+        side: 'bottom',
+        align: 'start'
+    },
+
+    {
+        path: '/domains/stats',
+        element: '#domains',
+        title: 'GoAccess',
+        description: 'Pick a domain to view its GoAccess report, generated from that domain\'s access logs.',
+        side: 'bottom',
+        align: 'start'
+    },
+
+    {
+        path: '/backup-wizard',
+        element: '#generate-backup-btn',
+        title: 'Generate Backup',
+        description: 'Click here to create a compressed backup of all your account files. This runs in the background - the page refreshes automatically when it finishes.',
+        side: 'top',
+        align: 'start'
+    },
+    {
+        path: '/backup-wizard',
+        element: '#existing-backups-section',
+        title: 'Existing Backups',
+        description: 'Previously generated backups are listed here - click Download to grab a copy.',
+        side: 'top',
+        align: 'start'
+    },
+
+    {
+        path: '/file-manager/upload',
+        element: '#fileUpload',
+        title: 'Upload from Device',
+        description: 'Click to browse, or drag and drop files here to upload them into the current folder.',
+        side: 'bottom',
+        align: 'start'
+    },
+    {
+        path: '/file-manager/upload',
+        element: '#change_to_wget',
+        title: 'Download from URL Instead',
+        description: 'Prefer to fetch a file from a URL instead of uploading from your device? Click here to switch.',
+        side: 'top',
+        align: 'start'
+    },
+    {
+        path: '/file-manager/upload?method=download',
+        element: '#fileWget',
+        title: 'File URL',
+        description: 'Paste the URL of the file you want the server to download directly into the current folder.',
+        side: 'bottom',
+        align: 'start'
+    },
+    {
+        path: '/file-manager/upload?method=download',
+        element: '#change_to_upload',
+        title: 'Upload from Device Instead',
+        description: 'Prefer to upload a file from your own device instead? Click here to switch.',
+        side: 'top',
+        align: 'start'
+    },
+
+    {
+        path: '/account/passkeys',
+        element: '#add-passkey-btn',
+        title: 'Add a Passkey',
+        description: 'Register a fingerprint, face scan, screen lock, or hardware security key to sign in without a password.',
+        side: 'bottom',
+        align: 'end'
+    },
+    {
+        path: '/account/passkeys',
+        element: '#passkeys-list',
+        title: 'Your Passkeys',
+        description: 'Lists the passkeys registered to your account. Remove one here if you no longer use that device.',
+        side: 'top',
+        align: 'start'
+    },
+
+    {
+        path: '/account/mcp',
+        element: '#mcp-generate-form',
+        title: 'Generate a Token',
+        description: 'Name the token, optionally set an expiry or make it read-only, then generate it to let an MCP client (like Claude) manage this account.',
+        side: 'top',
+        align: 'start'
+    },
+    {
+        path: '/account/mcp',
+        element: '#mcp-connect-section',
+        title: 'Connecting a Client',
+        description: 'Copy-paste snippets for pointing Claude Code or Claude Desktop at this panel using your generated token.',
+        side: 'top',
+        align: 'start'
+    },
+
+    {
+        path: '/account/api',
+        element: '#swagger-ui-container',
+        title: 'API Reference',
+        description: 'Browse every API endpoint and try requests live against this server - pre-authorized with a token for your account.',
+        side: 'top',
+        align: 'start'
+    },
+    {
+        path: '/account/api',
+        element: '#download-spec-btn',
+        title: 'Download Spec',
+        description: 'Download the raw OpenAPI spec file, e.g. to import into Postman or another API client.',
+        side: 'bottom',
+        align: 'end'
     }
 );

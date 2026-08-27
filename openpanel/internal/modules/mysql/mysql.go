@@ -17,7 +17,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -182,19 +181,22 @@ func CheckMySQLInsideContainer(ctx context.Context, userContext string, retry bo
 	}
 }
 
-// CheckMySQLNotTemporary: during a crash-recovery or first-boot sequence,
-// mysqld briefly runs as a "temporary server" that then stops itself before
-// starting the real one - this polls the container's logs (up to 30s) for
-// that stop message, used by the WordPress installer to avoid racing a
-// not-yet-ready database.
+// CheckMySQLNotTemporary is the fallback check once
+// CheckMySQLInsideContainer's own retries are exhausted: it just keeps
+// polling SELECT 1 a bit longer (up to 30s) and uses the database as soon
+// as it answers. Previously this scraped the container's logs for
+// mysqld's "Temporary server stopped" line (printed partway through a
+// crash-recovery/first-boot sequence, before the real server starts) -
+// dropped because a container that's simply been up and healthy for a
+// while never logs that line at all (no bootstrap ever happened), so that
+// check produced a false "not ready" for a database that was actually
+// fine the whole time. mysqlVersion is unused now but kept in the
+// signature to avoid churning every CMS installer's call site.
 func CheckMySQLNotTemporary(ctx context.Context, userContext, mysqlVersion string) bool {
 	const attempts = 6
 	for i := 0; i < attempts; i++ {
-		argv := podmanmanager.PodmanArgv(userContext, "logs", mysqlVersion)
-		if out, err := podmanmanager.Command(ctx, userContext, argv).CombinedOutput(); err == nil {
-			if strings.Contains(string(out), "Temporary server stopped") {
-				return true
-			}
+		if _, err := mysqlmanager.Exec(ctx, userContext, "SELECT 1", ""); err == nil {
+			return true
 		}
 		time.Sleep(5 * time.Second)
 	}

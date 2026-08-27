@@ -74,6 +74,7 @@
             <form method="POST" action="/backup-wizard/create">
                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
                 <button
+                    id="generate-backup-btn"
                     type="submit"
                     {{if .InProgress}}disabled{{end}}
                     class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-center text-sm font-medium shadow-sm transition-all border-black bg-black text-white hover:bg-gray-800 gap-x-1.5 whitespace-nowrap"
@@ -92,7 +93,7 @@
     </div>
 
     <!-- Existing Backups -->
-    <div class="rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
+    <div id="existing-backups-section" class="rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
         <div class="border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center justify-between">
             <div>
                 <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Existing Backups"}}</h2>

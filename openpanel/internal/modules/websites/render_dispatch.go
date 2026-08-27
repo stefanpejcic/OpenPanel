@@ -80,6 +80,62 @@ func renderDrupalAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	}
 }
 
+var flarumAppPage = loadPage("manager/flarum_app.html")
+
+// FlarumAppPageData is manager/flarum_app.html's template context.
+type FlarumAppPageData struct {
+	pageData
+	Domains              []appctx.Domain
+	Container            ContainerInfo
+	FlarumVersion        string
+	PHPVersion           string
+	MySQLVersion         string
+	DBInfo               map[string]string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderFlarumAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data FlarumAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := flarumAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - flarum_app template render error: %v", err)
+	}
+}
+
+var sofawikiAppPage = loadPage("manager/sofawiki_app.html")
+
+// SofawikiAppPageData is manager/sofawiki_app.html's template context.
+type SofawikiAppPageData struct {
+	pageData
+	Domains              []appctx.Domain
+	Container            ContainerInfo
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderSofawikiAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data SofawikiAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := sofawikiAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - sofawiki_app template render error: %v", err)
+	}
+}
+
 var joomlaAppPage = loadPage("manager/joomla_app.html")
 
 // JoomlaAppPageData is manager/joomla_app.html's template context.

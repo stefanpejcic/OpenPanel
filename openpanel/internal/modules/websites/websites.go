@@ -586,6 +586,57 @@ func getDrupalVersion(userContext, realPath string) string {
 	return "Unknown"
 }
 
+// ---------------------- FLARUM INFO ---------------------- //
+
+// flarumDBFields matches config.php's 'database' => [...] array - unlike
+// Drupal's settings.php, Flarum's config.php is a plain generated PHP
+// array with no preceding documentation/placeholder block to strip first.
+var flarumDBFields = []cmsDBField{
+	{"database_name", regexp.MustCompile(`'database'\s*=>\s*'([^']*)'`)},
+	{"database_user", regexp.MustCompile(`'username'\s*=>\s*'([^']*)'`)},
+	{"database_password", regexp.MustCompile(`'password'\s*=>\s*'([^']*)'`)},
+	{"database_host", regexp.MustCompile(`'host'\s*=>\s*'([^']*)'`)},
+}
+
+// extractFlarumDatabaseInfo parses the 'database' array out of config.php
+// - config.php lives directly at the docroot's base (unlike Drupal's
+// nested sites/default/settings.php), since Flarum's own Paths value
+// object writes it to $paths->base, not $paths->public.
+func extractFlarumDatabaseInfo(userContext, directory string) map[string]string {
+	mappedDir, ok := cmsMappedDir(userContext, directory)
+	if !ok {
+		return nil
+	}
+	configPath := filepath.Join(mappedDir, "config.php")
+	return readCMSConfig(configPath, "config.php", flarumDBFields, nil)
+}
+
+// getFlarumVersion reads flarum/core's resolved version out of
+// composer.lock, mirroring getDrupalVersion's live-read-from-disk approach.
+func getFlarumVersion(userContext, realPath string) string {
+	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
+	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "composer.lock")
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "Unknown"
+	}
+	var lock struct {
+		Packages []struct {
+			Name    string `json:"name"`
+			Version string `json:"version"`
+		} `json:"packages"`
+	}
+	if json.Unmarshal(content, &lock) != nil {
+		return "Unknown"
+	}
+	for _, pkg := range lock.Packages {
+		if pkg.Name == "flarum/core" {
+			return pkg.Version
+		}
+	}
+	return "Unknown"
+}
+
 // extractJoomlaDatabaseInfo parses the $host/$user/$password/$db/$dbprefix
 // properties out of configuration.php - much simpler than
 // extractDrupalDatabaseInfo's settings.php scrape, since Joomla's installer

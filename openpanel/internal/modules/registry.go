@@ -27,6 +27,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/emails"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/filemanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/fixpermissions"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/flarum"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/ftp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/goaccess"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/inodes"
@@ -50,6 +51,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/search"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/serverinfo"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/services"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/sofawiki"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/trash"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/waf"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/webserverconf"
@@ -130,6 +132,8 @@ var configured = map[string]Registrar{
 	"backups":    func(mux *http.ServeMux, a *appctx.App) { backups.Register(mux, a); backups.RegisterAPI(mux, a) },
 	"domains":    func(mux *http.ServeMux, a *appctx.App) { domains.Register(mux, a); domains.RegisterAPI(mux, a) },
 	"drupal":     func(mux *http.ServeMux, a *appctx.App) { drupal.Register(mux, a); drupal.RegisterAPI(mux, a) },
+	"flarum":     func(mux *http.ServeMux, a *appctx.App) { flarum.Register(mux, a); flarum.RegisterAPI(mux, a) },
+	"sofawiki":   func(mux *http.ServeMux, a *appctx.App) { sofawiki.Register(mux, a); sofawiki.RegisterAPI(mux, a) },
 	"joomla":     func(mux *http.ServeMux, a *appctx.App) { joomla.Register(mux, a); joomla.RegisterAPI(mux, a) },
 	"opencart":   func(mux *http.ServeMux, a *appctx.App) { opencart.Register(mux, a); opencart.RegisterAPI(mux, a) },
 	"nextcloud":  func(mux *http.ServeMux, a *appctx.App) { nextcloud.Register(mux, a); nextcloud.RegisterAPI(mux, a) },

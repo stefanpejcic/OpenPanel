@@ -77,6 +77,79 @@
         </div>
     {{end}}
 
+    {{if .UserAllowed.flarum}}
+        <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0">
+            <div class="p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 64 64" id="flarum">
+                                <defs>
+                                    <linearGradient x1="39.25486" y1="79.948608" x2="39.25486" y2="1.4437387" id="flarumIconGrad1" gradientTransform="matrix(0.13724088,0,0,0.27795633,15.103245,19.574026)" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#D22929" offset="0%"/>
+                                        <stop stop-color="#B71717" offset="100%"/>
+                                    </linearGradient>
+                                    <linearGradient x1="45.281994" y1="0" x2="45.281994" y2="90.563988" id="flarumIconGrad2" gradientTransform="matrix(0.20819775,0,0,0.18322471,15.103245,19.574026)" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#E7762E" offset="0%"/>
+                                        <stop stop-color="#E7562E" offset="100%"/>
+                                    </linearGradient>
+                                </defs>
+                                <g transform="matrix(2.8799999,0,0,2.8799999,-38.648859,-56.373193)">
+                                    <path d="M 15.10814,34.404271 15.10354,20.58171 c -1.84e-4,-0.556529 0.383134,-0.768017 0.854123,-0.473649 l 9.919955,6.199972 v 15.488216 l -9.293169,-5.640035 c -1.287893,-0.701196 -1.47454,-1.1364 -1.476347,-1.751943 z" fill="url(#flarumIconGrad1)"/>
+                                    <path d="m 16.114255,19.574026 c -0.558366,0 -1.01101,0.451467 -1.01101,1.012451 v 13.802364 c 0.02805,0.474415 0.0039,0.969043 1.510295,1.778745 0,0 -1.476019,-1.434143 0.846607,-1.442045 H 33.958464 V 19.574026 Z" fill="url(#flarumIconGrad2)"/>
+                                </g>
+                            </svg>
+                        </span>
+                        <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
+                            <a href="/flarum/install">{{.T.Get "Flarum"}}</a>
+                        </dt>
+                    </div>
+                </div>
+                <dd class="text-gray-600 dark:text-gray-400 mt-3 text-sm/6">{{.T.Get "Flarum forum software."}}</dd>
+            </div>
+            <a href="/sites">
+            <div class="border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-900 dark:bg-[#090E1A]">
+                <div class="flex items-center space-x-2">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 text-gray-400 dark:text-gray-600"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path></svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{if eq (index .Counts "flarum") 0}}{{.T.Get "No"}}{{else}}{{index .Counts "flarum"}}{{end}} {{.T.Get "existing installation"}}{{if ne (index .Counts "flarum") 1}}{{.T.Get "s"}}{{end}}</p>
+                </div>
+            </div>
+            </a>
+            <div class="border-t border-gray-200 px-6 py-3 dark:border-gray-900">
+                <a href="/flarum/install" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Install Flarum"}}</a>
+            </div>
+        </div>
+    {{end}}
+
+    {{if .UserAllowed.sofawiki}}
+        <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0">
+            <div class="p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-book" viewBox="0 0 16 16"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783"/></svg>
+                        </span>
+                        <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
+                            <a href="/sofawiki/install">{{.T.Get "SofaWiki"}}</a>
+                        </dt>
+                    </div>
+                </div>
+                <dd class="text-gray-600 dark:text-gray-400 mt-3 text-sm/6">{{.T.Get "File-based wiki software, no database required."}}</dd>
+            </div>
+            <a href="/sites">
+            <div class="border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-900 dark:bg-[#090E1A]">
+                <div class="flex items-center space-x-2">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 text-gray-400 dark:text-gray-600"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path></svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{if eq (index .Counts "sofawiki") 0}}{{.T.Get "No"}}{{else}}{{index .Counts "sofawiki"}}{{end}} {{.T.Get "existing installation"}}{{if ne (index .Counts "sofawiki") 1}}{{.T.Get "s"}}{{end}}</p>
+                </div>
+            </div>
+            </a>
+            <div class="border-t border-gray-200 px-6 py-3 dark:border-gray-900">
+                <a href="/sofawiki/install" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Install SofaWiki"}}</a>
+            </div>
+        </div>
+    {{end}}
+
     {{if .UserAllowed.joomla}}
         <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0">
             <div class="p-6">

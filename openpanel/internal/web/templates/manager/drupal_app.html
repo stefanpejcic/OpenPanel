@@ -77,7 +77,7 @@
         <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="drupal-tab" data-tabs-toggle="#drupal-tab-content" role="tablist" class="grid grid-cols-12 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+        <ul id="drupal-tab" data-tabs-toggle="#drupal-tab-content" role="tablist" class="grid {{if .UserAllowed.malware_scan}}grid-cols-8{{else}}grid-cols-7{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
             <li role="presentation">
                 <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
                    @click="activeTab = 'dashboard'"
