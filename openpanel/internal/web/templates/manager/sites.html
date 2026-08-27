@@ -11,7 +11,97 @@
 </div>
 
 {{if .Groups}}
-<section aria-label="Websites Table" x-data="{ searchQuery: '' }">
+<section aria-label="Websites Table" x-data="{
+    searchQuery: '',
+    selected: {},
+    get selectedCount() { return Object.keys(this.selected).length; },
+    get allVisibleChecked() {
+        const boxes = Array.from(document.querySelectorAll('#sites-table tbody input.site-select-box')).filter(cb => cb.offsetParent !== null);
+        return boxes.length > 0 && boxes.every(cb => this.selected[cb.value]);
+    },
+    get someVisibleChecked() {
+        const boxes = Array.from(document.querySelectorAll('#sites-table tbody input.site-select-box')).filter(cb => cb.offsetParent !== null);
+        return boxes.some(cb => this.selected[cb.value]) && !this.allVisibleChecked;
+    },
+    toggleOne(cb) {
+        if (cb.checked) {
+            this.selected[cb.value] = { id: parseInt(cb.dataset.id, 10), site_name: cb.value, type: cb.dataset.type, docroot: cb.dataset.docroot };
+        } else {
+            delete this.selected[cb.value];
+        }
+    },
+    toggleAllVisible(checked) {
+        document.querySelectorAll('#sites-table tbody input.site-select-box').forEach(cb => {
+            if (cb.offsetParent === null) return;
+            cb.checked = checked;
+            this.toggleOne(cb);
+        });
+    },
+    clearSelection() {
+        this.selected = {};
+        document.querySelectorAll('#sites-table tbody input.site-select-box').forEach(cb => { cb.checked = false; });
+    },
+    groupBoxes(type) {
+        return Array.from(document.querySelectorAll('#sites-table tbody input.site-select-box')).filter(cb => cb.offsetParent !== null && cb.dataset.type === type);
+    },
+    groupAllChecked(type) {
+        const boxes = this.groupBoxes(type);
+        return boxes.length > 0 && boxes.every(cb => this.selected[cb.value]);
+    },
+    groupSomeChecked(type) {
+        const boxes = this.groupBoxes(type);
+        return boxes.some(cb => this.selected[cb.value]) && !this.groupAllChecked(type);
+    },
+    toggleGroup(type, checked) {
+        this.groupBoxes(type).forEach(cb => {
+            cb.checked = checked;
+            this.toggleOne(cb);
+        });
+    },
+    bulkRunning: false,
+    confirmingAction: null,
+    bulkAction(action) {
+        if (Object.keys(this.selected).length === 0 || this.bulkRunning) return;
+        this.confirmingAction = action;
+    },
+    cancelBulkAction() {
+        this.confirmingAction = null;
+    },
+    confirmBulkAction() {
+        const action = this.confirmingAction;
+        const sites = Object.values(this.selected);
+        this.confirmingAction = null;
+        if (!action || sites.length === 0 || this.bulkRunning) return;
+
+        this.bulkRunning = true;
+        showToast({{toJSON (.T.Get "Running bulk action...")}}, 'loading');
+
+        fetch('/sites/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf_token },
+            body: JSON.stringify({ action: action, sites: sites })
+        })
+            .then(response => response.json())
+            .then(data => {
+                const results = data.results || [];
+                const failed = results.filter(r => !r.ok);
+                if (failed.length === 0) {
+                    showToast({{toJSON (.T.Get "Bulk action completed successfully.")}}, 'success');
+                } else if (failed.length < results.length) {
+                    showToast(failed.length + {{toJSON (.T.Get " of ")}} + results.length + {{toJSON (.T.Get " sites failed: ")}} + failed.map(r => r.site_name + ' (' + r.message + ')').join('; '), 'warning');
+                } else {
+                    showToast({{toJSON (.T.Get "Bulk action failed: ")}} + failed.map(r => r.site_name + ' (' + r.message + ')').join('; '), 'error');
+                }
+                this.clearSelection();
+                setTimeout(() => { window.location.reload(); }, 1800);
+            })
+            .catch(error => {
+                console.error('Bulk action error:', error);
+                showToast({{toJSON (.T.Get "Error occurred during bulk action.")}}, 'error');
+            })
+            .finally(() => { this.bulkRunning = false; });
+    }
+}">
     <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
         <div class="relative w-full sm:w-64 [&>input]:py-1.5">
             <input
@@ -96,6 +186,11 @@
             <table id="sites-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+                        <th scope="col" class="whitespace-nowrap border-b pl-4 sm:pl-6 pr-4 py-3.5 text-left border-gray-200 dark:border-gray-800">
+                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
+                                :checked="allVisibleChecked" :indeterminate="someVisibleChecked"
+                                @change="toggleAllVisible($event.target.checked)" aria-label="{{.T.Get "Select all"}}">
+                        </th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Type") "Key" "type" "Type" "string")}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Site Name") "Key" "name" "Type" "string")}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Created") "Key" "created" "Type" "string")}}</th>
@@ -108,6 +203,11 @@
 
                 {{range $group := .Groups}}
                     <tr data-group-header data-group-type="{{lower $group.Type}}" x-show="searchQuery === '' || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+                        <td class="whitespace-nowrap border-b px-4 align-middle border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
+                                :checked="groupAllChecked({{toJSON (lower $group.Type)}})" :indeterminate="groupSomeChecked({{toJSON (lower $group.Type)}})"
+                                @change="toggleGroup({{toJSON (lower $group.Type)}}, $event.target.checked)" aria-label="{{$.T.Get "Select all"}} {{title $group.Type}}">
+                        </td>
                         <th class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="6">
                             {{if eq $group.Type "wordpress"}}WordPress
                             {{else if eq $group.Type "drupal"}}Drupal
@@ -138,6 +238,11 @@
                     {{range $site := $group.Sites}}
                     <tr id="site-row-{{$site.SiteName}}" data-row-type="{{lower $site.Type}}" x-show="searchQuery === '' || {{toJSON $site.SiteName}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $site.AdminEmail}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-gray-50 hover:dark:bg-gray-900">
 
+                        <td class="py-4 pl-4 sm:pl-6 pr-4 align-middle">
+                            <input type="checkbox" class="site-select-box h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
+                                value="{{$site.SiteName}}" data-id="{{$site.ID}}" data-type="{{lower $site.Type}}" data-docroot="{{$site.Docroot}}"
+                                :checked="!!selected[{{toJSON $site.SiteName}}]" @change="toggleOne($event.target)" aria-label="{{$.T.Get "Select"}} {{$site.SiteName}}">
+                        </td>
                         <td class="p-4 text-sm text-gray-600 dark:text-gray-400 text-center align-middle" data-sort-col="type" data-sort-value="{{lower $site.Type}}">
                             {{$typeLower := lower $site.Type}}
                             {{if eq $typeLower "wordpress"}}
@@ -301,6 +406,52 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <div x-show="selectedCount > 0" x-cloak x-transition
+        class="sticky bottom-0 inset-x-0 z-20 flex flex-col gap-3 border-t border-gray-200 bg-white px-4 py-3 shadow-[0_-1px_6px_rgba(0,0,0,0.08)] dark:border-gray-800 dark:bg-gray-950 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+
+        <template x-if="!confirmingAction">
+            <div class="text-sm font-medium text-gray-900 dark:text-gray-50">
+                <span x-text="selectedCount"></span> {{.T.Get "selected"}}
+                <button type="button" class="ml-2 text-xs font-normal text-blue-600 hover:underline dark:text-blue-400" @click="clearSelection()">{{.T.Get "Clear"}}</button>
+            </div>
+        </template>
+        <template x-if="!confirmingAction">
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button" :disabled="bulkRunning" @click="bulkAction('update')" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    {{.T.Get "Update"}}
+                </button>
+                <button type="button" :disabled="bulkRunning" @click="bulkAction('backup')" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    {{.T.Get "Backup"}}
+                </button>
+                <button type="button" :disabled="bulkRunning" @click="bulkAction('detach')" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    {{.T.Get "Detach"}}
+                </button>
+                <button type="button" :disabled="bulkRunning" @click="bulkAction('delete')" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-transparent bg-red-600 text-white hover:bg-red-700">
+                    {{.T.Get "Delete"}}
+                </button>
+            </div>
+        </template>
+
+        <template x-if="confirmingAction">
+            <div class="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div class="text-sm font-medium text-gray-900 dark:text-gray-50">
+                    <span x-show="confirmingAction === 'update'">{{.T.Get "Update"}} <span x-text="selectedCount"></span> {{.T.Get "selected site(s)?"}}</span>
+                    <span x-show="confirmingAction === 'backup'">{{.T.Get "Back up"}} <span x-text="selectedCount"></span> {{.T.Get "selected site(s)?"}}</span>
+                    <span x-show="confirmingAction === 'detach'">{{.T.Get "Detach"}} <span x-text="selectedCount"></span> {{.T.Get "selected site(s) from Site Manager? Files are kept, only the Site Manager entry is removed."}}</span>
+                    <span x-show="confirmingAction === 'delete'" class="text-red-600 dark:text-red-400">{{.T.Get "Permanently delete"}} <span x-text="selectedCount"></span> {{.T.Get "selected site(s), including their files and databases? This cannot be undone."}}</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" @click="cancelBulkAction()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                        {{.T.Get "Cancel"}}
+                    </button>
+                    <button type="button" @click="confirmBulkAction()" :class="confirmingAction === 'delete' ? 'bg-red-600 hover:bg-red-700 text-white border-transparent' : 'bg-black hover:bg-gray-800 text-white border-transparent'" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out">
+                        {{.T.Get "Confirm"}}
+                    </button>
+                </div>
+            </div>
+        </template>
     </div>
 
 <script>

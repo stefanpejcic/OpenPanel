@@ -11,6 +11,7 @@ import (
 
 // SiteRow is one row from the sites table, as read by list_sites().
 type SiteRow struct {
+	ID          int
 	SiteName    string
 	DomainID    int
 	AdminEmail  string
@@ -57,7 +58,7 @@ func handleListSites(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, execErr := a.DB.QueryContext(ctx, `
-		SELECT sites.site_name, sites.domain_id, sites.admin_email, sites.version, sites.created_date,
+		SELECT sites.id, sites.site_name, sites.domain_id, sites.admin_email, sites.version, sites.created_date,
 		       sites.type, sites.container, sites.ports, domains.docroot
 		FROM sites
 		JOIN domains ON domains.domain_id = sites.domain_id
@@ -76,11 +77,13 @@ func handleListSites(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			s                                                                          SiteRow
 			siteName, adminEmail, version, createdDate, typ, container, ports, docroot sql.NullString
 			domainID                                                                   sql.NullInt64
+			id                                                                         sql.NullInt64
 		)
-		if scanErr := rows.Scan(&siteName, &domainID, &adminEmail, &version, &createdDate, &typ, &container, &ports, &docroot); scanErr != nil {
+		if scanErr := rows.Scan(&id, &siteName, &domainID, &adminEmail, &version, &createdDate, &typ, &container, &ports, &docroot); scanErr != nil {
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
+		s.ID = int(id.Int64)
 		s.SiteName, s.DomainID = siteName.String, int(domainID.Int64)
 		s.AdminEmail, s.Version, s.CreatedDate = adminEmail.String, version.String, createdDate.String
 		s.Type, s.Container, s.Ports = typ.String, container.String, ports.String

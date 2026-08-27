@@ -116,12 +116,18 @@ func handleFlarumUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		updateTarget = "flarum/core:^" + latestVersion
 	}
 
-	emit(map[string]any{"status": "Running composer update (" + updateTarget + ")"})
+	emit(map[string]any{"status": "Running composer require (" + updateTarget + ")"})
+	// flarum/core is a transitive dependency pulled in by flarum/flarum,
+	// not a direct "require" entry in composer.json - "composer update
+	// flarum/core" refuses to touch a package composer.json doesn't name
+	// directly ("Run composer require flarum/core instead"), confirmed
+	// live against a real install. "composer require" both adds/bumps the
+	// constraint and installs it in one step, which is what's needed here.
 	composerArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "composer"),
-		"--working-dir="+docroot, "update", updateTarget, "--with-all-dependencies", "--no-interaction")
+		"--working-dir="+docroot, "require", updateTarget, "--with-all-dependencies", "--no-interaction")
 	out, runErr := podmanmanager.Command(ctx, userContext, composerArgv).CombinedOutput()
 	if runErr != nil {
-		emit(map[string]any{"error": "composer update failed: " + strings.TrimSpace(string(out))})
+		emit(map[string]any{"error": "composer require failed: " + strings.TrimSpace(string(out))})
 		return
 	}
 

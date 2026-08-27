@@ -22,6 +22,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /sites/detach", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleSitesDetach(a, w, r)
 	})))
+	mux.Handle("POST /sites/bulk", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleSitesBulk(a, mux, w, r)
+	})))
 	mux.Handle("GET /sites/updates", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleSitesUpdates(a, w, r)
 	})))

@@ -56,6 +56,7 @@ func RegisterSitesAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Add("POST /api/sites/{domain}/pagespeed")
 	apiregistry.Add("POST /api/sites/{domain}/wp-vulnerability")
 	apiregistry.Add("POST /api/sites/{domain}/screenshot")
+	apiregistry.Add("POST /api/sites/bulk")
 	mux.Handle("POST /api/sites/{rest...}", auth.RequireAPI(a, "websites")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiSitesPostDispatch(a, w, r) })))
 
 	// install_type is a fixed small enum (pip/npm/pnpm), so it's a plain
@@ -104,6 +105,8 @@ func apiSitesGetDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 func apiSitesPostDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	rest := r.PathValue("rest")
 	switch {
+	case rest == "bulk":
+		handleSitesBulkAPI(a, w, r)
 	case strings.HasSuffix(rest, "/pagespeed"):
 		r.SetPathValue("domain", strings.TrimSuffix(rest, "/pagespeed"))
 		apiPagespeedRefresh(a, w, r)
