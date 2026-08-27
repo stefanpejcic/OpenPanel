@@ -163,14 +163,17 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		phpContainer = "php-fpm-" + phpVersion
 	}
 
-	// SofaWiki's docs (sofawiki.com/en/software-requirements) say PHP 7.2 is
-	// recommended and PHP 8.2 works given sqlite/curl/zip - all present by
-	// default in every php-fpm image this box ships. Live-tested a fresh
-	// checkout against 7.4/8.1/8.2/8.3/8.4 here and all loaded cleanly with
-	// no fatal error, so only block versions newer than what's documented
-	// as tested (8.4) to fail fast on something genuinely unverified.
-	if !isLitespeed && phpVersionAbove(phpVersion, 8, 4) {
-		emit(map[string]any{"error": "SofaWiki has not been verified on PHP " + phpVersion + ". Change the domain's PHP version to 8.4 or older (7.2 recommended) and try again."})
+	// SofaWiki's own async self-cron (inc/async.php, called unconditionally
+	// on every request) does fsockopen($url['host'], ...) where 'host' is
+	// undefined because $swBaseHrefFolder is empty here (this Apache+
+	// PHP-FPM setup, via mod_proxy_fcgi, never sets the legacy SCRIPT_URI
+	// var SofaWiki relies on to populate it). fsockopen() then returns
+	// false, and fwrite(false, ...) is only a warning on PHP <=7.4 but a
+	// fatal TypeError on PHP 8+ (stricter internal-function typing) -
+	// confirmed via a live install + real browser-path request against
+	// this exact deployment (stack trace: inc/async.php:28 fwrite()).
+	if !isLitespeed && phpVersionAbove(phpVersion, 7, 4) {
+		emit(map[string]any{"error": "SofaWiki requires PHP 7.4 or older on this server (it fatal-errors on PHP 8+ due to a self-check in inc/async.php), but this domain is set to PHP " + phpVersion + ". Change the domain's PHP version (or install into a subdirectory using PHP 7.4 or older) and try again."})
 		return
 	}
 

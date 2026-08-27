@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os/exec"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -85,6 +87,64 @@ func handleDiskUsage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderDiskUsagePage(a, w, r, output)
 }
 
+// parseHumanSize converts a `du -sh` size like "4.0K", "132M" or "0" into a
+// byte count, for sorting only - not for display.
+func parseHumanSize(s string) float64 {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0
+	}
+	unit := s[len(s)-1]
+	multiplier := 1.0
+	numPart := s
+	switch unit {
+	case 'K', 'k':
+		multiplier = 1 << 10
+		numPart = s[:len(s)-1]
+	case 'M', 'm':
+		multiplier = 1 << 20
+		numPart = s[:len(s)-1]
+	case 'G', 'g':
+		multiplier = 1 << 30
+		numPart = s[:len(s)-1]
+	case 'T', 't':
+		multiplier = 1 << 40
+		numPart = s[:len(s)-1]
+	case 'P', 'p':
+		multiplier = 1 << 50
+		numPart = s[:len(s)-1]
+	}
+	n, err := strconv.ParseFloat(numPart, 64)
+	if err != nil {
+		return 0
+	}
+	return n * multiplier
+}
+
+// sortDuOutputBySize sorts `du -sh` output lines by parsed size, largest
+// first, so both the table and the chart built from it lead with the
+// biggest space users - mirroring inodesOutput's count-descending sort.
+func sortDuOutputBySize(out string) string {
+	lines := strings.Split(out, "\n")
+	var kept []string
+	for _, line := range lines {
+		if strings.TrimSpace(line) != "" {
+			kept = append(kept, line)
+		}
+	}
+	firstField := func(line string) string {
+		fields := strings.Fields(line)
+		if len(fields) == 0 {
+			return ""
+		}
+		return fields[0]
+	}
+	sort.SliceStable(kept, func(i, j int) bool {
+		return parseHumanSize(firstField(kept[i])) > parseHumanSize(firstField(kept[j]))
+	})
+	return strings.Join(kept, "\n")
+}
+
 // diskUsageOutput runs `find . -maxdepth 1 -type d ! -name . -exec du -sh
 // {} \;` under actualFolder, cached 5s.
 func diskUsageOutput(ctx context.Context, a *appctx.App, userContext, actualFolder string) string {
@@ -100,7 +160,7 @@ func diskUsageOutput(ctx context.Context, a *appctx.App, userContext, actualFold
 			// subdirectories but still write the rest of their output to
 			// stdout, so keep using it instead of discarding everything.
 		}
-		return strings.ReplaceAll(string(out), "./", ""), nil
+		return sortDuOutputBySize(strings.ReplaceAll(string(out), "./", "")), nil
 	})
 	return out
 }

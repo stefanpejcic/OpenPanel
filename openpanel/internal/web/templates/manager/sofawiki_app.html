@@ -120,8 +120,8 @@
                             {{end}}
                         </div>
 
-                        <h3 x-show="!phpEditOpen" class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{.PHPVersion}}</h3>
-                        <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">{{.T.Get "SofaWiki recommends PHP 7.2; works through PHP 8.4."}}</p>
+                        <h3 x-show="!phpEditOpen" class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{.CurrentPHPVersion}}</h3>
+                        <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">{{.T.Get "SofaWiki requires PHP 7.4 or older."}}</p>
 
                         {{if .IsSubdirectory}}
                         <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">{{.T.Get "Inherits PHP version from %(domain)s" "domain" .MainDomain}}</p>

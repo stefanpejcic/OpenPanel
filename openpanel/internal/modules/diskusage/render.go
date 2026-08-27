@@ -41,9 +41,13 @@ func buildBreadcrumbs(root, urlPath string) []Breadcrumb {
 	}
 	crumbs := make([]Breadcrumb, len(parts))
 	for i, part := range parts {
+		escaped := make([]string, i+1)
+		for j, p := range parts[:i+1] {
+			escaped[j] = url.PathEscape(p)
+		}
 		crumbs[i] = Breadcrumb{
 			Name: part,
-			Path: "/" + root + "/" + strings.Join(parts[:i+1], "/"),
+			Path: "/" + root + "/" + strings.Join(escaped, "/"),
 			Last: i == len(parts)-1,
 		}
 	}
