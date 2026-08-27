@@ -60,8 +60,28 @@
     },
     bulkRunning: false,
     confirmingAction: null,
+    pendingSites: [],
+    excludedCount: 0,
+    bulkEligibleTypes(action) {
+        // Mirrors the backend's cmsUpdateTypes/cmsBackupTypes in
+        // internal/modules/websites/bulk.go - kept here too so ineligible
+        // sites (e.g. Ruby/SofaWiki for Update) are excluded before the
+        // request is even sent, instead of coming back as a per-item
+        // not-supported result every time.
+        if (action === 'update') return ['drupal', 'nextcloud', 'matomo', 'moodle', 'mediawiki', 'flarum'];
+        if (action === 'backup') return ['wordpress', 'joomla', 'opencart', 'nextcloud', 'prestashop', 'drupal', 'matomo', 'moodle', 'mediawiki', 'flarum', 'sofawiki'];
+        return null; // detach/delete: no type restriction
+    },
     bulkAction(action) {
-        if (Object.keys(this.selected).length === 0 || this.bulkRunning) return;
+        const all = Object.values(this.selected);
+        if (all.length === 0 || this.bulkRunning) return;
+        const eligibleTypes = this.bulkEligibleTypes(action);
+        this.pendingSites = eligibleTypes ? all.filter(s => eligibleTypes.includes(s.type)) : all;
+        this.excludedCount = all.length - this.pendingSites.length;
+        if (this.pendingSites.length === 0) {
+            showToast({{toJSON (.T.Get "None of the selected sites support this action.")}}, 'warning');
+            return;
+        }
         this.confirmingAction = action;
     },
     cancelBulkAction() {
@@ -69,7 +89,7 @@
     },
     confirmBulkAction() {
         const action = this.confirmingAction;
-        const sites = Object.values(this.selected);
+        const sites = this.pendingSites;
         this.confirmingAction = null;
         if (!action || sites.length === 0 || this.bulkRunning) return;
 
@@ -430,10 +450,13 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
         <template x-if="confirmingAction">
             <div class="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div class="text-sm font-medium text-gray-900 dark:text-gray-50">
-                    <span x-show="confirmingAction === 'update'">{{.T.Get "Update"}} <span x-text="selectedCount"></span> {{.T.Get "selected site(s)?"}}</span>
-                    <span x-show="confirmingAction === 'backup'">{{.T.Get "Back up"}} <span x-text="selectedCount"></span> {{.T.Get "selected site(s)?"}}</span>
-                    <span x-show="confirmingAction === 'detach'">{{.T.Get "Detach"}} <span x-text="selectedCount"></span> {{.T.Get "selected site(s) from Site Manager? Files are kept, only the Site Manager entry is removed."}}</span>
-                    <span x-show="confirmingAction === 'delete'" class="text-red-600 dark:text-red-400">{{.T.Get "Permanently delete"}} <span x-text="selectedCount"></span> {{.T.Get "selected site(s), including their files and databases? This cannot be undone."}}</span>
+                    <span x-show="confirmingAction === 'update'">{{.T.Get "Update"}} <span x-text="pendingSites.length"></span> {{.T.Get "selected site(s)?"}}</span>
+                    <span x-show="confirmingAction === 'backup'">{{.T.Get "Back up"}} <span x-text="pendingSites.length"></span> {{.T.Get "selected site(s)?"}}</span>
+                    <span x-show="confirmingAction === 'detach'">{{.T.Get "Detach"}} <span x-text="pendingSites.length"></span> {{.T.Get "selected site(s) from Site Manager? Files are kept, only the Site Manager entry is removed."}}</span>
+                    <span x-show="confirmingAction === 'delete'" class="text-red-600 dark:text-red-400">{{.T.Get "Permanently delete"}} <span x-text="pendingSites.length"></span> {{.T.Get "selected site(s), including their files and databases? This cannot be undone."}}</span>
+                    <span x-show="excludedCount > 0" class="block text-xs font-normal text-gray-500 dark:text-gray-400">
+                        <span x-text="excludedCount"></span> {{.T.Get "selected site(s) don't support this action and will be skipped."}}
+                    </span>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <button type="button" @click="cancelBulkAction()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">

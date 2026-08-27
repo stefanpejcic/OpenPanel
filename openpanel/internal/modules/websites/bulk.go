@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -180,19 +181,38 @@ func bulkFlashMessage(action string, results []bulkResult) string {
 
 	msg := actionTitle + ": " + itoa(len(failed)) + " of " + itoa(len(results)) + " selected site(s) failed."
 	for _, res := range failed {
-		msg += " " + res.SiteName + " (" + firstLine(res.Message) + ")."
+		msg += " " + res.SiteName + " (" + res.Message + ")."
 	}
 	return msg
 }
 
-func firstLine(s string) string {
-	if idx := strings.IndexByte(s, '\n'); idx != -1 {
-		s = s[:idx]
+// ndjsonErrorRE pulls the value out of a `{"error":"..."}` line from one of
+// the streamed-ndjson update handlers (drupal/nextcloud/matomo/moodle/
+// mediawiki/flarum's update.go) - good enough for the single-line JSON
+// objects those handlers emit, without pulling in a JSON decoder per line.
+var ndjsonErrorRE = regexp.MustCompile(`"error"\s*:\s*"((?:[^"\\]|\\.)*)"`)
+
+// summarizeResult extracts the one line worth showing a human for a
+// dispatched action's raw response body: the actual error message from an
+// ndjson status/error stream if one was reported, otherwise just the first
+// line (e.g. a redirect target or a plain-text success message).
+func summarizeResult(body string) string {
+	if m := ndjsonErrorRE.FindStringSubmatch(body); m != nil {
+		msg := strings.ReplaceAll(m[1], `\"`, `"`)
+		msg = strings.ReplaceAll(msg, `\n`, " ")
+		if len(msg) > 200 {
+			msg = msg[:200]
+		}
+		return msg
 	}
-	if len(s) > 150 {
-		s = s[:150]
+	line := body
+	if idx := strings.IndexByte(line, '\n'); idx != -1 {
+		line = line[:idx]
 	}
-	return s
+	if len(line) > 150 {
+		line = line[:150]
+	}
+	return line
 }
 
 // internalDispatch replays r's already-authenticated session (cookie,
@@ -234,15 +254,13 @@ func internalDispatch(mux *http.ServeMux, r *http.Request, siteName, method, pat
 		return bulkResult{SiteName: siteName, OK: false, Message: "Internal dispatch was not authenticated."}
 	}
 
-	msg := strings.TrimSpace(rec.Body.String())
-	if len(msg) > 300 {
-		msg = msg[:300]
-	}
+	raw := strings.TrimSpace(rec.Body.String())
 	// Routes that succeed via flashAndRedirect (302 to /sites or /website)
 	// carry the real status in the flash cookie, not the body - treat any
 	// non-login redirect or 2xx as success unless the body is an ndjson
 	// stream that reported an "error" key itself.
-	ok := rec.Code < 400 && !strings.Contains(msg, `"error"`)
+	ok := rec.Code < 400 && !strings.Contains(raw, `"error"`)
+	msg := summarizeResult(raw)
 	if ok && msg == "" {
 		msg = "Done."
 	}

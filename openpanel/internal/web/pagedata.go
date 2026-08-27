@@ -67,7 +67,13 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 	}
 
 	layout := LayoutData{
-		Title:            title,
+		// t.Get falls back to returning its input unchanged when no
+		// catalog entry matches (e.g. a dynamically built title like
+		// "Delete container "+service, or a bare domain name) - safe to
+		// call unconditionally, translates the common literal-string
+		// titles ("Websites", "FTP Accounts", ...) that make up most
+		// call sites without needing every one of them updated.
+		Title:            t.Get(title),
 		BrandName:        a.Config.Get("brand_name", ""),
 		Logo:             logo,
 		Favicon:          a.Config.Get("favicon", ""),
