@@ -18,6 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
 // handleInstallPage renders the install form / checks the plan's site
@@ -370,6 +371,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emit(map[string]any{"error": "OpenCart installed, but an error occurred while saving to Site Manager: " + insertErr.Error()})
 		return
 	}
+	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed OpenCart on domain "+selectedDomain, ipAddress)
 	flashSess(a, w, r, "success", "OpenCart installed successfully on "+selectedDomain)

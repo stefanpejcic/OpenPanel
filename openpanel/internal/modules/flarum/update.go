@@ -89,14 +89,36 @@ func handleFlarumUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !isLitespeed && phpVersionBelow(phpVersion, 8, 1) {
-		emit(map[string]any{"error": "Flarum requires PHP 8.1 or newer, but this domain is set to PHP " + phpVersion + ". Change the domain's PHP version and try again."})
+	currentVersion := "Unknown"
+	if lockOut, lockErr := podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "cat", docroot+"/composer.lock")).Output(); lockErr == nil {
+		currentVersion = parseFlarumCoreVersion(lockOut)
+	}
+
+	// Only flarum/core 2.x requires PHP 8.1+ (see install.go's identical
+	// guard) - an install already sitting on the 1.x line (the common
+	// case, since "latest" resolves to 1.x until a stable 2.0.0 ships)
+	// must still be able to take routine 1.x patch updates on older PHP.
+	if !isLitespeed && strings.HasPrefix(currentVersion, "2.") && phpVersionBelow(phpVersion, 8, 1) {
+		emit(map[string]any{"error": "Flarum 2.x requires PHP 8.1 or newer, but this domain is set to PHP " + phpVersion + ". Change the domain's PHP version and try again."})
 		return
 	}
 
-	emit(map[string]any{"status": "Running composer update (flarum/core)"})
+	// Pin to the latest *stable* numeric release explicitly rather than
+	// an unconstrained "flarum/core" bump - composer.json's own
+	// minimum-stability:beta (inherited from flarum/flarum's own
+	// recommended-project template) would otherwise let this silently
+	// jump to a 2.0.0 pre-release the moment one ships, exactly like
+	// install.go's ^2.0.0 + --stability=beta combo used to force one
+	// even though none is stable yet (confirmed live against the real
+	// tags feed: v2.0.0-rc.7 is still the newest 2.x tag).
+	updateTarget := "flarum/core"
+	if latestVersion, verErr := latestFlarumVersion(ctx); verErr == nil {
+		updateTarget = "flarum/core:^" + latestVersion
+	}
+
+	emit(map[string]any{"status": "Running composer update (" + updateTarget + ")"})
 	composerArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "composer"),
-		"--working-dir="+docroot, "update", "flarum/core", "--with-all-dependencies", "--no-interaction")
+		"--working-dir="+docroot, "update", updateTarget, "--with-all-dependencies", "--no-interaction")
 	out, runErr := podmanmanager.Command(ctx, userContext, composerArgv).CombinedOutput()
 	if runErr != nil {
 		emit(map[string]any{"error": "composer update failed: " + strings.TrimSpace(string(out))})

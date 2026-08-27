@@ -16,6 +16,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -89,6 +90,27 @@ func fetchAndCacheScreenshot(ctx context.Context, a *appctx.App, domain string) 
 		return err
 	}
 	return os.WriteFile(screenshotCachePath(domain), imgBytes, 0o644)
+}
+
+// TriggerScreenshotGeneration kicks off screenshot generation for a
+// freshly installed site in the background and returns immediately -
+// every CMS/app install.go calls this right after its own "INSERT INTO
+// sites" succeeds, so the screenshot is already cached by the time the
+// user's install-complete redirect lands them on /website, instead of
+// them seeing the screenshot partial's own placeholder-then-fetch delay
+// on first view. Uses a detached context (5s cap) rather than the
+// request's own context, since the HTTP response for the install itself
+// has already been sent by the time this would otherwise get cancelled -
+// a slow/unreachable remote screenshot API just means the page falls
+// back to its own on-demand fetch instead of blocking anything here.
+func TriggerScreenshotGeneration(a *appctx.App, domain string) {
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := fetchAndCacheScreenshot(ctx, a, domain); err != nil {
+			log.Printf("WEBSITES - background screenshot generation for %s failed: %v", domain, err)
+		}
+	}()
 }
 
 // handleScreenshot: GET serves the cached screenshot (generating it first

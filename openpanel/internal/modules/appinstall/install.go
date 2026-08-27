@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
 // containerStartPollAttempts/containerStartPollInterval bound how long the
@@ -388,6 +389,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		emit(map[string]any{"error": "An error occurred: " + insertErr.Error()})
 		return
 	}
+	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	emit(map[string]any{"status": "New " + kind.DisplayAppType + " application setup completed!"})
 	_ = logger.RecordUserAction(a.Config, currentUsername, "created a new "+kind.DisplayAppType+" application on domain "+selectedDomain, ipAddress)

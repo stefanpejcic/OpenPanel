@@ -20,6 +20,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
 // handleInstallPage renders the WordPress install form. When the user is
@@ -359,6 +360,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emit(map[string]any{"error": "WordPress installed, but error occurred while saving data to WP Manager: " + insertErr.Error()})
 		return
 	}
+	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	if isLitespeed {
 		emit(map[string]any{"status": "Reloading " + phpContainer + " to apply rewrite rules from .htaccess file"})

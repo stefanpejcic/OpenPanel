@@ -18,6 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
 func atoiDefault(s string, def int) int {
@@ -252,6 +253,7 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		emit(map[string]any{"error": "An error occurred: " + insertErr.Error()})
 		return
 	}
+	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	emit(map[string]any{"status": "New PHP application setup completed!"})
 	_ = logger.RecordUserAction(a.Config, currentUsername, "created a new PHP application on domain "+selectedDomain, ipAddress)

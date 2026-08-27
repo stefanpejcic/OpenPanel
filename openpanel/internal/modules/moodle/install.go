@@ -19,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
 // handleInstallPage renders the install form / checks the plan's site
@@ -418,6 +419,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emit(map[string]any{"error": "Moodle installed, but an error occurred while saving to Site Manager: " + insertErr.Error()})
 		return
 	}
+	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed Moodle on domain "+selectedDomain, ipAddress)
 	flashSess(a, w, r, "success", "Moodle installed successfully on "+selectedDomain)

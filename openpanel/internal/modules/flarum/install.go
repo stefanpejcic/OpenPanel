@@ -20,6 +20,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
 // handleInstallPage renders the install form / checks the plan's site
@@ -167,16 +168,16 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		phpContainer = "php-fpm-" + phpVersion
 	}
 
-	// Flarum 2.x (what projectConstraint below asks composer for) requires
-	// PHP 8.1+. Composer silently falls back to the newest flarum/flarum
-	// release that DOES satisfy the domain's actual PHP version instead of
-	// failing outright, so an old PHP version doesn't surface as an
-	// install error here - it surfaces later as flarum/core 1.x getting
-	// installed with a completely different (and untested by this module)
-	// console installer, leaving config.php never written. Failing fast
-	// here with a clear message beats that silent, confusing downgrade.
-	if !isLitespeed && phpVersionBelow(phpVersion, 8, 1) {
-		emit(map[string]any{"error": "Flarum requires PHP 8.1 or newer, but this domain is set to PHP " + phpVersion + ". Change the domain's PHP version (or install into a subdirectory using PHP 8.1+) and try again."})
+	// Only flarum/core 2.x requires PHP 8.1+ (1.x, which is what "latest"
+	// resolves to below since no stable 2.0.0 has shipped yet - confirmed
+	// live against the real tags feed - needs only PHP >=7.3). This guard
+	// only applies when the user explicitly types a 2.x version: without
+	// it, picking 2.x on old PHP would silently downgrade to flarum/core
+	// 1.x instead of failing (composer falls back to the newest release
+	// that DOES satisfy the domain's PHP version), leaving config.php
+	// never written via a completely different, untested console installer.
+	if !isLitespeed && strings.HasPrefix(strings.TrimPrefix(flarumVersion, "v"), "2.") && phpVersionBelow(phpVersion, 8, 1) {
+		emit(map[string]any{"error": "Flarum 2.x requires PHP 8.1 or newer, but this domain is set to PHP " + phpVersion + ". Change the domain's PHP version (or install into a subdirectory using PHP 8.1+) and try again."})
 		return
 	}
 
@@ -197,9 +198,20 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	projectConstraint := "flarum/flarum:^2.0.0"
+	projectConstraint := "flarum/flarum"
 	if flarumVersion != "" && flarumVersion != "latest" {
 		projectConstraint = "flarum/flarum:^" + strings.TrimPrefix(flarumVersion, "v")
+	} else {
+		// No explicit pin for "latest" - fetch the real latest *stable*
+		// numeric release rather than letting composer's own resolution
+		// run unconstrained, so this can never silently pick up a future
+		// 2.0.0 pre-release the moment one ships (composer's "prefer
+		// stable, else newest" default is exactly what caused this bug
+		// in the first place: ^2.0.0 + --stability=beta below used to
+		// force-select 2.0.0-rc.7 since no stable 2.x exists yet).
+		if version, verErr := latestFlarumVersion(ctx); verErr == nil {
+			projectConstraint = "flarum/flarum:^" + version
+		}
 	}
 
 	// Deliberately not pre-creating hostOSPath: composer create-project
@@ -208,7 +220,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	// creation over the rootless bind mount).
 	emit(map[string]any{"status": "Creating Composer project " + projectConstraint})
 	composerArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "composer"),
-		"create-project", projectConstraint, installPath, "--stability=beta", "--no-interaction")
+		"create-project", projectConstraint, installPath, "--no-interaction")
 	out, runErr := podmanmanager.Command(ctx, userContext, composerArgv).CombinedOutput()
 	if runErr != nil {
 		emit(map[string]any{"error": "composer create-project failed: " + strings.TrimSpace(string(out))})
@@ -313,6 +325,7 @@ printf '%s\n' '<?php' 'chdir(__DIR__ . "/public"); require __DIR__ . "/public/in
 		emit(map[string]any{"error": "Flarum installed, but an error occurred while saving to Site Manager: " + insertErr.Error()})
 		return
 	}
+	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed Flarum on domain "+selectedDomain, ipAddress)
 	flashSess(a, w, r, "success", "Flarum installed successfully on "+selectedDomain)

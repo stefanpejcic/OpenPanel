@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
 // sofawikiSourceZip is the only source SofaWiki ships: a plain branch
@@ -216,6 +217,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emit(map[string]any{"error": "SofaWiki installed, but an error occurred while saving to Site Manager: " + insertErr.Error()})
 		return
 	}
+	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed SofaWiki on domain "+selectedDomain, ipAddress)
 	flashSess(a, w, r, "success", "SofaWiki installed successfully on "+selectedDomain)
