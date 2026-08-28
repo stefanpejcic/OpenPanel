@@ -41,3 +41,5 @@
   .xl\:grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
   .xl\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+
+.min-h-screen { min-height: 100vh; }

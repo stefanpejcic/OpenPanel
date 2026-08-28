@@ -21,11 +21,6 @@
                     <div class="flex items-center space-x-3">
                         <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" id="wordpress"><path fill="#00759D" fill-rule="evenodd" d="M0 24c0 9.499 5.52 17.709 13.526 21.598L2.078 14.232A23.917 23.917 0 0 0 0 24zm40.202-1.211c0-2.967-1.067-5.02-1.979-6.618-1.217-1.98-2.358-3.653-2.358-5.63 0-2.207 1.672-4.26 4.03-4.26.107 0 .208.013.311.02A23.909 23.909 0 0 0 24 0C15.614 0 8.239 4.302 3.947 10.817a49.81 49.81 0 0 0 1.545.028c2.51 0 6.396-.304 6.396-.304 1.293-.077 1.446 1.825.153 1.977 0 0-1.3.153-2.746.23l8.739 25.995 5.253-15.752-3.738-10.244a43.428 43.428 0 0 1-2.519-.23c-1.293-.076-1.141-2.053.153-1.976 0 0 3.963.304 6.322.304 2.51 0 6.396-.304 6.396-.304 1.294-.077 1.446 1.825.153 1.977 0 0-1.302.153-2.747.23l8.673 25.797 2.396-7.998c1.035-3.321 1.826-5.705 1.826-7.758zm4.858-10.304c.103.765.162 1.584.162 2.468 0 2.434-.456 5.172-1.826 8.597l-7.33 21.194C43.2 40.584 48 32.853 48 24c0-4.173-1.067-8.096-2.94-11.515zM24.42 26.1l-7.202 20.924c2.151.633 4.425.978 6.78.978 2.795 0 5.476-.483 7.97-1.36a2.28 2.28 0 0 1-.17-.33L24.42 26.1z"></path></svg>
-                            <span class="absolute right-0 top-0 flex size-4 shrink-0 items-center justify-center rounded-full bg-blue-500 ring-2 ring-white dark:bg-blue-500 dark:ring-[#090E1A]">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-2.5 text-white dark:text-white">
-                                    <path d="M11.9998 17L6.12197 20.5902L7.72007 13.8906L2.48926 9.40983L9.35479 8.85942L11.9998 2.5L14.6449 8.85942L21.5104 9.40983L16.2796 13.8906L17.8777 20.5902L11.9998 17Z"></path>
-                                </svg>
-                            </span>
                         </span>
                         <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
                             <a href="/wordpress/install">{{.T.Get "WordPress"}}</a>
@@ -175,6 +170,35 @@
             </a>
             <div class="border-t border-gray-200 px-6 py-3 dark:border-gray-900">
                 <a href="/dokuwiki/install" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Install DokuWiki"}}</a>
+            </div>
+        </div>
+    {{end}}
+
+    {{if .UserAllowed.phpbb}}
+        <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0">
+            <div class="p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+                            <img src="{{static "images/phpbb-logo.svg"}}" alt="phpBB" width="48" height="48" class="size-12">
+                        </span>
+                        <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
+                            <a href="/phpbb/install">{{.T.Get "phpBB"}}</a>
+                        </dt>
+                    </div>
+                </div>
+                <dd class="text-gray-600 dark:text-gray-400 mt-3 text-sm/6">{{.T.Get "phpBB forum software."}}</dd>
+            </div>
+            <a href="/sites">
+            <div class="border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-900 dark:bg-[#090E1A]">
+                <div class="flex items-center space-x-2">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 text-gray-400 dark:text-gray-600"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path></svg>
+                    <p class="text-sm text-gray-500 dark:text-gray-500">{{if eq (index .Counts "phpbb") 0}}{{.T.Get "No"}}{{else}}{{index .Counts "phpbb"}}{{end}} {{.T.Get "existing installation"}}{{if ne (index .Counts "phpbb") 1}}{{.T.Get "s"}}{{end}}</p>
+                </div>
+            </div>
+            </a>
+            <div class="border-t border-gray-200 px-6 py-3 dark:border-gray-900">
+                <a href="/phpbb/install" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Install phpBB"}}</a>
             </div>
         </div>
     {{end}}
@@ -506,7 +530,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div class="flex items-center space-x-3">
                         <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#CC342D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 8l4 -5h10l4 5l-11 13z" /><path d="M3 8h18" /><path d="M9 3l2 5l-2.5 10.5" /><path d="M15 3l-2 5l2.5 10.5" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="#CC342D"><path d="M20.156.083c3.033.525 3.893 2.598 3.829 4.77L24 4.822 22.635 22.71 4.89 23.926h.016C3.433 23.864.15 23.729 0 19.139l1.645-3 2.819 6.586.503 1.172 2.805-9.144-.03.007.016-.03 9.255 2.956-1.396-5.431-.99-3.9 8.82-.569-.615-.51L16.5 2.114 20.159.073l-.003.01zM0 19.089zM5.13 5.073c3.561-3.533 8.157-5.621 9.922-3.84 1.762 1.777-.105 6.105-3.673 9.636-3.563 3.532-8.103 5.734-9.864 3.957-1.766-1.777.045-6.217 3.612-9.75l.003-.003z"/></svg>
                         </span>
                         <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
                             <a href="/ruby/install">{{.T.Get "Ruby"}}</a>
@@ -565,11 +589,6 @@
                     <div class="flex items-center space-x-3">
                         <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" id="docker"><path fill="#2496ED" d="M22.033 9.98c-.607-.428-2.006-.588-3.094-.385a4.336 4.336 0 0 0-.617-1.71l-.293-.44-.44.294a2.836 2.836 0 0 0-1.187 1.885c-.106.578-.02 1.203.24 1.71-.294.16-.755.294-1.43.294H1.24l-.053.32c-.16 1.05-.16 4.316 1.897 6.815 1.55 1.884 3.874 2.844 6.92 2.844 6.573 0 11.437-3.026 13.735-8.526 1.056.026 3.286 0 4.395-2.15l.16-.32-.293-.16c-1.216-.658-2.79-.712-3.694-.63l-.213.02M4.128 9.928h2.24v2.24h-2.24zm2.844 0h2.24v2.24h-2.24zm2.844 0h2.24v2.24H9.816zm2.845 0h2.24v2.24h-2.24zM6.972 7.084h2.24v2.24h-2.24zm2.844 0h2.24v2.24H9.816zm2.845 0h2.24v2.24h-2.24zm0-2.844h2.24v2.24h-2.24zM6.972 12.772h2.24v2.24h-2.24z"/></svg>
-                            <span class="absolute right-0 top-0 flex size-4 shrink-0 items-center justify-center rounded-full bg-blue-500 ring-2 ring-white dark:bg-blue-500 dark:ring-[#090E1A]">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-2.5 text-white dark:text-white">
-                                    <path d="M11.9998 17L6.12197 20.5902L7.72007 13.8906L2.48926 9.40983L9.35479 8.85942L11.9998 2.5L14.6449 8.85942L21.5104 9.40983L16.2796 13.8906L17.8777 20.5902L11.9998 17Z"></path>
-                                </svg>
-                            </span>
                         </span>
                         <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
                             <a href="/containers/new">{{.T.Get "Docker"}}</a>

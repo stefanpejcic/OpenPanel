@@ -265,6 +265,27 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			AvailablePHPVersions: availablePHPVersions,
 		})
 
+	case "phpbb":
+		dbInfo := extractPhpbbDatabaseInfo(userContext, docroot)
+		phpbbVersion := getPhpbbVersion(userContext, docroot)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		mysqlVersion := getMySQLVersion(a, r, userContext)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
+		renderPhpbbAppPage(a, w, r, PhpbbAppPageData{
+			pageData:             basePageData,
+			Domains:              domains,
+			Container:            container,
+			PhpbbVersion:         phpbbVersion,
+			PHPVersion:           currentPHPVersion,
+			MySQLVersion:         mysqlVersion,
+			DBInfo:               dbInfo,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
+		})
+
 	case "dokuwiki":
 		dokuwikiVersion := getDokuwikiVersion(userContext, docroot)
 		domains, _ := a.AllDomainsForUser(ctx, userID)

@@ -143,6 +143,36 @@ func renderSofawikiAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 }
 
+var phpbbAppPage = loadPage("manager/phpbb_app.html")
+
+// PhpbbAppPageData is manager/phpbb_app.html's template context.
+type PhpbbAppPageData struct {
+	pageData
+	Domains              []appctx.Domain
+	Container            ContainerInfo
+	PhpbbVersion         string
+	PHPVersion           string
+	MySQLVersion         string
+	DBInfo               map[string]string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderPhpbbAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PhpbbAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := phpbbAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - phpbb_app template render error: %v", err)
+	}
+}
+
 var dokuwikiAppPage = loadPage("manager/dokuwiki_app.html")
 
 // DokuwikiAppPageData is manager/dokuwiki_app.html's template context.

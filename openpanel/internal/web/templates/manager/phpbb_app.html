@@ -1,0 +1,926 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/manager/phpbb_app.html -->
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8 sm:flex sm:items-center sm:justify-between">
+    <div class="group">
+        <div class="flex items-center gap-x-3">
+            <img alt="{{.CurrentDomain}} Favicon" loading="lazy" width="5" height="5" decoding="async" class="h-4 w-4 rounded-full object-cover shadow-lg shadow-indigo-500/50 ring-2 ring-white dark:ring-gray-700" style="color:transparent" src="/json/favicon/{{.CurrentDomain}}">
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.CurrentDomain}}</h1>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-500 hover:underline"><a href="http://{{.CurrentDomain}}" class="hover:underline" target="_blank">https://{{.CurrentDomain}}</a></p>
+    </div>
+
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        {{template "temp_link" .}}
+    </div>
+</div>
+
+<div class="m-6 grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4">
+
+    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+
+        <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
+
+    <div class="border-b border-gray-200 dark:border-gray-700">
+        <ul id="phpbb-tab" data-tabs-toggle="#phpbb-tab-content" role="tablist" class="grid {{if .UserAllowed.malware_scan}}grid-cols-6{{else}}grid-cols-5{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+            <li role="presentation">
+                <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
+                   @click="activeTab = 'dashboard'"
+                   :class="activeTab === 'dashboard' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M2 10h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1m9-9h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m0 9a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1zm0-10a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM2 9a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2zm7 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2zM0 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.354.854a.5.5 0 1 0-.708-.708L3 3.793l-.646-.647a.5.5 0 1 0-.708.708l1 1a.5.5 0 0 0 .708 0z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Overview"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#" id="update-tab" data-tabs-target="#update" role="tab" aria-controls="update" aria-selected="false"
+                   @click="activeTab = 'update'"
+                   :class="activeTab === 'update' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a7 7 0 1 1 2.898 5.673c-.167-.121-.216-.406-.002-.62l1.8-1.8a3.5 3.5 0 0 0 4.572-.328l1.414-1.415a.5.5 0 0 0 0-.707l-.707-.707 1.559-1.563a.5.5 0 1 0-.708-.706l-1.559 1.562-1.414-1.414 1.56-1.562a.5.5 0 1 0-.707-.706l-1.56 1.56-.707-.706a.5.5 0 0 0-.707 0L5.318 5.975a3.5 3.5 0 0 0-.328 4.571l-1.8 1.8c-.58.58-.62 1.6.121 2.137A8 8 0 1 0 0 8a.5.5 0 0 0 1 0"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Update"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#" id="clone-tab" data-tabs-target="#clone" role="tab" aria-controls="clone" aria-selected="false"
+                   @click="activeTab = 'clone'"
+                   :class="activeTab === 'clone' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Clone"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#" id="backups-tab" data-tabs-target="#backups" role="tab" aria-controls="backups" aria-selected="false"
+                   @click="activeTab = 'backups'"
+                   :class="activeTab === 'backups' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Backups"}}</span>
+                </a>
+            </li>
+            {{if .UserAllowed.malware_scan}}
+            <li role="presentation">
+                <a href="#" id="security-tab" data-tabs-target="#security" role="tab" aria-controls="security" aria-selected="false"
+                   @click="activeTab = 'security'"
+                   :class="activeTab === 'security' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 14.933a1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Security"}}</span>
+                </a>
+            </li>
+            {{end}}
+            <li role="presentation">
+                <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
+                   @click="activeTab = 'remove'"
+                   :class="activeTab === 'remove' ? 'bg-white text-red-600 shadow-sm dark:bg-gray-900 dark:text-red-400' : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Remove"}}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div id="phpbb-tab-content">
+
+        {{if .UserAllowed.malware_scan}}
+        <div class="hidden p-4 rounded" id="security" role="tabpanel" aria-labelledby="security-tab">
+            {{template "malware_scan_panel" .}}
+        </div>
+        {{end}}
+
+        <div class="hidden p-4 rounded" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+
+            <!-- screenshot -->
+            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
+                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+                        {{template "screenshot" .}}
+                    </div>
+                </div>
+                <div class="grid h-full space-y-2 pb-2 gap-2 grid-cols-2 sm:grid-cols-1">
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "phpBB:"}}</h2>
+                        </div>
+                        <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{if .PhpbbVersion}}{{.PhpbbVersion}}{{else}}{{.T.Get "Unknown"}}{{end}}</h3>
+                    </div>
+
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800" x-data="{ phpEditOpen: false }">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "PHP:"}}</h2>
+                            {{if and .UserAllowed.php (not .IsSubdirectory)}}
+                            <button type="button" @click="phpEditOpen = !phpEditOpen" data-tooltip-target="tooltip-phpbb-php-link" data-tooltip-placement="left" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5"><path fill-rule="evenodd" d="M0 10.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H3V1.5a.5.5 0 0 0-1 0V10H.5a.5.5 0 0 0-.5.5M2.5 12a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5m3-6.5A.5.5 0 0 0 6 6h1.5v8.5a.5.5 0 0 0 1 0V6H10a.5.5 0 0 0 0-1H6a.5.5 0 0 0-.5.5M8 1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2A.5.5 0 0 0 8 1m3 9.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H14V1.5a.5.5 0 0 0-1 0V10h-1.5a.5.5 0 0 0-.5.5m2.5 1.5a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5"></path></svg>
+                            </button>
+                            <div id="tooltip-phpbb-php-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                {{.T.Get "Click to change"}}
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                            {{end}}
+                        </div>
+
+                        <h3 x-show="!phpEditOpen" class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{.PHPVersion}}</h3>
+
+                        {{if .IsSubdirectory}}
+                        <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">{{.T.Get "Inherits PHP version from %(domain)s" "domain" .MainDomain}}</p>
+                        {{else if .UserAllowed.php}}
+                        <form x-show="phpEditOpen" x-cloak method="POST" action="/php/domains" class="mt-1">
+                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                            <input type="hidden" name="domain_url" value="{{.MainDomain}}">
+                            <input type="hidden" name="old_php_version" value="{{.CurrentPHPVersion}}">
+                            <input type="hidden" name="redirect_to" value="/website?domain={{.CurrentDomain}}">
+                            <div x-data="{ current: {{toJSON .CurrentPHPVersion}}, selected: {{toJSON .CurrentPHPVersion}} }" class="flex rounded-lg">
+                                <select x-model="selected" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="new_php_version">
+                                    {{range .AvailablePHPVersions}}
+                                        <option value="{{.}}" {{if eq . $.CurrentPHPVersion}}selected disabled{{end}}>{{.}}</option>
+                                    {{end}}
+                                </select>
+                                <div class="input-group-append flex">
+                                    <button type="submit" :disabled="selected === current" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+                                        {{.T.Get "Change"}}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        {{end}}
+                    </div>
+
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "MariaDB:"}}</h2>
+                        </div>
+                        <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{.MySQLVersion}}</h3>
+                    </div>
+
+                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
+                        <div class="mb-2 flex items-center justify-between gap-4 relative">
+                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Created:"}}</h2>
+                        </div>
+                        <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl" data-relative-date="{{.Container.CreatedDate}}">{{.Container.CreatedDate}}</h3>
+                    </div>
+                </div>
+            </div>
+            <!-- END screenshot -->
+
+            <dl class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-4">
+
+                <!-- files info -->
+                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
+                        <a
+                            type="button"
+                            {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}
+                            target="_blank"
+                            data-tooltip-target="tooltip-filemanager-link" data-tooltip-placement="left"
+                            class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                        >
+                            <svg class="hi-mini hi-archive-box inline-block size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M2 3a1 1 0 00-1 1v1a1 1 0 001 1h16a1 1 0 001-1V4a1 1 0 00-1-1H2z"></path>
+                        <path fill-rule="evenodd" d="M2 7.5h16l-.811 7.71a2 2 0 01-1.99 1.79H4.802a2 2 0 01-1.99-1.79L2 7.5zM7 11a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        </a>
+                        <div id="tooltip-filemanager-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                        {{.T.Get "Open folder in File Manager"}}
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Folder:"}}</span>
+                            <span class="font-medium truncate"><a class="domain_link relative font-medium hover:underline" {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}>{{.Docroot}}</a></span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Folder Size:"}}</span>
+                            <span class="font-medium" id="filesSize">{{.T.Get "Calculating.."}}</span>
+                        </div>
+                        {{if .UserAllowed.disk_usage}}
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Disk Usage"}}:</span>
+                            <span class="font-medium flex items-center gap-1.5"><a
+                                        type="button"
+                                        id="disk-usage-link"
+                                        href="{{.DiskUsageHref}}"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-disk-usage-link" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                            <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-disk-usage-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open folder in Disk Usage Explorer"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div></span>
+                        </div>
+                        {{end}}
+                        {{if .UserAllowed.inodes}}
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Inodes Explorer"}}:</span>
+                            <span class="font-medium flex items-center gap-1.5"><a
+                                        type="button"
+                                        id="inodes-explorer-link"
+                                        href="{{.InodesExplorerHref}}"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-inodes-explorer-link" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                            <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-inodes-explorer-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open folder in Inodes Explorer"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div></span>
+                        </div>
+                        {{end}}
+                        {{if .UserAllowed.ftp}}
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "FTP Accounts"}}:</span>
+                            <span class="font-medium flex items-center gap-1.5"><a
+                                        type="button"
+                                        id="ftp-accounts-link"
+                                        href="/ftp"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-ftp-accounts-link" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                            <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-ftp-accounts-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open FTP Accounts"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div></span>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+                <!-- END files info -->
+
+                <!-- database info -->
+                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
+                        {{if .UserAllowed.mysql}}
+                        <a
+                            type="button"
+                            id="db-link"
+                            href="/mysql"
+                            target="_blank"
+                            data-tooltip-target="tooltip-db-link" data-tooltip-placement="left"
+                            class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <div id="tooltip-db-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                            {{.T.Get "Manage MySQL databases"}}
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                        {{end}}
+                    </div>
+
+                    {{if .DBInfo.error}}
+                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                        <span class="text-sm text-gray-500 dark:text-gray-500">{{.DBInfo.error}}</span>
+                    </div>
+                    {{else}}
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50" id="database-size-row">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Size:"}}</span>
+                            <span class="font-medium" id="databaseSize">{{.T.Get "Calculating.."}}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Host:"}}</span>
+                            <span class="font-medium">{{.DBInfo.database_host}}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Name:"}}</span>
+                            <span class="font-medium">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql" class="hover:underline">{{.DBInfo.database_name}}</a>
+                            {{else}}
+                                {{.DBInfo.database_name}}
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database User:"}}</span>
+                            <span class="font-medium">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql/users" class="hover:underline">{{.DBInfo.database_user}}</a>
+                            {{else}}
+                                {{.DBInfo.database_user}}
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Password:"}}</span>
+                            <span class="font-medium" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealPhpbbDBPassword()">{{.DBInfo.database_password}}</span>
+                        </div>
+
+                        {{if .UserAllowed.phpmyadmin}}
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "phpMyAdmin:"}}</span>
+                            <span class="font-medium flex items-center gap-1.5"><a
+                                        type="button"
+                                        id="phpmyadmin-link"
+                                        href="/phpmyadmin"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                            <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open database in phpMyAdmin"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
+                                    <a
+                                        type="button"
+                                        id="phpmyadmin-link-manual"
+                                        href="/phpmyadmin/link"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link-manual" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-right-end-on-rectangle inline-block size-5">
+                                            <path fill-rule="evenodd" d="M6 3.75A2.75 2.75 0 0 1 8.75 1h4.5A2.75 2.75 0 0 1 16 3.75v12.5A2.75 2.75 0 0 1 13.25 19h-4.5A2.75 2.75 0 0 1 6 16.25v-1a.75.75 0 0 1 1.5 0v1c0 .69.56 1.25 1.25 1.25h4.5c.69 0 1.25-.56 1.25-1.25V3.75c0-.69-.56-1.25-1.25-1.25h-4.5c-.69 0-1.25.56-1.25 1.25v1a.75.75 0 0 1-1.5 0v-1Z" clip-rule="evenodd"></path>
+                                            <path fill-rule="evenodd" d="M1 10a.75.75 0 0 1 .75-.75h9.546l-1.048-.943a.75.75 0 1 1 1.004-1.114l2.5 2.25a.75.75 0 0 1 0 1.114l-2.5 2.25a.75.75 0 1 1-1.004-1.114l1.048-.943H1.75A.75.75 0 0 1 1 10Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link-manual" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open phpMyAdmin login form"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div></span>
+                        </div>
+                        {{end}}
+                    </div>
+                    {{end}}
+                </div>
+                <!-- END database info -->
+
+                <script>
+                    function revealPhpbbDBPassword() {
+                        var passwordSpan = document.getElementById("database-password");
+                        passwordSpan.style.filter = passwordSpan.style.filter === "blur(5px)" ? "none" : "blur(5px)";
+                    }
+                </script>
+
+            </dl>
+        </div>
+
+
+        <div class="hidden p-4 rounded" id="update" role="tabpanel" aria-labelledby="update-tab">
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Version"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "phpBB has no safe unattended CLI updater, so updates are run from your own Admin Control Panel."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Installed version:"}}</span>
+                            <span class="font-medium">{{if .PhpbbVersion}}{{.PhpbbVersion}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
+                        </div>
+                    </div>
+                    <a href="https://{{.CurrentDomain}}/adm/index.php?i=acp_help" target="_blank" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-3 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-fit">{{.T.Get "Open Admin Control Panel"}}</a>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Check phpbb.com for the latest release, then use phpBB's own Automatic Update Package under ACP > System > Update following their documented procedure. A backup is recommended first - see the Backups tab."}}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="hidden p-4 rounded" id="clone" role="tabpanel" aria-labelledby="clone-tab">
+
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Clone a phpBB instance with its database and files."}}</p>
+
+            <form id="phpbb-CloneForm">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="source_domain" value="{{.CurrentDomain}}">
+                <input type="hidden" name="source_folder" value="{{.Docroot}}">
+                <input type="hidden" name="source_db" value="{{.DBInfo.database_name}}">
+                <input type="hidden" name="version" value="{{.PhpbbVersion}}">
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Location"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Please choose the URL to install the software"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="phpbb-source_domain">{{.T.Get "Source"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="phpbb-source_domain" type="text" value="{{.CurrentDomain}}" disabled />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="phpbb-target_domain">{{.T.Get "Target"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                <div class="relative w-full mt-2">
+                                    <div class="flex">
+                                        <select class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" name="target_domain" id="phpbb-target_domain">
+                                            <option selected disabled value="">{{.T.Get "Select a domain"}}</option>
+                                            {{range .Domains}}
+                                                <option class="punycode" docroot="{{.Docroot}}" value="{{.DomainURL}}">{{.DomainURL}}</option>
+                                            {{end}}
+                                        </select>
+                                        <div class="input-group-append flex">
+                                            <input type="text" name="subdirectory" id="phpbb-subdirectory" placeholder="subfolder" class="relative block w-full appearance-none rounded-r-md border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                                        </div>
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Make sure that the domain or the subdomain selected as a target is not being used by an existing website. During cloning, website data that exists on the destination may be overwritten and irrevocably lost."}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Database name and user to use for the clone (optional)"}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="phpbb-target_db">{{.T.Get "Database Name"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="phpbb-target_db" name="target_db" type="text" minlength="6" maxlength="30" title="{{.T.Get "Database name must be between 6 and 30 characters."}}" />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="phpbb-target_db_user">{{.T.Get "Database user"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="phpbb-target_db_user" name="target_db_user" type="text" minlength="6" maxlength="30" title="{{.T.Get "Username must be between 6 and 30 characters."}}" />
+                                </div>
+                            </div>
+                            <div class="col-span-full">
+                                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="phpbb-target_db_user_password">{{.T.Get "User password"}}</label>
+                                <div class="relative w-full mt-2">
+                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="phpbb-target_db_user_password" name="target_db_user_password" type="password" minlength="8" maxlength="30" title="{{.T.Get "Password must be between 8 and 30 characters."}}" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                <div class="flex items-center justify-end space-x-4">
+                    <button type="button" id="phpbb-startCloneBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Clone website"}}</button>
+                </div>
+            </form>
+
+            <script>
+                document.getElementById('phpbb-startCloneBtn').addEventListener('click', function() {
+                    var btn = this;
+                    btn.disabled = true;
+                    btn.textContent = {{toJSON (.T.Get "Cloning...")}};
+                    var formData = new URLSearchParams(new FormData(document.getElementById('phpbb-CloneForm')));
+                    showToast({{toJSON (.T.Get "Cloning process started... Please wait.")}}, 'loading');
+
+                    fetch("/phpbb/clone", {
+                        method: "POST",
+                        headers: { 'X-CSRF-TOKEN': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData.toString()
+                    })
+                        .then(response => response.json().then(data => {
+                            if (!response.ok) throw data;
+                            return data;
+                        }))
+                        .then(response => {
+                            if (response.status === 'success') {
+                                showToast(`Cloned to ${response.target} successfully!`, 'success');
+                                btn.textContent = {{toJSON (.T.Get "Clone Complete")}};
+                            } else {
+                                showToast(`Error cloning site`, 'error');
+                                btn.disabled = false;
+                                btn.textContent = {{toJSON (.T.Get "Try Again")}};
+                            }
+                        })
+                        .catch(error => {
+                            showToast(`${error?.error || error}`, 'error');
+                            btn.disabled = false;
+                            btn.textContent = {{toJSON (.T.Get "Retry Clone")}};
+                        });
+                });
+            </script>
+
+        </div>
+
+        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create a Backup"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Generate a backup of files and/or database."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <div class="flex items-center">
+                                    <input checked id="phpbb-backupDatabase" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Backup Database"}} <b id="phpbb-db-size-for-backup"></b></label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input checked id="phpbb-backupFiles" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Backup Files"}} <b id="phpbb-files-size-for-backup"></b></label>
+                                </div>
+                                <button id="phpbb-runBackup" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100"><i class="bi bi-download mr-2"></i> {{.T.Get "Generate Backup"}}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div></div></div>
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore from Backups"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Restore files and/or database from a backup."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button id="phpbb-restore-btn-or" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100" type="button">
+                                    {{.T.Get "Display Backups"}}
+                                </button>
+
+                                <div id="phpbb-restore-section" class="hidden">
+                                    <p>{{.T.Get "Select a backup date:"}}</p>
+                                    <select class="peer w-full cursor-pointer appearance-none truncate rounded border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="phpbb-restoreBackupDate"></select>
+
+                                    <button data-selected-domain="{{.CurrentDomain}}" type="button" id="phpbb-confirmRestore" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                        <i class="bi bi-arrow-counterclockwise mr-2"></i> {{.T.Get "Start Restore"}}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                (function() {
+                    const restoreButton = document.getElementById("phpbb-restore-btn-or");
+                    const restoreBackupDateSelect = document.getElementById("phpbb-restoreBackupDate");
+                    const confirmRestoreButton = document.getElementById("phpbb-confirmRestore");
+                    const restoreDomain = {{toJSON .CurrentDomain}};
+                    const docroot = {{toJSON .Docroot}};
+                    let restoreConfirmed = false;
+
+                    function backupTypeLabel(hasDbBackup, hasFilesBackup) {
+                        if (hasDbBackup && hasFilesBackup) return {{toJSON (.T.Get "Database and Files Backup")}};
+                        if (hasDbBackup) return {{toJSON (.T.Get "Database Backup")}};
+                        if (hasFilesBackup) return {{toJSON (.T.Get "Files Backup")}};
+                        return {{toJSON (.T.Get "Unknown Backup Type")}};
+                    }
+
+                    if (restoreButton) {
+                        restoreButton.addEventListener("click", function () {
+                            document.getElementById("phpbb-restore-section").classList.remove("hidden");
+                            restoreButton.classList.add("hidden");
+                            fetch(`/phpbb/backup/get_dates/${restoreDomain}?docroot=${docroot}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                                .then(response => response.json())
+                                .then(data => {
+                                    restoreBackupDateSelect.innerHTML = "";
+                                    if (data.length > 0) {
+                                        data.forEach(dateInfo => {
+                                            const option = document.createElement("option");
+                                            option.value = dateInfo.date;
+                                            option.textContent = `${dateInfo.date} (${backupTypeLabel(dateInfo.hasDbBackup, dateInfo.hasFilesBackup)})`;
+                                            restoreBackupDateSelect.appendChild(option);
+                                        });
+                                    } else {
+                                        const option = document.createElement("option");
+                                        option.textContent = {{toJSON (.T.Get "No backups available")}};
+                                        option.disabled = true;
+                                        restoreBackupDateSelect.appendChild(option);
+                                    }
+                                })
+                                .catch(error => console.error("Error fetching backup dates:", error));
+                        });
+                    }
+
+                    if (confirmRestoreButton) {
+                        confirmRestoreButton.addEventListener("click", function () {
+                            if (!restoreConfirmed) {
+                                confirmRestoreButton.textContent = {{toJSON (.T.Get "Click again to confirm")}};
+                                confirmRestoreButton.classList.remove("bg-black", "hover:bg-gray-800");
+                                confirmRestoreButton.classList.add("bg-red-600", "hover:bg-red-700");
+                                restoreConfirmed = true;
+                                return;
+                            }
+                            const selectedDate = restoreBackupDateSelect.value;
+                            showToast({{toJSON (.T.Get "Restoring backup... Please wait.")}}, 'warning');
+                            fetch(`/phpbb/backup/restore/${restoreDomain}?docroot=${docroot}&backup_date=${selectedDate}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                                .then(response => {
+                                    if (response.ok) return response.text();
+                                    throw new Error({{toJSON (.T.Get "Restore request failed.")}});
+                                })
+                                .then(result => {
+                                    showToast(`${result}`, 'success');
+                                    setTimeout(() => {
+                                        restoreConfirmed = false;
+                                        confirmRestoreButton.textContent = {{toJSON (.T.Get "Start Restore")}};
+                                        confirmRestoreButton.classList.remove("bg-red-600", "hover:bg-red-700");
+                                        confirmRestoreButton.classList.add("bg-black", "hover:bg-gray-800");
+                                    }, 5000);
+                                })
+                                .catch(error => {
+                                    console.error("Error during restore:", error);
+                                    showToast(`${error.message}`, 'error');
+                                });
+                        });
+                    }
+
+                    const runBackupButton = document.getElementById("phpbb-runBackup");
+                    const backupDatabaseCheckbox = document.getElementById("phpbb-backupDatabase");
+                    const backupFilesCheckbox = document.getElementById("phpbb-backupFiles");
+
+                    if (runBackupButton) {
+                        runBackupButton.addEventListener("click", function () {
+                            const backupDatabase = backupDatabaseCheckbox.checked;
+                            const backupFiles = backupFilesCheckbox.checked;
+                            if (!backupDatabase && !backupFiles) {
+                                showToast({{toJSON (.T.Get "No options selected to backup. Please ensure that at least one of the Database or Files is selected.")}}, 'error');
+                                return;
+                            }
+                            runBackupButton.disabled = true;
+                            const originalButtonText = runBackupButton.innerHTML;
+                            runBackupButton.innerHTML = `<i class="bi bi-arrow-repeat animate-spin mr-2"></i> {{.T.Get "Generating Backup..."}}`;
+                            showToast({{toJSON (.T.Get "Generating website backup.. Please wait.")}}, 'loading');
+                            fetch(`/phpbb/backup/run/${restoreDomain}?docroot=${docroot}&backup_database=${backupDatabase}&backup_files=${backupFiles}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                                .then(response => {
+                                    if (response.ok) return response.text();
+                                    throw new Error({{toJSON (.T.Get "Backup request failed.")}});
+                                })
+                                .then(result => showToast(`${result}`, 'success'))
+                                .catch(error => {
+                                    showToast(`${error.message}`, 'error');
+                                    console.error("Error during backup:", error);
+                                })
+                                .finally(() => {
+                                    runBackupButton.disabled = false;
+                                    runBackupButton.innerHTML = originalButtonText;
+                                });
+                        });
+                    }
+                })();
+            </script>
+        </div>
+
+        <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
+            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Detach"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the phpBB forum from Site Manager."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                    <i class="bi bi-x mr-2"></i> {{.T.Get "Detach phpBB"}}
+                                </button>
+                                <div x-show="open">
+                                    <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the phpBB forum from this manager without actually deleting any files."}}</p>
+                                    <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "All website data such as files and database remains. Use Scan on Site Manager to re-add it later."}}</p>
+                                    <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
+                                        <button onclick="confirmDetachphpBB()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
+                                        {{.T.Get "Confirm Detach"}}
+                                        </button>
+                                        <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                        {{.T.Get "Cancel"}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div></div></div>
+
+            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Permanently removes this phpBB forum."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                    <i class="bi bi-trash3 mr-2"></i> {{.T.Get "Delete Application"}}
+                                </button>
+                                <div x-show="open">
+                                    <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "This will drop the database and user, delete every file in the docroot, and remove it from Site Manager."}}</p>
+                                    <p class="my-2 text-sm/6 text-red-500 dark:text-red-400">{{.T.Get "This cannot be undone."}}</p>
+                                    <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
+                                        <button onclick="confirmRemovephpBB()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
+                                        {{.T.Get "Confirm delete"}}
+                                        </button>
+                                        <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                        {{.T.Get "Cancel"}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+        </div>
+
+    </div>
+
+    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "waf_panel" .}}
+
+        {{template "phpbb_cache" .}}
+
+    </div>
+
+</div>
+
+<script>
+const PHPBB_SITE_ID = {{toJSON .Container.ID}};
+
+function confirmRemovephpBB() {
+    showToast({{toJSON (.T.Get "phpBB removal started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/phpbb/remove', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            window.location.href = '/sites';
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(PHPBB_SITE_ID));
+}
+
+function confirmDetachphpBB() {
+    showToast({{toJSON (.T.Get "phpBB detach process started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/sites/detach', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                window.location.href = '/sites';
+            } else {
+                showToast({{toJSON (.T.Get "An error occurred while detaching phpBB. Please try again.")}}, 'error');
+            }
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(PHPBB_SITE_ID));
+}
+</script>
+
+<script>
+(function() {
+    const destinationPath = {{toJSON (replace .Docroot "/var/www/html/" "")}};
+    fetch(`/json/directory-size?folder=${encodeURIComponent(destinationPath)}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("filesSize").textContent = data.size;
+            const filesSizeForBackup = document.getElementById("phpbb-files-size-for-backup");
+            if (filesSizeForBackup) filesSizeForBackup.textContent = `( ~ ${data.size} )`;
+        })
+        .catch(error => console.error("An error occurred fetching folder size from the container:", error));
+
+    const databaseName = {{toJSON .DBInfo.database_name}};
+    const databaseHost = {{toJSON .DBInfo.database_host}};
+    const databaseSizeSpan = document.getElementById("databaseSize");
+    if (databaseSizeSpan) {
+        if (databaseHost === "localhost" || databaseHost === "mysql" || databaseHost === "mariadb" || databaseHost === "127.0.0.1") {
+            fetch(`/json/database-size?database=${encodeURIComponent(databaseName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    databaseSizeSpan.textContent = data.size;
+                    const dbSizeForBackup = document.getElementById("phpbb-db-size-for-backup");
+                    if (dbSizeForBackup) dbSizeForBackup.textContent = `( ~ ${data.size} )`;
+                })
+                .catch(error => console.error("An error occurred fetching DB size from MySQL:", error));
+        } else {
+            document.getElementById("database-size-row")?.classList.add('hidden');
+        }
+    }
+})();
+</script>
+
+<!-- END templates/manager/phpbb_app.html -->
+{{end}}
+
+{{define "phpbb_cache"}}
+<!-- START phpbb_cache widget -->
+<div x-data="phpbbCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+  <div class="mb-2 flex items-center justify-between gap-4 relative">
+    <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+    <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Cache"}}</h2>
+    <svg aria-hidden="true" class="lucide lucide-compass size-5 shrink-0" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor" fill="none" viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"></path><circle cx="12" cy="12" r="10"></circle></svg>
+  </div>
+
+    <div class="grid grid-cols-1 gap-2">
+        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Clear phpBB cache:"}}</span>
+            <span class="font-medium">
+
+        <button
+        @click="clearCache"
+        data-tooltip-target="tooltip-phpbb_clear_cache-link" data-tooltip-placement="left"
+        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 cursor-pointer"
+        type="button"
+        aria-label="Clear phpBB Cache"
+        >
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash size-5 shrink-0"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        {{.T.Get "Clear Cache"}}
+        </button>
+            </span>
+        </div>
+    </div>
+
+    <div id="tooltip-phpbb_clear_cache-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+      {{.T.Get "Runs php phpbb cache:clear"}}
+      <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+</div>
+
+<script>
+  function phpbbCacheComponent() {
+    return {
+      domain: {{toJSON .CurrentDomain}},
+      docroot: {{toJSON .Docroot}},
+
+      clearCache() {
+        if (!this.domain || !this.docroot) {
+          return;
+        }
+        showToast({{toJSON (.T.Get "Clearing cache...")}}, 'loading', true);
+        fetch(`/phpbb/cache?domain=${encodeURIComponent(this.domain)}&docroot=${encodeURIComponent(this.docroot)}`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrf_token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({})
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            showToast(data.error, 'danger');
+          } else {
+            showToast(data.message || {{toJSON (.T.Get "Cache cleared successfully!")}}, 'success');
+          }
+        })
+        .catch(() => {
+          showToast({{toJSON (.T.Get "Failed to clear cache")}}, 'danger');
+        });
+      }
+    }
+  }
+</script>
+<!-- END phpbb_cache widget -->
+{{end}}

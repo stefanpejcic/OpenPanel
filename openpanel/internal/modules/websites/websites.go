@@ -658,6 +658,45 @@ func getDokuwikiVersion(userContext, realPath string) string {
 	return strings.TrimSpace(string(content))
 }
 
+// ---------------------- PHPBB INFO ---------------------- //
+
+// phpbbDBFields matches config.php's plain $dbname/$dbuser/$dbpasswd/
+// $dbhost assignments - not a PHP array like Flarum's config.php, but the
+// same shape of "no preceding documentation block to strip first".
+var phpbbDBFields = []cmsDBField{
+	{"database_name", regexp.MustCompile(`\$dbname\s*=\s*'([^']*)'`)},
+	{"database_user", regexp.MustCompile(`\$dbuser\s*=\s*'([^']*)'`)},
+	{"database_password", regexp.MustCompile(`\$dbpasswd\s*=\s*'([^']*)'`)},
+	{"database_host", regexp.MustCompile(`\$dbhost\s*=\s*'([^']*)'`)},
+}
+
+func extractPhpbbDatabaseInfo(userContext, directory string) map[string]string {
+	mappedDir, ok := cmsMappedDir(userContext, directory)
+	if !ok {
+		return nil
+	}
+	configPath := filepath.Join(mappedDir, "config.php")
+	return readCMSConfig(configPath, "config.php", phpbbDBFields, nil)
+}
+
+var phpbbVersionRE = regexp.MustCompile(`PHPBB_VERSION',\s*'([^']*)'`)
+
+// getPhpbbVersion reads the installed PHPBB_VERSION constant straight out
+// of includes/constants.php - phpBB writes no separate VERSION file the
+// way DokuWiki does.
+func getPhpbbVersion(userContext, realPath string) string {
+	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
+	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "includes", "constants.php")
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "Unknown"
+	}
+	if m := phpbbVersionRE.FindSubmatch(content); m != nil {
+		return string(m[1])
+	}
+	return "Unknown"
+}
+
 // extractJoomlaDatabaseInfo parses the $host/$user/$password/$db/$dbprefix
 // properties out of configuration.php - much simpler than
 // extractDrupalDatabaseInfo's settings.php scrape, since Joomla's installer

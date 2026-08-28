@@ -1,0 +1,614 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/manager/phpbb_install.html -->
+
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header class="flex items-center justify-between gap-4">
+        <div>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Install phpBB"}}</h1>
+            <p id="description_type" class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Set up a new phpBB forum in an existing domain."}}</p>
+        </div>
+        <div id="headerRing" class="hidden flex-shrink-0">
+            <div class="relative w-12 h-12">
+                <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" stroke-width="10" class="dark:stroke-gray-700"/><circle id="progressRing" cx="50" cy="50" r="42" fill="none" stroke="url(#installRingGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9" style="transition: stroke-dashoffset 0.6s ease"/><defs><linearGradient id="installRingGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs></svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span id="progressPercent" class="text-xs font-bold text-gray-900 dark:text-gray-50">0%</span>
+                </div>
+            </div>
+        </div>
+    </header>
+</div>
+
+{{if .Domains}}
+<!-- form -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6" id="toAddActive">
+    <form class="space-y-3" id="installForm" action="/phpbb/install">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+        <div class="flex items-center gap-2.5 mb-2">
+            <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">1</div>
+            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Site details"}}</span>
+        </div>
+
+        <div class="mb-3">
+            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="board_name">
+                {{.T.Get "Board name"}}<span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="board_name" id="board_name" placeholder="{{.T.Get "My Board"}}" value="{{.T.Get "My Board"}}" required
+                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+        </div>
+
+        <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="board_description">
+                {{.T.Get "Board description"}}
+            </label>
+            <input type="text" name="board_description" id="board_description" placeholder="{{.T.Get "Powered by phpBB"}}" value="{{.T.Get "Powered by phpBB"}}"
+                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+        </div>
+
+        <div class="mt-3">
+            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="phpbb_version">
+                {{.T.Get "phpBB version"}}<span class="text-red-500">*</span>
+            </label>
+            <select name="phpbb_version" id="phpbb_version"
+                class="relative block w-full cursor-pointer appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                <option value="">{{.T.Get "Latest"}}</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+        <div class="flex items-center gap-2.5 mb-2">
+            <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">2</div>
+            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domain & location"}}</span>
+        </div>
+
+        <div class="mb-1">
+            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="domain_id">
+                {{.T.Get "Domain"}}<span class="text-red-500">*</span>
+            </label>
+            <div class="flex rounded-lg shadow-sm">
+                <select name="domain_id" id="domain_id" onchange="updateDocroot(); updateEmailFromDomain()"
+                    class="peer flex-1 min-w-0 cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    <option selected disabled value="">{{.T.Get "Select a domain"}}</option>
+                    {{range .Domains}}
+                        <option class="punycode" docroot="{{.Docroot}}" label="{{.DomainURL}}" value="{{.DomainID}}">{{.DomainURL}}</option>
+                    {{end}}
+                </select>
+                <input type="text" name="subdirectory" id="subdirectory" placeholder="{{.T.Get "subfolder"}}" oninput="syncSubdirectory()"
+                    class="w-36 appearance-none rounded-r border-t border-b border-r px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+            </div>
+            <p class="mt-1.5 text-xs text-gray-400 dark:text-gray-500">{{.T.Get "Leave subfolder blank to install at the domain root"}}</p>
+        </div>
+
+        <div class="flex items-center gap-2 px-3 py-2 rounded bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="orange" class="text-amber-500 flex-shrink-0" viewBox="0 0 16 16"><path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.19a2 2 0 0 1 1.45.63l.26.28a2 2 0 0 0 1.45.63H14a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3.87z"/></svg>
+            <span class="text-xs font-mono text-gray-500 dark:text-gray-400 truncate"><span id="path">/var/www/html/</span><span id="display_subdirectory"></span></span>
+        </div>
+
+        <script>
+            function syncSubdirectory() {
+                const subdirectoryValue = document.getElementById('subdirectory').value;
+                const displaySubdirectory = document.getElementById('display_subdirectory');
+                displaySubdirectory.textContent = subdirectoryValue ? '/' + subdirectoryValue : '';
+            }
+
+            function updateDocroot() {
+                const domainSelect = document.getElementById('domain_id');
+                const selectedOption = domainSelect.options[domainSelect.selectedIndex];
+                const docroot = selectedOption.getAttribute('docroot');
+                document.getElementById('path').textContent = docroot || '/var/www/html/';
+            }
+
+            function updateEmailFromDomain() {
+                const selectedOption = document.querySelector("#domain_id option:checked");
+                if (!selectedOption || !selectedOption.value) return;
+                const selectedDomain = selectedOption.textContent.trim();
+                const adminEmailInput = document.getElementById("admin_email");
+                const currentEmail = adminEmailInput.value;
+                const atIndex = currentEmail.indexOf('@');
+                if (atIndex !== -1) {
+                    adminEmailInput.value = currentEmail.substring(0, atIndex + 1) + selectedDomain;
+                } else {
+                    adminEmailInput.value = 'admin@' + selectedDomain;
+                }
+            }
+
+            window.onload = function() {
+                const domainSelect = document.getElementById('domain_id');
+                if (domainSelect) {
+                    const selectedOption = domainSelect.options[domainSelect.selectedIndex];
+                    if (selectedOption && selectedOption.value) { updateDocroot(); updateEmailFromDomain(); }
+                }
+            };
+        </script>
+    </div>
+
+    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+        <div class="flex items-center gap-2.5 mb-2">
+            <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">3</div>
+            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Admin credentials"}}</span>
+            <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-500 border border-gray-100 dark:border-gray-800">{{.T.Get "auto-generated"}}</span>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_email">
+                    {{.T.Get "Email"}}<span class="text-red-500">*</span>
+                </label>
+                <input type="email" name="admin_email" id="admin_email" placeholder="admin@example.com" required
+                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+            </div>
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_username">
+                    {{.T.Get "Username"}}<span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="admin_username" id="admin_username" value="admin" required
+                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+            </div>
+        </div>
+
+        <div
+            class="mt-3"
+            x-data="passwordStrength({
+                weak: '{{.T.Get "Weak password"}}',
+                medium: '{{.T.Get "Medium strength password"}}',
+                strong: '{{.T.Get "Strong password"}}',
+                tooWeak: '{{.T.Get "Password does not meet the required strength."}}'
+            }, {{.PasswordStrength}})"
+            x-init="checkStrength()"
+        >
+            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_password">
+                {{.T.Get "Password"}}<span class="text-red-500">*</span>
+            </label>
+            <div class="flex rounded-lg shadow-sm">
+                <input type="password" name="admin_password" id="admin_password" required
+                    x-model="password"
+                    x-ref="input"
+                    @input="checkStrength(); password = password.replace(/\s/g, '')"
+                    @keydown.space.prevent
+                    class="relative block w-full appearance-none rounded-l border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"/>
+                <button type="button" id="generatePassword"
+                    class="px-3 py-2 text-xs font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-900 border-t border-b border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors whitespace-nowrap">{{.T.Get "Regenerate"}}</button>
+                <button type="button" id="togglePassword"
+                    class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-r hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+
+            <div class="mt-2 h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-300"
+                    :class="{
+                        'bg-red-500': strength === 'Weak',
+                        'bg-orange-500': strength === 'Medium',
+                        'bg-emerald-500': strength === 'Strong'
+                    }"
+                    :style="{
+                        width: strength === 'Weak' ? '33%' : strength === 'Medium' ? '66%' : strength === 'Strong' ? '100%' : '0%'
+                    }"></div>
+            </div>
+            <p class="mt-1 text-xs font-medium"
+                :class="{
+                    'text-red-500': strength === 'Weak',
+                    'text-orange-500': strength === 'Medium',
+                    'text-emerald-600 dark:text-emerald-400': strength === 'Strong'
+                }">
+                <span x-text="strengthMessage"></span>
+            </p>
+        </div>
+
+        <div class="mt-3" x-data="{ showDB: false }">
+            <button type="button" @click="showDB = !showDB"
+                class="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors w-full text-left py-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16"
+                    :class="showDB ? 'rotate-180' : ''"
+                    class="transition-transform duration-200">
+                    <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                </svg>
+                {{.T.Get "Database settings"}}
+                <span class="text-gray-300 dark:text-gray-600">·</span>
+                <span>{{.T.Get "auto-generated · click to review"}}</span>
+            </button>
+
+            <div x-show="showDB" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="db_name">
+                            {{.T.Get "Database name"}}<span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="db_name" id="db_name" required
+                            class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="db_user">
+                            {{.T.Get "DB username"}}<span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="db_user" id="db_user" required
+                            class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="db_password">
+                            {{.T.Get "DB password"}}<span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="db_password" id="db_password" required
+                            class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-between gap-3 pt-1">
+        <a href="/auto-installer"
+            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 whitespace-nowrap">
+            {{.T.Get "← Back"}}
+        </a>
+        <button type="submit" id="installButton"
+            class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-center text-sm font-medium shadow-sm transition-all border-black bg-black text-white hover:bg-gray-800 gap-x-1.5 whitespace-nowrap">
+            {{.T.Get "Start Installation"}}
+            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>
+        </button>
+    </div>
+
+    </form>
+</div>
+<!-- END form -->
+
+<div id="progressUI" class="hidden sm:mx-auto sm:max-w-2xl px-6 py-4 m-6">
+
+  <div class="grid grid-cols-1 gap-2" id="stepsContainer">
+
+      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-preflight">
+        <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
+          <span class="step-icon flex-shrink-0"></span>{{.T.Get "Running pre-flight checks"}}
+        </span>
+      </div>
+
+      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-container">
+        <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
+          <span class="step-icon flex-shrink-0"></span>{{.T.Get "Starting PHP container"}}
+        </span>
+      </div>
+
+      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-extract">
+        <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
+          <span class="step-icon flex-shrink-0"></span>{{.T.Get "Downloading and extracting phpBB"}}
+        </span>
+      </div>
+
+      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-database">
+        <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
+          <span class="step-icon flex-shrink-0"></span>{{.T.Get "Creating database"}}
+        </span>
+      </div>
+
+      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-installer">
+        <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
+          <span class="step-icon flex-shrink-0"></span>{{.T.Get "Running phpBB installer"}}
+        </span>
+      </div>
+
+      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-done">
+        <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
+          <span class="step-icon flex-shrink-0"></span>{{.T.Get "Saving to Site Manager"}}
+        </span>
+      </div>
+
+    </div>
+
+</div>
+
+<script>
+let _installDomain = '';
+let _hangTimer = null;
+
+function _setDescription(text) {
+  const el = document.getElementById('description_type');
+  if (el) el.innerHTML = text;
+}
+
+function startInstall(name) {
+  _installDomain = name;
+  document.getElementById('headerRing').classList.remove('hidden');
+  _setDescription({{toJSON (.T.Get "Setting up phpBB for")}} + ` <span class="font-mono text-blue-500">${name}</span>`);
+
+  if (_hangTimer) clearTimeout(_hangTimer);
+  _hangTimer = setTimeout(() => {
+    _setDescription({{toJSON (.T.Get "Install process hanged for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-600 dark:text-blue-400 hover:underline">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
+  }, 5 * 60 * 1000);
+}
+
+function _clearHangTimer() {
+  if (_hangTimer) { clearTimeout(_hangTimer); _hangTimer = null; }
+}
+
+function showInstallError(name) {
+  _clearHangTimer();
+  _setDescription({{toJSON (.T.Get "Install process failed for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-600 dark:text-blue-400 hover:underline">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
+}
+
+function resetDescription() {
+  _clearHangTimer();
+  document.getElementById('headerRing').classList.add('hidden');
+  _setDescription({{toJSON (.T.Get "Set up a new phpBB forum in an existing domain.")}});
+}
+
+function updateRing(pct) {
+  const circ = 263.9;
+  const ring = document.getElementById('progressRing');
+  if (ring) ring.style.strokeDashoffset = circ - (circ * pct / 100);
+  const pctEl = document.getElementById('progressPercent');
+  if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+}
+
+const ICON_PENDING = `<svg class="size-5 shrink-0 text-gray-300 dark:text-gray-600" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" opacity=".25"/><circle cx="12" cy="12" r="3"/></svg>`;
+const ICON_SPIN = `<svg class="size-5 shrink-0 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="60" stroke-dashoffset="20" stroke-linecap="round" opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`;
+const ICON_DONE = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="size-5 shrink-0 text-emerald-500 dark:text-emerald-400"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path></svg>`;
+const ICON_ERROR = `<svg class="size-5 shrink-0 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"/></svg>`;
+
+const INSTALL_STEPS = [
+  { id: 'step-preflight', triggers: ['Checking if existing installation', 'Validating provided data'] },
+  { id: 'step-container', triggers: ['Starting PHP container'] },
+  { id: 'step-extract',   triggers: ['Downloading and extracting phpBB', 'Setting files permissions'] },
+  { id: 'step-database',  triggers: ['Testing database connection', 'Creating database'] },
+  { id: 'step-installer', triggers: ['Running phpBB installer', 'Removing install/'] },
+  { id: 'step-done',      triggers: ['Saving website information', 'installation completed'] },
+];
+
+const TOTAL_STEPS = INSTALL_STEPS.length;
+let currentStepIndex = -1;
+
+function _icon(el)  { return el.querySelector('.step-icon'); }
+function _label(el) { return el.querySelector('.step-label'); }
+
+function _setState(el, state) {
+  const icon  = _icon(el);
+  const label = _label(el);
+
+  const states = {
+    pending: { row: 'flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500', svg: ICON_PENDING },
+    active:  { row: 'flex items-center justify-between rounded bg-blue-50 p-3 dark:bg-blue-900/20 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-900 dark:text-gray-50', svg: ICON_SPIN },
+    done:    { row: 'flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-500 dark:text-gray-400', svg: ICON_DONE },
+    error:   { row: 'flex items-center justify-between rounded bg-red-50 p-3 dark:bg-red-900/20 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-red-600 dark:text-red-400', svg: ICON_ERROR },
+  };
+
+  const cfg = states[state];
+  el.className = 'step-row ' + cfg.row;
+  label.className = cfg.label;
+  icon.innerHTML = cfg.svg;
+}
+
+function advanceTo(stepIndex) {
+  if (stepIndex < currentStepIndex) return;
+  if (stepIndex === currentStepIndex) return;
+
+  for (let i = Math.max(0, currentStepIndex); i < stepIndex; i++) {
+    const el = document.getElementById(INSTALL_STEPS[i].id);
+    if (el) _setState(el, 'done');
+  }
+
+  const step = INSTALL_STEPS[stepIndex];
+  const el = document.getElementById(step.id);
+  if (el) {
+    _setState(el, 'active');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  currentStepIndex = stepIndex;
+  updateRing(Math.round((stepIndex / TOTAL_STEPS) * 100));
+}
+
+function markAllDone() {
+  INSTALL_STEPS.forEach(s => { const el = document.getElementById(s.id); if (el) _setState(el, 'done'); });
+  updateRing(100);
+}
+
+function markStepError(stepIndex) {
+  const el = document.getElementById(INSTALL_STEPS[Math.max(0, stepIndex)].id);
+  if (el) _setState(el, 'error');
+}
+
+function matchStep(statusText) {
+  for (let i = 0; i < INSTALL_STEPS.length; i++) {
+    if (INSTALL_STEPS[i].triggers.some(t => statusText.includes(t))) return i;
+  }
+  return -1;
+}
+
+function retryInstall() {
+  resetDescription();
+  document.getElementById('progressUI').classList.add('hidden');
+  document.getElementById('toAddActive').classList.remove('hidden');
+  const button = document.getElementById("installButton");
+  button.disabled = false;
+  button.innerHTML = {{toJSON (.T.Get "Start Installation")}} + `<svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>`;
+}
+
+document.getElementById("installForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  if (document.querySelector("#domain_id").selectedIndex === 0) {
+    showToast({{toJSON (.T.Get "Please select a domain name.")}}, 'warning');
+    return;
+  }
+
+  const domainSelect = document.getElementById('domain_id');
+  const domainName = domainSelect.options[domainSelect.selectedIndex].label;
+
+  document.getElementById("toAddActive").classList.add("hidden");
+  const progressUI = document.getElementById("progressUI");
+  progressUI.classList.remove("hidden");
+
+  currentStepIndex = -1;
+  INSTALL_STEPS.forEach(s => { const el = document.getElementById(s.id); if (el) _setState(el, 'pending'); });
+  updateRing(0);
+  startInstall(domainName);
+
+  const button = document.getElementById("installButton");
+  button.disabled = true;
+
+  showToast({{toJSON (.T.Get "phpBB installation started. Please wait for the process to finish.")}}, 'loading');
+
+  const formData = new FormData(this);
+
+  fetch('/phpbb/install', { method: 'POST', body: formData })
+    .then(response => {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+
+      function read() {
+        reader.read().then(({ done, value }) => {
+          if (done) { return; }
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n').filter(Boolean);
+
+          lines.forEach(line => {
+            try {
+              const data = JSON.parse(line);
+
+              if (data.status) {
+                const matched = matchStep(data.status);
+                if (matched >= 0) advanceTo(matched);
+
+                if (data.status.includes('installation completed!')) {
+                  markAllDone();
+                  updateRing(100);
+                  _clearHangTimer();
+                  showToast(data.status, 'success');
+                  setTimeout(() => { window.location.href = '/sites'; }, 2000);
+                }
+              } else if (data.error) {
+                markStepError(currentStepIndex);
+                showInstallError(_installDomain);
+                showToast(`${data.error} — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">Retry</a>`, 'error');
+                button.disabled = false;
+              }
+            } catch(e) { /* non-JSON line, ignore */ }
+          });
+
+          read();
+        }).catch(streamErr => {
+          markStepError(currentStepIndex);
+          showInstallError(_installDomain);
+          showToast({{toJSON (.T.Get "Connection lost during installation.")}} + ` — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">Retry</a>`, 'error');
+          button.disabled = false;
+          console.error("Stream read error:", streamErr);
+        });
+      }
+      read();
+    })
+    .catch(error => {
+      markStepError(currentStepIndex);
+      showInstallError(_installDomain);
+      showToast({{toJSON (.T.Get "Fetch error. Please try again.")}}, 'error');
+      button.disabled = false;
+      console.error("Fetch error:", error);
+    });
+});
+</script>
+
+<script type="module">
+    function generateRandomStrongPassword(length) {
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";
+        let result = "";
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            result += charset.charAt(randomIndex);
+        }
+        return result;
+    }
+
+    function generateInitialPassword() {
+        const passwordField = document.getElementById("admin_password");
+        passwordField.value = generateRandomStrongPassword(16);
+        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    generateInitialPassword();
+
+    document.getElementById("generatePassword").addEventListener("click", function() {
+        const generatedPassword = generateRandomStrongPassword(16);
+        const passwordField = document.getElementById("admin_password");
+        passwordField.value = generatedPassword;
+        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+        }
+    });
+
+    document.getElementById("togglePassword").addEventListener("click", function() {
+        const passwordField = document.getElementById("admin_password");
+        passwordField.type = passwordField.type === "password" ? "text" : "password";
+    });
+</script>
+
+<script src="{{static "js/generator.js"}}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dbNameField = document.getElementById("db_name");
+        dbNameField.value = "phpbb_" + generateString(6).toLowerCase();
+        dbNameField.dispatchEvent(new Event('input', { bubbles: true }));
+        const dbUserField = document.getElementById("db_user");
+        dbUserField.value = generateString(10).toLowerCase();
+        dbUserField.dispatchEvent(new Event('input', { bubbles: true }));
+        const dbPasswordField = document.getElementById("db_password");
+        dbPasswordField.value = generateString(16);
+        dbPasswordField.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+</script>
+
+<script>
+    fetch('https://api.github.com/repos/phpbb/phpbb/tags?per_page=100')
+        .then(response => response.json())
+        .then(data => {
+            if (!Array.isArray(data)) throw new Error('Unexpected response');
+
+            const versionRe = /^release-(\d+\.\d+\.\d+)$/;
+            const versions = data
+                .map(t => t.name.match(versionRe))
+                .filter(Boolean)
+                .map(m => m[1])
+                .filter((v, i, arr) => arr.indexOf(v) === i)
+                .sort(compareVersions);
+
+            const latestVersions = versions.slice(0, 12);
+            const selectElement = document.getElementById('phpbb_version');
+            latestVersions.forEach((version, i) => {
+                const option = document.createElement('option');
+                option.value = version;
+                option.textContent = i === 0 ? `${version} (latest)` : version;
+                selectElement.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching phpBB versions:', error);
+        });
+
+    function compareVersions(a, b) {
+        const versionA = a.split('.').map(Number);
+        const versionB = b.split('.').map(Number);
+        for (let i = 0; i < Math.max(versionA.length, versionB.length); i++) {
+            const partA = versionA[i] || 0;
+            const partB = versionB[i] || 0;
+            if (partA < partB) return 1;
+            if (partA > partB) return -1;
+        }
+        return 0;
+    }
+</script>
+
+{{else}}
+<div class="mt-8 inset-x-0 flex h-64 flex-col items-center justify-center">
+    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No domains yet"}}</p>
+    <p class="mt-2 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Add your first domain to get started"}}</p>
+    <a href="/domains/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "New domain"}}
+    </a>
+</div>
+{{end}}
+
+<!-- END templates/manager/phpbb_install.html -->
+{{end}}
