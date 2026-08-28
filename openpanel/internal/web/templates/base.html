@@ -179,6 +179,21 @@
                 }
                 apply();
 
+                // Several tabs (Update/Logs/Maintenance, ...) only run
+                // their version-check/log-fetch/status-check on a real
+                // click on their own tab trigger (gated that way so they
+                // don't all fire at once on page load) - a deep link
+                // straight onto one of those tabs never produces that
+                // click, so the check silently never ran and the tab sat
+                // showing whatever the server originally rendered (e.g.
+                // Update tab's button staying in its default hidden state
+                // forever instead of the check ever running to decide).
+                // Dispatching a real click at the trigger itself (once,
+                // not on every later re-apply) satisfies every such
+                // listener uniformly, without each tab's template needing
+                // its own "did we arrive via deep link" handling.
+                trigger.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
                 tablist.addEventListener('click', function (e) {
                     if (e.target.closest('[role="tab"]')) userTookOver = true;
                 });

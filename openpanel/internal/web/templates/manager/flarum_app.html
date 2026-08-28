@@ -487,8 +487,8 @@
                         </div>
                     </div>
                     <p class="mt-3 text-sm/6" id="flarum-update-status"></p>
-                    <button type="button" id="flarum-update-btn" class="hidden relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-100">{{.T.Get "Update now"}}</button>
-                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "A backup is recommended before updating - see the Backups tab."}}</p>
+                    <button type="button" id="flarum-update-btn" class="hidden relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-100">{{.T.Get "Update now"}}</button>
+                    <p id="flarum-update-hint" class="hidden mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "A backup is recommended before updating - see the Backups tab."}}</p>
                     <pre id="flarum-update-log" class="hidden mt-3 max-h-64 overflow-y-auto rounded-lg bg-gray-50 p-3 text-xs text-gray-600 dark:bg-gray-800/50 dark:text-gray-400 whitespace-pre-wrap"></pre>
                 </div>
             </div>
@@ -539,6 +539,8 @@
                             if (latest && installed && isVersionOlder(installed, latest)) {
                                 statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
                                 updateBtn.classList.remove('hidden');
+                                updateBtn.classList.add('inline-flex');
+                                document.getElementById('flarum-update-hint').classList.remove('hidden');
                             } else if (latest && installed) {
                                 statusEl.innerHTML = '<span class="text-green-600">' + {{toJSON (.T.Get "You are running the latest version.")}} + '</span>';
                             }
