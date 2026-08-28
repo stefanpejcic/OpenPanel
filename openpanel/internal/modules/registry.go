@@ -79,6 +79,7 @@ var alwaysOn = []Registrar{
 	appinstall.RegisterSharedAPI,      // API twin of RegisterShared, gated internally via apiregistry.Handle
 	appinstall.RegisterPM2,            // pm2 logs/action/delete
 	appinstall.RegisterPM2API,         // gated internally via apiregistry.Handle ("pm2" feature)
+	appinstall.RegisterPM2Clone,       // pm2 clone (copy files + settings onto a new domain)
 	filemanager.RegisterDirectorySize, // get_folder_size helper
 	search.Register,                   // unconditional, gated per-what internally
 	search.RegisterAPI,                // API twin of search.Register, gated internally via apiregistry.Handle

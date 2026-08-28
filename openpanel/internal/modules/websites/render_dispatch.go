@@ -453,6 +453,9 @@ type PythonNodeAppsPageData struct {
 	// docker-compose.yml, one "KEY=VALUE" per line, for the Env Vars tab's
 	// textarea - empty if the service has none set yet.
 	EnvVars string
+	// Domains is every domain the user owns, for the Clone tab's target
+	// domain dropdown - same list appinstall's own install page uses.
+	Domains []appctx.Domain
 }
 
 func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PythonNodeAppsPageData) {

@@ -277,13 +277,13 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	composeLines := strings.SplitAfter(string(composeContent), "\n")
 	insertPosition := -1
 	for i, line := range composeLines {
-		if strings.HasPrefix(line, "networks:") {
-			insertPosition = i
+		if strings.HasPrefix(line, "services:") {
+			insertPosition = i + 1
 			break
 		}
 	}
 	if insertPosition == -1 {
-		emit(map[string]any{"error": "'networks:' section not found in docker-compose.yml."})
+		emit(map[string]any{"error": "'services:' section not found in docker-compose.yml."})
 		return
 	}
 	for _, line := range composeLines {
@@ -293,9 +293,30 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		}
 	}
 
+	// Anchored on "services:" (not "networks:") so this lands as a child of
+	// services: regardless of which order the file's top-level sections
+	// happen to be in - a prior docker.SaveCompose (env vars/version edits
+	// going through a real YAML round-trip) can reorder top-level keys
+	// however its marshaler likes, and this used to anchor on the first
+	// "networks:" line assuming it always came after services:, which
+	// silently corrupted the file (inserted the new service before
+	// everything, including a top-level networks: block that lists its
+	// own nested networks:) the moment that assumption stopped holding -
+	// confirmed live: every fresh Python/NodeJS/Ruby install failed with
+	// "Container failed to start" once this box's compose file had been
+	// re-saved once via LoadCompose/SaveCompose. The vendored templates
+	// indent their service key by 2 spaces, one level short of the 4
+	// spaces every existing entry under services: actually uses (that
+	// mismatch is otherwise invisible - 2-space nesting still parses as a
+	// valid child of services: on its own - until another line at 4-space
+	// follows it expecting to be a *sibling*, not a nested child, which
+	// is exactly what inserting directly after "services:" does), so
+	// every line gets 2 extra spaces of indentation here to match.
+	indentedServiceStr := "  " + strings.ReplaceAll(strings.TrimSuffix(newServiceStr, "\n"), "\n", "\n  ") + "\n"
+
 	newLines := make([]string, 0, len(composeLines)+1)
 	newLines = append(newLines, composeLines[:insertPosition]...)
-	newLines = append(newLines, "\n"+newServiceStr+"\n")
+	newLines = append(newLines, "\n"+indentedServiceStr+"\n")
 	newLines = append(newLines, composeLines[insertPosition:]...)
 	if writeErr := os.WriteFile(composeFile, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
 		emit(map[string]any{"error": "Error updating compose file: " + writeErr.Error()})

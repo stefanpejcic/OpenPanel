@@ -182,11 +182,13 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			pm2Type = "RUBY"
 		}
 		pm2Data := getPM2ForApplication(a, r, userContext, container.Container, pm2Type)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
 		renderPythonNodeAppsPage(a, w, r, PythonNodeAppsPageData{
 			pageData:  basePageData,
 			Container: container,
 			PM2Data:   pm2Data,
 			EnvVars:   getCurrentEnvVars(userContext, container.Container),
+			Domains:   domains,
 		})
 
 	case "php":

@@ -35,7 +35,7 @@
         <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" class="grid {{if .UserAllowed.malware_scan}}grid-cols-6{{else}}grid-cols-5{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" class="grid {{if .UserAllowed.malware_scan}}grid-cols-7{{else}}grid-cols-6{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
             <li role="presentation">
                 <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
                    @click="activeTab = 'dashboard'"
@@ -61,6 +61,15 @@
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783"/></svg>
                     <span class="hidden md:inline">{{.T.Get "Env Vars"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#clone" id="clone-tab" data-tabs-target="#clone" role="tab" aria-controls="clone" aria-selected="false"
+                   @click="activeTab = 'clone'"
+                   :class="activeTab === 'clone' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
+                    <span class="hidden md:inline">{{.T.Get "Clone"}}</span>
                 </a>
             </li>
             <li role="presentation">
@@ -803,6 +812,139 @@
                             </form>
                         </div>
                     </div>
+                </div>
+
+                <div class="hidden p-4 rounded" id="clone" role="tabpanel" aria-labelledby="clone-tab">
+
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Clone this application's files and settings onto a new domain - useful for quick staging copies."}}</p>
+
+                    <form id="pm2-CloneForm">
+                        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+                        <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                        <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                            <div>
+                                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Location"}}</h2>
+                                <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Please choose the URL to install the clone on"}}</p>
+                            </div>
+                            <div class="sm:max-w-3xl md:col-span-2">
+                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                                    <div class="col-span-full">
+                                        <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="pm2-target_domain_id">{{.T.Get "Target"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                        <div class="relative w-full mt-2">
+                                            <div class="flex">
+                                                <select class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" name="target_domain_id" id="pm2-target_domain_id">
+                                                    <option selected disabled value="">{{.T.Get "Select a domain"}}</option>
+                                                    {{range .Domains}}
+                                                        <option class="punycode" value="{{.DomainID}}">{{.DomainURL}}</option>
+                                                    {{end}}
+                                                </select>
+                                                <div class="input-group-append flex">
+                                                    <input type="text" name="target_subdirectory" id="pm2-target_subdirectory" placeholder="{{.T.Get "subfolder"}}" class="relative block w-full appearance-none rounded-r-md border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                                                </div>
+                                            </div>
+                                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Make sure the target domain/subfolder isn't already used by another site - existing files there may be overwritten."}}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-span-full">
+                                        <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="pm2-target_service_name">{{.T.Get "Service Name"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                        <div class="relative w-full mt-2">
+                                            <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="pm2-target_service_name" name="target_service_name" type="text" placeholder="{{.Service}}-clone" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                        <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                            <div>
+                                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Startup"}}</h2>
+                                <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Version, requirements, and resource limits are carried over from this application automatically."}}</p>
+                            </div>
+                            <div class="sm:max-w-3xl md:col-span-2">
+                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                                    <div class="col-span-full">
+                                        <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="pm2-clone_startup_file">{{.T.Get "Startup File"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                                        <div class="relative w-full mt-2">
+                                            <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="pm2-clone_startup_file" name="startup_file" type="text" value="{{.StartupFile}}" />
+                                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Prefilled from this application - update the domain portion of the path to match the target above."}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                        <div class="flex items-center justify-end space-x-4">
+                            <button type="button" id="pm2-startCloneBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">{{.T.Get "Clone Application"}}</button>
+                        </div>
+                    </form>
+
+                    <script>
+                        (function() {
+                            const domainSelect = document.getElementById('pm2-target_domain_id');
+                            const subdirInput = document.getElementById('pm2-target_subdirectory');
+                            const startupFileInput = document.getElementById('pm2-clone_startup_file');
+                            const originalStartupFile = {{toJSON .StartupFile}};
+                            let startupFileTouched = false;
+                            startupFileInput.addEventListener('input', function() { startupFileTouched = true; });
+
+                            function updateStartupFilePreview() {
+                                if (startupFileTouched) return;
+                                const targetDomain = domainSelect.options[domainSelect.selectedIndex]?.textContent || '';
+                                if (!targetDomain || targetDomain === {{toJSON (.T.Get "Select a domain")}}) return;
+                                const parts = originalStartupFile.split('/var/www/html/');
+                                if (parts.length < 2) return;
+                                const afterDomain = parts[1].split('/').slice(1).join('/');
+                                const subdir = subdirInput.value.trim();
+                                startupFileInput.value = '/var/www/html/' + targetDomain + (subdir ? '/' + subdir : '') + (afterDomain ? '/' + afterDomain : '');
+                            }
+                            domainSelect.addEventListener('change', updateStartupFilePreview);
+                            subdirInput.addEventListener('input', updateStartupFilePreview);
+
+                            document.getElementById('pm2-startCloneBtn').addEventListener('click', function() {
+                                const btn = this;
+                                if (!domainSelect.value) {
+                                    showToast({{toJSON (.T.Get "Please select a target domain.")}}, 'error');
+                                    return;
+                                }
+                                btn.disabled = true;
+                                btn.textContent = {{toJSON (.T.Get "Cloning...")}};
+                                const formData = new URLSearchParams(new FormData(document.getElementById('pm2-CloneForm')));
+                                showToast({{toJSON (.T.Get "Cloning process started... Please wait.")}}, 'loading');
+
+                                fetch("/pm2/clone/{{.Service}}", {
+                                    method: "POST",
+                                    headers: { 'X-CSRF-Token': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' },
+                                    body: formData.toString()
+                                })
+                                    .then(response => response.json().then(data => {
+                                        if (!response.ok) throw data;
+                                        return data;
+                                    }))
+                                    .then(response => {
+                                        if (response.status === 'success') {
+                                            showToast(response.warning || {{toJSON (.T.Get "Cloned successfully!")}}, response.warning ? 'warning' : 'success');
+                                            btn.textContent = {{toJSON (.T.Get "Clone Complete")}};
+                                        } else {
+                                            showToast({{toJSON (.T.Get "Error cloning application")}}, 'error');
+                                            btn.disabled = false;
+                                            btn.textContent = {{toJSON (.T.Get "Try Again")}};
+                                        }
+                                    })
+                                    .catch(error => {
+                                        showToast(`${error?.error || error}`, 'error');
+                                        btn.disabled = false;
+                                        btn.textContent = {{toJSON (.T.Get "Retry Clone")}};
+                                    });
+                            });
+                        })();
+                    </script>
+
                 </div>
 
                 <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
