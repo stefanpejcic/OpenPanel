@@ -13,9 +13,9 @@
                     </button>
                     <div class="mr-2 h-4 w-px bg-gray-200 dark:bg-gray-800"></div>
                     <nav aria-label="Breadcrumb" class="ml-2">
-                        <ol role="list" class="flex items-center space-x-3 text-sm">
+                        <ol role="list" class="flex items-center space-x-3 text-sm" x-data="navMenu('{{.RequestPath}}')">
 
-                        <ul x-data="navMenu('{{.RequestPath}}')">
+                        <ul>
                             <template x-for="item in items" :key="item.label">
                                 <li class="flex" x-show="item.show">
                                     <a x-show="item.href !== '#'" :href="item.href" class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300" x-text="item.label"></a>
@@ -27,6 +27,14 @@
                         <script>
                             function navMenu(currentPath) {
                                 return {
+                                    // True when the visible section item's own link IS the
+                                    // current page (e.g. on /sites itself, not a sub-page
+                                    // like /website?domain=...) - the page's own .Title
+                                    // breadcrumb leaf is suppressed in that case so the bar
+                                    // doesn't show the same page twice ("Sites" then "Websites").
+                                    isSectionRoot() {
+                                        return this.items.some(i => i.show && i.href === currentPath);
+                                    },
                                     items: [
                                         {
                                             label: "{{.T.Get "Files"}}",
@@ -118,11 +126,15 @@
                             }
                         </script>
 {{if and (ne .RequestPath "/") (ne .RequestPath "/dashboard")}}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
-{{end}}
                             {{if .Title}}
+                            <template x-if="!isSectionRoot()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+                            </template>
+                            <template x-if="!isSectionRoot()">
                             <li class="flex"><div class="flex items-center"><a class="text-gray-900 dark:text-gray-50" href="{{.RequestPath}}">{{.Title}}</a></div></li>
+                            </template>
                             {{end}}
+{{end}}
                         </ol>
                     </nav>
                   </div>
