@@ -42,19 +42,31 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 // doesn't need a ruby-specific branch.
 func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	appType := r.PathValue("type")
-	if appType != "nodejs" && appType != "python" && appType != "ruby" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid type. Use 'nodejs', 'python', or 'ruby'."})
+	if appType != "nodejs" && appType != "python" && appType != "ruby" && appType != "java" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid type. Use 'nodejs', 'python', 'ruby', or 'java'."})
 		return
 	}
 
 	ctx := r.Context()
 
-	if appType == "ruby" {
-		versions, err := cache.Memoize(ctx, a.Cache, "docker_tags_for_ruby", 24*time.Hour, func() ([]string, error) {
-			return fetchRubyDockerHubVersions(ctx)
+	// ruby and java both come straight from Docker Hub's own tag list
+	// (per explicit request for ruby: its versions should come from
+	// Docker Hub, not endoflife.date) - java has no plain "X.Y.Z" tags at
+	// all (eclipse-temurin only ships suffixed tags like
+	// "21-jdk-jammy"/"21.0.12_8-jdk-jammy"), so it gets its own cache key
+	// and tag filter, reshaped into the same [{"latest": "X"}, ...] shape
+	// python_node_apps.html's fetch/render code already expects for every
+	// type, no java-specific branch needed there.
+	if appType == "ruby" || appType == "java" {
+		cacheKey, fetch := "docker_tags_for_ruby", fetchRubyDockerHubVersions
+		if appType == "java" {
+			cacheKey, fetch = "docker_tags_for_java", fetchJavaDockerHubVersions
+		}
+		versions, err := cache.Memoize(ctx, a.Cache, cacheKey, 24*time.Hour, func() ([]string, error) {
+			return fetch(ctx)
 		})
 		if err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to fetch ruby versions."})
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to fetch " + appType + " versions."})
 			return
 		}
 		type tagEntry struct {
@@ -167,6 +179,70 @@ func compareRubyVersions(a, b string) int {
 	return 0
 }
 
+// javaCleanTagRE matches eclipse-temurin's plain major-version LTS tags
+// ("8-jdk-jammy", "17-jdk-jammy", "21-jdk-jammy", ...) - confirmed live
+// against the real Docker Hub tag list that eclipse-temurin ships no bare
+// "X.Y.Z" tags at all (unlike ruby/python/node), only ones suffixed with a
+// JVM variant (jdk/jre) and base OS (jammy/alpine/ubi...); "-jdk-jammy" is
+// the one this module's compose template (configuration/docker/compose/
+// java.yml) actually substitutes, so only that suffix is offered here -
+// same reasoning as rubyCleanTagRE excluding variants the compose
+// template doesn't use.
+var javaCleanTagRE = regexp.MustCompile(`^(\d+)-jdk-jammy$`)
+
+// fetchJavaDockerHubVersions queries Docker Hub's own registry API for the
+// official `eclipse-temurin` image's every tag, keeping only clean major-
+// version LTS tags (see javaCleanTagRE), newest first.
+func fetchJavaDockerHubVersions(ctx context.Context) ([]string, error) {
+	client := &http.Client{Timeout: 8 * time.Second}
+	seen := make(map[string]bool)
+	var versions []string
+
+	url := "https://hub.docker.com/v2/repositories/library/eclipse-temurin/tags?page_size=100"
+	for page := 0; page < 25 && url != ""; page++ {
+		req, reqErr := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if reqErr != nil {
+			return nil, reqErr
+		}
+		resp, getErr := client.Do(req)
+		if getErr != nil {
+			return nil, getErr
+		}
+		var payload struct {
+			Next    string `json:"next"`
+			Results []struct {
+				Name string `json:"name"`
+			} `json:"results"`
+		}
+		decodeErr := json.NewDecoder(resp.Body).Decode(&payload)
+		resp.Body.Close()
+		if decodeErr != nil {
+			return nil, decodeErr
+		}
+		for _, r := range payload.Results {
+			if javaCleanTagRE.MatchString(r.Name) && !seen[r.Name] {
+				seen[r.Name] = true
+				versions = append(versions, r.Name)
+			}
+		}
+		url = payload.Next
+	}
+	if len(versions) == 0 {
+		return nil, errors.New("no java versions found on Docker Hub")
+	}
+
+	sort.Slice(versions, func(i, j int) bool {
+		return compareJavaVersions(versions[i], versions[j]) > 0
+	})
+	return versions, nil
+}
+
+func compareJavaVersions(a, b string) int {
+	na, _ := strconv.Atoi(javaCleanTagRE.FindStringSubmatch(a)[1])
+	nb, _ := strconv.Atoi(javaCleanTagRE.FindStringSubmatch(b)[1])
+	return na - nb
+}
+
 // HandleCheckFileExists mirrors helpers.check_file_exists(): used by both
 // install forms' startup-file input to show a live exists/does-not-exist
 // indicator.
@@ -191,8 +267,8 @@ func HandleCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request
 	realFilePath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + file
 
 	ext := stdpath.Ext(file)
-	if ext != ".py" && ext != ".js" && ext != ".rb" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid file extension. Only .py, .js, or .rb are allowed."})
+	if ext != ".py" && ext != ".js" && ext != ".rb" && ext != ".java" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid file extension. Only .py, .js, .rb, or .java are allowed."})
 		return
 	}
 

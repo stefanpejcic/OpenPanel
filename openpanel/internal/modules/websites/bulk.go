@@ -58,7 +58,7 @@ var cmsUpdateTypes = map[string]bool{
 }
 
 func isPM2Type(typeLower string) bool {
-	return strings.Contains(typeLower, "nodejs") || strings.Contains(typeLower, "python") || strings.Contains(typeLower, "ruby")
+	return strings.Contains(typeLower, "nodejs") || strings.Contains(typeLower, "python") || strings.Contains(typeLower, "ruby") || strings.Contains(typeLower, "java")
 }
 
 // handleSitesBulk runs Update/Backup/Detach/Delete across multiple selected

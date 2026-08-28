@@ -31,6 +31,8 @@ func displayFor(kind Kind) kindDisplay {
 		return nodeJSDisplay
 	case Ruby.AppType:
 		return rubyDisplay
+	case Java.AppType:
+		return javaDisplay
 	default:
 		return pythonDisplay
 	}

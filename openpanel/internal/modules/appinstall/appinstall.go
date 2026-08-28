@@ -40,6 +40,7 @@ var kindsByAppType = map[string]Kind{
 	NodeJS.AppType: NodeJS,
 	Python.AppType: Python,
 	Ruby.AppType:   Ruby,
+	Java.AppType:   Java,
 }
 
 // kindByAppType looks up a Kind by its lowercase sites.type value.
@@ -64,7 +65,11 @@ func isValidSubdirectory(subdirectory string) bool {
 	return !strings.Contains(subdirectory, "..") && !strings.HasPrefix(subdirectory, "/")
 }
 
-var versionRE = regexp.MustCompile(`^[0-9]+(\.[0-9]+)*$`)
+// versionRE accepts plain dotted-numeric tags ("3.3.6", "18") used by
+// ruby/python/nodejs, plus the "_NN" and "-jdk-jammy" suffix eclipse-
+// temurin's own Java tags always carry (see shared.go's javaCleanTagRE -
+// that image ships no plain numeric tags at all).
+var versionRE = regexp.MustCompile(`^[0-9]+(\.[0-9]+)*(_[0-9]+)?(-jdk-jammy)?$`)
 
 func isValidVersion(version string) bool {
 	return versionRE.MatchString(version)
@@ -90,12 +95,12 @@ func noPathTraversal(p string) bool {
 }
 
 // isValidStartupFile is shared between all app types: it accepts .py, .js,
-// or .rb regardless of which install form submitted it.
+// .rb, or .java regardless of which install form submitted it.
 func isValidStartupFile(path string) bool {
 	if !noPathTraversal(path) {
 		return false
 	}
-	return strings.HasSuffix(path, ".py") || strings.HasSuffix(path, ".js") || strings.HasSuffix(path, ".rb")
+	return strings.HasSuffix(path, ".py") || strings.HasSuffix(path, ".js") || strings.HasSuffix(path, ".rb") || strings.HasSuffix(path, ".java")
 }
 
 func isValidCustomCommand(cmd string) bool {

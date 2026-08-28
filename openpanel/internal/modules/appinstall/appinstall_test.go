@@ -105,6 +105,8 @@ func TestBuildAppRunCommand(t *testing.T) {
 		},
 		{Ruby, "1", "", "", "", "bundle install && ruby app.rb"},
 		{Ruby, "", "", "server.rb", "", "ruby server.rb"},
+		{Java, "1", "", "", "", "mvn install && java Main.java"},
+		{Java, "", "", "App.java", "", "java App.java"},
 	}
 	for _, c := range cases {
 		if got := buildAppRunCommand(c.kind, c.requirements, c.customCmd, c.startupFile, c.gitURL); got != c.want {

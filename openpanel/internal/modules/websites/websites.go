@@ -358,6 +358,8 @@ func installPackagesInContainer(a *appctx.App, r *http.Request, userContext, sit
 		argv = podmanmanager.PodmanArgv(userContext, "exec", siteName, "npm", "install")
 	case "bundle":
 		argv = podmanmanager.PodmanArgv(userContext, "exec", siteName, "bundle", "install")
+	case "mvn":
+		argv = podmanmanager.PodmanArgv(userContext, "exec", siteName, "mvn", "install")
 	default:
 		return false, "Unsupported install type"
 	}
@@ -380,8 +382,8 @@ func handleInstallPackages(a *appctx.App, w http.ResponseWriter, r *http.Request
 	siteName := strings.ToLower(r.PathValue("selected_domain"))
 	installType := strings.ToLower(r.PathValue("install_type"))
 
-	if installType != "pip" && installType != "npm" && installType != "pnpm" && installType != "bundle" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"message": "Invalid install type. Use 'pip' for Python apps, 'npm' or 'pnpm' for NodeJS, or 'bundle' for Ruby."})
+	if installType != "pip" && installType != "npm" && installType != "pnpm" && installType != "bundle" && installType != "mvn" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"message": "Invalid install type. Use 'pip' for Python apps, 'npm' or 'pnpm' for NodeJS, 'bundle' for Ruby, or 'mvn' for Java."})
 		return
 	}
 
@@ -393,6 +395,8 @@ func handleInstallPackages(a *appctx.App, w http.ResponseWriter, r *http.Request
 			successMsg = "Requirements installed successfully."
 		case "bundle":
 			successMsg = "Gems installed successfully."
+		case "mvn":
+			successMsg = "Maven dependencies installed successfully."
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "executed "+installType+" install for application "+siteName, reqip.ClientIP(r))
 		writeJSON(w, http.StatusOK, map[string]string{"message": successMsg, "output": output})
@@ -404,6 +408,8 @@ func handleInstallPackages(a *appctx.App, w http.ResponseWriter, r *http.Request
 		errorMsg = "An error occurred while installing requirements."
 	case "bundle":
 		errorMsg = "An error occurred while installing gems."
+	case "mvn":
+		errorMsg = "An error occurred while installing Maven dependencies."
 	}
 	writeJSON(w, http.StatusInternalServerError, map[string]string{"message": errorMsg, "error_output": output})
 }

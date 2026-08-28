@@ -33,6 +33,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/goaccess"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/inodes"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/ipblocker"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/java"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/joomla"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/malwarescan"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/matomo"
@@ -270,6 +271,7 @@ var configured = map[string]Registrar{
 	"python":            func(mux *http.ServeMux, a *appctx.App) { python.Register(mux, a); python.RegisterAPI(mux, a) },
 	"nodejs":            func(mux *http.ServeMux, a *appctx.App) { nodejs.Register(mux, a); nodejs.RegisterAPI(mux, a) },
 	"ruby":              func(mux *http.ServeMux, a *appctx.App) { ruby.Register(mux, a); ruby.RegisterAPI(mux, a) },
+	"java":              func(mux *http.ServeMux, a *appctx.App) { java.Register(mux, a); java.RegisterAPI(mux, a) },
 	"autoinstaller": func(mux *http.ServeMux, a *appctx.App) {
 		autoinstaller.Register(mux, a)
 		autoinstaller.RegisterAPI(mux, a)

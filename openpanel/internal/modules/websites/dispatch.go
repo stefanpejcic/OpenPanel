@@ -174,12 +174,14 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			AvailablePHPVersions: availablePHPVersions,
 		})
 
-	case "python", "nodejs", "ruby":
+	case "python", "nodejs", "ruby", "java":
 		pm2Type := "NODE"
 		if cmsType == "python" {
 			pm2Type = "PY"
 		} else if cmsType == "ruby" {
 			pm2Type = "RUBY"
+		} else if cmsType == "java" {
+			pm2Type = "JAVA"
 		}
 		pm2Data := getPM2ForApplication(a, r, userContext, container.Container, pm2Type)
 		domains, _ := a.AllDomainsForUser(ctx, userID)

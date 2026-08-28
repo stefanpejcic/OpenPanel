@@ -348,6 +348,10 @@ c6.183-2.355,12.954,0.883,15.31,7.066c7.066,19.138,10.6,39.453,10.6,60.063C653.7
   <path d="M3.1.7a.5.5 0 0 1 .4-.2h9a.5.5 0 0 1 .4.2l2.976 3.974c.149.185.156.45.01.644L8.4 15.3a.5.5 0 0 1-.8 0L.1 5.3a.5.5 0 0 1 0-.6zm11.386 3.785-1.806-2.41-.776 2.413zm-3.633.004.961-2.989H4.186l.963 2.995zM5.47 5.495 8 13.366l2.532-7.876zm-1.371-.999-.78-2.422-1.818 2.425zM1.499 5.5l5.113 6.817-2.192-6.82zm7.889 6.817 5.123-6.83-2.928.002z"/>
 </svg>
 </a>
+                            {{else if contains $typeLower "java"}}
+<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 14c.83 .642 2.077 1.017 3.5 1c1.423 .017 2.67 -.358 3.5 -1c.83 -.642 2.077 -1.017 3.5 -1c1.423 -.017 2.67 .358 3.5 1" /><path d="M8 3a2.4 2.4 0 0 0 -1 2a2.4 2.4 0 0 0 1 2" /><path d="M12 3a2.4 2.4 0 0 0 -1 2a2.4 2.4 0 0 0 1 2" /><path d="M3 10h14v5a6 6 0 0 1 -6 6h-2a6 6 0 0 1 -6 -6v-5z" /><path d="M16.746 16.726a3 3 0 1 0 -.732 -5.696" /></svg>
+</a>
                             {{else if eq $typeLower "websitebuilder"}}
 <a href="/website-builder/edit?domain={{$site.SiteName}}" title="{{$.T.Get "Open Website Builder"}}" target="_blank">
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-brush-fill" viewBox="0 0 16 16">
@@ -385,7 +389,7 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
                         </td>
                         <td class="whitespace-nowrap p-4 text-sm text-right text-gray-600 dark:text-gray-400">
                             {{$isCMS := or (eq $typeLower "wordpress") (eq $typeLower "joomla") (eq $typeLower "opencart") (eq $typeLower "nextcloud") (eq $typeLower "prestashop") (eq $typeLower "drupal") (eq $typeLower "matomo") (eq $typeLower "moodle") (eq $typeLower "mediawiki") (eq $typeLower "flarum") (eq $typeLower "sofawiki") (eq $typeLower "dokuwiki") (eq $typeLower "phpbb")}}
-                            {{$isPM2 := or (contains $typeLower "nodejs") (contains $typeLower "python") (contains $typeLower "ruby")}}
+                            {{$isPM2 := or (contains $typeLower "nodejs") (contains $typeLower "python") (contains $typeLower "ruby") (contains $typeLower "java")}}
                             {{$hasAutologin := or (eq $typeLower "wordpress") (eq $typeLower "joomla") (eq $typeLower "opencart") (eq $typeLower "nextcloud") (eq $typeLower "prestashop") (eq $typeLower "drupal") (eq $typeLower "matomo") (eq $typeLower "mediawiki")}}
                             {{$hasClone := or $isCMS $isPM2}}
                             {{$hasDelete := or $isCMS $isPM2}}
