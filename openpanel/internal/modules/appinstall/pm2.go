@@ -6,6 +6,8 @@
 package appinstall
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"os"
 	"regexp"
@@ -270,89 +272,95 @@ func handlePM2EnvVars(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 	flashAndRedirectApp(a, w, r, "success", "Environment variables saved, make sure to restart the application for changes to take effect.", redirectPath)
 }
 
-func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, containerName string, kind Kind, nameForManager string) {
-	_ = r.ParseForm()
-	redirectPath := "/website?domain=" + nameForManager
+// pm2Settings is every field the Update tab lets a user change, and the
+// only shape a PM2 app's .env/docker-compose.yml service ever gets
+// written from - handlePM2Update (an interactive form) and
+// handlePM2RestoreBackup (a backup's settings.json, which the user could
+// have hand-edited on disk) both go through validatePM2Settings and
+// applyPM2Settings below, so a crafted backup file gets exactly the same
+// scrutiny a live form submission would. Container name, image, ports,
+// volumes, and networks are never fields here - there's no code path
+// that lets either caller change them, which is what actually stops a
+// restored backup from repointing this service at another container,
+// binding a port, or mounting something it shouldn't, rather than any
+// one specific check.
+type pm2Settings struct {
+	Version      string `json:"version"`
+	Requirements string `json:"requirements"`
+	StartupFile  string `json:"startup_file"`
+	CustomCmd    string `json:"custom_cmd"`
+	Workdir      string `json:"workdir"`
+	CPU          string `json:"cpu"`
+	RAM          string `json:"ram"`
+	PIDs         string `json:"pids"`
+	GitRepoURL   string `json:"git_repo_url"`
+}
 
-	siteNameUp := strings.ToUpper(containerName)
-	prefix := siteNameUp + "_" + kind.PyOrNode + "_"
+// validatePM2Settings returns every validation failure in s (empty means
+// valid) using the exact same checks handlePM2Update always has.
+func validatePM2Settings(s pm2Settings) []string {
+	var errs []string
+	if !isValidVersion(s.Version) {
+		errs = append(errs, "Invalid version format (check tags from hub.docker.com)")
+	}
+	if !isValidRequirements(s.Requirements) {
+		errs = append(errs, "Requirements must be empty (No) or 1 (Yes)")
+	}
+	if !isValidStartupFile(s.StartupFile) {
+		errs = append(errs, "Startup file invalid (must start with /var/www/html/, no path traversal, ends with .js, .py, or .rb)")
+	}
+	if s.CustomCmd != "" && !isValidCustomCommand(s.CustomCmd) {
+		errs = append(errs, "Provided custom startup command is invalid (no path traversal '..' allowed!)")
+	}
+	if !isValidWorkdir(s.Workdir) {
+		errs = append(errs, "Workdir invalid (must start with /var/www/html/, no path traversal)")
+	}
+	if !isPositiveNumber(s.CPU) {
+		errs = append(errs, "CPU core limit provided is not a positive integer.")
+	}
+	if !isPositiveNumber(s.RAM) {
+		errs = append(errs, "Memory limit provided is not a positive integer.")
+	}
+	if !docker.IsValidPIDsLimit(s.PIDs) {
+		errs = append(errs, "PIDs limit must be a positive whole number.")
+	}
+	if !isValidGitURL(s.GitRepoURL) {
+		errs = append(errs, "Invalid git repository URL. Only https:// URLs are supported.")
+	}
+	return errs
+}
+
+// applyPM2Settings writes an already-validated s into containerName's
+// .env entries and docker-compose.yml command/pids-limit, exactly what
+// handlePM2Update always did inline - factored out so
+// handlePM2RestoreBackup can reach the identical apply step. Callers
+// must run validatePM2Settings first; this doesn't re-validate.
+func applyPM2Settings(a *appctx.App, ctx context.Context, userContext, containerName string, kind Kind, s pm2Settings) error {
+	prefix := strings.ToUpper(containerName) + "_" + kind.PyOrNode + "_"
 	envFile := "/home/" + userContext + "/.env"
-
-	version := strings.TrimSpace(r.FormValue("version"))
-	requirements := normalizeRequirements(r.FormValue("requirements"))
-	startupFile := strings.TrimSpace(r.FormValue("startup_file"))
-	customCmd := strings.TrimSpace(r.FormValue("custom_cmd"))
-	workdir := strings.TrimSpace(r.FormValue("workdir"))
-	cpu := strings.TrimSpace(r.FormValue("cpu"))
-	ram := strings.TrimSpace(r.FormValue("ram"))
-	pids := strings.TrimSpace(r.FormValue("pids"))
-	gitRepoURL := strings.TrimSpace(r.FormValue("git_repo_url"))
-
-	hasError := false
-	if !isValidVersion(version) {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: Invalid version format (check tags from hub.docker.com)", redirectPath)
-		hasError = true
-	}
-	if !isValidRequirements(requirements) {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: Requirements must be empty (No) or 1 (Yes)", redirectPath)
-		hasError = true
-	}
-	if !isValidStartupFile(startupFile) {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: Startup file invalid (must start with /var/www/html/, no path traversal, ends with .js or .py)", redirectPath)
-		hasError = true
-	}
-	if customCmd != "" && !isValidCustomCommand(customCmd) {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: Provided custom startup command is invalid (no path traversal '..' allowed!)", redirectPath)
-		hasError = true
-	}
-	if !isValidWorkdir(workdir) {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: Workdir invalid (must start with /var/www/html/, no path traversal)", redirectPath)
-		hasError = true
-	}
-	if !isPositiveNumber(cpu) {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: CPU core limit provided is not a positive integer.", redirectPath)
-		hasError = true
-	}
-	if !isPositiveNumber(ram) {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: Memory limit provided is not a positive integer.", redirectPath)
-		hasError = true
-	}
-	if !docker.IsValidPIDsLimit(pids) {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: PIDs limit must be a positive whole number.", redirectPath)
-		hasError = true
-	}
-	if !isValidGitURL(gitRepoURL) {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: Invalid git repository URL. Only https:// URLs are supported.", redirectPath)
-		hasError = true
-	}
-	if hasError {
-		return
+	if !fileExists(envFile) {
+		return errors.New("environment file not found")
 	}
 
-	ramValue := ram
+	ramValue := s.RAM
 	if !strings.HasSuffix(strings.ToUpper(ramValue), "G") {
 		ramValue += "G"
 	}
 
-	if !fileExists(envFile) {
-		flashAndRedirectApp(a, w, r, "error", "Environment file not found.", redirectPath)
-		return
+	docker.SetEnvValue(userContext, prefix+"TAG", s.Version)
+	if _, execErr := a.DB.ExecContext(ctx, "UPDATE sites SET version = ? WHERE container = ?", s.Version, containerName); execErr != nil {
+		return execErr
 	}
-
-	docker.SetEnvValue(userContext, prefix+"TAG", version)
-	if _, execErr := a.DB.ExecContext(r.Context(), "UPDATE sites SET version = ? WHERE container = ?", version, containerName); execErr != nil {
-		return
-	}
-	docker.SetEnvValue(userContext, prefix+"REQUIREMENTS", requirements)
-	docker.SetEnvValue(userContext, prefix+"STARTUP_FILE", startupFile)
-	docker.SetEnvValue(userContext, prefix+"WORKDIR", workdir)
-	docker.SetEnvValue(userContext, prefix+"CPU", cpu)
+	docker.SetEnvValue(userContext, prefix+"REQUIREMENTS", s.Requirements)
+	docker.SetEnvValue(userContext, prefix+"STARTUP_FILE", s.StartupFile)
+	docker.SetEnvValue(userContext, prefix+"WORKDIR", s.Workdir)
+	docker.SetEnvValue(userContext, prefix+"CPU", s.CPU)
 	docker.SetEnvValue(userContext, prefix+"RAM", ramValue)
-	docker.SetEnvValue(userContext, prefix+"PIDS", pids)
-	docker.SetEnvValue(userContext, prefix+"CUSTOM_CMD", customCmd)
-	docker.SetEnvValue(userContext, prefix+"GIT_URL", gitRepoURL)
+	docker.SetEnvValue(userContext, prefix+"PIDS", s.PIDs)
+	docker.SetEnvValue(userContext, prefix+"CUSTOM_CMD", s.CustomCmd)
+	docker.SetEnvValue(userContext, prefix+"GIT_URL", s.GitRepoURL)
 
-	resolvedCommand := buildAppRunCommand(kind, requirements, customCmd, startupFile, gitRepoURL)
+	resolvedCommand := buildAppRunCommand(kind, s.Requirements, s.CustomCmd, s.StartupFile, s.GitRepoURL)
 	composeData, loadErr := docker.LoadCompose(userContext)
 	if loadErr == nil {
 		if services, ok := composeData["services"].(map[string]any); ok {
@@ -372,6 +380,41 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 				_ = docker.SaveCompose(userContext, composeData)
 			}
 		}
+	}
+	return nil
+}
+
+func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, containerName string, kind Kind, nameForManager string) {
+	_ = r.ParseForm()
+	redirectPath := "/website?domain=" + nameForManager
+
+	siteNameUp := strings.ToUpper(containerName)
+	envFile := "/home/" + userContext + "/.env"
+
+	settings := pm2Settings{
+		Version:      strings.TrimSpace(r.FormValue("version")),
+		Requirements: normalizeRequirements(r.FormValue("requirements")),
+		StartupFile:  strings.TrimSpace(r.FormValue("startup_file")),
+		CustomCmd:    strings.TrimSpace(r.FormValue("custom_cmd")),
+		Workdir:      strings.TrimSpace(r.FormValue("workdir")),
+		CPU:          strings.TrimSpace(r.FormValue("cpu")),
+		RAM:          strings.TrimSpace(r.FormValue("ram")),
+		PIDs:         strings.TrimSpace(r.FormValue("pids")),
+		GitRepoURL:   strings.TrimSpace(r.FormValue("git_repo_url")),
+	}
+
+	if errs := validatePM2Settings(settings); len(errs) > 0 {
+		flashAndRedirectApp(a, w, r, "error", "Error saving: "+errs[0], redirectPath)
+		return
+	}
+	if !fileExists(envFile) {
+		flashAndRedirectApp(a, w, r, "error", "Environment file not found.", redirectPath)
+		return
+	}
+
+	if applyErr := applyPM2Settings(a, r.Context(), userContext, containerName, kind, settings); applyErr != nil {
+		flashAndRedirectApp(a, w, r, "error", "Error saving: "+applyErr.Error(), redirectPath)
+		return
 	}
 
 	flashAndRedirectApp(a, w, r, "success", "Changes saved, make sure to restart the application for changes to take effect.", redirectPath)
