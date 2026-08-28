@@ -1151,24 +1151,22 @@
             <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
                 <div>
                     <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Version"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Current WP version."}}</p>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Check whether a newer WordPress version is available."}}</p>
                 </div>
                 <div class="sm:max-w-3xl md:col-span-2">
-                    <div class="flex gap-0">
-                        <div id="wp-version-current" class="w-full p-2 rounded-l-lg">
-                            <label class="flex justify-end text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="wp-version-4-updates">{{.T.Get "Installed WordPress version:"}}</label>
-                            <div class="flex justify-end relative w-full mt-2">
-                                <h3 class="inline-block text-3xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400" id="wp-version-4-updates">{{.Container.Version}}</h3>
-                            </div>
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Installed version:"}}</span>
+                            <span class="font-medium">{{if .Container.Version}}{{.Container.Version}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
                         </div>
-                        <div class="w-full bg-blue-500 p-2 justify-start rounded-r-lg">
-                            <label class="flex justify-start text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="latest-wp-version">{{.T.Get "Latest WordPress version:"}}</label>
-                            <div class="flex justify-start relative w-full mt-2 gap-2">
-                                <h3 class="inline-block text-3xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400" id="latest-wp-version"></h3>
-                                <button type="button" id="updateButton" class="hidden text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm  ml-3 px-3 py-1 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">{{.T.Get "Update now"}}</button>
-                            </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Latest version:"}}</span>
+                            <span class="font-medium" id="latest-wp-version">{{.T.Get "Checking..."}}</span>
                         </div>
                     </div>
+                    <p class="mt-3 text-sm/6" id="wp-update-status"></p>
+                    <button type="button" id="updateButton" class="hidden relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-100">{{.T.Get "Update now"}}</button>
+                    <p id="wp-update-hint" class="hidden mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "A backup is recommended before updating - see the Backups tab."}}</p>
                 </div>
             </div>
 
@@ -1994,7 +1992,10 @@ function attachupdatebtnlistener() {
             }
 
             updateButton.disabled = false;
-            updateButton.classList.remove('hidden');
+            // Not unconditionally un-hiding here - checkWordPressVersionStatus()
+            // above already decided the correct hidden/visible state for the
+            // (now possibly updated) version; forcing it visible again would
+            // undo that the moment an update actually succeeded.
 
             if (updatesTab) {
                 updatesTab.click();
@@ -2183,7 +2184,8 @@ function checkWordPressVersionStatus() {
             const span = document.querySelector('#wp-version');
             const updateButton = document.getElementById("updateButton");
             const latestVersionSpan = document.querySelector('#latest-wp-version');
-            const currentVersionColor = document.getElementById("wp-version-current");
+            const statusEl = document.getElementById('wp-update-status');
+            const hintEl = document.getElementById('wp-update-hint');
 
             if (!span || !versionNag) return;
 
@@ -2191,8 +2193,8 @@ function checkWordPressVersionStatus() {
                 version => versionStatuses[version] === 'latest'
             );
 
-            if (latestVersionSpan && latestVersion) {
-                latestVersionSpan.textContent = latestVersion;
+            if (latestVersionSpan) {
+                latestVersionSpan.textContent = latestVersion || {{toJSON (.T.Get "Unknown")}};
             }
 
             const version = span.textContent.trim();
@@ -2206,26 +2208,23 @@ function checkWordPressVersionStatus() {
                     badgeClass = 'bg-green-500 text-white dark:bg-green-900 dark:text-green-300';
                     badgeText = 'Latest';
                     updateButton?.classList.add('hidden');
-                    currentVersionColor?.classList.add('bg-gray-200');
-                    currentVersionColor?.classList.add('dark:bg-gray-700');
+                    updateButton?.classList.remove('inline-flex');
+                    hintEl?.classList.add('hidden');
+                    if (statusEl) statusEl.innerHTML = '<span class="text-green-600">' + {{toJSON (.T.Get "You are running the latest version.")}} + '</span>';
                     break;
                 case 'outdated':
-                    badgeClass = 'bg-orange-500 text-white dark:bg-yellow-900 dark:text-yellow-300';
-                    badgeText = 'Outdated';
-                    updateButton?.classList.remove('hidden');
-                    currentVersionColor?.classList.add('bg-blue-200');
-                    currentVersionColor?.classList.add('dark:bg-blue-600');
-                    break;
                 case 'insecure':
-                    badgeClass = 'bg-red-500 text-white dark:bg-red-900 dark:text-red-300';
-                    badgeText = 'Insecure';
+                    badgeClass = status === 'insecure'
+                        ? 'bg-red-500 text-white dark:bg-red-900 dark:text-red-300'
+                        : 'bg-orange-500 text-white dark:bg-yellow-900 dark:text-yellow-300';
+                    badgeText = status === 'insecure' ? 'Insecure' : 'Outdated';
                     updateButton?.classList.remove('hidden');
-                    currentVersionColor?.classList.add('bg-red-500');
+                    updateButton?.classList.add('inline-flex');
+                    hintEl?.classList.remove('hidden');
+                    if (statusEl) statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
                     break;
                 default:
                     badgeClass = 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
-                    currentVersionColor?.classList.add('bg-gray-200');
-                    currentVersionColor?.classList.add('dark:bg-gray-700');
                     badgeText = 'Unknown';
             }
 
