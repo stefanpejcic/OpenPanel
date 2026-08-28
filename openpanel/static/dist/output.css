@@ -43,3 +43,4 @@
 }
 
 .min-h-screen { min-height: 100vh; }
+.grayscale { filter: grayscale(100%); }

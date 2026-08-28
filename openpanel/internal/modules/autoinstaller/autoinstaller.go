@@ -80,12 +80,51 @@ func handleAutoinstaller(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	renderAutoinstallerPage(a, w, r, data.Domains, data.Counts)
+	upsell := loadUpsellData(ctx, a, userID)
+
+	renderAutoinstallerPage(a, w, r, data.Domains, data.Counts, upsell)
 }
 
 type autoinstallerData struct {
 	Domains []appctx.Domain
 	Counts  map[string]int
+}
+
+// upsellData carries what the template needs to grey out disabled tiles and
+// optionally offer an upgrade CTA instead of the plain "contact your
+// administrator" tooltip - populated only when the user's plan has an
+// upsell target configured (Enterprise-only, see PlanDetails.HasUpsell) and
+// that target plan's own feature set actually grants a given module.
+type upsellData struct {
+	PlanName string
+	URL      string
+	Allowed  map[string]bool
+}
+
+func loadUpsellData(ctx context.Context, a *appctx.App, userID int) upsellData {
+	injected, err := a.InjectData(ctx, userID)
+	if err != nil {
+		return upsellData{Allowed: map[string]bool{}}
+	}
+	planID, _ := injected["hosting_plan"].(int)
+	plan, err := a.QueryPlanDetailsByID(ctx, planID)
+	if err != nil || !plan.HasUpsell() {
+		return upsellData{Allowed: map[string]bool{}}
+	}
+
+	upsellPlanID, err := strconv.Atoi(plan.UpsellPlanID)
+	if err != nil {
+		return upsellData{Allowed: map[string]bool{}}
+	}
+	upsellFeatures, err := a.LoadFeaturesForPlanID(ctx, upsellPlanID)
+	if err != nil {
+		return upsellData{PlanName: plan.UpsellPlanName, URL: plan.UpsellURL, Allowed: map[string]bool{}}
+	}
+	allowed := make(map[string]bool, len(upsellFeatures))
+	for _, f := range upsellFeatures {
+		allowed[f] = true
+	}
+	return upsellData{PlanName: plan.UpsellPlanName, URL: plan.UpsellURL, Allowed: allowed}
 }
 
 func autoinstallerCacheKey(userID int) string {

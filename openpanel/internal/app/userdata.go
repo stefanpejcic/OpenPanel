@@ -116,6 +116,48 @@ func (a *App) GetFeatureSetOnPlan(ctx context.Context, username string) (string,
 	})
 }
 
+// GetFeatureSetNameByPlanID looks up the feature_set column for a plan by
+// id, cached 24h. Returns "None" (not "") when the plan isn't found, the
+// same not-found convention as GetFeatureSetOnPlan.
+func (a *App) GetFeatureSetNameByPlanID(ctx context.Context, planID int) (string, error) {
+	key := "get_feature_set_name_by_plan_id:" + strconv.Itoa(planID)
+	return cache.Memoize(ctx, a.Cache, key, 24*time.Hour, func() (string, error) {
+		var featureSet sql.NullString
+		row := a.DB.QueryRowContext(ctx, `SELECT feature_set FROM plans WHERE id = ?`, planID)
+		if err := row.Scan(&featureSet); err != nil {
+			if err == sql.ErrNoRows {
+				return "None", nil
+			}
+			return "", err
+		}
+		if !featureSet.Valid {
+			return "None", nil
+		}
+		return featureSet.String, nil
+	})
+}
+
+// LoadFeaturesForPlanID returns the feature list configured for a plan id
+// (its feature_set file, falling back to default.txt) - used to check
+// whether an upsell target plan includes a given module, mirroring the
+// plan-file fallback step of LoadUserFeatures but skipping the
+// user-specific features.txt override, which only applies to the
+// requesting user's own account, not an upsell target plan.
+func (a *App) LoadFeaturesForPlanID(ctx context.Context, planID int) ([]string, error) {
+	key := "load_features_for_plan_id:" + strconv.Itoa(planID)
+	return cache.Memoize(ctx, a.Cache, key, 24*time.Hour, func() ([]string, error) {
+		planFeatureSet, err := a.GetFeatureSetNameByPlanID(ctx, planID)
+		if err != nil {
+			return nil, err
+		}
+		features, _ := loadFeaturesFromFile(fmt.Sprintf("/etc/openpanel/openpanel/features/%s.txt", planFeatureSet))
+		if features == nil {
+			features, _ = loadFeaturesFromFile("/etc/openpanel/openpanel/features/default.txt")
+		}
+		return features, nil
+	})
+}
+
 // QueryContextByUsername looks up a user's server context, cached 24h.
 func (a *App) QueryContextByUsername(ctx context.Context, username string) (string, error) {
 	key := "query_context_by_username:" + username
