@@ -149,15 +149,8 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var pyOrNode string
-	switch strings.ToLower(lookup.Type) {
-	case "nodejs":
-		pyOrNode = "NODE"
-	case "ruby":
-		pyOrNode = "RUBY"
-	case "python":
-		pyOrNode = "PY"
-	default:
+	kind, ok := kindByAppType(lookup.Type)
+	if !ok {
 		writeJSON(w, http.StatusOK, map[string]string{"error": "Not a valid type, only NodeJS, Python, or Ruby applications can be edited."})
 		return
 	}
@@ -208,7 +201,7 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 
 	case "update":
-		handlePM2Update(a, w, r, currentUsername, userContext, siteName, pyOrNode, nameForManager)
+		handlePM2Update(a, w, r, currentUsername, userContext, siteName, kind, nameForManager)
 		return
 
 	case "envvars":
@@ -277,12 +270,12 @@ func handlePM2EnvVars(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 	flashAndRedirectApp(a, w, r, "success", "Environment variables saved, make sure to restart the application for changes to take effect.", redirectPath)
 }
 
-func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, containerName, pyOrNode, nameForManager string) {
+func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, containerName string, kind Kind, nameForManager string) {
 	_ = r.ParseForm()
 	redirectPath := "/website?domain=" + nameForManager
 
 	siteNameUp := strings.ToUpper(containerName)
-	prefix := siteNameUp + "_" + pyOrNode + "_"
+	prefix := siteNameUp + "_" + kind.PyOrNode + "_"
 	envFile := "/home/" + userContext + "/.env"
 
 	version := strings.TrimSpace(r.FormValue("version"))
@@ -359,7 +352,7 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 	docker.SetEnvValue(userContext, prefix+"CUSTOM_CMD", customCmd)
 	docker.SetEnvValue(userContext, prefix+"GIT_URL", gitRepoURL)
 
-	resolvedCommand := buildAppRunCommand(pyOrNode, requirements, customCmd, startupFile, gitRepoURL)
+	resolvedCommand := buildAppRunCommand(kind, requirements, customCmd, startupFile, gitRepoURL)
 	composeData, loadErr := docker.LoadCompose(userContext)
 	if loadErr == nil {
 		if services, ok := composeData["services"].(map[string]any); ok {
@@ -410,15 +403,8 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var pyOrNode string
-	switch strings.ToLower(appType) {
-	case "nodejs":
-		pyOrNode = "NODE"
-	case "ruby":
-		pyOrNode = "RUBY"
-	case "python":
-		pyOrNode = "PY"
-	default:
+	kind, ok := kindByAppType(appType)
+	if !ok {
 		writeJSON(w, http.StatusOK, map[string]string{"error": "Not a valid type, only NodeJS, Python, or Ruby applications can be removed."})
 		return
 	}
@@ -453,12 +439,11 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	envFile := "/home/" + userContext + "/.env"
 	serviceNameUp := strings.ToUpper(serviceName)
-	pyOrNodeUp := strings.ToUpper(pyOrNode)
 	if fileExists(envFile) {
 		content, _ := os.ReadFile(envFile)
 		lines := strings.Split(string(content), "\n")
-		prefix := serviceNameUp + "_" + pyOrNodeUp + "_"
-		commentPrefix := "# " + pyOrNodeUp + ": " + serviceNameUp
+		prefix := serviceNameUp + "_" + kind.PyOrNode + "_"
+		commentPrefix := "# " + kind.PyOrNode + ": " + serviceNameUp
 		filtered := make([]string, 0, len(lines))
 		for _, line := range lines {
 			trimmed := strings.TrimSpace(line)

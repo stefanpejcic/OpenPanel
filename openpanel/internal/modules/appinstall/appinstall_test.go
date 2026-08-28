@@ -87,25 +87,28 @@ func TestGetValidatedInt(t *testing.T) {
 
 func TestBuildAppRunCommand(t *testing.T) {
 	cases := []struct {
-		pyOrNode, requirements, customCmd, startupFile, gitURL, want string
+		kind                                               Kind
+		requirements, customCmd, startupFile, gitURL, want string
 	}{
-		{"PY", "1", "", "", "", "pip install -r requirements.txt && python app.py"},
-		{"PY", "", "", "app/main.py", "", "python app/main.py"},
-		{"PY", "", "gunicorn app:app", "main.py", "", "gunicorn app:app"},
-		{"NODE", "1", "", "", "", "npm install && node index.js"},
-		{"NODE", "", "", "server.js", "", "node server.js"},
+		{Python, "1", "", "", "", "pip install -r requirements.txt && python app.py"},
+		{Python, "", "", "app/main.py", "", "python app/main.py"},
+		{Python, "", "gunicorn app:app", "main.py", "", "gunicorn app:app"},
+		{NodeJS, "1", "", "", "", "npm install && node index.js"},
+		{NodeJS, "", "", "server.js", "", "node server.js"},
 		{
-			"NODE", "1", "", "", "https://github.com/user/repo.git",
+			NodeJS, "1", "", "", "https://github.com/user/repo.git",
 			"(command -v git >/dev/null 2>&1 || (apt-get update -qq && apt-get install -y -qq git)) && " +
 				"(git rev-parse --is-inside-work-tree >/dev/null 2>&1 || git init -q) && " +
 				"(git remote get-url origin >/dev/null 2>&1 || git remote add origin 'https://github.com/user/repo.git') && " +
 				"git fetch --depth 1 origin HEAD && git reset --hard FETCH_HEAD && " +
 				"npm install && node index.js",
 		},
+		{Ruby, "1", "", "", "", "bundle install && ruby app.rb"},
+		{Ruby, "", "", "server.rb", "", "ruby server.rb"},
 	}
 	for _, c := range cases {
-		if got := buildAppRunCommand(c.pyOrNode, c.requirements, c.customCmd, c.startupFile, c.gitURL); got != c.want {
-			t.Errorf("buildAppRunCommand(%q,%q,%q,%q,%q) = %q, want %q", c.pyOrNode, c.requirements, c.customCmd, c.startupFile, c.gitURL, got, c.want)
+		if got := buildAppRunCommand(c.kind, c.requirements, c.customCmd, c.startupFile, c.gitURL); got != c.want {
+			t.Errorf("buildAppRunCommand(%q,%q,%q,%q,%q) = %q, want %q", c.kind.PyOrNode, c.requirements, c.customCmd, c.startupFile, c.gitURL, got, c.want)
 		}
 	}
 }

@@ -188,15 +188,8 @@ func apiPM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var pyOrNode string
-	switch strings.ToLower(appType.String) {
-	case "nodejs":
-		pyOrNode = "NODE"
-	case "ruby":
-		pyOrNode = "RUBY"
-	case "python":
-		pyOrNode = "PY"
-	default:
+	kind, ok := kindByAppType(appType.String)
+	if !ok {
 		writeAPIPM2JSON(w, http.StatusBadRequest, map[string]string{"error": "Only NodeJS, Python, or Ruby applications can be updated"})
 		return
 	}
@@ -252,7 +245,7 @@ func apiPM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		ramValue += "G"
 	}
 
-	prefix := strings.ToUpper(siteNameLower) + "_" + pyOrNode + "_"
+	prefix := strings.ToUpper(siteNameLower) + "_" + kind.PyOrNode + "_"
 	envFile := "/home/" + userContext + "/.env"
 	if !fileExists(envFile) {
 		writeAPIPM2JSON(w, http.StatusInternalServerError, map[string]string{"error": ".env file not found"})
@@ -313,15 +306,8 @@ func apiPM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var pyOrNode string
-	switch strings.ToLower(appType.String) {
-	case "nodejs":
-		pyOrNode = "NODE"
-	case "ruby":
-		pyOrNode = "RUBY"
-	case "python":
-		pyOrNode = "PY"
-	default:
+	kind, ok := kindByAppType(appType.String)
+	if !ok {
 		writeAPIPM2JSON(w, http.StatusBadRequest, map[string]string{"error": "Only NodeJS, Python, or Ruby applications can be deleted"})
 		return
 	}
@@ -355,8 +341,8 @@ func apiPM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	envFile := "/home/" + userContext + "/.env"
 	if fileExists(envFile) {
 		serviceNameUp := strings.ToUpper(serviceName.String)
-		commentPrefix := "# " + pyOrNode + ": " + serviceNameUp
-		prefix := serviceNameUp + "_" + pyOrNode + "_"
+		commentPrefix := "# " + kind.PyOrNode + ": " + serviceNameUp
+		prefix := serviceNameUp + "_" + kind.PyOrNode + "_"
 		content, _ := os.ReadFile(envFile)
 		lines := strings.Split(string(content), "\n")
 		filtered := make([]string, 0, len(lines))

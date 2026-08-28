@@ -247,10 +247,10 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	// (see handlePM2Update in pm2.go).
 	templateStr = strings.ReplaceAll(templateStr, "pids: 100", `pids: "${SERVICE_NAME_`+kind.PyOrNode+`_PIDS:-100}"`)
 
-	resolvedCommand := buildAppRunCommand(kind.PyOrNode, requirements, customCmd, startupFile, gitRepoURL)
+	resolvedCommand := buildAppRunCommand(kind, requirements, customCmd, startupFile, gitRepoURL)
 
-	nestedCommandPattern := "${SERVICE_NAME_" + kind.PyOrNode + "_REQUIREMENTS:+" + requirementsInstallToken(kind.PyOrNode) + " &&} " +
-		"${SERVICE_NAME_" + kind.PyOrNode + "_CUSTOM_CMD:-" + defaultRunToken(kind.PyOrNode) + " ${SERVICE_NAME_" + kind.PyOrNode + "_STARTUP_FILE:-" + defaultStartupFile(kind.PyOrNode) + "}}"
+	nestedCommandPattern := "${SERVICE_NAME_" + kind.PyOrNode + "_REQUIREMENTS:+" + kind.InstallToken + " &&} " +
+		"${SERVICE_NAME_" + kind.PyOrNode + "_CUSTOM_CMD:-" + kind.RunToken + " ${SERVICE_NAME_" + kind.PyOrNode + "_STARTUP_FILE:-" + kind.DefaultStartupFile + "}}"
 
 	replaced := strings.ReplaceAll(templateStr, nestedCommandPattern, resolvedCommand)
 	replaced = strings.ReplaceAll(replaced, "SERVICE_NAME", serviceNameUp)
@@ -423,43 +423,6 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	_ = logger.RecordUserAction(a.Config, currentUsername, "created a new "+kind.DisplayAppType+" application on domain "+selectedDomain, ipAddress)
 
 	_ = os.Remove(lockPath)
-}
-
-// requirementsInstallToken/defaultRunToken/defaultStartupFile mirror the
-// literal placeholder text baked into each app-type's docker-compose
-// template (python.yml/nodejs.yml), needed here only to build the exact
-// nested-interpolation substring podman-compose can't resolve on its own.
-func requirementsInstallToken(pyOrNode string) string {
-	switch pyOrNode {
-	case "NODE":
-		return "npm install"
-	case "RUBY":
-		return "bundle install"
-	default:
-		return "pip install -r requirements.txt"
-	}
-}
-
-func defaultRunToken(pyOrNode string) string {
-	switch pyOrNode {
-	case "NODE":
-		return "node"
-	case "RUBY":
-		return "ruby"
-	default:
-		return "python"
-	}
-}
-
-func defaultStartupFile(pyOrNode string) string {
-	switch pyOrNode {
-	case "NODE":
-		return "index.js"
-	case "RUBY":
-		return "app.rb"
-	default:
-		return "app.py"
-	}
 }
 
 // formatPyFloat formats a float for the .env values written here,
