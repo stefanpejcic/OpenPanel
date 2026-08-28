@@ -10,6 +10,7 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -148,6 +149,15 @@ func handleForgotPassword(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 		if err := sendPasswordResetEmail(a, r.Context(), t, userID, username, email); err != nil {
 			log.Printf("FORGOT_PASSWORD - failed to send reset email to %s: %v", email, err)
+			if errors.Is(err, errSMTPNotConfigured) {
+				data := basePageData(a, r, t)
+				data.Title = t.Get("Forgot Password")
+				data.Locales = localeOptions(a.I18n.AvailableLocales(r.Context()))
+				data.Email = email
+				data.ErrorMessage = t.Get("Email sending is not configured. Please contact your administrator.")
+				renderPage(w, requestEmailPage, http.StatusOK, data)
+				return
+			}
 		}
 
 		_ = logger.RecordUserAction(a.Config, username, t.Get("password reset requested"), reqip.ClientIP(r))
@@ -165,14 +175,24 @@ func handleForgotPassword(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	renderPage(w, requestEmailPage, http.StatusOK, data)
 }
 
+// errSMTPNotConfigured is returned when openpanel.config has no [SMTP]
+// mail_server set - the same section OpenAdmin's notification settings page
+// (Settings > Notifications) writes to. handleForgotPassword surfaces this
+// to the user instead of silently pretending the email was sent.
+var errSMTPNotConfigured = errors.New("smtp is not configured")
+
 // sendPasswordResetEmail stashes the token in Redis (default TTL, 300s/5m -
 // shorter than the token's own 15-minute signature window and shorter than
 // what the email tells the user, so the link silently stops working after
 // 5 minutes; a known quirk, not something to "fix" here), then emails the
-// reset link via the hardcoded openpanel.org SMTP relay (see smtpDefaults -
-// openpanel.config has no nested SMTP section, so these defaults are the
-// only values ever used).
+// reset link via the same SMTP relay OpenAdmin's own notification emails
+// use (see loadSMTPConfig).
 func sendPasswordResetEmail(a *appctx.App, ctx context.Context, t i18n.Translator, userID int, username, email string) error {
+	cfg, ok := loadSMTPConfig(a)
+	if !ok {
+		return errSMTPNotConfigured
+	}
+
 	token := signResetToken(a.SecretKey, userID)
 	if err := a.Cache.Raw().Set(ctx, resetTokenCacheKey(token), userID, cache.DefaultTTL).Err(); err != nil {
 		log.Printf("FORGOT_PASSWORD - failed to store reset token in Redis: %v", err)
@@ -189,55 +209,117 @@ func sendPasswordResetEmail(a *appctx.App, ctx context.Context, t i18n.Translato
 
 	var buf bytes.Buffer
 	if err := resetEmailFragment.ExecuteTemplate(&buf, "reset_password_email", map[string]any{
-		"Title":     t.Get("Password Reset Requested"),
-		"ResetLink": resetLink,
-		"Hostname":  forceDomain,
-		"LoginURL":  loginURL,
-		"T":         t,
+		"Title":        t.Get("Password Reset Requested"),
+		"ResetLink":    resetLink,
+		"Hostname":     forceDomain,
+		"LoginURL":     loginURL,
+		"IsEnterprise": strings.HasPrefix(a.LicenseKey, "enterprise"),
+		"T":            t,
 	}); err != nil {
 		return err
 	}
 
 	subject := t.Get("OpenPanel [%(domain)s] - Password Reset Requested", "domain", forceDomain)
-	return sendMail(email, subject, buf.String())
+	return sendMail(cfg, email, subject, buf.String())
 }
 
-// smtpDefaults are the panel's own hardcoded SMTP relay credentials - see
-// sendPasswordResetEmail's comment on why these are effectively the only
-// values ever used.
-const (
-	smtpHost = "mail.openpanel.com"
-	smtpPort = "465"
-	smtpUser = "no-reply@openpanel.org"
-	smtpPass = "96e2ygBDrThxl9zI"
-	smtpFrom = "no-reply@openpanel.org"
-)
+// smtpConfig is the [SMTP] section of openpanel.config, as configured via
+// OpenAdmin's Settings > Notifications page - the very same keys OpenAdmin's
+// own mailer (openadmin/internal/handlers/mailer.go) reads, so a single set
+// of SMTP credentials/relay serves both apps' outgoing mail.
+type smtpConfig struct {
+	Host     string
+	Port     string
+	Username string
+	Password string
+	From     string
+	UseSSL   bool
+	UseTLS   bool
+}
 
-// sendMail sends an HTML email over implicit TLS (port 465).
-func sendMail(to, subject, htmlBody string) error {
-	msg := "From: " + smtpFrom + "\r\n" +
+// loadSMTPConfig reads openpanel.config for mail_server et al. openpanel's
+// Config.Load has no notion of ini [section] headers, but its key=value
+// parser still picks these up regardless - a "[SMTP]" line simply doesn't
+// match its key=value regex and is skipped, so no separate config plumbing
+// is needed to share these values with OpenAdmin. Returns ok=false when no
+// mail_server is set, i.e. nobody has configured SMTP yet.
+func loadSMTPConfig(a *appctx.App) (smtpConfig, bool) {
+	host := a.Config.Get("mail_server", "")
+	if host == "" {
+		return smtpConfig{}, false
+	}
+	username := a.Config.Get("mail_username", "")
+	from := a.Config.Get("mail_default_sender", "")
+	if from == "" {
+		from = username
+	}
+	if from == "" {
+		return smtpConfig{}, false
+	}
+	return smtpConfig{
+		Host:     host,
+		Port:     a.Config.Get("mail_port", "465"),
+		Username: username,
+		Password: a.Config.Get("mail_password", ""),
+		From:     from,
+		UseSSL:   strings.EqualFold(a.Config.Get("mail_use_ssl", ""), "true"),
+		UseTLS:   strings.EqualFold(a.Config.Get("mail_use_tls", ""), "true"),
+	}, true
+}
+
+// sendMail sends an HTML email over cfg's relay: implicit TLS when UseSSL,
+// STARTTLS when UseTLS (and the server advertises it), plaintext otherwise -
+// mirroring OpenAdmin's own mailerSendRun so both apps behave the same way
+// for the same [SMTP] settings.
+func sendMail(cfg smtpConfig, to, subject, htmlBody string) error {
+	msg := "From: " + cfg.From + "\r\n" +
 		"To: " + to + "\r\n" +
 		"Subject: " + subject + "\r\n" +
 		"MIME-Version: 1.0\r\n" +
 		"Content-Type: text/html; charset=UTF-8\r\n\r\n" +
 		htmlBody
 
-	conn, err := tls.Dial("tcp", smtpHost+":"+smtpPort, &tls.Config{ServerName: smtpHost, MinVersion: tls.VersionTLS12})
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
+	addr := cfg.Host + ":" + cfg.Port
 
-	client, err := smtp.NewClient(conn, smtpHost)
+	var auth smtp.Auth
+	if cfg.Username != "" {
+		auth = smtp.PlainAuth("", cfg.Username, cfg.Password, cfg.Host)
+	}
+
+	var client *smtp.Client
+	var err error
+	if cfg.UseSSL {
+		var conn *tls.Conn
+		conn, err = tls.Dial("tcp", addr, &tls.Config{ServerName: cfg.Host, MinVersion: tls.VersionTLS12})
+		if err != nil {
+			return err
+		}
+		client, err = smtp.NewClient(conn, cfg.Host)
+	} else {
+		client, err = smtp.Dial(addr)
+	}
 	if err != nil {
 		return err
 	}
 	defer client.Close()
 
-	if err := client.Auth(smtp.PlainAuth("", smtpUser, smtpPass, smtpHost)); err != nil {
-		return err
+	if !cfg.UseSSL && cfg.UseTLS {
+		if ok, _ := client.Extension("STARTTLS"); ok {
+			if err := client.StartTLS(&tls.Config{ServerName: cfg.Host}); err != nil {
+				return err
+			}
+		}
 	}
-	if err := client.Mail(smtpFrom); err != nil {
+
+	if auth != nil {
+		if ok, _ := client.Extension("AUTH"); ok {
+			if err := client.Auth(auth); err != nil {
+				return err
+			}
+		}
+	}
+
+	if err := client.Mail(cfg.From); err != nil {
 		return err
 	}
 	if err := client.Rcpt(to); err != nil {

@@ -111,7 +111,7 @@ func blockIPTemporarily(ip string, blockLimit int) {
 		return
 	}
 
-	entry := fmt.Sprintf("%d|%s||in|3600|Too many failed login attempts on OpenPanel",
+	entry := fmt.Sprintf("%d|%s||in|3600|Too many failed login attempts",
 		time.Now().Unix(), ip)
 	if err := appendLine(tempbanPath, entry); err != nil {
 		appendLine(errorLogPath, fmt.Sprintf("%s - An unexpected error occurred: %v", time.Now().Format(time.RFC3339), err))

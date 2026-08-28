@@ -1,6 +1,7 @@
 package account
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/url"
@@ -13,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
 )
 
 // RegisterTwofaAPI wires the /api/account/2fa routes onto mux, gated
@@ -27,8 +29,21 @@ func RegisterTwofaAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "twofa", "DELETE /api/account/2fa", func(w http.ResponseWriter, r *http.Request) { apiTwofaDisable(a, w, r) })
 }
 
-func otpauthURL(username, secret string) string {
-	return "otpauth://totp/" + url.PathEscape(username) + "?secret=" + secret + "&issuer=OpenPanel"
+func otpauthURL(username, secret, issuer string) string {
+	return "otpauth://totp/" + url.PathEscape(username) + "?secret=" + secret + "&issuer=" + url.QueryEscape(issuer)
+}
+
+// twofaIssuerName is what shows up as the account issuer in the user's
+// authenticator app: the configured brand name, falling back to the panel's
+// own domain, falling back to "OpenPanel" if neither is set.
+func twofaIssuerName(a *appctx.App, ctx context.Context) string {
+	if brandName := a.Config.Get("brand_name", ""); brandName != "" {
+		return brandName
+	}
+	if domain := sysinfo.GetOpenPanelDomain(ctx, a.Cache); domain != "" {
+		return domain
+	}
+	return "OpenPanel"
 }
 
 // apiTwofaStatus reports whether 2FA is currently enabled for the caller.
@@ -68,7 +83,7 @@ func apiTwofaSetup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	writeAPIAccountJSON(w, http.StatusOK, map[string]string{
 		"secret":      secret,
-		"otpauth_url": otpauthURL(username, secret),
+		"otpauth_url": otpauthURL(username, secret, twofaIssuerName(a, ctx)),
 	})
 }
 

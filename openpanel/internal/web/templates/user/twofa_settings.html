@@ -85,7 +85,7 @@
 <script>
   var username = '{{.CurrentUsername}}';
   var otp_secret = '{{.OTPSecret}}';
-  var otpUri = 'otpauth://totp/' + username + '?secret=' + otp_secret + '&issuer=OpenPanel';
+  var otpUri = 'otpauth://totp/' + username + '?secret=' + otp_secret + '&issuer=' + encodeURIComponent('{{.TwofaIssuer}}');
   var qrcode = new QRCode(document.getElementById('qrcode'), {
     text: otpUri,
     width: 128,

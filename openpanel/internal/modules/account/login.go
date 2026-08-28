@@ -97,6 +97,7 @@ type loginPageData struct {
 	CSRFToken         string
 	Locales           []localeOption
 	PasswordReset     string
+	IsEnterprise      bool
 	TwofaEnabled      bool
 	UserID            int
 	Username          string
@@ -119,6 +120,7 @@ func basePageData(a *appctx.App, r *http.Request, t i18n.Translator) loginPageDa
 		BrandName:     a.Config.Get("brand_name", ""),
 		Logo:          a.Config.Get("logo", ""),
 		PasswordReset: a.Config.Get("password_reset", "yes"),
+		IsEnterprise:  strings.HasPrefix(a.LicenseKey, "enterprise"),
 		CSRFToken:     csrf.Token(r),
 		T:             t,
 	}

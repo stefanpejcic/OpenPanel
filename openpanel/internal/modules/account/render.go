@@ -86,6 +86,7 @@ type TwofaPageData struct {
 	web.LayoutData
 	TwofaEnabled bool
 	OTPSecret    string
+	TwofaIssuer  string
 }
 
 func renderTwofaPage(a *appctx.App, w http.ResponseWriter, r *http.Request, twofaEnabled bool, otpSecret string) {
@@ -94,7 +95,7 @@ func renderTwofaPage(a *appctx.App, w http.ResponseWriter, r *http.Request, twof
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := TwofaPageData{LayoutData: layout, TwofaEnabled: twofaEnabled, OTPSecret: otpSecret}
+	data := TwofaPageData{LayoutData: layout, TwofaEnabled: twofaEnabled, OTPSecret: otpSecret, TwofaIssuer: twofaIssuerName(a, r.Context())}
 	if err := twofaPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - twofa template render error: %v", err)
 	}

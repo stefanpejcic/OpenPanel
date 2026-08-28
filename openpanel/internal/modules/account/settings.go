@@ -160,7 +160,7 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 					flash.Add(sess, "success", fmt.Sprintf("Username has been changed successfully from %s to %s.", currentUsername, newUsername))
 
 					message := "Username " + currentUsername + " changed\n" +
-						"OpenPanel username changed from <b>" + currentUsername + "</b> to <b>" + newUsername + "</b>."
+						"Username changed from <b>" + currentUsername + "</b> to <b>" + newUsername + "</b>."
 					checkIfUserShouldBeNotified(a, ctx, userID, newUsername, "notify_username_change", message)
 					a.Cache.Delete(ctx, "get_user_details_with_plan:"+strconv.Itoa(userID))
 					_ = logger.RecordUserAction(a.Config, newUsername, "changed username from "+currentUsername+" to "+newUsername, ip)
