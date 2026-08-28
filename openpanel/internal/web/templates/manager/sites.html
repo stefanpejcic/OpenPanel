@@ -375,8 +375,10 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
                         </td>
                         <td class="whitespace-nowrap p-4 text-sm text-right text-gray-600 dark:text-gray-400">
                             {{$isCMS := or (eq $typeLower "wordpress") (eq $typeLower "joomla") (eq $typeLower "opencart") (eq $typeLower "nextcloud") (eq $typeLower "prestashop") (eq $typeLower "drupal") (eq $typeLower "matomo") (eq $typeLower "moodle") (eq $typeLower "mediawiki") (eq $typeLower "flarum") (eq $typeLower "sofawiki")}}
+                            {{$isPM2 := or (contains $typeLower "nodejs") (contains $typeLower "python") (contains $typeLower "ruby")}}
                             {{$hasAutologin := or (eq $typeLower "wordpress") (eq $typeLower "joomla") (eq $typeLower "opencart") (eq $typeLower "nextcloud") (eq $typeLower "prestashop") (eq $typeLower "drupal") (eq $typeLower "matomo") (eq $typeLower "mediawiki")}}
-                            {{$hasClone := or (eq $typeLower "wordpress") (eq $typeLower "joomla") (eq $typeLower "opencart") (eq $typeLower "nextcloud") (eq $typeLower "prestashop") (eq $typeLower "drupal") (eq $typeLower "matomo") (eq $typeLower "moodle") (eq $typeLower "mediawiki") (eq $typeLower "flarum") (eq $typeLower "sofawiki")}}
+                            {{$hasClone := or $isCMS $isPM2}}
+                            {{$hasDelete := or $isCMS $isPM2}}
                             <div class="flex items-center justify-end gap-1.5">
                                 {{if $hasAutologin}}
                                 <button type="button" class="autologin-btn inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white"
@@ -406,7 +408,9 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
                                 <a href="/website?domain={{$site.SiteName}}&tab=backups" title="{{$.T.Get "Backups"}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
                                 </a>
+                                {{end}}
 
+                                {{if $hasDelete}}
                                 <a href="/website?domain={{$site.SiteName}}&tab=remove" title="{{$.T.Get "Delete"}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 active:bg-red-50 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5z"/></svg>
                                 </a>
