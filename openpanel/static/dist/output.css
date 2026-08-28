@@ -25,3 +25,19 @@
 .top-16 {
   top: 4rem;
 }
+
+/* Manually appended: grid-cols utilities used in templates but missing
+   from the last Tailwind build (no build pipeline available to
+   regenerate this file from scratch - see internal/web/templates for
+   usage). Keep in sync if templates start using other grid-cols-N
+   values not already covered above. */
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+@media (min-width: 64rem) {
+  .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 80rem) {
+  .xl\:grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  .xl\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
