@@ -107,6 +107,28 @@
     <script defer src="{{static "vendor/alpinejs/alpinejs3xx.min.js"}}"></script>
     {{template "flowbite_js" .}}
     <script defer>
+        // The page's title as the server rendered it ("{{.Title}} - Brand"),
+        // captured before any tab-switching JS below touches document.title -
+        // every tab activation prefixes the tab's own label onto this same
+        // pristine base rather than onto whatever the title currently is, so
+        // switching tabs repeatedly doesn't pile up prefixes.
+        var baseTitle = document.title;
+
+        // tabLabelFor reads the tab trigger's visible label text (skipping
+        // its icon) to prefix onto the page title, e.g. "Clone example.com -
+        // OpenPanel" instead of just "example.com - OpenPanel".
+        function tabLabelFor(trigger) {
+            var span = trigger.querySelector('span');
+            var text = (span || trigger).textContent.trim();
+            return text;
+        }
+
+        function applyTabTitle(trigger) {
+            var label = tabLabelFor(trigger);
+            if (!label) return;
+            document.title = label + ' ' + baseTitle;
+        }
+
         // Flowbite's data-tabs-toggle/data-tabs-target tabs only react to
         // clicks - they never look at the URL, so a "?tab=backups"-style
         // deep link (used by /sites' Actions-column icons) left the tab
@@ -120,13 +142,19 @@
         // Flowbite's own late init resetting every panel back to its
         // Dashboard-only default. So this polls for the elements AND
         // keeps re-asserting the desired state for a bounded window after
-        // load, however long either of those two other systems take.
+        // load, however long either of those two other systems take -
+        // BUT stops the instant the user actually clicks a tab (a real
+        // click is a stronger signal than "keep enforcing the deep link,"
+        // and without this the observer kept reverting every click made
+        // within its window right back to the deep-linked tab, making
+        // every other tab look permanently stuck/unclickable).
         (function () {
             var tab = new URLSearchParams(window.location.search).get('tab');
             if (!tab) return;
 
             var observer = null;
             var attempts = 0;
+            var userTookOver = false;
 
             function tryApply() {
                 attempts++;
@@ -140,14 +168,20 @@
                 }
 
                 function apply() {
+                    if (userTookOver) return;
                     content.querySelectorAll('[role="tabpanel"]').forEach(function (panel) {
                         panel.classList.toggle('hidden', panel.id !== tab);
                     });
                     tablist.querySelectorAll('[role="tab"]').forEach(function (tabBtn) {
                         tabBtn.setAttribute('aria-selected', tabBtn === trigger ? 'true' : 'false');
                     });
+                    applyTabTitle(trigger);
                 }
                 apply();
+
+                tablist.addEventListener('click', function (e) {
+                    if (e.target.closest('[role="tab"]')) userTookOver = true;
+                });
 
                 if (!observer) {
                     observer = new MutationObserver(apply);
@@ -157,6 +191,23 @@
             }
             tryApply();
         })();
+
+        // Keep the URL's ?tab= in sync as the user clicks between tabs, so
+        // the current tab survives a reload/copy-paste/back-button the
+        // same way a deep link into a specific tab already works - every
+        // manager page's tablist follows the same data-tabs-toggle/
+        // data-tabs-target/role="tab" convention, so one delegated
+        // listener covers all of them without each page wiring its own.
+        document.addEventListener('click', function (e) {
+            var trigger = e.target.closest('[role="tab"][data-tabs-target]');
+            if (!trigger) return;
+            var tabId = trigger.getAttribute('data-tabs-target').replace(/^#/, '');
+            if (!tabId) return;
+            var url = new URL(window.location.href);
+            url.searchParams.set('tab', tabId);
+            history.replaceState(history.state, '', url);
+            applyTabTitle(trigger);
+        });
     </script>
 
     <!-- Custom code in header: deferred until the custom_code admin feature is ported -->
