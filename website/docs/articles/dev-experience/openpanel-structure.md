@@ -85,6 +85,8 @@ Files that are used for new services/domains that users add.
 
 - `/etc/openpanel/docker/compose/nodejs.yml`       - Used for new docker services via 'OpenPanel > AutoInstaller > NodeJS' page.
 - `/etc/openpanel/docker/compose/python.yml`       - Used for new docker services via 'OpenPanel > AutoInstaller > Python' page.
+- `/etc/openpanel/docker/compose/ruby.yml`       - Used for new docker services via 'OpenPanel > AutoInstaller > Ruby' page.
+- `/etc/openpanel/docker/compose/java.yml`       - Used for new docker services via 'OpenPanel > AutoInstaller > Java' page.
 - `/etc/openpanel/docker/daemon/rootless.json`     - Used for new users to configure docker rootless service.
 - `/etc/openpanel/apache/httpd.conf`     - Main configuration file used for new users with Apache webserver.
 - `/etc/openpanel/backups/backup.env`     - Template used for new user backups.

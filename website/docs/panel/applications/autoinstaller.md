@@ -23,10 +23,13 @@ For an application to appear on the Autoinstaller page, the corresponding module
 - MediaWiki
 - Flarum
 - SofaWiki
+- DokuWiki
+- phpBB
 - Mautic
 - NodeJS Applications*
 - Python Applications*
 - Ruby Applications*
+- Java Applications*
 - PHP Applications
 - Website Builder
 - Custom Docker Application
