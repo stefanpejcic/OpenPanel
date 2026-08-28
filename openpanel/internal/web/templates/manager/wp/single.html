@@ -1903,7 +1903,6 @@ function GetWPSiteInfo() {
 
             if (versionRegex.test(cleanWp)) {
                 document.getElementById('wp-version').textContent = cleanWp;
-                document.getElementById('wp-version-4-updates').textContent = cleanWp;
             } else {
                 console.warn("Invalid WordPress version format received from the container:", wpVersion);
             }
