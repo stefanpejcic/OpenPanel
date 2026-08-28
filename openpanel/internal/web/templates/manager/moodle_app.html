@@ -598,6 +598,20 @@
                     return 0;
                 }
 
+                // isVersionOlder does a numeric per-segment comparison (not a
+                // naive string !== ), so a same-version-different-format quirk
+                // (e.g. a missing trailing ".0", a leading "v") doesn't falsely
+                // show the Update button when nothing is actually newer.
+                function isVersionOlder(installed, latest) {
+                    const pi = installed.replace(/^v/i, '').split('.').map(n => parseInt(n, 10) || 0);
+                    const pl = latest.replace(/^v/i, '').split('.').map(n => parseInt(n, 10) || 0);
+                    for (let i = 0; i < Math.max(pi.length, pl.length); i++) {
+                        const iv = pi[i] || 0, lv = pl[i] || 0;
+                        if (iv !== lv) return iv < lv;
+                    }
+                    return false;
+                }
+
                 function checkMoodleLatestVersion() {
                     const installed = {{toJSON .MoodleVersion}};
                     const latestEl = document.getElementById('moodle-latest-version');
@@ -615,7 +629,7 @@
                             const latest = versions[0];
                             latestEl.textContent = latest || {{toJSON (.T.Get "Unknown")}};
                             const updateBtn = document.getElementById('moodle-update-btn');
-                            if (latest && installed && latest !== installed) {
+                            if (latest && installed && isVersionOlder(installed, latest)) {
                                 statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
                                 updateBtn.classList.remove('hidden');
                             } else if (latest && installed) {

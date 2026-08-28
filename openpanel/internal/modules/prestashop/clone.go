@@ -163,6 +163,9 @@ func handlePrestashopClone(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	adminEmail := formOr(r, "admin_email", "admin@"+dstDomain)
 	prestashopVersion := formOr(r, "prestashop_version", "latest")
+	// Rewrites hardcoded source-domain URLs left in page/content body text (the config-file rewrite above only fixes the DB connection settings, not application data) - the generic equivalent of wp-cli's search-replace, which this CMS's own CLI has no built-in version of.
+	cmsclone.SearchReplaceDatabase(ctx, userContext, dstDB, "https://"+providedDomain, "https://"+dstDomainWithSubdir)
+
 	cmsclone.FinalizeSite(ctx, w, r, cmsclone.FinalizeParams{
 		App: a, WriteJSON: writeJSON, UserID: userID, Username: currentUsername,
 		CMSDisplayName: "PrestaShop", CMSType: "prestashop",
