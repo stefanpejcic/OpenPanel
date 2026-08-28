@@ -265,6 +265,22 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			AvailablePHPVersions: availablePHPVersions,
 		})
 
+	case "dokuwiki":
+		dokuwikiVersion := getDokuwikiVersion(userContext, docroot)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
+		renderDokuwikiAppPage(a, w, r, DokuwikiAppPageData{
+			pageData:             basePageData,
+			Domains:              domains,
+			Container:            container,
+			DokuwikiVersion:      dokuwikiVersion,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
+		})
+
 	case "joomla":
 		dbInfo := extractJoomlaDatabaseInfo(userContext, docroot)
 		joomlaVersion := getJoomlaVersion(userContext, docroot)

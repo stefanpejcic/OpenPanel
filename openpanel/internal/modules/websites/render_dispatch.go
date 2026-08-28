@@ -143,6 +143,33 @@ func renderSofawikiAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 }
 
+var dokuwikiAppPage = loadPage("manager/dokuwiki_app.html")
+
+// DokuwikiAppPageData is manager/dokuwiki_app.html's template context.
+type DokuwikiAppPageData struct {
+	pageData
+	Domains              []appctx.Domain
+	Container            ContainerInfo
+	DokuwikiVersion      string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderDokuwikiAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data DokuwikiAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := dokuwikiAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - dokuwiki_app template render error: %v", err)
+	}
+}
+
 var joomlaAppPage = loadPage("manager/joomla_app.html")
 
 // JoomlaAppPageData is manager/joomla_app.html's template context.

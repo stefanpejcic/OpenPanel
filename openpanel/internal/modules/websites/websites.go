@@ -645,6 +645,19 @@ func getFlarumVersion(userContext, realPath string) string {
 	return "Unknown"
 }
 
+// getDokuwikiVersion reads the installed release string out of the site's
+// VERSION file - dated codenames (e.g. "2026-07-14b"), not semver, written
+// by dokuwiki/install.go and refreshed by dokuwiki/update.go.
+func getDokuwikiVersion(userContext, realPath string) string {
+	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
+	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "VERSION")
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "Unknown"
+	}
+	return strings.TrimSpace(string(content))
+}
+
 // extractJoomlaDatabaseInfo parses the $host/$user/$password/$db/$dbprefix
 // properties out of configuration.php - much simpler than
 // extractDrupalDatabaseInfo's settings.php scrape, since Joomla's installer
