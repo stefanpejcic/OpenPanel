@@ -39,6 +39,23 @@ func drushRequestParams(ctx context.Context, a *appctx.App, r *http.Request, use
 	if !strings.Contains(strings.ToLower(webServer), "litespeed") {
 		phpContainer = "php-fpm-" + phpVersion
 	}
+
+	// Composer doesn't reliably leave any of vendor/bin/* (or the real
+	// binaries those wrapper scripts exec, like vendor/drush/drush/drush)
+	// executable in this environment - confirmed live, every single file
+	// under vendor/bin/ came out 644, not 755. drush's own wrapper chain
+	// alone hits three of them (vendor/bin/drush -> vendor/drush/drush/
+	// drush -> vendor/bin/drush.php), so every drush-backed request
+	// chmods the whole vendor/bin/ directory plus drush's real binary,
+	// self-healing any site installed before install.go started doing
+	// this too, without needing a reinstall. `find ... -exec` (not
+	// `sh -c` with a glob) so docroot - user-supplied, from the request
+	// query string - is passed as a plain argv entry rather than
+	// interpolated into shell syntax.
+	chmodArgv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "find",
+		docroot+"/vendor/bin", docroot+"/vendor/drush/drush/drush", "-type", "f", "-exec", "chmod", "+x", "{}", "+")
+	_, _ = podmanmanager.Command(ctx, userContext, chmodArgv).CombinedOutput()
+
 	return domain, docroot, phpContainer, true
 }
 

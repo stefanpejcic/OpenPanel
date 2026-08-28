@@ -212,6 +212,20 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// Composer doesn't reliably leave any of vendor/bin/* (or the real
+	// binaries those wrapper scripts exec, like vendor/drush/drush/drush)
+	// executable in this environment (confirmed live: every single file
+	// under vendor/bin/ came out 644, not 755 - drush's own wrapper chain
+	// alone hits three of them, vendor/bin/drush -> vendor/drush/drush/
+	// drush -> vendor/bin/drush.php, and every later drush call,
+	// including the manager page's own autologin button, failed with
+	// "exists but it is not executable: Operation not permitted"). Force
+	// the whole directory plus drush's real binary rather than trusting
+	// composer's own bin-dir handling.
+	chmodDrushArgv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "find",
+		installPath+"/vendor/bin", installPath+"/vendor/drush/drush/drush", "-type", "f", "-exec", "chmod", "+x", "{}", "+")
+	_, _ = podmanmanager.Command(ctx, userContext, chmodDrushArgv).CombinedOutput()
+
 	// drupal/recommended-project's docroot is the web/ subdirectory, not the
 	// composer project root - but OpenPanel's per-domain (or subdirectory)
 	// docroot always maps directly to installPath. Symlinking web/'s entries
