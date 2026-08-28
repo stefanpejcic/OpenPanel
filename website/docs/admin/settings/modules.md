@@ -771,6 +771,176 @@ When disabled:
 * Users do not have access to the *Websites > Auto Installer* page.
 
 
+## Drupal
+
+The **`drupal`** module allows users to install and manage Drupal websites.
+
+When enabled:
+* Drupal is available on the Autoinstaller page.
+* Users can install Drupal using Auto Installer.
+* Users can manage Drupal websites using Site Manager: clone a site, run/restore backups, generate a one-time admin login link, rebuild the cache, and view watchdog logs.
+* Users can update Drupal core in place using the *Update* tab (drush-based, one click).
+
+When disabled:
+* Drupal is not available on the Autoinstaller page.
+* Drupal websites can not be managed via Openpanel.
+
+## Joomla
+
+The **`joomla`** module allows users to install and manage Joomla websites.
+
+When enabled:
+* Joomla is available on the Autoinstaller page.
+* Users can install Joomla using Auto Installer.
+* Users can manage Joomla websites using Site Manager: clone a site and run/restore backups.
+* The *Update* tab shows whether a newer Joomla version is available and links directly into the site's own Joomla Admin to run the update (Joomla has no safe unattended CLI updater).
+
+When disabled:
+* Joomla is not available on the Autoinstaller page.
+* Joomla websites can not be managed via Openpanel.
+
+## OpenCart
+
+The **`opencart`** module allows users to install and manage OpenCart websites.
+
+When enabled:
+* OpenCart is available on the Autoinstaller page.
+* Users can install OpenCart using Auto Installer.
+* Users can manage OpenCart websites using Site Manager: clone a site and run/restore backups.
+* The *Update* tab shows whether a newer OpenCart version is available and links directly into the site's own admin panel to run the update.
+
+When disabled:
+* OpenCart is not available on the Autoinstaller page.
+* OpenCart websites can not be managed via Openpanel.
+
+## Nextcloud
+
+The **`nextcloud`** module allows users to install and manage Nextcloud websites.
+
+When enabled:
+* Nextcloud is available on the Autoinstaller page.
+* Users can install Nextcloud using Auto Installer.
+* Users can manage Nextcloud websites using Site Manager: clone a site, run/restore backups, and view logs.
+* Users can update Nextcloud in place using the *Update* tab (one click).
+
+When disabled:
+* Nextcloud is not available on the Autoinstaller page.
+* Nextcloud websites can not be managed via Openpanel.
+
+## PrestaShop
+
+The **`prestashop`** module allows users to install and manage PrestaShop websites.
+
+When enabled:
+* PrestaShop is available on the Autoinstaller page.
+* Users can install PrestaShop using Auto Installer.
+* Users can manage PrestaShop websites using Site Manager: clone a site and run/restore backups.
+* The *Update* tab shows whether a newer PrestaShop version is available and links directly into the site's own admin panel to run the update.
+
+When disabled:
+* PrestaShop is not available on the Autoinstaller page.
+* PrestaShop websites can not be managed via Openpanel.
+
+## Matomo
+
+The **`matomo`** module allows users to install and manage Matomo websites.
+
+When enabled:
+* Matomo is available on the Autoinstaller page.
+* Users can install Matomo using Auto Installer.
+* Users can manage Matomo websites using Site Manager: clone a site and run/restore backups.
+* Users can update Matomo in place using the *Update* tab (one click).
+
+When disabled:
+* Matomo is not available on the Autoinstaller page.
+* Matomo websites can not be managed via Openpanel.
+
+## Moodle
+
+The **`moodle`** module allows users to install and manage Moodle websites.
+
+When enabled:
+* Moodle is available on the Autoinstaller page.
+* Users can install Moodle using Auto Installer.
+* Users can manage Moodle websites using Site Manager: clone a site and run/restore backups.
+* Users can update Moodle in place using the *Update* tab (one click).
+
+When disabled:
+* Moodle is not available on the Autoinstaller page.
+* Moodle websites can not be managed via Openpanel.
+
+## MediaWiki
+
+The **`mediawiki`** module allows users to install and manage MediaWiki websites.
+
+When enabled:
+* MediaWiki is available on the Autoinstaller page.
+* Users can install MediaWiki using Auto Installer, choosing a specific release from the version dropdown.
+* Users can manage MediaWiki websites using Site Manager: clone a site and run/restore backups.
+* Users can update MediaWiki in place using the *Update* tab (one click).
+
+When disabled:
+* MediaWiki is not available on the Autoinstaller page.
+* MediaWiki websites can not be managed via Openpanel.
+
+## Flarum
+
+The **`flarum`** module allows users to install and manage Flarum forums.
+
+When enabled:
+* Flarum is available on the Autoinstaller page.
+* Users can install Flarum using Auto Installer, choosing a specific version from the version dropdown.
+* Users can manage Flarum forums using Site Manager: clone a forum, run/restore backups, and view logs.
+* Users can update Flarum in place using the *Update* tab (Composer-based, one click).
+
+When disabled:
+* Flarum is not available on the Autoinstaller page.
+* Flarum forums can not be managed via Openpanel.
+
+## SofaWiki
+
+The **`sofawiki`** module allows users to install and manage SofaWiki wikis.
+
+When enabled:
+* SofaWiki is available on the Autoinstaller page.
+* Users can install SofaWiki using Auto Installer.
+* Users can manage SofaWiki wikis using Site Manager: clone a wiki and run/restore backups.
+
+When disabled:
+* SofaWiki is not available on the Autoinstaller page.
+* SofaWiki wikis can not be managed via Openpanel.
+
+> **NOTE:** SofaWiki has no database, no tagged releases, and no CLI installer - the *Update* tab is not available for this type; the site owner completes SofaWiki's own setup wizard in the browser after install.
+
+## DokuWiki
+
+The **`dokuwiki`** module allows users to install and manage DokuWiki wikis.
+
+When enabled:
+* DokuWiki is available on the Autoinstaller page.
+* Users can install DokuWiki using Auto Installer - the admin account and site configuration are created automatically, no browser setup wizard needed.
+* Users can manage DokuWiki wikis using Site Manager: clone a wiki and run/restore backups.
+* Users can update DokuWiki in place using the *Update* tab (one click) - `conf/`, `data/` and `lib/plugins/` are always preserved.
+
+When disabled:
+* DokuWiki is not available on the Autoinstaller page.
+* DokuWiki wikis can not be managed via Openpanel.
+
+## phpBB
+
+The **`phpbb`** module allows users to install and manage phpBB forums.
+
+When enabled:
+* phpBB is available on the Autoinstaller page.
+* Users can install phpBB using Auto Installer, choosing a specific version from the version dropdown (populated from phpBB's GitHub releases).
+* Users can manage phpBB forums using Site Manager: clone a forum and run/restore backups.
+* The *Update* tab links directly into the site's own Admin Control Panel to run phpBB's Automatic Update Package (phpBB has no safe unattended CLI updater).
+
+When disabled:
+* phpBB is not available on the Autoinstaller page.
+* phpBB forums can not be managed via Openpanel.
+
+
 ## PHP.INI Editor
 The **`php_ini`** module allows users to edit the PNP.INI files using a text editor.
 
@@ -1155,6 +1325,42 @@ Customize options:
 * To **add a custom Google PageSpeed Insights API Key** refer to: [*How-to Guides > Google PageSpeed Insights API Key*](/docs/articles/websites/google-pagespeed-insights-api-key/)
 
 
+## Ruby
+
+The **`ruby`** module allows users to setup and manage containerized Ruby applications. It is toggled independently from the [NodeJS](#nodejs) and [Python](#python) modules above.
+
+When enabled:
+* Users can [manage Ruby applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
+* Ruby is available on the Autoinstaller page.
+* Users can [setup Ruby applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application), choosing a Ruby version from Docker Hub's official `ruby` image tags.
+
+When disabled:
+* Ruby is not available on the Autoinstaller page.
+* Ruby applications can not be managed via Openpanel.
+
+Customize options:
+* To **customize docker service template for new Ruby applications** edit `/etc/openpanel/docker/compose/ruby.yml` file.
+* To **customize headers for Nginx proxy of new Ruby applications** edit `/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt` file.
+
+
+## Java
+
+The **`java`** module allows users to setup and manage containerized Java applications. It is toggled independently from the [NodeJS](#nodejs), [Python](#python) and [Ruby](#ruby) modules above.
+
+When enabled:
+* Users can [manage Java applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
+* Java is available on the Autoinstaller page.
+* Users can [setup Java applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application), choosing a JDK version (Docker Hub's official `eclipse-temurin` LTS tags).
+
+When disabled:
+* Java is not available on the Autoinstaller page.
+* Java applications can not be managed via Openpanel.
+
+Customize options:
+* To **customize docker service template for new Java applications** edit `/etc/openpanel/docker/compose/java.yml` file.
+* To **customize headers for Nginx proxy of new Java applications** edit `/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt` file.
+
+> **NOTE:** Java apps run via Java 11+'s single-file source-code launch (`java Main.java`) by default - no build step needed for a simple app. Projects with a `pom.xml` can enable the "Run Maven install before starting the app" option to run `mvn install` first.
 
 
 ## Resources Usage
