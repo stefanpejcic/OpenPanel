@@ -40,6 +40,20 @@ func drushRequestParams(ctx context.Context, a *appctx.App, r *http.Request, use
 		phpContainer = "php-fpm-" + phpVersion
 	}
 
+	// Every drush-backed handler in this file needs both the PHP container
+	// (to exec into) and the database container (drush queries it directly
+	// for logs/cache/etc.) actually running - confirmed live that a
+	// container stopped for any reason (host reboot, manual stop) made
+	// every one of these fail with either a podman "container state
+	// improper" exec error or drush's own "unable to query the database"
+	// error, neither of which explained the real cause. Starting both
+	// (a no-op if already running) here means every drush-backed page
+	// action self-heals instead of surfacing a confusing low-level error.
+	ensureContainerRunning(ctx, userContext, phpContainer)
+	if mysqlContainer := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE"); mysqlContainer != "" {
+		ensureContainerRunning(ctx, userContext, mysqlContainer)
+	}
+
 	// Composer doesn't reliably leave any of vendor/bin/* (or the real
 	// binaries those wrapper scripts exec, like vendor/drush/drush/drush)
 	// executable in this environment - confirmed live, every single file
