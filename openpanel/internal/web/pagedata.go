@@ -14,6 +14,22 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 )
 
+// DashboardIconViewCookie is the browser cookie storing the user's chosen
+// dashboard icon-section layout ("icon" or "list"), set client-side by the
+// sidebar's layout toggle (see _footer.html) and read server-side by
+// ReadDashboardIconView so the dashboard renders the saved layout on first
+// paint with no flicker.
+const DashboardIconViewCookie = "dashboard_icon_view"
+
+// ReadDashboardIconView reads the dashboard_icon_view cookie, defaulting to
+// "icon" for a missing or unrecognized value.
+func ReadDashboardIconView(r *http.Request) string {
+	if c, err := r.Cookie(DashboardIconViewCookie); err == nil && c.Value == "list" {
+		return "list"
+	}
+	return "icon"
+}
+
 // BuildLayoutData assembles the shared app-shell data every authenticated
 // page needs (nav, flashes, branding, translator, ...), factored out so
 // each module (dashboard, docker, ...) doesn't reimplement it. Returns
@@ -73,31 +89,32 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		// call unconditionally, translates the common literal-string
 		// titles ("Websites", "FTP Accounts", ...) that make up most
 		// call sites without needing every one of them updated.
-		Title:            t.Get(title),
-		BrandName:        a.Config.Get("brand_name", ""),
-		Logo:             logo,
-		Favicon:          a.Config.Get("favicon", ""),
-		CSRFToken:        csrf.Token(r),
-		PanelDir:         panelDir,
-		FoundABugLink:    a.Config.Get("found_a_bug_link", ""),
-		PanelVersion:     panelVersion,
-		CustomPlugins:    len(a.PluginNames) > 0,
-		CustomCSS:        a.CustomCSS,
-		CustomJS:         true, // the custom-JS <script> tag is always emitted, whether or not custom.js has real content (see base.html)
-		NavGroups:        BuildSidebarNav(userAllowed, NavPath(r)),
-		UserAllowed:      userAllowed,
-		UserAllowedJSON:  UserAllowedList(userAllowed),
-		IsEnterprise:     isEnterprise,
-		CurrentUsername:  currentUsername,
-		HostingPlanName:  hostingPlanName,
-		AvatarType:       avatarType,
-		GravatarURL:      gravatarURL,
-		RequestPath:      r.URL.Path,
-		Flashes:          BuildFlashDisplay(flash.Pop(a.Sessions, w, r, sess)),
-		Impersonating:    impersonating,
-		AdminPort:        adminPort,
-		PasswordStrength: validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50),
-		T:                t,
+		Title:             t.Get(title),
+		BrandName:         a.Config.Get("brand_name", ""),
+		Logo:              logo,
+		Favicon:           a.Config.Get("favicon", ""),
+		CSRFToken:         csrf.Token(r),
+		PanelDir:          panelDir,
+		FoundABugLink:     a.Config.Get("found_a_bug_link", ""),
+		PanelVersion:      panelVersion,
+		CustomPlugins:     len(a.PluginNames) > 0,
+		CustomCSS:         a.CustomCSS,
+		CustomJS:          true, // the custom-JS <script> tag is always emitted, whether or not custom.js has real content (see base.html)
+		NavGroups:         BuildSidebarNav(userAllowed, NavPath(r)),
+		UserAllowed:       userAllowed,
+		UserAllowedJSON:   UserAllowedList(userAllowed),
+		IsEnterprise:      isEnterprise,
+		CurrentUsername:   currentUsername,
+		HostingPlanName:   hostingPlanName,
+		AvatarType:        avatarType,
+		GravatarURL:       gravatarURL,
+		RequestPath:       r.URL.Path,
+		Flashes:           BuildFlashDisplay(flash.Pop(a.Sessions, w, r, sess)),
+		Impersonating:     impersonating,
+		AdminPort:         adminPort,
+		PasswordStrength:  validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50),
+		DashboardIconView: ReadDashboardIconView(r),
+		T:                 t,
 	}
 
 	return layout, injected, nil

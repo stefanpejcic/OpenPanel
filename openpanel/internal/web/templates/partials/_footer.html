@@ -23,6 +23,20 @@
                 <!-- Theme Switcher -->
                 {{template "themeswitcher" .}}
 
+                {{if eq .RequestPath "/dashboard"}}
+                <div role="group">
+                    <span role="menuitem" id="tour-icons-position" class="flex justify-between group/DropdownMenuItem relative select-none items-center rounded py-1.5 pl-2 pr-1 outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50">
+                        <span>{{.T.Get "Icons position"}}:</span>
+                        <span class="flex gap-2 items-center">
+                            <button type="button" @click="setDashboardIconView('icon')" title="{{.T.Get "Top"}}" :class="$store.dashboardIconView.value === 'icon' ? 'bg-slate-700 text-white' : 'bg-slate-200 text-slate-800 dark:bg-gray-800 dark:text-gray-400'" class="px-1.5 p-1 rounded-lg cursor-pointer"><i class="bi bi-align-top"></i></button>
+                            <button type="button" @click="setDashboardIconView('list')" title="{{.T.Get "Start"}}" :class="$store.dashboardIconView.value === 'list' ? 'bg-slate-700 text-white' : 'bg-slate-200 text-slate-800 dark:bg-gray-800 dark:text-gray-400'" class="px-1.5 p-1 rounded-lg cursor-pointer"><i class="bi bi-align-start"></i></button>
+                        </span>
+                    </span>
+                </div>
+                <div role="separator" aria-orientation="horizontal" class="-mx-1 my-1 h-px border-t border-gray-200 dark:border-gray-800"></div>
+                {{end}}
+
+                {{if not .IsEnterprise}}
                 <div role="group">
                     <a
                         role="menuitem"
@@ -59,6 +73,7 @@
                     </a>
                 </div>
                 <div role="separator" aria-orientation="horizontal" class="-mx-1 my-1 h-px border-t border-gray-200 dark:border-gray-800"></div>
+                {{end}}
                 <div role="group">
                     <div role="menuitem" id="tour-start-button" class="group/DropdownMenuItem relative flex cursor-pointer select-none items-center rounded py-1.5 pl-2 pr-1 outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 focus-visible:bg-gray-100 focus-visible:dark:bg-gray-900 hover:bg-gray-100 hover:dark:bg-gray-900" tabindex="-1" data-orientation="vertical" @click="isOpen = false; OPTour.start(true)">
                         {{.T.Get "Take the tour"}}

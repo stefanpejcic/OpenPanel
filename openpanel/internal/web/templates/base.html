@@ -96,6 +96,21 @@
             looksGood: '{{.T.Get "Looks good."}}',
         };
     </script>
+    <script>
+        // Global store for the dashboard's icon-section layout ("icon" grid
+        // vs "list" rows) - initialized from the server-rendered cookie
+        // value (see web.ReadDashboardIconView) so both the sidebar's
+        // layout toggle (only shown on /dashboard, see _footer.html) and
+        // the dashboard's own icon_section template share one reactive
+        // value with no localStorage/client-side hydration flicker.
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('dashboardIconView', { value: {{toJSON .DashboardIconView}} });
+        });
+        function setDashboardIconView(v) {
+            Alpine.store('dashboardIconView').value = v;
+            document.cookie = 'dashboard_icon_view=' + v + '; path=/; max-age=31536000; SameSite=Lax';
+        }
+    </script>
     <script defer src="{{static "js/showtoasts.min.js"}}"></script>
     <script defer src="{{static "js/health-toast.min.js"}}"></script>
     <script defer src="{{static "js/relative-date.js"}}"></script>

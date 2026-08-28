@@ -78,6 +78,15 @@ type LayoutData struct {
 	// {{if .Service}} render nothing.
 	Service string
 
+	// DashboardIconView is the user's saved dashboard icon-section layout
+	// ("icon" or "list"), read server-side from the dashboard_icon_view
+	// cookie (see ReadDashboardIconView) on every page - not just
+	// /dashboard - so the sidebar's layout toggle (visible only on
+	// /dashboard, see _footer.html) and the dashboard's own icon_section
+	// template both render the saved choice on first paint with no
+	// Alpine/localStorage hydration flicker.
+	DashboardIconView string
+
 	T i18n.Translator
 }
 

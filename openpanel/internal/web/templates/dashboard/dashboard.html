@@ -7,8 +7,6 @@
         <div
           data-section-id="{{.Section.Key}}"
           x-data='{
-            items: {{toJSON .Section.Items}},
-            allowed: {{.UserAllowedJSON}},
             open: (function() {
               const s = localStorage.getItem("section_state_" + {{toJSON .Section.Key}});
               return s === null ? true : s === "true";
@@ -40,18 +38,17 @@
             x-show="open"
             x-collapse
           >
-            <template x-for="(item, idx) in items" :key="(item.Key || item.Href) + '-' + idx">
-              <template x-if="allowed.includes(item.Key)">
-                <a :href="item.Href" :target="item.Target || '_self'" class="block w-1/2 py-1 text-center lg:w-1/4 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                  <div :class="view === 'icon' ? 'py-2 text-center' : 'p-2 px-4 flex gap-2'">
+            {{$iconView := .IconView}}
+            {{range .Section.Items}}
+                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" class="block w-1/2 py-1 text-center lg:w-1/4 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                  <div :class="$store.dashboardIconView.value === 'icon' ? 'py-2 text-center' : 'p-2 px-4 flex gap-2'" class="{{if eq $iconView "icon"}}py-2 text-center{{else}}p-2 px-4 flex gap-2{{end}}">
                     <button type="button" class="size-9 items-center justify-center rounded-xl bg-slate-700 text-white hover:bg-slate-600 active:bg-slate-700 ring-4 ring-slate-400/50 dark:ring-slate-600/50 cursor-pointer">
-                      <i :class="`bi ${item.Icon}`"></i>
+                      <i class="bi {{.Icon}}"></i>
                     </button>
-                    <p class="pt-2 text-sm font-medium font-body md:text-base md:pt-2 text-slate-500 dark:text-slate-400" x-text="item.Label"></p>
+                    <p class="pt-2 text-sm font-medium font-body md:text-base md:pt-2 text-slate-500 dark:text-slate-400">{{.Label}}</p>
                   </div>
                 </a>
-              </template>
-            </template>
+            {{end}}
           </div>
         </div>
 {{end}}
@@ -64,33 +61,7 @@
 <style>.cursor-move { cursor: move; } .cursor-grabbing:active { cursor: grab; } .\-left-4 { left:0!important;}</style>
 
 <div class="p-6 grid sm:flex grid-cols-1 gap-4 sm:grid-cols-2 md:gap-4 xl:grid-cols-4 bg-gray-50 dark:bg-gray-950">
-  <div class="flex flex-col space-y-4 xl:col-span-3 w-full" x-data="{
-  view: localStorage.getItem('dashboard_icon_view') || 'icon',
-  setView(v) {
-    this.view = v;
-    localStorage.setItem('dashboard_icon_view', v);
-  }
-}"
->
-
-  <!-- Toggle buttons -->
-  <div class="flex gap-2 text-slate-500 dark:text-slate-400 font-medium text-xs justify-between items-center" x-data="{ tourDismissed: false }">
-    {{if .TourShow}}
-    <span x-show="!tourDismissed" id="tour-prompt-row">
-        {{.T.Get "Want a quick guided tour of OpenPanel?"}}
-        <a href="#" id="tour-prompt-start" @click.prevent="OPTour.start(true)" class="text-indigo-600 hover:underline dark:text-indigo-400">{{.T.Get "Take the tour"}}</a>
-        <span class="text-slate-300 px-1">·</span>
-        <a href="#" id="tour-prompt-skip" @click.prevent="tourDismissed = true; OPTour.markComplete()" class="hover:underline">{{.T.Get "Skip"}}</a>
-    </span>
-    {{else}}
-      <span id="tour-was-completed"></span>
-    {{end}}
-    <div id="tour-icons-position" class="flex gap-2 items-center">
-    {{.T.Get "Icons position"}}:
-    <button @click="setView('icon')" title="{{.T.Get "Top"}}" :class="{'bg-slate-700 text-white': view==='icon', 'bg-slate-200 text-slate-800': view!=='icon'}" class="px-1.5 p-1 rounded-lg"><i class="bi bi-align-top"></i></button>
-    <button @click="setView('list')" title="{{.T.Get "Start"}}" :class="{'bg-slate-700 text-white': view==='list', 'bg-slate-200 text-slate-800': view!=='list'}" class="px-1.5 p-1 rounded-lg"><i class="bi bi-align-start"></i></button>
-    </div>
-  </div>
+  <div class="flex flex-col space-y-4 xl:col-span-3 w-full">
 
     {{template "custommessage" .}}
 
@@ -101,7 +72,7 @@
           {{if eq $root.CustomSectionPosition (printf "before_%s" .Key)}}
             {{template "customsection" $root}}
           {{end}}
-          {{template "icon_section" (dict "Section" . "UserAllowedJSON" $root.UserAllowedJSON "T" $root.T)}}
+          {{template "icon_section" (dict "Section" . "UserAllowedJSON" $root.UserAllowedJSON "IconView" $root.DashboardIconView "T" $root.T)}}
         </div>
       {{end}}
     </div>

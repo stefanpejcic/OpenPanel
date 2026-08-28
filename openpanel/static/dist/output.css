@@ -46,3 +46,5 @@
 .grayscale { filter: grayscale(100%); }
 @keyframes op-upsell-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); } 50% { box-shadow: 0 0 0 5px rgba(59,130,246,0); } }
 .animate-upsell-pulse { animation: op-upsell-pulse 2s ease-in-out infinite; }
+.bg-slate-200 { --tw-bg-opacity: 1; background-color: rgb(226 232 240 / var(--tw-bg-opacity, 1)); }
+.text-slate-800 { color: rgb(30 41 59); }

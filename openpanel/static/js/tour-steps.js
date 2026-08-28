@@ -48,9 +48,11 @@ window.TOUR_STEPS = [
         path: '/dashboard',
         element: '#tour-icons-position',
         title: 'Icons Position',
-        description: 'Switch between showing the icon label below the icon (Top) or beside it (Start), whichever is easier to scan.',
-        side: 'bottom',
-        align: 'end'
+        description: 'Click your profile at the bottom of the sidebar, then use this toggle to switch between showing the icon label below the icon (Top) or beside it (Start), whichever is easier to scan.',
+        side: 'top',
+        align: 'start',
+        beforeShow: 'openProfileMenu',
+        beforeHide: 'closeProfileMenu'
     },
     {
         path: '/dashboard',
