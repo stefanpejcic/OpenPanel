@@ -6,6 +6,9 @@ import {
     PhpIcon,
     MonitorIcon,
     SelfHostedIcon,
+    RoutesIcon,
+    SupportIcon,
+    IdentityIcon,
 } from "@site/src/components/landing/icons";
 
 // The two items currently being worked on. Update this once they ship.
@@ -41,5 +44,17 @@ export const plannedFeatures = [
     {
         icon: <SelfHostedIcon />,
         title: "Ongoing improvements in container isolation",
+    },
+    {
+        icon: <RoutesIcon />,
+        title: "IP assignment for Resellers",
+    },
+    {
+        icon: <SupportIcon />,
+        title: "Message all users",
+    },
+    {
+        icon: <IdentityIcon />,
+        title: "Reseller rebranding",
     },
 ];
