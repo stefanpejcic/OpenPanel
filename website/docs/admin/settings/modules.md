@@ -912,6 +912,21 @@ When disabled:
 
 > **NOTE:** SofaWiki has no database, no tagged releases, and no CLI installer - the *Update* tab is not available for this type; the site owner completes SofaWiki's own setup wizard in the browser after install.
 
+## TinyPhotoGallery
+
+The **`tinyphotogallery`** module allows users to install and manage TinyPhotoGallery photo galleries.
+
+When enabled:
+* TinyPhotoGallery is available on the Autoinstaller page.
+* Users can install TinyPhotoGallery using Auto Installer.
+* Users can remove TinyPhotoGallery installations using Site Manager.
+
+When disabled:
+* TinyPhotoGallery is not available on the Autoinstaller page.
+* TinyPhotoGallery installations can not be managed via Openpanel.
+
+> **NOTE:** TinyPhotoGallery has no database, no admin account, no tagged releases, and no CLI installer - install is just downloading a single `index.php` file and creating an empty `photos/` folder next to it. There is no clone or backup support for this type, and no *Update* tab.
+
 ## DokuWiki
 
 The **`dokuwiki`** module allows users to install and manage DokuWiki wikis.

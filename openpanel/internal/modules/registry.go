@@ -56,6 +56,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/serverinfo"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/services"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/sofawiki"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/tinyphotogallery"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/trash"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/waf"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/webserverconf"
@@ -135,11 +136,15 @@ var configured = map[string]Registrar{
 		backupwizard.Register(mux, a)
 		backupwizard.RegisterAPI(mux, a)
 	},
-	"backups":    func(mux *http.ServeMux, a *appctx.App) { backups.Register(mux, a); backups.RegisterAPI(mux, a) },
-	"domains":    func(mux *http.ServeMux, a *appctx.App) { domains.Register(mux, a); domains.RegisterAPI(mux, a) },
-	"drupal":     func(mux *http.ServeMux, a *appctx.App) { drupal.Register(mux, a); drupal.RegisterAPI(mux, a) },
-	"flarum":     func(mux *http.ServeMux, a *appctx.App) { flarum.Register(mux, a); flarum.RegisterAPI(mux, a) },
-	"sofawiki":   func(mux *http.ServeMux, a *appctx.App) { sofawiki.Register(mux, a); sofawiki.RegisterAPI(mux, a) },
+	"backups":  func(mux *http.ServeMux, a *appctx.App) { backups.Register(mux, a); backups.RegisterAPI(mux, a) },
+	"domains":  func(mux *http.ServeMux, a *appctx.App) { domains.Register(mux, a); domains.RegisterAPI(mux, a) },
+	"drupal":   func(mux *http.ServeMux, a *appctx.App) { drupal.Register(mux, a); drupal.RegisterAPI(mux, a) },
+	"flarum":   func(mux *http.ServeMux, a *appctx.App) { flarum.Register(mux, a); flarum.RegisterAPI(mux, a) },
+	"sofawiki": func(mux *http.ServeMux, a *appctx.App) { sofawiki.Register(mux, a); sofawiki.RegisterAPI(mux, a) },
+	"tinyphotogallery": func(mux *http.ServeMux, a *appctx.App) {
+		tinyphotogallery.Register(mux, a)
+		tinyphotogallery.RegisterAPI(mux, a)
+	},
 	"dokuwiki":   func(mux *http.ServeMux, a *appctx.App) { dokuwiki.Register(mux, a); dokuwiki.RegisterAPI(mux, a) },
 	"phpbb":      func(mux *http.ServeMux, a *appctx.App) { phpbb.Register(mux, a); phpbb.RegisterAPI(mux, a) },
 	"joomla":     func(mux *http.ServeMux, a *appctx.App) { joomla.Register(mux, a); joomla.RegisterAPI(mux, a) },

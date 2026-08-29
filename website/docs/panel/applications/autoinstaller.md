@@ -25,6 +25,7 @@ For an application to appear on the Autoinstaller page, the corresponding module
 - SofaWiki
 - DokuWiki
 - phpBB
+- TinyPhotoGallery
 - Mautic
 - NodeJS Applications*
 - Python Applications*
