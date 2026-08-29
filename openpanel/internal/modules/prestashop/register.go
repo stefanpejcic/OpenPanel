@@ -46,4 +46,6 @@ func withPrestashopForm(r *http.Request, values url.Values) *http.Request {
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "prestashop", "POST /api/prestashop/install", func(w http.ResponseWriter, r *http.Request) { apiInstallPrestashop(a, w, r) })
 	apiregistry.Handle(mux, a, "prestashop", "DELETE /api/prestashop/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemovePrestashop(a, w, r) })
+	apiregistry.Handle(mux, a, "prestashop", "POST /api/prestashop/sites/{site_id}/clone", func(w http.ResponseWriter, r *http.Request) { apiClonePrestashop(a, w, r) })
+	apiregistry.Handle(mux, a, "prestashop", "POST /api/prestashop/sites/{site_id}/cache", func(w http.ResponseWriter, r *http.Request) { apiCachePrestashop(a, w, r) })
 }

@@ -44,4 +44,6 @@ func withOpenCartForm(r *http.Request, values url.Values) *http.Request {
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "opencart", "POST /api/opencart/install", func(w http.ResponseWriter, r *http.Request) { apiInstallOpenCart(a, w, r) })
 	apiregistry.Handle(mux, a, "opencart", "DELETE /api/opencart/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemoveOpenCart(a, w, r) })
+	apiregistry.Handle(mux, a, "opencart", "POST /api/opencart/sites/{site_id}/clone", func(w http.ResponseWriter, r *http.Request) { apiCloneOpenCart(a, w, r) })
+	apiregistry.Handle(mux, a, "opencart", "POST /api/opencart/sites/{site_id}/cache", func(w http.ResponseWriter, r *http.Request) { apiCacheOpenCart(a, w, r) })
 }

@@ -44,4 +44,7 @@ func withDrupalForm(r *http.Request, values url.Values) *http.Request {
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "drupal", "POST /api/drupal/install", func(w http.ResponseWriter, r *http.Request) { apiInstallDrupal(a, w, r) })
 	apiregistry.Handle(mux, a, "drupal", "DELETE /api/drupal/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemoveDrupal(a, w, r) })
+	apiregistry.Handle(mux, a, "drupal", "POST /api/drupal/sites/{site_id}/clone", func(w http.ResponseWriter, r *http.Request) { apiDrupalClone(a, w, r) })
+	apiregistry.Handle(mux, a, "drupal", "POST /api/drupal/sites/{site_id}/update", func(w http.ResponseWriter, r *http.Request) { apiDrupalUpdate(a, w, r) })
+	apiregistry.Handle(mux, a, "drupal", "POST /api/drupal/sites/{site_id}/cache", func(w http.ResponseWriter, r *http.Request) { apiDrupalCache(a, w, r) })
 }

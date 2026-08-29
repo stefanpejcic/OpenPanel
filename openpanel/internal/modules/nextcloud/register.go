@@ -47,4 +47,7 @@ func withNextcloudForm(r *http.Request, values url.Values) *http.Request {
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "nextcloud", "POST /api/nextcloud/install", func(w http.ResponseWriter, r *http.Request) { apiInstallNextcloud(a, w, r) })
 	apiregistry.Handle(mux, a, "nextcloud", "DELETE /api/nextcloud/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemoveNextcloud(a, w, r) })
+	apiregistry.Handle(mux, a, "nextcloud", "POST /api/nextcloud/sites/{site_id}/clone", func(w http.ResponseWriter, r *http.Request) { apiNextcloudClone(a, w, r) })
+	apiregistry.Handle(mux, a, "nextcloud", "POST /api/nextcloud/sites/{site_id}/update", func(w http.ResponseWriter, r *http.Request) { apiNextcloudUpdate(a, w, r) })
+	apiregistry.Handle(mux, a, "nextcloud", "POST /api/nextcloud/sites/{site_id}/cache", func(w http.ResponseWriter, r *http.Request) { apiNextcloudCache(a, w, r) })
 }

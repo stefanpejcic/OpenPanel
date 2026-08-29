@@ -42,4 +42,7 @@ func withFlarumForm(r *http.Request, values url.Values) *http.Request {
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "flarum", "POST /api/flarum/install", func(w http.ResponseWriter, r *http.Request) { apiInstallFlarum(a, w, r) })
 	apiregistry.Handle(mux, a, "flarum", "DELETE /api/flarum/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemoveFlarum(a, w, r) })
+	apiregistry.Handle(mux, a, "flarum", "POST /api/flarum/sites/{site_id}/clone", func(w http.ResponseWriter, r *http.Request) { apiFlarumClone(a, w, r) })
+	apiregistry.Handle(mux, a, "flarum", "POST /api/flarum/sites/{site_id}/update", func(w http.ResponseWriter, r *http.Request) { apiFlarumUpdate(a, w, r) })
+	apiregistry.Handle(mux, a, "flarum", "POST /api/flarum/sites/{site_id}/cache", func(w http.ResponseWriter, r *http.Request) { apiFlarumCache(a, w, r) })
 }

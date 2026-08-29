@@ -45,4 +45,7 @@ func withMoodleForm(r *http.Request, values url.Values) *http.Request {
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "moodle", "POST /api/moodle/install", func(w http.ResponseWriter, r *http.Request) { apiInstallMoodle(a, w, r) })
 	apiregistry.Handle(mux, a, "moodle", "DELETE /api/moodle/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemoveMoodle(a, w, r) })
+	apiregistry.Handle(mux, a, "moodle", "POST /api/moodle/sites/{site_id}/clone", func(w http.ResponseWriter, r *http.Request) { apiMoodleClone(a, w, r) })
+	apiregistry.Handle(mux, a, "moodle", "POST /api/moodle/sites/{site_id}/update", func(w http.ResponseWriter, r *http.Request) { apiMoodleUpdate(a, w, r) })
+	apiregistry.Handle(mux, a, "moodle", "POST /api/moodle/sites/{site_id}/cache", func(w http.ResponseWriter, r *http.Request) { apiMoodleCache(a, w, r) })
 }

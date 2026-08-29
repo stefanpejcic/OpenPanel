@@ -45,4 +45,5 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "joomla", "POST /api/joomla/install", func(w http.ResponseWriter, r *http.Request) { apiInstallJoomla(a, w, r) })
 	apiregistry.Handle(mux, a, "joomla", "DELETE /api/joomla/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemoveJoomla(a, w, r) })
 	apiregistry.Handle(mux, a, "joomla", "POST /api/joomla/clone", func(w http.ResponseWriter, r *http.Request) { apiCloneJoomla(a, w, r) })
+	apiregistry.Handle(mux, a, "joomla", "POST /api/joomla/sites/{site_id}/cache", func(w http.ResponseWriter, r *http.Request) { apiCacheJoomla(a, w, r) })
 }

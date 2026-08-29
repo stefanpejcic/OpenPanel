@@ -44,4 +44,6 @@ func withMediaWikiForm(r *http.Request, values url.Values) *http.Request {
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "mediawiki", "POST /api/mediawiki/install", func(w http.ResponseWriter, r *http.Request) { apiInstallMediaWiki(a, w, r) })
 	apiregistry.Handle(mux, a, "mediawiki", "DELETE /api/mediawiki/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemoveMediaWiki(a, w, r) })
+	apiregistry.Handle(mux, a, "mediawiki", "POST /api/mediawiki/sites/{site_id}/clone", func(w http.ResponseWriter, r *http.Request) { apiCloneMediaWiki(a, w, r) })
+	apiregistry.Handle(mux, a, "mediawiki", "POST /api/mediawiki/sites/{site_id}/update", func(w http.ResponseWriter, r *http.Request) { apiUpdateMediaWiki(a, w, r) })
 }

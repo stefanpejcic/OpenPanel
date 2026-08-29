@@ -40,4 +40,5 @@ func withSofawikiForm(r *http.Request, values url.Values) *http.Request {
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "sofawiki", "POST /api/sofawiki/install", func(w http.ResponseWriter, r *http.Request) { apiInstallSofawiki(a, w, r) })
 	apiregistry.Handle(mux, a, "sofawiki", "DELETE /api/sofawiki/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemoveSofawiki(a, w, r) })
+	apiregistry.Handle(mux, a, "sofawiki", "POST /api/sofawiki/sites/{site_id}/clone", func(w http.ResponseWriter, r *http.Request) { apiCloneSofawiki(a, w, r) })
 }

@@ -40,4 +40,5 @@ func withPhpbbForm(r *http.Request, values url.Values) *http.Request {
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "phpbb", "POST /api/phpbb/install", func(w http.ResponseWriter, r *http.Request) { apiInstallPhpbb(a, w, r) })
 	apiregistry.Handle(mux, a, "phpbb", "DELETE /api/phpbb/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemovePhpbb(a, w, r) })
+	apiregistry.Handle(mux, a, "phpbb", "POST /api/phpbb/sites/{site_id}/clone", func(w http.ResponseWriter, r *http.Request) { apiClonePhpbb(a, w, r) })
 }

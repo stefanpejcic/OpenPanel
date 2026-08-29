@@ -87,3 +87,31 @@ func apiCloneJoomla(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	handleJoomlaClone(a, w, withJoomlaForm(r, form))
 }
+
+// apiCacheJoomla resolves the path's {site_id} into the domain/docroot
+// handleJoomlaCacheClean expects, using the same "id" lookup query
+// apiRemoveJoomla (via handleRemoveJoomla) and manage.go use, then
+// delegates to it with domain/docroot set as URL query params
+// (joomlaRequestParams reads r.URL.Query(), not form values).
+func apiCacheJoomla(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	siteID := r.PathValue("site_id")
+
+	var siteName, docroot string
+	row := a.DB.QueryRowContext(r.Context(), `
+		SELECT sites.site_name, domains.docroot
+		FROM sites
+		JOIN domains ON domains.domain_url = SUBSTRING_INDEX(sites.site_name, '/', 1)
+		WHERE sites.id = ? AND sites.type = 'joomla'`, siteID)
+	if scanErr := row.Scan(&siteName, &docroot); scanErr != nil {
+		writeAPIJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
+		return
+	}
+
+	cloned := r.Clone(r.Context())
+	cloned.Method = http.MethodPost
+	q := cloned.URL.Query()
+	q.Set("domain", siteName)
+	q.Set("docroot", docroot)
+	cloned.URL.RawQuery = q.Encode()
+	handleJoomlaCacheClean(a, w, cloned)
+}

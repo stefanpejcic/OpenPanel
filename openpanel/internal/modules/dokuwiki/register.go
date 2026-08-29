@@ -39,4 +39,6 @@ func withDokuwikiForm(r *http.Request, values url.Values) *http.Request {
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "dokuwiki", "POST /api/dokuwiki/install", func(w http.ResponseWriter, r *http.Request) { apiInstallDokuwiki(a, w, r) })
 	apiregistry.Handle(mux, a, "dokuwiki", "DELETE /api/dokuwiki/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemoveDokuwiki(a, w, r) })
+	apiregistry.Handle(mux, a, "dokuwiki", "POST /api/dokuwiki/sites/{site_id}/clone", func(w http.ResponseWriter, r *http.Request) { apiCloneDokuwiki(a, w, r) })
+	apiregistry.Handle(mux, a, "dokuwiki", "POST /api/dokuwiki/sites/{site_id}/update", func(w http.ResponseWriter, r *http.Request) { apiUpdateDokuwiki(a, w, r) })
 }

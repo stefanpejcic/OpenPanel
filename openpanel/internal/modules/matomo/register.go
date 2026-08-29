@@ -46,4 +46,7 @@ func withMatomoForm(r *http.Request, values url.Values) *http.Request {
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "matomo", "POST /api/matomo/install", func(w http.ResponseWriter, r *http.Request) { apiInstallMatomo(a, w, r) })
 	apiregistry.Handle(mux, a, "matomo", "DELETE /api/matomo/sites/{site_id}", func(w http.ResponseWriter, r *http.Request) { apiRemoveMatomo(a, w, r) })
+	apiregistry.Handle(mux, a, "matomo", "POST /api/matomo/sites/{site_id}/clone", func(w http.ResponseWriter, r *http.Request) { apiMatomoClone(a, w, r) })
+	apiregistry.Handle(mux, a, "matomo", "POST /api/matomo/sites/{site_id}/update", func(w http.ResponseWriter, r *http.Request) { apiMatomoUpdate(a, w, r) })
+	apiregistry.Handle(mux, a, "matomo", "POST /api/matomo/sites/{site_id}/cache", func(w http.ResponseWriter, r *http.Request) { apiMatomoCache(a, w, r) })
 }

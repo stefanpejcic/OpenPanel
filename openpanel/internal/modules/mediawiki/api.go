@@ -75,3 +75,94 @@ func apiRemoveMediaWiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	cloned.URL.RawQuery = q.Encode()
 	handleRemoveMediaWiki(a, w, cloned)
 }
+
+// resolveMediaWikiSiteID looks up the path's {site_id} the same way
+// apiRemoveMediaWiki (via handleRemoveMediaWiki) and manage.go's own "id"
+// lookup do, returning the site's full site_name (domain[/subdirectory])
+// and docroot.
+func resolveMediaWikiSiteID(a *appctx.App, r *http.Request, siteID string) (siteName, docroot string, ok bool) {
+	row := a.DB.QueryRowContext(r.Context(), `
+		SELECT sites.site_name, domains.docroot
+		FROM sites
+		JOIN domains ON domains.domain_url = SUBSTRING_INDEX(sites.site_name, '/', 1)
+		WHERE sites.id = ? AND sites.type = 'mediawiki'`, siteID)
+	if err := row.Scan(&siteName, &docroot); err != nil {
+		return "", "", false
+	}
+	return siteName, docroot, true
+}
+
+// apiCloneMediaWiki resolves the path's {site_id} into the source domain/
+// docroot handleMediaWikiClone expects as source_domain/source_folder
+// (same "id" lookup as apiRemoveMediaWiki), derives source_db from
+// LocalSettings.php via extractMediaWikiDatabaseInfoForLogin (the same
+// helper mediawiki_app.html's clone form's server-rendered source_db value
+// comes from), and takes the destination-side fields from the JSON body.
+func apiCloneMediaWiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	siteID := r.PathValue("site_id")
+	siteName, docroot, ok := resolveMediaWikiSiteID(a, r, siteID)
+	if !ok {
+		writeAPIJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
+		return
+	}
+
+	_, _, userContext, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	dbInfo := extractMediaWikiDatabaseInfoForLogin(userContext, docroot)
+	sourceDB := dbInfo["database_name"]
+	if sourceDB == "" {
+		writeAPIJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not determine source database: " + dbInfo["error"]})
+		return
+	}
+
+	var body struct {
+		TargetDomain         string `json:"target_domain"`
+		Subdirectory         string `json:"subdirectory"`
+		TargetDB             string `json:"target_db"`
+		TargetDBUser         string `json:"target_db_user"`
+		TargetDBUserPassword string `json:"target_db_user_password"`
+		AdminEmail           string `json:"admin_email"`
+		MediaWikiVersion     string `json:"mediawiki_version"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
+		return
+	}
+	if body.TargetDomain == "" {
+		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "target_domain is required"})
+		return
+	}
+
+	form := url.Values{
+		"source_domain": {siteName}, "source_folder": {docroot}, "source_db": {sourceDB},
+		"target_domain": {body.TargetDomain}, "subdirectory": {body.Subdirectory},
+		"target_db": {body.TargetDB}, "target_db_user": {body.TargetDBUser}, "target_db_user_password": {body.TargetDBUserPassword},
+		"admin_email": {body.AdminEmail}, "mediawiki_version": {body.MediaWikiVersion},
+	}
+	handleMediaWikiClone(a, w, withMediaWikiForm(r, form))
+}
+
+// apiUpdateMediaWiki resolves the path's {site_id} the same way
+// apiCloneMediaWiki does, then delegates to handleMediaWikiUpdate with
+// domain/docroot set as URL query params (that handler reads
+// r.URL.Query(), not form values) - the NDJSON progress stream is written
+// directly to the response as-is.
+func apiUpdateMediaWiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	siteID := r.PathValue("site_id")
+	siteName, docroot, ok := resolveMediaWikiSiteID(a, r, siteID)
+	if !ok {
+		writeAPIJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
+		return
+	}
+
+	cloned := r.Clone(r.Context())
+	cloned.Method = http.MethodPost
+	q := cloned.URL.Query()
+	q.Set("domain", siteName)
+	q.Set("docroot", docroot)
+	cloned.URL.RawQuery = q.Encode()
+	handleMediaWikiUpdate(a, w, cloned)
+}
