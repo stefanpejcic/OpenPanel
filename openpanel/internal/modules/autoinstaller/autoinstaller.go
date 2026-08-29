@@ -21,7 +21,7 @@ import (
 // card in the template - the rest are counted but never displayed.
 var technologies = []string{
 	"wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "sitebuilder", "node", "python", "php",
-	"java", "ruby", "bun", "mautic", "flarum", "fossbilling", "tinyphotogallery",
+	"java", "ruby", "bun", "mautic", "flarum", "fossbilling", "tinyphotogallery", "tinyfilemanager",
 }
 
 // getAutoinstallerData returns every domain the user owns, plus a

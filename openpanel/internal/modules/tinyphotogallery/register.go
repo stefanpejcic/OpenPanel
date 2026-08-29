@@ -19,6 +19,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}
 	mux.Handle("/tinyphotogallery/install", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleInstallPage(a, w, r) }))
 	mux.Handle("POST /tinyphotogallery/remove", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemoveTinyPhotoGallery(a, w, r) }))
+	mux.Handle("GET /tinyphotogallery/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTinyPhotoGalleryGetBackupDates(a, w, r) }))
+	mux.Handle("GET /tinyphotogallery/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTinyPhotoGalleryRestoreBackup(a, w, r) }))
+	mux.Handle("GET /tinyphotogallery/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTinyPhotoGalleryRunBackup(a, w, r) }))
 }
 
 // withTinyPhotoGalleryForm clones r as a POST carrying the given values as

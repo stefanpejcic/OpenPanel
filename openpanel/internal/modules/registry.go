@@ -56,6 +56,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/serverinfo"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/services"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/sofawiki"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/tinyfilemanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/tinyphotogallery"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/trash"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/waf"
@@ -144,6 +145,10 @@ var configured = map[string]Registrar{
 	"tinyphotogallery": func(mux *http.ServeMux, a *appctx.App) {
 		tinyphotogallery.Register(mux, a)
 		tinyphotogallery.RegisterAPI(mux, a)
+	},
+	"tinyfilemanager": func(mux *http.ServeMux, a *appctx.App) {
+		tinyfilemanager.Register(mux, a)
+		tinyfilemanager.RegisterAPI(mux, a)
 	},
 	"dokuwiki":   func(mux *http.ServeMux, a *appctx.App) { dokuwiki.Register(mux, a); dokuwiki.RegisterAPI(mux, a) },
 	"phpbb":      func(mux *http.ServeMux, a *appctx.App) { phpbb.Register(mux, a); phpbb.RegisterAPI(mux, a) },

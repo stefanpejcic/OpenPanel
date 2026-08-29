@@ -70,6 +70,19 @@ func checkBackupFilesExist(a *appctx.App, r *http.Request, selectedDomain string
 // (/var/www/html/<...>) - the docroot volume is bind-mounted from
 // docker-data/volumes/<userContext>_html_data/_data/ under that home
 // directory, so that's the prefix used to translate one into the other.
+// dirHasEntries reports whether the given container-facing path (e.g.
+// docroot+"/photos") exists and is non-empty on the host, translating it
+// via the same html_data volume prefix explorerHref uses.
+func dirHasEntries(userContext, containerPath string) bool {
+	rel := strings.TrimPrefix(containerPath, "/var/www/html/")
+	hostPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + rel
+	entries, err := os.ReadDir(hostPath)
+	if err != nil {
+		return false
+	}
+	return len(entries) > 0
+}
+
 func explorerHref(base, userContext, docroot string) string {
 	rel := strings.TrimPrefix(docroot, "/var/www/html/")
 	full := "docker-data/volumes/" + userContext + "_html_data/_data/" + rel
@@ -258,6 +271,35 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		renderSofawikiAppPage(a, w, r, SofawikiAppPageData{
+			pageData:             basePageData,
+			Domains:              domains,
+			Container:            container,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
+		})
+
+	case "tinyphotogallery":
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
+		renderTinyPhotoGalleryAppPage(a, w, r, TinyPhotoGalleryAppPageData{
+			pageData:             basePageData,
+			Domains:              domains,
+			Container:            container,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
+			HasPhotos:            dirHasEntries(userContext, docroot+"/photos"),
+		})
+
+	case "tinyfilemanager":
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
+		renderTinyFileManagerAppPage(a, w, r, TinyFileManagerAppPageData{
 			pageData:             basePageData,
 			Domains:              domains,
 			Container:            container,

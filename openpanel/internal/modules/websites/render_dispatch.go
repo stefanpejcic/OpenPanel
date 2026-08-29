@@ -143,6 +143,62 @@ func renderSofawikiAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 }
 
+var tinyphotogalleryAppPage = loadPage("manager/tinyphotogallery_app.html")
+
+// TinyPhotoGalleryAppPageData is manager/tinyphotogallery_app.html's template context.
+type TinyPhotoGalleryAppPageData struct {
+	pageData
+	Domains              []appctx.Domain
+	Container            ContainerInfo
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+	// HasPhotos is true once photos/ has at least one entry - at that
+	// point the gallery is clearly in use, so the "Setup" info box (which
+	// just explains how to add photos) is redundant and hidden.
+	HasPhotos bool
+}
+
+func renderTinyPhotoGalleryAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data TinyPhotoGalleryAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := tinyphotogalleryAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - tinyphotogallery_app template render error: %v", err)
+	}
+}
+
+var tinyfilemanagerAppPage = loadPage("manager/tinyfilemanager_app.html")
+
+// TinyFileManagerAppPageData is manager/tinyfilemanager_app.html's template context.
+type TinyFileManagerAppPageData struct {
+	pageData
+	Domains              []appctx.Domain
+	Container            ContainerInfo
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderTinyFileManagerAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data TinyFileManagerAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := tinyfilemanagerAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - tinyfilemanager_app template render error: %v", err)
+	}
+}
+
 var phpbbAppPage = loadPage("manager/phpbb_app.html")
 
 // PhpbbAppPageData is manager/phpbb_app.html's template context.

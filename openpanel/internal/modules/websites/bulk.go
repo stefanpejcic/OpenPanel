@@ -42,6 +42,7 @@ var cmsRemoveTypes = map[string]bool{
 	"wordpress": true, "joomla": true, "opencart": true, "nextcloud": true,
 	"prestashop": true, "drupal": true, "matomo": true, "moodle": true,
 	"mediawiki": true, "flarum": true, "sofawiki": true, "dokuwiki": true, "phpbb": true,
+	"tinyphotogallery": true, "tinyfilemanager": true,
 }
 
 // cmsBackupTypes covers every type with a working GET /<type>/backup/run
