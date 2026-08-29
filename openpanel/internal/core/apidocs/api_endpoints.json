@@ -1815,6 +1815,31 @@
         "method": "DELETE",
         "path": "/api/drupal/sites/<id>",
         "description": "Uninstall Drupal: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/drupal/sites/<id>/clone",
+        "description": "Clone this Drupal site to another domain (or subdirectory). Requires target_domain and source_db; returns a single JSON response.",
+        "body": {
+          "target_domain": "clone.example.com",
+          "source_db": "drupal_source",
+          "subdirectory": "",
+          "target_db": "",
+          "target_db_user": "",
+          "target_db_user_password": "",
+          "admin_email": "admin@example.com",
+          "drupal_version": ""
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/drupal/sites/<id>/update",
+        "description": "Update Drupal to the latest version via drush. Streams newline-delimited JSON progress events, ending with {\"status\":\"Update completed!\",\"version\":\"...\"} or an {\"error\":\"...\"} line."
+      },
+      {
+        "method": "POST",
+        "path": "/api/drupal/sites/<id>/cache",
+        "description": "Rebuild the Drupal cache via drush cache:rebuild. Returns {\"message\":\"Cache rebuilt successfully.\"}."
       }
     ]
   },
@@ -1844,6 +1869,11 @@
         "method": "DELETE",
         "path": "/api/joomla/sites/<id>",
         "description": "Uninstall Joomla: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/joomla/sites/<id>/cache",
+        "description": "Clear the Joomla cache. Returns {\"message\":\"Cache cleared successfully.\"}."
       }
     ]
   },
@@ -1871,6 +1901,25 @@
         "method": "DELETE",
         "path": "/api/opencart/sites/<id>",
         "description": "Uninstall OpenCart: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/opencart/sites/<id>/clone",
+        "description": "Clone this OpenCart site to another domain (or subdirectory). source_db is derived automatically from the site's config.php; only target_domain is required. Returns a single JSON response.",
+        "body": {
+          "target_domain": "clone.example.com",
+          "subdirectory": "",
+          "target_db": "",
+          "target_db_user": "",
+          "target_db_user_password": "",
+          "admin_email": "admin@example.com",
+          "opencart_version": ""
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/opencart/sites/<id>/cache",
+        "description": "Clear the OpenCart cache. Returns {\"message\":\"Cache cleared successfully.\"}."
       }
     ]
   },
@@ -1898,6 +1947,31 @@
         "method": "DELETE",
         "path": "/api/nextcloud/sites/<id>",
         "description": "Uninstall Nextcloud: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/nextcloud/sites/<id>/clone",
+        "description": "Clone this Nextcloud site to another domain (or subdirectory). Requires target_domain and source_db; returns a single JSON response.",
+        "body": {
+          "target_domain": "clone.example.com",
+          "source_db": "nextcloud_source",
+          "subdirectory": "",
+          "target_db": "",
+          "target_db_user": "",
+          "target_db_user_password": "",
+          "admin_email": "admin@example.com",
+          "nextcloud_version": ""
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/nextcloud/sites/<id>/update",
+        "description": "Update Nextcloud to the latest version via occ upgrade. Streams newline-delimited JSON progress events, ending with {\"status\":\"Update completed!\",\"version\":\"...\"} or an {\"error\":\"...\"} line."
+      },
+      {
+        "method": "POST",
+        "path": "/api/nextcloud/sites/<id>/cache",
+        "description": "Clear the Nextcloud cache. Returns {\"message\":\"Cache cleared successfully.\"}."
       }
     ]
   },
@@ -1926,6 +2000,341 @@
         "method": "DELETE",
         "path": "/api/prestashop/sites/<id>",
         "description": "Uninstall PrestaShop: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/prestashop/sites/<id>/clone",
+        "description": "Clone this PrestaShop site to another domain (or subdirectory). source_db is derived automatically from the site's app/config/parameters.php; only target_domain is required. Returns a single JSON response.",
+        "body": {
+          "target_domain": "clone.example.com",
+          "subdirectory": "",
+          "target_db": "",
+          "target_db_user": "",
+          "target_db_user_password": "",
+          "admin_email": "admin@example.com",
+          "prestashop_version": ""
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/prestashop/sites/<id>/cache",
+        "description": "Clear the PrestaShop cache. Returns {\"message\":\"Cache cleared successfully.\"}."
+      }
+    ]
+  },
+  {
+    "group": "Flarum",
+    "feature": "flarum",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/flarum/install",
+        "description": "Install Flarum on a domain. Streams newline-delimited JSON progress events as the install runs (composer create-project, database setup, flarum install).",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "site_name": "My Flarum Forum",
+          "flarum_version": "",
+          "admin_username": "admin",
+          "admin_password": "changeme",
+          "admin_email": "admin@example.com",
+          "db_name": "",
+          "db_user": "",
+          "db_password": ""
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/flarum/sites/<id>",
+        "description": "Uninstall Flarum: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/flarum/sites/<id>/clone",
+        "description": "Clone this Flarum site to another domain (or subdirectory). Requires target_domain and source_db; returns a single JSON response.",
+        "body": {
+          "target_domain": "clone.example.com",
+          "source_db": "flarum_source",
+          "subdirectory": "",
+          "target_db": "",
+          "target_db_user": "",
+          "target_db_user_password": "",
+          "admin_email": "admin@example.com",
+          "flarum_version": ""
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/flarum/sites/<id>/update",
+        "description": "Update Flarum to the latest version via composer require + flarum migrate. Streams newline-delimited JSON progress events, ending with {\"status\":\"Update completed!\",\"version\":\"...\"} or an {\"error\":\"...\"} line."
+      },
+      {
+        "method": "POST",
+        "path": "/api/flarum/sites/<id>/cache",
+        "description": "Clear the Flarum cache. Returns {\"message\":\"Cache cleared successfully.\"}."
+      }
+    ]
+  },
+  {
+    "group": "Matomo",
+    "feature": "matomo",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/matomo/install",
+        "description": "Install Matomo on a domain. Streams newline-delimited JSON progress events as the install runs (download, extraction, database setup, CLI install).",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "matomo_version": "",
+          "admin_login": "admin",
+          "admin_password": "changeme",
+          "admin_email": "admin@example.com",
+          "db_name": "",
+          "db_user": "",
+          "db_password": ""
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/matomo/sites/<id>",
+        "description": "Uninstall Matomo: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/matomo/sites/<id>/clone",
+        "description": "Clone this Matomo site to another domain (or subdirectory). Requires target_domain and source_db; returns a single JSON response.",
+        "body": {
+          "target_domain": "clone.example.com",
+          "source_db": "matomo_source",
+          "subdirectory": "",
+          "target_db": "",
+          "target_db_user": "",
+          "target_db_user_password": "",
+          "admin_email": "admin@example.com",
+          "matomo_version": ""
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/matomo/sites/<id>/update",
+        "description": "Update Matomo to the latest version via console core:update. Streams newline-delimited JSON progress events, ending with {\"status\":\"Update completed!\",\"version\":\"...\"} or an {\"error\":\"...\"} line."
+      },
+      {
+        "method": "POST",
+        "path": "/api/matomo/sites/<id>/cache",
+        "description": "Clear the Matomo cache. Returns {\"message\":\"Cache cleared successfully.\"}."
+      }
+    ]
+  },
+  {
+    "group": "Moodle",
+    "feature": "moodle",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/moodle/install",
+        "description": "Install Moodle on a domain. Streams newline-delimited JSON progress events as the install runs (download, extraction, database setup, admin/cli/install.php).",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "moodle_version": "",
+          "site_name": "My Moodle Site",
+          "site_shortname": "moodle",
+          "admin_username": "admin",
+          "admin_password": "changeme",
+          "admin_email": "admin@example.com",
+          "db_name": "",
+          "db_user": "",
+          "db_password": ""
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/moodle/sites/<id>",
+        "description": "Uninstall Moodle: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/moodle/sites/<id>/clone",
+        "description": "Clone this Moodle site to another domain (or subdirectory). Requires target_domain and source_db; returns a single JSON response.",
+        "body": {
+          "target_domain": "clone.example.com",
+          "source_db": "moodle_source",
+          "subdirectory": "",
+          "target_db": "",
+          "target_db_user": "",
+          "target_db_user_password": "",
+          "admin_email": "admin@example.com",
+          "moodle_version": ""
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/moodle/sites/<id>/update",
+        "description": "Update Moodle to the latest version via admin/cli/upgrade.php. Streams newline-delimited JSON progress events, ending with {\"status\":\"Update completed!\",\"version\":\"...\"} or an {\"error\":\"...\"} line."
+      },
+      {
+        "method": "POST",
+        "path": "/api/moodle/sites/<id>/cache",
+        "description": "Purge the Moodle caches. Returns {\"message\":\"Caches purged successfully.\"}."
+      }
+    ]
+  },
+  {
+    "group": "MediaWiki",
+    "feature": "mediawiki",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/mediawiki/install",
+        "description": "Install MediaWiki on a domain. Streams newline-delimited JSON progress events as the install runs (download, extraction, database setup, CLI install).",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "mediawiki_version": "",
+          "site_name": "My Wiki",
+          "admin_username": "admin",
+          "admin_password": "changeme",
+          "admin_email": "admin@example.com",
+          "db_name": "",
+          "db_user": "",
+          "db_password": ""
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/mediawiki/sites/<id>",
+        "description": "Uninstall MediaWiki: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/mediawiki/sites/<id>/clone",
+        "description": "Clone this MediaWiki site to another domain (or subdirectory). source_db is derived automatically from the site's LocalSettings.php; only target_domain is required. Returns a single JSON response.",
+        "body": {
+          "target_domain": "clone.example.com",
+          "subdirectory": "",
+          "target_db": "",
+          "target_db_user": "",
+          "target_db_user_password": "",
+          "admin_email": "admin@example.com",
+          "mediawiki_version": ""
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/mediawiki/sites/<id>/update",
+        "description": "Update MediaWiki to the latest version via maintenance/update.php. Streams newline-delimited JSON progress events, ending with {\"status\":\"Update completed!\",\"version\":\"...\"} or an {\"error\":\"...\"} line."
+      }
+    ]
+  },
+  {
+    "group": "DokuWiki",
+    "feature": "dokuwiki",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/dokuwiki/install",
+        "description": "Install DokuWiki on a domain. DokuWiki is a flat-file CMS, so no database fields are needed. Streams newline-delimited JSON progress events as the install runs (download, extraction, admin account setup).",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "admin_email": "admin@example.com",
+          "admin_user": "admin",
+          "admin_password": "changeme",
+          "admin_full_name": "Admin User",
+          "site_title": "My DokuWiki"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/dokuwiki/sites/<id>",
+        "description": "Uninstall DokuWiki: deletes every file in the docroot and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/dokuwiki/sites/<id>/clone",
+        "description": "Clone this DokuWiki site to another domain (or subdirectory). DokuWiki is a flat-file CMS, so no database fields are needed; only target_domain is required. Returns a single JSON response.",
+        "body": {
+          "target_domain": "clone.example.com",
+          "subdirectory": "",
+          "admin_email": "admin@example.com"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/dokuwiki/sites/<id>/update",
+        "description": "Update DokuWiki to the latest release. Streams newline-delimited JSON progress events, ending with {\"status\":\"Update completed!\",\"version\":\"...\"} (or {\"status\":\"Already running the latest version (...)\",\"version\":\"...\"} if already current) or an {\"error\":\"...\"} line."
+      }
+    ]
+  },
+  {
+    "group": "SofaWiki",
+    "feature": "sofawiki",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/sofawiki/install",
+        "description": "Install SofaWiki on a domain. SofaWiki is a flat-file CMS, so no database fields are needed. Streams newline-delimited JSON progress events as the install runs.",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "admin_email": "admin@example.com"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/sofawiki/sites/<id>",
+        "description": "Uninstall SofaWiki: deletes every file in the docroot and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/sofawiki/sites/<id>/clone",
+        "description": "Clone this SofaWiki site to another domain (or subdirectory). SofaWiki is a flat-file CMS, so no database fields are needed; only target_domain is required. Returns a single JSON response.",
+        "body": {
+          "target_domain": "clone.example.com",
+          "subdirectory": "",
+          "admin_email": "admin@example.com"
+        }
+      }
+    ]
+  },
+  {
+    "group": "phpBB",
+    "feature": "phpbb",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/phpbb/install",
+        "description": "Install phpBB on a domain. Streams newline-delimited JSON progress events as the install runs (download, extraction, database setup, CLI install).",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "board_name": "My Board",
+          "board_description": "A phpBB forum",
+          "admin_username": "admin",
+          "admin_password": "changeme",
+          "admin_email": "admin@example.com"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/phpbb/sites/<id>",
+        "description": "Uninstall phpBB: drops the database and user, deletes every file in the docroot, and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/phpbb/sites/<id>/clone",
+        "description": "Clone this phpBB site to another domain (or subdirectory). source_db is derived automatically from the site's config.php; only target_domain is required. Returns a single JSON response.",
+        "body": {
+          "target_domain": "clone.example.com",
+          "subdirectory": "",
+          "target_db": "",
+          "target_db_user": "",
+          "target_db_user_password": "",
+          "admin_email": "admin@example.com",
+          "version": ""
+        }
       }
     ]
   },

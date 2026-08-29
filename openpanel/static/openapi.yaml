@@ -102,6 +102,20 @@ tags:
   description: Requires the `nextcloud` feature to be enabled on the account's plan.
 - name: PrestaShop
   description: Requires the `prestashop` feature to be enabled on the account's plan.
+- name: Flarum
+  description: Requires the `flarum` feature to be enabled on the account's plan.
+- name: Matomo
+  description: Requires the `matomo` feature to be enabled on the account's plan.
+- name: Moodle
+  description: Requires the `moodle` feature to be enabled on the account's plan.
+- name: MediaWiki
+  description: Requires the `mediawiki` feature to be enabled on the account's plan.
+- name: DokuWiki
+  description: Requires the `dokuwiki` feature to be enabled on the account's plan.
+- name: SofaWiki
+  description: Requires the `sofawiki` feature to be enabled on the account's plan.
+- name: phpBB
+  description: Requires the `phpbb` feature to be enabled on the account's plan.
 - name: WordPress
   description: Requires the `wordpress` feature to be enabled on the account's plan.
 - name: Node.js / Python Apps
@@ -6818,6 +6832,120 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/drupal/sites/{id}/clone:
+    post:
+      summary: Clone this Drupal site to another domain (or subdirectory). Requires target_domain and
+        source_db; returns a single JSON response.
+      operationId: drupal_sites_id_clone
+      tags:
+      - Drupal
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                source_db:
+                  type: string
+                  example: drupal_source
+                subdirectory:
+                  type: string
+                  example: ''
+                target_db:
+                  type: string
+                  example: ''
+                target_db_user:
+                  type: string
+                  example: ''
+                target_db_user_password:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                drupal_version:
+                  type: string
+                  example: ''
+              example:
+                target_domain: clone.example.com
+                source_db: drupal_source
+                subdirectory: ''
+                target_db: ''
+                target_db_user: ''
+                target_db_user_password: ''
+                admin_email: admin@example.com
+                drupal_version: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/drupal/sites/{id}/update:
+    post:
+      summary: Update Drupal to the latest version via drush. Streams newline-delimited JSON progress
+        events, ending with {"status":"Update completed!","version":"..."} or an {"error":"..."} line.
+      operationId: drupal_sites_id_update
+      tags:
+      - Drupal
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/drupal/sites/{id}/cache:
+    post:
+      summary: Rebuild the Drupal cache via drush cache:rebuild. Returns {"message":"Cache rebuilt successfully."}.
+      operationId: drupal_sites_id_cache
+      tags:
+      - Drupal
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/joomla/install:
     post:
       summary: Install Joomla on a domain by downloading the release archive from GitHub and running Joomla's
@@ -6915,6 +7043,30 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/joomla/sites/{id}/cache:
+    post:
+      summary: Clear the Joomla cache. Returns {"message":"Cache cleared successfully."}.
+      operationId: joomla_sites_id_cache
+      tags:
+      - Joomla
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/opencart/install:
     post:
       summary: Install OpenCart on a domain by downloading the release archive from GitHub and running
@@ -6984,6 +7136,91 @@ paths:
       summary: 'Uninstall OpenCart: drops the database and user, deletes every file in the docroot, and
         removes it from Site Manager.'
       operationId: opencart_sites_id
+      tags:
+      - OpenCart
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/opencart/sites/{id}/clone:
+    post:
+      summary: Clone this OpenCart site to another domain (or subdirectory). source_db is derived automatically
+        from the site's config.php; only target_domain is required. Returns a single JSON response.
+      operationId: opencart_sites_id_clone
+      tags:
+      - OpenCart
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                subdirectory:
+                  type: string
+                  example: ''
+                target_db:
+                  type: string
+                  example: ''
+                target_db_user:
+                  type: string
+                  example: ''
+                target_db_user_password:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                opencart_version:
+                  type: string
+                  example: ''
+              example:
+                target_domain: clone.example.com
+                subdirectory: ''
+                target_db: ''
+                target_db_user: ''
+                target_db_user_password: ''
+                admin_email: admin@example.com
+                opencart_version: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/opencart/sites/{id}/cache:
+    post:
+      summary: Clear the OpenCart cache. Returns {"message":"Cache cleared successfully."}.
+      operationId: opencart_sites_id_cache
       tags:
       - OpenCart
       parameters:
@@ -7094,6 +7331,121 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/nextcloud/sites/{id}/clone:
+    post:
+      summary: Clone this Nextcloud site to another domain (or subdirectory). Requires target_domain and
+        source_db; returns a single JSON response.
+      operationId: nextcloud_sites_id_clone
+      tags:
+      - Nextcloud
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                source_db:
+                  type: string
+                  example: nextcloud_source
+                subdirectory:
+                  type: string
+                  example: ''
+                target_db:
+                  type: string
+                  example: ''
+                target_db_user:
+                  type: string
+                  example: ''
+                target_db_user_password:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                nextcloud_version:
+                  type: string
+                  example: ''
+              example:
+                target_domain: clone.example.com
+                source_db: nextcloud_source
+                subdirectory: ''
+                target_db: ''
+                target_db_user: ''
+                target_db_user_password: ''
+                admin_email: admin@example.com
+                nextcloud_version: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/nextcloud/sites/{id}/update:
+    post:
+      summary: Update Nextcloud to the latest version via occ upgrade. Streams newline-delimited JSON
+        progress events, ending with {"status":"Update completed!","version":"..."} or an {"error":"..."}
+        line.
+      operationId: nextcloud_sites_id_update
+      tags:
+      - Nextcloud
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/nextcloud/sites/{id}/cache:
+    post:
+      summary: Clear the Nextcloud cache. Returns {"message":"Cache cleared successfully."}.
+      operationId: nextcloud_sites_id_cache
+      tags:
+      - Nextcloud
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/prestashop/install:
     post:
       summary: Install PrestaShop on a domain by downloading the release archive from GitHub and running
@@ -7176,6 +7528,1292 @@ paths:
         required: true
         schema:
           type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/prestashop/sites/{id}/clone:
+    post:
+      summary: Clone this PrestaShop site to another domain (or subdirectory). source_db is derived automatically
+        from the site's app/config/parameters.php; only target_domain is required. Returns a single JSON
+        response.
+      operationId: prestashop_sites_id_clone
+      tags:
+      - PrestaShop
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                subdirectory:
+                  type: string
+                  example: ''
+                target_db:
+                  type: string
+                  example: ''
+                target_db_user:
+                  type: string
+                  example: ''
+                target_db_user_password:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                prestashop_version:
+                  type: string
+                  example: ''
+              example:
+                target_domain: clone.example.com
+                subdirectory: ''
+                target_db: ''
+                target_db_user: ''
+                target_db_user_password: ''
+                admin_email: admin@example.com
+                prestashop_version: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/prestashop/sites/{id}/cache:
+    post:
+      summary: Clear the PrestaShop cache. Returns {"message":"Cache cleared successfully."}.
+      operationId: prestashop_sites_id_cache
+      tags:
+      - PrestaShop
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/flarum/install:
+    post:
+      summary: Install Flarum on a domain. Streams newline-delimited JSON progress events as the install
+        runs (composer create-project, database setup, flarum install).
+      operationId: flarum_install
+      tags:
+      - Flarum
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                site_name:
+                  type: string
+                  example: My Flarum Forum
+                flarum_version:
+                  type: string
+                  example: ''
+                admin_username:
+                  type: string
+                  example: admin
+                admin_password:
+                  type: string
+                  example: changeme
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                db_name:
+                  type: string
+                  example: ''
+                db_user:
+                  type: string
+                  example: ''
+                db_password:
+                  type: string
+                  example: ''
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                site_name: My Flarum Forum
+                flarum_version: ''
+                admin_username: admin
+                admin_password: changeme
+                admin_email: admin@example.com
+                db_name: ''
+                db_user: ''
+                db_password: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/flarum/sites/{id}:
+    delete:
+      summary: 'Uninstall Flarum: drops the database and user, deletes every file in the docroot, and
+        removes it from Site Manager.'
+      operationId: flarum_sites_id
+      tags:
+      - Flarum
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/flarum/sites/{id}/clone:
+    post:
+      summary: Clone this Flarum site to another domain (or subdirectory). Requires target_domain and
+        source_db; returns a single JSON response.
+      operationId: flarum_sites_id_clone
+      tags:
+      - Flarum
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                source_db:
+                  type: string
+                  example: flarum_source
+                subdirectory:
+                  type: string
+                  example: ''
+                target_db:
+                  type: string
+                  example: ''
+                target_db_user:
+                  type: string
+                  example: ''
+                target_db_user_password:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                flarum_version:
+                  type: string
+                  example: ''
+              example:
+                target_domain: clone.example.com
+                source_db: flarum_source
+                subdirectory: ''
+                target_db: ''
+                target_db_user: ''
+                target_db_user_password: ''
+                admin_email: admin@example.com
+                flarum_version: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/flarum/sites/{id}/update:
+    post:
+      summary: Update Flarum to the latest version via composer require + flarum migrate. Streams newline-delimited
+        JSON progress events, ending with {"status":"Update completed!","version":"..."} or an {"error":"..."}
+        line.
+      operationId: flarum_sites_id_update
+      tags:
+      - Flarum
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/flarum/sites/{id}/cache:
+    post:
+      summary: Clear the Flarum cache. Returns {"message":"Cache cleared successfully."}.
+      operationId: flarum_sites_id_cache
+      tags:
+      - Flarum
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/matomo/install:
+    post:
+      summary: Install Matomo on a domain. Streams newline-delimited JSON progress events as the install
+        runs (download, extraction, database setup, CLI install).
+      operationId: matomo_install
+      tags:
+      - Matomo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                matomo_version:
+                  type: string
+                  example: ''
+                admin_login:
+                  type: string
+                  example: admin
+                admin_password:
+                  type: string
+                  example: changeme
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                db_name:
+                  type: string
+                  example: ''
+                db_user:
+                  type: string
+                  example: ''
+                db_password:
+                  type: string
+                  example: ''
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                matomo_version: ''
+                admin_login: admin
+                admin_password: changeme
+                admin_email: admin@example.com
+                db_name: ''
+                db_user: ''
+                db_password: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/matomo/sites/{id}:
+    delete:
+      summary: 'Uninstall Matomo: drops the database and user, deletes every file in the docroot, and
+        removes it from Site Manager.'
+      operationId: matomo_sites_id
+      tags:
+      - Matomo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/matomo/sites/{id}/clone:
+    post:
+      summary: Clone this Matomo site to another domain (or subdirectory). Requires target_domain and
+        source_db; returns a single JSON response.
+      operationId: matomo_sites_id_clone
+      tags:
+      - Matomo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                source_db:
+                  type: string
+                  example: matomo_source
+                subdirectory:
+                  type: string
+                  example: ''
+                target_db:
+                  type: string
+                  example: ''
+                target_db_user:
+                  type: string
+                  example: ''
+                target_db_user_password:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                matomo_version:
+                  type: string
+                  example: ''
+              example:
+                target_domain: clone.example.com
+                source_db: matomo_source
+                subdirectory: ''
+                target_db: ''
+                target_db_user: ''
+                target_db_user_password: ''
+                admin_email: admin@example.com
+                matomo_version: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/matomo/sites/{id}/update:
+    post:
+      summary: Update Matomo to the latest version via console core:update. Streams newline-delimited
+        JSON progress events, ending with {"status":"Update completed!","version":"..."} or an {"error":"..."}
+        line.
+      operationId: matomo_sites_id_update
+      tags:
+      - Matomo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/matomo/sites/{id}/cache:
+    post:
+      summary: Clear the Matomo cache. Returns {"message":"Cache cleared successfully."}.
+      operationId: matomo_sites_id_cache
+      tags:
+      - Matomo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/moodle/install:
+    post:
+      summary: Install Moodle on a domain. Streams newline-delimited JSON progress events as the install
+        runs (download, extraction, database setup, admin/cli/install.php).
+      operationId: moodle_install
+      tags:
+      - Moodle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                moodle_version:
+                  type: string
+                  example: ''
+                site_name:
+                  type: string
+                  example: My Moodle Site
+                site_shortname:
+                  type: string
+                  example: moodle
+                admin_username:
+                  type: string
+                  example: admin
+                admin_password:
+                  type: string
+                  example: changeme
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                db_name:
+                  type: string
+                  example: ''
+                db_user:
+                  type: string
+                  example: ''
+                db_password:
+                  type: string
+                  example: ''
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                moodle_version: ''
+                site_name: My Moodle Site
+                site_shortname: moodle
+                admin_username: admin
+                admin_password: changeme
+                admin_email: admin@example.com
+                db_name: ''
+                db_user: ''
+                db_password: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/moodle/sites/{id}:
+    delete:
+      summary: 'Uninstall Moodle: drops the database and user, deletes every file in the docroot, and
+        removes it from Site Manager.'
+      operationId: moodle_sites_id
+      tags:
+      - Moodle
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/moodle/sites/{id}/clone:
+    post:
+      summary: Clone this Moodle site to another domain (or subdirectory). Requires target_domain and
+        source_db; returns a single JSON response.
+      operationId: moodle_sites_id_clone
+      tags:
+      - Moodle
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                source_db:
+                  type: string
+                  example: moodle_source
+                subdirectory:
+                  type: string
+                  example: ''
+                target_db:
+                  type: string
+                  example: ''
+                target_db_user:
+                  type: string
+                  example: ''
+                target_db_user_password:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                moodle_version:
+                  type: string
+                  example: ''
+              example:
+                target_domain: clone.example.com
+                source_db: moodle_source
+                subdirectory: ''
+                target_db: ''
+                target_db_user: ''
+                target_db_user_password: ''
+                admin_email: admin@example.com
+                moodle_version: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/moodle/sites/{id}/update:
+    post:
+      summary: Update Moodle to the latest version via admin/cli/upgrade.php. Streams newline-delimited
+        JSON progress events, ending with {"status":"Update completed!","version":"..."} or an {"error":"..."}
+        line.
+      operationId: moodle_sites_id_update
+      tags:
+      - Moodle
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/moodle/sites/{id}/cache:
+    post:
+      summary: Purge the Moodle caches. Returns {"message":"Caches purged successfully."}.
+      operationId: moodle_sites_id_cache
+      tags:
+      - Moodle
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/mediawiki/install:
+    post:
+      summary: Install MediaWiki on a domain. Streams newline-delimited JSON progress events as the install
+        runs (download, extraction, database setup, CLI install).
+      operationId: mediawiki_install
+      tags:
+      - MediaWiki
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                mediawiki_version:
+                  type: string
+                  example: ''
+                site_name:
+                  type: string
+                  example: My Wiki
+                admin_username:
+                  type: string
+                  example: admin
+                admin_password:
+                  type: string
+                  example: changeme
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                db_name:
+                  type: string
+                  example: ''
+                db_user:
+                  type: string
+                  example: ''
+                db_password:
+                  type: string
+                  example: ''
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                mediawiki_version: ''
+                site_name: My Wiki
+                admin_username: admin
+                admin_password: changeme
+                admin_email: admin@example.com
+                db_name: ''
+                db_user: ''
+                db_password: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/mediawiki/sites/{id}:
+    delete:
+      summary: 'Uninstall MediaWiki: drops the database and user, deletes every file in the docroot, and
+        removes it from Site Manager.'
+      operationId: mediawiki_sites_id
+      tags:
+      - MediaWiki
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/mediawiki/sites/{id}/clone:
+    post:
+      summary: Clone this MediaWiki site to another domain (or subdirectory). source_db is derived automatically
+        from the site's LocalSettings.php; only target_domain is required. Returns a single JSON response.
+      operationId: mediawiki_sites_id_clone
+      tags:
+      - MediaWiki
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                subdirectory:
+                  type: string
+                  example: ''
+                target_db:
+                  type: string
+                  example: ''
+                target_db_user:
+                  type: string
+                  example: ''
+                target_db_user_password:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                mediawiki_version:
+                  type: string
+                  example: ''
+              example:
+                target_domain: clone.example.com
+                subdirectory: ''
+                target_db: ''
+                target_db_user: ''
+                target_db_user_password: ''
+                admin_email: admin@example.com
+                mediawiki_version: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/mediawiki/sites/{id}/update:
+    post:
+      summary: Update MediaWiki to the latest version via maintenance/update.php. Streams newline-delimited
+        JSON progress events, ending with {"status":"Update completed!","version":"..."} or an {"error":"..."}
+        line.
+      operationId: mediawiki_sites_id_update
+      tags:
+      - MediaWiki
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/dokuwiki/install:
+    post:
+      summary: Install DokuWiki on a domain. DokuWiki is a flat-file CMS, so no database fields are needed.
+        Streams newline-delimited JSON progress events as the install runs (download, extraction, admin
+        account setup).
+      operationId: dokuwiki_install
+      tags:
+      - DokuWiki
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                admin_user:
+                  type: string
+                  example: admin
+                admin_password:
+                  type: string
+                  example: changeme
+                admin_full_name:
+                  type: string
+                  example: Admin User
+                site_title:
+                  type: string
+                  example: My DokuWiki
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                admin_email: admin@example.com
+                admin_user: admin
+                admin_password: changeme
+                admin_full_name: Admin User
+                site_title: My DokuWiki
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/dokuwiki/sites/{id}:
+    delete:
+      summary: 'Uninstall DokuWiki: deletes every file in the docroot and removes it from Site Manager.'
+      operationId: dokuwiki_sites_id
+      tags:
+      - DokuWiki
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/dokuwiki/sites/{id}/clone:
+    post:
+      summary: Clone this DokuWiki site to another domain (or subdirectory). DokuWiki is a flat-file CMS,
+        so no database fields are needed; only target_domain is required. Returns a single JSON response.
+      operationId: dokuwiki_sites_id_clone
+      tags:
+      - DokuWiki
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                subdirectory:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+              example:
+                target_domain: clone.example.com
+                subdirectory: ''
+                admin_email: admin@example.com
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/dokuwiki/sites/{id}/update:
+    post:
+      summary: Update DokuWiki to the latest release. Streams newline-delimited JSON progress events,
+        ending with {"status":"Update completed!","version":"..."} (or {"status":"Already running the
+        latest version (...)","version":"..."} if already current) or an {"error":"..."} line.
+      operationId: dokuwiki_sites_id_update
+      tags:
+      - DokuWiki
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/sofawiki/install:
+    post:
+      summary: Install SofaWiki on a domain. SofaWiki is a flat-file CMS, so no database fields are needed.
+        Streams newline-delimited JSON progress events as the install runs.
+      operationId: sofawiki_install
+      tags:
+      - SofaWiki
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                admin_email: admin@example.com
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/sofawiki/sites/{id}:
+    delete:
+      summary: 'Uninstall SofaWiki: deletes every file in the docroot and removes it from Site Manager.'
+      operationId: sofawiki_sites_id
+      tags:
+      - SofaWiki
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/sofawiki/sites/{id}/clone:
+    post:
+      summary: Clone this SofaWiki site to another domain (or subdirectory). SofaWiki is a flat-file CMS,
+        so no database fields are needed; only target_domain is required. Returns a single JSON response.
+      operationId: sofawiki_sites_id_clone
+      tags:
+      - SofaWiki
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                subdirectory:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+              example:
+                target_domain: clone.example.com
+                subdirectory: ''
+                admin_email: admin@example.com
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/phpbb/install:
+    post:
+      summary: Install phpBB on a domain. Streams newline-delimited JSON progress events as the install
+        runs (download, extraction, database setup, CLI install).
+      operationId: phpbb_install
+      tags:
+      - phpBB
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                board_name:
+                  type: string
+                  example: My Board
+                board_description:
+                  type: string
+                  example: A phpBB forum
+                admin_username:
+                  type: string
+                  example: admin
+                admin_password:
+                  type: string
+                  example: changeme
+                admin_email:
+                  type: string
+                  example: admin@example.com
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                board_name: My Board
+                board_description: A phpBB forum
+                admin_username: admin
+                admin_password: changeme
+                admin_email: admin@example.com
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/phpbb/sites/{id}:
+    delete:
+      summary: 'Uninstall phpBB: drops the database and user, deletes every file in the docroot, and removes
+        it from Site Manager.'
+      operationId: phpbb_sites_id
+      tags:
+      - phpBB
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/phpbb/sites/{id}/clone:
+    post:
+      summary: Clone this phpBB site to another domain (or subdirectory). source_db is derived automatically
+        from the site's config.php; only target_domain is required. Returns a single JSON response.
+      operationId: phpbb_sites_id_clone
+      tags:
+      - phpBB
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                subdirectory:
+                  type: string
+                  example: ''
+                target_db:
+                  type: string
+                  example: ''
+                target_db_user:
+                  type: string
+                  example: ''
+                target_db_user_password:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                version:
+                  type: string
+                  example: ''
+              example:
+                target_domain: clone.example.com
+                subdirectory: ''
+                target_db: ''
+                target_db_user: ''
+                target_db_user_password: ''
+                admin_email: admin@example.com
+                version: ''
       responses:
         '200':
           description: Success.
