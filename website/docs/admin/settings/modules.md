@@ -925,7 +925,22 @@ When disabled:
 * TinyPhotoGallery is not available on the Autoinstaller page.
 * TinyPhotoGallery installations can not be managed via Openpanel.
 
-> **NOTE:** TinyPhotoGallery has no database, no admin account, no tagged releases, and no CLI installer - install is just downloading a single `index.php` file and creating an empty `photos/` folder next to it. There is no clone or backup support for this type, and no *Update* tab.
+> **NOTE:** TinyPhotoGallery has no database, no admin account, no tagged releases, and no CLI installer - install is just downloading a single `index.php` file and creating an empty `photos/` folder next to it. Files-only backup/restore is supported (whole-docroot tar/untar); there is no clone support and no *Update* tab.
+
+## TinyFileManager
+
+The **`tinyfilemanager`** module allows users to install and manage TinyFileManager instances.
+
+When enabled:
+* TinyFileManager is available on the Autoinstaller page.
+* Users can install TinyFileManager using Auto Installer.
+* Users can remove TinyFileManager installations using Site Manager.
+
+When disabled:
+* TinyFileManager is not available on the Autoinstaller page.
+* TinyFileManager installations can not be managed via Openpanel.
+
+> **NOTE:** TinyFileManager has no database, no tagged releases, and no CLI installer - install downloads a single `tinyfilemanager.php` file and writes the admin username/password provided on the install form directly into that file's `$auth_users` array (bcrypt-hashed). Files-only backup/restore is supported; there is no clone support and no *Update* tab.
 
 ## DokuWiki
 
