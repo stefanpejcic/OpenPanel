@@ -48,3 +48,8 @@
 .animate-upsell-pulse { animation: op-upsell-pulse 2s ease-in-out infinite; }
 .bg-slate-200 { --tw-bg-opacity: 1; background-color: rgb(226 232 240 / var(--tw-bg-opacity, 1)); }
 .text-slate-800 { color: rgb(30 41 59); }
+.border-red-300 { border-color: rgb(252 165 165); }
+.hover\:bg-red-50:hover { background-color: rgb(254 242 242); }
+.dark\:border-red-900:where(.dark,.dark *) { border-color: var(--color-red-900); }
+.dark\:bg-red-900\/40:where(.dark,.dark *) { background-color: rgb(127 29 29 / 0.4); }
+.dark\:hover\:bg-red-900\/20:where(.dark,.dark *):hover { background-color: rgb(127 29 29 / 0.2); }

@@ -58,18 +58,30 @@
                 <thead class="">
                     <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "File"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Reason"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm text-right font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
                     {{range .QuarantineFiles}}
-                    <tr x-show="searchQuery === '' || '{{.}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                    <tr x-show="searchQuery === '' || {{toJSON .DisplayPath}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
 
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.}}</td>
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.DisplayPath}}</td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                            {{if .Signature}}
+                            <span class="bg-red-100 text-red-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-red-900/40 dark:text-red-400">{{.Signature}}</span>
+                            {{if .QuarantinedAt}}<span class="ml-1 text-xs text-gray-400 dark:text-gray-600">{{.QuarantinedAt}}</span>{{end}}
+                            {{else}}
+                            <span class="text-xs text-gray-400 dark:text-gray-600">{{$.T.Get "Unknown"}}</span>
+                            {{end}}
+                        </td>
 
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
                             <div class="text-end space-x-2">
-
+                                <button type="button" class="relative inline-flex items-center justify-center rounded border px-2.5 py-1.5 text-center text-xs font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 border-gray-300 bg-white text-gray-700 hover:bg-gray-50" onclick="restoreQuarantinedFile({{toJSON .RelPath}}, {{toJSON .Dir}}, {{toJSON .FileName}})">{{$.T.Get "Restore"}}</button>
+                                <button type="button" class="relative inline-flex items-center justify-center rounded border px-2.5 py-1.5 text-center text-xs font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 border-gray-300 bg-white text-gray-700 hover:bg-gray-50" onclick="markQuarantinedFileSafe({{toJSON .RelPath}}, {{toJSON .FileName}})">{{$.T.Get "Mark as safe"}}</button>
+                                <button type="button" class="relative inline-flex items-center justify-center rounded border px-2.5 py-1.5 text-center text-xs font-medium shadow-sm border-red-300 bg-white text-red-700 hover:bg-red-50 dark:border-red-900 dark:bg-gray-950 dark:text-red-400 dark:hover:bg-red-900/20" onclick="deleteQuarantinedFile({{toJSON .RelPath}}, {{toJSON .Dir}}, {{toJSON .FileName}})">{{$.T.Get "Delete"}}</button>
                             </div>
                         </td>
                     </tr>
@@ -82,6 +94,60 @@
 <!-- END files table -->
 
 {{end}}
+
+<script>
+// Restore/Delete reuse the existing File Manager routes - a quarantined
+// file's RelPath mirrors its original relative path under html_data (see
+// quarantine.go's doc comment), so path_param/item_name/destination_path
+// can be derived from it directly without any dedicated quarantine routes
+// for these two actions.
+function quarantinePathParam(dir) {
+    return dir ? '.quarantine/' + dir : '.quarantine';
+}
+
+function reloadAfter(ms) {
+    setTimeout(() => location.reload(), ms);
+}
+
+function restoreQuarantinedFile(relPath, dir, fileName) {
+    if (!confirm('{{.T.Get "Restore"}} "' + fileName + '" {{.T.Get "to its original location?"}}')) return;
+    fetch(`/file-manager/move?item_name=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(quarantinePathParam(dir))}&item_type=file&destination_path=${encodeURIComponent(dir)}`, {
+        method: 'POST', headers: { 'X-CSRF-Token': csrf_token }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) { showToast('{{.T.Get "File restored."}}', 'success'); reloadAfter(800); }
+        else { showToast(data.error || '{{.T.Get "Restore failed"}}', 'error'); }
+    })
+    .catch(e => showToast(e.message, 'error'));
+}
+
+function deleteQuarantinedFile(relPath, dir, fileName) {
+    if (!confirm('{{.T.Get "Permanently delete"}} "' + fileName + '"? {{.T.Get "This cannot be undone."}}')) return;
+    fetch(`/file-manager/delete?filename=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(quarantinePathParam(dir))}&item_type=file&mode=permanent`, {
+        method: 'DELETE', headers: { 'X-CSRF-Token': csrf_token }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) { showToast('{{.T.Get "File deleted."}}', 'success'); reloadAfter(800); }
+        else { showToast(data.error || '{{.T.Get "Delete failed"}}', 'error'); }
+    })
+    .catch(e => showToast(e.message, 'error'));
+}
+
+function markQuarantinedFileSafe(relPath, fileName) {
+    if (!confirm('{{.T.Get "Mark"}} "' + fileName + '" {{.T.Get "as safe and restore it? It will be skipped by future scans."}}')) return;
+    fetch(`/malware-scanner/quarantine/mark-safe?file=${encodeURIComponent(relPath)}`, {
+        method: 'POST', headers: { 'X-CSRF-Token': csrf_token }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) { showToast('{{.T.Get "Marked as safe and restored."}}', 'success'); reloadAfter(800); }
+        else { showToast(data.error || '{{.T.Get "Failed"}}', 'error'); }
+    })
+    .catch(e => showToast(e.message, 'error'));
+}
+</script>
 
 <!-- END templates/files/clamav/quarantine.html -->
 {{end}}
