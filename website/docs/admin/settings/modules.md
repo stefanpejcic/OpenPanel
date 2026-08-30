@@ -869,6 +869,22 @@ When disabled:
 * Moodle is not available on the Autoinstaller page.
 * Moodle websites can not be managed via Openpanel.
 
+## OJS
+
+The **`ojs`** module allows users to install and manage Open Journal Systems (OJS) websites.
+
+When enabled:
+* OJS is available on the Autoinstaller page, under Education.
+* Users can install OJS using Auto Installer, choosing a specific release from the version dropdown.
+* Users can manage OJS websites using Site Manager: clone a site, run/restore backups, view logs, purge caches, and log in as the site administrator with one click (auto-login).
+* Users can update OJS in place using the *Update* tab (one click).
+
+When disabled:
+* OJS is not available on the Autoinstaller page.
+* OJS websites can not be managed via Openpanel.
+
+> **NOTE:** OJS requires PHP 8.2+. Its own release tarballs aren't published as GitHub Releases, and a plain GitHub source download would be missing several required submodules, so installs and updates download the official bundled package from PKP's own release server instead.
+
 ## MediaWiki
 
 The **`mediawiki`** module allows users to install and manage MediaWiki websites.

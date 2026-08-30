@@ -27,6 +27,7 @@ For an application to appear on the Autoinstaller page, the corresponding module
 - phpBB
 - TinyPhotoGallery
 - TinyFileManager
+- OJS
 - Mautic
 - NodeJS Applications*
 - Python Applications*
