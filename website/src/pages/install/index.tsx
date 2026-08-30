@@ -15,7 +15,6 @@ const defaultOptions: InstallOptions = {
     key: { value: "", description: "Set Enterprise license key." },
     domain: { value: "", description: "Set the domain to be used for accessing both panels." },
     "panel-domain": { value: "", description: "Set a separate domain to be used for OpenPanel only." },
-    email: { value: "", description: "Email address to receive admin logins and future notifications." },
     "admin-port": { value: "", description: "Specify a custom port for OpenAdmin (default is 2087)." },
     "user-port": { value: "", description: "Specify a custom port for OpenPanel (default is 2083)." },
     username: { value: "", description: "Set admin username (by default random generated)." },
@@ -86,7 +85,6 @@ const Install: React.FC = () => {
                                 <li key={key} className="flex items-center mb-2">
                                     <input
                                         type={
-                                            key === "email" ? "email" :
                                             key === "admin-port" ? "number" :
                                             key === "user-port" ? "number" :
                                             typeof config.value === "boolean" ? "checkbox" : "text"

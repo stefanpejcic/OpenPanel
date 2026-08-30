@@ -31,7 +31,6 @@ SETUP_SWAP_ANYWAY=false
 CORAZA=true
 IMUNIFY_AV=false
 SWAP_FILE=1
-SEND_EMAIL_AFTER_INSTALL=false
 SET_PREMIUM=false
 SET_ADMIN_USERNAME=false
 SET_ADMIN_PASSWORD=false
@@ -41,7 +40,6 @@ new_hostname=""
 separate_panel_domain=""
 custom_username=""
 custom_password=""
-EMAIL=""
 license_key=""
 
 readonly DEFAULT_PANEL_VERSION="2.0.3"
@@ -101,7 +99,6 @@ Available options:
   --username=<username>       Admin username (random if not provided).
   --password=<password>       Admin password (random if not provided).
   --version=<version>         Custom OpenPanel version to install.
-  --email=<email>             Email to receive admin credentials.
   --admin-port=<port>         Port for OpenAdmin (default: 2087).
   --user-port=<port>          Port for OpenPanel (default: 2083).
   --imunifyav                 Install and set up ImunifyAV.
@@ -139,7 +136,6 @@ parse_args() {
             --post_install=*)  post_install_path="${1#*=}" ;;
             --version=*)       CUSTOM_VERSION=true;      PANEL_VERSION="${1#*=}" ;;
             --swap=*)          SETUP_SWAP_ANYWAY=true;   SWAP_FILE="${1#*=}" ;;
-            --email=*)         SEND_EMAIL_AFTER_INSTALL=true; EMAIL="${1#*=}" ;;
             --admin-port=*)    ADMIN_PORT=$(validate_port "admin-port" "${1#*=}") ;;
             --user-port=*)     USER_PORT=$(validate_port "user-port"  "${1#*=}") ;;
             --skip-requirements) SKIP_REQUIREMENTS=true ;;
@@ -1046,7 +1042,6 @@ create_admin_account() {
 
     display_logins
     systemctl restart admin
-    send_email_if_configured
 }
 
 extra_step_for_podman() {
@@ -1064,25 +1059,6 @@ display_logins() {
     echo -e "  Password: ${GREEN}${new_password}${RESET}"
     line
     exec > >(tee -a "$LOG_FILE") 2>&1
-}
-
-send_email_if_configured() {
-    [[ "$SEND_EMAIL_AFTER_INSTALL" != true ]] && return
-    [[ "$EMAIL" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]] || { warn "Invalid email '$EMAIL'. Skipping notification."; return; }
-
-    opencli config update email "$EMAIL"
-    local token; token=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)
-    sed -i "s|^mail_security_token=.*|mail_security_token=$token|" "$CONFIG_FILE"
-
-    local protocol="http" domain="127.0.0.1"
-    if [[ "$SET_HOSTNAME_NOW" == true && "$new_hostname" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-        local ssl_dir="${ETC_DIR}caddy/ssl"
-        if [[ -f "$ssl_dir/acme-v02.api.letsencrypt.org-directory/$new_hostname/$new_hostname.key" || -f "$ssl_dir/custom/$new_hostname/$new_hostname.key" ]]; then
-            protocol="https"; domain="$new_hostname"
-        fi
-    fi
-
-    curl -4 -k -X POST "$protocol://$domain:$ADMIN_PORT/send_email" -F "transient=$token" -F "recipient=$EMAIL" -F "subject=OpenPanel successfully installed" -F "body=OpenAdmin URL: http://$(hostname):$ADMIN_PORT/ | username: $new_username | password: $new_password" --max-time 15 >/dev/null 2>&1 || warn "Failed to send email notification."
 }
 
 run_post_install() {
