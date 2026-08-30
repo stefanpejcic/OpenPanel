@@ -436,6 +436,36 @@ func renderMoodleAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	}
 }
 
+var ojsAppPage = loadPage("manager/ojs_app.html")
+
+// OJSAppPageData is manager/ojs_app.html's template context.
+type OJSAppPageData struct {
+	pageData
+	Domains              []appctx.Domain
+	Container            ContainerInfo
+	OJSVersion           string
+	PHPVersion           string
+	MySQLVersion         string
+	DBInfo               map[string]string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+}
+
+func renderOJSAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data OJSAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := ojsAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - ojs_app template render error: %v", err)
+	}
+}
+
 var mediawikiAppPage = loadPage("manager/mediawiki_app.html")
 
 // MediaWikiAppPageData is manager/mediawiki_app.html's template context.

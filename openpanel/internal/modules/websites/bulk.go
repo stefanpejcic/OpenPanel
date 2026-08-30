@@ -42,7 +42,7 @@ var cmsRemoveTypes = map[string]bool{
 	"wordpress": true, "joomla": true, "opencart": true, "nextcloud": true,
 	"prestashop": true, "drupal": true, "matomo": true, "moodle": true,
 	"mediawiki": true, "flarum": true, "sofawiki": true, "dokuwiki": true, "phpbb": true,
-	"tinyphotogallery": true, "tinyfilemanager": true,
+	"tinyphotogallery": true, "tinyfilemanager": true, "ojs": true,
 }
 
 // cmsBackupTypes covers every type with a working GET /<type>/backup/run
@@ -55,7 +55,7 @@ var cmsBackupTypes = cmsRemoveTypes
 // (nodejs/python/ruby) require a version/requirements form, not a simple
 // bulk update.
 var cmsUpdateTypes = map[string]bool{
-	"drupal": true, "nextcloud": true, "matomo": true, "moodle": true, "mediawiki": true, "flarum": true, "dokuwiki": true,
+	"drupal": true, "nextcloud": true, "matomo": true, "moodle": true, "mediawiki": true, "flarum": true, "dokuwiki": true, "ojs": true,
 }
 
 func isPM2Type(typeLower string) bool {

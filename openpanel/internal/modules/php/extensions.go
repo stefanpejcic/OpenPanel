@@ -269,6 +269,65 @@ func toggleExtension(ctx context.Context, userContext, service, extension string
 	return true, ""
 }
 
+// EnsureExtensionInstalled makes sure a PHP extension is present and
+// enabled in the given user's PHP-FPM service before some other module's
+// installer runs (e.g. OJS requires "ftp" - see internal/modules/ojs's
+// install.go). Reuses this file's own install machinery (`phpaddmod`, the
+// same command the Extensions page's "Install" button runs) rather than
+// duplicating it, so results and failure modes are identical to the
+// browser-driven Extensions flow.
+//
+// Three cases, cheapest first:
+//  1. Already active (`php -m` lists it) - no-op.
+//  2. Installed but disabled (a "<ext>.ini.disabled" file exists) - just
+//     re-enable it (rename off ".disabled"), then restart PHP-FPM.
+//  3. Not installed at all - run `phpaddmod <extension>` inside the
+//     container (this can take a while - a real package install/compile,
+//     not a config toggle), then restart PHP-FPM.
+//
+// In all restart cases this blocks until the service reports running again
+// (mirrors ensureContainerRunning's identical poll loop used throughout
+// this codebase's CMS installers), so the caller can safely proceed
+// straight to using the extension afterward.
+func EnsureExtensionInstalled(ctx context.Context, userContext, service, extension string) error {
+	active, _ := getActiveAndDisabledExtensions(ctx, userContext, service)
+	if active[strings.ToLower(extension)] {
+		return nil
+	}
+
+	if disabledConf := findExtensionConfFile(ctx, userContext, service, extension, true); disabledConf != "" {
+		if ok, errMsg := toggleExtension(ctx, userContext, service, extension, true); !ok {
+			return fmt.Errorf("enabling PHP extension %q: %s", extension, errMsg)
+		}
+	} else {
+		installCtx, cancel := context.WithTimeout(ctx, 10*time.Minute)
+		defer cancel()
+		argv := podmanmanager.PodmanArgv(userContext, "exec", service, "phpaddmod", extension)
+		cmd := podmanmanager.Command(installCtx, userContext, argv)
+		var stderr strings.Builder
+		cmd.Stderr = &stderr
+		if err := cmd.Run(); err != nil {
+			msg := strings.TrimSpace(stderr.String())
+			if installCtx.Err() == context.DeadlineExceeded {
+				msg = "installation timed out"
+			} else if msg == "" {
+				msg = err.Error()
+			}
+			return fmt.Errorf("installing PHP extension %q: %s", extension, msg)
+		}
+	}
+
+	docker.ComposeContainer(ctx, userContext, service, "restart")
+	const attempts = 15
+	for i := 0; i < attempts; i++ {
+		time.Sleep(2 * time.Second)
+		if docker.IsServiceRunning(ctx, userContext, service) {
+			return nil
+		}
+	}
+	return fmt.Errorf("PHP-FPM service %q did not come back up after installing %q", service, extension)
+}
+
 // ----------------------------
 // Per-version install history: which extensions this user has installed at
 // least once.

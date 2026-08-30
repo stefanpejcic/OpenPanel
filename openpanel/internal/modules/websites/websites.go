@@ -929,6 +929,41 @@ func extractMoodleDatabaseInfo(userContext, directory string) map[string]string 
 	return readCMSConfig(configPath, "config.php", moodleDBFields, nil)
 }
 
+// ojsApprootDir maps an OJS site's docroot (a symlink to a sibling
+// "<slug>_ojsapp" directory - see internal/modules/ojs's package doc
+// comment) to that backing app-root directory, where config.inc.php
+// actually lives. Duplicated locally from ojs.ojsApprootDir/siteSlug
+// (unexported in another package) per this codebase's established
+// per-module-helper-duplication convention.
+func ojsApprootDir(userContext, directory string) string {
+	const wwwPrefix = "/var/www/html/"
+	relPath := strings.TrimPrefix(directory, wwwPrefix)
+	slug := strings.ReplaceAll(strings.ReplaceAll(relPath, "/", "_"), ".", "_")
+	return "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + slug + "_ojsapp"
+}
+
+// ojsDBFields parses the INI-style "key = value" lines under
+// config.inc.php's [database] section (not a PHP $CFG->/$wgDB-style
+// variable assignment file the way every other CMS module's config is -
+// see internal/modules/ojs/config.go's identical comment). Values may or
+// may not be double-quoted depending on how the CLI installer wrote them,
+// so the trailing optional quotes are stripped by the pattern itself.
+var ojsDBFields = []cmsDBField{
+	{"database_name", regexp.MustCompile(`(?m)^name\s*=\s*"?([^"\r\n]*)"?\s*$`)},
+	{"database_user", regexp.MustCompile(`(?m)^username\s*=\s*"?([^"\r\n]*)"?\s*$`)},
+	{"database_password", regexp.MustCompile(`(?m)^password\s*=\s*"?([^"\r\n]*)"?\s*$`)},
+	{"database_host", regexp.MustCompile(`(?m)^host\s*=\s*"?([^"\r\n]*)"?\s*$`)},
+}
+
+func extractOJSDatabaseInfo(userContext, directory string) map[string]string {
+	const wwwPrefix = "/var/www/html/"
+	if !strings.HasPrefix(directory, wwwPrefix) {
+		return nil
+	}
+	configPath := filepath.Join(ojsApprootDir(userContext, directory), "config.inc.php")
+	return readCMSConfig(configPath, "config.inc.php", ojsDBFields, nil)
+}
+
 // getMoodleVersion reads $release out of public/version.php (the
 // human-readable "5.2.1+ (Build: 20260807)"-style string every Moodle
 // release ships, confirmed live against a real 5.2 release tarball -

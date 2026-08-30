@@ -472,6 +472,26 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			AvailablePHPVersions: availablePHPVersions,
 		})
 
+	case "ojs":
+		dbInfo := extractOJSDatabaseInfo(userContext, docroot)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		mysqlVersion := getMySQLVersion(a, r, userContext)
+		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
+		renderOJSAppPage(a, w, r, OJSAppPageData{
+			pageData:             basePageData,
+			Domains:              domains,
+			Container:            container,
+			OJSVersion:           container.Version,
+			PHPVersion:           currentPHPVersion,
+			MySQLVersion:         mysqlVersion,
+			DBInfo:               dbInfo,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: availablePHPVersions,
+		})
+
 	case "mediawiki":
 		dbInfo := extractMediaWikiDatabaseInfo(userContext, docroot)
 		mediawikiVersion := getMediaWikiVersion(userContext, docroot)

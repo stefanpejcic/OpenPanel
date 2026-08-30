@@ -1,0 +1,289 @@
+package ojs
+
+import (
+	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"regexp"
+	"strings"
+	"time"
+
+	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+)
+
+// This file mirrors moodle/backups.go's directory layout, naming and
+// restore/run logic (same backups/<domain>/<timestamp>/{database.sql,
+// files.tar.gz} structure under the user's html_data volume), adjusted for
+// OJS having no per-site table prefix (Moodle/WordPress/Joomla all do) so
+// the whole database is dumped/restored rather than a prefix-filtered
+// subset, and for OJS's "files" directory being the thing worth backing up
+// (its docroot, like Moodle's, is a symlink to a sibling app-root directory
+// containing nothing but the stock release code - see ojs.go's package doc
+// comment - all real site content, submission uploads etc., lives in the
+// separate "_ojsfiles" sibling directory instead).
+
+var ojsBackupFolderRE = regexp.MustCompile(`^20\d{2}-`)
+
+type ojsBackupDateInfo struct {
+	Date           string `json:"date"`
+	HasDbBackup    bool   `json:"hasDbBackup"`
+	HasFilesBackup bool   `json:"hasFilesBackup"`
+}
+
+// handleOJSGetBackupDates mirrors moodle/backups.go's
+// handleMoodleGetBackupDates.
+func handleOJSGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	selectedDomain := r.PathValue("selected_domain")
+
+	_, _, userContext, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	backupsPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/backups/" + selectedDomain
+	if _, statErr := os.Stat(backupsPath); statErr != nil {
+		if mkErr := os.MkdirAll(backupsPath, 0o755); mkErr != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
+			return
+		}
+	}
+
+	entries, readErr := os.ReadDir(backupsPath)
+	if readErr != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
+		return
+	}
+
+	var dates []ojsBackupDateInfo
+	for _, entry := range entries {
+		if !entry.IsDir() || !ojsBackupFolderRE.MatchString(entry.Name()) {
+			continue
+		}
+		folderPath := filepath.Join(backupsPath, entry.Name())
+		files, _ := os.ReadDir(folderPath)
+		info := ojsBackupDateInfo{Date: entry.Name()}
+		for _, f := range files {
+			if strings.HasSuffix(f.Name(), ".sql") {
+				info.HasDbBackup = true
+			}
+			if strings.HasSuffix(f.Name(), ".tar.gz") {
+				info.HasFilesBackup = true
+			}
+		}
+		dates = append(dates, info)
+	}
+
+	writeJSON(w, http.StatusOK, dates)
+}
+
+var ojsBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
+
+// handleOJSRestoreBackup mirrors moodle/backups.go's
+// handleMoodleRestoreBackup, restoring into the "files" directory instead
+// of docroot (see this file's top comment).
+func handleOJSRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	selectedDomain := r.PathValue("selected_domain")
+	backupDate := r.URL.Query().Get("backup_date")
+
+	userID, currentUsername, userContext, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	domain := selectedDomain
+	if idx := strings.Index(selectedDomain, "/"); idx != -1 {
+		domain = selectedDomain[:idx]
+	}
+	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+		http.Error(w, "You do not own this domain.", http.StatusForbidden)
+		return
+	}
+
+	if !ojsBackupDateRE.MatchString(backupDate) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid backup date."})
+		return
+	}
+
+	slug := siteSlug(selectedDomain)
+	htmlVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
+	filesHostPath := filepath.Join(htmlVolume, slug+"_ojsfiles") + "/"
+	backupsPathOnHostOS := filepath.Join(htmlVolume, "backups", selectedDomain) + "/"
+	backupsPathInContainer := "/var/www/html/backups/" + selectedDomain + "/"
+
+	backupDatePathOnHostOS := filepath.Join(backupsPathOnHostOS, backupDate)
+	backupDatePathInContainer := filepath.Join(backupsPathInContainer, backupDate)
+	databaseSQLPathOnHostOS := filepath.Join(backupDatePathOnHostOS, "database.sql")
+	databaseSQLPathInContainer := filepath.Join(backupDatePathInContainer, "database.sql")
+	targzPathOnHostOS := filepath.Join(backupDatePathOnHostOS, "files.tar.gz")
+
+	ipAddress := reqip.ClientIP(r)
+	var restoredItems []string
+
+	if _, statErr := os.Stat(targzPathOnHostOS); statErr == nil {
+		if runErr := exec.CommandContext(ctx, "tar", "-xzf", targzPathOnHostOS, "-C", filesHostPath).Run(); runErr != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
+			return
+		}
+		_ = logger.RecordUserAction(a.Config, currentUsername, "restored OJS files backup from "+backupDatePathInContainer+" on "+selectedDomain, ipAddress)
+		restoredItems = append(restoredItems, "files")
+	}
+
+	if _, statErr := os.Stat(databaseSQLPathOnHostOS); statErr == nil {
+		dbInfo := extractOJSDatabaseInfoForLogin(userContext, selectedDomain)
+		dbName := dbInfo["database_name"]
+
+		if dbName != "" {
+			mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
+			importArgv := podmanmanager.PodmanArgv(userContext, "exec", "-i", mysqlVersion, mysqlVersion, dbName)
+			f, openErr := os.Open(databaseSQLPathOnHostOS)
+			if openErr != nil {
+				writeJSON(w, http.StatusInternalServerError, map[string]string{"error": openErr.Error()})
+				return
+			}
+			cmd := exec.CommandContext(ctx, importArgv[0], importArgv[1:]...)
+			cmd.Stdin = f
+			cmd.Env = podmanmanager.PodmanEnv(userContext)
+			runErr := cmd.Run()
+			f.Close()
+			if runErr != nil {
+				writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Database import failed: " + runErr.Error()})
+				return
+			}
+			_ = logger.RecordUserAction(a.Config, currentUsername, "restored OJS database backup from "+databaseSQLPathInContainer+" on "+selectedDomain, ipAddress)
+			restoredItems = append(restoredItems, "database")
+		}
+	}
+
+	if len(restoredItems) > 0 {
+		_, _ = w.Write([]byte("Backup restored successfully: " + strings.Join(restoredItems, " and ") + "."))
+		return
+	}
+	_, _ = w.Write([]byte("No files to restore, expected files: " + backupDatePathInContainer + "/files.tar.gz " + databaseSQLPathInContainer + "."))
+}
+
+// handleOJSRunBackup mirrors moodle/backups.go's handleMoodleRunBackup,
+// tar'ing the "files" directory instead of docroot (see this file's top
+// comment), and dumping the whole database rather than a prefix-filtered
+// table subset (OJS has no per-site table prefix).
+func handleOJSRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	selectedDomain := r.PathValue("selected_domain")
+
+	userID, currentUsername, userContext, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	domain := selectedDomain
+	if idx := strings.Index(selectedDomain, "/"); idx != -1 {
+		domain = selectedDomain[:idx]
+	}
+	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+		http.Error(w, "You do not own this domain.", http.StatusForbidden)
+		return
+	}
+
+	backupDatabase := r.URL.Query().Get("backup_database") == "true"
+	backupFiles := r.URL.Query().Get("backup_files") == "true"
+	if !backupDatabase && !backupFiles {
+		http.Error(w, "No backup options selected.", http.StatusBadRequest)
+		return
+	}
+
+	slug := siteSlug(selectedDomain)
+	htmlVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
+	mysqlDumpVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_mysql_dumps/_data/"
+	_ = os.MkdirAll(htmlVolume, 0o755)
+	_ = os.MkdirAll(mysqlDumpVolume, 0o755)
+
+	uid, uidErr := podmanmanager.GetUID(userContext)
+	if uidErr == nil {
+		_ = os.Chown(htmlVolume, uid, uid)
+		_ = os.Chown(mysqlDumpVolume, uid, uid)
+	}
+
+	timestamp := time.Now().Format("2006-01-02_15-04-05")
+	backupDirectory := filepath.Join(htmlVolume, "backups", selectedDomain, timestamp)
+	inPHPBackupDirectory := filepath.Join("/var/www/html/backups", selectedDomain, timestamp)
+	if mkErr := os.MkdirAll(backupDirectory, 0o755); mkErr != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
+		return
+	}
+	if uidErr == nil {
+		_ = exec.CommandContext(ctx, "chown", itoa(uid)+":"+itoa(uid), backupDirectory).Run()
+	}
+
+	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
+	phpContainer := webServer
+	if !strings.Contains(strings.ToLower(webServer), "litespeed") {
+		phpVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		phpContainer = "php-fpm-" + phpVersion
+	}
+
+	if backupDatabase {
+		dbInfo := extractOJSDatabaseInfoForLogin(userContext, selectedDomain)
+		dbName := dbInfo["database_name"]
+		if dbName == "" {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to determine database name from config.inc.php."})
+			return
+		}
+
+		mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
+		var dumpCmd string
+		switch mysqlVersion {
+		case "mysql":
+			dumpCmd = "mysqldump"
+		case "mariadb":
+			dumpCmd = "mariadb-dump"
+		default:
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unsupported MYSQL_TYPE: " + mysqlVersion})
+			return
+		}
+
+		dumpArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, dumpCmd, "-u", "root", dbName, "--result-file=/tmp/dumps/database.sql")
+		if _, runErr := podmanmanager.Command(ctx, userContext, dumpArgv).Output(); runErr != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": dumpCmd + " failed: " + runErr.Error()})
+			return
+		}
+
+		mysqlDumpPath := filepath.Join(mysqlDumpVolume, "database.sql")
+		if renameErr := os.Rename(mysqlDumpPath, filepath.Join(backupDirectory, "database.sql")); renameErr != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": renameErr.Error()})
+			return
+		}
+		if uidErr == nil {
+			_ = exec.CommandContext(ctx, "chown", itoa(uid)+":"+itoa(uid), backupDirectory).Run()
+		}
+	}
+
+	if backupFiles {
+		filesContainerPath := "/var/www/html/" + slug + "_ojsfiles"
+		tarArgv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "bash", "-c", "cd "+filesContainerPath+" && tar -czf "+inPHPBackupDirectory+"/files.tar.gz .")
+		if runErr := podmanmanager.Command(ctx, userContext, tarArgv).Run(); runErr != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
+			return
+		}
+	}
+
+	var logAction string
+	switch {
+	case backupDatabase && backupFiles:
+		logAction = "generated full backup for OJS website " + selectedDomain
+	case backupDatabase:
+		logAction = "generated database backup for OJS website " + selectedDomain
+	case backupFiles:
+		logAction = "generated files backup for OJS website " + selectedDomain
+	}
+	_ = logger.RecordUserAction(a.Config, currentUsername, logAction, reqip.ClientIP(r))
+	_, _ = w.Write([]byte("Backup completed successfully!"))
+}
