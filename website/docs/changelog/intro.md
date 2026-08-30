@@ -4,18 +4,16 @@
 | Version| Release date |
 |---|---|
 | __[2.0.4](/docs/changelog/2.0.4)__| September 15, 2026 |
-### Latest
 
+### Latest
+| Version| Release date | 
+|---|---|
+|__[2.0.3](/docs/changelog/2.0.3)__| August 30, 2026 |
+
+### Previous versions
 | Version| Release date | 
 |---|---|
 |__[2.0.2](/docs/changelog/2.0.2)__| August 16, 2026 |
-
-| Version| Release date |
-|---|---|
-### Previous versions
-
-| Version| Release date | 
-|---|---|
 |__[2.0.1](/docs/changelog/2.0.1)__| August 09, 2026 |
 |__[2.0.0](/docs/changelog/2.0.0)__| August 16, 2026 |
 |__[1.7.66](/docs/changelog/1.7.66)__| July 28, 2026 |
