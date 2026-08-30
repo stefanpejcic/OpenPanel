@@ -116,6 +116,12 @@ tags:
   description: Requires the `sofawiki` feature to be enabled on the account's plan.
 - name: phpBB
   description: Requires the `phpbb` feature to be enabled on the account's plan.
+- name: TinyPhotoGallery
+  description: Requires the `tinyphotogallery` feature to be enabled on the account's plan.
+- name: TinyFileManager
+  description: Requires the `tinyfilemanager` feature to be enabled on the account's plan.
+- name: OJS
+  description: Requires the `ojs` feature to be enabled on the account's plan.
 - name: WordPress
   description: Requires the `wordpress` feature to be enabled on the account's plan.
 - name: Node.js / Python Apps
@@ -8814,6 +8820,340 @@ paths:
                 target_db_user_password: ''
                 admin_email: admin@example.com
                 version: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/tinyphotogallery/install:
+    post:
+      summary: 'Install TinyPhotoGallery on a domain: downloads a single index.php file and creates an
+        empty photos/ directory next to it. No database, no admin account, no versioning. Streams newline-delimited
+        JSON progress events as the install runs.'
+      operationId: tinyphotogallery_install
+      tags:
+      - TinyPhotoGallery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+              example:
+                domain_id: '42'
+                subdirectory: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/tinyphotogallery/sites/{id}:
+    delete:
+      summary: 'Uninstall TinyPhotoGallery: deletes every file in the docroot and removes it from Site
+        Manager.'
+      operationId: tinyphotogallery_sites_id
+      tags:
+      - TinyPhotoGallery
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/tinyfilemanager/install:
+    post:
+      summary: 'Install TinyFileManager on a domain: downloads a single tinyfilemanager.php file and writes
+        the given admin username/password (bcrypt-hashed) directly into its $auth_users array. No database,
+        no versioning. Streams newline-delimited JSON progress events as the install runs.'
+      operationId: tinyfilemanager_install
+      tags:
+      - TinyFileManager
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                admin_username:
+                  type: string
+                  example: admin
+                admin_password:
+                  type: string
+                  example: changeme
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                admin_username: admin
+                admin_password: changeme
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/tinyfilemanager/sites/{id}:
+    delete:
+      summary: 'Uninstall TinyFileManager: deletes every file in the docroot and removes it from Site
+        Manager.'
+      operationId: tinyfilemanager_sites_id
+      tags:
+      - TinyFileManager
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/ojs/install:
+    post:
+      summary: Install Open Journal Systems (OJS) on a domain, downloading the official release package
+        (not a GitHub archive - the repo uses submodules a plain archive would omit) and running its CLI
+        installer non-interactively. Requires PHP 8.2+; the required 'ftp' PHP extension is installed
+        automatically if missing. Streams newline-delimited JSON progress events as the install runs.
+      operationId: ojs_install
+      tags:
+      - OJS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                  example: '42'
+                subdirectory:
+                  type: string
+                  example: ''
+                ojs_version:
+                  type: string
+                  example: ''
+                admin_username:
+                  type: string
+                  example: admin
+                admin_password:
+                  type: string
+                  example: changeme
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                db_name:
+                  type: string
+                  example: ''
+                db_user:
+                  type: string
+                  example: ''
+                db_password:
+                  type: string
+                  example: ''
+              example:
+                domain_id: '42'
+                subdirectory: ''
+                ojs_version: ''
+                admin_username: admin
+                admin_password: changeme
+                admin_email: admin@example.com
+                db_name: ''
+                db_user: ''
+                db_password: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/ojs/sites/{id}:
+    delete:
+      summary: 'Uninstall OJS: drops the database and user, deletes every file, removes the scheduled-tasks
+        cron job, and removes it from Site Manager.'
+      operationId: ojs_sites_id
+      tags:
+      - OJS
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/ojs/sites/{id}/clone:
+    post:
+      summary: Clone this OJS site to another domain (or subdirectory). Requires target_domain and source_db;
+        returns a single JSON response.
+      operationId: ojs_sites_id_clone
+      tags:
+      - OJS
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                subdirectory:
+                  type: string
+                  example: ''
+                source_db:
+                  type: string
+                  example: ojs_source
+                target_db:
+                  type: string
+                  example: ''
+                target_db_user:
+                  type: string
+                  example: ''
+                target_db_user_password:
+                  type: string
+                  example: ''
+                admin_email:
+                  type: string
+                  example: admin@example.com
+                ojs_version:
+                  type: string
+                  example: ''
+              example:
+                target_domain: clone.example.com
+                subdirectory: ''
+                source_db: ojs_source
+                target_db: ''
+                target_db_user: ''
+                target_db_user_password: ''
+                admin_email: admin@example.com
+                ojs_version: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/ojs/sites/{id}/update:
+    post:
+      summary: Update OJS to the latest version via its own CLI upgrade tool. Streams newline-delimited
+        JSON progress events, ending with a completion or error line.
+      operationId: ojs_sites_id_update
+      tags:
+      - OJS
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/ojs/sites/{id}/cache:
+    post:
+      summary: Clear OJS's cache/ directory. Returns {"message":"Caches purged successfully!"}.
+      operationId: ojs_sites_id_cache
+      tags:
+      - OJS
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: Success.

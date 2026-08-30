@@ -2339,6 +2339,100 @@
     ]
   },
   {
+    "group": "TinyPhotoGallery",
+    "feature": "tinyphotogallery",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/tinyphotogallery/install",
+        "description": "Install TinyPhotoGallery on a domain: downloads a single index.php file and creates an empty photos/ directory next to it. No database, no admin account, no versioning. Streams newline-delimited JSON progress events as the install runs.",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": ""
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/tinyphotogallery/sites/<id>",
+        "description": "Uninstall TinyPhotoGallery: deletes every file in the docroot and removes it from Site Manager."
+      }
+    ]
+  },
+  {
+    "group": "TinyFileManager",
+    "feature": "tinyfilemanager",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/tinyfilemanager/install",
+        "description": "Install TinyFileManager on a domain: downloads a single tinyfilemanager.php file and writes the given admin username/password (bcrypt-hashed) directly into its $auth_users array. No database, no versioning. Streams newline-delimited JSON progress events as the install runs.",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "admin_username": "admin",
+          "admin_password": "changeme"
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/tinyfilemanager/sites/<id>",
+        "description": "Uninstall TinyFileManager: deletes every file in the docroot and removes it from Site Manager."
+      }
+    ]
+  },
+  {
+    "group": "OJS",
+    "feature": "ojs",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/ojs/install",
+        "description": "Install Open Journal Systems (OJS) on a domain, downloading the official release package (not a GitHub archive - the repo uses submodules a plain archive would omit) and running its CLI installer non-interactively. Requires PHP 8.2+; the required 'ftp' PHP extension is installed automatically if missing. Streams newline-delimited JSON progress events as the install runs.",
+        "body": {
+          "domain_id": "42",
+          "subdirectory": "",
+          "ojs_version": "",
+          "admin_username": "admin",
+          "admin_password": "changeme",
+          "admin_email": "admin@example.com",
+          "db_name": "",
+          "db_user": "",
+          "db_password": ""
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/ojs/sites/<id>",
+        "description": "Uninstall OJS: drops the database and user, deletes every file, removes the scheduled-tasks cron job, and removes it from Site Manager."
+      },
+      {
+        "method": "POST",
+        "path": "/api/ojs/sites/<id>/clone",
+        "description": "Clone this OJS site to another domain (or subdirectory). Requires target_domain and source_db; returns a single JSON response.",
+        "body": {
+          "target_domain": "clone.example.com",
+          "subdirectory": "",
+          "source_db": "ojs_source",
+          "target_db": "",
+          "target_db_user": "",
+          "target_db_user_password": "",
+          "admin_email": "admin@example.com",
+          "ojs_version": ""
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/ojs/sites/<id>/update",
+        "description": "Update OJS to the latest version via its own CLI upgrade tool. Streams newline-delimited JSON progress events, ending with a completion or error line."
+      },
+      {
+        "method": "POST",
+        "path": "/api/ojs/sites/<id>/cache",
+        "description": "Clear OJS's cache/ directory. Returns {\"message\":\"Caches purged successfully!\"}."
+      }
+    ]
+  },
+  {
     "group": "WordPress",
     "feature": "wordpress",
     "endpoints": [
