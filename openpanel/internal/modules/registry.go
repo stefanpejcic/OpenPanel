@@ -310,4 +310,15 @@ func RegisterAll(mux *http.ServeMux, a *appctx.App) {
 		reg(mux, a)
 		log.Printf("APP - Registered module: %s", name)
 	}
+
+	// /json/services backs base.html's site-wide fetchServiceData helper,
+	// used by containers.html, the services module's own service cards,
+	// and cache's redis/memcached widgets - so it must work whenever
+	// either "docker" or "services" is enabled. It's registered once here,
+	// outside the configured map, so it isn't missed when only one of the
+	// two is enabled and isn't double-registered (which would panic) when
+	// both are.
+	if a.ModuleEnabled("docker") || a.ModuleEnabled("services") {
+		docker.RegisterServicesJSON(mux, a)
+	}
 }

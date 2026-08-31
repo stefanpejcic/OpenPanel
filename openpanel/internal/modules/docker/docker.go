@@ -28,13 +28,6 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /containers", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleContainersList(a, w, r)
 	}))
-	// Used by both containers.html and base.html's site-wide service-status
-	// widget, so it's registered unconditionally here rather than gated to
-	// a single page - it needs the same podmanmanager CLI layer as the
-	// rest of this package.
-	mux.Handle("GET /json/services", requireLogin(func(w http.ResponseWriter, r *http.Request) {
-		handleServicesStats(a, w, r)
-	}))
 	mux.Handle("/containers/new", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleAddContainer(a, w, r)
 	}))
@@ -62,6 +55,21 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 			handleManageContainer(a, w, r, action)
 		}))
 	}
+}
+
+// RegisterServicesJSON wires GET /json/services onto mux. It backs
+// containers.html plus base.html's site-wide fetchServiceData helper, which
+// the services module's own service cards (system/services.html) and
+// cache's redis/memcached widgets also call - so it must work whenever
+// either "docker" or "services" is enabled, not just docker. That's why
+// it's split out from Register into its own function, gated on both
+// feature names, and registered once from modules.RegisterAll rather than
+// from either module's own Register (which would either miss the other
+// module, or double-register and panic if both are enabled).
+func RegisterServicesJSON(mux *http.ServeMux, a *appctx.App) {
+	mux.Handle("GET /json/services", auth.RequireLogin(a, "docker", "services")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleServicesStats(a, w, r)
+	})))
 }
 
 // RegisterTerminal wires the interactive web terminal's routes onto mux,

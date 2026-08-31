@@ -10,7 +10,8 @@ import (
 )
 
 // containerStatEntry is the shape containers.html's JS and base.html's
-// per-service status widget both expect from /json/services.
+// per-service status widget both expect from /json/services (see
+// RegisterServicesJSON in docker.go for how that route gets wired up).
 type containerStatEntry struct {
 	ID       string `json:"ID"`
 	Name     string `json:"Name"`

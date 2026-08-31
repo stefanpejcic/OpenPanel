@@ -27,10 +27,12 @@ const isoLayout = "2006-01-02T15:04:05.999999"
 // RequireLogin is middleware that enforces an authenticated session -
 // checking session existence, max lifetime, IP binding, 2FA enrollment,
 // and demo-mode write restrictions - and gates access by feature.
-// featureName is the feature-gate key checked against the caller's
-// enabled features; each route registration passes its own feature name
-// explicitly.
-func RequireLogin(a *appctx.App, featureName string) func(http.Handler) http.Handler {
+// featureNames are the feature-gate keys checked against the caller's
+// enabled features; each route registration passes its own feature
+// name(s) explicitly. Access is granted if the caller has any one of
+// them - a route shared by two modules (e.g. docker's and services'
+// /json/services) passes both so it works whenever either is enabled.
+func RequireLogin(a *appctx.App, featureNames ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -95,7 +97,7 @@ func RequireLogin(a *appctx.App, featureName string) func(http.Handler) http.Han
 				return
 			}
 
-			if a.TwofaEnforce && a.ModuleEnabled("twofa") && featureName != "twofa" {
+			if a.TwofaEnforce && a.ModuleEnabled("twofa") && !contains(featureNames, "twofa") {
 				status, err := a.Get2FAStatusForUser(ctx, userID)
 				if err == nil && !status.Enabled {
 					log.Printf("APP - user %d (%s): 2FA required but not enabled, redirecting to enrollment", userID, details.Username)
@@ -113,8 +115,8 @@ func RequireLogin(a *appctx.App, featureName string) func(http.Handler) http.Han
 				http.Error(w, "internal error", http.StatusInternalServerError)
 				return
 			}
-			if !contains(userFeatures, featureName) {
-				log.Printf("APP - user %d (%s): access denied to %s (feature %q not enabled for this account)", userID, details.Username, r.URL.Path, featureName)
+			if !containsAny(userFeatures, featureNames) {
+				log.Printf("APP - user %d (%s): access denied to %s (none of %q enabled for this account)", userID, details.Username, r.URL.Path, featureNames)
 				http.Error(w, "Forbidden", http.StatusForbidden)
 				return
 			}
@@ -164,6 +166,15 @@ func clearSession(sess *sessions.Session) {
 
 func redirectToLogin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusFound)
+}
+
+func containsAny(list []string, wants []string) bool {
+	for _, want := range wants {
+		if contains(list, want) {
+			return true
+		}
+	}
+	return false
 }
 
 func contains(list []string, want string) bool {
