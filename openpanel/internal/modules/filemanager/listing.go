@@ -76,7 +76,7 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 	}
 
 	extensions := stripQuotes(a.Config.Get("filemanager_edit_extensions",
-		".txt .md error_log .log env gitconfig cfg htaccess .ini .php .sh .html .json .htm .html5 .xml .py .php5 .php7 .php8 .sql .css .js .conf"))
+		".txt .md error_log .log env gitconfig cfg htaccess .ini .php .sh .html .json .htm .html5 .xml .py .php5 .php7 .php8 .sql .css .js .conf .java"))
 	images := stripQuotes(a.Config.Get("filemanager_image_extensions", ".jpg .jpeg .png .gif .webp .avif"))
 	archives := stripQuotes(a.Config.Get("filemanager_archives_extensions", ".zip .tar .gz .tar.gz"))
 
