@@ -1,7 +1,5 @@
 // Package session configures the panel's cookie store: cookie name and
-// max-age/lifetime settings. Session contents are not compatible with the
-// previous panel version's signed cookies by design — cutover forces a
-// one-time re-login, which was an accepted tradeoff.
+// max-age/lifetime settings.
 package session
 
 import (
@@ -11,9 +9,7 @@ import (
 	"github.com/gorilla/sessions"
 )
 
-// CookieName is the session cookie name, kept the same as the previous
-// panel version so reverse proxies / browser devtools during the migration
-// show a familiar name.
+// CookieName is the session cookie name
 const CookieName = "OPENPANEL"
 
 // Lifetime is the session max age: 300 minutes.
