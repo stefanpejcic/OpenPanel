@@ -1,6 +1,7 @@
 package appinstall
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"net/http"
@@ -26,6 +27,50 @@ const (
 	containerStartPollAttempts = 30
 	containerStartPollInterval = 2 * time.Second
 )
+
+// containerFailureDetail inspects a container that never reached
+// State.Running=true and returns a human-readable reason - OOM-killed, a
+// non-zero exit code, a podman-reported start error, or a tail of its logs
+// (an entrypoint/pip/npm failure shows up there, not in State.Error) - or ""
+// if nothing more specific could be determined. Must be called before the
+// container is `rm -f`'d, which takes its logs and inspect state with it.
+func containerFailureDetail(ctx context.Context, userContext, serviceName string) string {
+	inspectArgv := podmanmanager.PodmanArgv(userContext, "inspect", "-f",
+		"{{.State.Status}}\t{{.State.ExitCode}}\t{{.State.OOMKilled}}\t{{.State.Error}}", serviceName)
+	inspectOut, inspectErr := podmanmanager.Command(ctx, userContext, inspectArgv).Output()
+
+	var reason string
+	if inspectErr == nil {
+		fields := strings.SplitN(strings.TrimSpace(string(inspectOut)), "\t", 4)
+		if len(fields) == 4 {
+			status, exitCode, oomKilled, stateErr := fields[0], fields[1], fields[2], fields[3]
+			switch {
+			case oomKilled == "true":
+				reason = "Container was killed for using too much memory (out of memory). Increase the memory limit allocated to this app."
+			case stateErr != "" && stateErr != "<no value>":
+				reason = "Error: " + stateErr
+			case status == "exited" && exitCode != "0" && exitCode != "":
+				reason = "Container exited with code " + exitCode + "."
+			}
+		}
+	}
+
+	logsArgv := podmanmanager.PodmanArgv(userContext, "logs", "--tail", "20", serviceName)
+	if logsOut, logsErr := podmanmanager.Command(ctx, userContext, logsArgv).CombinedOutput(); logsErr == nil {
+		if tail := strings.TrimSpace(string(logsOut)); tail != "" {
+			const maxTailLen = 2000
+			if len(tail) > maxTailLen {
+				tail = "…" + tail[len(tail)-maxTailLen:]
+			}
+			if reason != "" {
+				reason += "\n"
+			}
+			reason += "Last container output:\n" + tail
+		}
+	}
+
+	return reason
+}
 
 func atoiDefault(s string, def int) int {
 	if v, err := strconv.Atoi(s); err == nil {
@@ -382,12 +427,24 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 
 	if !isRunning {
+		// Grab the reason before the container is torn away below - `podman
+		// rm -f` takes its logs and inspect state with it, so this is the
+		// only chance to see why it actually failed (OOM-killed, image
+		// pull/entrypoint error, port conflict, etc.) instead of just
+		// reporting that it isn't running.
+		failureDetail := containerFailureDetail(ctx, userContext, serviceName)
 		_ = copyFile(composeBackup, composeFile)
 		_ = copyFile(envBackup, envFile)
 		rmArgv := podmanmanager.PodmanArgv(userContext, "rm", "-f", serviceName)
 		_ = podmanmanager.Command(ctx, userContext, rmArgv).Run()
 		_ = os.Remove(lockPath)
-		emit(map[string]any{"error": "Container failed to start. Please check allocated resources."})
+		errMsg := "Container failed to start."
+		if failureDetail != "" {
+			errMsg += " " + failureDetail
+		} else {
+			errMsg += " Please check allocated resources."
+		}
+		emit(map[string]any{"error": errMsg})
 		return
 	}
 

@@ -559,6 +559,12 @@ function showInstallError(name) {
   _setDescription({{toJSON (.T.Get "Install process failed for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-600 dark:text-blue-400 hover:underline">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
 }
 
+function _escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 function resetDescription() {
   _clearHangTimer();
   document.getElementById('headerRing').classList.add('hidden');
@@ -758,7 +764,14 @@ document.getElementById("installForm").addEventListener("submit", function(event
               } else if (data.error) {
                 markStepError(currentStepIndex);
                 showInstallError(_installDomain);
-                showToast(`${data.error} — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">Retry</a>`, 'error');
+                // data.error can now carry a tail of the container's own
+                // logs (e.g. an npm/pip failure) so it's attacker/app
+                // -influenced text, not just a static message from this
+                // code - escape it before it goes into showToast's
+                // innerHTML sink. isPermanent=true because that detail is
+                // too much to read before the default 5s auto-dismiss.
+                const safeError = _escapeHtml(data.error).replace(/\n/g, '<br>');
+                showToast(`${safeError} — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">Retry</a>`, 'error', true);
                 button.disabled = false;
               }
             } catch(e) { /* non-JSON line, ignore */ }
