@@ -1,29 +1,29 @@
 ---
-sidebar_position: 2
+sidebar_position: 21
 ---
 
-# Node.js and Python
+# Node.js Applications
 
-Containerized [Node.js](https://nodejs.org) and [Python](https://python.org/) applications can be created and managed in **OpenPanel Enterprise Edition**.
+Containerized [Node.js](https://nodejs.org) applications can be created and managed in **OpenPanel Enterprise Edition**.
 
 ---
 
 ## Create an Application
 
-To create a new Python or Node.js application, navigate to **OpenPanel > AutoInstaller** and click **Setup Node.js Application** or **Setup Python Application**, depending on which type of application you want to create.
+To create a new Node.js application, navigate to **OpenPanel > AutoInstaller** and click **Setup Node.js Application**.
 
 ![screenshot](/img/docs-content/HmZh5ZMJ-new-tab.png)
 
 On the next page, you can configure the following settings:
 
 * **Name** – The name of the application and container as displayed in OpenPanel.
-* **Port** – Set a custom port (e.g., 3000 or 5000) if your app uses one. Otherwise, port 80 is used by default.
+* **Port** – Set a custom port (e.g., 3000) if your app uses one. Otherwise, port 80 is used by default.
 * **Domain Name / Subfolder** – The domain (and optional subfolder) where the application will be publicly accessible.
-* **Startup File** – The file executed at startup with the `node` or `py` command.
-* **Custom Startup Command** – Use a custom startup command instead of the default `node` or `py`.
-* **Type** – Fixed to Node.js or Python, depending on which install page you opened.
-* **Version** – Select any available version from Docker Hub.
-* **Run Install** – Run `npm install` or `pip install` before starting the application.
+* **Startup File** – The file executed at startup with the `node` command. Defaults to `index.js`.
+* **Custom Startup Command** – Use a custom startup command instead of the default `node`.
+* **Type** – Fixed to Node.js.
+* **Version** – Select any available Node.js version from Docker Hub.
+* **Run Install** – Run `npm install` using `package.json` before starting the application.
 * **CPU Cores** – Number of CPU cores allocated to the application.
 * **Memory** – Amount of memory (in GB) allocated to the application.
 
@@ -32,9 +32,9 @@ On the next page, you can configure the following settings:
 After completing the form, click **Start Installation**.
 The installation process will be displayed below the form. Once complete, you’ll be redirected to the management page where you can view all your applications.
 
-### NodeJS Example App
+### Example App
 
-An example NodeJS (express) application that is running on http://nodejs.openpanel.org/
+An example Node.js (Express) application that is running on http://nodejs.openpanel.org/
 
 Example settings:
 ![example](/img/docs-content/cdC3Jxdp-example-nodejs-settings.png)
@@ -74,34 +74,6 @@ Example `package.json` file:
 }
 ```
 
-### Python Example App
-
-An example Python (Flask) application that is running on http://python.openpanel.org/
-
-Example settings:
-![example](/img/docs-content/D2Z3DNdW-example-python-settings.png)
-
-Example `app.py` file:
-
-```py
-from flask import Flask
-
-app = Flask(__name__)
-
-@app.route('/')
-def hello():
-    return "Hello World from Flask on port 5000!"
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-```
-
-Example `requirements.txt` file:
-
-```json
-Flask==2.3.3
-```
-
 ---
 
 ## Manage Applications
@@ -118,7 +90,7 @@ On this page, you can view important details such as:
 
 * **Screenshot** – Preview of the application’s domain.
 * **Status** – Current container status.
-* **Version** – Node.js or Python version in use.
+* **Version** – Node.js version in use.
 * **CPU Limit** – Configured CPU allocation.
 * **Memory Limit** – Configured memory allocation.
 * **Speed** – Google PageSpeed Insights data for the website.
@@ -128,7 +100,7 @@ On this page, you can view important details such as:
 You also have several management options:
 
 * **Actions** – Start, stop, or restart the container.
-* **Overview** – Modify startup file or command, working directory, package installation settings (NPM/PIP), version, and resource limits (CPU, Memory, PIDs).
-* **Install Packages** – View and manage `package.json` or `requirements.txt`, and run NPM/PNPM or PIP installations.
+* **Overview** – Modify startup file or command, working directory, package installation settings (NPM), version, and resource limits (CPU, Memory, PIDs).
+* **Install Packages** – View and manage `package.json`, and run NPM/PNPM installations.
 * **Logs** – View container logs for troubleshooting.
 * **Remove** – Delete the application.

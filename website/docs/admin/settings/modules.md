@@ -1338,9 +1338,9 @@ When disabled:
 The **`nodejs`** module allows users to setup and manage containerized NodeJS applications. It is toggled independently from the [Python](#python) module below.
 
 When enabled:
-* Users can [manage NodeJS applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
+* Users can [manage NodeJS applications using Site Manager](/docs/panel/applications/nodejs/#manage-applications).
 * NodeJS is available on the Autoinstaller page.
-* Users can [setup NodeJS applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application).
+* Users can [setup NodeJS applications using Auto Installer](/docs/panel/applications/nodejs/#create-an-application).
 
 When disabled:
 * NodeJS is not available on the Autoinstaller page.
@@ -1357,9 +1357,9 @@ Customize options:
 The **`python`** module allows users to setup and manage containerized Python applications. It is toggled independently from the [NodeJS](#nodejs) module above.
 
 When enabled:
-* Users can [manage Python applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
+* Users can [manage Python applications using Site Manager](/docs/panel/applications/python/#manage-applications).
 * Python is available on the Autoinstaller page.
-* Users can [setup Python applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application).
+* Users can [setup Python applications using Auto Installer](/docs/panel/applications/python/#create-an-application).
 
 When disabled:
 * Python is not available on the Autoinstaller page.
@@ -1376,9 +1376,9 @@ Customize options:
 The **`ruby`** module allows users to setup and manage containerized Ruby applications. It is toggled independently from the [NodeJS](#nodejs) and [Python](#python) modules above.
 
 When enabled:
-* Users can [manage Ruby applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
+* Users can [manage Ruby applications using Site Manager](/docs/panel/applications/ruby/#manage-applications).
 * Ruby is available on the Autoinstaller page.
-* Users can [setup Ruby applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application), choosing a Ruby version from Docker Hub's official `ruby` image tags.
+* Users can [setup Ruby applications using Auto Installer](/docs/panel/applications/ruby/#create-an-application), choosing a Ruby version from Docker Hub's official `ruby` image tags.
 
 When disabled:
 * Ruby is not available on the Autoinstaller page.
@@ -1394,9 +1394,9 @@ Customize options:
 The **`java`** module allows users to setup and manage containerized Java applications. It is toggled independently from the [NodeJS](#nodejs), [Python](#python) and [Ruby](#ruby) modules above.
 
 When enabled:
-* Users can [manage Java applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
+* Users can [manage Java applications using Site Manager](/docs/panel/applications/java/#manage-applications).
 * Java is available on the Autoinstaller page.
-* Users can [setup Java applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application), choosing a JDK version (Docker Hub's official `eclipse-temurin` LTS tags).
+* Users can [setup Java applications using Auto Installer](/docs/panel/applications/java/#create-an-application), choosing a JDK version (Docker Hub's official `eclipse-temurin` LTS tags).
 
 When disabled:
 * Java is not available on the Autoinstaller page.

@@ -48,7 +48,7 @@ To delete a domain:
 1. Click the **"Delete"** option from the domain's dropdown menu.
 2. A confirmation page will appear. Click **"Delete Domain"** to proceed.
 
-> If the domain is linked to active applications (e.g. [PM2](/docs/panel/applications/pm2) or [WP Manager](/docs/panel/applications/wordpress)), deletion will be blocked until those applications are removed.
+> If the domain is linked to active applications (e.g. [Node.js](/docs/panel/applications/nodejs), [Python](/docs/panel/applications/python) or [WP Manager](/docs/panel/applications/wordpress)), deletion will be blocked until those applications are removed.
 > This prevents accidental removal of domains tied to running websites.
 
 Deleting a domain will **permanently remove** the following:

@@ -99,7 +99,7 @@ Edit the file `/etc/openpanel/openpanel/conf/knowledge_base_articles.json` and i
 {
     "how_to_topics": [
         {"title": "How to install WordPress", "link": "https://openpanel.com/docs/panel/applications/wordpress#install-wordpress"},
-        {"title": "Publishing a Python Application", "link": "https://openpanel.com/docs/panel/applications/pm2#python-applications"},
+        {"title": "Publishing a Python Application", "link": "https://openpanel.com/docs/panel/applications/python#create-an-application"},
         {"title": "How to edit Nginx / Apache configuration", "link": "https://openpanel.com/docs/panel/advanced/server_settings#nginx--apache-settings"},
         {"title": "How to create a new MySQL database", "link": "https://openpanel.com/docs/panel/databases/#create-a-mysql-database"},
         {"title": "How to add a Cronjob", "link": "https://openpanel.com/docs/panel/advanced/cronjobs#add-a-cronjob"},

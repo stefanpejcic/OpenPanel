@@ -14,3 +14,7 @@ Available pages:
 - [WordPress Manager](/docs/panel/applications/wordpress)
 - [Auto Installer](/docs/panel/applications/autoinstaller)
 - [Website Builder](/docs/panel/applications/builder/)
+- [Node.js Applications](/docs/panel/applications/nodejs)
+- [Python Applications](/docs/panel/applications/python)
+- [Ruby Applications](/docs/panel/applications/ruby)
+- [Java Applications](/docs/panel/applications/java)
