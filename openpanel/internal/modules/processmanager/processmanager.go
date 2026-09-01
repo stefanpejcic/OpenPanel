@@ -4,8 +4,10 @@
 package processmanager
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"regexp"
 	"sort"
@@ -70,9 +72,13 @@ func serviceNamesFromCompose(compose map[string]any) []string {
 func getPodmanProcesses(ctx context.Context, userContext string) ([]Process, error) {
 	compose, err := podmanmanager.LoadComposeConfig(ctx, userContext)
 	if err != nil {
+		log.Printf("PROCESSMANAGER - user %s: LoadComposeConfig failed: %v", userContext, err)
 		return nil, err
 	}
 	serviceNames := serviceNamesFromCompose(compose)
+	if len(serviceNames) == 0 {
+		log.Printf("PROCESSMANAGER - user %s: compose config has no services", userContext)
+	}
 
 	var processes []Process
 
@@ -82,13 +88,18 @@ func getPodmanProcesses(ctx context.Context, userContext string) ([]Process, err
 		}
 
 		argv := podmanmanager.PodmanArgv(userContext, append([]string{"top", name}, topDescriptors...)...)
-		out, cmdErr := podmanmanager.Command(ctx, userContext, argv).Output()
+		cmd := podmanmanager.Command(ctx, userContext, argv)
+		var stderr bytes.Buffer
+		cmd.Stderr = &stderr
+		out, cmdErr := cmd.Output()
 		if cmdErr != nil {
+			log.Printf("PROCESSMANAGER - user %s: `podman top %s` failed: %v: %s", userContext, name, cmdErr, strings.TrimSpace(stderr.String()))
 			continue
 		}
 
 		lines := strings.Split(string(out), "\n")
 		if len(lines) < 2 {
+			log.Printf("PROCESSMANAGER - user %s: `podman top %s` returned no rows (raw output: %q)", userContext, name, string(out))
 			continue
 		}
 
