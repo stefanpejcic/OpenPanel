@@ -49,13 +49,34 @@ func LoadCompose(userContext string) (map[string]any, error) {
 }
 
 // SaveCompose writes data back to /home/<context>/docker-compose.yml.
+// The write is atomic (temp file in the same directory + rename) so a
+// concurrent LoadCompose - e.g. from a /services/ request landing mid-save -
+// never observes a truncated or partially-written file.
 func SaveCompose(userContext string, data map[string]any) error {
 	path := homePath(userContext, "docker-compose.yml")
 	out, err := yaml.Marshal(data)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, out, 0o644)
+
+	tmp, err := os.CreateTemp(filepath.Dir(path), ".docker-compose.yml.tmp-*")
+	if err != nil {
+		return err
+	}
+	tmpPath := tmp.Name()
+	defer os.Remove(tmpPath) // no-op once the rename below succeeds
+
+	if _, err := tmp.Write(out); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	if err := os.Chmod(tmpPath, 0o644); err != nil {
+		return err
+	}
+	return os.Rename(tmpPath, path)
 }
 
 // servicesOf reads composeData["services"] as a map[string]map[string]any,
