@@ -375,6 +375,10 @@ check_kernel_modules_reboot() {
     local running installed
     running=$(uname -r)
     installed=$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' kernel 2>/dev/null | sort -V | tail -1)
+    if [[ -z "$installed" || "$installed" == *"not installed"* ]]; then
+        installed=$(command -v grubby &>/dev/null && grubby --default-kernel 2>/dev/null | sed 's|.*/vmlinuz-||')
+        [[ -z "$installed" ]] && installed=$(ls /boot/vmlinuz-* 2>/dev/null | sed 's|.*/vmlinuz-||' | sort -V | tail -1)
+    fi
 
     [[ -n "$installed" ]] || return 0
 
