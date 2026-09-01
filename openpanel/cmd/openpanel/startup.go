@@ -13,6 +13,7 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 )
 
 // This file implements the server's startup side effects: log directory
@@ -152,17 +153,38 @@ func quotaOverPeriod(quotaStr, periodStr string) (int, bool) {
 	return n, true
 }
 
-// flushRedisCache clears the Redis cache once the HTTP listener has
-// bound its socket (see main()'s call site).
-func flushRedisCache() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+// flushRedisCache clears every Redis key except active user sessions
+// (session:<userID>:<token>, see internal/auth/require.go) once the HTTP
+// listener has bound its socket (see main()'s call site). Sessions are
+// preserved deliberately so a server restart doesn't force every logged-in
+// user back to the login page.
+func flushRedisCache(c *cache.Cache) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	out, err := exec.CommandContext(ctx, "podman", "exec", "openpanel_redis", "redis-cli", "FLUSHDB").CombinedOutput()
-	if err != nil {
-		log.Printf("BOOTSTRAP - failed to clear Redis cache: %v: %s", err, strings.TrimSpace(string(out)))
+
+	rdb := c.Raw()
+	var keys []string
+	iter := rdb.Scan(ctx, 0, "*", 1000).Iterator()
+	for iter.Next(ctx) {
+		if key := iter.Val(); !strings.HasPrefix(key, "session:") {
+			keys = append(keys, key)
+		}
+	}
+	if err := iter.Err(); err != nil {
+		log.Printf("BOOTSTRAP - failed to scan Redis keys: %v", err)
 		return
 	}
-	log.Printf("BOOTSTRAP - Redis cache cleared: %s", strings.TrimSpace(string(out)))
+	if len(keys) == 0 {
+		log.Printf("BOOTSTRAP - Redis cache already empty (sessions preserved)")
+		return
+	}
+
+	deleted, err := rdb.Del(ctx, keys...).Result()
+	if err != nil {
+		log.Printf("BOOTSTRAP - failed to clear Redis cache: %v", err)
+		return
+	}
+	log.Printf("BOOTSTRAP - Redis cache cleared: %d key(s) deleted, sessions preserved", deleted)
 }
 
 // caddyCertDirs lists the directories Caddy stores certificates under,

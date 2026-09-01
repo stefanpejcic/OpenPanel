@@ -119,7 +119,7 @@ func main() {
 			fatalLogger.Fatalf("BOOTSTRAP - server error: %v", serveErr)
 		}
 	}()
-	go flushRedisCache()
+	go flushRedisCache(a.Cache)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
