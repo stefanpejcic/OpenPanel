@@ -106,7 +106,11 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		_ = docker.ToggleProxyHTTPPort(userContext, "on")
 		_ = docker.SwapAllWebserversComposePort(userContext, "on")
-		docker.ComposeContainer(ctx, userContext, webserver, "stop")
+		// Not docker.ComposeContainer(webserver, "stop") - see
+		// docker.ForceRemoveContainer's doc comment for why "podman-compose
+		// down" isn't safe here (it cascades through depends_on and takes
+		// php-fpm down with it).
+		docker.ForceRemoveContainer(ctx, userContext, webserver)
 		// Polls rather than checking once - see the identical fix/comment in
 		// handleVarnish (internal/modules/cache/varnish.go), issue #1091.
 		result := docker.StartOrStopContainer(ctx, userContext, "varnish", "activate", "run")
@@ -130,8 +134,12 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		_ = docker.ToggleProxyHTTPPort(userContext, "off")
 		_ = docker.SwapAllWebserversComposePort(userContext, "off")
-		docker.ComposeContainer(ctx, userContext, webserver, "stop")
-		docker.ComposeContainer(ctx, userContext, "varnish", "stop")
+		// Not docker.ComposeContainer(..., "stop") - see
+		// docker.ForceRemoveContainer's doc comment for why "podman-compose
+		// down" isn't safe here (it cascades through depends_on and takes
+		// php-fpm down with it).
+		docker.ForceRemoveContainer(ctx, userContext, webserver)
+		docker.ForceRemoveContainer(ctx, userContext, "varnish")
 		result := docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "run")
 		_ = logger.RecordUserAction(a.Config, currentUsername, "disabled Varnish", ip)
 		if !result.Success {

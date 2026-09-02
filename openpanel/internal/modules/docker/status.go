@@ -299,3 +299,23 @@ func removeImage(ctx context.Context, userContext, imageName string) {
 	cmd := podmanmanager.Command(ctx, userContext, argv)
 	_ = cmd.Run()
 }
+
+// ForceRemoveContainer stops and removes exactly one container by name via
+// plain `podman rm -f`, deliberately bypassing `podman-compose down` -
+// that subcommand takes a service name but, per its own implementation
+// (compose_down in podman_compose.py), doesn't scope to it: it tears down
+// that service's full transitive depends_on chain too. The vendored
+// compose template chains varnish -> webserver -> php-fpm, so
+// `podman-compose down varnish` (or `down <webserver>`) also removes
+// php-fpm - confirmed live, that's what left the webserver container
+// completely gone after a Varnish enable/disable, since the recreate step
+// deliberately uses `up -d --no-deps` (to avoid restarting an
+// already-running php-fpm unnecessarily) and so never brings php-fpm back,
+// and the webserver's own `--requires=<php-fpm>` then makes its own
+// recreation fail outright when that dependency doesn't exist. Plain
+// `podman rm -f` has no concept of compose dependencies, so it can only
+// ever affect the one container named.
+func ForceRemoveContainer(ctx context.Context, userContext, containerName string) {
+	argv := podmanmanager.PodmanArgv(userContext, "rm", "-f", containerName)
+	_ = podmanmanager.Command(ctx, userContext, argv).Run()
+}

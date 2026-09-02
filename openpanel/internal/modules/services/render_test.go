@@ -93,6 +93,20 @@ func TestStatusKeyFor(t *testing.T) {
 	}
 }
 
+// TestStatusColorLabelStopping guards against "stopping" - libpod's real
+// State.Status for a container mid-shutdown - falling through to the
+// generic "Unknown" fallback. Confirmed live: a page render landing in
+// that few-second window (between a container being told to stop and it
+// actually reaching "exited"/"removing") showed literal "Unknown" with no
+// mapped label at all.
+func TestStatusColorLabelStopping(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	_, label := StatusColorLabel(mgr.Translator("en"), StatusKeyFor("stopping", "none"))
+	if label == "Unknown" {
+		t.Errorf("StatusColorLabel for \"stopping\" fell through to the generic Unknown fallback")
+	}
+}
+
 func TestFilterServices(t *testing.T) {
 	all := []string{"nginx", "apache", "mysql", "mariadb", "redis", "phpmyadmin"}
 	got := FilterServices(all, "nginx", "mysql")

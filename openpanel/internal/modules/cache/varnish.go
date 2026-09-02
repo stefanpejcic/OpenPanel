@@ -142,7 +142,11 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			if !docker.IsServiceRunning(ctx, userContext, service) {
 				_ = docker.ToggleProxyHTTPPort(userContext, "on")
 				_ = docker.SwapAllWebserversComposePort(userContext, "on")
-				docker.ComposeContainer(ctx, userContext, webserver, "stop")
+				// Not docker.ComposeContainer(webserver, "stop") - see
+				// ForceRemoveContainer's doc comment for why "podman-compose
+				// down" isn't safe to use here (it cascades through
+				// depends_on and takes php-fpm down with it).
+				docker.ForceRemoveContainer(ctx, userContext, webserver)
 
 				// Checks the actual running state rather than sniffing the
 				// activate command's stdout for the word "started" - real
@@ -174,8 +178,12 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			if docker.IsServiceRunning(ctx, userContext, service) {
 				_ = docker.ToggleProxyHTTPPort(userContext, "off")
 				_ = docker.SwapAllWebserversComposePort(userContext, "off")
-				docker.ComposeContainer(ctx, userContext, webserver, "stop")
-				docker.ComposeContainer(ctx, userContext, service, "stop")
+				// Not docker.ComposeContainer(..., "stop") - see
+				// ForceRemoveContainer's doc comment for why "podman-compose
+				// down" isn't safe to use here (it cascades through
+				// depends_on and takes php-fpm down with it).
+				docker.ForceRemoveContainer(ctx, userContext, webserver)
+				docker.ForceRemoveContainer(ctx, userContext, service)
 
 				result := docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "run")
 				_ = logger.RecordUserAction(a.Config, currentUsername, "disabled Varnish", ipAddress)

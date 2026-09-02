@@ -2,7 +2,11 @@
 // pages while the container is in a transitional state (e.g. just enabled
 // or disabled), so the user doesn't have to F5 to see the real status.
 
-const SERVICE_STATUS_TRANSITIONAL = ['starting', 'created', 'restarting', 'removing'];
+// Keep in sync with serviceStatusMap in internal/modules/services/render.go -
+// "stopping" (libpod's real State.Status for a container mid-shutdown) was
+// missing from both lists, so a page render landing in that few-second
+// window showed "Unknown" with nothing polling to ever refresh it.
+const SERVICE_STATUS_TRANSITIONAL = ['starting', 'created', 'restarting', 'removing', 'stopping'];
 const SERVICE_STATUS_POLL_MS = 2000;
 
 function computeServiceStatusKey(containerState, healthStatus) {
