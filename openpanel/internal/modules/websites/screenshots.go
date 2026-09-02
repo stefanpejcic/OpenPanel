@@ -29,7 +29,7 @@ import (
 const (
 	screenshotCacheDir     = "/etc/openpanel/wordpress/screenshots"
 	screenshotFallbackAPI  = "https://api.openpanel.com/screenshots"
-	screenshotFetchTimeout = 30 * time.Second
+	screenshotFetchTimeout = 5 * time.Second
 )
 
 // screenshotAPIBase resolves the `screenshots` config value: a configured,

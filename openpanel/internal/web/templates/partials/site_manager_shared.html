@@ -103,25 +103,40 @@ function sendDataToPreview(event) {
       screenshotAvailable: false,
       screenshotUrl: '',
 
+      // Neither <img>/Image loading nor fetch() have a built-in timeout - if
+      // the screenshot API is down or just slow to answer, onload/onerror
+      // (or the fetch promise) never fire, loading stays true, and the
+      // spinner never resolves. loadImageWithTimeout bounds that wait so
+      // the component always settles into a final state either way.
+      loadImageWithTimeout(url, timeoutMs = 2000) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          const timer = setTimeout(() => {
+            img.onload = img.onerror = null;
+            reject(new Error('screenshot load timed out'));
+          }, timeoutMs);
+          img.onload = () => { clearTimeout(timer); resolve(); };
+          img.onerror = () => { clearTimeout(timer); reject(new Error('screenshot load failed')); };
+          img.src = url;
+        });
+      },
+
       loadScreenshot() {
         this.loading = true;
         this.screenshotAvailable = false;
 
         const url = `/json/screenshot/${this.domain}?t=${Date.now()}`;
-        const img = new Image();
-
-        img.src = url;
-
-        img.onload = () => {
-          this.screenshotUrl = url;
-          this.screenshotAvailable = true;
-          this.loading = false;
-        };
-
-        img.onerror = () => {
-          this.screenshotAvailable = false;
-          this.loading = false;
-        };
+        this.loadImageWithTimeout(url)
+          .then(() => {
+            this.screenshotUrl = url;
+            this.screenshotAvailable = true;
+          })
+          .catch(() => {
+            this.screenshotAvailable = false;
+          })
+          .finally(() => {
+            this.loading = false;
+          });
       },
 
       async regenerateScreenshot() {
@@ -129,32 +144,29 @@ function sendDataToPreview(event) {
         this.screenshotAvailable = false;
 
         try {
-          await fetch(`/json/screenshot/${this.domain}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': csrf_token
-            }
-          });
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 2000);
+          try {
+            await fetch(`/json/screenshot/${this.domain}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrf_token
+              },
+              signal: controller.signal
+            });
+          } finally {
+            clearTimeout(timer);
+          }
 
           const url = `/json/screenshot/${this.domain}?t=${Date.now()}`;
-          const img = new Image();
-          img.src = url;
-
-          img.onload = () => {
-            this.screenshotUrl = url;
-            this.screenshotAvailable = true;
-            this.loading = false;
-          };
-
-          img.onerror = () => {
-            this.screenshotAvailable = false;
-            this.loading = false;
-          };
-
+          await this.loadImageWithTimeout(url);
+          this.screenshotUrl = url;
+          this.screenshotAvailable = true;
         } catch (err) {
           console.error('Error regenerating screenshot:', err);
           this.screenshotAvailable = false;
+        } finally {
           this.loading = false;
         }
       }
