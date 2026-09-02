@@ -407,7 +407,7 @@ check_kernel_modules_reboot() {
     esac
 }
 
-clone_repos() {
+download_files() {
     echo "Downloading OpenPanel project repositories from Github..."
 
     [[ "$REPAIR" == true ]] && rm -rf "$ETC_DIR" /usr/local/opencli /usr/local/opencli /usr/local/admin/
@@ -1114,7 +1114,7 @@ STEPS=(
     podman_setup
     pull_sytem_images
     hetzner_fix
-    clone_repos
+    downlaod_files
     download_config
     prefetch_shared_images
     setup_opencli
