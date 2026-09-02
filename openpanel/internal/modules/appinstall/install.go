@@ -72,6 +72,47 @@ func containerFailureDetail(ctx context.Context, userContext, serviceName string
 	return reason
 }
 
+// vendoredComposeServiceIndent is the leading-space indent the vendored
+// SERVICE.yml templates hardcode for their own top-level service key.
+const vendoredComposeServiceIndent = 2
+
+// composeServiceIndent detects the indent actually used by service keys
+// under "services:" in a docker-compose.yml, from linesAfterServices (the
+// file's lines following the "services:" line). It's the indent of the
+// first non-blank line, since that's always a service key.
+//
+// This can't be assumed fixed: a vendored compose file starts at 2 spaces,
+// but once docker.SaveCompose has rewritten it (any env var/CPU/RAM edit
+// through the UI), yaml.v3's marshaler always re-indents to 4 spaces
+// regardless of the file's original style. Defaults to
+// vendoredComposeServiceIndent if linesAfterServices has no non-blank line.
+func composeServiceIndent(linesAfterServices []string) int {
+	for _, line := range linesAfterServices {
+		trimmed := strings.TrimRight(line, "\n")
+		if strings.TrimSpace(trimmed) == "" {
+			continue
+		}
+		return len(trimmed) - len(strings.TrimLeft(trimmed, " "))
+	}
+	return vendoredComposeServiceIndent
+}
+
+// indentComposeService re-indents a rendered SERVICE.yml template (whose
+// own service key sits at vendoredComposeServiceIndent) so it lines up
+// with existingIndent, the indent actually used by its siblings under
+// "services:" in the target file - see composeServiceIndent. Inserting it
+// at the wrong indent doesn't just look wrong: a sibling under services:
+// with deeper indent than its neighbors is invalid YAML ("expected <block
+// end>, but found '<block mapping start>'" - confirmed live, every fresh
+// Python/NodeJS/Ruby install failing with "Container failed to start").
+func indentComposeService(serviceStr string, existingIndent int) string {
+	pad := ""
+	if existingIndent > vendoredComposeServiceIndent {
+		pad = strings.Repeat(" ", existingIndent-vendoredComposeServiceIndent)
+	}
+	return pad + strings.ReplaceAll(strings.TrimSuffix(serviceStr, "\n"), "\n", "\n"+pad) + "\n"
+}
+
 func atoiDefault(s string, def int) int {
 	if v, err := strconv.Atoi(s); err == nil {
 		return v
@@ -349,15 +390,10 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	// own nested networks:) the moment that assumption stopped holding -
 	// confirmed live: every fresh Python/NodeJS/Ruby install failed with
 	// "Container failed to start" once this box's compose file had been
-	// re-saved once via LoadCompose/SaveCompose. The vendored templates
-	// indent their service key by 2 spaces, one level short of the 4
-	// spaces every existing entry under services: actually uses (that
-	// mismatch is otherwise invisible - 2-space nesting still parses as a
-	// valid child of services: on its own - until another line at 4-space
-	// follows it expecting to be a *sibling*, not a nested child, which
-	// is exactly what inserting directly after "services:" does), so
-	// every line gets 2 extra spaces of indentation here to match.
-	indentedServiceStr := "  " + strings.ReplaceAll(strings.TrimSuffix(newServiceStr, "\n"), "\n", "\n  ") + "\n"
+	// re-saved once via LoadCompose/SaveCompose. See composeServiceIndent
+	// and indentComposeService for why the insert also has to match the
+	// file's actual existing indent rather than a fixed one.
+	indentedServiceStr := indentComposeService(newServiceStr, composeServiceIndent(composeLines[insertPosition:]))
 
 	newLines := make([]string, 0, len(composeLines)+1)
 	newLines = append(newLines, composeLines[:insertPosition]...)

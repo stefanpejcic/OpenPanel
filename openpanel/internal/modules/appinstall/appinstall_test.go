@@ -1,6 +1,105 @@
 package appinstall
 
-import "testing"
+import (
+	"strings"
+	"testing"
+
+	"gopkg.in/yaml.v3"
+)
+
+func TestComposeServiceIndent(t *testing.T) {
+	cases := map[string]struct {
+		lines []string
+		want  int
+	}{
+		"fresh vendored file, 2-space services": {
+			lines: []string{"\n", "  openlitespeed:\n", "    image: x\n"},
+			want:  2,
+		},
+		"post-SaveCompose file, 4-space services": {
+			lines: []string{"    openlitespeed:\n", "        image: x\n"},
+			want:  4,
+		},
+		"blank lines before the first service key are skipped": {
+			lines: []string{"\n", "\n", "  openlitespeed:\n"},
+			want:  2,
+		},
+		"no service lines falls back to the vendored default": {
+			lines: []string{"\n"},
+			want:  vendoredComposeServiceIndent,
+		},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			if got := composeServiceIndent(tc.lines); got != tc.want {
+				t.Errorf("composeServiceIndent(%q) = %d, want %d", tc.lines, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestIndentComposeService(t *testing.T) {
+	template := "  myapp:\n    image: node\n    ports:\n      - 3000\n"
+
+	t.Run("matches a fresh 2-space file: no extra indent added", func(t *testing.T) {
+		got := indentComposeService(template, 2)
+		if got != template {
+			t.Errorf("got:\n%s\nwant unchanged:\n%s", got, template)
+		}
+	})
+
+	t.Run("matches a post-SaveCompose 4-space file: shifted by 2", func(t *testing.T) {
+		got := indentComposeService(template, 4)
+		want := "    myapp:\n      image: node\n      ports:\n        - 3000\n"
+		if got != want {
+			t.Errorf("got:\n%s\nwant:\n%s", got, want)
+		}
+	})
+}
+
+// TestComposeServiceInsertProducesValidYAML reproduces the live bug: a
+// vendored, never-saved compose file (2-space service keys) got a new
+// service unconditionally pushed to 4 spaces, so the inserted service sat
+// deeper than its siblings under services: - invalid YAML ("expected
+// <block end>, but found '<block mapping start>'"), which is exactly what
+// broke every fresh Python/NodeJS/Ruby install. Assert the merged result
+// actually parses and both services show up as siblings.
+func TestComposeServiceInsertProducesValidYAML(t *testing.T) {
+	existing := "services:\n\n  openlitespeed:\n    image: openlitespeed\n    networks:\n      - www\n"
+	composeLines := strings.SplitAfter(existing, "\n")
+
+	insertPosition := -1
+	for i, line := range composeLines {
+		if strings.HasPrefix(line, "services:") {
+			insertPosition = i + 1
+			break
+		}
+	}
+	if insertPosition == -1 {
+		t.Fatal("services: not found in fixture")
+	}
+
+	newService := "  myapp:\n    image: node:25.9.0\n    ports:\n      - \"3000\"\n"
+	indented := indentComposeService(newService, composeServiceIndent(composeLines[insertPosition:]))
+
+	newLines := make([]string, 0, len(composeLines)+1)
+	newLines = append(newLines, composeLines[:insertPosition]...)
+	newLines = append(newLines, "\n"+indented+"\n")
+	newLines = append(newLines, composeLines[insertPosition:]...)
+	merged := strings.Join(newLines, "")
+
+	var parsed map[string]any
+	if err := yaml.Unmarshal([]byte(merged), &parsed); err != nil {
+		t.Fatalf("merged compose file is not valid YAML: %v\n%s", err, merged)
+	}
+	services, _ := parsed["services"].(map[string]any)
+	if _, ok := services["openlitespeed"]; !ok {
+		t.Errorf("expected existing service preserved, got services: %v", services)
+	}
+	if _, ok := services["myapp"]; !ok {
+		t.Errorf("expected new service inserted as a sibling, got services: %v", services)
+	}
+}
 
 func TestIsValidServiceName(t *testing.T) {
 	cases := map[string]bool{
