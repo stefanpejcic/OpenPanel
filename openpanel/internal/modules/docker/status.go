@@ -3,6 +3,7 @@ package docker
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -118,7 +119,12 @@ func StartOrStopContainer(ctx context.Context, userContext, containerName, actio
 		if err := cmd.Start(); err != nil {
 			return StartStopResult{Success: false, Message: "Unexpected error. Contact Administrator."}
 		}
-		go func() { _ = cmd.Wait() }()
+		go func() {
+			_ = cmd.Wait()
+			if action == "activate" {
+				fixSearchEngineOwnership(context.Background(), userContext, containerName)
+			}
+		}()
 		return StartStopResult{Success: true, Message: fmt.Sprintf("Container '%s' %s in background.", containerName, action)}
 	}
 
@@ -139,11 +145,119 @@ func StartOrStopContainer(ctx context.Context, userContext, containerName, actio
 		return StartStopResult{Success: false, Message: "Unexpected error. Contact Administrator."}
 	}
 
+	if action == "activate" {
+		fixSearchEngineOwnership(ctx, userContext, containerName)
+	}
+
 	msg := stdout.String()
 	if msg == "" {
 		msg = fmt.Sprintf("Container '%s' %sd successfully.", containerName, action)
 	}
 	return StartStopResult{Success: true, Message: msg}
+}
+
+// searchEngineFix maps a search-engine service's container name to the
+// ownership (in the CONTAINER's own uid/gid namespace, matching its
+// image's baked-in default user) that its dedicated data/config/logs
+// volumes (see the compose template) need to end up under.
+var searchEngineFix = map[string]struct {
+	uid, gid int
+	volumes  []string
+}{
+	"elasticsearch": {1000, 0, []string{"es_data", "es_config", "es_logs"}},
+	"opensearch":    {1000, 1000, []string{"opensearch_data", "opensearch_config", "opensearch_logs"}},
+}
+
+// idMapEntry is one [ContainerID, ContainerID+Size) -> HostID range from
+// `podman info`'s Host.IDMappings.{UID,GID}Map, translating this tenant's
+// own user-namespace ids to real host ids.
+type idMapEntry struct {
+	ContainerID int `json:"container_id"`
+	HostID      int `json:"host_id"`
+	Size        int `json:"size"`
+}
+
+// mapToHostID translates a container-namespace id to its real host id
+// using entries from `podman info`'s IDMappings, or ok=false if id falls
+// outside every mapped range.
+func mapToHostID(entries []idMapEntry, id int) (hostID int, ok bool) {
+	for _, e := range entries {
+		if id >= e.ContainerID && id < e.ContainerID+e.Size {
+			return e.HostID + (id - e.ContainerID), true
+		}
+	}
+	return 0, false
+}
+
+// fixSearchEngineOwnership works around a shared-image-store limitation
+// that leaves elasticsearch/opensearch permanently crash-looping in
+// "starting": this host's rootless podman pulls every image once into a
+// read-only store shared across every tenant (additionalimagestores in
+// storage.conf) rather than once per tenant, and that shared store can't
+// be UID-shifted per tenant for image-baked non-root ownership - a path
+// baked in as uid 1000 shows up as the kernel's unmappable-uid fallback
+// in every tenant's own user namespace, and a non-root container uid gets
+// a flat permission denied against it (both images also explicitly
+// refuse to run as root - "can not run elasticsearch as root" - so
+// that's not a usable workaround either).
+//
+// The compose template gives both services their own dedicated
+// data/config/logs volumes (rather than leaving config/logs as
+// image-baked paths, which only data/ would normally need) specifically
+// so this can be fixed with a plain chown: Podman auto-populates a named
+// volume from the image path the first time it's used (so the default
+// config files are still there), but the volume itself is a plain host
+// directory - unlike a container's own overlay mount, which lives in a
+// private per-tenant mount namespace no chown from outside it can reach
+// (confirmed live: even real root, from outside that namespace, sees the
+// mountpoint's pre-mount contents, not the actual overlay; fixing that
+// would need `podman mount`/`unshare` to run as the tenant's own Linux
+// login, which isn't reachable from here - this binary runs in its own
+// container with no account for any tenant and no local runtime dir for
+// their rootless podman, only the remote API socket via CONTAINER_HOST).
+//
+// So the whole fix stays on that same remote API this package already
+// uses everywhere else: resolve the tenant's container-uid -> host-uid
+// mapping via `podman info`, resolve each volume's real host path via
+// `podman volume inspect`, and chown it directly - no unshare, su, or
+// local execution anywhere in this call.
+func fixSearchEngineOwnership(ctx context.Context, userContext, containerName string) {
+	fix, ok := searchEngineFix[containerName]
+	if !ok {
+		return
+	}
+
+	var idMappings struct {
+		UIDMap []idMapEntry
+		GIDMap []idMapEntry
+	}
+	infoArgv := podmanmanager.PodmanArgv(userContext, "info", "--format", "{{json .Host.IDMappings}}")
+	infoOut, err := podmanmanager.Command(ctx, userContext, infoArgv).Output()
+	if err != nil || json.Unmarshal(infoOut, &idMappings) != nil {
+		return
+	}
+	hostUID, ok := mapToHostID(idMappings.UIDMap, fix.uid)
+	if !ok {
+		return
+	}
+	hostGID, ok := mapToHostID(idMappings.GIDMap, fix.gid)
+	if !ok {
+		return
+	}
+	ownership := fmt.Sprintf("%d:%d", hostUID, hostGID)
+
+	for _, volume := range fix.volumes {
+		volArgv := podmanmanager.PodmanArgv(userContext, "volume", "inspect", userContext+"_"+volume, "--format", "{{.Mountpoint}}")
+		mountOut, mountErr := podmanmanager.Command(ctx, userContext, volArgv).Output()
+		if mountErr != nil {
+			continue
+		}
+		mountpoint := strings.TrimSpace(string(mountOut))
+		if mountpoint == "" {
+			continue
+		}
+		_ = exec.CommandContext(ctx, "chown", "-R", ownership, mountpoint).Run()
+	}
 }
 
 func insertAfter(argv []string, after, insert string) []string {
