@@ -148,8 +148,16 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				// activate command's stdout for the word "started" - real
 				// podman-compose output doesn't reliably contain it (see the
 				// identical fix in internal/modules/php/extensions.go).
+				// Polls instead of checking once: varnish's entrypoint copies
+				// and rewrites its VCL file before exec'ing varnishd, and on
+				// an account that's never run varnish before the image may
+				// still need to be pulled - both can take a few seconds past
+				// when `podman-compose up` returns, and a single immediate
+				// check was misreporting that as a start failure (issue
+				// #1091), rolling back and surfacing the compose command's
+				// raw stdout (a container ID) as a bogus "error" message.
 				result := docker.StartOrStopContainer(ctx, userContext, service, "activate", "run")
-				if !result.Success || !docker.IsServiceRunning(ctx, userContext, service) {
+				if !result.Success || !docker.WaitForServiceRunning(ctx, userContext, service) {
 					_ = docker.SwapAllWebserversComposePort(userContext, "off")
 					docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "")
 					_ = docker.ToggleProxyHTTPPort(userContext, "off")

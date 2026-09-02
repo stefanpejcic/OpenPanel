@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"time"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 )
@@ -56,6 +57,33 @@ func IsServiceRunning(ctx context.Context, userContext, serviceName string) bool
 		return false
 	}
 	return strings.TrimSpace(string(out)) != ""
+}
+
+// waitForServiceRunningAttempts/waitForServiceRunningInterval bound how
+// long WaitForServiceRunning polls before giving up.
+const (
+	waitForServiceRunningAttempts = 15
+	waitForServiceRunningInterval = 2 * time.Second
+)
+
+// WaitForServiceRunning polls IsServiceRunning until it reports true or the
+// poll budget is exhausted. A container whose entrypoint does setup work
+// before the real process starts (e.g. varnish copies and rewrites its VCL
+// file before exec'ing varnishd), or whose image still needs to be pulled,
+// can take a few seconds to reach State.Running=true after `podman-compose
+// up` returns - checking once immediately is a false negative, not a
+// slow-but-correct one.
+func WaitForServiceRunning(ctx context.Context, userContext, serviceName string) bool {
+	if IsServiceRunning(ctx, userContext, serviceName) {
+		return true
+	}
+	for attempt := 0; attempt < waitForServiceRunningAttempts; attempt++ {
+		time.Sleep(waitForServiceRunningInterval)
+		if IsServiceRunning(ctx, userContext, serviceName) {
+			return true
+		}
+	}
+	return false
 }
 
 // StartStopResult is the outcome of a start/stop/restart operation.

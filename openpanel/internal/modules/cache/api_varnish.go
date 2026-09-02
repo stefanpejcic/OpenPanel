@@ -107,8 +107,10 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		_ = docker.ToggleProxyHTTPPort(userContext, "on")
 		_ = docker.SwapAllWebserversComposePort(userContext, "on")
 		docker.ComposeContainer(ctx, userContext, webserver, "stop")
+		// Polls rather than checking once - see the identical fix/comment in
+		// handleVarnish (internal/modules/cache/varnish.go), issue #1091.
 		result := docker.StartOrStopContainer(ctx, userContext, "varnish", "activate", "run")
-		if !result.Success || !docker.IsServiceRunning(ctx, userContext, "varnish") {
+		if !result.Success || !docker.WaitForServiceRunning(ctx, userContext, "varnish") {
 			_ = docker.SwapAllWebserversComposePort(userContext, "off")
 			docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "")
 			_ = docker.ToggleProxyHTTPPort(userContext, "off")
