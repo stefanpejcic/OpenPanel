@@ -346,7 +346,6 @@ func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 		}
 		if allowed["docker"] {
 			links = append(links, NavLink{"/containers/logs", "Logs", strings.HasPrefix(path, "/containers/logs"), ""})
-			links = append(links, NavLink{"/containers/image/", "Image Updates", path == "/containers/image/", ""})
 		}
 		if allowed["change_image"] {
 			links = append(links, NavLink{"/containers/image/change", "Change image tag", path == "/containers/image/change", ""})

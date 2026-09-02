@@ -169,44 +169,6 @@ func TestRenderChangeWebserverPage(t *testing.T) {
 	})
 }
 
-// TestRenderImagesPage covers both the populated-report and the
-// no-report-yet ("check is in progress") branches.
-func TestRenderImagesPage(t *testing.T) {
-	mgr := i18n.NewManager(t.TempDir(), nil)
-
-	t.Run("with data", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		data := ImagesPageData{
-			LayoutData: baseLayout(mgr, "/containers/image/"), LastModified: "2026-01-01 00:00:00",
-			Metrics: cupMetrics{MonitoredImages: 3, UpdatesAvailable: 1, UpToDate: 2},
-			Rows: []ImageRow{
-				{Repository: "nginx", Tag: "latest", ImageRef: "nginx:latest", UpdateStatus: "available", InfoType: "version", NewTag: "1.27", CurrentVersion: "1.26", NewVersion: "1.27"},
-				{Repository: "redis", Tag: "7", ImageRef: "redis:7", UpdateStatus: "uptodate"},
-			},
-		}
-		if err := imagesPage.Render(w, 200, data); err != nil {
-			t.Fatalf("Render: %v", err)
-		}
-		body := w.Body.String()
-		for _, want := range []string{"nginx", "redis:7", "Update available"} {
-			if !strings.Contains(body, want) {
-				t.Errorf("rendered images page missing %q", want)
-			}
-		}
-	})
-
-	t.Run("no data yet", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		data := ImagesPageData{LayoutData: baseLayout(mgr, "/containers/image/")}
-		if err := imagesPage.Render(w, 200, data); err != nil {
-			t.Fatalf("Render: %v", err)
-		}
-		if !strings.Contains(w.Body.String(), "Check is in progress") {
-			t.Error("expected in-progress message when no report exists yet")
-		}
-	})
-}
-
 func TestRenderChangeImagePage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 

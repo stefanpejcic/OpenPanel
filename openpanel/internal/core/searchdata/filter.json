@@ -582,14 +582,8 @@
         "name": "Logs"
     },
     {
-        "description": "Check for container image updates.", 
-        "link": "/containers/image", 
-        "module": "docker",
-        "name": "Image Updates"
-    },
-    {
-        "description": "Change container image (tags).", 
-        "link": "/containers/image/change", 
+        "description": "Change container image (tags).",
+        "link": "/containers/image/change",
         "module": "docker",
         "name": "Change Tag"
     },

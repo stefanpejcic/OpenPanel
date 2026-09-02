@@ -37,9 +37,6 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/containers/delete/{service}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleDeleteContainer(a, w, r)
 	}))
-	mux.Handle("/containers/image/", requireLogin(func(w http.ResponseWriter, r *http.Request) {
-		handleContainersImage(a, w, r)
-	}))
 	mux.Handle("GET /containers/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleContainerLogs(a, w, r)
 	}))
