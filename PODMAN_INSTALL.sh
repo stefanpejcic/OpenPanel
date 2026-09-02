@@ -1114,7 +1114,7 @@ STEPS=(
     podman_setup
     pull_sytem_images
     hetzner_fix
-    downlaod_files
+    download_files
     download_config
     prefetch_shared_images
     setup_opencli
