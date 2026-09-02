@@ -1093,6 +1093,10 @@ MSG
     line
 }
 
+clean_notifications() {
+    echo > /var/log/openpanel/admin/notifications.log
+}
+
 setup_progress_bar() {
     local url="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
     if command -v curl &>/dev/null; then
@@ -1168,6 +1172,7 @@ seconds=$((duration % 60))
 support_message
 create_admin_account
 extra_step_for_podman
+clean_notifications
 run_post_install
 ) 200>/root/openpanel_install.lock
 
