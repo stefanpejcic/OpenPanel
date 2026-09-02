@@ -20,8 +20,14 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// topDescriptors are the fields requested from `podman top`.
-var topDescriptors = []string{"uid", "pid", "ppid", "pcpu", "stime", "tty", "time", "args"}
+// topDescriptors are the fields requested from `podman top`. "user", not
+// "uid" - "uid" isn't one of podman's recognized AIX format descriptors
+// (see `podman top --help`), so including it makes podman treat the whole
+// list as ps(1) flags and exec ps(1) inside the container instead, which
+// fails on any image whose ps doesn't support BSD-style syntax (busybox,
+// Alpine, ...) - i.e. every container, so the page always showed "No
+// processes".
+var topDescriptors = []string{"user", "pid", "ppid", "pcpu", "stime", "tty", "time", "args"}
 
 // timeFieldRE matches the elapsed-TIME field ("7s", "23m13s", "1h2m3s") or
 // classic "HH:MM:SS" - used to re-anchor field parsing since STIME isn't
@@ -103,7 +109,7 @@ func getPodmanProcesses(ctx context.Context, userContext string) ([]Process, err
 			continue
 		}
 
-		// First line is the header (UID PID PPID %CPU STIME TTY TIME COMMAND); skip it.
+		// First line is the header (USER PID PPID %CPU STIME TTY TIME COMMAND); skip it.
 		for _, line := range lines[1:] {
 			stripped := strings.TrimSpace(line)
 			if stripped == "" {
