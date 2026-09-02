@@ -59,13 +59,6 @@ func GetRunningContainers(ctx context.Context, userContext string) ([]string, er
 	return strings.Split(trimmed, "\n"), nil
 }
 
-// containerExists reports whether a container by that name can be inspected.
-func containerExists(ctx context.Context, userContext, containerName string) bool {
-	argv := podmanmanager.PodmanArgv(userContext, "inspect", containerName)
-	cmd := podmanmanager.Command(ctx, userContext, argv)
-	return cmd.Run() == nil
-}
-
 // updateContainerRAMOrCPU updates a container's RAM or CPU limit, both in
 // its .env entry and live via `podman update`. action is "ram" or "cpu".
 // Returns (message, success).
@@ -98,7 +91,12 @@ func updateContainerRAMOrCPU(a *appctx.App, ctx context.Context, userContext str
 		return err, false
 	}
 
-	if containerExists(ctx, userContext, containerName) {
+	// `podman update` needs a live cgroup to write to and fails (crun exit
+	// 125) against a stopped/exited container - podman inspect succeeds on
+	// those too, so it can't tell live from stopped. Skip the live update
+	// rather than surfacing that as a failure: the .env value above is
+	// already what the next `podman-compose up` will use.
+	if IsServiceRunning(ctx, userContext, containerName) {
 		var argv []string
 		if action == "ram" {
 			argv = podmanmanager.PodmanArgv(userContext, "update", "--memory-swap", value, "--memory", value, containerName)
@@ -133,7 +131,10 @@ func updateContainerPIDs(ctx context.Context, userContext, containerName, provid
 		return err, false
 	}
 
-	if containerExists(ctx, userContext, containerName) {
+	// See the identical comment in updateContainerRAMOrCPU: `podman update`
+	// fails against a stopped container, so this must check for running,
+	// not merely existing.
+	if IsServiceRunning(ctx, userContext, containerName) {
 		podmanValue := providedValue
 		if podmanValue == "0" {
 			podmanValue = "-1"
