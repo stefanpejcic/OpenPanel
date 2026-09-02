@@ -834,7 +834,7 @@ EOF
                 sed -i "/# START HOSTNAME IP #/,/# END HOSTNAME IP #/ s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$new_hostname/" "${ETC_DIR}caddy/Caddyfile"
             else
                 local admin_port
-                admin_port=$(opencli admin port)
+                admin_port=$(/usr/local/bin/opencli admin port)
                 local ip_block="# START HOSTNAME IP #\n${new_hostname} {\n  tls {\n    issuer acme {\n      profile shortlived\n    }\n  }\n  reverse_proxy localhost:${admin_port}\n}\n# END HOSTNAME IP #\n"
                 sed -i "s|# START HOSTNAME DOMAIN #|${ip_block}# START HOSTNAME DOMAIN #|" "${ETC_DIR}caddy/Caddyfile"
             fi
@@ -877,7 +877,7 @@ generate_ssl() {
 }
 
 configure_waf() {
-    opencli waf "$([[ "$CORAZA" == true ]] && printf '%s' enable || printf '%s' disable)" > /dev/null 2>&1
+    /usr/local/bin/opencli waf "$([[ "$CORAZA" == true ]] && printf '%s' enable || printf '%s' disable)" > /dev/null 2>&1
 }
 
 setup_redis() { install -d -m 777 /tmp/redis; }
@@ -905,11 +905,11 @@ set_container_cpu_limits() {
 configure_premium() {
     [[ "$SET_PREMIUM" != true ]] && return
     LICENSE="Enterprise"
-    timeout 300 opencli license "$license_key"
+    timeout 300 /usr/local/bin/opencli license "$license_key"
 }
 
 configure_imunifyav() {
-    [[ "$IMUNIFY_AV" == true ]] && run opencli imunify install && run opencli imunify start
+    [[ "$IMUNIFY_AV" == true ]] && run /usr/local/bin/opencli imunify install && run /usr/local/bin/opencli imunify start
 }
 
 configure_ssh() {
@@ -932,7 +932,7 @@ setup_cron() {
     ok "Cron configured."
 }
 
-setup_logrotate() { opencli server-logrotate; }
+setup_logrotate() { /usr/local/bin/opencli server-logrotate; }
 
 setup_log_dirs() {
     local log_dir="/var/log/openpanel"
@@ -1039,7 +1039,7 @@ create_admin_account() {
     fi
 
     sqlite3 "${ETC_DIR}openadmin/users.db" "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL, totp_secret TEXT, totp_enabled BOOLEAN DEFAULT 0 NOT NULL);" 2>/dev/null || true
-    opencli admin new "$new_username" "$new_password" --super >/dev/null 2>&1 || true
+    /usr/local/bin/opencli admin new "$new_username" "$new_password" --super >/dev/null 2>&1 || true
 
     local count; count=$(sqlite3 "${ETC_DIR}openadmin/users.db" "SELECT COUNT(*) FROM user WHERE username = '$new_username';" 2>/dev/null || echo 0)
 
@@ -1061,7 +1061,7 @@ display_logins() {
     echo ""
     printf "${GREEN}OpenPanel %s %s installed successfully ${RESET}in %dm %ds\n" "$LICENSE" "$PANEL_VERSION" "$minutes" "$seconds"
     line
-    opencli admin
+    /usr/local/bin/opencli admin
     echo -e "  Username: ${GREEN}${new_username}${RESET}"
     echo -e "  Password: ${GREEN}${new_password}${RESET}"
     line
