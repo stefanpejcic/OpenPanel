@@ -393,7 +393,21 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	emit(map[string]any{"status": "Service added successfully", "success": true})
 
 	emit(map[string]any{"status": "Starting docker container.."})
-	docker.StartOrStopContainer(ctx, userContext, serviceName, "activate", "")
+	startResult := docker.StartOrStopContainer(ctx, userContext, serviceName, "activate", "")
+	if !startResult.Success {
+		// `podman-compose up` itself failed (bad compose file, port
+		// conflict, image pull error, etc.) - no container was ever
+		// created, so there's nothing for containerFailureDetail below to
+		// inspect or read logs from. This is the only place the real
+		// reason is available; report it now instead of falling through
+		// to the poll loop, which would just time out and then report a
+		// generic failure.
+		_ = copyFile(composeBackup, composeFile)
+		_ = copyFile(envBackup, envFile)
+		_ = os.Remove(lockPath)
+		emit(map[string]any{"error": "Container failed to start. " + startResult.Message})
+		return
+	}
 
 	emit(map[string]any{"status": "Checking if container started..."})
 	// A single fixed 3s sleep-then-check is enough for stacks that don't do

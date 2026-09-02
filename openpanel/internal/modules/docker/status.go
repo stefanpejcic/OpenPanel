@@ -98,10 +98,14 @@ func StartOrStopContainer(ctx context.Context, userContext, containerName, actio
 	cmd.Dir = dir
 	cmd.Env = podmanmanager.PodmanEnv(userContext)
 
-	var stdout bytes.Buffer
+	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
 		if _, ok := err.(*exec.ExitError); ok {
+			if detail := strings.TrimSpace(stderr.String()); detail != "" {
+				return StartStopResult{Success: false, Message: detail}
+			}
 			return StartStopResult{Success: false, Message: "Command failed with error. Please try again."}
 		}
 		return StartStopResult{Success: false, Message: "Unexpected error. Contact Administrator."}
