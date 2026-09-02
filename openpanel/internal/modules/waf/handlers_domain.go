@@ -117,28 +117,7 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			status = "Unknown"
 		}
 
-		foundRule, foundTag := false, false
-		for _, line := range strings.Split(contentStr, "\n") {
-			line = strings.TrimSpace(line)
-			if !foundRule && strings.HasPrefix(line, "SecRuleRemoveById") {
-				ids := strings.Fields(line)[1:]
-				if len(ids) > 0 && ids[0] == excludedRuleID {
-					ids = ids[1:]
-				}
-				removedRules = append(removedRules, ids...)
-				foundRule = true
-			} else if !foundTag && strings.HasPrefix(line, "SecRuleRemoveByTag") {
-				tags := strings.Fields(line)[1:]
-				if len(tags) > 0 && strings.EqualFold(tags[0], excludedTag) {
-					tags = tags[1:]
-				}
-				removedTags = append(removedTags, tags...)
-				foundTag = true
-			}
-			if foundRule && foundTag {
-				break
-			}
-		}
+		removedRules, removedTags = parseWAFRemovals(contentStr)
 	}
 
 	if r.URL.Query().Get("output") == "json" {
@@ -202,7 +181,9 @@ func rewriteDirectivesBlock(content string, removedRules, removedTags []string) 
 					filtered = append(filtered, l)
 				}
 				filtered = append(filtered, "            SecRuleRemoveById "+strings.Join(removedRules, " ")+"\n")
-				filtered = append(filtered, "            SecRuleRemoveByTag "+strings.Join(removedTags, " ")+"\n")
+				for _, tag := range removedTags {
+					filtered = append(filtered, "            SecRuleRemoveByTag \""+tag+"\"\n")
+				}
 				filtered = append(filtered, line)
 				newLines = append(newLines, filtered...)
 				buffer = nil

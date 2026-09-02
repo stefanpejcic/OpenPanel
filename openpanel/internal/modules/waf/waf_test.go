@@ -53,11 +53,47 @@ func TestRewriteDirectivesBlock(t *testing.T) {
 	if !containsLine(got, "            SecRuleRemoveById 007 123 456") {
 		t.Errorf("expected new SecRuleRemoveById line, got:\n%s", got)
 	}
-	if !containsLine(got, "            SecRuleRemoveByTag example foo") {
-		t.Errorf("expected new SecRuleRemoveByTag line, got:\n%s", got)
+	if !containsLine(got, `            SecRuleRemoveByTag "example"`) {
+		t.Errorf("expected new SecRuleRemoveByTag line for 'example', got:\n%s", got)
+	}
+	if !containsLine(got, `            SecRuleRemoveByTag "foo"`) {
+		t.Errorf("expected new SecRuleRemoveByTag line for 'foo', got:\n%s", got)
 	}
 	if !containsLine(got, "            SecRuleEngine On") {
 		t.Errorf("expected SecRuleEngine line preserved, got:\n%s", got)
+	}
+}
+
+func TestParseWAFRemovals(t *testing.T) {
+	content := `domain example.com {
+    directives ` + "`" + `
+            SecRuleEngine On
+            SecRuleRemoveById 007 123 456
+            SecRuleRemoveByTag "example"
+            SecRuleRemoveByTag "attack-xss"
+    ` + "`" + `
+}
+`
+	rules, tags := parseWAFRemovals(content)
+	if len(rules) != 2 || rules[0] != "123" || rules[1] != "456" {
+		t.Errorf("rules = %v, want [123 456]", rules)
+	}
+	if len(tags) != 1 || tags[0] != "attack-xss" {
+		t.Errorf("tags = %v, want [attack-xss]", tags)
+	}
+}
+
+func TestParseWAFRemovalsLegacyJoinedTagLine(t *testing.T) {
+	content := `domain example.com {
+    directives ` + "`" + `
+            SecRuleRemoveById 007
+            SecRuleRemoveByTag example attack-xss
+    ` + "`" + `
+}
+`
+	_, tags := parseWAFRemovals(content)
+	if len(tags) != 1 || tags[0] != "attack-xss" {
+		t.Errorf("tags = %v, want [attack-xss]", tags)
 	}
 }
 

@@ -23,6 +23,48 @@ const (
 	excludedTag    = "example"
 )
 
+// parseWAFRemovals extracts the currently-removed rule IDs and tags from
+// a domain conf's Coraza directives block, stripping the hidden
+// excludedRuleID/excludedTag sentinel that's always written first.
+//
+// SecRuleRemoveById accepts multiple space-separated IDs on one line, so
+// that line is parsed as-is. SecRuleRemoveByTag only accepts a single tag
+// argument per directive, so removed tags are written one per line;
+// parsing collects every consecutive SecRuleRemoveByTag line it finds
+// (also tolerating legacy files where multiple tags were incorrectly
+// joined onto one line).
+func parseWAFRemovals(contentStr string) (removedRules, removedTags []string) {
+	foundRule := false
+	tagBlockStarted, tagBlockEnded := false, false
+
+	for _, line := range strings.Split(contentStr, "\n") {
+		line = strings.TrimSpace(line)
+		switch {
+		case !foundRule && strings.HasPrefix(line, "SecRuleRemoveById"):
+			ids := strings.Fields(line)[1:]
+			if len(ids) > 0 && ids[0] == excludedRuleID {
+				ids = ids[1:]
+			}
+			removedRules = append(removedRules, ids...)
+			foundRule = true
+		case !tagBlockEnded && strings.HasPrefix(line, "SecRuleRemoveByTag"):
+			tagBlockStarted = true
+			for _, tok := range strings.Fields(strings.TrimPrefix(line, "SecRuleRemoveByTag")) {
+				tag := strings.Trim(tok, `"`)
+				if tag != "" && !strings.EqualFold(tag, excludedTag) {
+					removedTags = append(removedTags, tag)
+				}
+			}
+		case tagBlockStarted && !tagBlockEnded:
+			tagBlockEnded = true
+		}
+		if foundRule && tagBlockEnded {
+			break
+		}
+	}
+	return removedRules, removedTags
+}
+
 func injected(a *appctx.App, r *http.Request) (username string, err error) {
 	userID, _ := auth.UserID(r)
 	data, err := a.InjectData(r.Context(), userID)
