@@ -6,7 +6,7 @@
 
 If you have multiple OpenPanel servers and want to use your own domain for temporary links, you can designate one server to host the api, and set OpenPanel servers to use that API instead.
 
-To do this, set up the [Temporary Links service for OpenPanel server](https://github.com/stefanpejcic/OpenPanel/blob/main/services/proxy/README.md) on one server, add the domain to it, and then update the [temporary_links](https://dev.openpanel.com/cli/config.html#temporary-links) service on your OpenPanel servers to use the new instance:
+To do this, set up the [Temporary Links service for OpenPanel server](https://github.com/stefanpejcic/website-proxy) on one server, add the domain to it, and then update the *temporary_links* setting on your OpenPanel servers to use the new instance:
 
 ```
 opencli config update temporary_links "https://preview.openpanel.org/index.php"
