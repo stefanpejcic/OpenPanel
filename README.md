@@ -80,7 +80,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 <!-- OS_TEST_RESULTS_START -->
 | Operating System | Version | Last Tested | Status | Average install time[^2] | Notes |
 |---|---|---|---|---|---|
-| Ubuntu | 22 | 2026-08-03 13:11 UTC | ❌ Fail |  |  |
+| Ubuntu | 22 | 2026-09-03 14:09 UTC | ❌ Fail |  |  |
 | Ubuntu | 24 | 2026-08-03 13:18 UTC | ✅ Pass | 2m5s | **recommended for AMD CPU** |
 | Ubuntu | 26 | 2026-08-03 13:15 UTC | ✅ Pass | 2m35s |  |
 | Debian | 10 | | | |  |
@@ -88,11 +88,11 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | Debian | 12 | 2026-08-03 13:24 UTC | ✅ Pass | 1m25s |  |
 | Debian | 13 | 2026-08-03 13:26 UTC | ✅ Pass | 1m54s |  |
 | AlmaLinux | 9.5 | | |  | **recommended for ARM CPU** |
-| AlmaLinux | 10 | 2026-08-03 12:46 UTC | ✅ Pass | 2m40s |  |
+| AlmaLinux | 10 | 2026-09-03 13:04 UTC | ✅ Pass | 9m26s |  |
 | RockyLinux | 9.6 | | | |  |
 | RockyLinux | 10 | 2026-08-03 13:29 UTC | ❌ Fail |  |  |
 | CentOS | 9.5 | | | |  |
-| CentOS | 10 | 2026-08-03 13:00 UTC | ✅ Pass | 3m21s |  |
+| CentOS | 10 | 2026-09-03 13:45 UTC | ✅ Pass | 8m20s |  |
 | openEuler | 24 | | Untested |  |  |
 | ZorinOS | 18 | 2026-07-21 09:43 UTC | ✅ Pass |  |  |
 
