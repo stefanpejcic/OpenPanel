@@ -225,7 +225,7 @@ get_server_ipv4() {
 set_panel_version() {
     if [[ "$CUSTOM_VERSION" == false ]]; then
         local response
-        response=$(curl -4 -s "https://api.openpanel.com/v2/statistics/" || true)
+        response=$(curl --max-time 1 -4 -s "https://api.openpanel.com/v2/statistics/" || true)
         PANEL_VERSION=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+' || true)
         [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="$DEFAULT_PANEL_VERSION"
         PANEL_VERSION="$DEFAULT_PANEL_VERSION"
