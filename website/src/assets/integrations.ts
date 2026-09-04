@@ -122,7 +122,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Create and manage email accounts, aliases and forwarders, spam filters, and webmail access, with tools to monitor and improve deliverability.",
             url: "/docs/panel/emails/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Backups",
@@ -130,7 +130,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Users configure their own backup schedules, choose exactly what to back up, and restore from a wide range of supported destinations.",
             url: "/docs/panel/files/backups/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "FTP",
@@ -233,7 +233,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Keep DNS records automatically in sync with changing IP addresses using a secure token URL, ideal for home servers and routers.",
             url: "/docs/panel/domains/dynamic-dns/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Resource usage",
@@ -354,7 +354,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Administrators can set up webhooks for Discord, Slack and other services, or receive email alerts instead.",
             url: "/docs/admin/notifications/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Terminal Commands",
@@ -536,14 +536,6 @@ export const integrations: IntegrationsType = {
             url: "/docs/panel/account/2fa/",
             status: "stable",
         },
-       // {
-       //     name: "Shell access DEPRECATED",
-       //     icon: Terminal,
-       //     description:
-       //         "End users are restricted from root-level access to their container. Additionally, to increase security, all services within a user's container operate under distinct user accounts.",
-       //     url: "/docs/panel/advanced/ssh/",
-       //     status: "stable",
-       // }, 
        // {
        //     name: "IP blocking DEPRECATED",
        //     icon: IPblock,
