@@ -281,23 +281,41 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 	}
 
 	var backups []BackupInfo
+	var reindexErr string
 	if content, readErr := os.ReadFile(jsonFile); readErr == nil {
 		var errPayload struct {
 			Error string `json:"error"`
 		}
 		if json.Unmarshal(content, &errPayload) == nil && errPayload.Error != "" {
-			renderBackupRestorePage(a, w, r, nil, reindexing, errPayload.Error)
-			return
+			reindexErr = errPayload.Error
+		} else {
+			_ = json.Unmarshal(content, &backups)
 		}
-		_ = json.Unmarshal(content, &backups)
 	}
 
 	if r.URL.Query().Get("output") == "json" {
+		// status=1 is the polling shape (used by the onboarding wizard's
+		// destination test): it needs "reindexing" to tell an in-progress
+		// run apart from a finished one, which the plain array/error shapes
+		// below don't carry - kept as an opt-in param so the existing
+		// Array.isArray() poller (backup_restore.html) keeps working
+		// unchanged.
+		if r.URL.Query().Get("status") == "1" {
+			writeJSON(w, http.StatusOK, map[string]any{"reindexing": reindexing, "error": reindexErr, "count": len(backups)})
+			return
+		}
+		if reindexErr != "" {
+			// Previously this fell through to the HTML error page even for
+			// output=json callers - return JSON instead, since nothing that
+			// actually wants JSON could have been relying on getting HTML.
+			writeJSON(w, http.StatusOK, map[string]string{"error": reindexErr})
+			return
+		}
 		writeJSON(w, http.StatusOK, backups)
 		return
 	}
 
-	renderBackupRestorePage(a, w, r, backups, reindexing, "")
+	renderBackupRestorePage(a, w, r, backups, reindexing, reindexErr)
 }
 
 // handleRestoreFromBackup downloads a remote backup archive and restores

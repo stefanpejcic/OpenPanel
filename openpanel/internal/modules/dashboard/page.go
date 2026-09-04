@@ -27,8 +27,9 @@ type CustomSectionItem struct {
 type DashboardPageData struct {
 	web.LayoutData
 
-	Sections []Section
-	TourShow bool
+	Sections       []Section
+	TourShow       bool
+	OnboardingShow bool
 
 	CustomMessage template.HTML
 

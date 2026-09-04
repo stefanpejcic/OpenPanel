@@ -21,13 +21,12 @@ func invalidate2FAStatus(a *appctx.App, r *http.Request, userID int) {
 	_ = a.Cache.Delete(r.Context(), "get_2fa_status_for_user:"+strconv.Itoa(userID))
 }
 
-// randomBase32Secret generates a TOTP secret. Deliberately stronger than
-// a common TOTP library default (16 base32 chars / 10 random bytes / 80
-// bits): some client-side TOTP libraries (e.g. otplib, used by this
-// project's Playwright tests) reject anything under the RFC
-// 4226-recommended 128-bit minimum, so this uses the RFC's recommended 160
-// bits (20 random bytes, encoding to exactly 32 base32 characters with no
-// padding needed) instead.
+// randomBase32Secret generates a TOTP secret: 20 random bytes (160 bits),
+// stronger than the common 16-char/80-bit default. Some client-side TOTP
+// libraries (e.g. otplib, used by this project's Playwright tests) reject
+// anything under the RFC 4226-recommended 128-bit minimum, so we go with
+// the RFC's own recommended 160 bits - encodes to exactly 32 base32 chars,
+// no padding needed.
 func randomBase32Secret() (string, error) {
 	b := make([]byte, 20)
 	if _, err := rand.Read(b); err != nil {
@@ -52,6 +51,7 @@ func handleTwofaSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		_ = r.ParseForm()
 		setupConfirmed := r.Form.Get("setup_confirmed") != ""
 		twofaActive := r.Form.Get("twofa_active") != ""
+		outputJSON := r.URL.Query().Get("output") == "json"
 
 		var message string
 
@@ -59,6 +59,10 @@ func handleTwofaSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		case setupConfirmed:
 			otpCode := strings.TrimSpace(r.Form.Get("otp_code"))
 			if otpSecret == "" || !totp.Validate(otpCode, otpSecret) {
+				if outputJSON {
+					writeAPIAccountJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid verification code. Please try again."})
+					return
+				}
 				sess, _ := a.Sessions.Get(r, session.CookieName)
 				flash.Add(sess, "error", "Invalid verification code. Please try again.")
 				_ = a.Sessions.Save(r, w, sess)
@@ -99,6 +103,16 @@ func handleTwofaSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			}
 			checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_twofactorauth_change", message)
 			_ = logger.RecordUserAction(a.Config, currentUsername, logAction, reqip.ClientIP(r))
+		}
+
+		if outputJSON {
+			payload := map[string]any{"enabled": twofaEnabled, "message": message}
+			if twofaActive && !setupConfirmed {
+				payload["secret"] = otpSecret
+				payload["otpauth_url"] = otpauthURL(currentUsername, otpSecret, twofaIssuerName(a, ctx))
+			}
+			writeAPIAccountJSON(w, http.StatusOK, payload)
+			return
 		}
 
 		sess, _ := a.Sessions.Get(r, session.CookieName)

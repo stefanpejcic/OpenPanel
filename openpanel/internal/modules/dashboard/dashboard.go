@@ -44,6 +44,7 @@ var dashboardPage = web.MustLoadPage(
 	"dashboard/information.html",
 	"dashboard/usage.html",
 	"dashboard/howto.html",
+	"dashboard/onboarding.html",
 )
 
 // Register wires the dashboard routes onto mux. "dashboard" is always in
@@ -60,10 +61,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.HandleFunc("/openpanel", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusFound)
 	})
-	// net/http.ServeMux's "/" pattern is a catch-all for any path no other
-	// registered pattern matches (Go 1.22+ routing semantics), so an
-	// explicit path check is needed to 404 anything that isn't the literal
-	// root. That check has to sit in front of RequireLogin, not behind it -
+	// net/http.ServeMux's "/" pattern catches any path nothing else matches
+	// (Go 1.22+ routing), so we need an explicit check to 404 anything that
+	// isn't the literal root. That check has to come before RequireLogin -
 	// otherwise an unknown route would redirect an unauthenticated visitor
 	// to /login instead of 404ing.
 	rootHandler := auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -78,6 +78,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}))
 	mux.Handle("POST /dashboard/tour/complete", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleTourComplete(a, w, r)
+	})))
+	mux.Handle("POST /dashboard/onboarding/complete", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleOnboardingComplete(a, w, r)
 	})))
 	mux.Handle("/dashboard", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleDashboard(a, w, r)
@@ -150,7 +153,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		PanelVersion:      panelVersion,
 		CustomPlugins:     len(a.PluginNames) > 0,
 		CustomCSS:         a.CustomCSS,
-		CustomJS:          true, // matches base.html's always-true url_for() guard, see base.html's comment on this - not tied to a.CustomJS on purpose
+		CustomJS:          true, // matches base.html's always-true url_for() guard - not tied to a.CustomJS on purpose
 		NavGroups:         web.BuildSidebarNav(userAllowed, web.NavPath(r)),
 		UserAllowed:       userAllowed,
 		UserAllowedJSON:   web.UserAllowedList(userAllowed),
@@ -171,6 +174,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		LayoutData:            layout,
 		Sections:              buildDashboardSections(userAllowed),
 		TourShow:              d.TourShow,
+		OnboardingShow:        d.OnboardingShow,
 		CustomMessage:         template.HTML(d.CustomMessage), //nolint:gosec // matches Jinja's `custom_message|safe`: admin-authored HTML from a local file, not user input
 		CustomSectionTitle:    d.CustomSectionTitle,
 		CustomSectionItems:    convertCustomSectionItems(d.CustomSectionItems),
@@ -312,6 +316,30 @@ func handleTourComplete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(map[string]bool{"ok": true})
 }
 
+// handleOnboardingComplete marks the onboarding wizard dismissed for good
+// (finished, skipped, or closed - all treated the same, matching
+// handleTourComplete's skip.tour semantics above), so it won't be offered
+// again on a later dashboard load.
+func handleOnboardingComplete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	userID, _ := auth.UserID(r)
+	data, err := a.InjectData(r.Context(), userID)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	userContext, _ := data["context"].(string)
+	markerFile := fmt.Sprintf("/home/%s/onboarding.completed", userContext)
+
+	if _, err := os.Stat(markerFile); os.IsNotExist(err) {
+		if err := os.WriteFile(markerFile, nil, 0o644); err != nil {
+			writeJSONError(w, http.StatusInternalServerError, "Could not save onboarding state.")
+			return
+		}
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]bool{"ok": true})
+}
+
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -344,6 +372,7 @@ type DashboardData struct {
 	UserWebsites          []UserWebsite
 	FTPCount              int
 	TourShow              bool
+	OnboardingShow        bool
 }
 
 type UserWebsite struct {
@@ -351,9 +380,8 @@ type UserWebsite struct {
 	Type     string
 }
 
-// buildDashboardData mirrors dashboard()'s full body (everything up to the
-// render_template call, which doesn't exist yet - see the note in
-// Register).
+// buildDashboardData mirrors dashboard()'s full body, everything up
+// through the render_template call.
 func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected map[string]any) (DashboardData, error) {
 	currentUsername, _ := injected["current_username"].(string)
 	userContext, _ := injected["context"].(string)
@@ -444,6 +472,13 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 	tourSkipFile := fmt.Sprintf("/home/%s/skip.tour", userContext)
 	_, statErr := os.Stat(tourSkipFile)
 	d.TourShow = os.IsNotExist(statErr)
+
+	if a.Config.Get("onboarding", "") == "yes" {
+		onboardingDoneFile := fmt.Sprintf("/home/%s/onboarding.completed", userContext)
+		if _, err := os.Stat(onboardingDoneFile); os.IsNotExist(err) {
+			d.OnboardingShow = true
+		}
+	}
 
 	return d, nil
 }

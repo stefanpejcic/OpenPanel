@@ -136,6 +136,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		action := r.Form.Get("action")
 		webserver, _ := docker.GetEnvValue(userContext, "WEB_SERVER")
 		ipAddress := reqip.ClientIP(r)
+		outputJSON := r.URL.Query().Get("output") == "json"
 
 		// enable/disable run several sequential podman operations (remove +
 		// recreate two containers, with a retry on either) that can add up
@@ -181,7 +182,12 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 					_ = docker.SwapAllWebserversComposePort(userContext, "off")
 					restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
 					_ = docker.ToggleProxyHTTPPort(userContext, "off")
-					flashAndRedirect(a, w, r, "error", fmt.Sprintf("Failed to start %s: could not bring it back up with the Varnish proxy port", webserver), "/cache/varnish")
+					msg := fmt.Sprintf("Failed to start %s: could not bring it back up with the Varnish proxy port", webserver)
+					if outputJSON {
+						writeJSON(w, http.StatusInternalServerError, map[string]string{"error": msg})
+						return
+					}
+					flashAndRedirect(a, w, r, "error", msg, "/cache/varnish")
 					return
 				}
 
@@ -202,7 +208,12 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 					_ = docker.SwapAllWebserversComposePort(userContext, "off")
 					restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
 					_ = docker.ToggleProxyHTTPPort(userContext, "off")
-					flashAndRedirect(a, w, r, "error", fmt.Sprintf("Failed to start %s: %s", service, result.Message), "/cache/varnish")
+					msg := fmt.Sprintf("Failed to start %s: %s", service, result.Message)
+					if outputJSON {
+						writeJSON(w, http.StatusInternalServerError, map[string]string{"error": msg})
+						return
+					}
+					flashAndRedirect(a, w, r, "error", msg, "/cache/varnish")
 					return
 				}
 
@@ -225,7 +236,12 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				_ = logger.RecordUserAction(a.Config, currentUsername, "disabled Varnish", ipAddress)
 
 				if !result.Success {
-					flashAndRedirect(a, w, r, "error", fmt.Sprintf("Failed to start %s after disabling %s: %s", webserver, service, result.Message), "/cache/varnish")
+					msg := fmt.Sprintf("Failed to start %s after disabling %s: %s", webserver, service, result.Message)
+					if outputJSON {
+						writeJSON(w, http.StatusInternalServerError, map[string]string{"error": msg})
+						return
+					}
+					flashAndRedirect(a, w, r, "error", msg, "/cache/varnish")
 					return
 				}
 				flashSess(a, w, r, "success", "Varnish caching is now disabled.")

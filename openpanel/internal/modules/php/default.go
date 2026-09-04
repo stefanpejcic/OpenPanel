@@ -39,6 +39,7 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	isLitespeed := strings.Contains(strings.ToLower(webServer), "litespeed")
+	outputJSON := r.URL.Query().Get("output") == "json"
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
@@ -77,6 +78,10 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 				stopPHPServiceIfRunningAndUnused(ctx, userContext, previousVersion)
 			}
 
+			if outputJSON {
+				writeJSON(w, http.StatusOK, map[string]any{"message": message, "version": newPHPVersion})
+				return
+			}
 			flashSess(a, w, r, "success", message)
 		} else {
 			flashSess(a, w, r, "error", "Default PHP version could not be changed to "+newPHPVersion)
@@ -87,6 +92,20 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	installedVersions := FetchPHPVersions(ctx, a, userContext)
 	phpDefaultVersion, service := computeDefaultPHPVersionAndService(ctx, userContext, webServer, isLitespeed)
+
+	if outputJSON {
+		versionsAPI := fetchPHPVersionsAPI(ctx)
+		versionStatus := make(map[string]map[string]any, len(installedVersions))
+		for _, v := range installedVersions {
+			level, label := classifyPHPVersionLevel(v, versionsAPI)
+			versionStatus[v] = map[string]any{"level": level, "label": label, "is_latest": versionsAPI[v].IsLatestVersion}
+		}
+		writeJSON(w, http.StatusOK, map[string]any{
+			"version": phpDefaultVersion, "service": service, "is_litespeed": isLitespeed,
+			"installed_versions": installedVersions, "version_status": versionStatus,
+		})
+		return
+	}
 
 	renderDefaultPage(a, w, r, phpDefaultVersion, service, installedVersions)
 }

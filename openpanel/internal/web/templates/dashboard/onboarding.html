@@ -1,0 +1,739 @@
+{{define "onboarding"}}{{if .OnboardingShow}}
+<!-- START templates/dashboard/onboarding.html -->
+
+<script src="{{static "vendor/qrcodejs/qrcode.min.js"}}"></script>
+<script src="{{static "js/passkeys.js"}}"></script>
+
+<div
+    x-data="onboardingWizard({
+        webserver: {{if .UserAllowed.change_ws}}true{{else}}false{{end}},
+        php: {{if .UserAllowed.php}}true{{else}}false{{end}},
+        database: {{if .UserAllowed.change_db}}true{{else}}false{{end}},
+        varnish: {{if .UserAllowed.varnish}}true{{else}}false{{end}},
+        backups: {{if .UserAllowed.backups}}true{{else}}false{{end}},
+        twofa: {{if .UserAllowed.twofa}}true{{else}}false{{end}},
+        passkeys: {{if .UserAllowed.passkeys}}true{{else}}false{{end}},
+        csrf: {{toJSON .CSRFToken}},
+        username: {{toJSON .CurrentUsername}}
+    })"
+    x-init="init()"
+>
+<template x-teleport="body">
+    <div x-show="open" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center"
+         style="background: rgba(0,0,0,0.5);"
+         @keydown.escape.window="open = false">
+
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl w-full max-w-xl mx-4 flex flex-col"
+             style="height: min(640px, 85vh);">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
+                <div>
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Let's set up your account"}}</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" x-text="stepLabel()"></p>
+                </div>
+                <button @click="finish()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path d="M12 10.586l4.95-4.95 1.414 1.414L13.414 12l4.95 4.95-1.414 1.414L12 13.414l-4.95 4.95-1.414-1.414L10.586 12 5.636 7.05l1.414-1.414L12 10.586z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex px-5 py-2 gap-1 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 shrink-0">
+                <template x-for="(step, idx) in stepList" :key="step">
+                    <button type="button" @click="stepIndex = idx; error = ''"
+                            class="flex-1 rounded px-2 py-1 text-xs font-medium transition"
+                            :class="idx === stepIndex ? 'bg-black text-white dark:bg-gray-100 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'"
+                            x-text="stepTitle(step)">
+                    </button>
+                </template>
+            </div>
+
+            <!-- Body -->
+            <div class="overflow-y-auto flex-1 px-5 py-4">
+
+                <template x-if="error">
+                    <div class="mb-4 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-300" x-text="error"></div>
+                </template>
+
+                <!-- Step: webserver -->
+                <template x-if="currentStep() === 'webserver'">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Choose the webserver that will power your websites."}}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "You can change this later from Containers."}}</p>
+                        <div class="space-y-2">
+                            <template x-for="opt in webserverOptions" :key="opt.value">
+                                <label class="flex items-center gap-3 rounded border p-3 cursor-pointer"
+                                       :class="webserverChoice === opt.value ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'">
+                                    <input type="radio" name="onb_webserver" :value="opt.value" x-model="webserverChoice">
+                                    <span class="shrink-0" x-html="opt.icon"></span>
+                                    <span>
+                                        <span class="flex items-center gap-1.5">
+                                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="opt.label"></span>
+                                            <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400" x-show="opt.value === currentWebserver">{{.T.Get "Default"}}</span>
+                                        </span>
+                                        <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="opt.description"></span>
+                                    </span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Step: php -->
+                <template x-if="currentStep() === 'php'">
+                    <div>
+                        <template x-if="phpIsLitespeed">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "OpenLiteSpeed uses the latest PHP version"}} (<span class="font-medium text-gray-700 dark:text-gray-300" x-text="currentPhp"></span>) {{.T.Get "for all domains."}}</p>
+                        </template>
+                        <template x-if="!phpIsLitespeed">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Choose the default PHP version used for all new domains."}}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "You can set a different version per domain later from PHP settings."}}</p>
+                                <div class="space-y-2">
+                                    <template x-for="v in phpVersions" :key="v">
+                                        <label class="flex items-center gap-3 rounded border p-3 cursor-pointer"
+                                               :class="phpChoice === v ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'">
+                                            <input type="radio" name="onb_php" :value="v" x-model="phpChoice">
+                                            <span>
+                                                <span class="flex items-center gap-1.5">
+                                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="'PHP ' + v"></span>
+                                                    <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400" x-show="v === currentPhp">{{.T.Get "Default"}}</span>
+                                                </span>
+                                                <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="phpDescription(v)"></span>
+                                            </span>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Step: database -->
+                <template x-if="currentStep() === 'database'">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Choose the database server for your account."}}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "You can change this later from Containers."}}</p>
+                        <div class="space-y-2">
+                            <template x-for="opt in databaseOptions" :key="opt.value">
+                                <label class="flex items-center gap-3 rounded border p-3 cursor-pointer"
+                                       :class="databaseChoice === opt.value ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'">
+                                    <input type="radio" name="onb_database" :value="opt.value" x-model="databaseChoice">
+                                    <span class="shrink-0" x-html="opt.icon"></span>
+                                    <span>
+                                        <span class="flex items-center gap-1.5">
+                                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="opt.label"></span>
+                                            <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400" x-show="opt.value === currentDatabase">{{.T.Get "Default"}}</span>
+                                        </span>
+                                        <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="opt.description"></span>
+                                    </span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Step: varnish -->
+                <template x-if="currentStep() === 'varnish'">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "Varnish caches your websites at the edge, taking load off your webserver."}}</p>
+                        <div class="space-y-2">
+                            <template x-for="opt in varnishOptions" :key="opt.value">
+                                <label class="flex items-center gap-3 rounded border p-3 cursor-pointer"
+                                       :class="varnishChoice === opt.value ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'">
+                                    <input type="radio" name="onb_varnish" :value="opt.value" x-model="varnishChoice">
+                                    <span>
+                                        <span class="flex items-center gap-1.5">
+                                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="opt.label"></span>
+                                            <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400" x-show="opt.value === currentVarnish">{{.T.Get "Default"}}</span>
+                                        </span>
+                                        <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="opt.description"></span>
+                                    </span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Step: backups -->
+                <template x-if="currentStep() === 'backups'">
+                    <div>
+                        <template x-if="!backupTarget">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "Pick where your backups should be stored."}}</p>
+                                <div class="space-y-2">
+                                    <template x-for="opt in backupDestinations" :key="opt.value">
+                                        <label class="flex items-start gap-3 rounded border p-3 cursor-pointer"
+                                               :class="pendingBackupTarget === opt.value ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'">
+                                            <input type="radio" class="mt-1" name="onb_backup_target" :value="opt.value" x-model="pendingBackupTarget">
+                                            <span>
+                                                <span class="flex items-center gap-1.5">
+                                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="opt.label"></span>
+                                                    <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400" x-show="opt.value === currentBackupTarget">{{.T.Get "Default"}}</span>
+                                                </span>
+                                                <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="opt.description"></span>
+                                            </span>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template x-if="backupTarget">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">{{.T.Get "Destination:"}} <span class="font-medium text-gray-700 dark:text-gray-300" x-text="backupTarget"></span></p>
+
+                                <div class="mt-3">
+                                    <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium">{{.T.Get "What to back up"}}</label>
+                                    <select x-model="backupSources" class="relative block w-full mt-2 appearance-none truncate rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950">
+                                        <option value="/backup">{{.T.Get "Everything"}}</option>
+                                        <option value="/backup/html">{{.T.Get "Website Files"}}</option>
+                                        <option value="/backup/mail">{{.T.Get "Emails"}}</option>
+                                        <option value="/backup/vhosts">{{.T.Get "VirtualHosts"}}</option>
+                                        <option value="/backup/mysql">{{.T.Get "MySQL Databases"}}</option>
+                                        <option value="/backup/postgres">{{.T.Get "PostgreSQL Databases"}}</option>
+                                        <option value="/backup/crons.ini">{{.T.Get "Cron Jobs"}}</option>
+                                    </select>
+                                </div>
+
+                                <div class="mt-4 space-y-3">
+                                    <template x-for="field in backupFields" :key="field">
+                                        <div>
+                                            <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" x-text="field"></label>
+                                            <input :type="/PASSWORD|SECRET|KEY/.test(field) ? 'password' : 'text'"
+                                                   x-model="backupValues[field]"
+                                                   class="relative block w-full mt-2 appearance-none truncate rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950">
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <template x-if="backupTestResult === 'ok'">
+                                    <div class="mt-4 rounded border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950 px-3 py-2 text-sm text-green-700 dark:text-green-300">{{.T.Get "Connection successful."}}</div>
+                                </template>
+                                <template x-if="backupTestResult === 'error'">
+                                    <div class="mt-4 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-300" x-text="backupTestError"></div>
+                                </template>
+
+                                <button type="button" @click="changeBackupTarget()" class="mt-3 text-xs text-indigo-600 dark:text-indigo-400 hover:underline">{{.T.Get "Choose a different destination"}}</button>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Step: security -->
+                <template x-if="currentStep() === 'security'">
+                    <div>
+                        <template x-if="opts.twofa && opts.passkeys && !securityChoice">
+                            <div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "Add an extra layer of security to your account."}}</p>
+                                <div class="space-y-2">
+                                    <label class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'twofa'">
+                                        <span class="shrink-0" x-html="twofaIcon"></span>
+                                        <span>
+                                            <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Two-Factor Authentication"}}</span>
+                                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Use an authenticator app (Google Authenticator, Authy, etc.) to generate one-time codes."}}</span>
+                                        </span>
+                                    </label>
+                                    <label class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'passkeys'">
+                                        <span class="shrink-0" x-html="passkeyIcon"></span>
+                                        <span>
+                                            <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Passkey"}}</span>
+                                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Sign in with your device's fingerprint, face recognition, or a security key - no password needed."}}</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template x-if="securityChoice === 'twofa' || (opts.twofa && !opts.passkeys)">
+                            <div>
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="shrink-0" x-html="twofaIcon"></span>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Two-Factor Authentication"}}</span>
+                                </div>
+                                <template x-if="!twofaSecret">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "You'll need an authenticator app such as Google Authenticator to continue."}}</p>
+                                </template>
+                                <template x-if="twofaSecret && !twofaEnabled">
+                                    <div>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">{{.T.Get "Scan the QR code with your 2FA app, then enter the 6-digit code below."}}</p>
+                                        <div class="flex justify-center my-3" id="onb_qrcode"></div>
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" x-model="twofaCode" placeholder="{{.T.Get "6-digit code"}}"
+                                               class="relative block w-full max-w-xs mx-auto appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 text-center">
+                                    </div>
+                                </template>
+                                <template x-if="twofaEnabled">
+                                    <div class="rounded border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950 px-3 py-2 text-sm text-green-700 dark:text-green-300">{{.T.Get "Two-Factor Authentication is now enabled."}}</div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <template x-if="securityChoice === 'passkeys' || (opts.passkeys && !opts.twofa)">
+                            <div>
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="shrink-0" x-html="passkeyIcon"></span>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Passkey"}}</span>
+                                </div>
+                                <template x-if="!passkeyDone">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Click Continue and follow your browser/device prompt to register a passkey."}}</p>
+                                </template>
+                                <template x-if="passkeyDone">
+                                    <div class="rounded border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950 px-3 py-2 text-sm text-green-700 dark:text-green-300">{{.T.Get "Passkey saved."}}</div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Step: tour -->
+                <template x-if="currentStep() === 'tour'">
+                    <div class="text-center py-4">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Want a quick guided tour of the panel?"}}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{.T.Get "You can also start it anytime from the menu."}}</p>
+                        <button type="button" @click="startTour()" class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800">
+                            {{.T.Get "Take the tour"}}
+                        </button>
+                    </div>
+                </template>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-between px-5 py-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
+                <button type="button" @click="skip()" class="text-sm text-gray-500 dark:text-gray-400 hover:underline" :disabled="loading">{{.T.Get "Skip"}}</button>
+                <button type="button" @click="advance()" :disabled="loading"
+                        class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800 disabled:opacity-50">
+                    <span x-show="!loading" x-text="isLastStep() ? '{{.T.Get "Finish"}}' : '{{.T.Get "Continue"}}'"></span>
+                    <span x-show="loading">{{.T.Get "Please wait…"}}</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</template>
+</div>
+
+<script>
+function onboardingWizard(opts) {
+    return {
+        opts: opts,
+        open: false,
+        loading: false,
+        error: '',
+        stepList: [],
+        stepIndex: 0,
+
+        webserverChoice: null,
+        webserverOptions: [
+            {
+                value: 'apache', label: 'Apache',
+                description: '{{.T.Get "Recommended for websites that use .htaccess for rewrite rules."}}',
+                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" aria-label="Apache"><title>Apache</title><path fill="#D22128" d="M17.805 2.197v.066h.156v.44h.072v-.44h.156v-.066zm.9 0l-.175.353-.172-.353h-.087v.506h.067V2.3l.172.35h.045l.172-.35v.404h.066v-.506zm-4.257 1c-.204.31-.424.66-.66 1.06l-.04.062a44.457 44.457 0 00-1.265 2.29c-.187.36-.38.742-.577 1.146l2.267-.25c.66-.302.955-.578 1.242-.976a15.5 15.5 0 00.23-.342c.23-.363.46-.763.663-1.16.197-.386.37-.767.505-1.11.083-.22.15-.422.198-.6.042-.158.074-.307.1-.45-.884.15-1.965.295-2.668.33zM11.894 7.78l-.077.16c-.078.16-.157.32-.236.488-.086.18-.172.364-.26.552l-.132.287a75.265 75.265 0 00-1.427 3.3c-.163.397-.327.807-.493 1.23-.15.38-.297.765-.45 1.164l-.02.06c-.15.396-.3.802-.453 1.22l-.01.027.72-.08a.213.213 0 01-.042-.006c.863-.106 2.01-.75 2.75-1.547.342-.367.652-.8.94-1.306.213-.377.413-.795.604-1.258.168-.405.328-.843.48-1.318-.196.105-.423.18-.673.235a2.184 2.184 0 01-.273.046c.806-.31 1.314-.905 1.683-1.64a2.816 2.816 0 01-.968.428c-.06.012-.116.022-.174.03l-.043.006h.002c.278-.118.514-.248.718-.403a2.571 2.571 0 00.637-.698l.063-.104.077-.154a8.107 8.107 0 00.367-.85l.03-.088a3.04 3.04 0 00.123-.463.733.733 0 01-.094.065c-.243.145-.66.277-.996.34l.663-.074-.664.073h-.017l-.1.017c.006-.003.01-.006.017-.008l-2.265.25-.013.022zM8.27 16.45c-.117.323-.236.654-.355.992l-.005.015c-.016.046-.032.094-.05.142-.08.227-.15.432-.31.9.264.12.475.435.675.793a1.44 1.44 0 00-.466-.99c1.293.06 2.41-.27 2.99-1.217.05-.084.096-.173.14-.268-.26.333-.59.474-1.2.44 0 0-.004 0-.005.002l.004-.002c.9-.404 1.354-.79 1.754-1.433.094-.153.186-.32.28-.503-.788.81-1.702 1.04-2.664.865l-.72.078a6.43 6.43 0 00-.067.183zM15.42.112c-.376.222-1 .85-1.748 1.763l.686 1.294c.48-.687.97-1.307 1.462-1.836l.058-.062c-.02.02-.04.04-.057.062-.16.176-.644.74-1.375 1.863.703-.035 1.784-.18 2.666-.33.262-1.47-.258-2.142-.258-2.142s-.66-1.07-1.436-.61zm-3.084 6.402a40.253 40.253 0 011.306-2.26l.04-.064c.224-.352.45-.693.677-1.02l-.685-1.293-.157.192c-.197.245-.403.51-.613.79a39.853 39.853 0 00-2.016 2.97l-.022.038.893 1.763c.19-.378.38-.752.575-1.118zm-3.73 8.32c.158-.406.319-.81.483-1.225.156-.394.32-.79.484-1.19a91.133 91.133 0 011.6-3.604l.205-.424c.12-.243.237-.485.36-.724a.125.125 0 01.02-.04l-.895-1.763-.044.07c-.207.34-.414.687-.617 1.042a38.056 38.056 0 00-1.092 2.04l-.094.193a24.573 24.573 0 00-1.258 3.087 18.492 18.492 0 00-.52 1.997l.896 1.77c.117-.317.24-.638.364-.963zm-1.376-.476a13.38 13.38 0 00-.234 1.692c0 .02-.004.04-.005.06-.28-.45-1.03-.888-1.026-.884.537.778.944 1.55 1.005 2.31-.29.058-.684-.027-1.14-.195.475.436.83.556.97.588-.434.03-.89.328-1.346.67.668-.27 1.21-.38 1.596-.29-.61 1.74-1.23 3.655-1.843 5.69a.538.538 0 00.364-.354c.11-.368.84-2.786 1.978-5.965l.097-.27.028-.078c.12-.332.246-.672.374-1.02l.09-.237v-.004L7.24 14.3c-.003.02-.01.04-.012.06z"></path></svg>`
+            },
+            {
+                value: 'nginx', label: 'Nginx',
+                description: '{{.T.Get "Recommended for NodeJS and Python applications, and high-traffic sites."}}',
+                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" aria-label="NGINX"><title>NGINX</title><path fill="#009639" d="M12 0L1.605 6v12L12 24l10.395-6V6L12 0zm6 16.59c0 .705-.646 1.29-1.529 1.29-.631 0-1.351-.255-1.801-.81l-6-7.141v6.66c0 .721-.57 1.29-1.274 1.29H7.32c-.721 0-1.29-.6-1.29-1.29V7.41c0-.705.63-1.29 1.5-1.29.646 0 1.38.255 1.83.81l5.97 7.141V7.41c0-.721.6-1.29 1.29-1.29h.075c.72 0 1.29.6 1.29 1.29v9.18H18z"></path></svg>`
+            },
+            {
+                value: 'openlitespeed', label: 'OpenLiteSpeed',
+                description: '{{.T.Get "Recommended for WordPress websites, but only one PHP version."}}',
+                icon: `<svg role="img" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" enable-background="new 50 50 200 200" xml:space="preserve" class="w-10 h-10" id="Layer_1" viewBox="50 50 200 200" width="50" height="50">
+<g>
+    <path fill="#75D1DF" d="M216.455,101.332c-0.242-0.327-0.615-0.529-1.014-0.561c-0.401-0.033-0.795,0.116-1.086,0.399l-6.555,6.532
+        c-0.479,0.479-0.537,1.236-0.152,1.787c8.453,11.95,12.933,25.954,12.933,40.514c0,38.906-31.709,70.57-70.685,70.57
+        c-2.703,0-5.517-0.197-8.838-0.609c-0.206-0.03-1.092-0.166-1.649-0.256c-2.781-0.427-5.348-0.959-7.844-1.623
+        c0,0-0.395-0.1-0.479-0.129c-0.027-0.004-0.046-0.012-0.072-0.023c-3.154-0.887-6.227-1.982-9.145-3.262
+        c-2.914-1.259-5.838-2.795-8.712-4.581l85.846-45.399c2.728-1.443,4.389-3.986,4.438-6.801c0.057-2.811-1.5-5.418-4.176-6.967
+        l-29.482-17.062l43.625-43.626c3.137-3.13,2.887-5.947,2.133-7.744c-0.902-2.221-3.245-3.773-5.693-3.773
+        c-1.316,0-2.539,0.353-4.086,1.182l-104.732,55.384c-2.741,1.443-4.407,3.994-4.458,6.833c-0.041,2.823,1.538,5.419,4.217,6.943
+        l29.535,16.993l-31.919,31.91c-1.776-1.925-3.457-3.938-5.002-6.019c-6.52-8.793-10.806-18.51-12.732-28.875
+        c-0.029-0.147-0.054-0.299-0.07-0.447c-0.006-0.028-0.008-0.057-0.015-0.094l-0.043-0.215c-0.29-1.707-0.608-3.693-0.796-5.672
+        c-0.044-0.459-0.059-0.948-0.068-1.412c0-0.012,0-0.02-0.006-0.032l-0.102-1.796c-0.069-1.014-0.144-2.162-0.144-3.332
+        c0-4.821,0.479-9.611,1.432-14.232c0.447-2.164,0.993-4.297,1.632-6.339c0.024-0.071,0.039-0.126,0.052-0.2
+        c0.007-0.038,0.017-0.11,0.033-0.16c0,0,0-0.004,0.001-0.007c9.233-29.73,36.332-49.706,67.431-49.706
+        c4.276,0,8.663,0.495,13.805,1.562l0.624,0.132c1.611,0.338,3.408,0.802,5.48,1.408c1.102,0.321,2.205,0.719,3.178,1.067
+        l0.918,0.329c0.842,0.291,1.727,0.598,2.527,0.931c0.012,0.003,0.023,0.013,0.041,0.016c0.114,0.045,0.213,0.092,0.332,0.144
+        l0.045,0.023c0.39,0.181,0.845,0.169,1.228-0.037l10.327-5.467c0.451-0.237,0.733-0.709,0.738-1.226c0-0.513-0.287-0.98-0.738-1.22
+        c-11.828-6.282-25.147-9.6-38.504-9.6c-45.502,0-82.516,37.012-82.516,82.515c0,18.435,6.054,35.94,17.509,50.62
+        c1.512,1.936,3.18,3.868,4.968,5.775l-3.366,3.37c-3.122,3.102-2.892,5.911-2.145,7.72c0.924,2.229,3.273,3.785,5.714,3.785
+        c1.29,0,2.545-0.361,4.071-1.17l7.001-3.715c2.307,1.697,4.635,3.244,6.929,4.602c12.75,7.535,27.214,11.521,41.835,11.521
+        c45.488,0,82.5-37.014,82.5-82.511C232.508,132.412,226.963,115.582,216.455,101.332z"></path>
+    <g>
+        <path fill="#FFD633" d="M90.169,216.275c-0.408,0-0.948-0.336-1.096-0.688c-0.116-0.282-0.359-0.874,1.049-2.272l45.011-45.002
+            c0.789-0.787,1.175-1.924,1.028-3.029c-0.147-1.101-0.813-2.098-1.778-2.649l-31.101-17.896c-1.089-0.625-1.73-1.579-1.715-2.552
+            c0.016-0.967,0.688-1.896,1.796-2.481l104.732-55.388c0.998-0.53,1.46-0.599,1.76-0.599c0.412,0,0.914,0.318,1.059,0.664
+            c0.139,0.327,0.385,0.91-1.03,2.319l-44.915,44.915c-0.789,0.783-1.17,1.911-1.027,3.018c0.145,1.106,0.809,2.098,1.768,2.652
+            l31.05,17.966c1.07,0.62,1.702,1.567,1.679,2.53c-0.017,0.984-0.684,1.916-1.777,2.502L91.909,215.689
+            C90.92,216.219,90.46,216.275,90.169,216.275z"></path>
+    </g>
+</g>
+</svg>`
+            },
+            {
+                value: 'openresty', label: 'OpenResty',
+                description: '{{.T.Get "Nginx core bundled with Lua scripting for custom logic."}}',
+                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" aria-label="OpenResty"><title>OpenResty</title><path fill="#7DC242" d="M12 0L1.75 6v12L12 24l10.25-6V6zm-1.775 18l1.08-4.657-2.428-2.397L13.79 6l-1.082 4.665 2.414 2.384z"></path></svg>`
+            }
+        ],
+
+        databaseChoice: null,
+        currentDatabase: null,
+        databaseOptions: [
+            {
+                value: 'mysql', label: 'MySQL',
+                description: '{{.T.Get "Can be better fine-tuned for any type of application."}}',
+                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" aria-label="MySQL"><title>MySQL</title><path fill="#003545" d="M16.405 5.501c-.115 0-.193.014-.274.033v.013h.014c.054.104.146.18.214.273.054.107.1.214.154.32l.014-.015c.094-.066.14-.172.14-.333-.04-.047-.046-.094-.08-.14-.04-.067-.126-.1-.18-.153zM5.77 18.695h-.927a50.854 50.854 0 00-.27-4.41h-.008l-1.41 4.41H2.45l-1.4-4.41h-.01a72.892 72.892 0 00-.195 4.41H0c.055-1.966.192-3.81.41-5.53h1.15l1.335 4.064h.008l1.347-4.064h1.095c.242 2.015.384 3.86.428 5.53zm4.017-4.08c-.378 2.045-.876 3.533-1.492 4.46-.482.716-1.01 1.073-1.583 1.073-.153 0-.34-.046-.566-.138v-.494c.11.017.24.026.386.026.268 0 .483-.075.647-.222.197-.18.295-.382.295-.605 0-.155-.077-.47-.23-.944L6.23 14.615h.91l.727 2.36c.164.536.233.91.205 1.123.4-1.064.678-2.227.835-3.483zm12.325 4.08h-2.63v-5.53h.885v4.85h1.745zm-3.32.135l-1.016-.5c.09-.076.177-.158.255-.25.433-.506.648-1.258.648-2.253 0-1.83-.718-2.746-2.155-2.746-.704 0-1.254.232-1.65.697-.43.508-.646 1.256-.646 2.245 0 .972.19 1.686.574 2.14.35.41.877.615 1.583.615.264 0 .506-.033.725-.098l1.325.772.36-.622zM15.5 17.588c-.225-.36-.337-.94-.337-1.736 0-1.393.424-2.09 1.27-2.09.443 0 .77.167.977.5.224.362.336.936.336 1.723 0 1.404-.424 2.108-1.27 2.108-.445 0-.77-.167-.978-.5zm-1.658-.425c0 .47-.172.856-.516 1.156-.344.3-.803.45-1.384.45-.543 0-1.064-.172-1.573-.515l.237-.476c.438.22.833.328 1.19.328.332 0 .593-.073.783-.22a.754.754 0 00.3-.615c0-.33-.23-.61-.648-.845-.388-.213-1.163-.657-1.163-.657-.422-.307-.632-.636-.632-1.177 0-.45.157-.81.47-1.085.315-.278.72-.415 1.22-.415.512 0 .98.136 1.4.41l-.213.476a2.726 2.726 0 00-1.064-.23c-.283 0-.502.068-.654.206a.685.685 0 00-.248.524c0 .328.234.61.666.85.393.215 1.187.67 1.187.67.433.305.648.63.648 1.168zm9.382-5.852c-.535-.014-.95.04-1.297.188-.1.04-.26.04-.274.167.055.053.063.14.11.214.08.134.218.313.346.407.14.11.28.216.427.31.26.16.555.255.81.416.145.094.293.213.44.313.073.05.12.14.214.172v-.02c-.046-.06-.06-.147-.105-.214-.067-.067-.134-.127-.2-.193a3.223 3.223 0 00-.695-.675c-.214-.146-.682-.35-.77-.595l-.013-.014c.146-.013.32-.066.46-.106.227-.06.435-.047.67-.106.106-.027.213-.06.32-.094v-.06c-.12-.12-.21-.283-.334-.395a8.867 8.867 0 00-1.104-.823c-.21-.134-.476-.22-.697-.334-.08-.04-.214-.06-.26-.127-.12-.146-.19-.34-.275-.514a17.69 17.69 0 01-.547-1.163c-.12-.262-.193-.523-.34-.763-.69-1.137-1.437-1.826-2.586-2.5-.247-.14-.543-.2-.856-.274-.167-.008-.334-.02-.5-.027-.11-.047-.216-.174-.31-.235-.38-.24-1.364-.76-1.644-.072-.18.434.267.862.422 1.082.115.153.26.328.34.5.047.116.06.235.107.356.106.294.207.622.347.897.073.14.153.287.247.413.054.073.146.107.167.227-.094.136-.1.334-.154.5-.24.757-.146 1.693.194 2.25.107.166.362.534.703.393.3-.12.234-.5.32-.835.02-.08.007-.133.048-.187v.015c.094.188.188.367.274.555.206.328.566.668.867.895.16.12.287.328.487.402v-.02h-.015c-.043-.058-.1-.086-.154-.133a3.445 3.445 0 01-.35-.4 8.76 8.76 0 01-.747-1.218c-.11-.21-.202-.436-.29-.643-.04-.08-.04-.2-.107-.24-.1.146-.247.273-.32.453-.127.288-.14.642-.188 1.01-.027.007-.014 0-.027.014-.214-.052-.287-.274-.367-.46-.2-.475-.233-1.238-.06-1.785.047-.14.247-.582.167-.716-.042-.127-.174-.2-.247-.303a2.478 2.478 0 01-.24-.427c-.16-.374-.24-.788-.414-1.162-.08-.173-.22-.354-.334-.513-.127-.18-.267-.307-.368-.52-.033-.073-.08-.194-.027-.274.014-.054.042-.075.094-.09.088-.072.335.022.422.062.247.1.455.194.662.334.094.066.195.193.315.226h.14c.214.047.455.014.655.073.355.114.675.28.962.46a5.953 5.953 0 012.085 2.286c.08.154.115.295.188.455.14.33.313.663.455.982.14.315.275.636.476.897.1.14.502.213.682.286.133.06.34.115.46.188.23.14.454.3.67.454.11.076.443.243.463.378z"></path></svg>`
+            },
+            {
+                value: 'mariadb', label: 'MariaDB',
+                description: '{{.T.Get "Recommended for WordPress sites - smaller image, lower resource usage, and faster default query execution."}}',
+                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" aria-label="MariaDB"><title>MariaDB</title><path fill="#003545" d="M23.157 4.412c-.676.284-.79.31-1.673.372-.65.045-.757.057-1.212.209-.75.246-1.395.75-2.02 1.59-.296.398-1.249 1.913-1.249 1.988 0 .057-.65.998-.915 1.32-.574.713-1.08 1.079-2.14 1.59-.77.36-1.224.524-4.102 1.477-1.073.353-2.133.738-2.367.864-.852.449-1.515 1.036-2.203 1.938-1.003 1.32-.972 1.313-3.042.947a12.264 12.264 0 00-.675-.063c-.644-.05-1.023.044-1.332.334L0 17.193l.177.088c.094.05.353.234.561.398.215.17.461.347.55.391.088.044.17.088.183.101.012.013-.089.17-.228.353-.435.581-.593.871-.574 1.048.019.164.032.17.43.17.517-.006.826-.056 1.261-.208.65-.233 2.058-.94 2.784-1.4.776-.5 1.717-.998 1.956-1.042.082-.02.354-.07.594-.114.58-.107 1.464-.095 2.587.05.108.013.373.045.6.064.227.025.43.057.454.076.026.012.474.037.998.056.934.026 1.104.007 1.3-.189.126-.133.385-.631.498-.985.209-.643.417-.921.366-.492-.113.966-.322 1.692-.713 2.411-.259.499-.663 1.092-.934 1.395-.322.347-.315.36.088.315.619-.063 1.471-.397 2.096-.82.827-.562 1.647-1.691 2.19-3.03.107-.27.22-.22.183.083-.013.094-.038.315-.057.498l-.031.328.353-.202c.833-.48 1.414-1.262 2.127-2.884.227-.518.877-2.922 1.073-3.976a9.64 9.64 0 01.271-1.042c.127-.429.196-.555.48-.858.183-.19.625-.555.978-.808.72-.505.953-.75 1.187-1.205.208-.417.284-1.13.132-1.357-.132-.202-.284-.196-.763.006Z"></path></svg>`
+            }
+        ],
+
+        phpChoice: null,
+        currentPhp: null,
+        phpVersions: [],
+        phpVersionStatus: {},
+        phpIsLitespeed: false,
+
+        varnishChoice: null,
+        currentVarnish: null,
+        varnishOptions: [
+            { value: 'enabled', label: '{{.T.Get "Enabled"}}', description: '{{.T.Get "Cache pages at the edge to speed up your websites and reduce load on your webserver."}}' },
+            { value: 'disabled', label: '{{.T.Get "Disabled"}}', description: '{{.T.Get "Requests go straight to your webserver, with no caching layer in front."}}' }
+        ],
+
+        backupDestinations: [
+            { value: 'none', label: '{{.T.Get "None"}}', description: '{{.T.Get "Don't configure backups now - you can set this up later from Backups."}}' },
+            { value: 's3', label: 'S3-compatible', description: '{{.T.Get "AWS S3, Filebase, Google Cloud Storage, MinIO, etc."}}' },
+            { value: 'webdav', label: 'WebDAV', description: '{{.T.Get "Remote backups using the WebDAV protocol."}}' },
+            { value: 'ssh', label: 'SSH', description: '{{.T.Get "Remote backups to another server via SSH/SFTP."}}' },
+            { value: 'azure', label: 'Azure', description: '{{.T.Get "Remote backups to Azure Blob Storage."}}' },
+            { value: 'dropbox', label: 'Dropbox', description: '{{.T.Get "Remote backups to Dropbox cloud storage."}}' }
+        ],
+        backupFieldsByTarget: {
+            s3: ['AWS_S3_BUCKET_NAME', 'AWS_S3_PATH', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'],
+            webdav: ['WEBDAV_URL', 'WEBDAV_USERNAME', 'WEBDAV_PASSWORD', 'WEBDAV_PATH'],
+            ssh: ['SSH_HOST_NAME', 'SSH_PORT', 'SSH_USER', 'SSH_PASSWORD', 'SSH_REMOTE_PATH'],
+            azure: ['AZURE_STORAGE_ACCOUNT_NAME', 'AZURE_STORAGE_PRIMARY_ACCOUNT_KEY', 'AZURE_STORAGE_CONTAINER_NAME'],
+            dropbox: ['DROPBOX_APP_KEY', 'DROPBOX_APP_SECRET', 'DROPBOX_REFRESH_TOKEN', 'DROPBOX_REMOTE_PATH']
+        },
+        pendingBackupTarget: 'none',
+        currentBackupTarget: 'none',
+        backupTarget: null,
+        backupFields: [],
+        backupValues: {},
+        backupSources: '/backup',
+        backupTestResult: null,
+        backupTestError: '',
+
+        securityChoice: null,
+        twofaSecret: null,
+        twofaOtpUri: null,
+        twofaCode: '',
+        twofaEnabled: false,
+        passkeyDone: false,
+        twofaIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>`,
+        passkeyIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>`,
+
+        currentWebserver: null,
+
+        stepTitles: {
+            webserver: '{{.T.Get "Webserver"}}',
+            php: 'PHP',
+            database: '{{.T.Get "Database"}}',
+            varnish: '{{.T.Get "Varnish"}}',
+            backups: '{{.T.Get "Backups"}}',
+            security: '{{.T.Get "Security"}}',
+            tour: '{{.T.Get "Tour"}}'
+        },
+        stepTitle(step) {
+            return this.stepTitles[step] || step;
+        },
+
+        // phpDescription is derived from the version_status the server
+        // already computes for /php/domains (level + is_latest), not
+        // hardcoded per PHP version - so it never needs updating as new
+        // versions ship or older ones age out of support.
+        phpDescription(v) {
+            const info = this.phpVersionStatus[v];
+            if (!info) return '';
+            // The "good"/"secure"/"unsupported" level alone doesn't cleanly
+            // separate "Supported" from "Security-Fixes Only" (both come
+            // back as "secure"), so match on the label text itself, which
+            // is the actual distinguishing signal the remote PHP-versions
+            // API provides - most-specific check first.
+            const label = (info.label || '').toLowerCase();
+            if (info.is_latest || label.indexOf('latest') !== -1) {
+                return '{{.T.Get "The latest version - recommended for the newest features, performance, and security fixes."}}';
+            }
+            if (label.indexOf('security') !== -1) {
+                return '{{.T.Get "Security fixes only - fine for older apps, but you should plan an upgrade."}}';
+            }
+            if (label.indexOf('supported') !== -1) {
+                return '{{.T.Get "Fully supported - use this if your apps aren't yet compatible with or tested on the latest version."}}';
+            }
+            return '{{.T.Get "No longer receives any patches - you should definitely plan an upgrade."}}';
+        },
+
+        init() {
+            let s = [];
+            if (this.opts.webserver) s.push('webserver');
+            if (this.opts.php) s.push('php');
+            if (this.opts.database) s.push('database');
+            if (this.opts.varnish) s.push('varnish');
+            if (this.opts.backups) s.push('backups');
+            if (this.opts.twofa || this.opts.passkeys) s.push('security');
+            s.push('tour');
+            this.stepList = s;
+            this.open = true;
+
+            if (this.opts.webserver) {
+                this.getJSON('/containers/webserver?output=json').then(({ ok, data }) => {
+                    if (ok && typeof data === 'string') {
+                        this.currentWebserver = data;
+                        this.webserverChoice = data;
+                    }
+                });
+            }
+            if (this.opts.database) {
+                this.getJSON('/containers/mysql?output=json').then(({ ok, data }) => {
+                    if (ok && typeof data === 'string') {
+                        this.currentDatabase = data;
+                        this.databaseChoice = data;
+                    }
+                });
+            }
+            if (this.opts.varnish) {
+                this.getJSON('/cache/varnish?output=json').then(({ ok, data }) => {
+                    if (ok) {
+                        const state = data.container_state === 'running' ? 'enabled' : 'disabled';
+                        this.currentVarnish = state;
+                        this.varnishChoice = state;
+                    }
+                });
+            }
+            if (this.opts.php) {
+                this.getJSON('/php/default?output=json').then(({ ok, data }) => {
+                    if (ok) {
+                        this.phpIsLitespeed = !!data.is_litespeed;
+                        this.currentPhp = data.version;
+                        this.phpChoice = data.version;
+                        this.phpVersions = data.installed_versions || [];
+                        this.phpVersionStatus = data.version_status || {};
+                    }
+                });
+            }
+            if (this.opts.backups) {
+                this.getJSON('/backups/destination?output=json').then(({ ok, data }) => {
+                    if (ok) this.currentBackupTarget = data.active || 'none';
+                });
+            }
+        },
+
+        currentStep() {
+            return this.stepList[this.stepIndex];
+        },
+        isLastStep() {
+            return this.stepIndex >= this.stepList.length - 1;
+        },
+        stepLabel() {
+            return '{{.T.Get "Step"}} ' + (this.stepIndex + 1) + ' ' + '{{.T.Get "of"}}' + ' ' + this.stepList.length;
+        },
+
+        // formPost/getJSON talk to this same session's own page handlers
+        // (not the Bearer-token-gated /api/* routes, which a logged-in
+        // browser session can't call) - each one honours ?output=json for
+        // a JSON response instead of its normal flash+redirect, and reads
+        // its body the same way its <form> counterpart would
+        // (application/x-www-form-urlencoded), not a JSON body.
+        async formPost(url, params) {
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'X-CSRF-Token': this.opts.csrf },
+                body: new URLSearchParams(params || {})
+            });
+            let data = {};
+            try { data = await resp.json(); } catch (e) {}
+            return { ok: resp.ok, data: data };
+        },
+        async getJSON(url) {
+            const resp = await fetch(url, { headers: { 'X-CSRF-Token': this.opts.csrf } });
+            let data = {};
+            try { data = await resp.json(); } catch (e) {}
+            return { ok: resp.ok, data: data };
+        },
+
+        changeBackupTarget() {
+            this.backupTarget = null;
+            this.backupTestResult = null;
+        },
+
+        // advance() runs the current step's action, then moves on only if
+        // it succeeds - each step function returns true/false.
+        async advance() {
+            this.error = '';
+            this.loading = true;
+            let ok = true;
+            try {
+                const step = this.currentStep();
+                if (step === 'webserver') ok = await this.submitWebserver();
+                else if (step === 'php') ok = await this.submitPHP();
+                else if (step === 'database') ok = await this.submitDatabase();
+                else if (step === 'varnish') ok = await this.submitVarnish();
+                else if (step === 'backups') ok = await this.submitBackups();
+                else if (step === 'security') ok = await this.submitSecurity();
+                else if (step === 'tour') { this.finish(); return; }
+            } finally {
+                this.loading = false;
+            }
+            if (ok) this.moveNext();
+        },
+
+        moveNext() {
+            this.error = '';
+            if (this.isLastStep()) { this.finish(); return; }
+            this.stepIndex++;
+        },
+
+        skip() {
+            this.error = '';
+            if (this.isLastStep()) { this.finish(); return; }
+            this.stepIndex++;
+        },
+
+        async submitWebserver() {
+            if (!this.webserverChoice) { this.error = '{{.T.Get "Please choose a webserver, or click Skip."}}'; return false; }
+            if (this.webserverChoice === this.currentWebserver) return true;
+            const { ok, data } = await this.formPost('/containers/webserver?output=json', { new_ws: this.webserverChoice });
+            if (!ok) { this.error = data.error || '{{.T.Get "Failed to switch webserver."}}'; return false; }
+            return true;
+        },
+
+        async submitDatabase() {
+            if (!this.databaseChoice) { this.error = '{{.T.Get "Please choose a database server, or click Skip."}}'; return false; }
+            if (this.databaseChoice === this.currentDatabase) return true;
+            const { ok, data } = await this.formPost('/containers/mysql?output=json', { new_sql: this.databaseChoice });
+            if (!ok) { this.error = data.error || '{{.T.Get "Failed to switch database server."}}'; return false; }
+            return true;
+        },
+
+        async submitVarnish() {
+            if (!this.varnishChoice) { this.error = '{{.T.Get "Please choose an option, or click Skip."}}'; return false; }
+            if (this.varnishChoice === this.currentVarnish) return true;
+            const action = this.varnishChoice === 'enabled' ? 'enable' : 'disable';
+            const { ok, data } = await this.formPost('/cache/varnish?output=json', { action: action });
+            if (!ok) { this.error = data.error || '{{.T.Get "Failed to update Varnish."}}'; return false; }
+            this.currentVarnish = this.varnishChoice;
+            return true;
+        },
+
+        async submitPHP() {
+            if (this.phpIsLitespeed) return true;
+            if (!this.phpChoice) { this.error = '{{.T.Get "Please choose a PHP version, or click Skip."}}'; return false; }
+            if (this.phpChoice === this.currentPhp) return true;
+            const { ok, data } = await this.formPost('/php/default?output=json', { new_php_version: this.phpChoice, previous_version: this.currentPhp || '' });
+            if (!ok) { this.error = data.error || '{{.T.Get "Failed to set default PHP version."}}'; return false; }
+            return true;
+        },
+
+        async submitBackups() {
+            if (!this.backupTarget) {
+                if (!this.pendingBackupTarget) { this.error = '{{.T.Get "Please choose a destination, or click Skip."}}'; return false; }
+                if (this.pendingBackupTarget === 'none') return true;
+                const { ok, data } = await this.formPost('/backups/destination?output=json', { target: this.pendingBackupTarget });
+                if (!ok) { this.error = data.error || '{{.T.Get "Failed to set backup destination."}}'; return false; }
+                this.backupTarget = this.pendingBackupTarget;
+                this.backupFields = this.backupFieldsByTarget[this.backupTarget] || [];
+                this.backupValues = {};
+                this.error = '';
+                return false; // stay on this step to collect credentials next
+            }
+
+            const settingsParams = { 'settings[BACKUP_SOURCES]': this.backupSources };
+            for (const key of this.backupFields) settingsParams['values[' + key + ']'] = this.backupValues[key] || '';
+            const { ok: saveOk, data: saveData } = await this.formPost('/backups/settings?output=json', settingsParams);
+            if (!saveOk) { this.error = saveData.error || '{{.T.Get "Failed to save backup settings."}}'; return false; }
+
+            this.backupTestResult = null;
+            const { ok: triggerOk } = await this.formPost('/backups/list', {});
+            if (!triggerOk) { this.backupTestResult = 'error'; this.backupTestError = '{{.T.Get "Failed to start connection test."}}'; return false; }
+
+            for (let i = 0; i < 20; i++) {
+                await new Promise(r => setTimeout(r, 2000));
+                const { data: statusData } = await this.getJSON('/backups/list?output=json&status=1');
+                if (statusData.reindexing) continue;
+                if (statusData.error) { this.backupTestResult = 'error'; this.backupTestError = statusData.error; return false; }
+                this.backupTestResult = 'ok';
+                return true;
+            }
+            this.backupTestResult = 'error';
+            this.backupTestError = '{{.T.Get "Connection test timed out."}}';
+            return false;
+        },
+
+        async submitSecurity() {
+            if (this.opts.twofa && this.opts.passkeys && !this.securityChoice) {
+                this.error = '{{.T.Get "Please choose an option, or click Skip."}}';
+                return false;
+            }
+            const choice = this.securityChoice || (this.opts.twofa ? 'twofa' : 'passkeys');
+
+            if (choice === 'twofa') {
+                if (this.twofaEnabled) return true;
+                if (!this.twofaSecret) {
+                    const { ok, data } = await this.formPost('/account/2fa?output=json', { twofa_active: '1' });
+                    if (!ok) { this.error = data.error || '{{.T.Get "Failed to start 2FA setup."}}'; return false; }
+                    this.twofaSecret = data.secret;
+                    this.twofaOtpUri = data.otpauth_url;
+                    this.$nextTick(() => {
+                        document.getElementById('onb_qrcode').innerHTML = '';
+                        new QRCode(document.getElementById('onb_qrcode'), { text: this.twofaOtpUri, width: 160, height: 160 });
+                    });
+                    this.error = '';
+                    return false; // stay on step: user must scan + enter code
+                }
+                if (!this.twofaCode) { this.error = '{{.T.Get "Enter the 6-digit code from your app."}}'; return false; }
+                const { ok, data } = await this.formPost('/account/2fa?output=json', { setup_confirmed: '1', otp_code: this.twofaCode });
+                if (!ok) { this.error = data.error || '{{.T.Get "Invalid code, please try again."}}'; return false; }
+                this.twofaEnabled = true;
+                return true;
+            }
+
+            if (choice === 'passkeys') {
+                if (this.passkeyDone) return true;
+                try {
+                    await registerPasskey(this.opts.username ? (this.opts.username + "'s passkey") : 'My passkey');
+                    this.passkeyDone = true;
+                    return true;
+                } catch (e) {
+                    this.error = (e && e.message) || '{{.T.Get "Failed to register passkey."}}';
+                    return false;
+                }
+            }
+            return true;
+        },
+
+        startTour() {
+            this.finish();
+            setTimeout(() => { if (window.OPTour) window.OPTour.start(false); }, 200);
+        },
+
+        finish() {
+            this.open = false;
+            fetch('/dashboard/onboarding/complete', {
+                method: 'POST',
+                headers: { 'X-CSRF-Token': this.opts.csrf }
+            }).catch(() => {});
+        }
+    };
+}
+</script>
+
+<!-- END templates/dashboard/onboarding.html -->
+{{end}}{{end}}

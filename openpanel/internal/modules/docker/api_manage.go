@@ -14,17 +14,14 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterContainerManageAPI wires the docker-compose service management
-// REST endpoints onto mux (create/edit/delete a compose service). Kept in
-// its own file/Register function, separate from RegisterAPI in api.go,
-// since it covers a distinct slice of docker.go's non-API routes
-// (/containers/new, /containers/edit/{service}, /containers/delete/{service})
-// rather than the status/start/stop/logs endpoints RegisterAPI already
-// covers. Gated behind the same "docker" feature flag as RegisterAPI.
+// RegisterContainerManageAPI wires up create/edit/delete for a compose
+// service. Split out from RegisterAPI (api.go) since it covers a different
+// slice of docker.go's routes (/containers/new, /containers/edit/{service},
+// /containers/delete/{service}) rather than status/start/stop/logs. Same
+// "docker" feature flag as RegisterAPI.
 //
-// The switch-MySQL/webserver and change-image-tag API twins live in
-// RegisterChangeDBAPI/RegisterChangeWSAPI/RegisterChangeImageAPI instead,
-// gated behind those routes' own feature flags rather than "docker".
+// The MySQL/webserver-swap and change-image-tag twins are registered
+// separately below, each behind its own feature flag instead of "docker".
 func RegisterContainerManageAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "docker", "POST /api/containers", func(w http.ResponseWriter, r *http.Request) { apiContainerCreate(a, w, r) })
 	apiregistry.Handle(mux, a, "docker", "PATCH /api/containers/{service}", func(w http.ResponseWriter, r *http.Request) { apiContainerEdit(a, w, r) })
@@ -104,9 +101,9 @@ func decodeContainerServiceBody(r *http.Request) (body containerServiceBody, vol
 	return body, r.Form["volume_name"], r.Form["volume_mount"], r.Form["volume_readonly"]
 }
 
-// apiContainerCreate adds a new service to docker-compose.yml. Mirrors
-// handleAddContainer's POST branch (containers.go) with JSON responses
-// instead of the flash+redirect/HTML form the web handler uses.
+// apiContainerCreate adds a new service to docker-compose.yml - same logic
+// as handleAddContainer's POST branch (containers.go), but returns JSON
+// instead of a flash+redirect.
 func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentUsername, userContext, err := apiInjected(a, r)
 	if err != nil {
@@ -184,10 +181,10 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIDockerJSON(w, http.StatusCreated, map[string]any{"message": fmt.Sprintf("Container %s created successfully!", serviceName), "service": serviceName})
 }
 
-// apiContainerEdit updates an existing service's compose definition.
-// Mirrors handleEditContainer's POST branch (containers.go). The
-// service_name body field, if present, must match the {service} path
-// value - service renaming isn't supported, same as the web form.
+// apiContainerEdit updates an existing service's compose definition, same
+// as handleEditContainer's POST branch (containers.go). If service_name is
+// present in the body it must match the {service} path value - renaming
+// isn't supported here either.
 func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	service := r.PathValue("service")
 
@@ -280,9 +277,8 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 }
 
 // apiContainerDelete stops and removes a service, its image, and its
-// per-service env vars. Mirrors handleDeleteContainer's POST branch
-// (containers.go) - the API has no confirmation step, matching the rest
-// of this REST surface (DELETE itself is the confirmation).
+// per-service env vars - same as handleDeleteContainer's POST branch
+// (containers.go). No confirmation step here; DELETE is the confirmation.
 func apiContainerDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")
@@ -336,7 +332,7 @@ func apiContainerDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 }
 
 // apiContainerSwitchMySQL swaps between mysql/mariadb, wiping the old data
-// volume. Mirrors handleContainersMySQL's POST branch (switch.go).
+// volume - same as handleContainersMySQL's POST branch (switch.go).
 func apiContainerSwitchMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := apiInjected(a, r)
@@ -346,7 +342,7 @@ func apiContainerSwitchMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 
 	mysqlType, _ := GetEnvValue(userContext, "MYSQL_TYPE")
-	if IsServiceRunning(ctx, userContext, mysqlType) {
+	if IsServiceRunning(ctx, userContext, mysqlType) && !hasOnlyRestrictedDatabases(ctx, a, userContext) {
 		writeAPIDockerJSON(w, http.StatusConflict, map[string]string{"error": fmt.Sprintf("Existing databases must first be deleted and %s container stopped in order to change mysql type.", mysqlType)})
 		return
 	}
@@ -391,8 +387,8 @@ func apiContainerSwitchMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	writeAPIDockerJSON(w, http.StatusOK, map[string]any{"message": fmt.Sprintf("Successfully switched to %s!", newSQL), "warnings": warnings})
 }
 
-// apiContainerSwitchWebserver swaps the active webserver container.
-// Mirrors handleContainersWebserver's POST branch (switch.go).
+// apiContainerSwitchWebserver swaps the active webserver container - same
+// as handleContainersWebserver's POST branch (switch.go).
 func apiContainerSwitchWebserver(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -448,10 +444,10 @@ func apiContainerSwitchWebserver(a *appctx.App, w http.ResponseWriter, r *http.R
 	writeAPIDockerJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("Successfully switched to %s!", newWebserver)})
 }
 
-// apiContainerChangeImage changes a service's image tag/version (stored as
-// the SERVICE_VERSION env var), stopping the container first so its old
-// image can later be pruned. Mirrors handleContainersChangeImage's POST
-// branch (images.go).
+// apiContainerChangeImage changes a service's image tag/version (the
+// SERVICE_VERSION env var), stopping the container first so the old image
+// can be pruned later - same as handleContainersChangeImage's POST branch
+// (images.go).
 func apiContainerChangeImage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")
