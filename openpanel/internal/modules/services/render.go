@@ -50,16 +50,14 @@ type ServicesPageData struct {
 type statusEntry struct{ Color, MsgID string }
 
 // serviceStatusMap maps a container status key to its display color and
-// translatable label. "stopping" is libpod's real State.Status value for a
-// container mid-shutdown (distinct from "exited"/"removing", which apply
-// once it's actually stopped/being removed) - confirmed live, a page
-// render landing in that few-second window rendered "Unknown" instead of
-// a real label, and because "stopping" is ALSO not in
-// static/js/service-status.js's SERVICE_STATUS_TRANSITIONAL list, its
-// auto-refresh poller doesn't recognize it as in-progress either and
-// never re-engages, permanently freezing the status badge on "Unknown"
-// until a manual reload happens to land outside that window - see that
-// file's own list, which needs to stay in sync with this one.
+// translatable label. "stopping" is libpod's real State.Status during
+// shutdown (distinct from "exited"/"removing", which apply once it's
+// actually stopped/removed) - a render landing in that window used to show
+// "Unknown", and since "stopping" was also missing from
+// static/js/service-status.js's SERVICE_STATUS_TRANSITIONAL list, the
+// auto-refresh poller never recognized it as in-progress either, so the
+// badge stayed stuck on "Unknown" until a manual reload happened to land
+// outside that window. Keep that file's list in sync with this one.
 var serviceStatusMap = map[string]statusEntry{
 	"running":    {"emerald-500", "Running"},
 	"healthy":    {"emerald-500", "Running"},

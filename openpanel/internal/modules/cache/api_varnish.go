@@ -1,11 +1,13 @@
 package cache
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -91,6 +93,15 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	action := strings.ToLower(strings.TrimSpace(body.Action))
 
+	// enable/disable run several sequential podman operations (remove +
+	// recreate two containers, with a retry on either) that can add up
+	// past what an impatient client is willing to wait on this request -
+	// see the identical opCtx comment in handleVarnish
+	// (internal/modules/cache/varnish.go) for why that's dangerous with
+	// r.Context() specifically.
+	opCtx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+	defer cancel()
+
 	switch action {
 	case "restart":
 		docker.ComposeContainer(ctx, userContext, "varnish", "restart")
@@ -110,18 +121,31 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		// docker.ForceRemoveContainer's doc comment for why "podman-compose
 		// down" isn't safe here (it cascades through depends_on and takes
 		// php-fpm down with it).
-		docker.ForceRemoveContainer(ctx, userContext, webserver)
+		docker.ForceRemoveContainer(opCtx, userContext, webserver)
+
+		// The webserver has to come up BEFORE varnish - see the identical
+		// comment in handleVarnish (internal/modules/cache/varnish.go)'s
+		// "enable" case for why (varnish's VCL resolves the webserver's
+		// container-network hostname at startup and crash-loops if it
+		// isn't registered yet).
+		if !restartWebserverAfterVarnishToggle(opCtx, userContext, webserver).Success {
+			_ = docker.SwapAllWebserversComposePort(userContext, "off")
+			restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
+			_ = docker.ToggleProxyHTTPPort(userContext, "off")
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start " + webserver + ": could not bring it back up with the Varnish proxy port"})
+			return
+		}
+
 		// Polls rather than checking once - see the identical fix/comment in
 		// handleVarnish (internal/modules/cache/varnish.go), issue #1091.
-		result := docker.StartOrStopContainer(ctx, userContext, "varnish", "activate", "run")
-		if !result.Success || !docker.WaitForServiceRunning(ctx, userContext, "varnish") {
+		result := docker.StartOrStopContainer(opCtx, userContext, "varnish", "activate", "run")
+		if !result.Success || !docker.WaitForServiceRunning(opCtx, userContext, "varnish") {
 			_ = docker.SwapAllWebserversComposePort(userContext, "off")
-			docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "")
+			restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
 			_ = docker.ToggleProxyHTTPPort(userContext, "off")
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start varnish: " + result.Message})
 			return
 		}
-		docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "")
 		_ = logger.RecordUserAction(a.Config, currentUsername, "enabled Varnish", ip)
 		writeJSON(w, http.StatusOK, map[string]string{"message": "Varnish enabled"})
 		return
@@ -138,9 +162,9 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		// docker.ForceRemoveContainer's doc comment for why "podman-compose
 		// down" isn't safe here (it cascades through depends_on and takes
 		// php-fpm down with it).
-		docker.ForceRemoveContainer(ctx, userContext, webserver)
-		docker.ForceRemoveContainer(ctx, userContext, "varnish")
-		result := docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "run")
+		docker.ForceRemoveContainer(opCtx, userContext, webserver)
+		docker.ForceRemoveContainer(opCtx, userContext, "varnish")
+		result := restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "disabled Varnish", ip)
 		if !result.Success {
 			writeJSON(w, http.StatusMultiStatus, map[string]string{"warning": "Varnish disabled but failed to restart " + webserver + ": " + result.Message})

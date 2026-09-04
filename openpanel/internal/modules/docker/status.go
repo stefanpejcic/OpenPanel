@@ -67,13 +67,12 @@ const (
 	waitForServiceRunningInterval = 2 * time.Second
 )
 
-// WaitForServiceRunning polls IsServiceRunning until it reports true or the
-// poll budget is exhausted. A container whose entrypoint does setup work
-// before the real process starts (e.g. varnish copies and rewrites its VCL
-// file before exec'ing varnishd), or whose image still needs to be pulled,
-// can take a few seconds to reach State.Running=true after `podman-compose
-// up` returns - checking once immediately is a false negative, not a
-// slow-but-correct one.
+// WaitForServiceRunning polls IsServiceRunning until it's true or the poll
+// budget runs out. A container whose entrypoint does setup work before the
+// real process starts (e.g. varnish rewrites its VCL before exec'ing
+// varnishd), or whose image still needs pulling, can take a few seconds to
+// reach State.Running=true after `podman-compose up` returns - checking
+// only once would give a false negative.
 func WaitForServiceRunning(ctx context.Context, userContext, serviceName string) bool {
 	if IsServiceRunning(ctx, userContext, serviceName) {
 		return true
@@ -106,13 +105,13 @@ func StartOrStopContainer(ctx context.Context, userContext, containerName, actio
 	}
 
 	if flag == "detached" {
-		// Deliberately NOT exec.CommandContext(ctx, ...): ctx is the HTTP
+		// Deliberately not exec.CommandContext(ctx, ...): ctx is the HTTP
 		// request's context, which net/http cancels once the response is
-		// written - exec.CommandContext kills the child on cancellation,
-		// so the compose-up would get SIGKILLed moments after starting,
-		// often before the container is even up. context.Background()
-		// decouples the child process from the request lifecycle so it
-		// keeps running as a true fire-and-forget background job.
+		// written, and exec.CommandContext kills the child on cancellation -
+		// the compose-up would get SIGKILLed moments after starting, often
+		// before the container's even up. context.Background() decouples
+		// the child from the request lifecycle so it actually runs in the
+		// background.
 		cmd := exec.Command(argv[0], argv[1:]...)
 		cmd.Dir = dir
 		cmd.Env = podmanmanager.PodmanEnv(userContext)
@@ -157,9 +156,9 @@ func StartOrStopContainer(ctx context.Context, userContext, containerName, actio
 }
 
 // searchEngineFix maps a search-engine service's container name to the
-// ownership (in the CONTAINER's own uid/gid namespace, matching its
-// image's baked-in default user) that its dedicated data/config/logs
-// volumes (see the compose template) need to end up under.
+// ownership (in the container's own uid/gid namespace, matching its
+// image's baked-in default user) its dedicated data/config/logs volumes
+// need to end up under.
 var searchEngineFix = map[string]struct {
 	uid, gid int
 	volumes  []string
@@ -169,8 +168,8 @@ var searchEngineFix = map[string]struct {
 }
 
 // idMapEntry is one [ContainerID, ContainerID+Size) -> HostID range from
-// `podman info`'s Host.IDMappings.{UID,GID}Map, translating this tenant's
-// own user-namespace ids to real host ids.
+// `podman info`'s Host.IDMappings.{UID,GID}Map - translates a tenant's
+// user-namespace ids to real host ids.
 type idMapEntry struct {
 	ContainerID int `json:"container_id"`
 	HostID      int `json:"host_id"`
@@ -190,37 +189,33 @@ func mapToHostID(entries []idMapEntry, id int) (hostID int, ok bool) {
 }
 
 // fixSearchEngineOwnership works around a shared-image-store limitation
-// that leaves elasticsearch/opensearch permanently crash-looping in
-// "starting": this host's rootless podman pulls every image once into a
-// read-only store shared across every tenant (additionalimagestores in
-// storage.conf) rather than once per tenant, and that shared store can't
-// be UID-shifted per tenant for image-baked non-root ownership - a path
-// baked in as uid 1000 shows up as the kernel's unmappable-uid fallback
-// in every tenant's own user namespace, and a non-root container uid gets
-// a flat permission denied against it (both images also explicitly
-// refuse to run as root - "can not run elasticsearch as root" - so
-// that's not a usable workaround either).
+// that leaves elasticsearch/opensearch stuck crash-looping in "starting":
+// this host's rootless podman pulls each image once into a read-only
+// store shared across every tenant (additionalimagestores in
+// storage.conf), so it can't be UID-shifted per tenant for image-baked
+// non-root ownership - a path baked in as uid 1000 shows up as the
+// kernel's unmappable-uid fallback in every tenant's own namespace, and
+// the non-root container uid gets a flat permission denied (both images
+// also refuse to run as root, so that's not an option either).
 //
 // The compose template gives both services their own dedicated
-// data/config/logs volumes (rather than leaving config/logs as
-// image-baked paths, which only data/ would normally need) specifically
-// so this can be fixed with a plain chown: Podman auto-populates a named
-// volume from the image path the first time it's used (so the default
-// config files are still there), but the volume itself is a plain host
-// directory - unlike a container's own overlay mount, which lives in a
-// private per-tenant mount namespace no chown from outside it can reach
-// (confirmed live: even real root, from outside that namespace, sees the
-// mountpoint's pre-mount contents, not the actual overlay; fixing that
-// would need `podman mount`/`unshare` to run as the tenant's own Linux
-// login, which isn't reachable from here - this binary runs in its own
-// container with no account for any tenant and no local runtime dir for
-// their rootless podman, only the remote API socket via CONTAINER_HOST).
+// data/config/logs volumes (config/logs would otherwise just be
+// image-baked paths) so this can be fixed with a plain chown: Podman
+// auto-populates a named volume from the image path on first use (so the
+// default config files are still there), but the volume itself is a
+// plain host directory - unlike the container's own overlay mount, which
+// lives in a private per-tenant mount namespace nothing outside it can
+// chown (confirmed live: even real root outside that namespace sees the
+// mountpoint's pre-mount contents, not the actual overlay - fixing that
+// would need `podman mount`/`unshare` running as the tenant's own Linux
+// login, which isn't reachable from here since this binary has no account
+// for any tenant and no local rootless-podman runtime dir, only the
+// remote API socket via CONTAINER_HOST).
 //
-// So the whole fix stays on that same remote API this package already
-// uses everywhere else: resolve the tenant's container-uid -> host-uid
-// mapping via `podman info`, resolve each volume's real host path via
-// `podman volume inspect`, and chown it directly - no unshare, su, or
-// local execution anywhere in this call.
+// So the fix stays on that same remote API: resolve the tenant's
+// container-uid -> host-uid mapping via `podman info`, resolve each
+// volume's real host path via `podman volume inspect`, and chown it
+// directly - no unshare, su, or local execution involved.
 func fixSearchEngineOwnership(ctx context.Context, userContext, containerName string) {
 	fix, ok := searchEngineFix[containerName]
 	if !ok {
@@ -302,19 +297,17 @@ func removeImage(ctx context.Context, userContext, imageName string) {
 
 // ForceRemoveContainer stops and removes exactly one container by name via
 // plain `podman rm -f`, deliberately bypassing `podman-compose down` -
-// that subcommand takes a service name but, per its own implementation
-// (compose_down in podman_compose.py), doesn't scope to it: it tears down
-// that service's full transitive depends_on chain too. The vendored
-// compose template chains varnish -> webserver -> php-fpm, so
-// `podman-compose down varnish` (or `down <webserver>`) also removes
-// php-fpm - confirmed live, that's what left the webserver container
-// completely gone after a Varnish enable/disable, since the recreate step
-// deliberately uses `up -d --no-deps` (to avoid restarting an
-// already-running php-fpm unnecessarily) and so never brings php-fpm back,
-// and the webserver's own `--requires=<php-fpm>` then makes its own
-// recreation fail outright when that dependency doesn't exist. Plain
-// `podman rm -f` has no concept of compose dependencies, so it can only
-// ever affect the one container named.
+// that subcommand takes a service name but doesn't actually scope to it
+// (per compose_down in podman_compose.py): it tears down that service's
+// full depends_on chain too. The vendored compose template chains
+// varnish -> webserver -> php-fpm, so `podman-compose down varnish` (or
+// `down <webserver>`) also removes php-fpm - confirmed live, that's what
+// left the webserver container gone entirely after a Varnish
+// enable/disable, since the recreate step uses `up -d --no-deps` (to
+// avoid restarting an already-running php-fpm) and never brings php-fpm
+// back, and the webserver's own `--requires=<php-fpm>` then fails its own
+// recreation outright. Plain `podman rm -f` doesn't know about compose
+// dependencies, so it only ever touches the one container named.
 func ForceRemoveContainer(ctx context.Context, userContext, containerName string) {
 	argv := podmanmanager.PodmanArgv(userContext, "rm", "-f", containerName)
 	_ = podmanmanager.Command(ctx, userContext, argv).Run()

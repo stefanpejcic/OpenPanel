@@ -137,6 +137,20 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		webserver, _ := docker.GetEnvValue(userContext, "WEB_SERVER")
 		ipAddress := reqip.ClientIP(r)
 
+		// enable/disable run several sequential podman operations (remove +
+		// recreate two containers, with a retry on either) that can add up
+		// past what an impatient client/browser is willing to wait on this
+		// request - and r.Context() is canceled the moment the client gives
+		// up, which would SIGKILL whichever podman command is running at
+		// that instant via exec.CommandContext, abandoning the operation
+		// mid-way (confirmed live: that's exactly how the webserver was
+		// left permanently missing after a Varnish disable that otherwise
+		// reported success). A background context with its own generous
+		// timeout keeps this running to completion regardless of what the
+		// client does.
+		opCtx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+		defer cancel()
+
 		switch action {
 		case "enable":
 			if !docker.IsServiceRunning(ctx, userContext, service) {
@@ -146,7 +160,30 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				// ForceRemoveContainer's doc comment for why "podman-compose
 				// down" isn't safe to use here (it cascades through
 				// depends_on and takes php-fpm down with it).
-				docker.ForceRemoveContainer(ctx, userContext, webserver)
+				docker.ForceRemoveContainer(opCtx, userContext, webserver)
+
+				// The webserver has to come up BEFORE varnish, not after:
+				// varnish's VCL resolves the webserver's container-network
+				// hostname at startup (`.host = "webserver_name"`), and if
+				// that name isn't registered yet varnish's VCL compile
+				// fails outright and it exits (confirmed live: "Backend
+				// host ... could not be resolved to an IP address" /
+				// "VCL compilation failed", exit code 2) - its
+				// restart:unless-stopped policy eventually recovers it
+				// once the webserver is up, but a container repeatedly
+				// crash-looping through that window responds slowly to a
+				// later `podman rm -f` (confirmed live: a ~10s stall on
+				// removal during disable), long enough to blow past
+				// whatever's waiting on this request and cancel the
+				// handler mid-flight, abandoning the webserver recreation
+				// it was still running.
+				if !restartWebserverAfterVarnishToggle(opCtx, userContext, webserver).Success {
+					_ = docker.SwapAllWebserversComposePort(userContext, "off")
+					restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
+					_ = docker.ToggleProxyHTTPPort(userContext, "off")
+					flashAndRedirect(a, w, r, "error", fmt.Sprintf("Failed to start %s: could not bring it back up with the Varnish proxy port", webserver), "/cache/varnish")
+					return
+				}
 
 				// Checks the actual running state rather than sniffing the
 				// activate command's stdout for the word "started" - real
@@ -160,16 +197,15 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				// check was misreporting that as a start failure (issue
 				// #1091), rolling back and surfacing the compose command's
 				// raw stdout (a container ID) as a bogus "error" message.
-				result := docker.StartOrStopContainer(ctx, userContext, service, "activate", "run")
-				if !result.Success || !docker.WaitForServiceRunning(ctx, userContext, service) {
+				result := docker.StartOrStopContainer(opCtx, userContext, service, "activate", "run")
+				if !result.Success || !docker.WaitForServiceRunning(opCtx, userContext, service) {
 					_ = docker.SwapAllWebserversComposePort(userContext, "off")
-					docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "")
+					restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
 					_ = docker.ToggleProxyHTTPPort(userContext, "off")
 					flashAndRedirect(a, w, r, "error", fmt.Sprintf("Failed to start %s: %s", service, result.Message), "/cache/varnish")
 					return
 				}
 
-				docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "")
 				_ = logger.RecordUserAction(a.Config, currentUsername, "enabled Varnish", ipAddress)
 				flashSess(a, w, r, "success", "Varnish caching is now enabled.")
 			}
@@ -182,10 +218,10 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				// ForceRemoveContainer's doc comment for why "podman-compose
 				// down" isn't safe to use here (it cascades through
 				// depends_on and takes php-fpm down with it).
-				docker.ForceRemoveContainer(ctx, userContext, webserver)
-				docker.ForceRemoveContainer(ctx, userContext, service)
+				docker.ForceRemoveContainer(opCtx, userContext, webserver)
+				docker.ForceRemoveContainer(opCtx, userContext, service)
 
-				result := docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "run")
+				result := restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
 				_ = logger.RecordUserAction(a.Config, currentUsername, "disabled Varnish", ipAddress)
 
 				if !result.Success {
