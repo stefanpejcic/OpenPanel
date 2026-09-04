@@ -12,6 +12,7 @@
         varnish: {{if .UserAllowed.varnish}}true{{else}}false{{end}},
         backups: {{if .UserAllowed.backups}}true{{else}}false{{end}},
         waf: {{if .UserAllowed.waf}}true{{else}}false{{end}},
+        ipBlocker: {{if .UserAllowed.ip_blocker}}true{{else}}false{{end}},
         twofa: {{if .UserAllowed.twofa}}true{{else}}false{{end}},
         passkeys: {{if .UserAllowed.passkeys}}true{{else}}false{{end}},
         domains: {{if .UserAllowed.domains}}true{{else}}false{{end}},
@@ -238,21 +239,40 @@
                                     <label x-show="opts.waf" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'waf'">
                                         <span class="shrink-0" x-html="wafIcon"></span>
                                         <span>
-                                            <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Web Application Firewall"}}</span>
+                                            <span class="flex items-center gap-1.5">
+                                                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Web Application Firewall"}}</span>
+                                                <span class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300" x-show="securityCompleted.waf">{{.T.Get "Configured"}}</span>
+                                            </span>
                                             <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Filters malicious requests to your websites before they reach your applications."}}</span>
+                                        </span>
+                                    </label>
+                                    <label x-show="opts.ipBlocker" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'ipBlocker'">
+                                        <span class="shrink-0" x-html="ipBlockerIcon"></span>
+                                        <span>
+                                            <span class="flex items-center gap-1.5">
+                                                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "IP Blocker"}}</span>
+                                                <span class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300" x-show="securityCompleted.ipBlocker">{{.T.Get "Configured"}}</span>
+                                            </span>
+                                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Deny specific IPs or CIDR ranges access to your websites."}}</span>
                                         </span>
                                     </label>
                                     <label x-show="opts.twofa" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'twofa'">
                                         <span class="shrink-0" x-html="twofaIcon"></span>
                                         <span>
-                                            <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Two-Factor Authentication"}}</span>
+                                            <span class="flex items-center gap-1.5">
+                                                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Two-Factor Authentication"}}</span>
+                                                <span class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300" x-show="securityCompleted.twofa">{{.T.Get "Configured"}}</span>
+                                            </span>
                                             <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Use an authenticator app (Google Authenticator, Authy, etc.) to generate one-time codes."}}</span>
                                         </span>
                                     </label>
                                     <label x-show="opts.passkeys" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'passkeys'">
                                         <span class="shrink-0" x-html="passkeyIcon"></span>
                                         <span>
-                                            <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Passkey"}}</span>
+                                            <span class="flex items-center gap-1.5">
+                                                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Passkey"}}</span>
+                                                <span class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300" x-show="securityCompleted.passkeys">{{.T.Get "Configured"}}</span>
+                                            </span>
                                             <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Sign in with your device's fingerprint, face recognition, or a security key - no password needed."}}</span>
                                         </span>
                                     </label>
@@ -281,6 +301,18 @@
                                         </label>
                                     </template>
                                 </div>
+                            </div>
+                        </template>
+
+                        <template x-if="securityChoice === 'ipBlocker' || soloSecurityOption() === 'ipBlocker'">
+                            <div>
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="shrink-0" x-html="ipBlockerIcon"></span>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "IP Blocker"}}</span>
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "Enter one IP address or CIDR range per line. Leave empty to allow all IPs."}}</p>
+                                <textarea x-model="ipBlockerText" rows="6" placeholder="203.0.113.5&#10;198.51.100.0/24"
+                                          class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm font-mono border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950"></textarea>
                             </div>
                         </template>
 
@@ -508,7 +540,11 @@ function onboardingWizard(opts) {
             { value: 'disabled', label: '{{.T.Get "Disabled"}}', description: '{{.T.Get "New domains get no request filtering."}}' }
         ],
 
+        ipBlockerText: '',
+        currentIPBlockerText: '',
+
         securityChoice: null,
+        securityCompleted: {},
         twofaSecret: null,
         twofaOtpUri: null,
         twofaCode: '',
@@ -517,6 +553,7 @@ function onboardingWizard(opts) {
         twofaIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>`,
         passkeyIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>`,
         wafIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>`,
+        ipBlockerIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>`,
         tourIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.752a1.125 1.125 0 00-1.006 0L3.622 6.189C3.24 6.38 3 6.77 3 7.195v10.966c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>`,
         domainIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>`,
         uploadIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 7.5L12 3m0 0L7.5 7.5M12 3v13.5"/></svg>`,
@@ -544,6 +581,7 @@ function onboardingWizard(opts) {
         soloSecurityOption() {
             const avail = [];
             if (this.opts.waf) avail.push('waf');
+            if (this.opts.ipBlocker) avail.push('ipBlocker');
             if (this.opts.twofa) avail.push('twofa');
             if (this.opts.passkeys) avail.push('passkeys');
             return avail.length === 1 ? avail[0] : null;
@@ -581,7 +619,7 @@ function onboardingWizard(opts) {
             if (this.opts.database) s.push('database');
             if (this.opts.varnish) s.push('varnish');
             if (this.opts.backups) s.push('backups');
-            if (this.opts.waf || this.opts.twofa || this.opts.passkeys) s.push('security');
+            if (this.opts.waf || this.opts.ipBlocker || this.opts.twofa || this.opts.passkeys) s.push('security');
             s.push('tour');
             this.stepList = s;
             this.open = true;
@@ -617,6 +655,15 @@ function onboardingWizard(opts) {
                         const state = data.enabled ? 'enabled' : 'disabled';
                         this.currentWAF = state;
                         this.wafChoice = state;
+                    }
+                });
+            }
+            if (this.opts.ipBlocker) {
+                this.getJSON('/security/ip-blocker?output=json').then(({ ok, data }) => {
+                    if (ok && Array.isArray(data)) {
+                        const text = data.join('\n');
+                        this.currentIPBlockerText = text;
+                        this.ipBlockerText = text;
                     }
                 });
             }
@@ -789,6 +836,14 @@ function onboardingWizard(opts) {
             return true;
         },
 
+        async submitIPBlockerChoice() {
+            if (this.ipBlockerText === this.currentIPBlockerText) return true;
+            const { ok, data } = await this.formPost('/security/ip-blocker?output=json', { ips: this.ipBlockerText });
+            if (!ok) { this.error = data.error || '{{.T.Get "Failed to update IP Blocker."}}'; return false; }
+            this.currentIPBlockerText = this.ipBlockerText;
+            return true;
+        },
+
         async submitTwofaChoice() {
             if (this.twofaEnabled) return true;
             if (!this.twofaSecret) {
@@ -837,11 +892,12 @@ function onboardingWizard(opts) {
 
             let ok = true;
             if (choice === 'waf') ok = await this.submitWAFChoice();
+            else if (choice === 'ipBlocker') ok = await this.submitIPBlockerChoice();
             else if (choice === 'twofa') ok = await this.submitTwofaChoice();
             else if (choice === 'passkeys') ok = await this.submitPasskeysChoice();
 
             if (!ok) return false;
-            if (cameFromChoice) { this.securityChoice = null; return false; }
+            if (cameFromChoice) { this.securityCompleted[choice] = true; this.securityChoice = null; return false; }
             return true;
         },
 
