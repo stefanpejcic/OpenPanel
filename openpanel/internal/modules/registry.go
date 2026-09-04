@@ -236,7 +236,7 @@ var configured = map[string]Registrar{
 		webserverconf.Register(mux, a)
 		webserverconf.RegisterAPI(mux, a)
 	},
-	"waf": func(mux *http.ServeMux, a *appctx.App) { waf.Register(mux, a); waf.RegisterAPI(mux, a) },
+	"waf": func(mux *http.ServeMux, a *appctx.App) { waf.Register(mux, a); waf.RegisterAPI(mux, a); waf.RegisterAccountAPI(mux, a) },
 	"account": func(mux *http.ServeMux, a *appctx.App) {
 		account.RegisterSettings(mux, a)
 		account.RegisterAccountAPI(mux, a)

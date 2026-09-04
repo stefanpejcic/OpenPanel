@@ -11,8 +11,13 @@
         database: {{if .UserAllowed.change_db}}true{{else}}false{{end}},
         varnish: {{if .UserAllowed.varnish}}true{{else}}false{{end}},
         backups: {{if .UserAllowed.backups}}true{{else}}false{{end}},
+        waf: {{if .UserAllowed.waf}}true{{else}}false{{end}},
         twofa: {{if .UserAllowed.twofa}}true{{else}}false{{end}},
         passkeys: {{if .UserAllowed.passkeys}}true{{else}}false{{end}},
+        domains: {{if .UserAllowed.domains}}true{{else}}false{{end}},
+        filemanager: {{if .UserAllowed.filemanager}}true{{else}}false{{end}},
+        mysql: {{if .UserAllowed.mysql}}true{{else}}false{{end}},
+        autoinstaller: {{if .UserAllowed.autoinstaller}}true{{else}}false{{end}},
         csrf: {{toJSON .CSRFToken}},
         username: {{toJSON .CurrentUsername}}
     })"
@@ -43,7 +48,7 @@
             <!-- Tabs -->
             <div class="flex px-5 py-2 gap-1 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 shrink-0">
                 <template x-for="(step, idx) in stepList" :key="step">
-                    <button type="button" @click="stepIndex = idx; error = ''"
+                    <button type="button" @click="stepIndex = idx; error = ''; if (step === 'security') securityChoice = null"
                             class="flex-1 rounded px-2 py-1 text-xs font-medium transition"
                             :class="idx === stepIndex ? 'bg-black text-white dark:bg-gray-100 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'"
                             x-text="stepTitle(step)">
@@ -226,18 +231,25 @@
                 <!-- Step: security -->
                 <template x-if="currentStep() === 'security'">
                     <div>
-                        <template x-if="opts.twofa && opts.passkeys && !securityChoice">
+                        <template x-if="!securityChoice && !soloSecurityOption()">
                             <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "Add an extra layer of security to your account."}}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "Add an extra layer of security to your account and websites."}}</p>
                                 <div class="space-y-2">
-                                    <label class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'twofa'">
+                                    <label x-show="opts.waf" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'waf'">
+                                        <span class="shrink-0" x-html="wafIcon"></span>
+                                        <span>
+                                            <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Web Application Firewall"}}</span>
+                                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Filters malicious requests to your websites before they reach your applications."}}</span>
+                                        </span>
+                                    </label>
+                                    <label x-show="opts.twofa" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'twofa'">
                                         <span class="shrink-0" x-html="twofaIcon"></span>
                                         <span>
                                             <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Two-Factor Authentication"}}</span>
                                             <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Use an authenticator app (Google Authenticator, Authy, etc.) to generate one-time codes."}}</span>
                                         </span>
                                     </label>
-                                    <label class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'passkeys'">
+                                    <label x-show="opts.passkeys" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'passkeys'">
                                         <span class="shrink-0" x-html="passkeyIcon"></span>
                                         <span>
                                             <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Passkey"}}</span>
@@ -248,14 +260,38 @@
                             </div>
                         </template>
 
-                        <template x-if="securityChoice === 'twofa' || (opts.twofa && !opts.passkeys)">
+                        <template x-if="securityChoice === 'waf' || soloSecurityOption() === 'waf'">
                             <div>
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="shrink-0" x-html="wafIcon"></span>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Web Application Firewall"}}</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <template x-for="opt in wafOptions" :key="opt.value">
+                                        <label class="flex items-center gap-3 rounded border p-3 cursor-pointer"
+                                               :class="wafChoice === opt.value ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'">
+                                            <input type="radio" name="onb_waf" :value="opt.value" x-model="wafChoice">
+                                            <span>
+                                                <span class="flex items-center gap-1.5">
+                                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="opt.label"></span>
+                                                    <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400" x-show="opt.value === currentWAF">{{.T.Get "Default"}}</span>
+                                                </span>
+                                                <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="opt.description"></span>
+                                            </span>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template x-if="securityChoice === 'twofa' || soloSecurityOption() === 'twofa'">
+                            <div x-init="if (!twofaSecret && !twofaEnabled) { loading = true; submitTwofaChoice().finally(() => loading = false); }">
                                 <div class="flex items-center gap-3 mb-3">
                                     <span class="shrink-0" x-html="twofaIcon"></span>
                                     <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Two-Factor Authentication"}}</span>
                                 </div>
-                                <template x-if="!twofaSecret">
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "You'll need an authenticator app such as Google Authenticator to continue."}}</p>
+                                <template x-if="!twofaSecret && !twofaEnabled">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Setting up…"}}</p>
                                 </template>
                                 <template x-if="twofaSecret && !twofaEnabled">
                                     <div>
@@ -271,14 +307,14 @@
                             </div>
                         </template>
 
-                        <template x-if="securityChoice === 'passkeys' || (opts.passkeys && !opts.twofa)">
-                            <div>
+                        <template x-if="securityChoice === 'passkeys' || soloSecurityOption() === 'passkeys'">
+                            <div x-init="if (!passkeyDone) { loading = true; submitPasskeysChoice().finally(() => loading = false); }">
                                 <div class="flex items-center gap-3 mb-3">
                                     <span class="shrink-0" x-html="passkeyIcon"></span>
                                     <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Passkey"}}</span>
                                 </div>
                                 <template x-if="!passkeyDone">
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Click Continue and follow your browser/device prompt to register a passkey."}}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Follow your browser/device prompt to register a passkey…"}}</p>
                                 </template>
                                 <template x-if="passkeyDone">
                                     <div class="rounded border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950 px-3 py-2 text-sm text-green-700 dark:text-green-300">{{.T.Get "Passkey saved."}}</div>
@@ -288,14 +324,47 @@
                     </div>
                 </template>
 
-                <!-- Step: tour -->
+                <!-- Step: tour (Finish) -->
                 <template x-if="currentStep() === 'tour'">
-                    <div class="text-center py-4">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Want a quick guided tour of the panel?"}}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{.T.Get "You can also start it anytime from the menu."}}</p>
-                        <button type="button" @click="startTour()" class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800">
-                            {{.T.Get "Take the tour"}}
-                        </button>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "You're all set! What would you like to do next?"}}</p>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="startTour()">
+                                <span class="shrink-0" x-html="tourIcon"></span>
+                                <span>
+                                    <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Take the tour"}}</span>
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "A guided walkthrough of the OpenPanel UI and pages. You can also start it anytime from the menu."}}</span>
+                                </span>
+                            </label>
+                            <label x-show="opts.domains" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="goToNextStep('/domains/new')">
+                                <span class="shrink-0" x-html="domainIcon"></span>
+                                <span>
+                                    <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Add a domain"}}</span>
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Point a domain to your account and start hosting it."}}</span>
+                                </span>
+                            </label>
+                            <label x-show="opts.filemanager" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="goToNextStep('/file-manager/upload?method=upload')">
+                                <span class="shrink-0" x-html="uploadIcon"></span>
+                                <span>
+                                    <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Upload files"}}</span>
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Upload your website files using the file manager."}}</span>
+                                </span>
+                            </label>
+                            <label x-show="opts.mysql" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="goToNextStep('/mysql/wizard')">
+                                <span class="shrink-0" x-html="databaseIcon"></span>
+                                <span>
+                                    <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Create a database"}}</span>
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Set up a new database and user with the database wizard."}}</span>
+                                </span>
+                            </label>
+                            <label x-show="opts.autoinstaller" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="goToNextStep('/auto-installer')">
+                                <span class="shrink-0" x-html="websiteIcon"></span>
+                                <span>
+                                    <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Add a website"}}</span>
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Install WordPress or another app with the auto-installer."}}</span>
+                                </span>
+                            </label>
+                        </div>
                     </div>
                 </template>
 
@@ -404,7 +473,7 @@ function onboardingWizard(opts) {
         varnishChoice: null,
         currentVarnish: null,
         varnishOptions: [
-            { value: 'enabled', label: '{{.T.Get "Enabled"}}', description: '{{.T.Get "Cache pages at the edge to speed up your websites and reduce load on your webserver."}}' },
+            { value: 'enabled', label: '{{.T.Get "Enabled"}}', description: '{{.T.Get "Cache pages to speed up your websites and reduce load on your webserver."}}' },
             { value: 'disabled', label: '{{.T.Get "Disabled"}}', description: '{{.T.Get "Requests go straight to your webserver, with no caching layer in front."}}' }
         ],
 
@@ -432,6 +501,13 @@ function onboardingWizard(opts) {
         backupTestResult: null,
         backupTestError: '',
 
+        wafChoice: null,
+        currentWAF: null,
+        wafOptions: [
+            { value: 'enabled', label: '{{.T.Get "Enabled"}}', description: '{{.T.Get "Block common attacks (SQL injection, XSS, and more) on new domains."}}' },
+            { value: 'disabled', label: '{{.T.Get "Disabled"}}', description: '{{.T.Get "New domains get no request filtering."}}' }
+        ],
+
         securityChoice: null,
         twofaSecret: null,
         twofaOtpUri: null,
@@ -440,6 +516,12 @@ function onboardingWizard(opts) {
         passkeyDone: false,
         twofaIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>`,
         passkeyIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>`,
+        wafIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>`,
+        tourIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.752a1.125 1.125 0 00-1.006 0L3.622 6.189C3.24 6.38 3 6.77 3 7.195v10.966c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>`,
+        domainIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>`,
+        uploadIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 7.5L12 3m0 0L7.5 7.5M12 3v13.5"/></svg>`,
+        databaseIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg>`,
+        websiteIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>`,
 
         currentWebserver: null,
 
@@ -450,10 +532,21 @@ function onboardingWizard(opts) {
             varnish: '{{.T.Get "Varnish"}}',
             backups: '{{.T.Get "Backups"}}',
             security: '{{.T.Get "Security"}}',
-            tour: '{{.T.Get "Tour"}}'
+            tour: '{{.T.Get "Finish"}}'
         },
         stepTitle(step) {
             return this.stepTitles[step] || step;
+        },
+
+        // soloSecurityOption returns the one available security option
+        // (waf/twofa/passkeys) when exactly one is allowed, so its detail
+        // view can show directly without a choice screen nobody needs.
+        soloSecurityOption() {
+            const avail = [];
+            if (this.opts.waf) avail.push('waf');
+            if (this.opts.twofa) avail.push('twofa');
+            if (this.opts.passkeys) avail.push('passkeys');
+            return avail.length === 1 ? avail[0] : null;
         },
 
         // phpDescription is derived from the version_status the server
@@ -470,13 +563,13 @@ function onboardingWizard(opts) {
             // API provides - most-specific check first.
             const label = (info.label || '').toLowerCase();
             if (info.is_latest || label.indexOf('latest') !== -1) {
-                return '{{.T.Get "The latest version - recommended for the newest features, performance, and security fixes."}}';
+                return '{{.T.Get "The latest version - recommended for the newest features and, performance."}}';
             }
             if (label.indexOf('security') !== -1) {
                 return '{{.T.Get "Security fixes only - fine for older apps, but you should plan an upgrade."}}';
             }
             if (label.indexOf('supported') !== -1) {
-                return '{{.T.Get "Fully supported - use this if your apps aren't yet compatible with or tested on the latest version."}}';
+                return '{{.T.Get "Fully supported - use this if your apps aren't yet tested on the latest version."}}';
             }
             return '{{.T.Get "No longer receives any patches - you should definitely plan an upgrade."}}';
         },
@@ -488,7 +581,7 @@ function onboardingWizard(opts) {
             if (this.opts.database) s.push('database');
             if (this.opts.varnish) s.push('varnish');
             if (this.opts.backups) s.push('backups');
-            if (this.opts.twofa || this.opts.passkeys) s.push('security');
+            if (this.opts.waf || this.opts.twofa || this.opts.passkeys) s.push('security');
             s.push('tour');
             this.stepList = s;
             this.open = true;
@@ -515,6 +608,15 @@ function onboardingWizard(opts) {
                         const state = data.container_state === 'running' ? 'enabled' : 'disabled';
                         this.currentVarnish = state;
                         this.varnishChoice = state;
+                    }
+                });
+            }
+            if (this.opts.waf) {
+                this.getJSON('/waf/account').then(({ ok, data }) => {
+                    if (ok) {
+                        const state = data.enabled ? 'enabled' : 'disabled';
+                        this.currentWAF = state;
+                        this.wafChoice = state;
                     }
                 });
             }
@@ -677,51 +779,80 @@ function onboardingWizard(opts) {
             return false;
         },
 
-        async submitSecurity() {
-            if (this.opts.twofa && this.opts.passkeys && !this.securityChoice) {
-                this.error = '{{.T.Get "Please choose an option, or click Skip."}}';
+        async submitWAFChoice() {
+            if (!this.wafChoice) { this.error = '{{.T.Get "Please choose Enabled or Disabled, or click Skip."}}'; return false; }
+            if (this.wafChoice === this.currentWAF) return true;
+            const action = this.wafChoice === 'enabled' ? 'enable' : 'disable';
+            const { ok, data } = await this.formPost('/waf/account', { action: action });
+            if (!ok) { this.error = data.error || '{{.T.Get "Failed to update WAF."}}'; return false; }
+            this.currentWAF = this.wafChoice;
+            return true;
+        },
+
+        async submitTwofaChoice() {
+            if (this.twofaEnabled) return true;
+            if (!this.twofaSecret) {
+                const { ok, data } = await this.formPost('/account/2fa?output=json', { twofa_active: '1' });
+                if (!ok) { this.error = data.error || '{{.T.Get "Failed to start 2FA setup."}}'; return false; }
+                this.twofaSecret = data.secret;
+                this.twofaOtpUri = data.otpauth_url;
+                this.$nextTick(() => {
+                    document.getElementById('onb_qrcode').innerHTML = '';
+                    new QRCode(document.getElementById('onb_qrcode'), { text: this.twofaOtpUri, width: 160, height: 160 });
+                });
+                this.error = '';
+                return false; // stay on this view: user must scan + enter code
+            }
+            if (!this.twofaCode) { this.error = '{{.T.Get "Enter the 6-digit code from your app."}}'; return false; }
+            const { ok, data } = await this.formPost('/account/2fa?output=json', { setup_confirmed: '1', otp_code: this.twofaCode });
+            if (!ok) { this.error = data.error || '{{.T.Get "Invalid code, please try again."}}'; return false; }
+            this.twofaEnabled = true;
+            return true;
+        },
+
+        async submitPasskeysChoice() {
+            if (this.passkeyDone) return true;
+            try {
+                await registerPasskey(this.opts.username ? (this.opts.username + "'s passkey") : 'My passkey');
+                this.passkeyDone = true;
+                return true;
+            } catch (e) {
+                this.error = (e && e.message) || '{{.T.Get "Failed to register passkey."}}';
                 return false;
             }
-            const choice = this.securityChoice || (this.opts.twofa ? 'twofa' : 'passkeys');
+        },
 
-            if (choice === 'twofa') {
-                if (this.twofaEnabled) return true;
-                if (!this.twofaSecret) {
-                    const { ok, data } = await this.formPost('/account/2fa?output=json', { twofa_active: '1' });
-                    if (!ok) { this.error = data.error || '{{.T.Get "Failed to start 2FA setup."}}'; return false; }
-                    this.twofaSecret = data.secret;
-                    this.twofaOtpUri = data.otpauth_url;
-                    this.$nextTick(() => {
-                        document.getElementById('onb_qrcode').innerHTML = '';
-                        new QRCode(document.getElementById('onb_qrcode'), { text: this.twofaOtpUri, width: 160, height: 160 });
-                    });
-                    this.error = '';
-                    return false; // stay on step: user must scan + enter code
-                }
-                if (!this.twofaCode) { this.error = '{{.T.Get "Enter the 6-digit code from your app."}}'; return false; }
-                const { ok, data } = await this.formPost('/account/2fa?output=json', { setup_confirmed: '1', otp_code: this.twofaCode });
-                if (!ok) { this.error = data.error || '{{.T.Get "Invalid code, please try again."}}'; return false; }
-                this.twofaEnabled = true;
-                return true;
-            }
+        // submitSecurity dispatches to whichever option is active. A
+        // choice reached via the choice screen (securityChoice explicitly
+        // set, meaning more than one option was available) bounces back to
+        // that choice screen on success instead of advancing, so the user
+        // can also configure the others - only Continue from the bare
+        // choice screen itself (nothing newly picked) moves on to the next
+        // step. A solo option (the only one available, no choice screen to
+        // return to) advances immediately like every other step.
+        async submitSecurity() {
+            const cameFromChoice = !!this.securityChoice;
+            const choice = this.securityChoice || this.soloSecurityOption();
+            if (!choice) return true;
 
-            if (choice === 'passkeys') {
-                if (this.passkeyDone) return true;
-                try {
-                    await registerPasskey(this.opts.username ? (this.opts.username + "'s passkey") : 'My passkey');
-                    this.passkeyDone = true;
-                    return true;
-                } catch (e) {
-                    this.error = (e && e.message) || '{{.T.Get "Failed to register passkey."}}';
-                    return false;
-                }
-            }
+            let ok = true;
+            if (choice === 'waf') ok = await this.submitWAFChoice();
+            else if (choice === 'twofa') ok = await this.submitTwofaChoice();
+            else if (choice === 'passkeys') ok = await this.submitPasskeysChoice();
+
+            if (!ok) return false;
+            if (cameFromChoice) { this.securityChoice = null; return false; }
             return true;
         },
 
         startTour() {
             this.finish();
             setTimeout(() => { if (window.OPTour) window.OPTour.start(false); }, 200);
+        },
+
+        goToNextStep(url) {
+            this.finish();
+            window.location.href = url;
         },
 
         finish() {
