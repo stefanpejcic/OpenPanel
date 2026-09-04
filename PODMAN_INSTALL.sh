@@ -225,7 +225,7 @@ get_server_ipv4() {
 set_panel_version() {
     if [[ "$CUSTOM_VERSION" == false ]]; then
         local response
-        response=$(curl -4 -s "https://api.openpanel.com/v2/statistics/" || true)
+        response=$(curl --max-time 1 -4 -s "https://api.openpanel.com/v2/statistics/" || true)
         PANEL_VERSION=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+' || true)
         [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="$DEFAULT_PANEL_VERSION"
         PANEL_VERSION="$DEFAULT_PANEL_VERSION"
@@ -980,10 +980,6 @@ hetzner_fix() {
 
 clean_cache() { run $PACKAGE_MANAGER clean all 2>/dev/null || true; }
 
-verify_license() {
-    curl -4 -s -X POST -H "Content-Type: application/json" -d "{\"hostname\":\"$(hostname)\",\"public_ip\":\"${SERVER_IPV4_ADDRESS}\"}" https://api.openpanel.com/license/index.php >/dev/null 2>&1 &
-}
-
 start_system_containers() {
     podman pull docker.io/openpanel/openpanel:$PANEL_VERSION >/dev/null 2>&1 &
 }
@@ -1131,7 +1127,6 @@ STEPS=(
     configure_imunifyav
     run_housekeeping_parallel
     clean_cache
-    verify_license
     start_system_containers
 )
 
