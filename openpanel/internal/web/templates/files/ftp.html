@@ -78,7 +78,7 @@
         {{range .Accounts}}
             <tr x-show="searchQuery === '' || '{{.Username}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Path}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
                             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="username" data-sort-value="{{.Username}}"><i class="bi bi-person-fill"></i> {{.Username}}</td>
-                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="path" data-sort-value="{{.Path}}"><i style="color: orange;" class="bi bi-folder-fill"></i> {{.Path}}</td>
+                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="path" data-sort-value="{{.Path}}">{{if $.UserAllowed.filemanager}}<a href="/files{{replace .Path "/var/www/html" ""}}">{{end}}<i style="color: orange;" class="bi bi-folder-fill"></i> {{.Path}}{{if $.UserAllowed.filemanager}}</a>{{end}}</td>
                             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="uid">{{.UID}}</td>
                             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="gid">{{.GID}}</td>
 
