@@ -657,7 +657,7 @@ setup_compose() {
 
     [[ "$REPAIR" == true ]] && {
         run podman-compose -f /root/docker-compose.yml down
-        run podman volume rm root_openadmin_mysql
+        run podman volume rm root_mysql
     }
 
     wait "$_MYSQL_PULL_PID" 2>/dev/null || true
