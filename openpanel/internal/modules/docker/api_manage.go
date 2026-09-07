@@ -355,9 +355,17 @@ func apiContainerSwitchMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		body.NewSQL = r.Form.Get("new_sql")
 	}
 	newSQL := body.NewSQL
-	if newSQL != "mysql" && newSQL != "mariadb" {
+	if newSQL != "mysql" && newSQL != "mariadb" && newSQL != "percona" {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid mysql server selected"})
 		return
+	}
+
+	// Percona isn't a separate compose service the way mariadb is - it's
+	// drop-in compatible with the "mysql" service, just a different image
+	// (see setComposePerconaConfig).
+	targetService := newSQL
+	if newSQL == "percona" {
+		targetService = "mysql"
 	}
 
 	stopResp := StartOrStopContainer(ctx, userContext, mysqlType, "deactivate", "")
@@ -373,13 +381,30 @@ func apiContainerSwitchMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	deleteDockerVolume(ctx, userContext, userContext+"_mysql_data")
 	StartOrStopContainer(ctx, userContext, "phpmyadmin", "deactivate", "")
-	startResp := StartOrStopContainer(ctx, userContext, newSQL, "activate", "")
+
+	if composeErr := setComposePerconaConfig(userContext, newSQL == "percona"); composeErr != nil {
+		writeAPIDockerJSON(w, http.StatusInternalServerError, map[string]any{"error": "Failed to update mysql image: " + composeErr.Error(), "warnings": warnings})
+		return
+	}
+	if newSQL == "percona" {
+		if chownErr := chownMysqlSocketDirForPercona(userContext); chownErr != nil {
+			writeAPIDockerJSON(w, http.StatusInternalServerError, map[string]any{"error": "Failed to prepare mysql socket directory for Percona: " + chownErr.Error(), "warnings": warnings})
+			return
+		}
+	} else {
+		_ = restoreMysqlSocketDirOwnership(userContext)
+	}
+	if targetService == "mysql" {
+		ForceRemoveContainer(ctx, userContext, "mysql")
+	}
+
+	startResp := StartOrStopContainer(ctx, userContext, targetService, "activate", "")
 	if !startResp.Success {
-		writeAPIDockerJSON(w, http.StatusInternalServerError, map[string]any{"error": fmt.Sprintf("Failed to start %s.", newSQL), "warnings": warnings})
+		writeAPIDockerJSON(w, http.StatusInternalServerError, map[string]any{"error": fmt.Sprintf("Failed to start %s.", targetService), "warnings": warnings})
 		return
 	}
 
-	SetEnvValue(userContext, "MYSQL_TYPE", newSQL)
+	SetEnvValue(userContext, "MYSQL_TYPE", targetService)
 	removeImage(ctx, userContext, mysqlType)
 	mysqlmanager.InvalidatePool(userContext)
 

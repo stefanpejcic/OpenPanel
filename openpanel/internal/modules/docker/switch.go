@@ -77,7 +77,15 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 		_ = r.ParseForm()
 		newSQL := r.Form.Get("new_sql")
-		if newSQL == "mysql" || newSQL == "mariadb" {
+		if newSQL == "mysql" || newSQL == "mariadb" || newSQL == "percona" {
+			// Percona isn't a separate compose service the way mariadb is -
+			// it's drop-in compatible with the "mysql" service, just a
+			// different image (see setComposePerconaConfig).
+			targetService := newSQL
+			if newSQL == "percona" {
+				targetService = "mysql"
+			}
+
 			stopResp := StartOrStopContainer(ctx, userContext, mysqlType, "deactivate", "")
 			if !stopResp.Success {
 				if outputJSON {
@@ -95,9 +103,38 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 			deleteDockerVolume(ctx, userContext, userContext+"_mysql_data")
 			StartOrStopContainer(ctx, userContext, "phpmyadmin", "deactivate", "")
-			startResp := StartOrStopContainer(ctx, userContext, newSQL, "activate", "")
+
+			if composeErr := setComposePerconaConfig(userContext, newSQL == "percona"); composeErr != nil {
+				msg := "Failed to update mysql image: " + composeErr.Error()
+				if outputJSON {
+					jsonErr(http.StatusInternalServerError, msg)
+					return
+				}
+				flashes = append(flashes, [2]string{"error", msg})
+				redirectWithFlashes(a, w, r, "/containers/mysql", flashes...)
+				return
+			}
+			if newSQL == "percona" {
+				if chownErr := chownMysqlSocketDirForPercona(userContext); chownErr != nil {
+					msg := "Failed to prepare mysql socket directory for Percona: " + chownErr.Error()
+					if outputJSON {
+						jsonErr(http.StatusInternalServerError, msg)
+						return
+					}
+					flashes = append(flashes, [2]string{"error", msg})
+					redirectWithFlashes(a, w, r, "/containers/mysql", flashes...)
+					return
+				}
+			} else {
+				_ = restoreMysqlSocketDirOwnership(userContext)
+			}
+			if targetService == "mysql" {
+				ForceRemoveContainer(ctx, userContext, "mysql")
+			}
+
+			startResp := StartOrStopContainer(ctx, userContext, targetService, "activate", "")
 			if !startResp.Success {
-				msg := fmt.Sprintf("Failed to start %s.", newSQL)
+				msg := fmt.Sprintf("Failed to start %s.", targetService)
 				if outputJSON {
 					jsonErr(http.StatusInternalServerError, msg)
 					return
@@ -107,7 +144,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 				return
 			}
 
-			SetEnvValue(userContext, "MYSQL_TYPE", newSQL)
+			SetEnvValue(userContext, "MYSQL_TYPE", targetService)
 			removeImage(ctx, userContext, mysqlType)
 			mysqlmanager.InvalidatePool(userContext)
 
