@@ -114,6 +114,11 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 				redirectWithFlashes(a, w, r, "/containers/mysql", flashes...)
 				return
 			}
+			if newSQL == "percona" {
+				if cnfErr := ensureMyCnfClientSocket(userContext); cnfErr != nil {
+					flashes = append(flashes, [2]string{"warning", "Import/export via the CLI may not work until my.cnf is fixed: " + cnfErr.Error()})
+				}
+			}
 			if targetService == "mysql" {
 				ForceRemoveContainer(ctx, userContext, "mysql")
 			}

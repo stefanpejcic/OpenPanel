@@ -404,3 +404,32 @@ func setComposePerconaConfig(userContext string, percona bool) error {
 	}
 	return SaveCompose(userContext, composeData)
 }
+
+// ensureMyCnfClientSocket adds an explicit "socket=" line to my.cnf's
+// [client] section, pointing every CLI tool that reads it (mysql,
+// mysqldump - both invoked without an explicit -h/--socket flag by
+// export.go/importdb.go) at the shared /var/run/mysqld/mysqld.sock this
+// compose file bind-mounts into every mysql-adjacent container.
+//
+// Needed only for Percona: mysql/mariadb's own upstream images are
+// Debian-based, where the client's compiled-in default socket path
+// already happens to be /var/run/mysqld/mysqld.sock, matching the server
+// with no extra config. Percona's image is RPM-based, where the client's
+// compiled-in default is /var/lib/mysql/mysql.sock instead - confirmed
+// live: without this line, `podman exec mysql mysql <db>` (import) and
+// `mysqldump` (export) both fail with "Can't connect to local MySQL
+// server through socket '/var/lib/mysql/mysql.sock'" even though the
+// server itself is up and reachable at the (correct) shared socket path.
+func ensureMyCnfClientSocket(userContext string) error {
+	path := homePath(userContext, "my.cnf")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	content := string(data)
+	if strings.Contains(content, "socket=") {
+		return nil
+	}
+	content = strings.Replace(content, "[client]", "[client]\nsocket=/var/run/mysqld/mysqld.sock", 1)
+	return os.WriteFile(path, []byte(content), 0o644)
+}

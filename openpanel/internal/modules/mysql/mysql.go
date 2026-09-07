@@ -84,7 +84,7 @@ var restricted restrictedNames
 // mysql_restricted_databases config values, called once from Register().
 func loadRestrictedNames(a *appctx.App) {
 	usersRaw := stripQuotes(a.Config.Get("mysql_restricted_usernames",
-		"mysql.sys mysql sys mariadb.sys phpmyadmin mysql.session mysql.infoschema root debian-sys-maint healthcheck"))
+		"mysql.sys mysql sys mariadb.sys phpmyadmin mysql.session mysql.infoschema root debian-sys-maint healthcheck percona.telemetry"))
 	restricted.users = splitTrimQuotes(usersRaw)
 	restricted.usersSQL = sqlQuotedList(restricted.users)
 

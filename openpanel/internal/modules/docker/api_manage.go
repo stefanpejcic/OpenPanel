@@ -386,6 +386,11 @@ func apiContainerSwitchMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		writeAPIDockerJSON(w, http.StatusInternalServerError, map[string]any{"error": "Failed to update mysql image: " + composeErr.Error(), "warnings": warnings})
 		return
 	}
+	if newSQL == "percona" {
+		if cnfErr := ensureMyCnfClientSocket(userContext); cnfErr != nil {
+			warnings = append(warnings, "Import/export via the CLI may not work until my.cnf is fixed: "+cnfErr.Error())
+		}
+	}
 	if targetService == "mysql" {
 		ForceRemoveContainer(ctx, userContext, "mysql")
 	}
