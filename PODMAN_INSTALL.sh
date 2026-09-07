@@ -3,13 +3,13 @@
 # OpenPanel Installer ✌️
 # https://openpanel.com/install
 #
-# Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS
+# Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS, Oracle Linux
 # Supported Architecture:  x86_64(AMD64), AArch64(ARM64)
 #
 # Usage:                   bash <(curl -sSL https://openpanel.org/)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           03.09.2026
+# Last Modified:           07.09.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -203,7 +203,7 @@ detect_os_and_package_manager() {
 
     case "$OS_ID" in
         ubuntu|debian)               PACKAGE_MANAGER="apt-get" ;;
-        fedora|rocky|almalinux|alma|openeuler) PACKAGE_MANAGER="dnf" ;;
+        fedora|rocky|almalinux|alma|openeuler|ol) PACKAGE_MANAGER="dnf" ;;
         centos)                      PACKAGE_MANAGER="yum" ;;
         *) die 1 "Unsupported OS: $OS_ID" ;;
     esac
@@ -320,7 +320,7 @@ wait_for_pkg_lock() {
 sync_el_deps() {
     # https://github.com/stefanpejcic/OpenPanel/issues/1060
     [[ "$PACKAGE_MANAGER" =~ ^(dnf|yum)$ ]] || return
-    echo "Syncing system libraries to avoid AlmaLinux dependency-metadata gaps (systemd/openssl-libs)..."
+    echo "Syncing system libraries to avoid RHEL dependency-metadata gaps (systemd/openssl-libs)..."
     run $PACKAGE_MANAGER distro-sync -y
 }
 
@@ -350,6 +350,12 @@ install_packages() {
                 wait_for_pkg_lock
                 install_pkgs_batch "${packages[@]}"
                 return
+            fi
+            # Error: Unable to find a match: podman-compose
+            if [[ "$OS_ID" == "ol" ]]; then
+                run dnf install -y oracle-epel-release-el10
+                run dnf config-manager --enable ol10_u0_developer_EPEL
+                run dnf install -y podman-compose
             fi
             run dnf install -y yum-utils epel-release perl gcc
             if [[ -f /etc/fedora-release ]]; then
