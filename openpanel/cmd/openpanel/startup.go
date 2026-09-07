@@ -16,12 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 )
 
-// This file implements the server's startup side effects: log directory
-// creation, dev_mode-gated logging, the restart-needed flag, the
-// admin-provided custom startup script, container-aware worker/GOMAXPROCS
-// sizing, a Redis cache flush once the server is ready, and direct TLS
-// termination when the panel's own domain already has a cert Caddy isn't
-// already serving on 443.
+// startup side effects live here: log dirs, dev_mode logging, restart flag, custom startup script, GOMAXPROCS sizing, Redis flush, and direct TLS termination when Caddy isn't already on it
 
 const (
 	restartFlagPath     = "/root/openpanel_restart_needed"
@@ -32,16 +27,10 @@ const (
 	opencliLogPath = "/var/log/openpanel/admin/opencli.log"
 )
 
-// fatalLogger always writes to stderr, even when configureLogging has
-// silenced the default logger for non-dev-mode, so a genuine boot
-// failure is never swallowed.
+// fatalLogger always writes to stderr, even when configureLogging silenced the default logger, so a real boot failure never gets swallowed
 var fatalLogger = log.New(os.Stderr, "", log.LstdFlags)
 
-// configureLogging silences all log.Printf diagnostic output unless
-// dev_mode=on (unrecoverable boot failures still surface via untouched
-// stderr, see fatalLogger below). log.Printf across this codebase is
-// used for deliberate diagnostic output, so it's what gets silenced
-// here; fatalLogger is a separate os.Stderr writer, unaffected.
+// configureLogging silences log.Printf diagnostics unless dev_mode=on; fatalLogger stays untouched so boot failures still surface
 func configureLogging(a *appctx.App) {
 	devMode := strings.EqualFold(a.Config.Get("dev_mode", ""), "on")
 	if !devMode {
@@ -49,20 +38,14 @@ func configureLogging(a *appctx.App) {
 	}
 }
 
-// runStartupTasks performs one-time startup side effects (directory
-// creation, the restart flag, the custom startup script), run once
-// before the HTTP listener starts accepting connections.
+// runStartupTasks runs one-time setup before the HTTP listener starts accepting connections
 func runStartupTasks() {
 	ensureLogDirectories()
 	emptyRestartFlag()
 	runCustomStartupScript()
 }
 
-// ensureLogDirectories creates the parent directories for
-// error.log/access.log/opencli.log: several handlers in this codebase
-// already append to error.log directly (e.g. internal/modules/account's
-// login rate limiter) and would otherwise fail silently if the directory
-// never got created.
+// ensureLogDirectories creates the log dirs upfront so handlers that append directly (like the login rate limiter) don't fail silently
 func ensureLogDirectories() {
 	for _, p := range []string{errorLogPath, accessLogPath, opencliLogPath} {
 		if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
@@ -71,8 +54,7 @@ func ensureLogDirectories() {
 	}
 }
 
-// emptyRestartFlag truncates (not deletes) the "a restart is needed"
-// marker file the GUI polls for.
+// emptyRestartFlag truncates (not deletes) the "restart needed" marker file the GUI polls for
 func emptyRestartFlag() {
 	if _, err := os.Stat(restartFlagPath); err != nil {
 		return
@@ -82,8 +64,7 @@ func emptyRestartFlag() {
 	}
 }
 
-// runCustomStartupScript runs /root/openpanel_run_on_startup with bash
-// if present, capped at 60s.
+// runCustomStartupScript runs /root/openpanel_run_on_startup with bash if present, capped at 60s
 func runCustomStartupScript() {
 	info, err := os.Stat(customStartupScript)
 	if err != nil || info.IsDir() {
@@ -99,11 +80,7 @@ func runCustomStartupScript() {
 	}
 }
 
-// setGOMAXPROCSFromCgroup caps GOMAXPROCS to the container's actual CPU
-// allotment: Go's runtime.NumCPU()-based GOMAXPROCS default reports the
-// HOST's core count even inside a CPU-quota-limited container, not the
-// container's real allotment, so this reads the cgroup v2/v1 CPU quota
-// when present and caps GOMAXPROCS to it instead.
+// setGOMAXPROCSFromCgroup caps GOMAXPROCS to the container's real CPU quota - runtime.NumCPU() reports the host's core count even inside a quota-limited container
 func setGOMAXPROCSFromCgroup() {
 	quota, ok := cgroupCPUQuota()
 	if !ok || quota <= 0 || quota >= runtime.NumCPU() {
@@ -113,12 +90,8 @@ func setGOMAXPROCSFromCgroup() {
 	log.Printf("BOOTSTRAP - GOMAXPROCS set to %d (container CPU quota), host reports %d cores", quota, runtime.NumCPU())
 }
 
-// cgroupCPUQuota reads the number of CPUs allotted to this container from
-// cgroup v2 (/sys/fs/cgroup/cpu.max: "<quota> <period>", or "max" for
-// unlimited) or, failing that, cgroup v1
-// (cpu.cfs_quota_us/cpu.cfs_period_us, -1 quota meaning unlimited).
-// Fractional quotas round up (a container with 1.2 CPUs still gets
-// GOMAXPROCS=2 minimum) so a small allotment never collapses to 0.
+// cgroupCPUQuota reads the container's CPU allotment from cgroup v2 (cpu.max), falling back to cgroup v1 (cfs_quota_us/cfs_period_us).
+// fractional quotas round up so a small allotment never collapses to 0.
 func cgroupCPUQuota() (int, bool) {
 	if data, err := os.ReadFile("/sys/fs/cgroup/cpu.max"); err == nil {
 		fields := strings.Fields(strings.TrimSpace(string(data)))
@@ -153,11 +126,7 @@ func quotaOverPeriod(quotaStr, periodStr string) (int, bool) {
 	return n, true
 }
 
-// flushRedisCache clears every Redis key except active user sessions
-// (session:<userID>:<token>, see internal/auth/require.go) once the HTTP
-// listener has bound its socket (see main()'s call site). Sessions are
-// preserved deliberately so a server restart doesn't force every logged-in
-// user back to the login page.
+// flushRedisCache clears every Redis key except active sessions once the listener is up, so a restart doesn't log everyone out
 func flushRedisCache(c *cache.Cache) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -187,17 +156,13 @@ func flushRedisCache(c *cache.Cache) {
 	log.Printf("BOOTSTRAP - Redis cache cleared: %d key(s) deleted, sessions preserved", deleted)
 }
 
-// caddyCertDirs lists the directories Caddy stores certificates under,
-// searched in order when looking up an existing cert for a domain.
+// caddyCertDirs is where Caddy stores certs, checked in this order
 var caddyCertDirs = []string{
 	"/etc/openpanel/caddy/ssl/custom/",
 	"/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/",
 }
 
-// opencli runs `opencli <args>` with a 5s timeout, returning ok=false on
-// any failure (missing binary, non-zero exit, timeout). Errors are
-// swallowed rather than propagated because callers treat a failed
-// lookup as "not configured" rather than a fatal condition.
+// opencli runs `opencli <args>` with a 5s timeout; errors are swallowed since callers treat a failed lookup as "not configured", not fatal
 func opencli(args ...string) (string, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -208,8 +173,7 @@ func opencli(args ...string) (string, bool) {
 	return strings.TrimSpace(string(out)), true
 }
 
-// checkSSLExists returns the first non-empty <base>/<domain>/ directory
-// across caddyCertDirs, if any.
+// checkSSLExists returns the first non-empty <base>/<domain>/ dir across caddyCertDirs
 func checkSSLExists(domain string) (dir string, ok bool) {
 	for _, base := range caddyCertDirs {
 		certDir := filepath.Join(base, domain)
@@ -221,17 +185,8 @@ func checkSSLExists(domain string) (dir string, ok bool) {
 	return "", false
 }
 
-// tlsCertPaths decides whether this server should terminate TLS itself:
-// if the panel's own domain (`opencli domain`) already has a cert and
-// the admin port (`opencli port`) isn't 443 - meaning Caddy isn't the
-// one terminating TLS for it - the server terminates TLS itself using
-// that same cert. Returns ok=false whenever plain HTTP is correct (no
-// domain configured, no cert found, or Caddy already handles port 443) -
-// including whenever listenAddr doesn't actually match `opencli port`'s
-// admin port: LISTEN_ADDR can be overridden (e.g. for running this build
-// alongside an existing install on a different port during migration
-// testing), and terminating TLS for the *admin* port's cert on some other,
-// plain-HTTP-only port would just break that port instead of securing it.
+// tlsCertPaths decides if this server should terminate TLS itself: only when the panel's domain already has a cert and the admin port isn't 443 (so Caddy isn't already handling it).
+// Falls back to plain HTTP otherwise - no domain, no cert, Caddy on 443, or listenAddr not matching the configured admin port (LISTEN_ADDR can be overridden for testing on another port).
 func tlsCertPaths(listenAddr string) (certFile, keyFile string, ok bool) {
 	domain, domainOK := opencli("domain")
 	if !domainOK || domain == "" {

@@ -24,14 +24,10 @@ import (
 )
 
 const (
-	// defaultAdminPort is also tlsCertPaths' fallback (startup.go) for when
-	// `opencli port` can't be read.
+	// also tlsCertPaths' fallback (startup.go) when `opencli port` can't be read
 	defaultAdminPort  = "2083"
 	defaultListenAddr = ":" + defaultAdminPort
-	// defaultStaticOverrideDir is where an admin can drop replacement
-	// copies of the few user-editable static files (custom.css, custom.js,
-	// robots.txt, security.txt); everything else is served from the
-	// binary's embedded static/ tree. Empty disables overrides.
+	// where an admin can drop replacement static files (custom.css/js, robots.txt, security.txt); empty disables overrides
 	defaultStaticOverrideDir = "/etc/openpanel/openpanel/static"
 )
 
@@ -48,16 +44,13 @@ func main() {
 	setGOMAXPROCSFromCgroup()
 	runStartupTasks()
 
-	// AES-256 key for CSRF token encryption, derived from the panel secret
-	// so the on-disk key file doesn't need to be exactly 32 bytes.
+	// derive the AES-256 CSRF key from the panel secret so the on-disk key file doesn't need to be exactly 32 bytes
 	csrfKey := sha256.Sum256(a.SecretKey)
 	csrfMiddleware := csrf.Protect(csrfKey[:],
 		csrf.Path("/"),
 		csrf.CookieName("OPENPANEL_CSRF"),
 		csrf.Secure(false),
-		// Matches the "csrf_token" hidden input name every template
-		// renders - gorilla/csrf's own default field name is
-		// "gorilla.csrf.Token", which none of the forms use.
+		// matches the "csrf_token" name our templates use, not gorilla/csrf's default "gorilla.csrf.Token"
 		csrf.FieldName("csrf_token"),
 	)
 
@@ -67,9 +60,7 @@ func main() {
 		w.Write([]byte("ok"))
 	})
 
-	// Static assets are embedded in the binary; a handful of
-	// admin-editable files (custom.css/js, robots.txt, security.txt) are
-	// served from disk instead when present there.
+	// static assets are embedded, but a few admin-editable files are served from disk instead when present there
 	staticOverrideDir := envOrDefault("STATIC_OVERRIDE_DIR", defaultStaticOverrideDir)
 	staticFS, err := fs.Sub(openpanel.Static, "static")
 	if err != nil {
@@ -83,15 +74,13 @@ func main() {
 	log.Printf("BOOTSTRAP - static assets embedded (override dir %s: custom_css=%v custom_js=%v)",
 		staticOverrideDir, a.CustomCSS, a.CustomJS)
 	mux.Handle("GET /static/", http.StripPrefix("/static/", staticAssets.Handler()))
-	// Only these two root-level filenames are served this way; anything
-	// else 404s.
+	// only these two root-level files are served this way, anything else 404s
 	mux.HandleFunc("GET /robots.txt", staticAssets.ServeRootFile("robots.txt"))
 	mux.HandleFunc("GET /security.txt", staticAssets.ServeRootFile("security.txt"))
 
 	modules.RegisterAll(mux, a)
 
-	// block_blacklisted_user_agents (config-gated, off by default) isn't
-	// ported yet; not needed for any route registered so far.
+	// block_blacklisted_user_agents isn't ported yet, not needed for any route we have so far
 	var handler http.Handler = mux
 	handler = auth.CheckLicense(a, func(w http.ResponseWriter, r *http.Request) {
 		renderLicenseError(a, w, r)
@@ -133,11 +122,7 @@ func main() {
 	}
 }
 
-// exemptAPIFromCSRF exempts /api/* and /mcp routes from CSRF protection.
-// gorilla/csrf has no built-in path exemption, so this wraps it manually
-// instead: those routes authenticate via a Bearer JWT/MCP token, not the
-// session cookie CSRF protection exists to guard, so there's nothing for
-// it to protect on this path family anyway.
+// exemptAPIFromCSRF skips CSRF checks for /api/* and /mcp - gorilla/csrf has no built-in path exemption, and those routes use a Bearer token instead of the session cookie anyway.
 func exemptAPIFromCSRF(csrfMiddleware func(http.Handler) http.Handler, next http.Handler) http.Handler {
 	protected := csrfMiddleware(next)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -145,14 +130,7 @@ func exemptAPIFromCSRF(csrfMiddleware func(http.Handler) http.Handler, next http
 			next.ServeHTTP(w, r)
 			return
 		}
-		// gorilla/csrf >=1.7.3 assumes HTTPS and rejects plain-HTTP
-		// Referers by default (fixing GHSA-w7r5-hrhh-6h4v, which had made
-		// that check a no-op). This panel's own listener is almost always
-		// plain HTTP behind a Caddy TLS-terminating reverse proxy (see also
-		// account.rpIDAndOrigin) - and is also reachable directly over
-		// plain http://ip:port before a domain/cert is configured - so it
-		// must tell gorilla/csrf when the client-facing request genuinely
-		// isn't HTTPS, or every such POST gets wrongly rejected.
+		// gorilla/csrf >=1.7.3 rejects plain-HTTP Referers by default, but this panel usually runs plain HTTP behind Caddy's TLS-terminating proxy (or bare http://ip:port before a domain is set up), so we have to tell it explicitly when the request isn't really HTTPS
 		if requestScheme(r) != "https" {
 			r = csrf.PlaintextHTTPRequest(r)
 		}
@@ -160,10 +138,7 @@ func exemptAPIFromCSRF(csrfMiddleware func(http.Handler) http.Handler, next http
 	})
 }
 
-// requestScheme returns the client-facing scheme ("http" or "https") for r,
-// trusting X-Forwarded-Proto first since Caddy terminates TLS in front of
-// this process (r.TLS is nil on that connection even when the browser is on
-// https); r.TLS covers the case where this process terminates TLS itself.
+// requestScheme returns the client-facing scheme, trusting X-Forwarded-Proto first since Caddy terminates TLS in front of us and r.TLS is nil even over https
 func requestScheme(r *http.Request) string {
 	if proto := r.Header.Get("X-Forwarded-Proto"); proto != "" {
 		return strings.ToLower(strings.TrimSpace(strings.SplitN(proto, ",", 2)[0]))

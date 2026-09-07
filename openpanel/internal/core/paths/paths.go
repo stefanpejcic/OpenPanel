@@ -1,8 +1,4 @@
-// Package paths implements the path-traversal guard used by every
-// file-manager route that touches a user-supplied path. Security-critical -
-// the checks and their ordering are kept deliberately exact rather than
-// "equivalent but simplified", since subtle behavior differences here are
-// exploitable.
+// Package paths makes sure a user-supplied path can't escape their home dir. Security-critical, be careful changing this.
 package paths
 
 import (
@@ -12,7 +8,7 @@ import (
 	"strings"
 )
 
-// Error is one of SecureUserPath's abort(code, message) failures.
+// Error is returned when SecureUserPath rejects a path.
 type Error struct {
 	Code    int
 	Message string
@@ -26,28 +22,20 @@ func abort(code int, message string) error {
 
 var controlCharsRE = regexp.MustCompile(`[\x00-\x1f\x7f-\x9f<>:"|?*]`)
 
-// dangerousPatterns is the substring blocklist checked against the
-// lowercased full path.
+// dangerousPatterns are blocked substrings, checked against the lowercased path.
 var dangerousPatterns = []string{
 	"..", "/..", "\\..", "../", "..\\",
 	"%2e%2e", "%252e%252e", "..%2f", "..%5c",
 	"…..", "..%c0%af", "..%c1%9c",
 }
 
-// homeVolumeOverride lets tests point the HOME base directory computation
-// at a temp directory instead of the real (root-owned) /home. Production
-// code never sets this; it's a test-only seam, matching the same pattern
-// used by internal/modules/docker's homeDirOverride.
+// homeVolumeOverride lets tests point HOME at a temp dir instead of the real /home.
 var homeVolumeOverride string
 
-// htmlRootOverride is the equivalent test seam for the HTML base
-// directory ("/var/www/html" in production).
+// htmlRootOverride is the same thing but for the HTML root.
 var htmlRootOverride string
 
-// baseDir resolves "HOME" or "HTML" to the per-user root directory. HOME
-// must already exist (strict resolve); a missing HOME volume is a 404, not
-// a 403, since it's a legitimate not-yet-provisioned state rather than an
-// attack.
+// baseDir resolves "HOME" or "HTML" to the user's root dir. A missing HOME volume is a 404, not a 403 - it just isn't provisioned yet.
 func baseDir(kind, context string) (string, error) {
 	switch strings.ToUpper(kind) {
 	case "HTML":
@@ -55,8 +43,7 @@ func baseDir(kind, context string) (string, error) {
 		if htmlRoot == "" {
 			htmlRoot = "/var/www/html"
 		}
-		// Resolved non-strict here: the /var/www/html/<context> tenant
-		// directory may not exist yet - that's handled later.
+		// non-strict since this dir might not exist yet
 		return filepath.Join(htmlRoot, context), nil
 	case "HOME":
 		var dir string
@@ -75,9 +62,7 @@ func baseDir(kind, context string) (string, error) {
 	}
 }
 
-// SecureUserPath validates and resolves a user-supplied path within the
-// account's HOME or HTML root, guarding against path traversal and
-// symlink escapes. base is "HOME" or "HTML".
+// SecureUserPath resolves a user path inside HOME/HTML, blocking traversal and symlink escapes.
 func SecureUserPath(base, context, userInputPath string, checkExists bool) (string, error) {
 	const maxPathLength = 200
 
@@ -91,9 +76,7 @@ func SecureUserPath(base, context, userInputPath string, checkExists bool) (stri
 	}
 
 	if userInputPath == "" {
-		// The HOME branch always exists by this point (baseDir above
-		// already 404s otherwise), so the "fall back to /var/www/html"
-		// branch below is effectively HTML-only.
+		// HOME always exists here, this fallback is really just for HTML
 		if filepath.Base(userHome) == context {
 			if _, statErr := os.Stat(userHome); statErr != nil {
 				return filepath.EvalSymlinks("/var/www/html")
@@ -128,10 +111,7 @@ func SecureUserPath(base, context, userInputPath string, checkExists bool) (stri
 		}
 	}
 
-	// Walk each path segment from userHome, rejecting any intermediate
-	// component that's a symlink. This catches an escape attempt even when
-	// the final resolved path would still (accidentally) land inside
-	// userHome.
+	// walk the path and reject any symlink along the way, even if the end result would land inside userHome anyway
 	current := userHome
 	var nonEmptyParts []string
 	for _, part := range pathParts {
@@ -182,9 +162,7 @@ func isWithin(home, target string) bool {
 	return rel != "." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) && rel != ".."
 }
 
-// resolveNonStrict resolves symlinks for the longest existing prefix of
-// path, then appends the remaining (not-yet-existing) components
-// literally, cleaned but not symlink-resolved.
+// resolveNonStrict resolves symlinks as far as the path actually exists, then just appends what's left.
 func resolveNonStrict(path string) (string, error) {
 	clean := filepath.Clean(path)
 	if resolved, err := filepath.EvalSymlinks(clean); err == nil {
