@@ -54,6 +54,22 @@ Additional display settings include:
 - **Display Link to Report Bugs:** Show a “Found a bug? Let us know” link at the bottom of all user pages for easy bug reporting.
 - **Display Country Flag Icons:** Show country flags next to the last login IP in the OpenPanel dashboard.
 
+## Onboarding
+
+- **Enable Onboarding Wizard:** Show a short guided setup wizard to new users on their first login, before they've added a domain or a database. See the [Onboarding page](/docs/panel/dashboard/onboarding) for what users see.
+
+The wizard doesn't have its own separate list of steps to configure - each step just mirrors a feature already enabled in [Feature Manager](/docs/admin/plans/feature-manager) (Webserver, PHP, Database, Varnish, Backups, WAF, IP Blocker, 2FA, Passkeys). Disable a feature there for a plan and its onboarding step disappears too for users on that plan.
+
+To reset the wizard for a single user (for testing, or if they ask to see it again), delete their marker file over SSH:
+
+```bash
+rm /home/USERNAME/onboarding.completed
+```
+
+They'll be offered the wizard again next time they log in, as long as they still have no domains or databases.
+
+You can also add your own custom steps to the wizard - for example, a step to enable Redis - without modifying OpenPanel itself. See [Add Custom Steps to the Onboarding Wizard](/docs/articles/dev-experience/add-custom-steps-to-onboarding-wizard).
+
 ## File Manager
 
 Configure the following settings for the File Manager:
