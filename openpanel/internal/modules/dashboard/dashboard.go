@@ -476,7 +476,14 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 	if a.Config.Get("onboarding", "") == "yes" {
 		onboardingDoneFile := fmt.Sprintf("/home/%s/onboarding.completed", userContext)
 		if _, err := os.Stat(onboardingDoneFile); os.IsNotExist(err) {
-			d.OnboardingShow = true
+			// Demo accounts are reset/reused, so an existing domain or
+			// database doesn't mean this viewer has been onboarded -
+			// keep offering onboarding there regardless of usage.
+			if !a.DemoMode && (len(userDomains) > 0 || d.DBUsage > 0) {
+				_ = os.WriteFile(onboardingDoneFile, nil, 0o644)
+			} else {
+				d.OnboardingShow = true
+			}
 		}
 	}
 
