@@ -337,6 +337,13 @@ install_packages() {
             run $PACKAGE_MANAGER -qq install -y apt-transport-https ca-certificates
             echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
             run update-ca-certificates
+            if [[ "$OS_VERSION_ID" == "12" ]]; then
+                run apt install -y python3-venv
+                run python3 -m venv /opt/podman-compose
+                run /opt/podman-compose/bin/pip install -U pip podman-compose
+                run ln -sf /opt/podman-compose/bin/podman-compose /usr/local/bin/podman-compose
+                run hash -r
+            fi
             packages=(curl openssl cron tar dbus-user-session systemd dbus systemd-container quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client sqlite3)
             ;;
         yum)
