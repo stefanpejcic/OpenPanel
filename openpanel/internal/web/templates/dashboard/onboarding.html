@@ -24,6 +24,7 @@
         passkeyDefaultName: {{if .CurrentUsername}}{{toJSON (.T.Get "%(name)s's passkey" "name" .CurrentUsername)}}{{else}}{{toJSON (.T.Get "My passkey")}}{{end}}
     })"
     x-init="init()"
+    x-effect="mountCustomStep()"
 >
 <template x-teleport="body">
     <div x-show="open" x-cloak
@@ -357,6 +358,13 @@
                     </div>
                 </template>
 
+                <!-- Step: custom, registered at runtime via window.OPOnboardingSteps
+                     (see static/js/custom.js) - lets a deployment add its own
+                     wizard step (e.g. Redis) without touching this template. -->
+                <template x-if="customSteps[currentStep()]">
+                    <div id="onb_custom_step_host"></div>
+                </template>
+
                 <!-- Step: tour (Finish) -->
                 <template x-if="currentStep() === 'tour'">
                     <div>
@@ -563,6 +571,12 @@ function onboardingWizard(opts) {
 
         currentWebserver: null,
 
+        // customSteps holds step definitions registered at runtime via
+        // window.OPOnboardingSteps (see init()) - keyed by step key, so
+        // deployments can bolt on their own step (e.g. Redis) from
+        // static/js/custom.js without forking this template.
+        customSteps: {},
+
         stepTitles: {
             webserver: '{{.T.Get "Webserver"}}',
             php: '{{.T.Get "PHP"}}',
@@ -573,7 +587,23 @@ function onboardingWizard(opts) {
             tour: '{{.T.Get "Finish"}}'
         },
         stepTitle(step) {
+            if (this.customSteps[step]) return this.customSteps[step].title || step;
             return this.stepTitles[step] || step;
+        },
+
+        // mountCustomStep re-renders the active custom step's host div
+        // whenever the current step changes (x-effect on the wizard root
+        // tracks stepIndex/stepList reactively, so this needs no manual
+        // wiring from moveNext()/skip()/the tab clicks).
+        mountCustomStep() {
+            const step = this.currentStep();
+            const def = this.customSteps[step];
+            this.$nextTick(() => {
+                const host = document.getElementById('onb_custom_step_host');
+                if (!host) return;
+                host.innerHTML = '';
+                if (def && typeof def.render === 'function') def.render(host, this);
+            });
         },
 
         // soloSecurityOption returns the one available security option
@@ -621,6 +651,22 @@ function onboardingWizard(opts) {
             if (this.opts.varnish) s.push('varnish');
             if (this.opts.backups) s.push('backups');
             if (this.opts.waf || this.opts.ipBlocker || this.opts.twofa || this.opts.passkeys) s.push('security');
+
+            // Runtime-registered steps (window.OPOnboardingSteps) - pushed
+            // by custom.js before this script runs, since custom.js loads
+            // as a plain (non-deferred) <script> near the end of <body>
+            // while Alpine's own init only fires later, once the whole
+            // page has finished parsing. Each entry needs a unique `key`
+            // and a `render(host, wizard)` function; `title`, `enabled(opts)`
+            // and async `init(wizard)`/`submit(wizard)` are optional.
+            (window.OPOnboardingSteps || []).forEach((def) => {
+                if (!def || !def.key || typeof def.render !== 'function') return;
+                if (typeof def.enabled === 'function' ? !def.enabled(this.opts) : def.enabled === false) return;
+                this.customSteps[def.key] = def;
+                s.push(def.key);
+                if (typeof def.init === 'function') def.init(this);
+            });
+
             s.push('tour');
             this.stepList = s;
             this.open = true;
@@ -738,6 +784,10 @@ function onboardingWizard(opts) {
                 else if (step === 'varnish') ok = await this.submitVarnish();
                 else if (step === 'backups') ok = await this.submitBackups();
                 else if (step === 'security') ok = await this.submitSecurity();
+                else if (this.customSteps[step]) {
+                    const def = this.customSteps[step];
+                    ok = typeof def.submit === 'function' ? await def.submit(this) : true;
+                }
                 else if (step === 'tour') { this.finish(); return; }
             } finally {
                 this.loading = false;
