@@ -12,7 +12,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
@@ -25,17 +24,6 @@ func RegisterExtensionsAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "php_extensions", "GET /api/php/{version}/extensions/install/status", func(w http.ResponseWriter, r *http.Request) { apiPHPExtensionsInstallStatus(a, w, r) })
 }
 
-// apiCheckLitespeed returns true (and writes the 400 JSON error) if
-// extension management isn't available for this webserver.
-func apiCheckLitespeed(w http.ResponseWriter, userContext string) bool {
-	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
-	if strings.Contains(strings.ToLower(webServer), "litespeed") {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "PHP extension management not available for LiteSpeed"})
-		return true
-	}
-	return false
-}
-
 // apiPHPExtensionsList returns the supported extensions for a PHP version
 // along with their active/disabled/not-installed state and install history.
 func apiPHPExtensionsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -45,27 +33,28 @@ func apiPHPExtensionsList(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if apiCheckLitespeed(w, userContext) {
-		return
-	}
 
 	version := r.PathValue("version")
-	service := "php-fpm-" + version
+	service, isLitespeed := phpExtensionsService(userContext, version)
 	_, _ = ensurePHPServiceRunning(ctx, userContext, service)
 
-	active, disabled := getActiveAndDisabledExtensions(ctx, userContext, service)
-	supportedNames := extensionsSupportedForVersion(ctx, version)
-
-	extensions := make([]ExtensionRow, 0, len(supportedNames))
-	for _, name := range supportedNames {
-		lname := strings.ToLower(name)
-		state := "not_installed"
-		if active[lname] {
-			state = "active"
-		} else if disabled[lname] {
-			state = "disabled"
+	var extensions []ExtensionRow
+	if isLitespeed {
+		extensions = litespeedExtensionRows(ctx, userContext, service, version)
+	} else {
+		active, disabled := getActiveAndDisabledExtensions(ctx, userContext, service)
+		supportedNames := extensionsSupportedForVersion(ctx, version)
+		extensions = make([]ExtensionRow, 0, len(supportedNames))
+		for _, name := range supportedNames {
+			lname := strings.ToLower(name)
+			state := "not_installed"
+			if active[lname] {
+				state = "active"
+			} else if disabled[lname] {
+				state = "disabled"
+			}
+			extensions = append(extensions, ExtensionRow{Name: name, State: state})
 		}
-		extensions = append(extensions, ExtensionRow{Name: name, State: state})
 	}
 
 	history := loadExtensionsHistory(userContext, version)
@@ -83,10 +72,6 @@ func apiPHPExtensionToggle(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if apiCheckLitespeed(w, userContext) {
-		return
-	}
-
 	var body struct {
 		Extension string `json:"extension"`
 		Enable    any    `json:"enable"`
@@ -116,13 +101,19 @@ func apiPHPExtensionToggle(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	version := r.PathValue("version")
-	service := "php-fpm-" + version
+	service, isLitespeed := phpExtensionsService(userContext, version)
 	if ok, errMsg := ensurePHPServiceRunning(ctx, userContext, service); !ok {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start PHP " + version + ": " + errMsg})
 		return
 	}
 
-	ok, errMsg := toggleExtension(ctx, userContext, service, extension, enable)
+	var ok bool
+	var errMsg string
+	if isLitespeed {
+		ok, errMsg = toggleLitespeedExtension(ctx, userContext, service, version, extension, enable)
+	} else {
+		ok, errMsg = toggleExtension(ctx, userContext, service, extension, enable)
+	}
 	if !ok {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not change " + extension + ": " + errMsg})
 		return
@@ -150,23 +141,29 @@ func apiPHPExtensionsAvailable(a *appctx.App, w http.ResponseWriter, r *http.Req
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if apiCheckLitespeed(w, userContext) {
-		return
-	}
-
 	version := r.PathValue("version")
-	service := "php-fpm-" + version
-	active, disabled := getActiveAndDisabledExtensions(ctx, userContext, service)
-	supportedNames := extensionsSupportedForVersion(ctx, version)
+	service, isLitespeed := phpExtensionsService(userContext, version)
 
 	type availableExt struct {
 		Name      string `json:"name"`
 		Installed bool   `json:"installed"`
 	}
-	extensions := make([]availableExt, 0, len(supportedNames))
-	for _, name := range supportedNames {
-		lname := strings.ToLower(name)
-		extensions = append(extensions, availableExt{Name: name, Installed: active[lname] || disabled[lname]})
+	var extensions []availableExt
+	if isLitespeed {
+		supportedNames := litespeedExtensionsSupportedForVersion(ctx, userContext, service, version)
+		installed := getLitespeedInstalledPackages(ctx, userContext, service, version)
+		extensions = make([]availableExt, 0, len(supportedNames))
+		for _, name := range supportedNames {
+			extensions = append(extensions, availableExt{Name: name, Installed: installed[strings.ToLower(name)]})
+		}
+	} else {
+		active, disabled := getActiveAndDisabledExtensions(ctx, userContext, service)
+		supportedNames := extensionsSupportedForVersion(ctx, version)
+		extensions = make([]availableExt, 0, len(supportedNames))
+		for _, name := range supportedNames {
+			lname := strings.ToLower(name)
+			extensions = append(extensions, availableExt{Name: name, Installed: active[lname] || disabled[lname]})
+		}
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{"version": version, "extensions": extensions})
@@ -183,10 +180,6 @@ func apiPHPExtensionsInstall(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if apiCheckLitespeed(w, userContext) {
-		return
-	}
-
 	var body struct {
 		Extensions any `json:"extensions"`
 	}
@@ -223,7 +216,7 @@ func apiPHPExtensionsInstall(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 
 	version := r.PathValue("version")
-	service := "php-fpm-" + version
+	service, _ := phpExtensionsService(userContext, version)
 	if ok, errMsg := ensurePHPServiceRunning(ctx, userContext, service); !ok {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start PHP " + version + ": " + errMsg})
 		return
@@ -256,7 +249,7 @@ func apiPHPExtensionsInstallStatus(a *appctx.App, w http.ResponseWriter, r *http
 		return
 	}
 	version := r.PathValue("version")
-	service := "php-fpm-" + version
+	service, _ := phpExtensionsService(userContext, version)
 	installID := r.URL.Query().Get("install_id")
 
 	containerBusy := isInstallRunningInContainer(ctx, userContext, service)

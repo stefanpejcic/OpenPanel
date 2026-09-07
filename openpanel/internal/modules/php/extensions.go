@@ -270,12 +270,14 @@ func toggleExtension(ctx context.Context, userContext, service, extension string
 }
 
 // EnsureExtensionInstalled makes sure a PHP extension is present and
-// enabled in the given user's PHP-FPM service before some other module's
-// installer runs (e.g. OJS requires "ftp" - see internal/modules/ojs's
-// install.go). Reuses this file's own install machinery (`phpaddmod`, the
-// same command the Extensions page's "Install" button runs) rather than
-// duplicating it, so results and failure modes are identical to the
-// browser-driven Extensions flow.
+// enabled before some other module's installer runs (e.g. OJS requires
+// "ftp" - see internal/modules/ojs's install.go), on either backend: a
+// PHP-FPM service (php-fpm-<version>) or the LiteSpeed/OpenLiteSpeed
+// webserver container (dispatched to ensureLitespeedExtensionInstalled).
+// Reuses this file's own install machinery (`phpaddmod`, the same command
+// the Extensions page's "Install" button runs) rather than duplicating it,
+// so results and failure modes are identical to the browser-driven
+// Extensions flow.
 //
 // Three cases, cheapest first:
 //  1. Already active (`php -m` lists it) - no-op.
@@ -290,6 +292,11 @@ func toggleExtension(ctx context.Context, userContext, service, extension string
 // this codebase's CMS installers), so the caller can safely proceed
 // straight to using the extension afterward.
 func EnsureExtensionInstalled(ctx context.Context, userContext, service, extension string) error {
+	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
+	if strings.Contains(strings.ToLower(webServer), "litespeed") {
+		return ensureLitespeedExtensionInstalled(ctx, userContext, service, extension)
+	}
+
 	active, _ := getActiveAndDisabledExtensions(ctx, userContext, service)
 	if active[strings.ToLower(extension)] {
 		return nil
@@ -399,7 +406,7 @@ func saveExtensionsHistory(userContext, version string, names []string) []string
 
 func isInstallRunningInContainer(ctx context.Context, userContext, service string) bool {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", service, "sh", "-c",
-		"ps aux | grep -E 'phpaddmod|install-php-extensions' | grep -v grep")
+		"ps aux | grep -E 'phpaddmod|install-php-extensions|apt-get install' | grep -v grep")
 	out, _ := runShort(ctx, userContext, argv)
 	return strings.TrimSpace(out) != ""
 }
@@ -477,7 +484,13 @@ func runExtensionInstall(installID string) {
 	info.Message = "Installing " + strings.Join(info.Extensions, ", ") + "..."
 	_ = saveInstallState(installID, info)
 
-	argv := append(podmanmanager.PodmanArgv(info.Context, "exec", info.Service, "phpaddmod"), info.Extensions...)
+	webServer := webserver.GetEnvFileValue(info.Context, "WEB_SERVER")
+	var argv []string
+	if strings.Contains(strings.ToLower(webServer), "litespeed") {
+		argv = installLitespeedExtensionsArgv(info.Context, info.Service, info.Version, info.Extensions)
+	} else {
+		argv = append(podmanmanager.PodmanArgv(info.Context, "exec", info.Service, "phpaddmod"), info.Extensions...)
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
@@ -524,13 +537,16 @@ type ExtensionRow struct {
 	State string `json:"state"` // "active" | "disabled" | "not_installed"
 }
 
-func litespeedRedirectIfNeeded(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext string) bool {
+// phpExtensionsService resolves which container PHP extension management
+// for "version" acts on: "php-fpm-<version>" normally, or the single
+// LiteSpeed/OpenLiteSpeed webserver container (which serves every PHP
+// version) when that's this account's webserver.
+func phpExtensionsService(userContext, version string) (service string, isLitespeed bool) {
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	if strings.Contains(strings.ToLower(webServer), "litespeed") {
-		flashAndRedirect(a, w, r, "warning", "PHP extension management is only available for PHP-FPM, not for Litespeed.", "/php/default")
-		return true
+		return webServer, true
 	}
-	return false
+	return "php-fpm-" + version, false
 }
 
 // handlePHPExtensionsSelect renders the PHP-version picker for the
@@ -540,9 +556,6 @@ func handlePHPExtensionsSelect(a *appctx.App, w http.ResponseWriter, r *http.Req
 	_, userContext, err := injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	if litespeedRedirectIfNeeded(a, w, r, userContext) {
 		return
 	}
 
@@ -559,12 +572,9 @@ func handlePHPExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if litespeedRedirectIfNeeded(a, w, r, userContext) {
-		return
-	}
 
 	version := phpVersionFromSegment(versionSeg)
-	service := "php-fpm-" + version
+	service, isLitespeed := phpExtensionsService(userContext, version)
 	if ok, errMsg := ensurePHPServiceRunning(ctx, userContext, service); !ok {
 		flashAndRedirect(a, w, r, "error", "Failed to start PHP "+version+": "+errMsg, "/php/extensions")
 		return
@@ -580,7 +590,13 @@ func handlePHPExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			return
 		}
 
-		ok, errMsg := toggleExtension(ctx, userContext, service, extension, enable)
+		var ok bool
+		var errMsg string
+		if isLitespeed {
+			ok, errMsg = toggleLitespeedExtension(ctx, userContext, service, version, extension, enable)
+		} else {
+			ok, errMsg = toggleExtension(ctx, userContext, service, extension, enable)
+		}
 		if ok {
 			docker.ComposeContainer(ctx, userContext, service, "restart")
 			actionWord := "disabled"
@@ -597,19 +613,23 @@ func handlePHPExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	active, disabled := getActiveAndDisabledExtensions(ctx, userContext, service)
-	supportedNames := extensionsSupportedForVersion(ctx, version)
-
-	extensions := make([]ExtensionRow, 0, len(supportedNames))
-	for _, name := range supportedNames {
-		lname := strings.ToLower(name)
-		state := "not_installed"
-		if active[lname] {
-			state = "active"
-		} else if disabled[lname] {
-			state = "disabled"
+	var extensions []ExtensionRow
+	if isLitespeed {
+		extensions = litespeedExtensionRows(ctx, userContext, service, version)
+	} else {
+		active, disabled := getActiveAndDisabledExtensions(ctx, userContext, service)
+		supportedNames := extensionsSupportedForVersion(ctx, version)
+		extensions = make([]ExtensionRow, 0, len(supportedNames))
+		for _, name := range supportedNames {
+			lname := strings.ToLower(name)
+			state := "not_installed"
+			if active[lname] {
+				state = "active"
+			} else if disabled[lname] {
+				state = "disabled"
+			}
+			extensions = append(extensions, ExtensionRow{Name: name, State: state})
 		}
-		extensions = append(extensions, ExtensionRow{Name: name, State: state})
 	}
 
 	if r.URL.Query().Get("output") == "json" {
@@ -645,30 +665,34 @@ func handlePHPAvailableExtensions(a *appctx.App, w http.ResponseWriter, r *http.
 		return
 	}
 
-	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
-	if strings.Contains(strings.ToLower(webServer), "litespeed") {
-		writeJSONError(w, http.StatusBadRequest, "Not available for Litespeed.")
-		return
-	}
-
 	version := phpVersionFromSegment(versionSeg)
-	service := "php-fpm-" + version
-	active, disabled := getActiveAndDisabledExtensions(ctx, userContext, service)
-	supportedNames := extensionsSupportedForVersion(ctx, version)
+	service, isLitespeed := phpExtensionsService(userContext, version)
 
 	type availableExt struct {
 		Name      string `json:"name"`
 		Installed bool   `json:"installed"`
 	}
-	extensions := make([]availableExt, 0, len(supportedNames))
-	for _, name := range supportedNames {
-		lname := strings.ToLower(name)
-		extensions = append(extensions, availableExt{Name: name, Installed: active[lname] || disabled[lname]})
-	}
 
+	var extensions []availableExt
 	var cachedUntil any
-	if info, statErr := os.Stat(extensionsTableFile); statErr == nil {
-		cachedUntil = info.ModTime().Add(extensionsTableTTL).Unix()
+	if isLitespeed {
+		supportedNames := litespeedExtensionsSupportedForVersion(ctx, userContext, service, version)
+		installed := getLitespeedInstalledPackages(ctx, userContext, service, version)
+		extensions = make([]availableExt, 0, len(supportedNames))
+		for _, name := range supportedNames {
+			extensions = append(extensions, availableExt{Name: name, Installed: installed[strings.ToLower(name)]})
+		}
+	} else {
+		active, disabled := getActiveAndDisabledExtensions(ctx, userContext, service)
+		supportedNames := extensionsSupportedForVersion(ctx, version)
+		extensions = make([]availableExt, 0, len(supportedNames))
+		for _, name := range supportedNames {
+			lname := strings.ToLower(name)
+			extensions = append(extensions, availableExt{Name: name, Installed: active[lname] || disabled[lname]})
+		}
+		if info, statErr := os.Stat(extensionsTableFile); statErr == nil {
+			cachedUntil = info.ModTime().Add(extensionsTableTTL).Unix()
+		}
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{"extensions": extensions, "service": service, "cached_until": cachedUntil})
@@ -719,12 +743,6 @@ func handlePHPInstallExtensions(a *appctx.App, w http.ResponseWriter, r *http.Re
 	}
 	version := phpVersionFromSegment(versionSeg)
 
-	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
-	if strings.Contains(strings.ToLower(webServer), "litespeed") {
-		writeJSONError(w, http.StatusBadRequest, "Not available for Litespeed.")
-		return
-	}
-
 	_ = r.ParseMultipartForm(1 << 20)
 	raw := r.Form["extensions[]"]
 	if len(raw) == 0 {
@@ -742,7 +760,7 @@ func handlePHPInstallExtensions(a *appctx.App, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	service := "php-fpm-" + version
+	service, _ := phpExtensionsService(userContext, version)
 	if ok, errMsg := ensurePHPServiceRunning(ctx, userContext, service); !ok {
 		writeJSONError(w, http.StatusInternalServerError, "Failed to start PHP "+version+": "+errMsg)
 		return
@@ -773,7 +791,7 @@ func handlePHPInstallExtensionsStatus(a *appctx.App, w http.ResponseWriter, r *h
 		return
 	}
 	version := phpVersionFromSegment(versionSeg)
-	service := "php-fpm-" + version
+	service, _ := phpExtensionsService(userContext, version)
 	installID := r.URL.Query().Get("install_id")
 
 	containerBusy := isInstallRunningInContainer(ctx, userContext, service)
