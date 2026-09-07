@@ -386,14 +386,6 @@ func apiContainerSwitchMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		writeAPIDockerJSON(w, http.StatusInternalServerError, map[string]any{"error": "Failed to update mysql image: " + composeErr.Error(), "warnings": warnings})
 		return
 	}
-	if newSQL == "percona" {
-		if chownErr := chownMysqlSocketDirForPercona(userContext); chownErr != nil {
-			writeAPIDockerJSON(w, http.StatusInternalServerError, map[string]any{"error": "Failed to prepare mysql socket directory for Percona: " + chownErr.Error(), "warnings": warnings})
-			return
-		}
-	} else {
-		_ = restoreMysqlSocketDirOwnership(userContext)
-	}
 	if targetService == "mysql" {
 		ForceRemoveContainer(ctx, userContext, "mysql")
 	}
@@ -405,6 +397,7 @@ func apiContainerSwitchMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 
 	SetEnvValue(userContext, "MYSQL_TYPE", targetService)
+	_ = a.Cache.Delete(ctx, "get_mysql_version:"+userContext)
 	removeImage(ctx, userContext, mysqlType)
 	mysqlmanager.InvalidatePool(userContext)
 

@@ -114,20 +114,6 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 				redirectWithFlashes(a, w, r, "/containers/mysql", flashes...)
 				return
 			}
-			if newSQL == "percona" {
-				if chownErr := chownMysqlSocketDirForPercona(userContext); chownErr != nil {
-					msg := "Failed to prepare mysql socket directory for Percona: " + chownErr.Error()
-					if outputJSON {
-						jsonErr(http.StatusInternalServerError, msg)
-						return
-					}
-					flashes = append(flashes, [2]string{"error", msg})
-					redirectWithFlashes(a, w, r, "/containers/mysql", flashes...)
-					return
-				}
-			} else {
-				_ = restoreMysqlSocketDirOwnership(userContext)
-			}
 			if targetService == "mysql" {
 				ForceRemoveContainer(ctx, userContext, "mysql")
 			}
@@ -145,6 +131,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 			}
 
 			SetEnvValue(userContext, "MYSQL_TYPE", targetService)
+			_ = a.Cache.Delete(ctx, "get_mysql_version:"+userContext)
 			removeImage(ctx, userContext, mysqlType)
 			mysqlmanager.InvalidatePool(userContext)
 

@@ -369,18 +369,20 @@ const perconaImage = "percona/percona-server:8.0"
 
 // setComposePerconaConfig switches the mysql service between its default
 // (official mysql image, container-root, no socket path override - same
-// as mariadb) and Percona Server. Percona's image doesn't run as root and
-// its default my.cnf points at a different socket path than the rest of
-// this compose file expects, so switching it on needs two extra
-// overrides: a "user" pinning it to this account's own UID (see
-// hostUIDForRootlessContainerUID's doc comment for why that also requires
-// chowning the host socket dir), and a "command" forcing the socket/pid
-// file back to the shared /var/run/mysqld path every other service
-// (php-fpm, phpmyadmin) already expects to find it at. Confirmed live:
-// without the user override Percona's entrypoint refuses to run as root
-// ("Please read Security section... run mysqld as root"); without the
-// socket override it listens on /var/lib/mysql/mysql.sock instead,
-// invisible to every other container.
+// as mariadb) and Percona Server. Percona's image bakes in a non-root
+// "USER mysql" (unlike mysql/mariadb, which start as root and drop
+// privileges themselves internally), and mysqld refuses to start as root
+// unless explicitly told to - so switching it on needs two overrides: a
+// "user: root" pinning the container back to root (rootless podman then
+// maps it straight to this account's own real UID, exactly like
+// mysql/mariadb already get - no /etc/subuid lookup or chown needed), and
+// a "command" passing mysqld both --user=root (or it refuses to start:
+// "Please read Security section... run mysqld as root") and the
+// socket/pid-file path back to the shared /var/run/mysqld every other
+// service (php-fpm, phpmyadmin) already expects to find it at (its
+// default without that override is /var/lib/mysql/mysql.sock, invisible
+// to every other container). Confirmed live on a real bind-mounted
+// sockets dir shared with other containers.
 func setComposePerconaConfig(userContext string, percona bool) error {
 	composeData, err := LoadCompose(userContext)
 	if err != nil {
@@ -393,84 +395,12 @@ func setComposePerconaConfig(userContext string, percona bool) error {
 	}
 	if percona {
 		svc["image"] = perconaImage
-		svc["user"] = "${USER_ID}:${USER_ID}"
-		svc["command"] = []string{"--socket=/var/run/mysqld/mysqld.sock", "--pid-file=/var/run/mysqld/mysqld.pid"}
+		svc["user"] = "root"
+		svc["command"] = []string{"--user=root", "--socket=/var/run/mysqld/mysqld.sock", "--pid-file=/var/run/mysqld/mysqld.pid"}
 	} else {
 		svc["image"] = "mysql:${MYSQL_VERSION:-latest}"
 		delete(svc, "user")
 		delete(svc, "command")
 	}
 	return SaveCompose(userContext, composeData)
-}
-
-// hostUIDForRootlessContainerUID translates a non-zero UID as seen inside
-// userContext's rootless podman containers into the real host UID that
-// actually owns files written under it, by reading that account's
-// /etc/subuid (or /etc/subgid) range.
-//
-// This is the same translation `podman unshare chown` does, but that
-// command only works run locally as the target account - this app only
-// ever reaches an account's containers through `podman --remote` against
-// their own podman socket (see podmanmanager.PodmanArgv), where unshare
-// isn't available, so the mapping has to be computed here instead. It's
-// only needed for a container process pinned to an explicit non-root UID
-// (like Percona's "user" override above) - a process running as
-// container-root needs no translation, since rootless podman already
-// maps that transparently to the account's own real UID (which is why
-// mysql/mariadb's containers, which run as root internally, have never
-// needed this: the account's own USER_ID already owns the socket dir by
-// default).
-func hostUIDForRootlessContainerUID(mapFile, userContext string, containerID int) (int, error) {
-	data, err := os.ReadFile(mapFile)
-	if err != nil {
-		return 0, err
-	}
-	for _, line := range strings.Split(string(data), "\n") {
-		parts := strings.SplitN(strings.TrimSpace(line), ":", 3)
-		if len(parts) != 3 || parts[0] != userContext {
-			continue
-		}
-		start, convErr := strconv.Atoi(parts[1])
-		if convErr != nil {
-			return 0, convErr
-		}
-		return start + containerID - 1, nil
-	}
-	return 0, fmt.Errorf("no %s entry for %s", mapFile, userContext)
-}
-
-// chownMysqlSocketDirForPercona chowns the shared mysql socket directory
-// (bind-mounted into mysql/mariadb/php-fpm/phpmyadmin at /var/run/mysqld)
-// so a Percona container pinned to this account's own UID (rather than
-// running as root) can actually write its socket/pid files there.
-func chownMysqlSocketDirForPercona(userContext string) error {
-	userIDStr, _ := GetEnvValue(userContext, "USER_ID")
-	containerUID, err := strconv.Atoi(userIDStr)
-	if err != nil {
-		return fmt.Errorf("invalid USER_ID for %s: %w", userContext, err)
-	}
-	hostUID, err := hostUIDForRootlessContainerUID("/etc/subuid", userContext, containerUID)
-	if err != nil {
-		return err
-	}
-	hostGID, err := hostUIDForRootlessContainerUID("/etc/subgid", userContext, containerUID)
-	if err != nil {
-		return err
-	}
-	return os.Chown(homePath(userContext, "sockets", "mysqld"), hostUID, hostGID)
-}
-
-// restoreMysqlSocketDirOwnership reverts the mysql socket directory back
-// to the account's own real UID, undoing chownMysqlSocketDirForPercona -
-// needed whenever switching away from Percona, since mysql/mariadb's
-// containers run as root internally and expect the socket dir to be
-// owned by the account itself (its default ownership already, but left
-// mismatched by a prior Percona switch otherwise).
-func restoreMysqlSocketDirOwnership(userContext string) error {
-	userIDStr, _ := GetEnvValue(userContext, "USER_ID")
-	realUID, err := strconv.Atoi(userIDStr)
-	if err != nil {
-		return fmt.Errorf("invalid USER_ID for %s: %w", userContext, err)
-	}
-	return os.Chown(homePath(userContext, "sockets", "mysqld"), realUID, realUID)
 }
