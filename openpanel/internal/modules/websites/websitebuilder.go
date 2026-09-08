@@ -1,8 +1,4 @@
-// Package websites (this file) implements the GrapesJS drag-and-drop HTML
-// site builder's install/edit/detach/remove routes. Kept in this package
-// (rather than its own) so it can reuse
-// getContainerFromDatabase/ContainerInfo/splitDomainAndFolder without
-// exporting them.
+// Package websites (this file) implements the GrapesJS drag-and-drop HTML site builder's install/edit/detach/remove routes. Kept in this package (rather than its own) so it can reuse getContainerFromDatabase/ContainerInfo/splitDomainAndFolder without exporting them.
 package websites
 
 import (
@@ -21,8 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// getAndValidateSite looks up a site by ID and confirms it belongs to
-// userID before returning its domain and install path.
+// getAndValidateSite looks up a site by ID and confirms it belongs to userID before returning its domain and install path.
 func getAndValidateSite(ctx context.Context, a *appctx.App, userID int, siteID string) (selectedDomain, installPath string, ok bool) {
 	var domocroot sql.NullString
 	var domain sql.NullString
@@ -53,8 +48,7 @@ func deleteSiteFromDB(ctx context.Context, a *appctx.App, userID int, siteID str
 	return nil
 }
 
-// handleWebsiteBuilderRemove deletes the generated site files and the
-// site's database row.
+// handleWebsiteBuilderRemove deletes the generated site files and the site's database row.
 func handleWebsiteBuilderRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -92,8 +86,7 @@ func handleWebsiteBuilderRemove(a *appctx.App, w http.ResponseWriter, r *http.Re
 	_, _ = w.Write([]byte(message))
 }
 
-// handleWebsiteBuilderDetach removes the site's database row without
-// touching its files on disk.
+// handleWebsiteBuilderDetach removes the site's database row without touching its files on disk.
 func handleWebsiteBuilderDetach(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, _, err := injected(a, r)
@@ -122,8 +115,7 @@ func handleWebsiteBuilderDetach(a *appctx.App, w http.ResponseWriter, r *http.Re
 	_, _ = w.Write([]byte(message))
 }
 
-// handleWebsiteBuilderEdit serves the GrapesJS editor on GET and saves the
-// submitted HTML/CSS to disk on POST.
+// handleWebsiteBuilderEdit serves the GrapesJS editor on GET and saves the submitted HTML/CSS to disk on POST.
 func handleWebsiteBuilderEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)

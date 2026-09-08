@@ -48,9 +48,7 @@ func getContainerFromDatabase(a *appctx.App, r *http.Request, siteName string) (
 	return c, true
 }
 
-// checkBackupFilesExist reports whether a domain has any backup files,
-// memoized for 5 minutes since it's a directory listing checked on every
-// page load.
+// checkBackupFilesExist reports whether a domain has any backup files, memoized for 5 minutes since it's a directory listing checked on every page load.
 func checkBackupFilesExist(a *appctx.App, r *http.Request, selectedDomain string) bool {
 	result, _ := cache.Memoize(r.Context(), a.Cache, "check_backup_files_exist:"+selectedDomain, 5*time.Minute, func() (bool, error) {
 		backupDir := "/var/www/html/backups/" + selectedDomain
@@ -63,16 +61,8 @@ func checkBackupFilesExist(a *appctx.App, r *http.Request, selectedDomain string
 	return result
 }
 
-// explorerHref builds a disk-usage/inodes-explorer link (base is
-// "/disk-usage/" or "/inodes-explorer/") for a site's docroot. Both
-// explorers browse the account's home directory
-// (/home/<userContext>/...), not the docroot's container-side path
-// (/var/www/html/<...>) - the docroot volume is bind-mounted from
-// docker-data/volumes/<userContext>_html_data/_data/ under that home
-// directory, so that's the prefix used to translate one into the other.
-// dirHasEntries reports whether the given container-facing path (e.g.
-// docroot+"/photos") exists and is non-empty on the host, translating it
-// via the same html_data volume prefix explorerHref uses.
+// explorerHref builds a disk-usage/inodes-explorer link (base "/disk-usage/" or "/inodes-explorer/") for a site's docroot - both explorers browse the account's home directory, not the docroot's container-side path, so the bind-mounted docker-data/volumes/<userContext>_html_data/_data/ prefix translates one into the other.
+// dirHasEntries reports whether the given container-facing path (e.g. docroot+"/photos") exists and is non-empty on the host, translating it via the same html_data volume prefix explorerHref uses.
 func dirHasEntries(userContext, containerPath string) bool {
 	rel := strings.TrimPrefix(containerPath, "/var/www/html/")
 	hostPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + rel
@@ -93,8 +83,7 @@ func explorerHref(base, userContext, docroot string) string {
 	return base + strings.Join(segments, "/")
 }
 
-// getPagespeedInsightsAPIKey reads the user's PageSpeed Insights API key
-// from disk, memoized for 60s since it's read on every page load.
+// getPagespeedInsightsAPIKey reads the user's PageSpeed Insights API key from disk, memoized for 60s since it's read on every page load.
 func getPagespeedInsightsAPIKey(a *appctx.App, r *http.Request, userContext string) string {
 	key, _ := cache.Memoize(r.Context(), a.Cache, "get_pagespeed_insights_api_key:"+userContext, 60*time.Second, func() (string, error) {
 		content, err := os.ReadFile("/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/pagespeed_api_key.txt")
@@ -106,9 +95,7 @@ func getPagespeedInsightsAPIKey(a *appctx.App, r *http.Request, userContext stri
 	return key
 }
 
-// handleWebsiteDispatch resolves a domain to its site's container and
-// renders the type-specific management page (WordPress, Python/Node app,
-// site builder, ...).
+// handleWebsiteDispatch resolves a domain to its site's container and renders the type-specific management page (WordPress, Python/Node app, site builder, ...).
 func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)
@@ -514,24 +501,19 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		})
 
 	default:
-		// mautic/anything else: not a supported CMS type here.
+		// mautic/anything else: not a supported CMS type here
 		writeJSON(w, http.StatusOK, map[string]string{"error": "Unknown CMS type"})
 	}
 }
 
-// phpAppSettings is a PHP app's .env-stored settings, written by
-// internal/modules/phpapp's install/manage handlers.
+// phpAppSettings is a PHP app's .env-stored settings, written by internal/modules/phpapp's install/manage handlers.
 type phpAppSettings struct {
 	initialProject             string
 	autorunComposerInstall     bool
 	composerOptimizeAutoloader bool
 }
 
-// getPHPAppSettings reads a PHP app's settings from .env. There's no
-// dedicated container to key them off of (unlike NodeJS/Python's
-// getPM2ForApplication, keyed by container name) - php apps use a synthetic
-// prefix derived from the site name instead (see
-// internal/modules/phpapp/install.go's phpAppEnvPrefix, duplicated here).
+// getPHPAppSettings reads a PHP app's settings from .env - there's no dedicated container to key them off (unlike NodeJS/Python's getPM2ForApplication keyed by container name), so php apps use a synthetic prefix derived from the site name instead (see internal/modules/phpapp/install.go's phpAppEnvPrefix, duplicated here).
 func getPHPAppSettings(userContext, siteName string) phpAppSettings {
 	prefix := docker.ServiceKeyPrefix(strings.ReplaceAll(siteName, "/", "_")) + "_PHP_"
 	initialProject, _ := docker.GetEnvValue(userContext, prefix+"INITIAL_PROJECT")
@@ -544,8 +526,7 @@ func getPHPAppSettings(userContext, siteName string) phpAppSettings {
 	}
 }
 
-// getPM2ForApplication reads the process-manager (PM2) env vars for a
-// Python/Node app's container from the user's .env file.
+// getPM2ForApplication reads the process-manager (PM2) env vars for a Python/Node app's container from the user's .env file.
 func getPM2ForApplication(a *appctx.App, r *http.Request, userContext, prefix, appType string) map[string]string {
 	normalized := prefix
 	if idx := strings.Index(prefix, "_"); idx != -1 {
@@ -578,14 +559,7 @@ func getPM2ForApplication(a *appctx.App, r *http.Request, userContext, prefix, a
 	return data
 }
 
-// getCurrentEnvVars reads a Python/NodeJS/Ruby app's current
-// docker-compose.yml `environment:` list for the Env Vars tab's textarea -
-// empty string if the service has none set yet (the common case: these
-// apps ship with no environment: block at all until the tab's own save
-// handler adds one). containerName mirrors getPM2ForApplication's own
-// "strip prefix at the first underscore" normalization, since the DB's
-// sites.container value (e.g. "RUBYTEST") can carry a user-id suffix the
-// compose file's lowercase service key never has.
+// getCurrentEnvVars reads a Python/NodeJS/Ruby app's current docker-compose.yml `environment:` list for the Env Vars tab's textarea, empty string if the service has none set yet - containerName mirrors getPM2ForApplication's "strip prefix at the first underscore" normalization, since the DB's sites.container value (e.g. "RUBYTEST") can carry a user-id suffix the compose file's lowercase service key never has.
 func getCurrentEnvVars(userContext, containerName string) string {
 	normalized := containerName
 	if idx := strings.Index(normalized, "_"); idx != -1 {

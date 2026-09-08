@@ -23,10 +23,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// handleInstallPage renders the WordPress install form. When the user is
-// over their site limit, it still falls through to render the form with
-// a warning flash - only the MySQL-ensure-running step and the POST
-// handoff are skipped.
+// handleInstallPage renders the WordPress install form - when the user is over their site limit, it still falls through to render the form with a warning flash, just skipping the MySQL-ensure-running step and the POST handoff.
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)
@@ -72,8 +69,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 	}
 }
 
-// handleInstallStream drives a WordPress install end to end, streaming
-// NDJSON progress events to the client as each step completes.
+// handleInstallStream drives a WordPress install end to end, streaming NDJSON progress events to the client as each step completes.
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -494,8 +490,7 @@ func writeSaltsLocally(wpConfigPath string) {
 	_ = os.WriteFile(wpConfigPath, []byte(updated), 0o644)
 }
 
-// waitForWPAvailable polls until WP-CLI reports the install is usable
-// inside the container (30s timeout, 5s interval).
+// waitForWPAvailable polls until WP-CLI reports the install is usable inside the container (30s timeout, 5s interval).
 func waitForWPAvailable(ctx context.Context, userContext, phpContainer string) bool {
 	const timeout = 30 * time.Second
 	const interval = 5 * time.Second
@@ -516,8 +511,7 @@ func isWPAvailableInContainer(ctx context.Context, userContext, phpContainer str
 	return podmanmanager.Command(ctx, userContext, argv).Run() == nil
 }
 
-// processInstallSet installs every plugin/theme slug listed (one per
-// line) in filePath, activating/forcing each.
+// processInstallSet installs every plugin/theme slug listed (one per line) in filePath, activating/forcing each.
 func processInstallSet(ctx context.Context, userContext string, wpBaseCmd []string, installPath, filePath, wpType string, emit func(map[string]any)) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {

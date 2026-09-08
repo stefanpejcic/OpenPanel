@@ -1,7 +1,4 @@
-// Package websites (this file) implements a live/recent-window
-// unique-visitor-IP counter read straight from Caddy's JSON access log,
-// backing the "Live Visitors" widget on the wp/single, websitebuilder and
-// app-runtime pages.
+// Package websites (this file) implements a live/recent-window unique-visitor-IP counter read straight from Caddy's JSON access log, backing the "Live Visitors" widget on the wp/single, websitebuilder and app-runtime pages.
 package websites
 
 import (
@@ -25,10 +22,7 @@ type visitorsLogEntry struct {
 	Request visitorsLogRequest `json:"request"`
 }
 
-// readRecentVisitorIPs reads the log file backwards in 1KB blocks (newest
-// entries first) so a short recent window on a huge log file doesn't
-// require reading the whole thing, stopping as soon as an entry older than
-// the window is seen.
+// readRecentVisitorIPs reads the log file backwards in 1KB blocks (newest entries first) so a short recent window on a huge log file doesn't require reading the whole thing, stopping as soon as an entry older than the window is seen.
 func readRecentVisitorIPs(logFile string, seconds int) []string {
 	f, err := os.Open(logFile)
 	if err != nil {
@@ -98,8 +92,7 @@ outer:
 	return ips
 }
 
-// visitorsForDomain returns the recent unique-visitor-IP count/list payload
-// for a domain. Shared by the UI's handleVisitors and the API's apiVisitors.
+// visitorsForDomain returns the recent unique-visitor-IP count/list payload for a domain, shared by handleVisitors and apiVisitors.
 func visitorsForDomain(domain string, seconds int) map[string]any {
 	domain, _ = splitDomainAndFolder(domain)
 	logFile := "/var/log/caddy/domlogs/" + domain + "/access.log"
@@ -118,9 +111,7 @@ func visitorsSeconds(r *http.Request) int {
 	return seconds
 }
 
-// handleVisitors returns the recent unique-visitor-IP count/list for a
-// domain. Notably, this doesn't check domain ownership - any logged-in
-// user can query any domain's recent visitor count/IPs.
+// handleVisitors returns the recent unique-visitor-IP count/list for a domain - notably, this doesn't check domain ownership, any logged-in user can query any domain's recent visitor count/IPs.
 func handleVisitors(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domain := r.PathValue("domain")
 	writeJSON(w, http.StatusOK, visitorsForDomain(domain, visitorsSeconds(r)))

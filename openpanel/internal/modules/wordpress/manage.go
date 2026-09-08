@@ -20,8 +20,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 )
 
-// escapeMySQLString mirrors escape_mysql_string() (duplicated per-package,
-// same as mysql.escapeMySQLString - see that function's doc comment).
+// escapeMySQLString mirrors escape_mysql_string() (duplicated per-package, same as mysql.escapeMySQLString - see that function's doc comment)
 func escapeMySQLString(value string) string {
 	value = strings.ReplaceAll(value, `\`, `\\`)
 	value = strings.ReplaceAll(value, `'`, `\'`)
@@ -397,9 +396,7 @@ func checkSiteAlreadyExistsForUser(ctx context.Context, a *appctx.App, siteName 
 	return row.Scan(&id) == nil
 }
 
-// walkForWPConfig walks base looking for wp-config.php files, never
-// descending into skipDirs - mirrors os.walk(base_directory) with
-// dirs[:] = [d for d in dirs if d not in SKIP_DIRS].
+// walkForWPConfig walks base looking for wp-config.php files, never descending into skipDirs - mirrors os.walk(base_directory) with dirs[:] = [d for d in dirs if d not in SKIP_DIRS].
 func walkForWPConfig(base string, onFound func(dir string)) {
 	_ = filepath.WalkDir(base, func(path string, d os.DirEntry, err error) error {
 		if err != nil {

@@ -1,12 +1,4 @@
-// Package websites (this file) fetches site screenshots from a remote
-// screenshot API rather than rendering them locally - there's no local
-// headless-Chromium rendering pipeline here, so a `screenshots` config
-// value that isn't a remote URL (unset or "local") falls back to
-// OpenPanel's own hosted API (api.openpanel.com). The API returns a
-// base64 PNG in a JSON envelope, which is decoded once and cached to disk
-// under screenshotCacheDir; that cached file is served on every view
-// (indefinitely, no TTL) until the user explicitly regenerates it via the
-// POST action the "screenshot" partial's refresh button already fires.
+// Package websites (this file) fetches site screenshots from a remote screenshot API rather than rendering them locally - there's no local headless-Chromium pipeline here, so a `screenshots` config value that isn't a remote URL falls back to OpenPanel's own hosted API. The API returns a base64 PNG, decoded once and cached to disk under screenshotCacheDir; that cached file is served on every view (indefinitely, no TTL) until the user regenerates it via the "screenshot" partial's refresh button.
 package websites
 
 import (
@@ -32,10 +24,7 @@ const (
 	screenshotFetchTimeout = 5 * time.Second
 )
 
-// screenshotAPIBase resolves the `screenshots` config value: a configured,
-// non-"local" value is used as-is; anything else (unset or "local", the
-// value that used to select a local-Playwright rendering path before that
-// pipeline existed here) falls back to OpenPanel's hosted API.
+// screenshotAPIBase resolves the `screenshots` config value: a configured, non-"local" value is used as-is; anything else (unset or "local", the old local-Playwright selector) falls back to OpenPanel's hosted API.
 func screenshotAPIBase(a *appctx.App) string {
 	setting := strings.TrimSpace(a.Config.Get("screenshots", ""))
 	if setting != "" && setting != "local" {
@@ -44,17 +33,13 @@ func screenshotAPIBase(a *appctx.App) string {
 	return screenshotFallbackAPI
 }
 
-// screenshotCachePath is the MD5-hash-named cache file for a domain,
-// keyed on the raw domain (+ optional /subfolder) path segment rather than
-// a scheme-qualified URL - the remote API, not this process, decides how
-// to fetch the page.
+// screenshotCachePath is the MD5-hash-named cache file for a domain, keyed on the raw domain (+ optional /subfolder) path segment rather than a scheme-qualified URL, since the remote API decides how to fetch the page, not this process.
 func screenshotCachePath(domain string) string {
 	sum := md5.Sum([]byte(domain)) //nolint:gosec // content-addressed cache key, not a security boundary
 	return filepath.Join(screenshotCacheDir, hex.EncodeToString(sum[:])+".png")
 }
 
-// fetchAndCacheScreenshot fetches the API's {"base64": "..."} envelope,
-// decodes it, and writes the PNG to the local cache.
+// fetchAndCacheScreenshot fetches the API's {"base64": "..."} envelope, decodes it, and writes the PNG to the local cache.
 func fetchAndCacheScreenshot(ctx context.Context, a *appctx.App, domain string) error {
 	apiURL := screenshotAPIBase(a) + "/" + domain
 
@@ -92,17 +77,7 @@ func fetchAndCacheScreenshot(ctx context.Context, a *appctx.App, domain string) 
 	return os.WriteFile(screenshotCachePath(domain), imgBytes, 0o644)
 }
 
-// TriggerScreenshotGeneration kicks off screenshot generation for a
-// freshly installed site in the background and returns immediately -
-// every CMS/app install.go calls this right after its own "INSERT INTO
-// sites" succeeds, so the screenshot is already cached by the time the
-// user's install-complete redirect lands them on /website, instead of
-// them seeing the screenshot partial's own placeholder-then-fetch delay
-// on first view. Uses a detached context (5s cap) rather than the
-// request's own context, since the HTTP response for the install itself
-// has already been sent by the time this would otherwise get cancelled -
-// a slow/unreachable remote screenshot API just means the page falls
-// back to its own on-demand fetch instead of blocking anything here.
+// TriggerScreenshotGeneration kicks off screenshot generation for a freshly installed site in the background and returns immediately - every CMS/app install.go calls this right after its own "INSERT INTO sites" succeeds, so the screenshot is already cached by the time the install-complete redirect lands the user on /website. Uses a detached context (5s cap) instead of the request's own, since the install's HTTP response has already been sent by the time that would get cancelled - a slow/unreachable API just falls back to the page's own on-demand fetch.
 func TriggerScreenshotGeneration(a *appctx.App, domain string) {
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -113,10 +88,7 @@ func TriggerScreenshotGeneration(a *appctx.App, domain string) {
 	}()
 }
 
-// handleScreenshot: GET serves the cached screenshot (generating it first
-// on a cache miss), POST always regenerates it - the screenshot partial's
-// refresh button POSTs then re-fetches the GET URL with a cache-busting
-// query string.
+// handleScreenshot: GET serves the cached screenshot (generating it first on a cache miss), POST always regenerates it - the screenshot partial's refresh button POSTs then re-fetches the GET URL with a cache-busting query string.
 func handleScreenshot(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)

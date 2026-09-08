@@ -26,11 +26,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 )
 
-// RegisterAPI wires the WordPress API routes onto mux. Several
-// sub-resources share a <domain> prefix with a literal suffix - Go's
-// http.ServeMux requires a "{...}" wildcard to be the final segment, so
-// GET/POST get a "{rest...}" catch-all where needed and the dispatch funcs
-// below strip the known suffix by hand to recover per-suffix routing.
+// RegisterAPI wires the WordPress API routes onto mux - several sub-resources share a <domain> prefix with a literal suffix, so GET/POST get a "{rest...}" catch-all and the dispatch funcs below strip the known suffix by hand to recover per-suffix routing.
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "wordpress", "GET /api/wordpress", func(w http.ResponseWriter, r *http.Request) { apiWordPressList(a, w, r) })
 	apiregistry.Handle(mux, a, "wordpress", "GET /api/wordpress/secure", func(w http.ResponseWriter, r *http.Request) { apiWordPressSecureRules(a, w, r) })
@@ -167,10 +163,7 @@ func apiWordPressList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ── Backups ──────────────────────────────────────────────────────────────
 
-// apiWordPressBackupList mirrors api_wordpress_backup_list(): reuses
-// handleGetBackupDates's directory-scan logic (via the capture writer, since
-// its bare-array response shape differs from the API's {domain, backups}
-// envelope).
+// apiWordPressBackupList mirrors api_wordpress_backup_list(): reuses handleGetBackupDates's directory-scan logic via the capture writer, since its bare-array response shape differs from the API's {domain, backups} envelope.
 func apiWordPressBackupList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	domain := r.PathValue("domain")
@@ -195,10 +188,7 @@ func apiWordPressBackupList(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	writeAPIWPJSON(w, http.StatusOK, map[string]any{"domain": domain, "backups": dates})
 }
 
-// apiWordPressBackupRun mirrors api_wordpress_backup_run(): resolves
-// docroot when not provided, then delegates to handleRunBackup (which reads
-// docroot/backup_database/backup_files from the query string, so those are
-// copied over from the JSON body here).
+// apiWordPressBackupRun mirrors api_wordpress_backup_run(): resolves docroot when not provided, then delegates to handleRunBackup, copying docroot/backup_database/backup_files from the JSON body into the query string it reads from.
 func apiWordPressBackupRun(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -260,11 +250,7 @@ func boolStr(b bool) string {
 	return "false"
 }
 
-// apiCaptureWriter buffers a reused UI handler's response instead of
-// streaming it to the client, so the API wrapper can inspect the outcome
-// (status code, plain-text vs JSON body) and translate it into the proper
-// JSON envelope, rather than letting the UI handler's own plain-text
-// success body leak into an API response.
+// apiCaptureWriter buffers a reused UI handler's response instead of streaming it to the client, so the API wrapper can inspect the outcome and translate it into the proper JSON envelope instead of letting the UI handler's plain-text body leak through.
 type apiCaptureWriter struct {
 	header http.Header
 	status int
@@ -279,10 +265,7 @@ func (c *apiCaptureWriter) Header() http.Header         { return c.header }
 func (c *apiCaptureWriter) WriteHeader(status int)      { c.status = status }
 func (c *apiCaptureWriter) Write(b []byte) (int, error) { return c.body.Write(b) }
 
-// apiWordPressRestore mirrors api_wordpress_restore(): resolves
-// docroot/php_version when not provided, then delegates to
-// handleRestoreBackup (which reads backup_date/docroot/php_version from the
-// query string).
+// apiWordPressRestore mirrors api_wordpress_restore(): resolves docroot/php_version when not provided, then delegates to handleRestoreBackup, which reads backup_date/docroot/php_version from the query string.
 func apiWordPressRestore(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -339,9 +322,7 @@ func apiWordPressRestore(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// handleRestoreBackup's success path writes a plain-text summary rather
-	// than JSON (it's shared with the UI) - translate it into the same
-	// {message, restored} / {error} shapes api_wordpress_restore() returns.
+	// handleRestoreBackup writes a plain-text summary since it's shared with the UI, so translate it into the {message, restored} / {error} shapes api_wordpress_restore() returns
 	text := rec.body.String()
 	if strings.HasPrefix(text, "No files to restore") {
 		writeAPIWPJSON(w, http.StatusNotFound, map[string]string{"error": "No backup files found to restore"})
@@ -457,13 +438,7 @@ func apiWordPressSecureSet(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 // ── Remove / Detach ──────────────────────────────────────────────────────
 
-// apiWordPressRemove doesn't reuse the UI's handleRemoveWordPress: that
-// one reports outcomes via session flash messages and a redirect, while
-// this needs its own distinct status-code contract (403/404/500) instead
-// of flash-and-redirect - so this reimplements the same DB lookup /
-// wp-config.php credential scrape / DB+user drop / file cleanup sequence
-// directly, reusing only the low-level pieces (removeDBNameRE/
-// removeDBUserRE, wordpressFiles, mysqlmanager.Exec, cache invalidation).
+// apiWordPressRemove doesn't reuse the UI's handleRemoveWordPress, since that one flash-and-redirects while this needs its own 403/404/500 status contract, so it reimplements the same DB lookup/wp-config.php scrape/DB+user drop/file cleanup sequence directly, reusing only the low-level pieces.
 func apiWordPressRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -536,8 +511,7 @@ func apiWordPressRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIWPJSON(w, http.StatusOK, map[string]string{"message": "WordPress uninstalled successfully"})
 }
 
-// apiWordPressDetach mirrors api_wordpress_detach(): standalone for the
-// same reason as apiWordPressRemove above.
+// apiWordPressDetach mirrors api_wordpress_detach(): standalone for the same reason as apiWordPressRemove above.
 func apiWordPressDetach(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, _, err := injected(a, r)
@@ -575,12 +549,7 @@ func apiWordPressDetach(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ── Reload ───────────────────────────────────────────────────────────────
 
-// apiWordPressReload mirrors api_wordpress_reload(): standalone rather than
-// reusing handleReloadWordPressData, since that UI handler only ever writes
-// a fixed plain-text banner (no per-site detail), while the API contract
-// returns the full `updated` list with each site's refreshed admin_email
-// and version - reuses the same walkForWPConfig/checkSiteAlreadyExistsForUser/
-// phpContainerForUser helpers handleReloadWordPressData itself is built on.
+// apiWordPressReload mirrors api_wordpress_reload(): standalone rather than reusing handleReloadWordPressData, since that one only writes a fixed plain-text banner while the API needs the full `updated` list, but built on the same walkForWPConfig/checkSiteAlreadyExistsForUser/phpContainerForUser helpers.
 func apiWordPressReload(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -645,8 +614,7 @@ func apiWordPressReload(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ── WP-CLI ───────────────────────────────────────────────────────────────
 
-// apiWPCLIActions is a deliberately separate, smaller action set from the
-// UI's own wp-cli passthrough (handleWPCLI).
+// apiWPCLIActions is a deliberately separate, smaller action set from the UI's own wp-cli passthrough (handleWPCLI)
 var apiWPCLIActions = map[string][]string{
 	"core_update":       {"core", "update", "--allow-root", "--skip-themes"},
 	"core_update_check": {"core", "check-update", "--allow-root", "--skip-themes"},
@@ -771,10 +739,7 @@ func apiWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ── Install / Clone / Scan ───────────────────────────────────────────────
 
-// withWPForm clones r as a POST carrying the given values as both Form and
-// PostForm, so a UI handler that reads r.FormValue(...)/r.Form after its
-// own (no-op, since r.Form is already set) parse call sees exactly the
-// fields the API's JSON body supplied.
+// withWPForm clones r as a POST carrying the given values as both Form and PostForm, so a UI handler reading r.FormValue/r.Form sees exactly the fields the API's JSON body supplied.
 func withWPForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost
@@ -783,11 +748,7 @@ func withWPForm(r *http.Request, values url.Values) *http.Request {
 	return clone
 }
 
-// apiWordPressInstall delegates straight to handleInstallPage (which
-// itself calls handleInstallStream on POST): same website-limit check,
-// same MySQL-ensure-running step, same NDJSON progress stream written
-// directly to the response - just fed from the API's JSON body instead of
-// a UI form post.
+// apiWordPressInstall delegates straight to handleInstallPage (which calls handleInstallStream on POST), same website-limit check and NDJSON progress stream, just fed from the API's JSON body instead of a UI form post.
 func apiWordPressInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID         string `json:"domain_id"`
@@ -821,8 +782,7 @@ func apiWordPressInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	handleInstallPage(a, w, withWPForm(r, form))
 }
 
-// apiWordPressClone delegates straight to handleCloneWordPress, which
-// already writes a JSON response as-is.
+// apiWordPressClone delegates straight to handleCloneWordPress, which already writes a JSON response as-is.
 func apiWordPressClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		SourceDomain         string `json:"source_domain"`
@@ -847,11 +807,7 @@ func apiWordPressClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleCloneWordPress(a, w, withWPForm(r, form))
 }
 
-// apiWordPressScan mirrors handleScanWordPress's filesystem walk (finding
-// WP installs not yet tracked in the sites table and inserting them - the
-// same "checkSiteAlreadyExistsForUser" gate, just inverted from
-// apiWordPressReload's "only touch what's already tracked"), returning a
-// structured JSON list instead of a plain-text summary.
+// apiWordPressScan mirrors handleScanWordPress's filesystem walk, finding WP installs not yet tracked in the sites table and inserting them (the checkSiteAlreadyExistsForUser gate inverted from apiWordPressReload's), returning a structured JSON list instead of a plain-text summary.
 func apiWordPressScan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

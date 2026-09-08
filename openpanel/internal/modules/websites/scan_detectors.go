@@ -10,15 +10,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 )
 
-// This file holds the eight walkers handleSitesScan (scan.go) calls, one
-// per CMS type. Each mirrors wordpress/manage.go's walkForWPConfig +
-// handleScanWordPress shape: walk the user's html_data volume for that
-// type's marker config file, skip anything already tracked, extract the DB
-// name/host, repair the host if it's empty/localhost/127.0.0.1, verify
-// connectivity, then insert. See scan.go's package doc comment for why the
-// host-repair step exists here (it's not needed by WordPress's original
-// wp-cli-mediated scan, but is needed for all eight here since this
-// implementation reads every config file directly instead).
+// this file holds the eight walkers handleSitesScan (scan.go) calls, one per CMS type - each mirrors wordpress/manage.go's walkForWPConfig + handleScanWordPress shape: walk the user's html_data volume for that type's marker config file, skip anything already tracked, extract the DB name/host, repair the host if it's empty/localhost/127.0.0.1, verify connectivity, then insert (see scan.go for why the host-repair step is needed here but not by WordPress's original wp-cli-mediated scan)
 
 // ---------------------- WordPress ---------------------- //
 
@@ -340,10 +332,7 @@ func scanPrestashop(ctx context.Context, a *appctx.App, userID int, userContext,
 			return nil
 		}
 
-		// PrestaShop's compiled Symfony cache bakes in DB credentials -
-		// clear it after any repair so a stale container config doesn't
-		// 500 the front-end even though parameters.php is now correct
-		// (same fix applied by prestashop/clone.go this session).
+		// PrestaShop's compiled Symfony cache bakes in DB credentials - clear it after any repair so a stale container config doesn't 500 the front-end even though parameters.php is now correct, same fix applied by prestashop/clone.go
 		_ = os.RemoveAll(filepath.Join(root, "var", "cache", "prod"))
 		_ = os.RemoveAll(filepath.Join(root, "var", "cache", "dev"))
 
@@ -365,11 +354,7 @@ var (
 	scanDrupalVerRE    = regexp.MustCompile(`"version":\s*"([^"]*)"`)
 )
 
-// stripPHPCommentLinesForScan drops lines whose first non-whitespace
-// character is "*" - settings.php's leading documentation block has
-// placeholder 'database' => 'database_name' style example lines that
-// would otherwise match before the real, appended $databases array (same
-// technique drupal/backups.go's extractDrupalDatabaseInfoForBackup uses).
+// stripPHPCommentLinesForScan drops lines whose first non-whitespace character is "*" - settings.php's leading documentation block has placeholder 'database' => 'database_name' example lines that would otherwise match before the real, appended $databases array, same technique drupal/backups.go's extractDrupalDatabaseInfoForBackup uses.
 func stripPHPCommentLinesForScan(content string) string {
 	var codeLines []string
 	for _, line := range strings.Split(content, "\n") {
@@ -400,17 +385,7 @@ func scanDrupal(ctx context.Context, a *appctx.App, userID int, userContext, bas
 			return nil
 		}
 		root := filepath.Dir(sitesDir)
-		// drupal/recommended-project (this panel's own install.go, and the
-		// standard modern Composer-based Drupal layout generally) puts the
-		// real document root in a "web" subdirectory one level below the
-		// actual site root, with the top-level docroot entry symlinked
-		// into it - so a site root ending in "web" needs its parent used
-		// for the site name/version lookup, matching how install.go
-		// registers the domain's docroot (without "/web") in the first
-		// place. Without this, a found site here would get an extra
-		// "/web" appended to its site name, mismatching the already-
-		// tracked row and importing a bogus duplicate (caught live during
-		// this feature's own verification).
+		// drupal/recommended-project puts the real document root in a "web" subdirectory one level below the actual site root, with the top-level docroot symlinked into it - so a site root ending in "web" needs its parent used for the site name/version lookup, matching how install.go registers the domain's docroot without "/web"; skip this and a found site gets a bogus "/web" appended, mismatching the already-tracked row
 		if filepath.Base(root) == "web" {
 			root = filepath.Dir(root)
 		}
@@ -550,26 +525,11 @@ var (
 	scanMoodleDBHostRE  = regexp.MustCompile(`CFG->dbhost\s*=\s*'([^']*)'`)
 	scanMoodleDBNameRE  = regexp.MustCompile(`CFG->dbname\s*=\s*'([^']*)'`)
 	scanMoodleWwwrootRE = regexp.MustCompile(`CFG->wwwroot\s*=\s*'https?://([^']*)'`)
-	// Captures only the leading numeric portion (e.g. "5.2.1+") of
-	// version.php's $release, not its full human-friendly string (e.g.
-	// "5.2.1+ (Build: 20260807)") - the full string overflows the sites
-	// table's version column (confirmed live: "Data too long for column
-	// 'version'"), and install.go itself only ever stores the short form
-	// anyway (the requested/latest version string, not $release).
+	// captures only the leading numeric portion (e.g. "5.2.1+") of version.php's $release, not the full human-friendly string, since the full string overflows the sites table's version column ("Data too long for column 'version'") and install.go itself only ever stores the short form anyway
 	scanMoodleReleaseRE = regexp.MustCompile(`\$release\s*=\s*'([\d.]+\+?)`)
 )
 
-// scanMoodle differs from every other detector: Moodle's config.php does
-// NOT live under any domain's docroot (docroot is a symlink to
-// <approot>/public - see moodle package's doc comment for why), so instead
-// of walking under each domain's directory, this walks the whole
-// html_data root for any config.php containing the "$CFG->dbhost" marker,
-// wherever it happens to live, and derives the domain from the config's
-// own $CFG->wwwroot (which install.go always sets to
-// "https://domain[/subdir]") rather than from the file's path - this
-// generalizes to both this panel's own "<slug>_moodleapp" convention and a
-// hypothetical foreign/migrated Moodle layout placed directly under a
-// domain's docroot.
+// scanMoodle differs from every other detector: Moodle's config.php doesn't live under any domain's docroot (docroot is a symlink to <approot>/public, see the moodle package), so instead of walking under each domain's directory, this walks the whole html_data root for any config.php with the "$CFG->dbhost" marker and derives the domain from the config's own $CFG->wwwroot rather than the file's path - generalizes to both this panel's "<slug>_moodleapp" convention and a hypothetical migrated Moodle layout placed directly under a domain's docroot.
 func scanMoodle(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, mysqlVersion string, outcome *scanOutcome) {
 	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -633,10 +593,7 @@ func scanMoodle(ctx context.Context, a *appctx.App, userID int, userContext, bas
 
 // ---------------------- SHARED HELPERS ---------------------- //
 
-// scanReadVersionSimple reads path and applies re, returning "Unknown" on
-// any failure - the common shape of every getXVersion-style function this
-// session already has, duplicated here per this package's local-helper
-// convention.
+// scanReadVersionSimple reads path and applies re, returning "Unknown" on any failure - the common shape of every getXVersion-style function elsewhere, duplicated here per this package's local-helper convention.
 func scanReadVersionSimple(path string, re *regexp.Regexp) string {
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -649,15 +606,8 @@ func scanReadVersionSimple(path string, re *regexp.Regexp) string {
 	return m[1]
 }
 
-// scanRepairHostInFile rewrites the DB-host field matched by hostRE to
-// replacement (in place, host-side) only if the currently-matched value is
-// empty/localhost/127.0.0.1. Returns (didRewrite, ok) - ok is false only on
-// a write error, letting callers distinguish "nothing needed fixing" from
-// "tried to fix and failed".
-//
-// CAUTION for callers: replacement goes through regexp.ReplaceAllString,
-// where a literal "$" is NOT literal - Go's regexp package treats $name as
-// a capture-group reference (expanding an unmatched one to "") and $$ as
+// scanRepairHostInFile rewrites the DB-host field matched by hostRE to replacement in place, only if the currently-matched value is empty/localhost/127.0.0.1 - returns (didRewrite, ok), ok is false only on a write error so callers can distinguish "nothing needed fixing" from "tried to fix and failed"
+// CAUTION for callers: replacement goes through regexp.ReplaceAllString, where a literal "$" is NOT literal - Go's regexp treats $name as a capture-group reference and $$ as an escaped literal "$", see the note below the MediaWiki section for two live bugs this caused
 // ---------------------- MediaWiki ---------------------- //
 
 var (
@@ -718,19 +668,7 @@ func scanMediaWiki(ctx context.Context, a *appctx.App, userID int, userContext, 
 	})
 }
 
-// an escaped literal "$". Two live bugs here already came from getting
-// this wrong in opposite directions:
-//   - Joomla's hostRE (`\$host\s*=...`) INCLUDES the "$" in the match, so
-//     the replacement must supply its own escaped "$$host" - an
-//     unescaped "$host" silently ate the whole "$host" token.
-//   - Moodle's hostRE (`CFG->dbhost\s*=...`) does NOT include the "$"
-//     (the source's leading "$" sits just outside the match and survives
-//     untouched), so its replacement must NOT add another "$" prefix at
-//     all - an over-cautious "$$CFG->dbhost" doubled up into a literal
-//     "$$CFG->dbhost" in the file.
-//
-// Always check whether hostRE's own pattern starts with `\$` before
-// deciding whether replacement needs one too.
+// two live bugs came from getting this wrong in opposite directions: Joomla's hostRE includes the "$" in the match so the replacement needs its own escaped "$$host" (an unescaped "$host" ate the whole token), while Moodle's hostRE doesn't include the "$" so its replacement must NOT add another "$" prefix (an over-cautious "$$CFG->dbhost" doubled up into a literal string) - always check whether hostRE's pattern starts with `\$` before deciding
 func scanRepairHostInFile(path, currentText string, hostRE *regexp.Regexp, replacement string) (bool, bool) {
 	hostMatch := hostRE.FindStringSubmatch(currentText)
 	host := ""

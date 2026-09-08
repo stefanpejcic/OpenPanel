@@ -28,8 +28,7 @@ func atoiDefaultWB(s string, def int) int {
 	return def
 }
 
-// WebsiteBuilderInstallPageData is manager/websitebuilder_install.html's
-// template context.
+// WebsiteBuilderInstallPageData is manager/websitebuilder_install.html's template context.
 type WebsiteBuilderInstallPageData struct {
 	web.LayoutData
 	Domains []appctx.Domain
@@ -47,8 +46,7 @@ func renderWebsiteBuilderInstallPage(a *appctx.App, w http.ResponseWriter, r *ht
 	}
 }
 
-// renderGrapesJSEditor renders a standalone page (no base.html layout)
-// embedding the GrapesJS builder with the site's current HTML/CSS.
+// renderGrapesJSEditor renders a standalone page (no base.html layout) embedding the GrapesJS builder with the site's current HTML/CSS.
 func renderGrapesJSEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, currentDomain, html, css string) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "GrapesJS Website Editor")
 	if err != nil {
@@ -74,9 +72,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 	}
 }
 
-// handleWebsiteBuilderInstall serves the "create website" form on GET and
-// dispatches to createHTMLSiteStream on POST, after checking the plan's
-// site limit.
+// handleWebsiteBuilderInstall serves the "create website" form on GET and dispatches to createHTMLSiteStream on POST, after checking the plan's site limit.
 func handleWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -102,8 +98,7 @@ func handleWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.R
 	renderWebsiteBuilderInstallPage(a, w, r, domains)
 }
 
-// createHTMLSiteStream creates a new website-builder site, streaming
-// newline-delimited JSON status updates as each step completes.
+// createHTMLSiteStream creates a new website-builder site, streaming newline-delimited JSON status updates as each step completes.
 func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

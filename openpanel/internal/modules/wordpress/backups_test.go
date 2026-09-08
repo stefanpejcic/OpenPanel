@@ -54,10 +54,7 @@ func TestToStringCell(t *testing.T) {
 	if toStringCell([]byte("abc")) != "abc" {
 		t.Error("[]byte should stringify")
 	}
-	// INTEGER columns (e.g. wp_users.ID) scan into int64 via
-	// mysqlmanager.Exec()'s interface{} destinations, not []byte/string -
-	// this must stringify correctly, not silently go empty (see
-	// toStringCell's doc comment for the autologin bug this caused).
+	// INTEGER columns scan into int64 via mysqlmanager.Exec()'s interface{} destinations, must stringify correctly not silently go empty (see toStringCell's doc comment)
 	if toStringCell(int64(42)) != "42" {
 		t.Error("int64 should stringify to its decimal representation")
 	}

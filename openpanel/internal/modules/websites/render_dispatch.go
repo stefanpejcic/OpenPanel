@@ -10,27 +10,17 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// pageData is embedded by every /website dispatcher page's data struct so
-// the shared partials (temp_link, screenshot, visitors, waf_panel,
-// pagespeed_panel) can rely on a consistent field set regardless of which
-// CMS type is being rendered.
+// pageData is embedded by every /website dispatcher page's data struct so the shared partials (temp_link, screenshot, visitors, waf_panel, pagespeed_panel) can rely on a consistent field set regardless of which CMS type is being rendered.
 type pageData struct {
 	web.LayoutData
 	CurrentDomain        string
 	Docroot              string
 	PagespeedAPIKeyValue string
-	// DiskUsageHref/InodesExplorerHref point into the disk-usage/
-	// inodes-explorer browsers (see internal/modules/diskusage,
-	// internal/modules/inodes) at this site's docroot - built from the
-	// account's home directory, not the container-side Docroot path, so
-	// they're computed once in handleWebsiteDispatch (see explorerHref).
-	DiskUsageHref      string
-	InodesExplorerHref string
+	DiskUsageHref        string // points into the disk-usage/inodes-explorer browsers at this site's docroot, built from the account's home directory not the container-side Docroot path, computed once in handleWebsiteDispatch (see explorerHref)
+	InodesExplorerHref   string
 }
 
-// PagespeedAPIKey satisfies the field name the pagespeed_panel partial
-// reads, without colliding with the PagespeedAPIKeyValue field name used
-// by every dispatch branch's literal struct above.
+// PagespeedAPIKey satisfies the field name the pagespeed_panel partial reads, without colliding with the PagespeedAPIKeyValue field name used by every dispatch branch's literal struct above.
 func (p pageData) PagespeedAPIKey() string { return p.PagespeedAPIKeyValue }
 
 var phpAppPage = loadPage("manager/php_app.html")
@@ -154,10 +144,7 @@ type TinyPhotoGalleryAppPageData struct {
 	MainDomain           string
 	CurrentPHPVersion    string
 	AvailablePHPVersions []string
-	// HasPhotos is true once photos/ has at least one entry - at that
-	// point the gallery is clearly in use, so the "Setup" info box (which
-	// just explains how to add photos) is redundant and hidden.
-	HasPhotos bool
+	HasPhotos            bool // true once photos/ has at least one entry - at that point the "Setup" info box explaining how to add photos is redundant and hidden
 }
 
 func renderTinyPhotoGalleryAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data TinyPhotoGalleryAppPageData) {
@@ -516,9 +503,7 @@ func renderWebsiteBuilderPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// SecurityToggle is one row of the Security tab's hardening-rule list.
-// The rule IDs themselves come from `opencli websites-secure`, but their
-// labels/tech details are only defined here.
+// SecurityToggle is one row of the Security tab's hardening-rule list - the rule IDs come from `opencli websites-secure`, but their labels/tech details are only defined here.
 type SecurityToggle struct {
 	ID, Label, TechDetails string
 }
@@ -577,28 +562,18 @@ var wpSinglePage = loadPage("manager/wp/single.html", "manager/wp/_shared.html")
 
 var pythonNodeAppsPage = loadPage("manager/python_node_apps.html")
 
-// PythonNodeAppsPageData is manager/python_node_apps.html's template
-// context.
+// PythonNodeAppsPageData is manager/python_node_apps.html's template context.
 type PythonNodeAppsPageData struct {
 	pageData
-	Container ContainerInfo
-	// Service is container.container.split('_')[0] verbatim (no case
-	// change) - the pm2/docker process id used throughout the page's JS.
-	Service string
-	PM2Data map[string]string
-	// Type is Container.Type lowercased ("python" or "nodejs").
-	Type string
-	// PM2Status is pm2_data.status stringified ("true"/"false"/"unknown").
-	PM2Status                                                                   string
+	Container                                                                   ContainerInfo
+	Service                                                                     string // container.container.split('_')[0] verbatim, the pm2/docker process id used throughout the page's JS
+	PM2Data                                                                     map[string]string
+	Type                                                                        string // Container.Type lowercased ("python" or "nodejs")
+	PM2Status                                                                   string // pm2_data.status stringified ("true"/"false"/"unknown")
 	CPU, RAM, PIDs, StartupFile, CustomCmd, Workdir, CurrentVersion, GitRepoURL string
-	RequirementsSelected                                                        bool
-	// EnvVars is the service's current `environment:` list from
-	// docker-compose.yml, one "KEY=VALUE" per line, for the Env Vars tab's
-	// textarea - empty if the service has none set yet.
-	EnvVars string
-	// Domains is every domain the user owns, for the Clone tab's target
-	// domain dropdown - same list appinstall's own install page uses.
-	Domains []appctx.Domain
+	RequirementsSelected                                                       bool
+	EnvVars                                                                    string          // the service's current `environment:` list from docker-compose.yml, one "KEY=VALUE" per line, for the Env Vars tab's textarea - empty if none set yet
+	Domains                                                                    []appctx.Domain // every domain the user owns, for the Clone tab's target domain dropdown - same list appinstall's own install page uses
 }
 
 func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PythonNodeAppsPageData) {
@@ -631,13 +606,7 @@ func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	data.StartupFile = pm2val("STARTUP_FILE")
 	if data.StartupFile == "" {
-		// An empty STARTUP_FILE env var is a valid, common install-time
-		// choice (the form's startup-file field isn't actually required
-		// server-side - see appinstall/install.go's defaultStartupFile) -
-		// the docker-compose template substitutes one of these same
-		// per-type defaults at runtime (${..._STARTUP_FILE:-<default>}),
-		// so showing a blank field here would make it look like nothing
-		// is configured when the app is really just running its default.
+		// an empty STARTUP_FILE is a valid, common install-time choice (see appinstall/install.go's defaultStartupFile) - the docker-compose template substitutes the same per-type default at runtime, so show that default here instead of a blank field
 		switch data.Type {
 		case "nodejs":
 			data.StartupFile = "index.js"

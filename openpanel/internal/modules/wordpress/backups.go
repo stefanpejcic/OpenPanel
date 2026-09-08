@@ -19,15 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// toStringCell converts one mysqlmanager.Exec() result cell to a string.
-// The MySQL driver scans INTEGER columns (e.g. wp_users.ID) into native
-// int64/uint64,
-// not []byte/string - a missing case here isn't a compile error, it's a
-// silent empty string, which the WP autologin flow found the hard way:
-// wp_users.ID being read as "" -> strconv.Atoi returns 0 -> a
-// user_id: 0 in the serialized PHP session data -> PHP's empty(0) is
-// true -> the mu-plugin rejects the token as "invalid" even though every
-// other part of the flow (token, hashing, DB write, redirect) was correct.
+// toStringCell converts one mysqlmanager.Exec() result cell to a string - a missing case here isn't a compile error, it's a silent "" that broke WP autologin (ID read as "" -> Atoi 0 -> empty(0) true -> token rejected).
 func toStringCell(v any) string {
 	switch t := v.(type) {
 	case nil:

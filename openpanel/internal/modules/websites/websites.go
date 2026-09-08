@@ -1,8 +1,4 @@
-// Package websites implements the /sites listing page, the /website
-// CMS-type dispatcher, and the side JSON endpoints (safebrowsing,
-// PageSpeed, WP vulnerability scan, pm2 package installs, WP info, and the
-// distinct /wordpress/wp-cli/<action> passthrough used by the site-manager
-// UI). Mautic is not a supported CMS type.
+// Package websites implements the /sites listing page, the /website CMS-type dispatcher, and the side JSON endpoints (safebrowsing, PageSpeed, WP vulnerability scan, pm2 package installs, WP info, and the distinct /wordpress/wp-cli/<action> passthrough used by the site-manager UI). Mautic is not a supported CMS type.
 package websites
 
 import (
@@ -45,8 +41,7 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// splitDomainAndFolder splits a "domain/subfolder" path parameter into its
-// domain and (possibly empty) folder parts, on the first slash.
+// splitDomainAndFolder splits a "domain/subfolder" path parameter into its domain and (possibly empty) folder parts, on the first slash.
 func splitDomainAndFolder(param string) (domain, folder string) {
 	if idx := strings.Index(param, "/"); idx != -1 {
 		return param[:idx], param[idx+1:]
@@ -56,8 +51,7 @@ func splitDomainAndFolder(param string) (domain, folder string) {
 
 // ---------------------- FAVICON ---------------------- //
 
-// handleFavicon redirects to a domain's favicon, either through a
-// configured favicon service or Google's fallback.
+// handleFavicon redirects to a domain's favicon, either through a configured favicon service or Google's fallback.
 func handleFavicon(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _, _, err := injected(a, r)
 	if err != nil {
@@ -84,9 +78,7 @@ func handleFavicon(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ---------------------- DATABASE SIZE ---------------------- //
 
-// handleDatabaseSize reports either a WordPress install's on-disk size (via
-// `wp db size`) or a raw database's size, depending on which query
-// parameter was supplied.
+// handleDatabaseSize reports either a WordPress install's on-disk size (via `wp db size`) or a raw database's size, depending on which query parameter was supplied.
 func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, _, userContext, err := injected(a, r)
@@ -155,8 +147,7 @@ func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ---------------------- SAFE BROWSING ---------------------- //
 
-// safeBrowsingData is a cached Google Safe Browsing lookup, shared by the
-// UI's JSON route and the API's GET /api/sites/{domain}/safebrowsing.
+// safeBrowsingData is a cached Google Safe Browsing lookup, shared by the UI's JSON route and the API's GET /api/sites/{domain}/safebrowsing.
 func safeBrowsingData(ctx context.Context, a *appctx.App, domain string) (map[string]any, error) {
 	return cache.Memoize(ctx, a.Cache, "google_safebrowsing_data:"+domain, 12*time.Hour, func() (map[string]any, error) {
 		const apiKey = "AIzaSyBwv4iHQcYGTHOjqg9D4tcLW0TvqWHDbBc"
@@ -197,8 +188,7 @@ func safeBrowsingData(ctx context.Context, a *appctx.App, domain string) (map[st
 	})
 }
 
-// handleGoogleSafeBrowsing returns the cached Safe Browsing verdict for a
-// domain the caller owns.
+// handleGoogleSafeBrowsing returns the cached Safe Browsing verdict for a domain the caller owns.
 func handleGoogleSafeBrowsing(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -225,8 +215,7 @@ func handleGoogleSafeBrowsing(a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 var websiteParamRE = regexp.MustCompile(`^[a-zA-Z0-9./-]+$`)
 
-// handlePageSpeed serves the cached PageSpeed report on GET, or triggers a
-// fresh scan on POST.
+// handlePageSpeed serves the cached PageSpeed report on GET, or triggers a fresh scan on POST.
 func handlePageSpeed(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, _, err := injected(a, r)
@@ -286,9 +275,7 @@ func handlePageSpeed(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ---------------------- WP VULNERABILITY ---------------------- //
 
-// handleWPVulnerability serves the cached WordPress vulnerability report
-// on GET (running a scan first if none exists yet), or triggers a fresh
-// scan on POST.
+// handleWPVulnerability serves the cached WordPress vulnerability report on GET (running a scan first if none exists yet), or triggers a fresh scan on POST.
 func handleWPVulnerability(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, _, err := injected(a, r)
@@ -336,8 +323,7 @@ func handleWPVulnerability(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 var pm2SafeNameRE = regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
 
-// installPackagesInContainer runs the install command for the given
-// package manager (pip/npm/pnpm/bundle) inside a site's container.
+// installPackagesInContainer runs the install command for the given package manager (pip/npm/pnpm/bundle) inside a site's container.
 func installPackagesInContainer(a *appctx.App, r *http.Request, userContext, siteName, installType string) (bool, string) {
 	if !pm2SafeNameRE.MatchString(siteName) {
 		return false, "Invalid container name"
@@ -371,8 +357,7 @@ func installPackagesInContainer(a *appctx.App, r *http.Request, userContext, sit
 	return true, string(out)
 }
 
-// handleInstallPackages installs a Python/Node app's declared dependencies
-// inside its container.
+// handleInstallPackages installs a Python/Node app's declared dependencies inside its container.
 func handleInstallPackages(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, currentUsername, userContext, err := injected(a, r)
 	if err != nil {
@@ -416,16 +401,13 @@ func handleInstallPackages(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 // ---------------------- CMS DB INFO (shared) ---------------------- //
 
-// cmsDBField pairs an info map key with the precompiled regex that extracts
-// it from a CMS config file's text.
+// cmsDBField pairs an info map key with the precompiled regex that extracts it from a CMS config file's text.
 type cmsDBField struct {
 	key string
 	re  *regexp.Regexp
 }
 
-// cmsMappedDir maps a site's docroot-relative directory (as stored in the
-// "/var/www/html/..." form every handler in this package uses) to its
-// backing path on the host filesystem.
+// cmsMappedDir maps a site's docroot-relative directory (as stored in the "/var/www/html/..." form every handler in this package uses) to its backing path on the host filesystem.
 func cmsMappedDir(userContext, directory string) (string, bool) {
 	const wwwPrefix = "/var/www/html/"
 	if !strings.HasPrefix(directory, wwwPrefix) {
@@ -448,10 +430,7 @@ func applyCMSDBFields(text string, fields []cmsDBField) map[string]string {
 	return info
 }
 
-// readCMSConfig reads configPath and evaluates fields against its contents
-// (after an optional preprocess step), producing the same
-// {"error": "..."} / field-map shape every extract<CMS>DatabaseInfo
-// function below returns.
+// readCMSConfig reads configPath and evaluates fields against its contents (after an optional preprocess step), producing the same {"error": "..."} / field-map shape every extract<CMS>DatabaseInfo function below returns.
 func readCMSConfig(configPath, label string, fields []cmsDBField, preprocess func(string) string) map[string]string {
 	content, err := os.ReadFile(configPath)
 	if err != nil {
@@ -470,12 +449,7 @@ func readCMSConfig(configPath, label string, fields []cmsDBField, preprocess fun
 
 // ---------------------- WP INFO ---------------------- //
 
-// wpDBFieldSets holds the DB_NAME/DB_USER/DB_PASSWORD/DB_HOST and
-// $table_prefix patterns for wp-config.php, once for each quote style.
-// Go's RE2 has no backreferences to tie the opening/closing quote character
-// together (both single or both double), so each quote style is tried
-// separately - single-quote fields win when both are present, matching the
-// original per-call regexp.MustCompile behavior this replaces.
+// wpDBFieldSets holds the DB_NAME/DB_USER/DB_PASSWORD/DB_HOST and $table_prefix patterns for wp-config.php, once per quote style - Go's RE2 has no backreferences to tie opening/closing quotes together, so each style is tried separately, single-quote fields win when both are present.
 var wpDBFieldSets = [2][]cmsDBField{
 	{
 		{"database_name", regexp.MustCompile(`define\(\s*'DB_NAME'\s*,\s*'(.+?)'\s*\)`)},
@@ -493,8 +467,7 @@ var wpDBFieldSets = [2][]cmsDBField{
 	},
 }
 
-// extractDatabaseInfo parses DB_NAME/DB_USER/DB_PASSWORD/DB_HOST and the
-// table prefix out of wp-config.php.
+// extractDatabaseInfo parses DB_NAME/DB_USER/DB_PASSWORD/DB_HOST and the table prefix out of wp-config.php.
 func extractDatabaseInfo(userContext, directory string) map[string]string {
 	mappedDir, ok := cmsMappedDir(userContext, directory)
 	if !ok {
@@ -544,12 +517,7 @@ var drupalDBFields = []cmsDBField{
 	{"database_host", regexp.MustCompile(`'host'\s*=>\s*'([^']*)'`)},
 }
 
-// stripPHPStarCommentLines drops every line whose trimmed form starts with
-// '*' - Drupal's stock settings.php has a large documentation block near
-// the top with placeholder 'database' => 'database_name' style example
-// lines inside a /** ... */ comment (every line prefixed with '*'), which
-// would otherwise match before the real $databases['default'] array drush
-// appends near the end of the file.
+// stripPHPStarCommentLines drops every line whose trimmed form starts with '*' - Drupal's stock settings.php has a doc block near the top with placeholder 'database' => 'database_name' style examples that would otherwise match before the real $databases['default'] array drush appends near the end.
 func stripPHPStarCommentLines(text string) string {
 	var codeLines []string
 	for _, line := range strings.Split(text, "\n") {
@@ -561,10 +529,7 @@ func stripPHPStarCommentLines(text string) string {
 	return strings.Join(codeLines, "\n")
 }
 
-// extractDrupalDatabaseInfo parses the $databases['default']['default']
-// array out of settings.php - the live-read-from-config approach, same as
-// extractDatabaseInfo above does for wp-config.php, so no DB credentials
-// need to be persisted anywhere else.
+// extractDrupalDatabaseInfo parses the $databases['default']['default'] array out of settings.php, live-read-from-config same as extractDatabaseInfo does for wp-config.php, so no DB credentials need to be persisted anywhere else.
 func extractDrupalDatabaseInfo(userContext, directory string) map[string]string {
 	mappedDir, ok := cmsMappedDir(userContext, directory)
 	if !ok {
@@ -574,8 +539,7 @@ func extractDrupalDatabaseInfo(userContext, directory string) map[string]string 
 	return readCMSConfig(configPath, "settings.php", drupalDBFields, stripPHPStarCommentLines)
 }
 
-// getDrupalVersion reads drupal/core-recommended's resolved version out of
-// composer.lock, mirroring getWPVersion's live-read-from-disk approach.
+// getDrupalVersion reads drupal/core-recommended's resolved version out of composer.lock, mirroring getWPVersion's live-read-from-disk approach.
 func getDrupalVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "composer.lock")
@@ -602,9 +566,7 @@ func getDrupalVersion(userContext, realPath string) string {
 
 // ---------------------- FLARUM INFO ---------------------- //
 
-// flarumDBFields matches config.php's 'database' => [...] array - unlike
-// Drupal's settings.php, Flarum's config.php is a plain generated PHP
-// array with no preceding documentation/placeholder block to strip first.
+// flarumDBFields matches config.php's 'database' => [...] array - unlike Drupal's settings.php, Flarum's config.php is a plain generated PHP array with no preceding documentation/placeholder block to strip first.
 var flarumDBFields = []cmsDBField{
 	{"database_name", regexp.MustCompile(`'database'\s*=>\s*'([^']*)'`)},
 	{"database_user", regexp.MustCompile(`'username'\s*=>\s*'([^']*)'`)},
@@ -612,10 +574,7 @@ var flarumDBFields = []cmsDBField{
 	{"database_host", regexp.MustCompile(`'host'\s*=>\s*'([^']*)'`)},
 }
 
-// extractFlarumDatabaseInfo parses the 'database' array out of config.php
-// - config.php lives directly at the docroot's base (unlike Drupal's
-// nested sites/default/settings.php), since Flarum's own Paths value
-// object writes it to $paths->base, not $paths->public.
+// extractFlarumDatabaseInfo parses the 'database' array out of config.php - it lives directly at the docroot's base (unlike Drupal's nested sites/default/settings.php), since Flarum's own Paths value object writes it to $paths->base, not $paths->public.
 func extractFlarumDatabaseInfo(userContext, directory string) map[string]string {
 	mappedDir, ok := cmsMappedDir(userContext, directory)
 	if !ok {
@@ -625,8 +584,7 @@ func extractFlarumDatabaseInfo(userContext, directory string) map[string]string 
 	return readCMSConfig(configPath, "config.php", flarumDBFields, nil)
 }
 
-// getFlarumVersion reads flarum/core's resolved version out of
-// composer.lock, mirroring getDrupalVersion's live-read-from-disk approach.
+// getFlarumVersion reads flarum/core's resolved version out of composer.lock, mirroring getDrupalVersion's live-read-from-disk approach.
 func getFlarumVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "composer.lock")
@@ -651,9 +609,7 @@ func getFlarumVersion(userContext, realPath string) string {
 	return "Unknown"
 }
 
-// getDokuwikiVersion reads the installed release string out of the site's
-// VERSION file - dated codenames (e.g. "2026-07-14b"), not semver, written
-// by dokuwiki/install.go and refreshed by dokuwiki/update.go.
+// getDokuwikiVersion reads the installed release string out of the site's VERSION file - dated codenames (e.g. "2026-07-14b"), not semver, written by dokuwiki/install.go and refreshed by dokuwiki/update.go.
 func getDokuwikiVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "VERSION")
@@ -666,9 +622,7 @@ func getDokuwikiVersion(userContext, realPath string) string {
 
 // ---------------------- PHPBB INFO ---------------------- //
 
-// phpbbDBFields matches config.php's plain $dbname/$dbuser/$dbpasswd/
-// $dbhost assignments - not a PHP array like Flarum's config.php, but the
-// same shape of "no preceding documentation block to strip first".
+// phpbbDBFields matches config.php's plain $dbname/$dbuser/$dbpasswd/$dbhost assignments - not a PHP array like Flarum's config.php, but the same shape of "no preceding documentation block to strip first".
 var phpbbDBFields = []cmsDBField{
 	{"database_name", regexp.MustCompile(`\$dbname\s*=\s*'([^']*)'`)},
 	{"database_user", regexp.MustCompile(`\$dbuser\s*=\s*'([^']*)'`)},
@@ -687,9 +641,7 @@ func extractPhpbbDatabaseInfo(userContext, directory string) map[string]string {
 
 var phpbbVersionRE = regexp.MustCompile(`PHPBB_VERSION',\s*'([^']*)'`)
 
-// getPhpbbVersion reads the installed PHPBB_VERSION constant straight out
-// of includes/constants.php - phpBB writes no separate VERSION file the
-// way DokuWiki does.
+// getPhpbbVersion reads the installed PHPBB_VERSION constant straight out of includes/constants.php - phpBB writes no separate VERSION file the way DokuWiki does.
 func getPhpbbVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "includes", "constants.php")
@@ -703,11 +655,7 @@ func getPhpbbVersion(userContext, realPath string) string {
 	return "Unknown"
 }
 
-// extractJoomlaDatabaseInfo parses the $host/$user/$password/$db/$dbprefix
-// properties out of configuration.php - much simpler than
-// extractDrupalDatabaseInfo's settings.php scrape, since Joomla's installer
-// writes a plain generated PHP class with no preceding documentation/
-// placeholder block to accidentally match first.
+// extractJoomlaDatabaseInfo parses the $host/$user/$password/$db/$dbprefix properties out of configuration.php - much simpler than extractDrupalDatabaseInfo's settings.php scrape, since Joomla's installer writes a plain generated PHP class with no preceding documentation/placeholder block to accidentally match first.
 var joomlaDBFields = []cmsDBField{
 	{"database_name", regexp.MustCompile(`\$db\s*=\s*'([^']*)'`)},
 	{"database_user", regexp.MustCompile(`\$user\s*=\s*'([^']*)'`)},
@@ -724,9 +672,7 @@ func extractJoomlaDatabaseInfo(userContext, directory string) map[string]string 
 	return readCMSConfig(filepath.Join(mappedDir, "configuration.php"), "configuration.php", joomlaDBFields, nil)
 }
 
-// getJoomlaVersion reads the MAJOR/MINOR/PATCH version constants out of
-// libraries/src/Version.php, mirroring getDrupalVersion's live-read-from-
-// disk approach (no persisted version tracking anywhere else).
+// getJoomlaVersion reads the MAJOR/MINOR/PATCH version constants out of libraries/src/Version.php, mirroring getDrupalVersion's live-read-from-disk approach.
 func getJoomlaVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "libraries", "src", "Version.php")
@@ -744,10 +690,7 @@ func getJoomlaVersion(userContext, realPath string) string {
 	return major[1] + "." + minor[1] + "." + patch[1]
 }
 
-// extractOpenCartDatabaseInfo parses the DB_HOSTNAME/DB_USERNAME/
-// DB_PASSWORD/DB_DATABASE/DB_PREFIX constants out of config.php - same
-// plain-define()-list shape as Joomla's configuration.php, no comment-block
-// gotcha to work around.
+// extractOpenCartDatabaseInfo parses the DB_HOSTNAME/DB_USERNAME/DB_PASSWORD/DB_DATABASE/DB_PREFIX constants out of config.php - same plain-define()-list shape as Joomla's configuration.php, no comment-block gotcha to work around.
 var openCartDBFields = []cmsDBField{
 	{"database_name", regexp.MustCompile(`DB_DATABASE'\s*,\s*'([^']*)'`)},
 	{"database_user", regexp.MustCompile(`DB_USERNAME'\s*,\s*'([^']*)'`)},
@@ -764,9 +707,7 @@ func extractOpenCartDatabaseInfo(userContext, directory string) map[string]strin
 	return readCMSConfig(filepath.Join(mappedDir, "config.php"), "config.php", openCartDBFields, nil)
 }
 
-// getOpenCartVersion reads the VERSION constant out of the top-level
-// index.php, mirroring getJoomlaVersion/getDrupalVersion's live-read-from-
-// disk approach (no persisted version tracking anywhere else).
+// getOpenCartVersion reads the VERSION constant out of the top-level index.php, mirroring getJoomlaVersion/getDrupalVersion's live-read-from-disk approach.
 func getOpenCartVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "index.php")
@@ -781,9 +722,7 @@ func getOpenCartVersion(userContext, realPath string) string {
 	return m[1]
 }
 
-// extractNextcloudDatabaseInfo parses the dbname/dbuser/dbpassword/dbhost/
-// dbtableprefix entries out of config/config.php's `$CONFIG = array(...)`
-// literal.
+// extractNextcloudDatabaseInfo parses the dbname/dbuser/dbpassword/dbhost/dbtableprefix entries out of config/config.php's `$CONFIG = array(...)` literal.
 var nextcloudDBFields = []cmsDBField{
 	{"database_name", regexp.MustCompile(`'dbname'\s*=>\s*'([^']*)'`)},
 	{"database_user", regexp.MustCompile(`'dbuser'\s*=>\s*'([^']*)'`)},
@@ -800,9 +739,7 @@ func extractNextcloudDatabaseInfo(userContext, directory string) map[string]stri
 	return readCMSConfig(filepath.Join(mappedDir, "config", "config.php"), "config/config.php", nextcloudDBFields, nil)
 }
 
-// getNextcloudVersion reads $OC_VersionString out of version.php,
-// mirroring getOpenCartVersion/getJoomlaVersion's live-read-from-disk
-// approach.
+// getNextcloudVersion reads $OC_VersionString out of version.php, mirroring getOpenCartVersion/getJoomlaVersion's live-read-from-disk approach.
 func getNextcloudVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "version.php")
@@ -817,10 +754,7 @@ func getNextcloudVersion(userContext, realPath string) string {
 	return m[1]
 }
 
-// extractPrestashopDatabaseInfo parses the database_name/database_user/
-// database_password/database_host/database_prefix entries out of
-// app/config/parameters.php's `<?php return array('parameters' =>
-// array(...))` literal.
+// extractPrestashopDatabaseInfo parses the database_name/database_user/database_password/database_host/database_prefix entries out of app/config/parameters.php's `<?php return array('parameters' => array(...))` literal.
 var prestashopDBFields = []cmsDBField{
 	{"database_name", regexp.MustCompile(`'database_name'\s*=>\s*'([^']*)'`)},
 	{"database_user", regexp.MustCompile(`'database_user'\s*=>\s*'([^']*)'`)},
@@ -837,9 +771,7 @@ func extractPrestashopDatabaseInfo(userContext, directory string) map[string]str
 	return readCMSConfig(filepath.Join(mappedDir, "app", "config", "parameters.php"), "app/config/parameters.php", prestashopDBFields, nil)
 }
 
-// getPrestashopVersion reads the VERSION const out of src/Core/Version.php,
-// mirroring getNextcloudVersion/getOpenCartVersion's live-read-from-disk
-// approach.
+// getPrestashopVersion reads the VERSION const out of src/Core/Version.php, mirroring getNextcloudVersion/getOpenCartVersion's live-read-from-disk approach.
 func getPrestashopVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "src", "Core", "Version.php")
@@ -854,11 +786,7 @@ func getPrestashopVersion(userContext, realPath string) string {
 	return m[1]
 }
 
-// extractMatomoDatabaseInfo parses the dbname/username/password/host/
-// tables_prefix entries out of config/config.ini.php's [database] section -
-// Matomo's own generated config, an INI file (not a PHP array/define()
-// list the way every other CMS here writes its config), so this matches on
-// `key = "value"` lines instead.
+// extractMatomoDatabaseInfo parses the dbname/username/password/host/tables_prefix entries out of config/config.ini.php's [database] section - Matomo's own generated config is an INI file, not a PHP array/define() list like every other CMS here, so this matches on `key = "value"` lines instead.
 var matomoDBFields = []cmsDBField{
 	{"database_name", regexp.MustCompile(`(?m)^dbname\s*=\s*"([^"]*)"`)},
 	{"database_user", regexp.MustCompile(`(?m)^username\s*=\s*"([^"]*)"`)},
@@ -875,9 +803,7 @@ func extractMatomoDatabaseInfo(userContext, directory string) map[string]string 
 	return readCMSConfig(filepath.Join(mappedDir, "config", "config.ini.php"), "config/config.ini.php", matomoDBFields, nil)
 }
 
-// getMatomoVersion reads the VERSION const out of core/Version.php,
-// mirroring getPrestashopVersion/getNextcloudVersion's live-read-from-disk
-// approach.
+// getMatomoVersion reads the VERSION const out of core/Version.php, mirroring getPrestashopVersion/getNextcloudVersion's live-read-from-disk approach.
 func getMatomoVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "core", "Version.php")
@@ -892,15 +818,7 @@ func getMatomoVersion(userContext, realPath string) string {
 	return m[1]
 }
 
-// moodleApprootDir maps a Moodle site's docroot (a symlink to
-// <approot>/public - see internal/modules/moodle's package doc comment for
-// why) to its backing "app root" directory, where config.php/admin/lib/
-// actually live. directory's relative-to-docroot part IS the site's slash-
-// joined domain+subdirectory site name (docroot is literally
-// "/var/www/html/"+that), so this reapplies moodle.siteSlug's exact
-// domain/dot -> underscore substitution to find the sibling
-// "<slug>_moodleapp" directory install.go created, without needing to
-// resolve the symlink.
+// moodleApprootDir maps a Moodle site's docroot (a symlink to <approot>/public, see internal/modules/moodle) to its backing app-root directory where config.php/admin/lib/ actually live, by reapplying moodle.siteSlug's domain/dot -> underscore substitution to find the sibling "<slug>_moodleapp" directory install.go created, without needing to resolve the symlink.
 func moodleApprootDir(userContext, directory string) string {
 	const wwwPrefix = "/var/www/html/"
 	relPath := strings.TrimPrefix(directory, wwwPrefix)
@@ -908,10 +826,7 @@ func moodleApprootDir(userContext, directory string) string {
 	return "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + slug + "_moodleapp"
 }
 
-// extractMoodleDatabaseInfo parses the $CFG->dbname/dbuser/dbpass/dbhost/
-// prefix plain-variable assignments out of the approot's config.php -
-// Moodle's own generated config, not reachable via the docroot symlink
-// (that only leads to public/config.php, a thin shim, not the real one).
+// extractMoodleDatabaseInfo parses the $CFG->dbname/dbuser/dbpass/dbhost/prefix plain-variable assignments out of the approot's config.php - not reachable via the docroot symlink, which only leads to public/config.php, a thin shim, not the real one.
 var moodleDBFields = []cmsDBField{
 	{"database_name", regexp.MustCompile(`CFG->dbname\s*=\s*'([^']*)'`)},
 	{"database_user", regexp.MustCompile(`CFG->dbuser\s*=\s*'([^']*)'`)},
@@ -929,12 +844,7 @@ func extractMoodleDatabaseInfo(userContext, directory string) map[string]string 
 	return readCMSConfig(configPath, "config.php", moodleDBFields, nil)
 }
 
-// ojsApprootDir maps an OJS site's docroot (a symlink to a sibling
-// "<slug>_ojsapp" directory - see internal/modules/ojs's package doc
-// comment) to that backing app-root directory, where config.inc.php
-// actually lives. Duplicated locally from ojs.ojsApprootDir/siteSlug
-// (unexported in another package) per this codebase's established
-// per-module-helper-duplication convention.
+// ojsApprootDir maps an OJS site's docroot (a symlink to a sibling "<slug>_ojsapp" dir, see internal/modules/ojs) to that backing app-root directory where config.inc.php lives - duplicated locally from ojs.ojsApprootDir/siteSlug (unexported there) per this codebase's per-module-helper-duplication convention.
 func ojsApprootDir(userContext, directory string) string {
 	const wwwPrefix = "/var/www/html/"
 	relPath := strings.TrimPrefix(directory, wwwPrefix)
@@ -942,12 +852,7 @@ func ojsApprootDir(userContext, directory string) string {
 	return "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + slug + "_ojsapp"
 }
 
-// ojsDBFields parses the INI-style "key = value" lines under
-// config.inc.php's [database] section (not a PHP $CFG->/$wgDB-style
-// variable assignment file the way every other CMS module's config is -
-// see internal/modules/ojs/config.go's identical comment). Values may or
-// may not be double-quoted depending on how the CLI installer wrote them,
-// so the trailing optional quotes are stripped by the pattern itself.
+// ojsDBFields parses the INI-style "key = value" lines under config.inc.php's [database] section, not a PHP $CFG->/$wgDB-style assignment file like every other CMS module - values may or may not be double-quoted depending on how the CLI installer wrote them, so the pattern strips the optional trailing quotes itself.
 var ojsDBFields = []cmsDBField{
 	{"database_name", regexp.MustCompile(`(?m)^name\s*=\s*"?([^"\r\n]*)"?\s*$`)},
 	{"database_user", regexp.MustCompile(`(?m)^username\s*=\s*"?([^"\r\n]*)"?\s*$`)},
@@ -964,11 +869,7 @@ func extractOJSDatabaseInfo(userContext, directory string) map[string]string {
 	return readCMSConfig(configPath, "config.inc.php", ojsDBFields, nil)
 }
 
-// getMoodleVersion reads $release out of public/version.php (the
-// human-readable "5.2.1+ (Build: 20260807)"-style string every Moodle
-// release ships, confirmed live against a real 5.2 release tarball -
-// $version is the internal numeric build timestamp, not a human version;
-// version.php itself lives under public/, unlike config.php).
+// getMoodleVersion reads $release out of public/version.php, the human-readable "5.2.1+ (Build: 20260807)"-style string every Moodle release ships - $version is the internal numeric build timestamp, not a human version, and version.php lives under public/, unlike config.php.
 func getMoodleVersion(userContext, directory string) string {
 	content, err := os.ReadFile(filepath.Join(moodleApprootDir(userContext, directory), "public", "version.php"))
 	if err != nil {
@@ -981,11 +882,7 @@ func getMoodleVersion(userContext, directory string) string {
 	return m[1]
 }
 
-// extractMediaWikiDatabaseInfo parses the $wgDBname/$wgDBuser/$wgDBpassword/
-// $wgDBserver/$wgDBprefix plain-variable assignments out of the docroot's
-// LocalSettings.php - MediaWiki is installed flat (no approot/public split
-// like Moodle), so this reads directly from directory, mirroring
-// extractJoomlaDatabaseInfo's shape.
+// extractMediaWikiDatabaseInfo parses the $wgDBname/$wgDBuser/$wgDBpassword/$wgDBserver/$wgDBprefix plain-variable assignments out of the docroot's LocalSettings.php - MediaWiki is installed flat (no approot/public split like Moodle), so this reads directly from directory, mirroring extractJoomlaDatabaseInfo's shape.
 var mediaWikiDBFields = []cmsDBField{
 	{"database_name", regexp.MustCompile(`\$wgDBname\s*=\s*"([^"]*)"`)},
 	{"database_user", regexp.MustCompile(`\$wgDBuser\s*=\s*"([^"]*)"`)},
@@ -1002,9 +899,7 @@ func extractMediaWikiDatabaseInfo(userContext, directory string) map[string]stri
 	return readCMSConfig(filepath.Join(mappedDir, "LocalSettings.php"), "LocalSettings.php", mediaWikiDBFields, nil)
 }
 
-// getMediaWikiVersion reads the $wgVersion constant out of
-// includes/Defines.php (every MediaWiki release ships this - confirmed
-// live against a real 1.42 release tarball).
+// getMediaWikiVersion reads the $wgVersion constant out of includes/Defines.php - every MediaWiki release ships this.
 func getMediaWikiVersion(userContext, directory string) string {
 	const wwwPrefix = "/var/www/html/"
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
@@ -1019,8 +914,7 @@ func getMediaWikiVersion(userContext, directory string) string {
 	return m[1]
 }
 
-// getMySQLVersion resolves the running MySQL/MariaDB version, memoized for
-// 1 hour since it changes only on upgrade.
+// getMySQLVersion resolves the running MySQL/MariaDB version, memoized for 1 hour since it changes only on upgrade.
 func getMySQLVersion(a *appctx.App, r *http.Request, userContext string) string {
 	ctx := r.Context()
 	version, _ := cache.Memoize(ctx, a.Cache, "get_mysql_version_ws:"+userContext, time.Hour, func() (string, error) {
@@ -1042,10 +936,7 @@ func getMySQLVersion(a *appctx.App, r *http.Request, userContext string) string 
 	return version
 }
 
-// wpInfoForSite resolves a WordPress site's database credentials, WP
-// version, PHP version, and MySQL version. Shared by the UI's
-// handleWebsiteWPInfo and the API's apiWPInfo. Returns ok=false if the
-// domain's docroot couldn't be found.
+// wpInfoForSite resolves a WordPress site's database credentials, WP version, PHP version, and MySQL version - shared by handleWebsiteWPInfo and apiWPInfo, returns ok=false if the domain's docroot couldn't be found.
 func wpInfoForSite(a *appctx.App, r *http.Request, userContext, siteName string) (map[string]any, bool) {
 	ctx := r.Context()
 	domainNameUsed, folderParam := splitDomainAndFolder(siteName)
@@ -1071,8 +962,7 @@ func wpInfoForSite(a *appctx.App, r *http.Request, userContext, siteName string)
 	}, true
 }
 
-// handleWebsiteWPInfo returns a WordPress site's database credentials, WP
-// version, PHP version, and MySQL version for the site-manager info panel.
+// handleWebsiteWPInfo returns a WordPress site's database credentials, WP version, PHP version, and MySQL version for the site-manager info panel.
 func handleWebsiteWPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)
@@ -1098,9 +988,7 @@ func handleWebsiteWPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 }
 
 // ---------------------- DISTINCT WP-CLI PASSTHROUGH ---------------------- //
-// Distinct from the WordPress module's own /wp-cli/<action>: this one is
-// scoped to the site-manager single-page's general/debug/update-preferences
-// UI.
+// distinct from the WordPress module's own /wp-cli/<action>: this one is scoped to the site-manager single-page's general/debug/update-preferences UI
 
 var wsAllowedWPCLIActions = map[string]bool{
 	"site_info": true, "update_debug": true, "update_site_information": true,
@@ -1109,9 +997,7 @@ var wsAllowedWPCLIActions = map[string]bool{
 
 var wsDocrootSafeRE = regexp.MustCompile(`^[a-zA-Z0-9_/.-]+$`)
 
-// handleWordPressWPCLI dispatches a scoped set of `wp` CLI actions
-// (site info, debug flags, update preferences, ...) for the site-manager
-// single-page UI.
+// handleWordPressWPCLI dispatches a scoped set of `wp` CLI actions (site info, debug flags, update preferences, ...) for the site-manager single-page UI.
 func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

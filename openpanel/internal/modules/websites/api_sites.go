@@ -16,18 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterSitesAPI wires the /api/sites routes onto mux. Several of these
-// routes share a <domain> prefix with a literal suffix (e.g.
-// /api/sites/{domain}/safebrowsing, /temporary-link, /visitors, /wp-info),
-// and a domain itself may contain
-// slashes (subfolder installs) - so the most specific literal suffix has
-// to win over treating the whole tail as the domain. Go's http.ServeMux
-// requires a "{...}" wildcard to be the final segment, so a single
-// "{rest...}" catch-all per method is registered instead, and
-// apiSitesGetDispatch/apiSitesPostDispatch manually strip the known
-// literal suffixes off the tail to resolve the real route. apiregistry.Add
-// still records each logical route separately so /api/endpoints lists them
-// individually.
+// RegisterSitesAPI wires the /api/sites routes onto mux. Several routes share a <domain> prefix with a literal suffix (e.g. /api/sites/{domain}/safebrowsing, /temporary-link, /visitors, /wp-info), and a domain itself may contain slashes (subfolder installs), so the most specific literal suffix has to win over treating the whole tail as the domain. Since ServeMux requires a "{...}" wildcard to be the final segment, a single "{rest...}" catch-all per method is registered instead, and apiSitesGetDispatch/apiSitesPostDispatch manually strip the known literal suffixes off the tail to resolve the real route. apiregistry.Add still records each logical route separately so /api/endpoints lists them individually.
 func RegisterSitesAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "websites", "GET /api/sites", func(w http.ResponseWriter, r *http.Request) { apiSitesList(a, w, r) })
 
@@ -40,15 +29,9 @@ func RegisterSitesAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Add("GET /api/sites/{domain}/wp-info")
 	apiregistry.Add("GET /api/sites/{domain}/favicon")
 	apiregistry.Add("GET /api/sites/{domain}/screenshot")
-	// More specific than the "{rest...}" catch-all below, so it wins for
-	// this literal prefix - the site-manager's own scoped wp-cli passthrough
-	// (distinct from the global POST /api/wp-cli/{action}), reusing
-	// handleWordPressWPCLI as-is since it already reads everything from the
-	// query string/PathValue and writes JSON directly.
+	// more specific than the "{rest...}" catch-all below, so it wins for this literal prefix - the site-manager's own scoped wp-cli passthrough (distinct from the global POST /api/wp-cli/{action}), reusing handleWordPressWPCLI as-is since it already reads everything from the query string/PathValue and writes JSON directly
 	apiregistry.Handle(mux, a, "websites", "GET /api/sites/wp-cli/{action}", func(w http.ResponseWriter, r *http.Request) { handleWordPressWPCLI(a, w, r) })
-	// database-size takes domain/docroot/database as query params, not a
-	// path segment - a more specific literal match than "{rest...}", so it
-	// wins for this exact path.
+	// database-size takes domain/docroot/database as query params, not a path segment - a more specific literal match than "{rest...}", so it wins for this exact path
 	apiregistry.Handle(mux, a, "websites", "GET /api/sites/database-size", func(w http.ResponseWriter, r *http.Request) { handleDatabaseSize(a, w, r) })
 
 	mux.Handle("GET /api/sites/{rest...}", auth.RequireAPI(a, "websites")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiSitesGetDispatch(a, w, r) })))
@@ -59,14 +42,11 @@ func RegisterSitesAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Add("POST /api/sites/bulk")
 	mux.Handle("POST /api/sites/{rest...}", auth.RequireAPI(a, "websites")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiSitesPostDispatch(a, w, r) })))
 
-	// install_type is a fixed small enum (pip/npm/pnpm), so it's a plain
-	// path segment rather than folded into the domain-suffix dispatch above -
-	// mirrors the UI's own POST /pm2/install/{install_type}/{selected_domain}.
+	// install_type is a fixed small enum (pip/npm/pnpm), so it's a plain path segment rather than folded into the domain-suffix dispatch above - mirrors the UI's own POST /pm2/install/{install_type}/{selected_domain}
 	apiregistry.Handle(mux, a, "websites", "POST /api/sites/{selected_domain}/packages/{install_type}", func(w http.ResponseWriter, r *http.Request) { handleInstallPackages(a, w, r) })
 }
 
-// apiSitesGetDispatch resolves the literal-suffix-wins routing for
-// GET /api/sites/{domain}[/safebrowsing|/pagespeed|/wp-vulnerability|/temporary-link|/visitors|/wp-info].
+// apiSitesGetDispatch resolves the literal-suffix-wins routing for GET /api/sites/{domain}[/safebrowsing|/pagespeed|/wp-vulnerability|/temporary-link|/visitors|/wp-info].
 func apiSitesGetDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	rest := r.PathValue("rest")
 	switch {
@@ -100,8 +80,7 @@ func apiSitesGetDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-// apiSitesPostDispatch replicates the same routing for the two POST-only
-// suffix routes; nothing else is registered for POST /api/sites/*.
+// apiSitesPostDispatch replicates the same routing for the two POST-only suffix routes; nothing else is registered for POST /api/sites/*.
 func apiSitesPostDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	rest := r.PathValue("rest")
 	switch {
@@ -218,9 +197,7 @@ func apiSiteDetail(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// apiSafeBrowsing exposes the same cached lookup and response shape as the
-// UI's handleGoogleSafeBrowsing, just without the redirect/HTML wrapping
-// around ownership failures.
+// apiSafeBrowsing exposes the same cached lookup and response shape as the UI's handleGoogleSafeBrowsing, just without the redirect/HTML wrapping around ownership failures.
 func apiSafeBrowsing(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -240,8 +217,7 @@ func apiSafeBrowsing(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, result)
 }
 
-// apiPagespeedGet returns the cached PageSpeed report for a domain, or a
-// "no data yet" message if a scan hasn't been run.
+// apiPagespeedGet returns the cached PageSpeed report for a domain, or a "no data yet" message if a scan hasn't been run.
 func apiPagespeedGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -277,8 +253,7 @@ func apiPagespeedGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, status, map[string]string{"message": message})
 }
 
-// apiPagespeedRefresh kicks off a PageSpeed scan in the background and
-// returns immediately.
+// apiPagespeedRefresh kicks off a PageSpeed scan in the background and returns immediately.
 func apiPagespeedRefresh(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, _, err := injected(a, r)
@@ -306,9 +281,7 @@ func apiPagespeedRefresh(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	writeJSON(w, http.StatusAccepted, map[string]string{"message": "PageSpeed data gathering started"})
 }
 
-// apiWPVulnerabilityGet returns the cached WordPress vulnerability report
-// for a domain, triggering a scan and waiting briefly for it if no cached
-// result exists yet.
+// apiWPVulnerabilityGet returns the cached WordPress vulnerability report for a domain, triggering a scan and waiting briefly for it if no cached result exists yet.
 func apiWPVulnerabilityGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -339,8 +312,7 @@ func apiWPVulnerabilityGet(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusOK, data)
 }
 
-// apiWPVulnerabilityScan runs a WordPress vulnerability scan synchronously
-// and returns its result.
+// apiWPVulnerabilityScan runs a WordPress vulnerability scan synchronously and returns its result.
 func apiWPVulnerabilityScan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, _, err := injected(a, r)

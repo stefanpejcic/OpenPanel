@@ -1,7 +1,4 @@
-// Package wordpress handles WordPress site
-// list/install/clone/remove/detach/reload/scan, backup listing/run/restore,
-// the wp-cli passthrough endpoint, and the security-rules page. Drupal and
-// Mautic are out of scope for this pass.
+// Package wordpress handles WordPress site list/install/clone/remove/detach/reload/scan, backup listing/run/restore, the wp-cli passthrough endpoint, and the security-rules page. Drupal and Mautic are out of scope for this pass.
 package wordpress
 
 import (
@@ -22,9 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// wordpressFiles lists every top-level file/dir a stock WordPress
-// install creates, used by cleanup, remove, and detach to know what to
-// delete.
+// wordpressFiles lists every top-level file/dir a stock WordPress install creates, used by cleanup, remove, and detach to know what to delete.
 var wordpressFiles = []string{
 	".htaccess", "index.php", "license.txt", "readme.html", "wp-activate.php",
 	"wp-admin", "wp-blog-header.php", "wp-comments-post.php", "wp-config-sample.php",
@@ -33,8 +28,7 @@ var wordpressFiles = []string{
 	"wp-trackback.php", "error_log", "xmlrpc.php",
 }
 
-// skipDirs are directories reload/scan never descend into while walking
-// the html volume for wp-config.php files.
+// skipDirs are directories reload/scan never descend into while walking the html volume for wp-config.php files.
 var skipDirs = map[string]bool{"wp-content": true, "node_modules": true, ".git": true, "backups": true}
 
 func injected(a *appctx.App, r *http.Request) (userID int, username, userContext string, err error) {
@@ -67,17 +61,12 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 
 const randomStringAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// generateRandomString generates a throwaway db name/user/password when
-// the install/clone form leaves one blank. Uses crypto/rand rather than a
-// non-cryptographic RNG since the result ends up as a real database
-// credential.
+// generateRandomString generates a throwaway db name/user/password when the install/clone form leaves one blank, uses crypto/rand since the result ends up as a real database credential.
 func generateRandomString(length int) string {
 	return generateRandomStringFromAlphabet(length, randomStringAlphabet)
 }
 
-// generateRandomStringFromAlphabet is generateRandomString() parameterized
-// over the character set - used by generateSaltsLocally() with WordPress's
-// much wider salt alphabet (including punctuation).
+// generateRandomStringFromAlphabet is generateRandomString() parameterized over the character set - used by generateSaltsLocally() with WordPress's much wider salt alphabet (including punctuation).
 func generateRandomStringFromAlphabet(length int, alphabet string) string {
 	b := make([]byte, length)
 	for i := range b {
@@ -92,13 +81,11 @@ var (
 	validDBRE     = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 )
 
-// validateDomain/validateDB check a domain/db-name-like value for the
-// restricted character set these routes accept as user input.
+// validateDomain/validateDB check a domain/db-name-like value for the restricted character set these routes accept as user input.
 func validateDomain(name string) bool { return name != "" && validDomainRE.MatchString(name) }
 func validateDB(name string) bool     { return name != "" && validDBRE.MatchString(name) }
 
-// validateDocroot rejects path traversal and a leading slash, since the
-// value is joined onto the account's html volume root.
+// validateDocroot rejects path traversal and a leading slash, since the value is joined onto the account's html volume root.
 func validateDocroot(path string) bool {
 	return path != "" && !strings.Contains(path, "..") && !strings.HasPrefix(path, "/")
 }
@@ -153,11 +140,7 @@ func lookupDomainByURL(ctx context.Context, a *appctx.App, domainURL string) (do
 	return d, true, nil
 }
 
-// countUserWebsites counts the user's sites, capped at 1000. This is the
-// same query used by internal/modules/appinstall, duplicated here since
-// that package doesn't export it - a tiny, one-line query, so a small
-// per-package duplicate beats cross-package coupling for something this
-// small.
+// countUserWebsites counts the user's sites, capped at 1000 - same query used by internal/modules/appinstall, duplicated here since that package doesn't export it and it's small enough to not bother with cross-package coupling.
 func countUserWebsites(a *appctx.App, userID int) (int, error) {
 	rows, err := a.DB.Query(
 		"SELECT site_name FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000", userID)
