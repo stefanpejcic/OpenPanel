@@ -10,10 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 )
 
-// handleDatabasesAssign grants a Postgres user access to a database.
-// Unlike MySQL's equivalent, there is no privilege checklist here -
-// Postgres assignment is always the fixed GRANT ALL PRIVILEGES + USAGE +
-// CREATE trio.
+// handleDatabasesAssign grants a Postgres user access to a database - unlike MySQL's equivalent, there's no privilege checklist here, Postgres assignment is always the fixed GRANT ALL PRIVILEGES + USAGE + CREATE trio
 func handleDatabasesAssign(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -58,14 +55,12 @@ func handleDatabasesAssign(a *appctx.App, w http.ResponseWriter, r *http.Request
 	renderAssignPage(a, w, r)
 }
 
-// handleDatabasesRemove renders the page for revoking a user's access to a
-// PostgreSQL database.
+// handleDatabasesRemove renders the page for revoking a user's access to a PostgreSQL database
 func handleDatabasesRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderRemovePage(a, w, r)
 }
 
-// handleRemovePostgresUserFromDB revokes a PostgreSQL user's privileges on
-// a database.
+// handleRemovePostgresUserFromDB revokes a PostgreSQL user's privileges on a database
 func handleRemovePostgresUserFromDB(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

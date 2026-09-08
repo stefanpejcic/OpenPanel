@@ -1,12 +1,4 @@
-// Package prestashop installs and manages a PrestaShop site (downloaded from
-// GitHub releases + PrestaShop's own `install/index_cli.php` CLI installer)
-// inside an existing domain's docroot, run in the domain's existing php-fpm
-// container - same shape as internal/modules/opencart and
-// internal/modules/nextcloud. Deliberately minimal, matching that scope: no
-// cloning, no scan-for-existing-installs, no hardening rules, no dedicated
-// backup/restore system - just install, a small read-only manage/overview
-// page (files, database, PHP/DB versions, screenshot), a Logs tab, cache
-// clearing, a one-time admin login link, and uninstall. MySQL/MariaDB only.
+// Package prestashop installs and manages a PrestaShop site via install/index_cli.php inside an existing domain's docroot and php-fpm container - same shape as internal/modules/opencart and internal/modules/nextcloud, MySQL/MariaDB only
 package prestashop
 
 import (
@@ -65,10 +57,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 
 const randomStringAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// generateRandomString generates a throwaway db name/user/password, admin
-// directory suffix, or login token when needed. Uses crypto/rand since
-// results end up as real credentials/tokens/paths (same approach as
-// opencart/nextcloud.generateRandomString).
+// generateRandomString generates a throwaway db name/user/password, admin directory suffix, or login token, uses crypto/rand since results end up as real credentials/tokens/paths
 func generateRandomString(length int) string {
 	b := make([]byte, length)
 	for i := range b {
@@ -78,10 +67,7 @@ func generateRandomString(length int) string {
 	return string(b)
 }
 
-// lockFilePath returns the per-user krompir.lock path shared with the
-// wordpress/phpapp/drupal/joomla/opencart/nextcloud modules to serialize any
-// one "app install" operation per user at a time - not a PrestaShop-specific
-// lock.
+// lockFilePath returns the per-user krompir.lock path shared with wordpress/phpapp/drupal/joomla/opencart/nextcloud to serialize one app install at a time per user
 func lockFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
 }
@@ -118,9 +104,7 @@ func lookupDomainByID(ctx context.Context, a *appctx.App, domainID string) (doma
 	return d, true, nil
 }
 
-// countUserWebsites counts the user's sites, capped at 1000 - same query
-// wordpress/phpapp/drupal/joomla/opencart/nextcloud each duplicate locally
-// rather than sharing across packages for something this small.
+// countUserWebsites counts the user's sites, capped at 1000 - same query duplicated locally in wordpress/phpapp/drupal/joomla/opencart/nextcloud
 func countUserWebsites(a *appctx.App, userID int) (int, error) {
 	rows, err := a.DB.Query(
 		"SELECT site_name FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000", userID)
@@ -142,15 +126,7 @@ func atoiDefault(s string, def int) int {
 	return def
 }
 
-// findAdminDir locates the single admin*/ directory under a PrestaShop
-// install. PrestaShop's own AdminLoginController automatically renames a
-// literal "admin/" directory to a random "adminNNNxxxxxxxxxxxxxxxx/" name
-// the first time any admin controller is visited in a browser (a built-in
-// security default, confirmed live) - install.go pre-empts that by doing
-// the same rename itself right after install so the name is never left at
-// the guessable default, but every later operation (login link generation,
-// uninstall) still needs to resolve whatever that current name is rather
-// than assume it knows it, in case it was renamed again by hand.
+// findAdminDir locates the single admin*/ directory under a PrestaShop install - install.go renames it to a random name right after install, but every later operation (login link generation, uninstall) still needs to resolve whatever that current name is, in case it was renamed again by hand
 func findAdminDir(hostOSPath string) (string, error) {
 	matches, err := filepath.Glob(filepath.Join(hostOSPath, "admin*"))
 	if err != nil {

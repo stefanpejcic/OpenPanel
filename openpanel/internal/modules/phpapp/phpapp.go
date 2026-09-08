@@ -1,13 +1,5 @@
-// Package phpapp installs a Composer-based PHP project into an existing
-// domain's docroot, run inside whichever shared php-fpm-<version> container
-// that domain's PHP version already points to. Unlike the NodeJS/Python
-// app installer (internal/modules/appinstall), this never creates a
-// dedicated container, edits docker-compose.yml, or touches a webserver
-// reverse-proxy config - the domain's existing vhost already routes to the
-// right php-fpm container. Settings are still persisted the same way
-// appinstall persists CPU/RAM/etc - as .env keys under a synthetic prefix
-// derived from the site name, since there's no per-app container to key
-// them off of.
+// Package phpapp installs a Composer-based PHP project into an existing domain's docroot, run inside whichever shared php-fpm-<version> container that domain's PHP version already points to - unlike appinstall's NodeJS/Python installer, this never creates a dedicated container or touches docker-compose.yml/reverse-proxy config, since the domain's existing vhost already routes there
+// settings are still persisted the same way appinstall persists CPU/RAM - as .env keys under a synthetic prefix derived from the site name, since there's no per-app container to key them off of
 package phpapp
 
 import (
@@ -21,8 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// Register wires the PHP app install/manage routes onto mux, gated behind
-// the already-enabled "php" feature flag.
+// Register wires the PHP app install/manage routes onto mux, gated behind the already-enabled "php" feature flag
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "php")(h)
@@ -40,20 +31,13 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /php/manage/delete/{site_name...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDelete(a, w, r) }))
 }
 
-// RegisterAPI wires POST /api/php/install onto mux - same pattern as
-// nodejs.RegisterAPI/python.RegisterAPI, reusing HandleInstall as-is since
-// it's already pure form-value-in/NDJSON-out with no session/flash usage.
+// RegisterAPI wires POST /api/php/install onto mux - same pattern as nodejs.RegisterAPI/python.RegisterAPI, reusing HandleInstall as-is since it's already pure form-value-in/NDJSON-out with no session/flash usage
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "php", "POST /api/php/install", func(w http.ResponseWriter, r *http.Request) {
 		HandleInstall(a, w, r)
 	})
 
-	// Manage-surface for already-installed Composer apps, reusing the same
-	// handlers as Register's UI routes as-is - they already write JSON (or,
-	// for logs, plain text) directly and have no session/flash dependency.
-	// The "{site_name...}" wildcard must be the last path segment (net/http
-	// mux requirement), so the action stays a literal prefix, mirroring the
-	// UI routes' own ordering.
+	// manage-surface for already-installed Composer apps, reusing the same handlers as Register's UI routes since they already write JSON/text directly with no session/flash dependency - "{site_name...}" must be the last path segment, so the action stays a literal prefix
 	apiregistry.Handle(mux, a, "php", "POST /api/php/apps/composer-install/{site_name...}", func(w http.ResponseWriter, r *http.Request) {
 		handleComposerAction(a, w, r, "install")
 	})

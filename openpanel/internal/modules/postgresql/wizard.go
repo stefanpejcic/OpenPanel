@@ -14,14 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// handleDatabasesWizard creates a database, a user, and grants that user
-// access to the database in one step. Unlike MySQL's wizard, this used to
-// do all the actual work client-side via three sequential fetch() calls to
-// /postgresql/new, /postgresql/user and /postgresql/assign (see
-// wizard.html) - but those handlers always redirect regardless of success
-// or failure, and fetch() treats a redirect as success, so the wizard
-// always reported success even when nothing was created. This now runs
-// all three steps server-side instead, checking each one's actual error.
+// handleDatabasesWizard creates a database, a user, and grants that user access to the database in one step, all server-side - it used to do this via three sequential client-side fetch() calls, but those handlers always redirect and fetch() treats a redirect as success, so the wizard always reported success even when nothing was created
 func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

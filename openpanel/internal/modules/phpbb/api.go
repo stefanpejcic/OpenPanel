@@ -50,12 +50,7 @@ func apiRemovePhpbb(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleRemovePhpbb(a, w, cloned)
 }
 
-// apiClonePhpbb resolves the path's {site_id} into the source domain/
-// docroot handlePhpbbClone expects as source_domain/source_folder, using
-// the same "id" lookup query apiRemovePhpbb (via handleRemovePhpbb) and
-// manage.go use, derives source_db from config.php via
-// extractPhpbbDatabaseInfoForBackup, and takes the destination-side
-// fields from the JSON body.
+// apiClonePhpbb resolves {site_id} into source_domain/source_folder, derives source_db from config.php via extractPhpbbDatabaseInfoForBackup, and takes the destination-side fields from the JSON body
 func apiClonePhpbb(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 

@@ -40,8 +40,7 @@ var (
 	configurationPage      = loadPage("psql/configuration.html")
 )
 
-// ServiceStatusData is the container_state/health_status view-model shared
-// by databases.html and users.html.
+// ServiceStatusData is the container_state/health_status view-model shared by databases.html and users.html.
 type ServiceStatusData struct {
 	ContainerState string
 	HealthStatus   string
@@ -54,10 +53,7 @@ type DatabasesPageData struct {
 	Databases []DatabaseRow
 	Unit      string
 	ShowAll   bool
-	// StatusDetail is the longer explanatory text shown in the table's
-	// empty-state row while the service isn't running/healthy ("" when
-	// running+healthy, since the real rows render instead).
-	StatusDetail string
+	StatusDetail string // longer explanatory text for the table's empty-state row while the service isn't running/healthy, "" when running+healthy
 }
 
 func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, databases []DatabaseRow, unit string, showAll bool) {

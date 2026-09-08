@@ -22,8 +22,7 @@ type DatabaseRow struct {
 	IsSystem      bool
 }
 
-// handleDatabases lists the user's PostgreSQL databases, starting the
-// container in the background if it isn't running yet.
+// handleDatabases lists the user's PostgreSQL databases, starting the container in the background if it isn't running yet
 func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
@@ -104,8 +103,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderDatabasesPage(a, w, r, status, databaseInfo, unit, showAll)
 }
 
-// handleDatabasesNew creates a new PostgreSQL database, enforcing the
-// plan's database limit first.
+// handleDatabasesNew creates a new PostgreSQL database, enforcing the plan's database limit first
 func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -210,10 +208,8 @@ func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	http.Redirect(w, r, "/postgresql", http.StatusFound)
 }
 
-// handleDatabasesInfo serves the JSON payload the assign/remove/import
-// pages' client-side <select> population fetches from.
-// ComputeDatabaseAndUserNames returns the plain database/user name lists,
-// reused by both /postgresql/info and the global entity search.
+// handleDatabasesInfo serves the JSON payload the assign/remove/import pages' client-side <select> population fetches from
+// ComputeDatabaseAndUserNames returns the plain database/user name lists, reused by both /postgresql/info and the global entity search
 func ComputeDatabaseAndUserNames(ctx context.Context, userContext string) (databases, users []string, err error) {
 	userDatabaseRows, execErr := postgresmanager.Exec(ctx, userContext,
 		"SELECT datname FROM pg_database WHERE datname NOT IN ('postgres','template0','template1') ORDER BY datname", "postgres")
@@ -279,8 +275,7 @@ func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// handleDatabasesSizeInfo serves the /json/postgresql-size route: each
-// database's size, converted to the requested unit.
+// handleDatabasesSizeInfo serves the /json/postgresql-size route: each database's size, converted to the requested unit
 func handleDatabasesSizeInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)

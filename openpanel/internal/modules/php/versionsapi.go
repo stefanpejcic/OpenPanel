@@ -10,9 +10,7 @@ import (
 	"time"
 )
 
-// fetchLitespeedTags paginates the relevant litespeedtech Docker Hub repo's
-// tags, extracts the lsphpXY suffix from each, and returns the distinct
-// versions sorted desc.
+// fetchLitespeedTags paginates the relevant litespeedtech Docker Hub repo's tags, extracts the lsphpXY suffix from each, and returns the distinct versions sorted desc
 func fetchLitespeedTags(ctx context.Context, webServer string) []string {
 	var url string
 	switch webServer {
@@ -82,9 +80,7 @@ type VersionInfo struct {
 	IsNextVersion   bool   `json:"isNextVersion"`
 }
 
-// fetchPHPVersionsAPI maintains a 3-day disk cache of
-// https://api.openpanel.com/php-versions/, used by settings.html to
-// badge each installed version (latest/next/future/EOL/secure).
+// fetchPHPVersionsAPI maintains a 3-day disk cache of https://api.openpanel.com/php-versions/, used by settings.html to badge each installed version (latest/next/future/EOL/secure)
 func fetchPHPVersionsAPI(ctx context.Context) map[string]VersionInfo {
 	if info, err := os.Stat(phpAPIVersionsFile); err == nil {
 		if time.Since(info.ModTime()) < phpAPIVersionsTTL {

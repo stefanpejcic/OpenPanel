@@ -1,49 +1,11 @@
 package prestashop
 
-// openpanelLoginFileName is the login helper's filename inside PrestaShop's
-// (randomly named, see prestashop.findAdminDir) admin directory - deployed
-// once at install time (install.go) and read by handlePrestashopLogin
-// (cli.go) to build the link the browser opens.
+// openpanelLoginFileName is the login helper's filename inside PrestaShop's randomly-named admin directory (see findAdminDir), deployed at install time (install.go) and read by handlePrestashopLogin (cli.go)
 const openpanelLoginFileName = "openpanel-login.php"
 
-// openpanelLoginPHP mirrors joomla/opencart/nextcloud's one-time-token
-// approach: PrestaShop core ships no CLI equivalent of a one-time login
-// link either. Its employee auth is a self-contained encrypted cookie (see
-// classes/Cookie.php), not a server-side PHP session, and
-// controllers/admin/AdminLoginController.php's processLogin() shows the
-// exact legitimate post-password-check sequence to replicate: load the
-// Employee, populate Context::getContext()->cookie's id_employee/email/
-// profile/passwd/remote_addr fields, register an EmployeeSession row via
-// $cookie->registerSession(), then $cookie->write(). This script does only
-// that sequence - it never touches password hashing/verification at all,
-// it just binds an already-known-good employee id (from our own one-time
-// token) to a session the same way a successful password login would.
-//
-// Two real bugs were found and fixed by testing this live end-to-end
-// (round-tripping the resulting cookie through a second request) rather
-// than trusting that "the code compiles and doesn't error" meant it worked:
-//
-//  1. remote_addr MUST be built from Tools::getRemoteAddr(), not
-//     $_SERVER['REMOTE_ADDR'] directly. Employee::isLoggedBack() compares
-//     cookie->remote_addr against ip2long(Tools::getRemoteAddr()) on every
-//     later request, and Tools::getRemoteAddr() prefers
-//     X-Forwarded-For over REMOTE_ADDR whenever REMOTE_ADDR looks like a
-//     private/proxy address (exactly OpenPanel's setup, behind Caddy) - so
-//     storing raw REMOTE_ADDR here produced a value that could never match
-//     what later requests compute, silently failing isLoggedBack() with no
-//     error anywhere.
-//  2. The redirect builds its own absolute URL from $_SERVER rather than
-//     trusting PrestaShop's own Context::getContext()->link->getAdminLink()
-//     - confirmed live: getAdminLink() DOUBLES the subdirectory for a
-//     subdirectory install (produced
-//     ".../psreal/psreal/admin.../index.php?...", a 404), the same class of
-//     bug already found and worked around in joomla/opencart/nextcloud's
-//     login helpers, just tripped by PrestaShop's Link class instead of a
-//     redirect() call. The per-controller admin token PrestaShop's routing
-//     requires is still generated the real way, via
-//     Tools::getAdminTokenLite('AdminDashboard') - that only needs
-//     $context->employee->id (already set above) and doesn't touch the
-//     broken URL-building path at all.
+// openpanelLoginPHP mirrors joomla/opencart/nextcloud's one-time-token approach - PrestaShop's employee auth is a self-contained encrypted cookie (classes/Cookie.php) rather than a server-side session, so this replicates AdminLoginController::processLogin()'s post-password-check sequence: load the Employee, populate the cookie's fields, registerSession(), then write() - it never touches password verification, just binds an already-known-good employee id to a session
+// remote_addr must be built from Tools::getRemoteAddr(), not $_SERVER['REMOTE_ADDR'] directly, since Employee::isLoggedBack() compares against ip2long(Tools::getRemoteAddr()) which prefers X-Forwarded-For behind a proxy like Caddy - raw REMOTE_ADDR silently fails isLoggedBack() on later requests
+// the redirect builds its own absolute URL from $_SERVER instead of Context::getContext()->link->getAdminLink(), which doubles the subdirectory on a subdirectory install (404) - the admin token is still generated for real via Tools::getAdminTokenLite('AdminDashboard'), which only needs $context->employee->id
 const openpanelLoginPHP = `<?php
 /**
  * OpenPanel one-time admin login handler.

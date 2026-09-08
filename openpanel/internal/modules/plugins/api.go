@@ -9,10 +9,7 @@ import (
 	corePlugins "gist.github.com/stefanpejcic/openpanel/internal/core/plugins"
 )
 
-// RegisterAPI wires GET /api/plugins onto mux - only when at least one
-// plugin was found at startup, matching Register's own guard. Gated on
-// the "app" feature, same as the web route (always granted, see
-// baselineFeatures).
+// RegisterAPI wires GET /api/plugins onto mux - only when at least one plugin was found at startup, matching Register's own guard, gated on the "app" feature same as the web route
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	if len(a.PluginNames) == 0 {
 		return

@@ -14,10 +14,7 @@ import (
 
 var maintenancePrefixRE = regexp.MustCompile(`'database_prefix'\s*=>\s*'([^']*)'`)
 
-// handlePrestashopMaintenance reads (GET) or toggles (POST, action=enable|
-// disable) PrestaShop's maintenance mode via the PS_SHOP_ENABLE row in
-// `{prefix}configuration` - mirroring joomla/drupal/nextcloud's
-// maintenance.go handlers for the same feature.
+// handlePrestashopMaintenance reads (GET) or toggles (POST) the PS_SHOP_ENABLE row in {prefix}configuration, mirrors joomla/drupal/nextcloud's maintenance.go handlers
 func handlePrestashopMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

@@ -7,15 +7,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
-// Register wires all PHP, PHP ini/options/extensions, and phpMyAdmin
-// routes onto mux.
-//
-// Go's net/http.ServeMux only allows a wildcard to span an entire path
-// segment (see its Patterns doc), so it can't match a version embedded
-// inside a literal "php<version>" segment (e.g. /php/php8.2/options) -
-// every version-scoped route here instead captures the whole segment as a
-// wildcard and the handler unwraps it with phpVersionFromSegment()/
-// phpVersionFromIniSegment().
+// Register wires all PHP, PHP ini/options/extensions, and phpMyAdmin routes onto mux - since ServeMux wildcards can't match a version embedded inside a literal "php<version>" segment, every version-scoped route captures the whole segment and the handler unwraps it with phpVersionFromSegment()/phpVersionFromIniSegment()
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(feature string, h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, feature)(h)

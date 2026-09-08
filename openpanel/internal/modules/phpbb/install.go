@@ -21,26 +21,13 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// phpbbVersion is the fallback used when the install form doesn't supply
-// one (e.g. a direct API call) - confirmed live against download.phpbb.com
-// at the time this module was written. The install page itself offers a
-// real version picker populated from https://api.github.com/repos/phpbb/
-// phpbb/tags (tag names are "release-x.y.z"), same pattern as Drupal/
-// Joomla/Moodle/OpenCart's install pages, so this constant only matters
-// as a last-resort default, not as the sole source of truth.
+// phpbbVersion is the fallback used when the install form doesn't supply one (e.g. a direct API call) - the install page itself offers a real version picker populated from the GitHub tags API, so this only matters as a last-resort default
 const phpbbVersion = "3.3.17"
 
-// phpbbVersionRE validates a user-supplied phpbb_version form value before
-// it's interpolated into the download URL/extract shell script - phpBB's
-// releases are plain x.y.z (no "v" prefix, no pre-release suffixes for
-// stable tags), confirmed against the real tags feed.
+// phpbbVersionRE validates a user-supplied phpbb_version form value before it's interpolated into the download URL/extract shell script - phpBB releases are plain x.y.z, no "v" prefix or pre-release suffixes
 var phpbbVersionRE = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
 
-// phpbbSourceTarball builds the release download URL for version - phpBB
-// tags are date-less x.y.z releases at
-// download.phpbb.com/pub/release/<x.y>/<x.y.z>/phpBB-<x.y.z>.tar.bz2,
-// confirmed live. The tarball's top-level directory is always literally
-// "phpBB3/" (not version-suffixed), regardless of release.
+// phpbbSourceTarball builds the release download URL for version - the tarball's top-level directory is always literally "phpBB3/", not version-suffixed, regardless of release
 func phpbbSourceTarball(version string) string {
 	majorMinor := version
 	if idx := strings.LastIndex(version, "."); idx != -1 {
@@ -108,12 +95,7 @@ func isValidSubdirectory(subdirectory string) bool {
 	return !strings.Contains(subdirectory, "..") && !strings.HasPrefix(subdirectory, "/")
 }
 
-// handleInstallStream drives a phpBB install end to end, streaming NDJSON
-// progress events: download+extract the release tarball, create a MySQL
-// database, run phpBB's own dedicated CLI installer
-// (install/phpbbcli.php install <yaml>) against it, delete the install/
-// directory (phpBB's own documented post-install security step), then
-// record the site.
+// handleInstallStream drives a phpBB install end to end over NDJSON: download+extract, create the DB, run install/phpbbcli.php install against it, delete the install/ directory (phpBB's documented post-install security step), then record the site
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -297,11 +279,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// phpBB's own docs recommend deleting install/ once setup is done -
-	// it's dead weight afterward (the regular bin/phpbbcli.php refuses to
-	// run until installed, and the browser installer explicitly refuses
-	// to run again once PHPBB_INSTALLED is set in config.php, so nothing
-	// in the running site ever needs this directory again).
+	// phpBB's docs recommend deleting install/ once setup is done - it's dead weight afterward since nothing in the running site needs it again
 	emit(map[string]any{"status": "Removing install/ directory"})
 	rmInstallArgv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath+"/install")
 	_ = podmanmanager.Command(ctx, userContext, rmInstallArgv).Run()
@@ -320,13 +298,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "phpBB installation completed!", "admin_user": adminUsername, "admin_password": adminPassword})
 }
 
-// runPhpbbExtract downloads the release tarball and extracts it into
-// installPath. The tarball wraps everything in a fixed "phpBB3/" top-level
-// directory (confirmed live, not version-suffixed like DokuWiki's), so
-// this extracts to a scratch location first and copies that directory's
-// *contents* into installPath - same `cp -a` reasoning as every other
-// module here (a root, no-subdirectory install's installPath already
-// exists as the domain's docroot, even though empty).
+// runPhpbbExtract downloads the release tarball and extracts it into installPath - the tarball wraps everything in a fixed "phpBB3/" directory, so this extracts to a scratch location first and cp -a's that directory's contents into installPath, same reasoning as every other module here
 func runPhpbbExtract(ctx context.Context, userContext, phpContainer, installPath, version string) ([]byte, error) {
 	scratch := "/tmp/openpanel-phpbb-" + strconv.FormatInt(time.Now().UnixNano(), 36)
 	script := `set -e
@@ -349,23 +321,12 @@ type phpbbInstallParams struct {
 	serverName                               string
 }
 
-// escapeYAMLSingleQuoted doubles single quotes, the YAML 1.1 single-quoted
-// scalar escape - safe for any of the plain string values written into
-// the installer config below (no other characters need escaping inside a
-// single-quoted YAML scalar).
+// escapeYAMLSingleQuoted doubles single quotes, the YAML 1.1 single-quoted scalar escape - safe for the plain string values written into the installer config below
 func escapeYAMLSingleQuoted(value string) string {
 	return strings.ReplaceAll(value, "'", "''")
 }
 
-// runPhpbbInstaller finishes a phpBB install via phpBB's own dedicated CLI
-// installer app (install/phpbbcli.php's "install" command - NOT the
-// regular bin/phpbbcli.php, which refuses to run at all until phpBB is
-// already installed). Confirmed live against a real extracted copy: this
-// is a full, non-interactive equivalent of the browser setup wizard - it
-// creates the schema, writes config.php, creates the admin user, and
-// reports "The installer has finished successfully" on completion. Takes
-// a YAML config matching phpbb\install\installer_configuration's schema
-// (verified against that class's source rather than guessed).
+// runPhpbbInstaller finishes a phpBB install via install/phpbbcli.php's "install" command (not the regular bin/phpbbcli.php, which refuses to run until phpBB is already installed) - a full non-interactive equivalent of the browser setup wizard, taking a YAML config matching phpbb\install\installer_configuration's schema
 func runPhpbbInstaller(ctx context.Context, userContext, phpContainer, installPath string, p phpbbInstallParams) ([]byte, error) {
 	yamlConfig := "installer:\n" +
 		"    admin:\n" +
@@ -395,9 +356,7 @@ func runPhpbbInstaller(ctx context.Context, userContext, phpContainer, installPa
 
 	const yamlPath = "/tmp/openpanel-phpbb-install.yml"
 	installerScript := installPath + "/install/phpbbcli.php"
-	// The YAML is passed as "$1" (a discrete argv element, not
-	// interpolated into the shell script text) so its content never needs
-	// shell-quoting.
+	// the YAML is passed as "$1", a discrete argv element rather than interpolated into the shell script text, so its content never needs shell-quoting
 	script := `set -e; printf '%s' "$1" > ` + yamlPath + `; php ` + installerScript +
 		` install ` + yamlPath + ` -n --no-ansi; rc=$?; rm -f ` + yamlPath + `; exit $rc`
 

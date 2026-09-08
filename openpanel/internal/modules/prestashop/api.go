@@ -14,11 +14,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// handlePrestashopVersions backs prestashop_install.html's version dropdown -
-// GitHub's releases API is CORS-open and could be hit client-side, but
-// filtering out versions with no downloadable asset (see version.go) needs
-// server-side logic, so this exposes the already-filtered list as JSON
-// instead, matching nextcloud's identical approach.
+// handlePrestashopVersions backs prestashop_install.html's version dropdown - filtering out versions with no downloadable asset (see version.go) needs server-side logic, so this exposes the already-filtered list as JSON, matching nextcloud's identical approach
 func handlePrestashopVersions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	versions, err := listPrestashopVersions(r.Context())
 	if err != nil {
@@ -28,10 +24,7 @@ func handlePrestashopVersions(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	writeAPIJSON(w, http.StatusOK, map[string]any{"versions": versions})
 }
 
-// apiInstallPrestashop delegates straight to handleInstallPage (which
-// itself calls handleInstallStream on POST): same site-limit check, same
-// NDJSON progress stream written directly to the response - just fed from
-// the API's JSON body instead of a UI form post.
+// apiInstallPrestashop delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
 func apiInstallPrestashop(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID          string `json:"domain_id"`
@@ -64,9 +57,7 @@ func apiInstallPrestashop(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	handleInstallPage(a, w, withPrestashopForm(r, form))
 }
 
-// apiRemovePrestashop delegates to handleRemovePrestashop with the path's
-// {site_id} translated into the "id" form field it expects, and
-// output=json forced so it returns JSON instead of a flash-and-redirect.
+// apiRemovePrestashop delegates to handleRemovePrestashop with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemovePrestashop(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withPrestashopForm(r, url.Values{"id": {siteID}})
@@ -76,10 +67,7 @@ func apiRemovePrestashop(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	handleRemovePrestashop(a, w, cloned)
 }
 
-// resolvePrestashopSiteID looks up the path's {site_id} the same way
-// apiRemovePrestashop (via handleRemovePrestashop) and manage.go's own "id"
-// lookup do, returning the site's full site_name (domain[/subdirectory])
-// and docroot.
+// resolvePrestashopSiteID looks up the path's {site_id} the same way apiRemovePrestashop and manage.go's own "id" lookup do, returning the site's full site_name and docroot
 func resolvePrestashopSiteID(a *appctx.App, r *http.Request, siteID string) (siteName, docroot string, ok bool) {
 	row := a.DB.QueryRowContext(r.Context(), `
 		SELECT sites.site_name, domains.docroot
@@ -92,11 +80,7 @@ func resolvePrestashopSiteID(a *appctx.App, r *http.Request, siteID string) (sit
 	return siteName, docroot, true
 }
 
-// apiClonePrestashop resolves the path's {site_id} into the source domain/
-// docroot handlePrestashopClone expects as source_domain/source_folder
-// (same "id" lookup as apiRemovePrestashop), derives source_db from
-// app/config/parameters.php via extractPrestashopDatabaseInfoForLogin, and
-// takes the destination-side fields from the JSON body.
+// apiClonePrestashop resolves {site_id} into source_domain/source_folder, derives source_db from app/config/parameters.php via extractPrestashopDatabaseInfoForLogin, and takes the destination-side fields from the JSON body
 func apiClonePrestashop(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	siteName, docroot, ok := resolvePrestashopSiteID(a, r, siteID)
@@ -144,10 +128,7 @@ func apiClonePrestashop(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handlePrestashopClone(a, w, withPrestashopForm(r, form))
 }
 
-// apiCachePrestashop resolves the path's {site_id} the same way
-// apiClonePrestashop does, then delegates to handlePrestashopCacheClean
-// with domain/docroot set as URL query params (prestashopRequestParams
-// reads r.URL.Query(), not form values).
+// apiCachePrestashop resolves {site_id} the same way apiClonePrestashop does, then delegates to handlePrestashopCacheClean with domain/docroot as URL query params since prestashopRequestParams reads r.URL.Query()
 func apiCachePrestashop(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	siteName, docroot, ok := resolvePrestashopSiteID(a, r, siteID)

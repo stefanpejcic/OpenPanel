@@ -12,13 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 )
 
-// This file mirrors flarum/clone.go's shape (site-limit check, file copy,
-// DB create+dump-pipe, config rewrite, sites-table insert). config.php's
-// dbname/dbuser/dbpasswd keys need rewriting for the new DB; the board's
-// base URL isn't stored in config.php at all (phpBB derives it from
-// $_SERVER at runtime like Drupal, not hardcoded like Flarum), so only
-// SearchReplaceDatabase (which fixes hardcoded URLs left in post/page
-// content) handles that side, same limitation drupal/clone.go documents.
+// mirrors flarum/clone.go's shape (file copy, DB create+dump, config rewrite, sites insert) - config.php's dbname/dbuser/dbpasswd need rewriting, but phpBB derives its base URL from $_SERVER at runtime like Drupal rather than storing it, so only SearchReplaceDatabase handles that side, same limitation drupal/clone.go documents
 
 var (
 	clonePhpbbDatabaseRE = regexp.MustCompile(`\$dbname\s*=\s*'.*?';`)
@@ -130,10 +124,7 @@ func handlePhpbbClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	adminEmail := formOr(r, "admin_email", "admin@"+dstDomain)
 	version := formOr(r, "version", phpbbVersion)
-	// Rewrites hardcoded source-domain URLs left in post/page content -
-	// config.php has no base-URL field to rewrite (phpBB derives its URL
-	// from $_SERVER at runtime, like Drupal), so this is the only URL
-	// rewrite this clone can do.
+	// rewrites hardcoded source-domain URLs left in post/page content - the only URL rewrite possible since config.php has no base-URL field
 	cmsclone.SearchReplaceDatabase(ctx, userContext, dstDB, "https://"+providedDomain, "https://"+dstDomainWithSubdir)
 
 	cmsclone.FinalizeSite(ctx, w, r, cmsclone.FinalizeParams{

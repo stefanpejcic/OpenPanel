@@ -17,18 +17,13 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// composerLogPath returns the host path a site's captured Composer run
-// output is written to and read back from - same base directory
-// convention as the install lock file (per-user metadata under
-// /etc/openpanel/openpanel/core/users/<username>/).
+// composerLogPath returns the host path a site's captured Composer run output is written to and read back from - same base directory convention as the install lock file
 func composerLogPath(username, siteName string) string {
 	safe := strings.ReplaceAll(siteName, "/", "_")
 	return "/etc/openpanel/openpanel/core/users/" + username + "/php-app-logs/" + safe + ".log"
 }
 
-// appendComposerLog records one Composer run's output, prefixed with a
-// timestamp/action header, so the manage page's Logs tab has a running
-// history rather than just the last run.
+// appendComposerLog records one Composer run's output, prefixed with a timestamp/action header, so the manage page's Logs tab has a running history rather than just the last run
 func appendComposerLog(username, siteName, action string, output []byte) {
 	path := composerLogPath(username, siteName)
 	_ = os.MkdirAll(path[:strings.LastIndex(path, "/")], 0o755)
@@ -45,9 +40,7 @@ func appendComposerLog(username, siteName, action string, output []byte) {
 	}
 }
 
-// resolvePHPSite looks up a site by name, confirms it belongs to the
-// current user, and resolves the php-fpm container currently serving it.
-// Returns ("", "", false) with the response already written on any failure.
+// resolvePHPSite looks up a site by name, confirms it belongs to the current user, and resolves the php-fpm container currently serving it - returns ok=false with the response already written on any failure
 func resolvePHPSite(a *appctx.App, w http.ResponseWriter, r *http.Request) (userContext, phpContainer, installPath, username string, ok bool) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -84,8 +77,7 @@ func resolvePHPSite(a *appctx.App, w http.ResponseWriter, r *http.Request) (user
 	return userContext, phpContainer, installPathVal, username, true
 }
 
-// handleComposerAction runs `composer install` or `composer update` for an
-// already-installed PHP app, inside the domain's current php-fpm container.
+// handleComposerAction runs `composer install` or `composer update` for an already-installed PHP app, inside the domain's current php-fpm container
 func handleComposerAction(a *appctx.App, w http.ResponseWriter, r *http.Request, action string) {
 	ctx := r.Context()
 	userContext, phpContainer, installPath, username, ok := resolvePHPSite(a, w, r)
@@ -148,10 +140,7 @@ func handleComposerLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(content)
 }
 
-// handleDelete removes a PHP app's `sites` row and its .env settings.
-// Docroot files and the database, if any, are left untouched - same as the
-// NodeJS/Python delete flow's "All website data such as files and database
-// remains" behavior - since there's no dedicated container to tear down.
+// handleDelete removes a PHP app's `sites` row and its .env settings - docroot files and any database are left untouched, same as the NodeJS/Python delete flow, since there's no dedicated container to tear down
 func handleDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

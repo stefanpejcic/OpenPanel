@@ -1,23 +1,6 @@
-// Package phpbb installs and manages phpBB (phpbb.com) inside an existing
-// domain's docroot, run in the domain's existing php-fpm container - same
-// shape as internal/modules/flarum (the other MySQL-backed forum module).
-//
-// Unlike Flarum, phpBB ships no CLI update mechanism (composer isn't part
-// of its normal deployment - the release tarball already contains
-// vendor/), so update.go doesn't exist here; the Update tab is browser-
-// link-only, the same "check the site yourself" pattern Joomla/OpenCart/
-// PrestaShop use.
-//
-// Install drives phpBB's own dedicated CLI installer
-// (install/phpbbcli.php's "install" command, confirmed live against a real
-// extracted copy - it's a full non-interactive equivalent of the browser
-// setup wizard, taking a YAML config with the same shape as
-// phpbb\install\installer_configuration's schema), not phpBB's *regular*
-// bin/phpbbcli.php (that one refuses to run at all until phpBB is already
-// installed - even `list` fails, since its DI container tries to read
-// config from the database immediately). The install/ directory is
-// deleted afterward, matching phpBB's own documented post-install
-// security step.
+// Package phpbb installs and manages phpBB (phpbb.com) inside an existing domain's docroot and php-fpm container - same shape as internal/modules/flarum, the other MySQL-backed forum module
+// unlike Flarum, phpBB ships no CLI update mechanism, so update.go doesn't exist here - the Update tab is browser-link-only, the same pattern Joomla/OpenCart/PrestaShop use
+// install drives install/phpbbcli.php's "install" command (a full non-interactive equivalent of the browser setup wizard), not the regular bin/phpbbcli.php which refuses to run until phpBB is already installed - install/ is deleted afterward per phpBB's documented post-install security step
 package phpbb
 
 import (
@@ -84,9 +67,7 @@ func generateRandomString(length int) string {
 	return string(b)
 }
 
-// lockFilePath returns the per-user krompir.lock path shared with the
-// wordpress/phpapp/drupal/joomla/flarum/sofawiki/dokuwiki modules to
-// serialize any one "app install" operation per user at a time.
+// lockFilePath returns the per-user krompir.lock path shared with wordpress/phpapp/drupal/joomla/flarum/sofawiki/dokuwiki to serialize one app install at a time per user
 func lockFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
 }

@@ -10,10 +10,7 @@ import (
 	"strings"
 )
 
-// toStringCell converts one mysqlmanager.Exec() result cell to a string.
-// Mirrors opencart/nextcloud's login_support.go identical helper - see that
-// file's comment for why every numeric driver type needs its own case (a
-// missing one silently becomes "" rather than a compile error).
+// toStringCell converts one mysqlmanager.Exec() result cell to a string, mirrors opencart/nextcloud's login_support.go identical helper
 func toStringCell(v any) string {
 	switch t := v.(type) {
 	case nil:
@@ -44,11 +41,7 @@ func sha256Hex(s string) string {
 
 func itoa(n int) string { return strconv.Itoa(n) }
 
-// extractPrestashopDatabaseInfoForLogin is a local copy of
-// websites.extractPrestashopDatabaseInfo (unexported in another package, so
-// duplicated here - same small-helper-duplication pattern the other CMS
-// modules already use rather than sharing across module packages). Only the
-// fields handlePrestashopLogin actually needs are populated.
+// extractPrestashopDatabaseInfoForLogin is a local copy of websites.extractPrestashopDatabaseInfo (unexported there, duplicated here like the other CMS modules do), only populates the fields handlePrestashopLogin needs
 func extractPrestashopDatabaseInfoForLogin(userContext, directory string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
 	if !strings.HasPrefix(directory, wwwPrefix) {

@@ -13,24 +13,9 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 )
 
-// This file mirrors wordpress/manage.go's handleCloneWordPress in overall
-// shape (site-limit check, file copy, DB create+dump-pipe, config
-// rewrite, sites-table insert), sharing everything but the docroot copy
-// and config-rewrite steps with every other CMS's clone.go via
-// internal/core/cmsclone - see that package's doc comment for why those
-// two steps stay local. Unlike Joomla/Drupal, PrestaShop DOES hardcode its
-// domain in the DB - the `{prefix}shop_url` table's domain/domain_ssl/
-// physical_uri columns (confirmed live against a real installed
-// PrestaShop: `id_shop_url, id_shop, domain, domain_ssl, physical_uri,
-// virtual_uri, main, active`) - so after the DB import this updates that
-// row to point the clone at its own new domain/subdirectory, the
-// PrestaShop equivalent of wp-cli's search-replace step.
-//
-// cmsclone.ValidDocroot accepts the real "/var/www/html/..." absolute-path
-// form .Docroot actually uses everywhere else in this codebase -
-// WordPress's own validateDocroot() rejects any leading "/", which would
-// reject its own clone form's real source_folder value. Not replicating
-// that bug here.
+// mirrors wordpress/manage.go's handleCloneWordPress in shape (file copy, DB create+dump, config rewrite, sites insert), sharing everything but docroot copy and config rewrite with every other CMS via internal/core/cmsclone
+// unlike Joomla/Drupal, PrestaShop does hardcode its domain in the DB - the `{prefix}shop_url` table's domain/domain_ssl/physical_uri columns - so after the DB import this updates that row to point the clone at its own new domain/subdirectory, the PrestaShop equivalent of wp-cli's search-replace step
+// cmsclone.ValidDocroot accepts the real absolute "/var/www/html/..." form used everywhere here, unlike wordpress's own validateDocroot which would reject it
 
 var (
 	clonePrestaDBNameRE   = regexp.MustCompile(`'database_name'\s*=>\s*'.*?',`)
@@ -114,12 +99,7 @@ func handlePrestashopClone(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 	cmsclone.ChownRecursive(ctx, userContext, dstPath)
-	// PrestaShop's Symfony var/cache/{prod,dev} holds a compiled service
-	// container with the SOURCE site's DB credentials baked in - a plain
-	// file copy carries that stale cache along, which makes the clone 500
-	// on its very first request even though parameters.php itself is
-	// correct (confirmed live: clearing this directory was the fix).
-	// PrestaShop regenerates it automatically on the next request.
+	// var/cache/{prod,dev} holds a compiled service container with the source site's DB credentials baked in - the plain file copy carries that stale cache along, which 500s the clone's first request until it's cleared; PrestaShop regenerates it automatically
 	_ = os.RemoveAll(filepath.Join(dstPath, "var", "cache", "prod"))
 	_ = os.RemoveAll(filepath.Join(dstPath, "var", "cache", "dev"))
 
@@ -152,9 +132,7 @@ func handlePrestashopClone(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Point the clone's own ps_shop_url row at its new domain/subdirectory -
-	// the same fix install.go applies at install time via --domain/--base_uri,
-	// see that file's comment on why domain and physical_uri must stay split.
+	// point the clone's own ps_shop_url row at its new domain/subdirectory, same fix install.go applies at install time via --domain/--base_uri
 	escapedDstDomain := escapeMySQLString(dstDomain)
 	escapedURI := escapeMySQLString(dstSubdirURI)
 	_, _ = mysqlmanager.Exec(ctx, userContext,
@@ -163,7 +141,7 @@ func handlePrestashopClone(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	adminEmail := formOr(r, "admin_email", "admin@"+dstDomain)
 	prestashopVersion := formOr(r, "prestashop_version", "latest")
-	// Rewrites hardcoded source-domain URLs left in page/content body text (the config-file rewrite above only fixes the DB connection settings, not application data) - the generic equivalent of wp-cli's search-replace, which this CMS's own CLI has no built-in version of.
+	// rewrites hardcoded source-domain URLs left in content body text, the generic equivalent of wp-cli's search-replace which PrestaShop's CLI lacks
 	cmsclone.SearchReplaceDatabase(ctx, userContext, dstDB, "https://"+providedDomain, "https://"+dstDomainWithSubdir)
 
 	cmsclone.FinalizeSite(ctx, w, r, cmsclone.FinalizeParams{

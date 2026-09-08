@@ -28,8 +28,7 @@ func atoiDefault(s string, def int) int {
 	return def
 }
 
-// countUserWebsites counts sites owned by any of this user's domains,
-// capped at 1000 - same query appinstall.countUserWebsites uses.
+// countUserWebsites counts sites owned by any of this user's domains, capped at 1000 - same query appinstall.countUserWebsites uses
 func countUserWebsites(a *appctx.App, userID int) (int, error) {
 	rows, err := a.DB.Query(
 		"SELECT site_name FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000", userID)
@@ -44,9 +43,7 @@ func countUserWebsites(a *appctx.App, userID int) (int, error) {
 	return n, rows.Err()
 }
 
-// HandleInstallPage renders the install form and handles the early
-// over-limit check for a POST; the streaming install itself is handled
-// separately by HandleInstall.
+// HandleInstallPage renders the install form and handles the early over-limit check for a POST; the streaming install itself is handled separately by HandleInstall
 func HandleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -71,11 +68,7 @@ func HandleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderInstallPage(a, w, r, domains)
 }
 
-// HandleInstall drives the NDJSON-streamed install of a PHP/Composer
-// project into an existing domain's docroot. Unlike appinstall.HandleInstall
-// this never touches docker-compose.yml, .env container variables, or a
-// webserver reverse-proxy config - the domain's existing vhost already
-// routes to the php-fpm container this uses.
+// HandleInstall drives the NDJSON-streamed install of a PHP/Composer project into an existing domain's docroot - unlike appinstall.HandleInstall this never touches docker-compose.yml, .env container variables, or reverse-proxy config, since the domain's existing vhost already routes to the php-fpm container this uses
 func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -147,11 +140,7 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	installPath := docroot
 	selectedDomain := topDomain
 	if subdirectory != "" {
-		// docroot may already end in "/" (e.g. the "/var/www/html/"
-		// fallback used when a domain has no docroot of its own set) - a
-		// naive "docroot + / + subdirectory" join can then produce a
-		// double slash, which breaks `composer create-project`'s target
-		// path resolution inside the container.
+		// docroot may already end in "/" (the fallback when a domain has no docroot set), so a naive join can produce a double slash that breaks composer create-project's target path
 		installPath = strings.TrimSuffix(docroot, "/") + "/" + subdirectory
 		selectedDomain = selectedDomain + "/" + subdirectory
 	}
@@ -173,19 +162,12 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	docrootWithoutWWW := strings.TrimPrefix(strings.TrimPrefix(installPath, "/var/www/html/"), "/")
 	hostOSPath := filepath.Join(htmlVolume, docrootWithoutWWW)
 
-	// Composer's own --working-dir flag, not `podman exec -w` - the
-	// vendored image's `composer` binary is itself a wrapper
-	// (/usr/local/aliases/composer -> `exec in-app /usr/local/bin/composer`)
-	// whose `in-app` layer resets the process's actual working directory
-	// regardless of `-w`/an explicit `cd`, so composer sees /var/www/html
-	// no matter what podman exec's workdir was set to. --working-dir is a
-	// composer CLI arg, untouched by that wrapper, and works correctly.
+	// composer's own --working-dir flag, not podman exec -w - the vendored composer binary's in-app wrapper resets the working dir regardless of -w, but --working-dir is untouched by that wrapper
 	composerBase := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "composer"), "--working-dir="+installPath)
 
 	if initialProject != "" {
 		if isArchiveURL(initialProject) {
-			// Unlike composer create-project (which creates its own target
-			// directory), extraction needs somewhere to extract into.
+			// unlike composer create-project (which creates its own target directory), extraction needs somewhere to extract into
 			if mkErr := os.MkdirAll(hostOSPath, 0o755); mkErr != nil {
 				emit(map[string]any{"error": "Error creating document root: " + mkErr.Error()})
 				return
@@ -196,14 +178,7 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		} else {
-			// Deliberately NOT pre-creating hostOSPath here: composer
-			// create-project makes its own target directory, and a host-side
-			// os.MkdirAll immediately beforehand raced its container-side
-			// mkdir over the rootless bind mount in testing - composer would
-			// intermittently fail to create vendor/ inside a directory this
-			// process had *just* created microseconds earlier, even though
-			// the directory was otherwise identical (same owner/mode) to one
-			// composer created unassisted. Let composer own the whole path.
+			// deliberately not pre-creating hostOSPath here - a host-side mkdir just before composer create-project raced its container-side mkdir over the rootless bind mount, intermittently breaking vendor/ creation, so let composer own the whole path
 			emit(map[string]any{"status": "Creating Composer project " + initialProject})
 			argv := append(append([]string{}, podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "composer")...),
 				"create-project", initialProject, installPath, "--no-interaction")
@@ -215,9 +190,7 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else if autorunComposerInstall {
-		// No initial_project means the directory (with its own
-		// composer.json) is expected to already exist - composer install
-		// can't materialize one from nothing.
+		// no initial_project means the directory (with its own composer.json) is expected to already exist - composer install can't materialize one from nothing
 		if _, statErr := os.Stat(hostOSPath); statErr != nil {
 			emit(map[string]any{"error": "Directory " + installPath + " does not exist. Set an initial project, or create the directory (with a composer.json) first."})
 			return
@@ -259,9 +232,7 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = logger.RecordUserAction(a.Config, currentUsername, "created a new PHP application on domain "+selectedDomain, ipAddress)
 }
 
-// ensureContainerRunning starts container if it's not already running,
-// polling briefly for it to come up (mirrors wordpress.waitForWPAvailable's
-// shape, but keyed off container status rather than a WP-CLI probe).
+// ensureContainerRunning starts container if it's not already running and polls briefly for it to come up, mirrors wordpress.waitForWPAvailable's shape but keyed off container status rather than a WP-CLI probe
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -293,10 +264,7 @@ func boolEnvValue(b bool) string {
 	return ""
 }
 
-// phpAppEnvPrefix derives the .env key prefix for a PHP app's settings from
-// its site name (domain, optionally "/subdir") - there's no dedicated
-// container to key these off of the way appinstall keys CPU/RAM/etc off a
-// service name, so this is a synthetic key namespace instead.
+// phpAppEnvPrefix derives the .env key prefix for a PHP app's settings from its site name - there's no dedicated container to key these off like appinstall does with CPU/RAM, so this is a synthetic key namespace instead
 func phpAppEnvPrefix(siteName string) string {
 	return docker.ServiceKeyPrefix(strings.ReplaceAll(siteName, "/", "_")) + "_PHP_"
 }

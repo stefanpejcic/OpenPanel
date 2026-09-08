@@ -1,7 +1,4 @@
-// Package plugins implements the `/plugins` route: the JSON listing
-// base.html's client-side JS fetches to inject plugin entries into the
-// sidebar and dashboard. See internal/core/plugins for the underlying
-// plugin system.
+// Package plugins implements the `/plugins` route: the JSON listing base.html's client-side JS fetches to inject plugin entries into the sidebar and dashboard - see internal/core/plugins for the underlying plugin system
 package plugins
 
 import (
@@ -13,8 +10,7 @@ import (
 	corePlugins "gist.github.com/stefanpejcic/openpanel/internal/core/plugins"
 )
 
-// Register wires the /plugins route onto mux - the route only exists at
-// all when at least one plugin was found at startup.
+// Register wires the /plugins route onto mux - the route only exists at all when at least one plugin was found at startup
 func Register(mux *http.ServeMux, a *appctx.App) {
 	if len(a.PluginNames) == 0 {
 		return

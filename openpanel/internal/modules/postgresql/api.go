@@ -21,12 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// RegisterAPI wires the postgresql API routes onto mux. The
-// /databases/{db_name} and /users/{db_user} sub-resources share their
-// prefix with a literal suffix - Go's http.ServeMux requires a "{...}"
-// wildcard to be the final segment, so GET/POST get a "{rest...}"
-// catch-all where needed and the dispatch funcs below strip the known
-// suffix by hand to resolve the real route.
+// RegisterAPI wires the postgresql API routes onto mux - /databases/{db_name} and /users/{db_user} share their prefix with a literal suffix, so since ServeMux requires a wildcard to be the final segment, GET/POST get a "{rest...}" catch-all and the dispatch funcs below strip the known suffix by hand
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "postgresql", "GET /api/postgresql/databases", func(w http.ResponseWriter, r *http.Request) { apiPsqlListDatabases(a, w, r) })
 	apiregistry.Handle(mux, a, "postgresql", "POST /api/postgresql/databases", func(w http.ResponseWriter, r *http.Request) { apiPsqlCreateDatabase(a, w, r) })
@@ -84,8 +79,7 @@ func apiPsqlDatabasesPostDispatch(a *appctx.App, w http.ResponseWriter, r *http.
 
 // ── Databases ────────────────────────────────────────────────────────────
 
-// apiPsqlListDatabases returns every non-system database along with which
-// users have been granted access to each.
+// apiPsqlListDatabases returns every non-system database along with which users have been granted access to each
 func apiPsqlListDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
@@ -140,8 +134,7 @@ func apiPsqlListDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	writeAPIPsqlJSON(w, http.StatusOK, map[string]any{"databases": databases, "total": len(databases)})
 }
 
-// apiPsqlCreateDatabase creates a new database, enforcing the plan's
-// database limit first.
+// apiPsqlCreateDatabase creates a new database, enforcing the plan's database limit first
 func apiPsqlCreateDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -233,8 +226,7 @@ func apiPsqlDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeAPIPsqlJSON(w, http.StatusOK, map[string]any{"name": dbName, "deleted": true})
 }
 
-// apiPsqlExportDatabase streams a `pg_dump` of the database as a
-// downloadable .sql file.
+// apiPsqlExportDatabase streams a `pg_dump` of the database as a downloadable .sql file
 func apiPsqlExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -394,8 +386,7 @@ func apiPsqlCreateUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIPsqlJSON(w, http.StatusCreated, map[string]string{"username": dbUser})
 }
 
-// apiPsqlDeleteUser revokes a user's privileges on every database and
-// drops the role.
+// apiPsqlDeleteUser revokes a user's privileges on every database and drops the role
 func apiPsqlDeleteUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -475,8 +466,7 @@ func apiPsqlChangeUserPassword(a *appctx.App, w http.ResponseWriter, r *http.Req
 
 // ── Grants ───────────────────────────────────────────────────────────────
 
-// apiPsqlGrant grants a user full privileges on a database plus USAGE/
-// CREATE on its public schema.
+// apiPsqlGrant grants a user full privileges on a database plus USAGE/CREATE on its public schema
 func apiPsqlGrant(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -563,8 +553,7 @@ func apiPsqlRevoke(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ── Info & processlist ───────────────────────────────────────────────────
 
-// apiPsqlInfo returns the combined databases/users/assigned-databases
-// payload used to populate client-side selects.
+// apiPsqlInfo returns the combined databases/users/assigned-databases payload used to populate client-side selects
 func apiPsqlInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
@@ -625,8 +614,7 @@ func apiPsqlInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIPsqlJSON(w, http.StatusOK, map[string]any{"databases": databases, "users": users, "assigned_databases": assigned})
 }
 
-// apiPsqlProcesslist returns the current pg_stat_activity rows, excluding
-// the connection running the query itself.
+// apiPsqlProcesslist returns the current pg_stat_activity rows, excluding the connection running the query itself
 func apiPsqlProcesslist(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
@@ -673,8 +661,7 @@ func apiPsqlProcesslist(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ── Remote access ────────────────────────────────────────────────────────
 
-// apiPsqlRemoteAccessStatus reports whether PostgreSQL's port is currently
-// exposed for remote access.
+// apiPsqlRemoteAccessStatus reports whether PostgreSQL's port is currently exposed for remote access
 func apiPsqlRemoteAccessStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -696,8 +683,7 @@ func apiPsqlRemoteAccessStatus(a *appctx.App, w http.ResponseWriter, r *http.Req
 	})
 }
 
-// apiPsqlRemoteAccessToggle enables or disables remote access by rebinding
-// PostgreSQL's exposed port between 0.0.0.0 and 127.0.0.1.
+// apiPsqlRemoteAccessToggle enables or disables remote access by rebinding PostgreSQL's exposed port between 0.0.0.0 and 127.0.0.1
 func apiPsqlRemoteAccessToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -749,8 +735,7 @@ func apiPsqlRemoteAccessToggle(a *appctx.App, w http.ResponseWriter, r *http.Req
 
 // ── Configuration ────────────────────────────────────────────────────────
 
-// apiPsqlGetConfig returns the current custom PostgreSQL config values
-// plus the set of keys allowed to be edited.
+// apiPsqlGetConfig returns the current custom PostgreSQL config values plus the set of keys allowed to be edited
 func apiPsqlGetConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
@@ -772,8 +757,7 @@ func apiPsqlGetConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIPsqlJSON(w, http.StatusOK, map[string]any{"configuration": currentConfig, "available_keys": availableConfKeys})
 }
 
-// apiPsqlUpdateConfig writes submitted config values (filtered to the
-// allowed key set) and restarts the postgres container to apply them.
+// apiPsqlUpdateConfig writes submitted config values (filtered to the allowed key set) and restarts the postgres container to apply them
 func apiPsqlUpdateConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

@@ -21,10 +21,7 @@ var (
 	removeDBUserRE = regexp.MustCompile(`'database_user'\s*=>\s*'([^']*)'`)
 )
 
-// handleRemovePrestashop fully uninstalls a PrestaShop site: drops the
-// database and user (parsed out of app/config/parameters.php), deletes the
-// whole install directory, and removes the sites row. Mirrors
-// opencart/nextcloud's handleRemove{OpenCart,Nextcloud}.
+// handleRemovePrestashop fully uninstalls a PrestaShop site: drops the db/user parsed out of app/config/parameters.php, deletes the install dir, and removes the sites row - mirrors opencart/nextcloud's handleRemove{OpenCart,Nextcloud}
 func handleRemovePrestashop(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

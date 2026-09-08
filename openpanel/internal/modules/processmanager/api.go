@@ -19,8 +19,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "process_manager", "DELETE /api/process-manager/{pid}", func(w http.ResponseWriter, r *http.Request) { apiProcessKill(a, w, r) })
 }
 
-// apiProcessList returns every process running across the user's
-// containers.
+// apiProcessList returns every process running across the user's containers
 func apiProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, userContext, err := injected(a, r)
 	if err != nil {
@@ -35,10 +34,7 @@ func apiProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"processes": processes, "count": len(processes)})
 }
 
-// apiProcessKill terminates a process by PID, using the container-scoped
-// `podman exec <container> kill -9 <pid>` also used by the UI route
-// (handleProcessManager) - a bare host-level `kill -9 <pid>` wouldn't hit
-// the intended process, since these are container-namespaced PIDs.
+// apiProcessKill terminates a process by PID using the container-scoped `podman exec <container> kill -9 <pid>` also used by the UI route, since these are container-namespaced PIDs a bare host-level kill wouldn't hit the right process
 func apiProcessKill(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	username, userContext, err := injected(a, r)

@@ -28,11 +28,7 @@ func loadPage(files ...string) *web.Page {
 var defaultVersionPage = loadPage("php/default.html")
 var settingsPage = loadPage("php/settings.html")
 
-// infoPage is a standalone document (its own {{define "layout"}}, no panel
-// chrome), since a raw `php -i` dump is meant to be viewed on its own, not
-// inside the sidebar/header shell. It must NOT be combined with pageFiles:
-// both it and base.html define "layout", and html/template panics on a
-// duplicate {{define}} within one template set.
+// infoPage is a standalone document (own {{define "layout"}}, no panel chrome) since a raw `php -i` dump is meant to be viewed on its own - must NOT be combined with pageFiles since both it and base.html define "layout" and html/template panics on a duplicate
 var infoPage = web.MustLoadPage("php/info.html")
 
 var iniEditorPage = loadPage("php/ini_editor.html")
@@ -133,8 +129,7 @@ func renderPHPIniEditorPage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// PHPOptionsPageData is php/options.html's template context (both the
-// version-picker state and the per-version options-table state).
+// PHPOptionsPageData is php/options.html's template context (both the version-picker state and the per-version options-table state)
 type PHPOptionsPageData struct {
 	web.LayoutData
 	Version           string
@@ -167,8 +162,7 @@ func renderPHPOptionsPage(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	}
 }
 
-// PHPExtensionsPageData is php/extensions.html's template context (both the
-// version-picker state and the per-version extensions-table state).
+// PHPExtensionsPageData is php/extensions.html's template context (both the version-picker state and the per-version extensions-table state)
 type PHPExtensionsPageData struct {
 	web.LayoutData
 	Version           string
@@ -205,8 +199,7 @@ func renderPHPExtensionsPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 }
 
-// PHPMyAdminUnavailablePageData is mysql/phpmyadmin_unavailable.html's
-// template context.
+// PHPMyAdminUnavailablePageData is mysql/phpmyadmin_unavailable.html's template context
 type PHPMyAdminUnavailablePageData struct {
 	web.LayoutData
 	ErrorMessage string

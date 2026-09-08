@@ -10,20 +10,14 @@ import (
 
 var initOnce sync.Once
 
-// ensureInit lazily loads the config-derived package state (available
-// config keys) exactly once, regardless of which Register* function - or
-// which order they're called in by RegisterAll - triggers it first.
+// ensureInit lazily loads the config-derived package state (available config keys) exactly once, regardless of which Register* function - or what order RegisterAll calls them in - triggers it first
 func ensureInit() {
 	initOnce.Do(func() {
 		loadConfKeys()
 	})
 }
 
-// Register wires the postgresql module's routes onto mux, plus the
-// always-on (login-only, no enabled_modules gate) /json/postgresql-size
-// route, since it has no registrar of its own to live in - the same
-// pragmatic stashing already used for /json/mysql-size in the mysql
-// package.
+// Register wires the postgresql module's routes onto mux, plus the always-on /json/postgresql-size route (login-only, no enabled_modules gate) since it has no registrar of its own - same pragmatic stashing as /json/mysql-size in the mysql package
 func Register(mux *http.ServeMux, a *appctx.App) {
 	ensureInit()
 	requireLogin := func(h http.HandlerFunc) http.Handler {

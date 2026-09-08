@@ -15,10 +15,7 @@ import (
 	"time"
 )
 
-// isSafeMember reports whether an extracted member resolves to somewhere
-// inside destinationPath - a zip-slip / tar-slip guard, duplicated from
-// internal/modules/filemanager/archive.go's isSafeMember since it's
-// unexported there.
+// isSafeMember reports whether an extracted member resolves to somewhere inside destinationPath - a zip-slip/tar-slip guard, duplicated from filemanager/archive.go's isSafeMember since it's unexported there
 func isSafeMember(destinationPath, memberName string) bool {
 	target := filepath.Join(destinationPath, memberName)
 	rel, err := filepath.Rel(destinationPath, target)
@@ -28,11 +25,7 @@ func isSafeMember(destinationPath, memberName string) bool {
 	return rel == "." || (rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)))
 }
 
-// validateArchiveMembers pre-checks every entry in the archive before
-// shelling out to unzip/tar, so a malicious archive can't write outside
-// destinationPath. Duplicated (zip/tar.gz/tgz/tar branches only, no bare
-// .gz - initial_project archives are always multi-file projects) from
-// filemanager's validateArchiveMembers.
+// validateArchiveMembers pre-checks every entry in the archive before shelling out to unzip/tar, so a malicious archive can't write outside destinationPath - duplicated from filemanager's validateArchiveMembers, minus the bare .gz branch since initial_project archives are always multi-file projects
 func validateArchiveMembers(archivePath, ext, destinationPath string) error {
 	switch ext {
 	case "zip":
@@ -78,9 +71,7 @@ func validateArchiveMembers(archivePath, ext, destinationPath string) error {
 	return nil
 }
 
-// downloadFile fetches url into a new temp file under dir, returning its
-// path. Capped at 200MB to keep a misbehaving/huge remote file from filling
-// disk.
+// downloadFile fetches url into a new temp file under dir, returning its path - capped at 200MB to keep a misbehaving/huge remote file from filling disk
 func downloadFile(ctx context.Context, url, dir, ext string) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -114,8 +105,7 @@ func downloadFile(ctx context.Context, url, dir, ext string) (string, error) {
 	return out.Name(), nil
 }
 
-// archiveExt returns the recognized archive extension for url ("zip",
-// "tar.gz", "tgz", or "tar"), matching isArchiveURL's regex.
+// archiveExt returns the recognized archive extension for url ("zip", "tar.gz", "tgz", or "tar"), matching isArchiveURL's regex
 func archiveExt(url string) string {
 	switch {
 	case strings.HasSuffix(strings.ToLower(url), ".tar.gz"):
@@ -129,11 +119,7 @@ func archiveExt(url string) string {
 	}
 }
 
-// downloadAndExtractInitialProject downloads an archive URL and extracts it
-// into hostDestPath (a host-filesystem path, e.g. resolved via
-// paths.SecureUserPath("HOME", ...) - the html_data volume is bind-mounted
-// there, so no podman exec is needed for this part; only Composer itself
-// needs to run inside the php-fpm container, since only it has PHP).
+// downloadAndExtractInitialProject downloads an archive URL and extracts it into hostDestPath - a host-filesystem path where the html_data volume is bind-mounted, so no podman exec is needed here; only Composer needs to run inside the php-fpm container since only it has PHP
 func downloadAndExtractInitialProject(ctx context.Context, url, hostDestPath string) error {
 	ext := archiveExt(url)
 	tmpDir := os.TempDir()

@@ -18,12 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors wordpress/backups.go's directory layout, naming and
-// restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,
-// files.tar.gz} structure under the user's html_data volume) - only the DB
-// name/prefix lookup differs, since PrestaShop has no wp-cli equivalent to
-// ask for it: extractPrestashopDatabaseInfoForLogin reads
-// app/config/parameters.php directly instead.
+// mirrors wordpress/backups.go's layout and restore/run logic exactly, just with the DB name/prefix read from app/config/parameters.php instead of wp-cli
 
 var prestashopBackupFolderRE = regexp.MustCompile(`^20\d{2}-`)
 
@@ -33,8 +28,7 @@ type prestashopBackupDateInfo struct {
 	HasFilesBackup bool   `json:"hasFilesBackup"`
 }
 
-// handlePrestashopGetBackupDates mirrors wordpress/backups.go's
-// handleGetBackupDates.
+// handlePrestashopGetBackupDates mirrors wordpress/backups.go's handleGetBackupDates
 func handlePrestashopGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
@@ -82,8 +76,7 @@ func handlePrestashopGetBackupDates(a *appctx.App, w http.ResponseWriter, r *htt
 
 var prestashopBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// handlePrestashopRestoreBackup mirrors wordpress/backups.go's
-// handleRestoreBackup.
+// handlePrestashopRestoreBackup mirrors wordpress/backups.go's handleRestoreBackup
 func handlePrestashopRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")
@@ -190,7 +183,7 @@ func handlePrestashopRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http
 	_, _ = w.Write([]byte("No files to restore, expected files: " + backupDatePathInContainer + "/files.tar.gz " + databaseSQLPathInContainer + "."))
 }
 
-// handlePrestashopRunBackup mirrors wordpress/backups.go's handleRunBackup.
+// handlePrestashopRunBackup mirrors wordpress/backups.go's handleRunBackup
 func handlePrestashopRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")

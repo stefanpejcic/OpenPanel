@@ -20,9 +20,7 @@ import (
 
 var importSecureFilenameRE = regexp.MustCompile(`[^A-Za-z0-9_.-]`)
 
-// secureFilename strips directory components and anything but ASCII
-// letters/digits/dot/dash/underscore, so an uploaded filename can't be used
-// to escape the target directory or inject odd characters into a path.
+// secureFilename strips directory components and anything but ASCII letters/digits/dot/dash/underscore, so an uploaded filename can't escape the target directory or inject odd characters into a path
 func secureFilename(name string) string {
 	name = filepath.Base(strings.ReplaceAll(name, "\\", "/"))
 	name = importSecureFilenameRE.ReplaceAllString(name, "_")
@@ -32,9 +30,7 @@ func secureFilename(name string) string {
 
 var importDBNameRE = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 
-// handlePostgresImportDB imports an uploaded .sql/.sql.gz dump into a
-// PostgreSQL database. urlDBName carries the optional
-// /postgresql/import/<dbname> URL segment.
+// handlePostgresImportDB imports an uploaded .sql/.sql.gz dump into a PostgreSQL database, urlDBName carries the optional /postgresql/import/<dbname> URL segment
 func handlePostgresImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -101,9 +97,7 @@ func handlePostgresImportDB(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	renderImportPage(a, w, r, urlDBName, http.StatusOK)
 }
 
-// importPostgresDump saves the upload, chowns it to the account's UID,
-// `podman cp`s it into the postgres container, then `psql -f`s it into the
-// target database.
+// importPostgresDump saves the upload, chowns it to the account's UID, `podman cp`s it into the postgres container, then `psql -f`s it into the target database
 func importPostgresDump(ctx context.Context, userContext, dbName, targetDir, tempFilePath, filename string, uploaded io.Reader) (bool, string) {
 	if mkErr := os.MkdirAll(targetDir, 0o755); mkErr != nil {
 		return false, mkErr.Error()

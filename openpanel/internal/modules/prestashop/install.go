@@ -21,8 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// handleInstallPage renders the install form / checks the plan's site
-// limit for a GET, and hands POST off to handleInstallStream.
+// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -60,9 +59,7 @@ func formOr(r *http.Request, key, def string) string {
 	return def
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up (mirrors joomla/drupal/opencart/nextcloud's
-// identical helper).
+// ensureContainerRunning starts the container if it isn't already running and polls briefly for it to come up, mirrors joomla/drupal/opencart/nextcloud's identical helper
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -78,18 +75,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// ensureContainerTmpOnSameFilesystem makes the given PHP container's own
-// /tmp resolve onto the same filesystem as /var/www/html, by replacing it
-// with a symlink into a shared, sticky-bit directory under /var/www/html
-// (idempotent - a no-op once already applied). Confirmed live: PHP's
-// sys_temp_dir cannot be overridden per-directory (it's PHP_INI_SYSTEM
-// scope, .user.ini is silently ignored), so redirecting the literal /tmp
-// path at the filesystem level is the only mechanism that actually works;
-// every PHP tempnam()/rename() call using the hardcoded "/tmp" string
-// transparently lands on the right device with no PHP-level configuration
-// needed. This affects every domain sharing this PHP version's container,
-// which is intentional and always safe - it fixes an existing filesystem
-// mismatch, it doesn't introduce one.
+// ensureContainerTmpOnSameFilesystem makes the container's /tmp resolve onto the same filesystem as /var/www/html by symlinking it into a shared sticky-bit dir there (idempotent) - PHP's sys_temp_dir can't be overridden per-directory (PHP_INI_SYSTEM scope, .user.ini ignored), so a filesystem-level redirect of /tmp itself is the only thing that works; applies container-wide, which is intentional and safe
 func ensureContainerTmpOnSameFilesystem(ctx context.Context, userContext, phpContainer string) {
 	script := `set -e
 if [ -L /tmp ]; then exit 0; fi
@@ -102,14 +88,7 @@ ln -s /var/www/html/.php-tmp /tmp
 	_ = podmanmanager.Command(ctx, userContext, argv).Run()
 }
 
-// unpackPrestashopArchive extracts the real application from a GitHub
-// release asset, which (confirmed live against 8.2.7) is a two-layer
-// package: prestashop_<version>.zip contains index.php,
-// Install_PrestaShop.html, and an INNER prestashop.zip - that inner zip is
-// the actual flat-root application (no wrapper folder, unlike
-// OpenCart's upload/ or Nextcloud's nextcloud/ subtree). This extracts the
-// outer zip's prestashop.zip member to a temp file, then unzips that
-// directly into destDir.
+// unpackPrestashopArchive extracts the real application from a GitHub release asset, which is a two-layer package: prestashop_<version>.zip contains an inner prestashop.zip, itself the actual flat-root application (no wrapper folder) - this extracts the inner zip to a temp file, then unzips that directly into destDir
 func unpackPrestashopArchive(ctx context.Context, archivePath, destDir string) error {
 	tmpDir := destDir + ".extract-tmp"
 	script := `set -e
@@ -136,22 +115,8 @@ type execError struct {
 func (e *execError) Error() string { return e.msg }
 func (e *execError) Unwrap() error { return e.err }
 
-// handleInstallStream drives a PrestaShop install end to end, streaming
-// NDJSON progress events: download the release asset from GitHub, extract
-// its inner prestashop.zip directly into the docroot, create a MySQL
-// database, then run PrestaShop's own `install/index_cli.php install` CLI
-// installer (confirmed live against a real 8.2.7 release - its argv parser
-// only recognises `--flag=value` single-element pairs, the opposite of
-// OpenCart's space-separated form, so don't copy that pattern here).
-//
-// Immediately after a successful install, the admin/ directory is renamed
-// to a random name and install/ is removed - PrestaShop's own
-// AdminLoginController does the admin/ rename itself automatically the
-// first time any admin controller loads in a browser (confirmed live), but
-// leaving that to chance means the directory sits at the guessable default
-// "admin" until some visitor happens to trigger it; doing it here removes
-// that window and matches doing the rename before any credentials or
-// login links reference the path.
+// handleInstallStream drives a PrestaShop install end to end over NDJSON: download the release asset, extract inner prestashop.zip into the docroot, create the DB, run install/index_cli.php install (its argv parser only recognizes "--flag=value", the opposite of OpenCart's space-separated form)
+// immediately after a successful install, admin/ is renamed to a random name and install/ is removed - PrestaShop's own AdminLoginController does the rename automatically on first browser load, but doing it here closes the window where admin/ sits at its guessable default name
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -290,13 +255,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Host-side chown, not `podman exec ... chown` - the archive was
-	// extracted host-side, so the files are owned by this process's own
-	// (real, unmapped) UID. A rootless container's own "root" is confined
-	// to its user-namespace's UID range and cannot chown files it doesn't
-	// already own outside that mapping (confirmed live while building the
-	// Joomla module: that silently failed with "Operation not permitted",
-	// leaving the docroot unwritable by the container's PHP process).
+	// host-side chown, not podman exec chown - a rootless container's root can't chown files outside its UID mapping (silently failed with "Operation not permitted" when building Joomla)
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr != nil {
@@ -311,23 +270,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// PrestaShop's vendored Symfony Filesystem component (and its own
-	// LegacyClassLoader) write cache files atomically via a tmp-file-then-
-	// rename() pattern. Confirmed live: this container's /tmp is a
-	// different filesystem (fuseblk) from the docroot's bind-mounted volume
-	// (ext2/ext3) - rename() across filesystems always fails with EXDEV.
-	// A `sys_temp_dir` override in .user.ini does NOT fix this - confirmed
-	// live that ini_get('sys_temp_dir') stays empty and sys_get_temp_dir()
-	// keeps returning /tmp regardless, because sys_temp_dir is a
-	// PHP_INI_SYSTEM directive (php.ini/pool-level only, never
-	// per-directory). The only mechanism that actually works is a
-	// filesystem-level fix: point the container's own /tmp at a directory
-	// that lives under /var/www/html (the same bind-mounted filesystem
-	// every domain's docroot is on), so PHP's hardcoded "/tmp" path string
-	// transparently resolves onto the right device at the kernel level -
-	// no ini setting involved. This is a container-wide fix (shared by
-	// every domain on this PHP version), not per-install, so it's applied
-	// once, idempotently, rather than per-domain.
+	// PrestaShop's Symfony Filesystem component writes cache files via tmp-file-then-rename(), which fails with EXDEV since the container's /tmp is a different filesystem than the docroot's bind mount - sys_temp_dir can't fix this (PHP_INI_SYSTEM scope), so ensureContainerTmpOnSameFilesystem redirects /tmp itself at the kernel level instead
 	emit(map[string]any{"status": "Ensuring PHP container temp directory is writable across filesystems"})
 	ensureContainerTmpOnSameFilesystem(ctx, userContext, phpContainer)
 
@@ -368,10 +311,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	invalidateMySQLCaches(ctx, a, userContext, currentUsername)
 
 	emit(map[string]any{"status": "Running PrestaShop CLI installer"})
-	// index_cli.php's own argv parser (install/classes/datas.php,
-	// getAndCheckArgs()) only recognises `--flag=value` single-element
-	// pairs via a regex on each argv entry - space-separated `--flag value`
-	// silently drops the value, confirmed live against 8.2.7.
+	// index_cli.php's argv parser only recognizes "--flag=value" single-element pairs - space-separated "--flag value" silently drops the value
 	installArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "php"),
 		installPath+"/install/index_cli.php",
 		"--domain="+dom.DomainURL,
@@ -401,17 +341,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Warming up production cache"})
-	// PrestaShop's CLI installer does NOT compile/warm the Symfony prod
-	// container cache the way the browser-based installer's own final
-	// redirect does - confirmed live: without this, the very first real
-	// HTTP request to the site (front office OR admin) fatals with
-	// "require_once(): Failed opening required '.../var/cache/prod/
-	// appParameters.php'", because that file only gets generated on first
-	// access, and a stray concurrent request during that window can leave
-	// the cache half-written and permanently broken. Warming it here, once,
-	// in a single controlled step right after install avoids that race
-	// entirely - this mirrors what PrestaShop's own documentation
-	// recommends running by hand after a CLI install.
+	// the CLI installer doesn't warm the Symfony prod cache the way the browser installer's final redirect does - without this, the first real HTTP request fatals opening var/cache/prod/appParameters.php, and a stray concurrent request during that window can leave the cache half-written and permanently broken, so warm it here once in a controlled step
 	warmupArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "php"),
 		"-d", "sys_temp_dir="+installPath+"/var/tmp",
 		installPath+"/bin/console", "cache:warmup", "--env=prod")
@@ -420,21 +350,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "Removing installer folder"})
 	_ = podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath+"/install")).Run()
 
-	// PrestaShop's front/admin controllers need real runtime write access
-	// to several cache/asset directories (var/cache, var/logs, per-theme
-	// assets/cache for CCC JS/CSS compilation, config/, etc) - confirmed
-	// live these get written by the actual PHP-FPM worker process (uid of
-	// the "www-data" pool user), which is NOT the same uid the docroot is
-	// chowned to above (that's the container's own mapped "root", used so
-	// the CLI installer - run via `podman exec` as that mapped root - can
-	// write everything at install time). Applied AFTER the installer runs,
-	// not before: the installer itself recreates var/cache/config/etc as
-	// the mapped root with default restrictive permissions, which would
-	// silently undo an earlier chmod. Since the worker's exact uid isn't
-	// reliably knowable in advance, world-write on just these known-
-	// writable folders is what PrestaShop's own hosting docs recommend,
-	// scoped to cache/asset/config directories only - not the PHP source
-	// tree.
+	// the front/admin controllers need runtime write access to cache/asset dirs, written by the php-fpm worker's uid rather than the mapped root the docroot is chowned to - applied after the installer runs since the installer recreates these dirs with restrictive permissions, undoing an earlier chmod; world-write on just these known-writable folders is what PrestaShop's own hosting docs recommend
 	emit(map[string]any{"status": "Setting permissions on writable directories"})
 	writableDirs := []string{"var", "config", "img", "mails", "modules", "translations", "upload", "download", "themes"}
 	for _, d := range writableDirs {
@@ -442,9 +358,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Securing admin directory"})
-	// See the comment above handleInstallStream: doing this ourselves,
-	// right after install, avoids ever leaving the admin/ directory at its
-	// guessable default name.
+	// see handleInstallStream's doc comment: doing this right after install avoids ever leaving admin/ at its guessable default name
 	adminDirName := "admin" + generateRandomString(20)
 	if renameErr := os.Rename(filepath.Join(hostOSPath, "admin"), filepath.Join(hostOSPath, adminDirName)); renameErr != nil {
 		emit(map[string]any{"status": "Warning: could not rename admin directory: " + renameErr.Error()})
@@ -478,9 +392,7 @@ func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, curr
 	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
 }
 
-// emitCleanupFiles removes a failed install's partially-created directory -
-// like joomla/opencart/nextcloud's identical helper, always safe to blow
-// away entirely since it's always a directory install.go just created.
+// emitCleanupFiles removes a failed install's partially-created directory, always safe since it's a directory install.go just created
 func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)
 	if err := podmanmanager.Command(ctx, userContext, argv).Run(); err != nil {

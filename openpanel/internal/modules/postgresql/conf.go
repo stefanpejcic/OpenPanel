@@ -13,8 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// defaultConfKeys is the built-in set of postgresql.conf keys exposed for
-// editing when no admin-provided keys file exists.
+// defaultConfKeys is the built-in set of postgresql.conf keys exposed for editing when no admin-provided keys file exists
 var defaultConfKeys = []string{
 	"max_connections", "shared_buffers", "work_mem", "maintenance_work_mem",
 	"effective_cache_size", "max_worker_processes", "max_parallel_workers",
@@ -27,8 +26,7 @@ var defaultConfKeys = []string{
 
 const confKeysFile = "/etc/openpanel/postgres/keys.txt"
 
-// availableConfKeys is the admin-editable keys file if present, else
-// defaultConfKeys, loaded once at Register() time.
+// availableConfKeys is the admin-editable keys file if present, else defaultConfKeys, loaded once at Register() time
 var availableConfKeys = defaultConfKeys
 
 func loadConfKeys() {
@@ -63,9 +61,7 @@ func readPostgresConfigFile(userContext string) (string, error) {
 	return string(content), nil
 }
 
-// parsePostgresConfigContent parses "key = value" lines into a map,
-// skipping blank lines, full-line comments, and section headers, and
-// stripping trailing inline comments.
+// parsePostgresConfigContent parses "key = value" lines into a map, skipping blank lines, full-line comments, and section headers, and stripping trailing inline comments
 func parsePostgresConfigContent(content string) map[string]string {
 	config := map[string]string{}
 	for _, rawLine := range strings.Split(content, "\n") {
@@ -90,9 +86,7 @@ func parsePostgresConfigContent(content string) map[string]string {
 	return config
 }
 
-// updatePostgresConfigFile: for every key in newConfig, replaces its
-// existing (possibly commented-out) line in place, or appends a new line
-// if the key isn't present yet.
+// updatePostgresConfigFile replaces each key in newConfig's existing (possibly commented-out) line in place, or appends a new line if the key isn't present yet
 func updatePostgresConfigFile(userContext string, newConfig map[string]string, keyOrder []string) {
 	path := postgresConfPath(userContext)
 	content, _ := os.ReadFile(path)
@@ -131,8 +125,7 @@ func updatePostgresConfigFile(userContext string, newConfig map[string]string, k
 	_ = os.WriteFile(path, []byte(strings.Join(lines, "\n")+"\n"), 0o644)
 }
 
-// handleEditPostgresConfig saves the submitted config values and restarts
-// the postgres container to apply them, then renders the current config.
+// handleEditPostgresConfig saves the submitted config values and restarts the postgres container to apply them, then renders the current config
 func handleEditPostgresConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

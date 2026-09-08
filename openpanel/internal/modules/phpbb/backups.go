@@ -19,11 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors flarum/backups.go's directory layout, naming and
-// restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,
-// files.tar.gz} structure) - only the DB name lookup differs, since
-// phpBB's config.php uses a plain $dbname = '...'; assignment rather than
-// Flarum's PHP-array 'database' => '...' key.
+// mirrors flarum/backups.go's layout and restore/run logic exactly, just with the DB name read via phpBB's plain $dbname = '...'; assignment instead of Flarum's PHP-array 'database' => '...' key
 
 func toStringCell(v any) string {
 	switch t := v.(type) {
@@ -50,8 +46,7 @@ func toStringCell(v any) string {
 
 func itoa(n int) string { return strconv.Itoa(n) }
 
-// extractPhpbbDatabaseInfoForBackup reads config.php straight off the
-// host filesystem, reusing phpbbDBNameRE (defined in manage.go).
+// extractPhpbbDatabaseInfoForBackup reads config.php straight off the host filesystem, reusing phpbbDBNameRE (defined in manage.go)
 func extractPhpbbDatabaseInfoForBackup(userContext, docroot string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
 	if !strings.HasPrefix(docroot, wwwPrefix) {
@@ -178,18 +173,7 @@ func handlePhpbbRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Requ
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
 			return
 		}
-		// tar (run here as a plain host process, not inside the
-		// container) restores each entry's exact archived numeric
-		// ownership - since files.tar.gz was created via `tar -czf`
-		// *inside* the container, that's the container-internal uid
-		// (0/root), not the host uid the container's own rootless podman
-		// mapping expects. Left unfixed, every restored file/dir shows up
-		// as unmapped ("nobody") inside the container - confirmed live:
-		// phpBB's own lazily-created cache/production/ dir came back
-		// owned by nobody:nogroup after a restore, and every request
-		// then fataled with "Unable to write to the cache directory".
-		// Re-chowning to the account's real uid after extraction (same
-		// as install.go's own post-extract step) fixes it.
+		// tar run host-side restores each entry's container-internal uid (root), not the host uid the rootless podman mapping expects - left unfixed, restored files show up as nobody:nogroup and phpBB fatals writing to cache/production/, so re-chown after extraction like install.go does
 		if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
 			_ = exec.CommandContext(ctx, "chown", "-R", itoa(uid)+":"+itoa(uid), docrootOnHostOS).Run()
 		}

@@ -14,11 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// prestashopRequestParams pulls the domain/docroot query params every
-// handler in this file needs, splits the main domain out of a possible
-// subdirectory suffix, verifies ownership, and resolves the PHP container -
-// shared by cache/logs/login, mirroring opencart/nextcloud's
-// {opencart,nextcloud}RequestParams.
+// prestashopRequestParams pulls domain/docroot, splits off any subdirectory suffix, checks ownership, and resolves the PHP container - shared by cache/logs/login, mirrors opencart/nextcloud's {opencart,nextcloud}RequestParams
 func prestashopRequestParams(ctx context.Context, a *appctx.App, r *http.Request, userID int, userContext string) (domain, docroot, phpContainer string, ok bool) {
 	domain = r.URL.Query().Get("domain")
 	docroot = r.URL.Query().Get("docroot")
@@ -43,10 +39,7 @@ func prestashopRequestParams(ctx context.Context, a *appctx.App, r *http.Request
 	return domain, docroot, phpContainer, true
 }
 
-// handlePrestashopCacheClean clears PrestaShop's Symfony prod cache via its
-// bundled console (confirmed live: `php bin/console cache:clear --env=prod`
-// works against a real install and is the standard, documented way -
-// PrestaShop has no separate admin-tab-only cache mechanism beyond this).
+// handlePrestashopCacheClean clears PrestaShop's Symfony prod cache via its bundled console (`php bin/console cache:clear --env=prod`), the standard documented way since PrestaShop has no other cache mechanism
 func handlePrestashopCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -72,10 +65,7 @@ func handlePrestashopCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Re
 	writeJSON(w, http.StatusOK, map[string]string{"message": "Cache cleared successfully."})
 }
 
-// handlePrestashopLogs tails the newest file under var/logs/ (PrestaShop's
-// Symfony logger writes one file per environment per day, e.g.
-// prod-2026-08-15.log - there's no single fixed filename the way
-// OpenCart/Nextcloud have, so this picks whichever sorts newest by mtime).
+// handlePrestashopLogs tails the newest file under var/logs/ - PrestaShop's Symfony logger writes one file per environment per day, no single fixed filename like OpenCart/Nextcloud, so this picks whichever sorts newest by mtime
 func handlePrestashopLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)
@@ -106,14 +96,7 @@ func handlePrestashopLogs(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	_, _ = w.Write(out)
 }
 
-// handlePrestashopLogin generates a one-time admin login link. PrestaShop
-// core ships no CLI command for this, so this mirrors joomla/opencart's
-// approach: a small token table (created here lazily, isolated from
-// PrestaShop's own schema) plus a login helper PHP file deployed into the
-// (randomly-named) admin directory at install time (see login_php.go) that
-// verifies the token then binds the admin employee to a real session
-// through the same cookie fields PrestaShop's own login controller sets
-// after a successful password check.
+// handlePrestashopLogin generates a one-time admin login link, mirrors joomla/opencart's approach with a lazily-created token table plus the login helper PHP deployed into the randomly-named admin directory at install time (see login_php.go)
 func handlePrestashopLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -158,8 +141,7 @@ func handlePrestashopLogin(a *appctx.App, w http.ResponseWriter, r *http.Request
 		"CREATE TABLE IF NOT EXISTS `"+prefix+"openpanel_login_tokens` ("+
 			"token_hash CHAR(64) PRIMARY KEY, user_id INT UNSIGNED NOT NULL, expires INT UNSIGNED NOT NULL)", dbName)
 
-	// id_profile = 1 is PrestaShop's default seeded "SuperAdmin" profile -
-	// confirmed live against a fresh 8.2.7 install's ps_employee row.
+	// id_profile = 1 is PrestaShop's default seeded "SuperAdmin" profile
 	rows, queryErr := mysqlmanager.Exec(ctx, userContext,
 		"SELECT id_employee FROM `"+prefix+"employee` WHERE id_profile = 1 AND active = 1 ORDER BY id_employee ASC LIMIT 1", dbName)
 	if queryErr != nil || len(rows) == 0 {
@@ -188,11 +170,7 @@ func handlePrestashopLogin(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusOK, map[string]string{"login_link": loginLink})
 }
 
-// mappedDocroot converts a container docroot path (/var/www/html/...) into
-// its host-side equivalent under the user's html_data volume - the same
-// mapping install.go computes as hostOSPath, needed here too since
-// findAdminDir reads the directory listing straight off disk rather than
-// through podman exec.
+// mappedDocroot converts a container docroot path into its host-side equivalent under the user's html_data volume - same mapping install.go computes as hostOSPath, needed here since findAdminDir reads the directory listing straight off disk rather than through podman exec
 func mappedDocroot(userContext, docroot string) string {
 	return "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(docroot, "/var/www/html/")
 }

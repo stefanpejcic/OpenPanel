@@ -1,7 +1,4 @@
-// Package postgresql implements database/user CRUD, the creation wizard,
-// privilege assignment, import, per-service configuration, remote access,
-// and the process list - all built on internal/core/postgresmanager's
-// per-(user, database) connection pool.
+// Package postgresql implements database/user CRUD, the creation wizard, privilege assignment, import, per-service configuration, remote access, and the process list - all built on internal/core/postgresmanager's per-(user, database) connection pool.
 package postgresql
 
 import (
@@ -19,8 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// restrictedUsers is the set of built-in/system PostgreSQL role names that
-// users are never allowed to create, edit, or delete.
+// restrictedUsers is the set of built-in/system PostgreSQL role names that users are never allowed to create, edit, or delete
 var restrictedUsers = map[string]bool{
 	"postgres": true, "pg_signal_backend": true, "pg_read_all_data": true,
 	"pg_write_all_data": true, "pg_monitor": true, "pg_read_all_settings": true,
@@ -32,8 +28,7 @@ func isRestrictedUser(name string) bool {
 	return restrictedUsers[strings.ToLower(name)]
 }
 
-// restrictedDatabases is the set of built-in/system database names that
-// users are never allowed to create, rename, or drop.
+// restrictedDatabases is the set of built-in/system database names that users are never allowed to create, rename, or drop
 var restrictedDatabases = map[string]bool{
 	"postgres": true, "template0": true, "template1": true,
 	"information_schema": true, "pg_catalog": true,
@@ -43,10 +38,7 @@ func isRestrictedDatabase(name string) bool {
 	return restrictedDatabases[name]
 }
 
-// filteredRoles is the longer role-name exclusion list used by pg_roles
-// queries - a superset of restrictedUsers, including roles that were never
-// registration-blocked but shouldn't show up in the regular "show system
-// users" toggle.
+// filteredRoles is the longer role-name exclusion list used by pg_roles queries - a superset of restrictedUsers, including roles that were never registration-blocked but shouldn't show up in the regular "show system users" toggle
 var filteredRoles = []string{
 	"postgres", "pg_signal_backend", "pg_read_all_data", "pg_write_all_data",
 	"pg_read_all_settings", "pg_read_server_files", "pg_write_server_files",
@@ -66,11 +58,7 @@ func filteredRolesSQL() string {
 	return out
 }
 
-// postgresContainerStatusDetail builds the explanatory text shown in the
-// databases table's empty-state row while the service isn't
-// running/healthy - mirrors mysqlContainerStatusDetail so both templates
-// give users the same guidance. Returns "" for the running+healthy case,
-// where the real table rows render instead.
+// postgresContainerStatusDetail builds the explanatory text shown in the databases table's empty-state row while the service isn't running/healthy - mirrors mysqlContainerStatusDetail so both templates give the same guidance, returns "" for the running+healthy case
 func postgresContainerStatusDetail(containerState, healthStatus string) string {
 	switch containerState {
 	case "not_found":
@@ -139,9 +127,7 @@ func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, cat
 	http.Redirect(w, r, path, http.StatusFound)
 }
 
-// flashSess adds a flash message without redirecting - several handlers
-// here fall through to the same GET rendering logic below on error rather
-// than redirecting.
+// flashSess adds a flash message without redirecting - several handlers here fall through to the same GET rendering logic below on error rather than redirecting
 func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	flash.Add(sess, category, message)
@@ -154,9 +140,7 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// toStringCell converts one postgresmanager.Exec result cell to a string.
-// lib/pq hands back native Go strings for text columns (unlike the MySQL
-// driver's []byte), but this stays tolerant of both.
+// toStringCell converts one postgresmanager.Exec result cell to a string - lib/pq hands back native Go strings for text columns (unlike the MySQL driver's []byte), but this stays tolerant of both
 func toStringCell(v any) string {
 	switch t := v.(type) {
 	case nil:
@@ -170,10 +154,7 @@ func toStringCell(v any) string {
 	}
 }
 
-// genericCellString stringifies whatever concrete type the driver hands
-// back for an arbitrary pg_stat_activity column (int64, time.Time, bool,
-// ...), for building the pipe-delimited process list line. Unlike
-// toStringCell (strict, text-column-only), this accepts any type.
+// genericCellString stringifies whatever concrete type the driver hands back for an arbitrary pg_stat_activity column, for building the pipe-delimited process list line - unlike toStringCell (strict, text-column-only), this accepts any type
 func genericCellString(v any) string {
 	switch t := v.(type) {
 	case nil:
@@ -206,9 +187,7 @@ func toFloatCell(v any) float64 {
 	}
 }
 
-// checkPostgresInsideContainer makes a single connection attempt (no
-// retry/polling loop - that behavior belongs to the install wizard, out of
-// scope here).
+// checkPostgresInsideContainer makes a single connection attempt - no retry/polling loop, that behavior belongs to the install wizard, out of scope here
 func checkPostgresInsideContainer(ctx context.Context, userContext string) bool {
 	_, err := postgresmanager.Exec(ctx, userContext, "SELECT 1", "postgres")
 	return err == nil

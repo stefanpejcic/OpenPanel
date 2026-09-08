@@ -13,8 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// handleDatabasesUsers lists the PostgreSQL roles, starting the container
-// in the background if it isn't running yet.
+// handleDatabasesUsers lists the PostgreSQL roles, starting the container in the background if it isn't running yet
 func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
@@ -112,8 +111,7 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	renderCreateUserPage(a, w, r)
 }
 
-// handleDatabasesPassword renders the change-password form for one
-// existing user.
+// handleDatabasesPassword renders the change-password form for one existing user
 func handleDatabasesPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	dbUser := r.PathValue("db_user")
 	if isRestrictedUser(dbUser) {
@@ -123,8 +121,7 @@ func handleDatabasesPassword(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	renderChangePasswordPage(a, w, r, dbUser)
 }
 
-// handleDeletePostgresUser revokes a user's privileges on every database
-// and drops the role.
+// handleDeletePostgresUser revokes a user's privileges on every database and drops the role
 func handleDeletePostgresUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

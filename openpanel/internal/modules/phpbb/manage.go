@@ -14,9 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// phpbbDBNameRE extracts $dbname from config.php - same shape as
-// drupal/websites.go's settings.php scrapes, needed here so remove can
-// drop the right database (unlike sofawiki/dokuwiki, phpBB has one).
+// phpbbDBNameRE extracts $dbname from config.php - same shape as drupal/websites.go's settings.php scrapes, needed here so remove can drop the right database
 var phpbbDBNameRE = regexp.MustCompile(`\$dbname\s*=\s*'(.*?)';`)
 
 func handleRemovePhpbb(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -63,10 +61,7 @@ func handleRemovePhpbb(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		installPath = strings.TrimSuffix(docroot, "/") + "/" + strings.Join(subdirectory, "/")
 	}
 
-	// Drop the database too, if config.php can still be read - a
-	// best-effort cleanup, same as flarum/manage.go's uninstall (missing
-	// or unreadable config.php just means only the files/site-row get
-	// cleaned up, not a hard failure).
+	// drop the database too if config.php can still be read - best-effort, same as flarum/manage.go's uninstall
 	if out, catErr := podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "cat", installPath+"/config.php")).Output(); catErr == nil {
 		if m := phpbbDBNameRE.FindSubmatch(out); m != nil {
 			dbName := string(m[1])

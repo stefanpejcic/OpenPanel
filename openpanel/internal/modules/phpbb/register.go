@@ -9,10 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// Register wires the phpBB install/remove/clone/backup routes onto mux,
-// gated behind the "phpbb" feature flag. No update route - see phpbb.go's
-// package doc comment for why (browser-link-only, like Joomla/OpenCart/
-// PrestaShop).
+// Register wires the phpBB install/remove/clone/backup routes onto mux, gated behind the "phpbb" feature flag - no update route, see phpbb.go's package doc comment for why (browser-link-only, like Joomla/OpenCart/PrestaShop)
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "phpbb")(h)
@@ -25,9 +22,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /phpbb/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePhpbbClone(a, w, r) }))
 }
 
-// withPhpbbForm clones r as a POST carrying the given values as both Form
-// and PostForm, so a UI handler that reads r.FormValue(...) sees exactly
-// the fields the API's JSON body supplied.
+// withPhpbbForm clones r as a POST carrying the given values as both Form and PostForm, so a UI handler that reads r.FormValue(...) sees exactly the fields the API's JSON body supplied
 func withPhpbbForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost

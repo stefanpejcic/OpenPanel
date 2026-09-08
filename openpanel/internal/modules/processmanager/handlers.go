@@ -20,9 +20,7 @@ type killRequest struct {
 	Container string `json:"container"`
 }
 
-// handleProcessManager serves the process manager page. GET lists (or,
-// with ?output=json, dumps) every process running across the user's
-// containers; POST terminates one.
+// handleProcessManager serves the process manager page - GET lists (or, with ?output=json, dumps) every process running across the user's containers; POST terminates one
 func handleProcessManager(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	username, userContext, err := injected(a, r)
 	if err != nil {
@@ -86,8 +84,7 @@ func handleProcessManager(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	renderProcessManagerPage(a, w, r, filterDisplayable(processes))
 }
 
-// filterDisplayable drops entrypoint/healthcheck noise rows before
-// rendering the table.
+// filterDisplayable drops entrypoint/healthcheck noise rows before rendering the table
 func filterDisplayable(processes []Process) []Process {
 	var out []Process
 	for _, p := range processes {
