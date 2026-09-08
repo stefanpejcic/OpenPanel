@@ -18,11 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors wordpress/backups.go's (and every other CMS module's)
-// directory layout, naming and restore/run logic exactly - same
-// backups/<domain>/<timestamp>/{database.sql,files.tar.gz} structure under
-// the user's html_data volume. Only the DB name/prefix lookup differs:
-// extractMatomoDatabaseInfoForBackup reads config/config.ini.php directly.
+// mirrors wordpress/backups.go's (and every other CMS module's) layout and restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,files.tar.gz} structure) - only the DB name/prefix lookup differs, since extractMatomoDatabaseInfoForBackup reads config/config.ini.php directly
 
 var matomoBackupFolderRE = regexp.MustCompile(`^20\d{2}-`)
 
@@ -32,8 +28,7 @@ type matomoBackupDateInfo struct {
 	HasFilesBackup bool   `json:"hasFilesBackup"`
 }
 
-// handleMatomoGetBackupDates mirrors wordpress/backups.go's
-// handleGetBackupDates.
+// handleMatomoGetBackupDates mirrors wordpress/backups.go's handleGetBackupDates
 func handleMatomoGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
@@ -81,8 +76,7 @@ func handleMatomoGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 var matomoBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// handleMatomoRestoreBackup mirrors wordpress/backups.go's
-// handleRestoreBackup.
+// handleMatomoRestoreBackup mirrors wordpress/backups.go's handleRestoreBackup
 func handleMatomoRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")

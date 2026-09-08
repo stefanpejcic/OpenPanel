@@ -14,10 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// matomoRequestParams pulls the domain/docroot query params every handler
-// in this file needs, splits the main domain out of a possible subdirectory
-// suffix, verifies ownership, and resolves the PHP container - mirrors
-// prestashop/opencart/nextcloud's identical {cms}RequestParams.
+// matomoRequestParams pulls the domain/docroot query params every handler in this file needs, splits the main domain from any subdirectory suffix, verifies ownership, and resolves the PHP container - mirrors prestashop/opencart/nextcloud's identical {cms}RequestParams
 func matomoRequestParams(ctx context.Context, a *appctx.App, r *http.Request, userID int, userContext string) (domain, docroot, phpContainer string, ok bool) {
 	domain = r.URL.Query().Get("domain")
 	docroot = r.URL.Query().Get("docroot")
@@ -43,7 +40,6 @@ func matomoRequestParams(ctx context.Context, a *appctx.App, r *http.Request, us
 }
 
 // handleMatomoCacheClean runs Matomo's own `console core:clear-caches`
-// (confirmed present in a real 5.12.0 release's CoreConsole commands).
 func handleMatomoCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -69,10 +65,7 @@ func handleMatomoCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusOK, map[string]string{"message": "Cache cleared successfully."})
 }
 
-// handleMatomoLogs tails the newest file under tmp/logs/ - Matomo's Monolog
-// setup writes one file per environment (typically tmp/logs/matomo.log),
-// picking whichever sorts newest by mtime mirrors prestashop's identical
-// approach rather than assuming a single fixed filename.
+// handleMatomoLogs tails the newest file under tmp/logs/ - Matomo's Monolog setup writes one file per environment (typically tmp/logs/matomo.log), picking whichever sorts newest by mtime mirrors prestashop's identical approach rather than assuming a single fixed filename
 func handleMatomoLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)
@@ -103,11 +96,7 @@ func handleMatomoLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(out)
 }
 
-// handleMatomoLogin returns a one-time login link pointing at the
-// openpanel-login.php helper deployed at install time (see login_php.go) -
-// unlike the other CMS modules, no per-request DB token is minted here,
-// since the helper's own baked-in secret token (generated once at install,
-// see login_support.go's saveMatomoCredentials) already gates it.
+// handleMatomoLogin returns a one-time login link pointing at the openpanel-login.php helper deployed at install time (see login_php.go) - unlike the other CMS modules, no per-request DB token is minted here, since the helper's own baked-in secret token (generated once at install, see login_support.go's saveMatomoCredentials) already gates it
 func handleMatomoLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, _, err := injected(a, r)

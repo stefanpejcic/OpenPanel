@@ -21,8 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// handleInstallPage renders the install form / checks the plan's site
-// limit for a GET, and hands POST off to handleInstallStream.
+// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -60,9 +59,7 @@ func formOr(r *http.Request, key, def string) string {
 	return def
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up (mirrors joomla/drupal/opencart/
-// nextcloud/prestashop's identical helper).
+// ensureContainerRunning starts the container if it isn't already running, polling briefly for it to come up (mirrors joomla/drupal/opencart/nextcloud/prestashop's identical helper)
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -78,13 +75,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// ensureContainerTmpOnSameFilesystem makes the given PHP container's own
-// /tmp resolve onto the same filesystem as /var/www/html - identical fix to
-// prestashop/install.go's helper of the same name (see that file's comment
-// for the full rationale: sys_temp_dir can't be overridden per-directory,
-// so redirecting /tmp at the filesystem level is the only mechanism that
-// actually works). Applied defensively here too since Matomo's installer
-// also writes temp files during the DB setup step.
+// ensureContainerTmpOnSameFilesystem makes the given PHP container's own /tmp resolve onto the same filesystem as /var/www/html - identical fix to prestashop/install.go's helper of the same name (sys_temp_dir can't be overridden per-directory, so redirecting /tmp at the filesystem level is the only mechanism that works), applied here too since Matomo's installer also writes temp files during the DB setup step
 func ensureContainerTmpOnSameFilesystem(ctx context.Context, userContext, phpContainer string) {
 	script := `set -e
 if [ -L /tmp ]; then exit 0; fi
@@ -97,12 +88,7 @@ ln -s /var/www/html/.php-tmp /tmp
 	_ = podmanmanager.Command(ctx, userContext, argv).Run()
 }
 
-// unpackMatomoArchive extracts a matomo-X.Y.Z.zip release asset, which
-// (confirmed live against 5.12.0) wraps the actual flat application in a
-// single top-level "matomo/" directory - same shape as OpenCart's upload/
-// or Nextcloud's nextcloud/ subtree (not PrestaShop's double-zip layout).
-// Unzips to a throwaway sibling directory then copies that wrapper
-// directory's contents into destDir (already created empty by the caller).
+// unpackMatomoArchive extracts a matomo-X.Y.Z.zip release asset, which wraps the actual flat application in a single top-level "matomo/" directory - same shape as OpenCart's upload/ or Nextcloud's nextcloud/ subtree (not PrestaShop's double-zip layout) - unzips to a throwaway sibling directory then copies that wrapper directory's contents into destDir (already created empty by the caller)
 func unpackMatomoArchive(ctx context.Context, archivePath, destDir string) error {
 	tmpDir := destDir + ".extract-tmp"
 	script := `set -e
@@ -129,16 +115,7 @@ type execError struct {
 func (e *execError) Error() string { return e.msg }
 func (e *execError) Unwrap() error { return e.err }
 
-// handleInstallStream drives a Matomo install end to end, streaming NDJSON
-// progress events: download the release asset from GitHub, extract it into
-// the docroot, create a MySQL database, then drive Matomo's own browser
-// installation wizard (plugins/Installation/Controller.php) as a plain HTTP
-// request sequence - Matomo ships no non-interactive CLI installer
-// (confirmed by inspecting a real release's console commands: none of them
-// is a core:install equivalent), so this replicates exactly what a browser
-// would submit at each step, field-for-field matched against that
-// controller's source and verified live end to end. See wizard.go for the
-// step-by-step implementation.
+// handleInstallStream drives a Matomo install end to end over NDJSON: download the release asset from GitHub, extract it into the docroot, create a MySQL database, then drive Matomo's own browser installation wizard (plugins/Installation/Controller.php) as a plain HTTP request sequence - Matomo ships no non-interactive CLI installer, so this replicates exactly what a browser would submit at each step, field-for-field matched against that controller's source; see wizard.go for the step-by-step implementation
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -274,11 +251,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Host-side chown, not `podman exec ... chown` - the archive was
-	// extracted host-side, so the files are owned by this process's own
-	// (real, unmapped) UID. A rootless container's own "root" cannot chown
-	// files it doesn't already own outside its own subuid mapping range
-	// (established while building the Joomla/PrestaShop modules).
+	// host-side chown, not `podman exec ... chown` - the archive was extracted host-side, so the files are owned by this process's own real unmapped UID, and a rootless container's "root" cannot chown files outside its own subuid mapping range (established while building the Joomla/PrestaShop modules)
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr != nil {
@@ -293,14 +266,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Matomo's installer and runtime write cache/session/log files under
-	// tmp/ and (once) config/config.ini.php - confirmed live these must be
-	// writable by the PHP-FPM worker uid, which is NOT the uid the docroot
-	// was just chowned to above (that's the container's own mapped "root",
-	// used only so podman-exec'd commands can write as that identity).
-	// World-writable on just these two known-writable directories mirrors
-	// the same scoped-chmod approach used for PrestaShop/OpenCart's
-	// writable dirs - never the PHP source tree itself.
+	// Matomo's installer and runtime write cache/session/log files under tmp/ and (once) config/config.ini.php - these must be writable by the PHP-FPM worker uid, which is NOT the uid the docroot was just chowned to (that's the container's own mapped "root", only for podman-exec'd commands) - world-writable on just these two known-writable directories mirrors the same scoped-chmod approach used for PrestaShop/OpenCart's writable dirs, never the PHP source tree itself
 	emit(map[string]any{"status": "Setting permissions on writable directories"})
 	_ = exec.Command("chmod", "-R", "777", filepath.Join(hostOSPath, "tmp")).Run()
 	_ = exec.Command("chmod", "-R", "777", filepath.Join(hostOSPath, "config")).Run()
@@ -399,8 +365,7 @@ func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, curr
 	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
 }
 
-// emitCleanupFiles removes a failed install's partially-created directory -
-// mirrors every other CMS install module's identical helper.
+// emitCleanupFiles removes a failed install's partially-created directory - mirrors every other CMS install module's identical helper
 func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)
 	if err := podmanmanager.Command(ctx, userContext, argv).Run(); err != nil {

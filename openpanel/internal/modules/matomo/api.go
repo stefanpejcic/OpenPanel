@@ -17,11 +17,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// handleMatomoVersions backs matomo_install.html's version dropdown -
-// GitHub's releases API is CORS-open and could be hit client-side, but
-// filtering out versions with no downloadable asset (see version.go) needs
-// server-side logic, so this exposes the already-filtered list as JSON
-// instead, matching nextcloud/prestashop's identical approach.
+// handleMatomoVersions backs matomo_install.html's version dropdown - GitHub's releases API is CORS-open and could be hit client-side, but filtering out versions with no downloadable asset (see version.go) needs server-side logic, so this exposes the already-filtered list as JSON instead, matching nextcloud/prestashop's identical approach
 func handleMatomoVersions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	versions, err := listMatomoVersions(r.Context())
 	if err != nil {
@@ -31,10 +27,7 @@ func handleMatomoVersions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	writeAPIJSON(w, http.StatusOK, map[string]any{"versions": versions})
 }
 
-// apiInstallMatomo delegates straight to handleInstallPage (which itself
-// calls handleInstallStream on POST): same site-limit check, same NDJSON
-// progress stream written directly to the response - just fed from the
-// API's JSON body instead of a UI form post.
+// apiInstallMatomo delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
 func apiInstallMatomo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID      string `json:"domain_id"`
@@ -66,9 +59,7 @@ func apiInstallMatomo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleInstallPage(a, w, withMatomoForm(r, form))
 }
 
-// apiRemoveMatomo delegates to handleRemoveMatomo with the path's
-// {site_id} translated into the "id" form field it expects, and
-// output=json forced so it returns JSON instead of a flash-and-redirect.
+// apiRemoveMatomo delegates to handleRemoveMatomo with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemoveMatomo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withMatomoForm(r, url.Values{"id": {siteID}})
@@ -78,9 +69,7 @@ func apiRemoveMatomo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleRemoveMatomo(a, w, cloned)
 }
 
-// apiResolveMatomoSite resolves {site_id} into the (domain, docroot) pair
-// every handler in this file needs - mirrors drupal/api.go's
-// apiResolveDrupalSite.
+// apiResolveMatomoSite resolves {site_id} into the (domain, docroot) pair every handler in this file needs - mirrors drupal/api.go's apiResolveDrupalSite
 func apiResolveMatomoSite(ctx context.Context, a *appctx.App, siteID string) (domain, docroot string, ok bool) {
 	var siteName string
 	var rootDocroot sql.NullString
@@ -99,9 +88,7 @@ func apiResolveMatomoSite(ctx context.Context, a *appctx.App, siteID string) (do
 	return siteName, docroot, true
 }
 
-// apiMatomoClone delegates to handleMatomoClone, resolving {site_id} into
-// the source_domain/source_folder fields it expects and taking every other
-// clone field from the JSON body - mirrors apiDrupalClone.
+// apiMatomoClone delegates to handleMatomoClone, resolving {site_id} into the source_domain/source_folder fields it expects and taking every other clone field from the JSON body - mirrors apiDrupalClone
 func apiMatomoClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	sourceDomain, sourceFolder, ok := apiResolveMatomoSite(r.Context(), a, siteID)
@@ -138,8 +125,7 @@ func apiMatomoClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleMatomoClone(a, w, withMatomoForm(r, form))
 }
 
-// apiMatomoUpdate resolves {site_id} into the domain/docroot query params
-// handleMatomoUpdate reads directly, then delegates to it as-is.
+// apiMatomoUpdate resolves {site_id} into the domain/docroot query params handleMatomoUpdate reads directly, then delegates to it as-is
 func apiMatomoUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	domain, docroot, ok := apiResolveMatomoSite(r.Context(), a, siteID)
@@ -154,9 +140,7 @@ func apiMatomoUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleMatomoUpdate(a, w, r)
 }
 
-// apiMatomoCache resolves {site_id} into the domain/docroot query params
-// handleMatomoCacheClean reads (via matomoRequestParams), then delegates to
-// it as-is.
+// apiMatomoCache resolves {site_id} into the domain/docroot query params handleMatomoCacheClean reads (via matomoRequestParams), then delegates to it as-is
 func apiMatomoCache(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	domain, docroot, ok := apiResolveMatomoSite(r.Context(), a, siteID)
