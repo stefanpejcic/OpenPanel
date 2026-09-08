@@ -17,10 +17,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// handleNextcloudVersions backs nextcloud_install.html's version dropdown -
-// there's no GitHub releases API to hit client-side the way
-// joomla/opencart's install forms do, so this exposes the server-side
-// HTML-scrape result (version.go) as JSON instead.
+// handleNextcloudVersions backs nextcloud_install.html's version dropdown - there's no GitHub releases API to hit client-side the way joomla/opencart's install forms do, so this exposes the server-side HTML-scrape result (version.go) as JSON instead
 func handleNextcloudVersions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	versions, err := listNextcloudVersions(r.Context())
 	if err != nil {
@@ -30,10 +27,7 @@ func handleNextcloudVersions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	writeAPIJSON(w, http.StatusOK, map[string]any{"versions": versions})
 }
 
-// apiInstallNextcloud delegates straight to handleInstallPage (which itself
-// calls handleInstallStream on POST): same site-limit check, same NDJSON
-// progress stream written directly to the response - just fed from the
-// API's JSON body instead of a UI form post.
+// apiInstallNextcloud delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
 func apiInstallNextcloud(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID         string `json:"domain_id"`
@@ -64,9 +58,7 @@ func apiInstallNextcloud(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	handleInstallPage(a, w, withNextcloudForm(r, form))
 }
 
-// apiRemoveNextcloud delegates to handleRemoveNextcloud with the path's
-// {site_id} translated into the "id" form field it expects, and
-// output=json forced so it returns JSON instead of a flash-and-redirect.
+// apiRemoveNextcloud delegates to handleRemoveNextcloud with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemoveNextcloud(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withNextcloudForm(r, url.Values{"id": {siteID}})
@@ -76,9 +68,7 @@ func apiRemoveNextcloud(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleRemoveNextcloud(a, w, cloned)
 }
 
-// apiResolveNextcloudSite resolves {site_id} into the (domain, docroot)
-// pair every handler in this file needs - mirrors drupal/api.go's
-// apiResolveDrupalSite.
+// apiResolveNextcloudSite resolves {site_id} into the (domain, docroot) pair every handler in this file needs - mirrors drupal/api.go's apiResolveDrupalSite
 func apiResolveNextcloudSite(ctx context.Context, a *appctx.App, siteID string) (domain, docroot string, ok bool) {
 	var siteName string
 	var rootDocroot sql.NullString
@@ -97,9 +87,7 @@ func apiResolveNextcloudSite(ctx context.Context, a *appctx.App, siteID string) 
 	return siteName, docroot, true
 }
 
-// apiNextcloudClone delegates to handleNextcloudClone, resolving {site_id}
-// into the source_domain/source_folder fields it expects and taking every
-// other clone field from the JSON body - mirrors apiDrupalClone.
+// apiNextcloudClone delegates to handleNextcloudClone, resolving {site_id} into the source_domain/source_folder fields it expects and taking every other clone field from the JSON body - mirrors apiDrupalClone
 func apiNextcloudClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	sourceDomain, sourceFolder, ok := apiResolveNextcloudSite(r.Context(), a, siteID)
@@ -136,8 +124,7 @@ func apiNextcloudClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleNextcloudClone(a, w, withNextcloudForm(r, form))
 }
 
-// apiNextcloudUpdate resolves {site_id} into the domain/docroot query
-// params handleNextcloudUpdate reads directly, then delegates to it as-is.
+// apiNextcloudUpdate resolves {site_id} into the domain/docroot query params handleNextcloudUpdate reads directly, then delegates to it as-is
 func apiNextcloudUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	domain, docroot, ok := apiResolveNextcloudSite(r.Context(), a, siteID)
@@ -152,9 +139,7 @@ func apiNextcloudUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleNextcloudUpdate(a, w, r)
 }
 
-// apiNextcloudCache resolves {site_id} into the domain/docroot query
-// params handleNextcloudCacheClean reads (via nextcloudRequestParams), then
-// delegates to it as-is.
+// apiNextcloudCache resolves {site_id} into the domain/docroot query params handleNextcloudCacheClean reads (via nextcloudRequestParams), then delegates to it as-is
 func apiNextcloudCache(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	domain, docroot, ok := apiResolveNextcloudSite(r.Context(), a, siteID)

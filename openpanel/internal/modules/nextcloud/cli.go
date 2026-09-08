@@ -14,11 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// nextcloudRequestParams pulls the domain/docroot query params every
-// handler in this file needs, splits the main domain out of a possible
-// subdirectory suffix, verifies ownership, and resolves the PHP container -
-// shared by cache/logs/login, mirroring opencart/cli.go's
-// openCartRequestParams.
+// nextcloudRequestParams pulls domain/docroot, splits off any subdirectory suffix, checks ownership, and resolves the PHP container - shared by cache/logs/login, mirrors opencart/cli.go's openCartRequestParams
 func nextcloudRequestParams(ctx context.Context, a *appctx.App, r *http.Request, userID int, userContext string) (domain, docroot, phpContainer string, ok bool) {
 	domain = r.URL.Query().Get("domain")
 	docroot = r.URL.Query().Get("docroot")
@@ -43,13 +39,7 @@ func nextcloudRequestParams(ctx context.Context, a *appctx.App, r *http.Request,
 	return domain, docroot, phpContainer, true
 }
 
-// handleNextcloudCacheClean clears the on-disk preview/thumbnail cache
-// (data/appdata_<instanceid>/preview/*) and, if a distributed memcache
-// backend is configured, its entries too. Nextcloud has no single
-// "clear all caches" CLI command - APCu (the common local opcode/object
-// cache) is per-PHP-process and can't be cleared remotely without
-// restarting php-fpm, so this targets what a hosting panel button can
-// safely and meaningfully act on: the generated preview cache.
+// handleNextcloudCacheClean clears the preview cache and distributed memcache if configured - no single "clear all" CLI command exists and APCu can't be cleared without restarting php-fpm, so this is what's actually safe to act on
 func handleNextcloudCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -76,9 +66,7 @@ func handleNextcloudCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Req
 	writeJSON(w, http.StatusOK, map[string]string{"message": "Cache cleared successfully."})
 }
 
-// handleNextcloudLogs returns the tail of data/nextcloud.log - a JSON-lines
-// file (one JSON object per entry) - shown raw, matching opencart's Logs
-// tab simplicity.
+// handleNextcloudLogs returns the tail of data/nextcloud.log shown raw, matching opencart's Logs tab simplicity
 func handleNextcloudLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)
@@ -109,13 +97,7 @@ func handleNextcloudLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	_, _ = w.Write(out)
 }
 
-// handleNextcloudLogin generates a one-time admin login link. Nextcloud
-// core ships no CLI command for this, so this mirrors joomla/opencart's
-// approach: a small token table (created here lazily, isolated from
-// Nextcloud's own schema) plus a login helper PHP file deployed into the
-// docroot at install time (see login_php.go) that verifies the token then
-// binds the admin user to a real Nextcloud session through the CMS's own
-// public IUserSession::completeLogin() API.
+// handleNextcloudLogin generates a one-time admin login link, mirrors joomla/opencart's approach with a lazily-created token table plus the login helper PHP deployed at install time (see login_php.go)
 func handleNextcloudLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

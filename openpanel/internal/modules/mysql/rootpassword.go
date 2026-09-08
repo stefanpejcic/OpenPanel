@@ -12,9 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// handleRootPasswordMySQL changes the MySQL root password. Notably, unlike
-// every other password-change route in this package, no strength check is
-// applied here - deliberately, since the root password is admin-only.
+// handleRootPasswordMySQL changes the MySQL root password - unlike every other password-change route in this package, no strength check is applied here, deliberately, since the root password is admin-only
 func handleRootPasswordMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

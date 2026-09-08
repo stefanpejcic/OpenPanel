@@ -13,10 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// handleDatabasesWizard creates a database and a user for it in one step.
-// Unlike most other handlers in this package, validation/creation failures
-// here re-render the same form (preserving the typed database/user names)
-// rather than redirecting, so the admin doesn't have to retype everything.
+// handleDatabasesWizard creates a database and a user for it in one step - unlike most other handlers in this package, validation/creation failures here re-render the same form (preserving the typed database/user names) rather than redirecting, so the admin doesn't have to retype everything
 func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

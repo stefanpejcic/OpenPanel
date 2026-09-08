@@ -18,12 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors wordpress/backups.go's directory layout, naming and
-// restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,
-// files.tar.gz} structure under the user's html_data volume) - only the DB
-// name/prefix lookup differs, since Nextcloud has no wp-cli equivalent to
-// ask for it: extractNextcloudDatabaseInfoForLogin reads config/config.php
-// directly instead.
+// mirrors wordpress/backups.go's layout and restore/run logic exactly, just with the DB name/prefix read from config/config.php instead of wp-cli
 
 var nextcloudBackupFolderRE = regexp.MustCompile(`^20\d{2}-`)
 
@@ -33,8 +28,7 @@ type nextcloudBackupDateInfo struct {
 	HasFilesBackup bool   `json:"hasFilesBackup"`
 }
 
-// handleNextcloudGetBackupDates mirrors wordpress/backups.go's
-// handleGetBackupDates.
+// handleNextcloudGetBackupDates mirrors wordpress/backups.go's handleGetBackupDates
 func handleNextcloudGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
@@ -82,8 +76,7 @@ func handleNextcloudGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http
 
 var nextcloudBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// handleNextcloudRestoreBackup mirrors wordpress/backups.go's
-// handleRestoreBackup.
+// handleNextcloudRestoreBackup mirrors wordpress/backups.go's handleRestoreBackup
 func handleNextcloudRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")
@@ -190,7 +183,7 @@ func handleNextcloudRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.
 	_, _ = w.Write([]byte("No files to restore, expected files: " + backupDatePathInContainer + "/files.tar.gz " + databaseSQLPathInContainer + "."))
 }
 
-// handleNextcloudRunBackup mirrors wordpress/backups.go's handleRunBackup.
+// handleNextcloudRunBackup mirrors wordpress/backups.go's handleRunBackup
 func handleNextcloudRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")
