@@ -1,22 +1,9 @@
 package joomla
 
-// openpanelLoginFileName is the login helper's filename inside the
-// Joomla docroot - deployed once at install time (install.go) and read by
-// handleJoomlaLogin (cli.go) to build the link the browser opens.
+// openpanelLoginFileName is the login helper's filename inside the Joomla docroot - deployed once at install time (install.go) and read by handleJoomlaLogin (cli.go) to build the link the browser opens
 const openpanelLoginFileName = "openpanel-login.php"
 
-// openpanelLoginPHP mirrors wordpress/wpcli.go's mu-plugin technique:
-// Joomla core ships no CLI equivalent of `wp login create`/drush's
-// `user:login`, so a one-time login has to happen through an actual HTTP
-// request (Joomla's Session/User APIs only work once the full
-// AdministratorApplication is bootstrapped, which needs a real
-// request context - confirmed live, see install.go/cli.go comments).
-//
-// The redirect deliberately builds its own absolute URL from
-// $_SERVER rather than using $app->redirect() with a relative path:
-// $app->redirect() resolves relative paths through Joomla's own base-URI
-// detection, which - live-tested - silently drops the docroot's
-// subdirectory prefix for sites not installed at the domain root.
+// openpanelLoginPHP mirrors wordpress/wpcli.go's mu-plugin technique: Joomla core ships no CLI equivalent of `wp login create`/drush's `user:login`, so a one-time login has to happen through an actual HTTP request since Joomla's Session/User APIs only work once the full AdministratorApplication is bootstrapped with a real request context - the redirect deliberately builds its own absolute URL from $_SERVER rather than $app->redirect() with a relative path, since that resolves through Joomla's own base-URI detection and silently drops the docroot's subdirectory prefix for sites not installed at the domain root
 const openpanelLoginPHP = `<?php
 /**
  * OpenPanel one-time admin login handler.

@@ -21,12 +21,7 @@ var (
 	removeDBUserRE = regexp.MustCompile(`\$user\s*=\s*'([^']*)'`)
 )
 
-// handleRemoveJoomla fully uninstalls a Joomla site: drops the database
-// and user (parsed out of configuration.php), deletes the whole install
-// directory, and removes the sites row. Mirrors drupal/manage.go's
-// handleRemoveDrupal, minus the comment-stripping workaround - Joomla's
-// generated configuration.php has no preceding documentation block to
-// accidentally match first.
+// handleRemoveJoomla fully uninstalls a Joomla site: drops the database and user (parsed out of configuration.php), deletes the install directory, and removes the sites row - mirrors drupal/manage.go's handleRemoveDrupal minus the comment-stripping workaround, since Joomla's generated configuration.php has no preceding doc block to accidentally match first
 func handleRemoveJoomla(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

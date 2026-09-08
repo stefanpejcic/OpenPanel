@@ -10,11 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// handleJoomlaMaintenance reads (GET) or toggles (POST, action=enable|disable)
-// Joomla's own offline mode - the public $offline property in
-// configuration.php that Joomla's front controller already checks on every
-// request to show the "Site Offline" page, so no extra code needs to ship
-// into the docroot the way opencart/prestashop's flag lives in the DB.
+// handleJoomlaMaintenance reads (GET) or toggles (POST, action=enable|disable) Joomla's own offline mode - the public $offline property in configuration.php that Joomla's front controller already checks on every request, so no extra code ships into the docroot the way opencart/prestashop's flag lives in the DB
 func handleJoomlaMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

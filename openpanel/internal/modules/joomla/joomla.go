@@ -1,12 +1,4 @@
-// Package joomla installs and manages a Joomla site (downloaded from
-// GitHub releases + Joomla's own CLI installer, `installation/joomla.php
-// install`) inside an existing domain's docroot, run in the domain's
-// existing php-fpm container - same shape as internal/modules/drupal.
-// Deliberately minimal, matching drupal's scope: no cloning, no
-// scan-for-existing-installs, no hardening rules, no dedicated
-// backup/restore system - just install, a small read-only manage/overview
-// page (files, database, PHP/DB versions, screenshot), a Logs tab, cache
-// clearing, a one-time admin login link, and uninstall. MySQL/MariaDB only.
+// Package joomla installs and manages a Joomla site (downloaded from GitHub releases + Joomla's own CLI installer, `installation/joomla.php install`) inside an existing domain's docroot, same shape as internal/modules/drupal - deliberately minimal matching drupal's scope: just install, a small read-only manage/overview page, a Logs tab, cache clearing, a one-time admin login link, and uninstall, MySQL/MariaDB only
 package joomla
 
 import (
@@ -27,9 +19,7 @@ import (
 
 const randomStringAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// generateRandomString generates a throwaway db name/user/password or login
-// token when needed. Uses crypto/rand since results end up as real
-// credentials/tokens (same approach as drupal.generateRandomString).
+// generateRandomString generates a throwaway db name/user/password or login token when needed, uses crypto/rand since results end up as real credentials/tokens (same approach as drupal.generateRandomString)
 func generateRandomString(length int) string {
 	b := make([]byte, length)
 	for i := range b {
@@ -76,9 +66,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 	}
 }
 
-// lockFilePath returns the per-user krompir.lock path shared with the
-// wordpress/phpapp/drupal modules to serialize any one "app install"
-// operation per user at a time - not a Joomla-specific lock.
+// lockFilePath is the per-user krompir.lock path shared with wordpress/phpapp/drupal, so only one app install runs per user at a time, not a Joomla-specific lock
 func lockFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
 }
@@ -115,9 +103,7 @@ func lookupDomainByID(ctx context.Context, a *appctx.App, domainID string) (doma
 	return d, true, nil
 }
 
-// countUserWebsites counts the user's sites, capped at 1000 - same query
-// wordpress/phpapp/drupal each duplicate locally rather than sharing across
-// packages for something this small.
+// countUserWebsites counts the user's sites, capped at 1000 - same query wordpress/phpapp/drupal each duplicate locally rather than sharing for something this small
 func countUserWebsites(a *appctx.App, userID int) (int, error) {
 	rows, err := a.DB.Query(
 		"SELECT site_name FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000", userID)

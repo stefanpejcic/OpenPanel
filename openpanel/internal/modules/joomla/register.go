@@ -9,9 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// Register wires the Joomla install/remove/manage routes onto mux, gated
-// behind the "joomla" feature flag. No list page (matches drupal's current
-// scope: manage via the general Site Manager instead).
+// Register wires the Joomla install/remove/manage routes onto mux, gated behind the "joomla" feature flag - no list page, matches drupal's current scope of managing via the general Site Manager instead
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "joomla")(h)
@@ -28,10 +26,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /joomla/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaClone(a, w, r) }))
 }
 
-// withJoomlaForm clones r as a POST carrying the given values as both Form
-// and PostForm, so a UI handler that reads r.FormValue(...) sees exactly
-// the fields the API's JSON body supplied - same pattern used by
-// drupal/register.go's withDrupalForm.
+// withJoomlaForm clones r as a POST carrying values as both Form and PostForm, so a UI handler reading r.FormValue(...) sees the API's JSON body fields - same pattern as drupal/register.go's withDrupalForm
 func withJoomlaForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost

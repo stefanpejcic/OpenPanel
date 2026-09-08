@@ -21,8 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// handleInstallPage renders the install form / checks the plan's site
-// limit for a GET, and hands POST off to handleInstallStream.
+// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -60,9 +59,7 @@ func formOr(r *http.Request, key, def string) string {
 	return def
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up (mirrors drupal/phpapp's identical
-// helper).
+// ensureContainerRunning starts the container if it isn't already running, polling briefly for it to come up (mirrors drupal/phpapp's identical helper)
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -78,15 +75,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// handleInstallStream drives a Joomla install end to end, streaming NDJSON
-// progress events to the client: download the release archive from GitHub
-// (mirrors wordpress/install.go's wordpress.org download), extract it
-// directly into the docroot (Joomla's own webroot - unlike Drupal there's
-// no separate web/ subdirectory to reconcile), create a MySQL database,
-// then run Joomla's own `installation/joomla.php install` CLI installer
-// (confirmed against a live Joomla 6 release: it detects its own install
-// path from the invoked script's location, needs no --root/--uri flags,
-// and self-deletes the installation/ folder on success).
+// handleInstallStream drives a Joomla install end to end over NDJSON: download the release archive from GitHub (mirrors wordpress/install.go's wordpress.org download), extract it directly into the docroot (Joomla's own webroot, no separate web/ subdirectory to reconcile like Drupal), create a MySQL database, then run Joomla's own `installation/joomla.php install` CLI installer, which detects its own install path from the invoked script's location, needs no --root/--uri flags, and self-deletes the installation/ folder on success
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -225,19 +214,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Host-side chown, not `podman exec ... chown` - the archive was
-	// extracted host-side (exec.CommandContext above), so the files are
-	// owned by this process's own (real, unmapped) UID. A rootless
-	// container's own "root" is confined to its user-namespace's UID range
-	// and cannot chown files it doesn't already own outside that mapping -
-	// confirmed live: that silently failed with "Operation not permitted",
-	// leaving the docroot unwritable by the container's PHP process, which
-	// made Joomla's CLI installer unable to write its language cache file
-	// and hit a known upstream bug (Folder::create() failing triggers a
-	// Text::sprintf() call to log the error, which itself needs to load a
-	// language, which needs Folder::create() again - infinite recursion
-	// until the process OOMs). wordpress/install.go's chown uses this same
-	// host-side form for the same reason.
+	// host-side chown, not `podman exec ... chown` - the archive was extracted host-side, so the files are owned by this process's own unmapped UID, and a rootless container's "root" can't chown files outside its own user-namespace mapping (fails silently with "Operation not permitted", leaving the docroot unwritable and triggering a known upstream Joomla infinite-recursion bug in its language-cache error logging) - wordpress/install.go's chown uses this same host-side form for the same reason
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr != nil {
@@ -338,9 +315,7 @@ func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, curr
 	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
 }
 
-// emitCleanupFiles removes a failed install's partially-created directory -
-// like drupal's identical helper, always safe to blow away entirely since
-// it's always a directory install.go just created.
+// emitCleanupFiles removes a failed install's partially-created directory - like drupal's identical helper, always safe to blow away entirely since it's always a directory install.go just created
 func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)
 	if err := podmanmanager.Command(ctx, userContext, argv).Run(); err != nil {

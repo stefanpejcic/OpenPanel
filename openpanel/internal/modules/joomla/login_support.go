@@ -10,11 +10,7 @@ import (
 	"strings"
 )
 
-// toStringCell converts one mysqlmanager.Exec() result cell to a string.
-// Mirrors wordpress/backups.go's identical helper - see that file's
-// comment for why every numeric driver type needs its own case (a missing
-// one silently becomes "" rather than a compile error, which broke WP's
-// autologin token flow the same way once already).
+// toStringCell converts one mysqlmanager.Exec() result cell to a string, mirrors wordpress/backups.go's identical helper - every numeric driver type needs its own case, a missing one silently becomes "" rather than a compile error, which broke WP's autologin token flow the same way once already
 func toStringCell(v any) string {
 	switch t := v.(type) {
 	case nil:
@@ -45,11 +41,7 @@ func sha256Hex(s string) string {
 
 func itoa(n int) string { return strconv.Itoa(n) }
 
-// extractJoomlaDatabaseInfoForLogin is a local copy of
-// websites.extractJoomlaDatabaseInfo (unexported in another package, so
-// duplicated here - same small-helper-duplication pattern wordpress/drupal
-// already use rather than sharing across module packages). Only the fields
-// handleJoomlaLogin actually needs are populated.
+// extractJoomlaDatabaseInfoForLogin is a local copy of websites.extractJoomlaDatabaseInfo (unexported in another package, so duplicated here, same pattern wordpress/drupal already use rather than sharing across module packages) - only the fields handleJoomlaLogin actually needs are populated
 func extractJoomlaDatabaseInfoForLogin(userContext, directory string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
 	if !strings.HasPrefix(directory, wwwPrefix) {
