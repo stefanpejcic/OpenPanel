@@ -1,29 +1,6 @@
-// Package tinyfilemanager installs and manages TinyFileManager
-// (github.com/prasathmani/tinyfilemanager) inside an existing domain's
-// docroot, run in the domain's existing php-fpm container - same shape as
-// internal/modules/tinyphotogallery, but with one extra concern:
-// TinyFileManager is a single PHP file (tinyfilemanager.php) that carries
-// its own auth as a `$auth_users = array(...)` literal near the top of the
-// file, so install additionally has to bake the admin username/password
-// the user provides into that array (see install.go). No database, no CLI
-// installer, no tagged releases upstream (always installs current
-// master), no update mechanism, no maintenance mode, no auto-login.
-//
-// Install downloads tinyfilemanager.php from the master branch, hashes the
-// provided admin password with PHP's own password_hash() run inside the
-// target php-fpm container (guaranteeing a hash format that container's
-// password_verify() will accept), then rewrites the file's default sample
-// $auth_users array to contain only the one admin account provided.
-//
-// Feature parity NOT implemented here, since there's nothing to hook them
-// to, and per explicit scope for this module:
-//   - Maintenance mode, admin auto-login, cache-clear: no such concepts
-//     exist in TinyFileManager at all.
-//   - Version tracking: no tagged releases exist upstream, so the "version"
-//     recorded in the sites table is a static placeholder ("latest"), not
-//     a real version - see install.go.
-//   - Clone: intentionally out of scope for this module - only install,
-//     remove, backup/restore, and the manager page are implemented.
+// Package tinyfilemanager installs and manages TinyFileManager (github.com/prasathmani/tinyfilemanager) inside an existing domain's docroot and php-fpm container - same shape as internal/modules/tinyphotogallery, but with one extra concern: it's a single PHP file that carries its own auth as a $auth_users = array(...) literal, so install has to bake the admin username/password into that array (see install.go). No database, no CLI installer, no tagged releases upstream (always installs current master), no update mechanism, no maintenance mode, no auto-login
+// install downloads tinyfilemanager.php from the master branch, hashes the admin password with password_hash() run inside the target php-fpm container, then rewrites the default sample $auth_users array to contain only the one admin account provided
+// no maintenance mode, auto-login, cache-clear, version tracking, or clone here - version recorded in the sites table is a static "latest" placeholder, and only install/remove/backup-restore/manage are implemented
 package tinyfilemanager
 
 import (
@@ -77,10 +54,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 	}
 }
 
-// lockFilePath returns the per-user krompir.lock path shared with the
-// wordpress/phpapp/drupal/joomla/flarum/sofawiki modules to serialize any
-// one "app install" operation per user at a time - not a
-// TinyFileManager-specific lock.
+// lockFilePath returns the per-user krompir.lock path shared with wordpress/phpapp/drupal/joomla/flarum/sofawiki to serialize one app install at a time per user
 func lockFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
 }

@@ -9,10 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// Register wires the SofaWiki install/remove/manage routes onto mux,
-// gated behind the "sofawiki" feature flag. No maintenance, login, or
-// cache routes - see sofawiki.go's package doc comment for why those
-// aren't implemented.
+// Register wires the SofaWiki install/remove/manage routes onto mux, gated behind the "sofawiki" feature flag - no maintenance, login, or cache routes, see sofawiki.go's package doc comment for why those aren't implemented
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "sofawiki")(h)
@@ -25,9 +22,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /sofawiki/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSofawikiClone(a, w, r) }))
 }
 
-// withSofawikiForm clones r as a POST carrying the given values as both
-// Form and PostForm, so a UI handler that reads r.FormValue(...) sees
-// exactly the fields the API's JSON body supplied.
+// withSofawikiForm clones r as a POST carrying the given values as both Form and PostForm, so a UI handler that reads r.FormValue(...) sees exactly the fields the API's JSON body supplied
 func withSofawikiForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost

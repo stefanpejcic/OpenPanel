@@ -9,10 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// Register wires the TinyFileManager install/remove/backup routes onto
-// mux, gated behind the "tinyfilemanager" feature flag. No maintenance,
-// login, cache, or clone routes - see tinyfilemanager.go's package doc
-// comment for why those aren't implemented.
+// Register wires the TinyFileManager install/remove/backup routes onto mux, gated behind the "tinyfilemanager" feature flag - no maintenance, login, cache, or clone routes, see tinyfilemanager.go's package doc comment for why those aren't implemented
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "tinyfilemanager")(h)
@@ -24,9 +21,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /tinyfilemanager/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTinyFileManagerRunBackup(a, w, r) }))
 }
 
-// withTinyFileManagerForm clones r as a POST carrying the given values as
-// both Form and PostForm, so a UI handler that reads r.FormValue(...) sees
-// exactly the fields the API's JSON body supplied.
+// withTinyFileManagerForm clones r as a POST carrying the given values as both Form and PostForm, so a UI handler that reads r.FormValue(...) sees exactly the fields the API's JSON body supplied
 func withTinyFileManagerForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost

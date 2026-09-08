@@ -23,21 +23,13 @@ var trashPage = web.MustLoadPage(
 	"files/trash_partials.html",
 )
 
-// Row is one table_trash.html row, with the original_path display value
-// (the '_data/'-relative shortening) precomputed since html/template has
-// no string-split primitive.
+// Row is one table_trash.html row, with the original_path display value (the '_data/'-relative shortening) precomputed since html/template has no string-split primitive
 type Row struct {
 	Entry
 	DisplayOriginalPath string
 }
 
-// displayOriginalPath splits the original path on the FIRST "_data/"
-// substring, which - for the usual "<context>_html_data/_data/<name>"
-// original_path shape - actually falls inside "..._html_data/" (the
-// "_data" right before the literal "html_data" segment's trailing slash),
-// not the literal "_data" trash-volume folder later in the path. The
-// result keeps a redundant "_data/" prefix; this preserves the existing
-// display behavior exactly rather than "fixing" it.
+// displayOriginalPath splits the original path on the first "_data/" substring, which for the usual "<context>_html_data/_data/<name>" shape actually falls inside "..._html_data/" rather than the later trash-volume "_data" folder - keeps a redundant "_data/" prefix, preserving existing display behavior exactly rather than "fixing" it
 func displayOriginalPath(original string) string {
 	if original == "" {
 		return ""

@@ -1,31 +1,7 @@
-// Package sofawiki installs and manages SofaWiki (github.com/bellenuit/sofawiki)
-// inside an existing domain's docroot, run in the domain's existing php-fpm
-// container - same shape as internal/modules/drupal and internal/modules/flarum,
-// but considerably simpler since SofaWiki needs no database at all.
-//
-// Install is a plain download-and-extract of the master branch (there are
-// no tagged releases - confirmed against the repo - and no composer.json,
-// so this isn't a Composer package): no database to provision, no admin
-// account to create, no CLI installer to drive. SofaWiki's own install
-// wizard (a 4-step browser flow: folder rights -> create configuration ->
-// login -> write main page, found by inspecting a live instance's output -
-// see install.go) is left for the site owner to complete themselves on
-// first visit, exactly as it would if they'd uploaded the files by FTP.
-//
-// PHP compatibility is the real catch, confirmed by running a live copy
-// under every php-fpm version this box has: PHP 7.4 and below work (with
-// deprecation noise from the PHP4/5-era code); PHP 8.0 and above throw a
-// fatal error in inc/async.php (fwrite() on a failed fsockopen() started
-// returning false instead of a resource). install.go refuses to install
-// onto a domain configured for PHP 8.0+.
-//
-// Drupal-parity features NOT implemented here, since there's nothing to
-// hook them to:
-//   - Maintenance mode, admin auto-login, cache-clear: no such concepts
-//     exist in SofaWiki at all.
-//   - Version tracking: no tagged releases exist upstream, so there is no
-//     "installed version" to report or compare against a "latest" - the
-//     manager page just always shows the branch install was made from.
+// Package sofawiki installs and manages SofaWiki (github.com/bellenuit/sofawiki) inside an existing domain's docroot and php-fpm container - same shape as internal/modules/drupal and internal/modules/flarum, but simpler since SofaWiki needs no database at all
+// install is a plain download-and-extract of the master branch (no tagged releases, no composer.json): no database, no admin account, no CLI installer - SofaWiki's own 4-step browser setup wizard is left for the site owner to complete on first visit, same as if they'd uploaded the files by FTP
+// PHP 8.0+ throws a fatal error in inc/async.php (fwrite() on a failed fsockopen() returning false instead of a resource), so install.go refuses to install onto a domain configured for PHP 8.0+
+// no maintenance mode, admin auto-login, cache-clear, or version tracking here since SofaWiki has no such concepts and no tagged releases to compare against
 package sofawiki
 
 import (
@@ -83,10 +59,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 
 const randomStringAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// generateRandomString is used only for the (rare) target_db-shaped clone
-// form fields cmsclone-style modules conventionally take - SofaWiki has no
-// database, but keeping the same helper name/behavior as drupal/flarum
-// keeps clone.go's shape consistent for anyone comparing the three.
+// generateRandomString is used only for the rare target_db-shaped clone form fields cmsclone-style modules conventionally take - SofaWiki has no database, but keeping the same helper as drupal/flarum keeps clone.go's shape consistent
 func generateRandomString(length int) string {
 	b := make([]byte, length)
 	for i := range b {
@@ -96,9 +69,7 @@ func generateRandomString(length int) string {
 	return string(b)
 }
 
-// lockFilePath returns the per-user krompir.lock path shared with the
-// wordpress/phpapp/drupal/joomla/flarum modules to serialize any one "app
-// install" operation per user at a time - not a SofaWiki-specific lock.
+// lockFilePath returns the per-user krompir.lock path shared with wordpress/phpapp/drupal/joomla/flarum to serialize one app install at a time per user
 func lockFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
 }

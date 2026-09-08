@@ -12,9 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// handleRemoveTinyPhotoGallery uninstalls a TinyPhotoGallery site: deletes
-// the whole install directory (index.php + photos/) and removes the sites
-// row. No database to drop.
+// handleRemoveTinyPhotoGallery uninstalls a TinyPhotoGallery site: deletes the whole install directory (index.php + photos/) and removes the sites row, no database to drop
 func handleRemoveTinyPhotoGallery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

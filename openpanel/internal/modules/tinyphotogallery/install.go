@@ -18,17 +18,13 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// tinyPhotoGallerySourceFile is the only source TinyPhotoGallery ships: a
-// single PHP file on the main branch, no tagged releases and no composer.json.
+// tinyPhotoGallerySourceFile is the only source TinyPhotoGallery ships: a single PHP file on the main branch, no tagged releases and no composer.json
 const tinyPhotoGallerySourceFile = "https://raw.githubusercontent.com/stefanpejcic/tinyphotogallery/main/index.php"
 
-// tinyPhotoGalleryVersion is a static placeholder recorded in the sites
-// table - there is no real versioning upstream (no tags/releases), same
-// convention sofawiki uses for its own "master" branch install.
+// tinyPhotoGalleryVersion is a static placeholder recorded in the sites table - no real versioning upstream, same convention sofawiki uses for its own "master" branch install
 const tinyPhotoGalleryVersion = "main"
 
-// handleInstallPage renders the install form / checks the plan's site
-// limit for a GET, and hands POST off to handleInstallStream.
+// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -59,8 +55,7 @@ func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderInstallPage(a, w, r, domains)
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up.
+// ensureContainerRunning starts the container if it isn't already running, polling briefly for it to come up
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -76,11 +71,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// handleInstallStream drives a TinyPhotoGallery install end to end,
-// streaming NDJSON progress events to the client: download index.php,
-// create an empty photos/ folder next to it, fix ownership, record the
-// site. There is no database, no admin account, and no CLI installer to
-// drive - install is complete the moment the two filesystem items exist.
+// handleInstallStream drives a TinyPhotoGallery install end to end over NDJSON: download index.php, create an empty photos/ folder next to it, fix ownership, record the site - no database, no admin account, no CLI installer; install is complete the moment the two filesystem items exist
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -188,9 +179,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "TinyPhotoGallery installation completed! Visit the site to start uploading photos."})
 }
 
-// runTinyPhotoGalleryInstall downloads index.php from the main branch into
-// installPath and creates an empty photos/ folder next to it - that is the
-// entire upstream install procedure per the project's README.
+// runTinyPhotoGalleryInstall downloads index.php from the main branch into installPath and creates an empty photos/ folder next to it - that's the entire upstream install procedure
 func runTinyPhotoGalleryInstall(ctx context.Context, userContext, phpContainer, installPath string) ([]byte, error) {
 	script := `set -e
 mkdir -p ` + installPath + `
@@ -201,7 +190,7 @@ mkdir -p ` + installPath + `/photos`
 	return podmanmanager.Command(ctx, userContext, argv).CombinedOutput()
 }
 
-// emitCleanupFiles removes a failed install's partially-created directory.
+// emitCleanupFiles removes a failed install's partially-created directory
 func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)
 	if err := podmanmanager.Command(ctx, userContext, argv).Run(); err != nil {

@@ -12,8 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// handleRemoveSofawiki uninstalls a SofaWiki site: deletes the whole
-// install directory and removes the sites row. No database to drop.
+// handleRemoveSofawiki uninstalls a SofaWiki site: deletes the whole install directory and removes the sites row, no database to drop
 func handleRemoveSofawiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

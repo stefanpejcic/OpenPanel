@@ -16,8 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// WAFIssue is one health-check issue surfaced on the WAF list page, e.g.
-// a warning that the WAF is disabled for one or more domains.
+// WAFIssue is one health-check issue surfaced on the WAF list page, e.g. a warning that the WAF is disabled for one or more domains
 type WAFIssue struct {
 	ID       string `json:"id"`
 	Severity string `json:"severity"`
@@ -39,9 +38,7 @@ func wafStatusForDomain(domainName string) string {
 	}
 }
 
-// notifySentinel fires off `opencli sentinel` without waiting for it to
-// exit, so cmd.Start() is used deliberately instead of cmd.Run() - the
-// caller shouldn't block on this notification.
+// notifySentinel fires off `opencli sentinel` without waiting for it to exit, so cmd.Start() is used deliberately instead of cmd.Run() - the caller shouldn't block on this notification
 func notifySentinel(domainName, statusText string) {
 	cmd := exec.Command("opencli", "sentinel", "--action=waf_domain",
 		"--title", "WAF "+statusText+" for domain",
@@ -49,10 +46,7 @@ func notifySentinel(domainName, statusText string) {
 	_ = cmd.Start()
 }
 
-// handleWAFList handles the per-domain enable/disable toggle (POST) and
-// the domain list / single domain status lookup (GET). Notably, a POST
-// here does not redirect - it flashes and falls straight through to the
-// GET rendering below, in the same response.
+// handleWAFList handles the per-domain enable/disable toggle (POST) and the domain list/single domain status lookup (GET) - a POST here does not redirect, it flashes and falls straight through to the GET rendering below in the same response
 func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	username, err := injected(a, r)
@@ -62,11 +56,7 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		// ParseMultipartForm (not just ParseForm) since the WAF panel
-		// widget POSTs a FormData body, which the browser always encodes
-		// as multipart/form-data - ParseForm alone can't see those fields
-		// and silently leaves domain_name empty, which then fails the
-		// ownership check below.
+		// ParseMultipartForm since the WAF panel widget POSTs a FormData body, always encoded multipart/form-data - ParseForm alone can't see those fields and silently leaves domain_name empty
 		_ = r.ParseMultipartForm(32 << 20)
 		domainName := firstPathSegment(r.Form.Get("domain_name"))
 		newStatus := r.Form.Get("modsec_action")

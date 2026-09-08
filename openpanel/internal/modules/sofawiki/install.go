@@ -19,14 +19,10 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// sofawikiSourceZip is the only source SofaWiki ships: a plain branch
-// archive, no tagged releases (confirmed against
-// github.com/bellenuit/sofawiki - "There aren't any releases here") and no
-// composer.json (not a Composer package).
+// sofawikiSourceZip is the only source SofaWiki ships: a plain branch archive, no tagged releases and no composer.json
 const sofawikiSourceZip = "https://github.com/bellenuit/sofawiki/archive/refs/heads/master.zip"
 
-// handleInstallPage renders the install form / checks the plan's site
-// limit for a GET, and hands POST off to handleInstallStream.
+// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -64,8 +60,7 @@ func formOr(r *http.Request, key, def string) string {
 	return def
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up.
+// ensureContainerRunning starts the container if it isn't already running, polling briefly for it to come up
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -81,10 +76,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// phpVersionAbove reports whether version (e.g. "7.2", "8.5") is newer
-// than maxMajor.maxMinor. An unparseable version is treated as too new,
-// so an unexpected format fails safe (blocks the install with a clear
-// message) rather than silently proceeding.
+// phpVersionAbove reports whether version is newer than maxMajor.maxMinor - an unparseable version is treated as too new, so an unexpected format fails safe rather than silently proceeding
 func phpVersionAbove(version string, maxMajor, maxMinor int) bool {
 	major, minor := 0, 0
 	if _, err := fmt.Sscanf(version, "%d.%d", &major, &minor); err != nil {
@@ -96,12 +88,7 @@ func phpVersionAbove(version string, maxMajor, maxMinor int) bool {
 	return minor > maxMinor
 }
 
-// handleInstallStream drives a SofaWiki install end to end, streaming
-// NDJSON progress events to the client: download+extract the master
-// branch archive into the docroot, fix ownership, record the site. There
-// is no database and no CLI installer to drive - see sofawiki.go's
-// package doc comment for why the install wizard itself is left for the
-// site owner to complete in their browser.
+// handleInstallStream drives a SofaWiki install end to end over NDJSON: download+extract the master branch archive into the docroot, fix ownership, record the site - no database and no CLI installer, see sofawiki.go's package doc comment for why the setup wizard is left to the site owner
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -164,15 +151,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		phpContainer = "php-fpm-" + phpVersion
 	}
 
-	// SofaWiki's own async self-cron (inc/async.php, called unconditionally
-	// on every request) does fsockopen($url['host'], ...) where 'host' is
-	// undefined because $swBaseHrefFolder is empty here (this Apache+
-	// PHP-FPM setup, via mod_proxy_fcgi, never sets the legacy SCRIPT_URI
-	// var SofaWiki relies on to populate it). fsockopen() then returns
-	// false, and fwrite(false, ...) is only a warning on PHP <=7.4 but a
-	// fatal TypeError on PHP 8+ (stricter internal-function typing) -
-	// confirmed via a live install + real browser-path request against
-	// this exact deployment (stack trace: inc/async.php:28 fwrite()).
+	// inc/async.php's fsockopen self-check fails here since $swBaseHrefFolder never gets populated on this Apache+PHP-FPM/mod_proxy_fcgi setup - fwrite(false, ...) is just a warning on PHP <=7.4 but a fatal TypeError on PHP 8+
 	if !isLitespeed && phpVersionAbove(phpVersion, 7, 4) {
 		emit(map[string]any{"error": "SofaWiki requires PHP 7.4 or older on this server (it fatal-errors on PHP 8+ due to a self-check in inc/async.php), but this domain is set to PHP " + phpVersion + ". Change the domain's PHP version (or install into a subdirectory using PHP 7.4 or older) and try again."})
 		return
@@ -224,28 +203,8 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "SofaWiki installation completed! Visit the site to finish setup (folder rights, then the SofaWiki setup wizard)."})
 }
 
-// runSofawikiExtract downloads the master branch archive and extracts it
-// into installPath. GitHub's archive wraps everything in a top-level
-// "sofawiki-master/" directory, so this extracts to a scratch location
-// first, then copies that directory's *contents* into installPath. A root
-// (no-subdirectory) install's installPath is the domain's docroot, which
-// already exists (created when the domain was added) even though empty -
-// `mv scratch/sofawiki-master installPath` would move the whole directory
-// INSIDE the existing installPath instead of replacing it, nesting
-// everything one level too deep (confirmed live: files landed in
-// installPath/sofawiki-master/ instead of installPath/). Copying contents
-// with `cp -a ./. installPath/` after `mkdir -p installPath` works
-// correctly whether installPath already exists (root install) or not
-// (subdirectory install).
-//
-// index.php also hardcodes `ini_set('display_errors', 1)`, so PHP
-// warnings/notices from its own legacy code (e.g. the fsockopen self-check
-// in inc/async.php that always warns on a fresh, unconfigured install) get
-// printed straight into the HTTP response body sent to visitors. This
-// platform's WAF correctly treats that as PHP error disclosure and blocks
-// the response with an empty 403 (confirmed live: PHP itself completed
-// the request fine per php-fpm's logs, but the client still got a bare
-// 403 - the WAF, not PHP, rejected it). Patched to 0 after extraction.
+// runSofawikiExtract downloads the master branch archive and extracts it into installPath - GitHub wraps everything in "sofawiki-master/", so this extracts to a scratch location first then cp -a's the contents into installPath, which works whether installPath already exists (root install) or not (subdirectory install)
+// index.php also hardcodes ini_set('display_errors', 1), so legacy warnings like inc/async.php's fsockopen self-check get printed into the response body and the WAF blocks it as PHP error disclosure - patched to 0 after extraction
 func runSofawikiExtract(ctx context.Context, userContext, phpContainer, installPath string) ([]byte, error) {
 	scratch := "/tmp/openpanel-sofawiki-" + strconv.FormatInt(time.Now().UnixNano(), 36)
 	script := `set -e
@@ -262,7 +221,7 @@ sed -i "s/\(ini_set([\"']display_errors[\"'], \)1/\10/g" ` + installPath + `/ind
 	return podmanmanager.Command(ctx, userContext, argv).CombinedOutput()
 }
 
-// emitCleanupFiles removes a failed install's partially-created directory.
+// emitCleanupFiles removes a failed install's partially-created directory
 func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)
 	if err := podmanmanager.Command(ctx, userContext, argv).Run(); err != nil {

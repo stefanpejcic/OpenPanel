@@ -20,33 +20,16 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// tinyFileManagerSourceFile is the only source TinyFileManager ships: a
-// single PHP file on the master branch, no tagged releases and no
-// composer.json - always installs current master.
+// tinyFileManagerSourceFile is the only source TinyFileManager ships: a single PHP file on the master branch, no tagged releases and no composer.json - always installs current master
 const tinyFileManagerSourceFile = "https://raw.githubusercontent.com/prasathmani/tinyfilemanager/master/tinyfilemanager.php"
 
-// tinyFileManagerVersion is a static placeholder recorded in the sites
-// table - there is no real versioning upstream (no tags/releases), same
-// convention tinyphotogallery uses for its own "main" branch install.
+// tinyFileManagerVersion is a static placeholder recorded in the sites table - no real versioning upstream, same convention tinyphotogallery uses for its own "main" branch install
 const tinyFileManagerVersion = "latest"
 
-// tinyFileManagerAuthUsersRE matches the entire default
-// `$auth_users = array( ... );` block near the top of the downloaded
-// file, from the literal `$auth_users = array(` through the first `);`
-// that follows - confirmed against a live download of the file that the
-// block spans two sample lines like:
-//
-//	$auth_users = array(
-//	    'admin' => '$2y$10$...', //admin@123
-//	    'user' => '$2y$10$...' //12345
-//	);
-//
-// Neither a bcrypt hash nor the trailing comments upstream ever contain
-// ");", so the non-greedy match below is safe to stop at the first one.
+// tinyFileManagerAuthUsersRE matches the entire default $auth_users = array( ... ); block near the top of the downloaded file, from the literal opener through the first ");" that follows - neither a bcrypt hash nor the trailing comments upstream ever contain ");", so the non-greedy match is safe
 var tinyFileManagerAuthUsersRE = regexp.MustCompile(`(?s)\$auth_users\s*=\s*array\(.*?\);`)
 
-// handleInstallPage renders the install form / checks the plan's site
-// limit for a GET, and hands POST off to handleInstallStream.
+// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -77,8 +60,7 @@ func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderInstallPage(a, w, r, domains)
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up.
+// ensureContainerRunning starts the container if it isn't already running, polling briefly for it to come up
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -94,14 +76,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// handleInstallStream drives a TinyFileManager install end to end,
-// streaming NDJSON progress events to the client: download
-// tinyfilemanager.php, hash the provided admin password inside the target
-// php container (so the hash format matches what that container's own
-// password_verify() will accept), rewrite the file's default sample
-// $auth_users array down to just the one admin account provided, fix
-// ownership, record the site. There is no database and no CLI installer
-// to drive.
+// handleInstallStream drives a TinyFileManager install end to end over NDJSON: download tinyfilemanager.php, hash the admin password inside the target php container (matching that container's own password_verify()), rewrite the default $auth_users array down to just the one admin account, fix ownership, record the site - no database and no CLI installer
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -233,9 +208,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "TinyFileManager installation completed!", "admin_user": adminUsername})
 }
 
-// runTinyFileManagerInstall downloads tinyfilemanager.php from the master
-// branch into installPath - that is the entire upstream install procedure
-// per the project's README (a single-file app, no build step).
+// runTinyFileManagerInstall downloads tinyfilemanager.php from the master branch into installPath - that's the entire upstream install procedure for a single-file app with no build step
 func runTinyFileManagerInstall(ctx context.Context, userContext, phpContainer, installPath string) ([]byte, error) {
 	script := `set -e
 mkdir -p ` + installPath + `
@@ -245,15 +218,7 @@ curl -sL -o ` + installPath + `/tinyfilemanager.php ` + tinyFileManagerSourceFil
 	return podmanmanager.Command(ctx, userContext, argv).CombinedOutput()
 }
 
-// hashTinyFileManagerPassword shells out to
-// `php -r 'echo password_hash($argv[1], PASSWORD_DEFAULT);'` inside the
-// same php-fpm container the site will run in, rather than reimplementing
-// bcrypt in Go - guarantees byte-for-byte the same hash format that
-// container's own password_verify() call (inside tinyfilemanager.php)
-// will accept, the same technique dokuwiki/install.go uses for its own
-// admin account. Password is passed as a separate argv element (not
-// interpolated into a shell string), so it's safe regardless of its
-// contents.
+// hashTinyFileManagerPassword shells out to password_hash() inside the same php-fpm container the site will run in, rather than reimplementing bcrypt in Go, guaranteeing the same hash format that container's password_verify() will accept - same technique dokuwiki/install.go uses; the password is passed as a separate argv element, not interpolated into a shell string
 func hashTinyFileManagerPassword(ctx context.Context, userContext, phpContainer, password string) (string, error) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "php", "-r",
 		"echo password_hash($argv[1], PASSWORD_DEFAULT);", "--", password)
@@ -268,13 +233,7 @@ func hashTinyFileManagerPassword(ctx context.Context, userContext, phpContainer,
 	return hash, nil
 }
 
-// writeTinyFileManagerAuthUsers reads the just-downloaded
-// tinyfilemanager.php from the host OS path (bind-mounted from the
-// container), replaces its entire default `$auth_users = array(...);`
-// block (two sample users) with a single entry for the provided admin
-// account, and writes the file back. Runs on the host side, not inside
-// the container, mirroring the htmlVolume-prefix pattern
-// tinyphotogallery/sofawiki use for host-side file operations.
+// writeTinyFileManagerAuthUsers reads the just-downloaded tinyfilemanager.php from the host OS path, replaces its default $auth_users block with a single admin entry, and writes it back - runs host-side, mirroring the htmlVolume-prefix pattern tinyphotogallery/sofawiki use
 func writeTinyFileManagerAuthUsers(filePath, adminUsername, passwordHash string) error {
 	content, readErr := os.ReadFile(filePath)
 	if readErr != nil {
@@ -283,10 +242,7 @@ func writeTinyFileManagerAuthUsers(filePath, adminUsername, passwordHash string)
 
 	replacement := "$auth_users = array(\n    '" + escapePHPSingleQuoted(adminUsername) + "' => '" + escapePHPSingleQuoted(passwordHash) + "'\n);"
 
-	// Note: regexp.ReplaceAll interprets "$" in its replacement argument as
-	// a submatch reference (see Expand), which would mangle the literal
-	// "$auth_users" text above - so this splices the match location
-	// manually instead of using ReplaceAll.
+	// regexp.ReplaceAll interprets "$" in its replacement as a submatch reference, which would mangle "$auth_users" above, so splice the match location manually instead
 	loc := tinyFileManagerAuthUsersRE.FindIndex(content)
 	if loc == nil {
 		return fmt.Errorf("could not find $auth_users array in downloaded file")
@@ -299,16 +255,14 @@ func writeTinyFileManagerAuthUsers(filePath, adminUsername, passwordHash string)
 	return os.WriteFile(filePath, newContent, 0o644)
 }
 
-// escapePHPSingleQuoted escapes value for embedding inside a PHP
-// single-quoted string literal - only backslash and single-quote need
-// escaping in that context. Same helper as drupal/clone.go's.
+// escapePHPSingleQuoted escapes value for embedding inside a PHP single-quoted string literal - only backslash and single-quote need escaping, same helper as drupal/clone.go's
 func escapePHPSingleQuoted(value string) string {
 	value = strings.ReplaceAll(value, `\`, `\\`)
 	value = strings.ReplaceAll(value, `'`, `\'`)
 	return value
 }
 
-// emitCleanupFiles removes a failed install's partially-created directory.
+// emitCleanupFiles removes a failed install's partially-created directory
 func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)
 	if err := podmanmanager.Command(ctx, userContext, argv).Run(); err != nil {

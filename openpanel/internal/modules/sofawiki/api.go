@@ -14,10 +14,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiInstallSofawiki delegates straight to handleInstallPage (which
-// itself calls handleInstallStream on POST): same site-limit check, same
-// NDJSON progress stream written directly to the response - just fed from
-// the API's JSON body instead of a UI form post.
+// apiInstallSofawiki delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
 func apiInstallSofawiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID     string `json:"domain_id"`
@@ -39,9 +36,7 @@ func apiInstallSofawiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleInstallPage(a, w, withSofawikiForm(r, form))
 }
 
-// apiRemoveSofawiki delegates to handleRemoveSofawiki with the path's
-// {site_id} translated into the "id" form field it expects, and
-// output=json forced so it returns JSON instead of a flash-and-redirect.
+// apiRemoveSofawiki delegates to handleRemoveSofawiki with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemoveSofawiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withSofawikiForm(r, url.Values{"id": {siteID}})
@@ -51,12 +46,7 @@ func apiRemoveSofawiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleRemoveSofawiki(a, w, cloned)
 }
 
-// apiCloneSofawiki resolves the path's {site_id} into the source domain/
-// docroot handleSofawikiClone expects as source_domain/source_folder,
-// using the same "id" lookup query apiRemoveSofawiki (via
-// handleRemoveSofawiki) and manage.go use - there's no database to derive
-// a source_db from (SofaWiki is flat-file) - and takes the
-// destination-side fields from the JSON body.
+// apiCloneSofawiki resolves {site_id} into source_domain/source_folder - no source_db since SofaWiki is flat-file - and takes the destination-side fields from the JSON body
 func apiCloneSofawiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 

@@ -25,9 +25,7 @@ var servicesPage = web.MustLoadPage(
 	"system/services.html",
 )
 
-// ServicesPageData is system/services.html's template context - either the
-// service picker (Services set) or one service's detail view (Service
-// set).
+// ServicesPageData is system/services.html's template context - either the service picker (Services set) or one service's detail view (Service set)
 type ServicesPageData struct {
 	web.LayoutData
 
@@ -45,19 +43,10 @@ type ServicesPageData struct {
 	ActionLabel string
 }
 
-// statusEntry pairs a Tailwind color class with the (untranslated)
-// message-catalog key for its label.
+// statusEntry pairs a Tailwind color class with the (untranslated) message-catalog key for its label
 type statusEntry struct{ Color, MsgID string }
 
-// serviceStatusMap maps a container status key to its display color and
-// translatable label. "stopping" is libpod's real State.Status during
-// shutdown (distinct from "exited"/"removing", which apply once it's
-// actually stopped/removed) - a render landing in that window used to show
-// "Unknown", and since "stopping" was also missing from
-// static/js/service-status.js's SERVICE_STATUS_TRANSITIONAL list, the
-// auto-refresh poller never recognized it as in-progress either, so the
-// badge stayed stuck on "Unknown" until a manual reload happened to land
-// outside that window. Keep that file's list in sync with this one.
+// serviceStatusMap maps a container status key to its display color and translatable label - "stopping" is libpod's real State.Status during shutdown, distinct from "exited"/"removing"; keep static/js/service-status.js's SERVICE_STATUS_TRANSITIONAL list in sync with this one or the badge gets stuck on "Unknown" mid-shutdown
 var serviceStatusMap = map[string]statusEntry{
 	"running":    {"emerald-500", "Running"},
 	"healthy":    {"emerald-500", "Running"},
@@ -75,8 +64,7 @@ var serviceStatusMap = map[string]statusEntry{
 
 var unknownStatus = statusEntry{"orange-500", "Unknown"}
 
-// StatusKeyFor derives the status-map key for a container from its state
-// and health check status.
+// StatusKeyFor derives the status-map key for a container from its state and health check status
 func StatusKeyFor(containerState, healthStatus string) string {
 	if containerState == "running" {
 		switch healthStatus {
@@ -96,9 +84,7 @@ func StatusColorLabel(t i18n.Translator, key string) (string, string) {
 	return e.Color, t.Get(e.MsgID)
 }
 
-// StatusMapJSON marshals every status key's [color, translated label] pair
-// to JSON, for service-status.js's client-side polling to redraw the badge
-// without another server round-trip.
+// StatusMapJSON marshals every status key's [color, translated label] pair to JSON, for service-status.js's client-side polling to redraw the badge without another server round-trip
 func StatusMapJSON(t i18n.Translator) template.JS {
 	m := make(map[string][2]string, len(serviceStatusMap))
 	for k, e := range serviceStatusMap {

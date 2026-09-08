@@ -11,17 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 )
 
-// handleSofawikiClone copies a SofaWiki install's files to a new
-// domain/subdirectory. There's no database to dump/restore, and (since a
-// fresh install is left unconfigured until the site owner completes
-// SofaWiki's own setup wizard - see sofawiki.go's package doc comment) no
-// config file with a hardcoded base URL to rewrite either for a
-// not-yet-configured source. If the source HAS since been configured
-// through that wizard, whatever site title/URL it wrote to
-// inc/configuration.php is copied as-is and not rewritten for the new
-// domain - the same known, deliberate limitation drupal/clone.go
-// documents for hardcoded URLs in content, for the same reason (no
-// generic way to know what to replace it with).
+// handleSofawikiClone copies a SofaWiki install's files to a new domain/subdirectory - no database to dump/restore, and no config file to rewrite for a not-yet-configured source; if the source has since been configured, whatever inc/configuration.php has is copied as-is and not rewritten, same known limitation drupal/clone.go documents for hardcoded URLs in content
 func handleSofawikiClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

@@ -12,9 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// handleRemoveTinyFileManager uninstalls a TinyFileManager site: deletes
-// the whole install directory (just tinyfilemanager.php) and removes the
-// sites row. No database to drop.
+// handleRemoveTinyFileManager uninstalls a TinyFileManager site: deletes the whole install directory (just tinyfilemanager.php) and removes the sites row, no database to drop
 func handleRemoveTinyFileManager(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

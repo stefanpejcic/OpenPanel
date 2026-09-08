@@ -19,8 +19,7 @@ import (
 
 var ruleIDRE = regexp.MustCompile(`^\d+$`)
 
-// reloadCaddy mirrors the `podman exec caddy caddy reload --config
-// /etc/caddy/Caddyfile` call every WAF config change makes to apply it.
+// reloadCaddy mirrors the `podman exec caddy caddy reload --config /etc/caddy/Caddyfile` call every WAF config change makes to apply it
 func reloadCaddy(ctx context.Context) error {
 	return exec.CommandContext(ctx, "podman", "exec", "caddy", "caddy", "reload", "--config", "/etc/caddy/Caddyfile").Run()
 }
@@ -75,9 +74,7 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		// removed_tags has no meaningful validation: the pattern this was
-		// checked against (`^[\w\W]+$`) matches any non-empty string, so
-		// every split value already passes.
+		// removed_tags has no meaningful validation - the pattern this was checked against matches any non-empty string, so every split value already passes
 
 		removedRules = append([]string{excludedRuleID}, filterOut(removedRules, excludedRuleID)...)
 		removedTags = append([]string{excludedTag}, filterOut(removedTags, excludedTag)...)
@@ -130,8 +127,7 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderWAFDomainPage(a, w, r, domainName, status, removedRules, removedTags)
 }
 
-// readLinesKeepEnds splits content into lines; each element (except
-// possibly the last) keeps its trailing "\n".
+// readLinesKeepEnds splits content into lines; each element (except possibly the last) keeps its trailing "\n"
 func readLinesKeepEnds(content string) []string {
 	if content == "" {
 		return nil
@@ -150,11 +146,7 @@ func readLinesKeepEnds(content string) []string {
 	return lines
 }
 
-// rewriteDirectivesBlock mirrors the line-buffering loop in
-// server_settings_waf_for_domain(): finds the `directives \`...\“ block
-// in a Caddy per-domain conf, strips any existing
-// SecRuleRemoveById/SecRuleRemoveByTag lines from it, and appends fresh
-// ones built from removedRules/removedTags.
+// rewriteDirectivesBlock mirrors the line-buffering loop in server_settings_waf_for_domain(): finds the directives block in a Caddy per-domain conf, strips existing SecRuleRemoveById/SecRuleRemoveByTag lines, and appends fresh ones built from removedRules/removedTags
 func rewriteDirectivesBlock(content string, removedRules, removedTags []string) string {
 	lines := readLinesKeepEnds(content)
 	var newLines []string

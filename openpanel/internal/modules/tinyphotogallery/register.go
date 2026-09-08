@@ -9,10 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// Register wires the TinyPhotoGallery install/remove routes onto mux,
-// gated behind the "tinyphotogallery" feature flag. No maintenance,
-// login, cache, backup, or clone routes - see tinyphotogallery.go's
-// package doc comment for why those aren't implemented.
+// Register wires the TinyPhotoGallery install/remove routes onto mux, gated behind the "tinyphotogallery" feature flag - no maintenance, login, cache, or clone routes, see tinyphotogallery.go's package doc comment for why those aren't implemented
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "tinyphotogallery")(h)
@@ -24,9 +21,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /tinyphotogallery/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTinyPhotoGalleryRunBackup(a, w, r) }))
 }
 
-// withTinyPhotoGalleryForm clones r as a POST carrying the given values as
-// both Form and PostForm, so a UI handler that reads r.FormValue(...) sees
-// exactly the fields the API's JSON body supplied.
+// withTinyPhotoGalleryForm clones r as a POST carrying the given values as both Form and PostForm, so a UI handler that reads r.FormValue(...) sees exactly the fields the API's JSON body supplied
 func withTinyPhotoGalleryForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost

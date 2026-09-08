@@ -12,13 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterAPI wires the /api/trash routes onto mux, gated behind the
-// "trash" feature flag. handleRestoreFile and handleDeleteTrash already
-// speak pure JSON with no session/flash dependency and are reused here
-// unmodified; handleFilesInTrash already supports "?output=json" and is
-// invoked with that forced on, matching filemanager's own
-// forceJSONOutput pattern. Restore-all/empty-trash needed a JSON-response
-// variant since the web handlers only flash+redirect.
+// RegisterAPI wires the /api/trash routes onto mux, gated behind the "trash" feature flag - handleRestoreFile and handleDeleteTrash already speak pure JSON and are reused unmodified; handleFilesInTrash supports "?output=json" forced on here, matching filemanager's own pattern; restore-all/empty-trash needed a JSON variant since the web handlers only flash+redirect
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "trash", "GET /api/trash", func(w http.ResponseWriter, r *http.Request) {
 		handleFilesInTrash(a, w, forceJSONOutput(r), "")
@@ -32,9 +26,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "trash", "POST /api/trash/delete-all", func(w http.ResponseWriter, r *http.Request) { apiDeleteAll(a, w, r) })
 }
 
-// forceJSONOutput clones r with output=json set on the query string, so
-// handleFilesInTrash's existing "?output=json" branch can be reused
-// unmodified for a dedicated /api/ route.
+// forceJSONOutput clones r with output=json set on the query string, so handleFilesInTrash's existing "?output=json" branch can be reused unmodified for a dedicated /api/ route
 func forceJSONOutput(r *http.Request) *http.Request {
 	q := r.URL.Query()
 	q.Set("output", "json")
@@ -43,8 +35,7 @@ func forceJSONOutput(r *http.Request) *http.Request {
 	return r2
 }
 
-// apiDeleteAll is handleDeleteAll (crud.go) with a JSON response instead
-// of flash+redirect.
+// apiDeleteAll is handleDeleteAll (crud.go) with a JSON response instead of flash+redirect
 func apiDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	username, userContext, err := injected(a, r)
 	if err != nil {
@@ -83,8 +74,7 @@ func apiDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, jsonResult{Success: true, Message: "Trash emptied successfully"})
 }
 
-// apiRestoreAll is handleRestoreAll (crud.go) with a JSON response
-// instead of flash+redirect.
+// apiRestoreAll is handleRestoreAll (crud.go) with a JSON response instead of flash+redirect
 func apiRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	username, userContext, err := injected(a, r)
 	if err != nil {

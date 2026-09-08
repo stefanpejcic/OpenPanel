@@ -1,29 +1,6 @@
-// Package tinyphotogallery installs and manages TinyPhotoGallery
-// (github.com/stefanpejcic/tinyphotogallery) inside an existing domain's
-// docroot, run in the domain's existing php-fpm container - same shape as
-// internal/modules/sofawiki, but even simpler: TinyPhotoGallery is a
-// single PHP file (index.php) plus an empty "photos/" folder next to it.
-// No database, no admin account, no CLI installer, no versioning (no tags
-// exist upstream - confirmed against the repo), no update mechanism.
-//
-// Install is a plain curl download of index.php from the main branch,
-// followed by `mkdir photos`. That is the entire upstream install
-// procedure per the project's own README. PHP 8.1+ with the GD extension
-// is what the README asks for, but there is nothing to enforce here (no
-// PHP-version block like sofawiki's) - it's just documented for whoever
-// reads this file.
-//
-// Feature parity NOT implemented here, since there's nothing to hook them
-// to, and per explicit scope for this module:
-//   - Maintenance mode, admin auto-login, cache-clear: no such concepts
-//     exist in TinyPhotoGallery at all.
-//   - Version tracking: no tagged releases exist upstream, so the "version"
-//     recorded in the sites table is a static placeholder ("main"), not a
-//     real version - see install.go.
-//   - Clone and backup: intentionally out of scope for this minimal
-//     module (see clone.go/backups.go in sofawiki for what a fuller
-//     module would look like) - only install, remove, and the manager
-//     list page are implemented.
+// Package tinyphotogallery installs and manages TinyPhotoGallery (github.com/stefanpejcic/tinyphotogallery) inside an existing domain's docroot and php-fpm container - same shape as internal/modules/sofawiki, but even simpler: a single PHP file (index.php) plus an empty "photos/" folder next to it. No database, no admin account, no CLI installer, no versioning, no update mechanism
+// install is a plain curl download of index.php from the main branch followed by `mkdir photos` - PHP 8.1+ with GD is what the README asks for, but nothing here enforces it
+// no maintenance mode, auto-login, or cache-clear here since TinyPhotoGallery has no such concepts, and version recorded in the sites table is a static "main" placeholder since there are no tagged releases
 package tinyphotogallery
 
 import (
@@ -77,10 +54,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 	}
 }
 
-// lockFilePath returns the per-user krompir.lock path shared with the
-// wordpress/phpapp/drupal/joomla/flarum/sofawiki modules to serialize any
-// one "app install" operation per user at a time - not a
-// TinyPhotoGallery-specific lock.
+// lockFilePath returns the per-user krompir.lock path shared with wordpress/phpapp/drupal/joomla/flarum/sofawiki to serialize one app install at a time per user
 func lockFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
 }

@@ -18,10 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors drupal/backups.go and flarum/backups.go's directory
-// layout and naming (same backups/<domain>/<timestamp>/files.tar.gz
-// structure), minus everything database-related - SofaWiki has no
-// database, so there's no database.sql to ever look for here.
+// mirrors drupal/backups.go and flarum/backups.go's layout and naming, minus everything database-related since SofaWiki has no database
 
 func itoa(n int) string { return strconv.Itoa(n) }
 
@@ -32,8 +29,7 @@ type sofawikiBackupDateInfo struct {
 	HasFilesBackup bool   `json:"hasFilesBackup"`
 }
 
-// handleSofawikiGetBackupDates mirrors drupal/backups.go's
-// handleDrupalGetBackupDates, minus the database-backup flag.
+// handleSofawikiGetBackupDates mirrors drupal/backups.go's handleDrupalGetBackupDates, minus the database-backup flag
 func handleSofawikiGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
@@ -78,8 +74,7 @@ func handleSofawikiGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.
 
 var sofawikiBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// handleSofawikiRestoreBackup mirrors drupal/backups.go's
-// handleDrupalRestoreBackup, files-only.
+// handleSofawikiRestoreBackup mirrors drupal/backups.go's handleDrupalRestoreBackup, files-only
 func handleSofawikiRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")
@@ -135,8 +130,7 @@ func handleSofawikiRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.R
 	_, _ = w.Write([]byte("Backup restored successfully: files."))
 }
 
-// handleSofawikiRunBackup mirrors drupal/backups.go's handleDrupalRunBackup,
-// files-only.
+// handleSofawikiRunBackup mirrors drupal/backups.go's handleDrupalRunBackup, files-only
 func handleSofawikiRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")

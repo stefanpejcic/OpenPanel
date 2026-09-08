@@ -14,10 +14,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiInstallTinyPhotoGallery delegates straight to handleInstallPage (which
-// itself calls handleInstallStream on POST): same site-limit check, same
-// NDJSON progress stream written directly to the response - just fed from
-// the API's JSON body instead of a UI form post.
+// apiInstallTinyPhotoGallery delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
 func apiInstallTinyPhotoGallery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID     string `json:"domain_id"`
@@ -38,9 +35,7 @@ func apiInstallTinyPhotoGallery(a *appctx.App, w http.ResponseWriter, r *http.Re
 	handleInstallPage(a, w, withTinyPhotoGalleryForm(r, form))
 }
 
-// apiRemoveTinyPhotoGallery delegates to handleRemoveTinyPhotoGallery with
-// the path's {site_id} translated into the "id" form field it expects,
-// and output=json forced so it returns JSON instead of a flash-and-redirect.
+// apiRemoveTinyPhotoGallery delegates to handleRemoveTinyPhotoGallery with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemoveTinyPhotoGallery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withTinyPhotoGalleryForm(r, url.Values{"id": {siteID}})

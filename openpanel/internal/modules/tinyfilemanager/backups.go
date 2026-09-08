@@ -18,10 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors drupal/backups.go and flarum/backups.go's directory
-// layout and naming (same backups/<domain>/<timestamp>/files.tar.gz
-// structure), minus everything database-related - TinyFileManager has no
-// database, so there's no database.sql to ever look for here.
+// mirrors drupal/backups.go and flarum/backups.go's layout and naming, minus everything database-related since TinyFileManager has no database
 
 func itoa(n int) string { return strconv.Itoa(n) }
 
@@ -32,8 +29,7 @@ type tinyfilemanagerBackupDateInfo struct {
 	HasFilesBackup bool   `json:"hasFilesBackup"`
 }
 
-// handleTinyFileManagerGetBackupDates mirrors drupal/backups.go's
-// handleDrupalGetBackupDates, minus the database-backup flag.
+// handleTinyFileManagerGetBackupDates mirrors drupal/backups.go's handleDrupalGetBackupDates, minus the database-backup flag
 func handleTinyFileManagerGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
@@ -78,8 +74,7 @@ func handleTinyFileManagerGetBackupDates(a *appctx.App, w http.ResponseWriter, r
 
 var tinyfilemanagerBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// handleTinyFileManagerRestoreBackup mirrors drupal/backups.go's
-// handleDrupalRestoreBackup, files-only.
+// handleTinyFileManagerRestoreBackup mirrors drupal/backups.go's handleDrupalRestoreBackup, files-only
 func handleTinyFileManagerRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")
@@ -135,8 +130,7 @@ func handleTinyFileManagerRestoreBackup(a *appctx.App, w http.ResponseWriter, r 
 	_, _ = w.Write([]byte("Backup restored successfully: files."))
 }
 
-// handleTinyFileManagerRunBackup mirrors drupal/backups.go's handleDrupalRunBackup,
-// files-only.
+// handleTinyFileManagerRunBackup mirrors drupal/backups.go's handleDrupalRunBackup, files-only
 func handleTinyFileManagerRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")

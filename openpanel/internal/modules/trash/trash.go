@@ -1,9 +1,4 @@
-// Package trash implements the standalone /files.trash list/restore/
-// empty-trash page. The minimal subset needed by filemanager's
-// delete-to-trash action (moveItemToTrash / uniqueTrashName) already
-// lives in internal/modules/filemanager/trash.go - that helper pair is
-// duplicated here rather than shared, to keep the two features
-// independent.
+// Package trash implements the standalone /files.trash list/restore/empty-trash page - the minimal subset needed by filemanager's delete-to-trash action already lives in internal/modules/filemanager/trash.go, duplicated here rather than shared to keep the two features independent.
 package trash
 
 import (
@@ -19,17 +14,14 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// Register wires the trash routes onto mux, gated behind the "trash"
-// feature flag.
+// Register wires the trash routes onto mux, gated behind the "trash" feature flag
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "trash")(h)
 	}
 
 	mux.Handle("GET /files.trash", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFilesInTrash(a, w, r, "") }))
-	// "GET /files.trash/{path_param...}" already covers the bare
-	// "/files.trash/" case (path_param resolves to ""), so no separate
-	// registration is needed for it - see filemanager.go's identical note.
+	// "GET /files.trash/{path_param...}" already covers the bare "/files.trash/" case (path_param resolves to ""), so no separate registration is needed - see filemanager.go's identical note
 	mux.Handle("GET /files.trash/{path_param...}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleFilesInTrash(a, w, r, r.PathValue("path_param"))
 	}))
@@ -58,8 +50,7 @@ func flashAndRedirectToTrash(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	http.Redirect(w, r, "/files.trash", http.StatusFound)
 }
 
-// handleFilesInTrash lists the contents of the user's trash directory (or
-// a subdirectory within it), parsed from `ls -l`/`ls -la` output.
+// handleFilesInTrash lists the contents of the user's trash directory (or a subdirectory within it), parsed from `ls -l`/`ls -la` output
 func handleFilesInTrash(a *appctx.App, w http.ResponseWriter, r *http.Request, pathParam string) {
 	_, userContext, err := injected(a, r)
 	if err != nil {
