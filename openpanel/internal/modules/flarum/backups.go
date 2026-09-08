@@ -19,12 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors drupal/backups.go's directory layout, naming and
-// restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,
-// files.tar.gz} structure under the user's html_data volume) - only the DB
-// name lookup differs: extractFlarumDatabaseInfoForBackup reads config.php
-// directly, which (unlike Drupal's settings.php) has no preceding
-// documentation/placeholder block to strip first.
+// mirrors drupal/backups.go's layout and restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,files.tar.gz} structure) - only the DB name lookup differs: extractFlarumDatabaseInfoForBackup reads config.php directly, which unlike Drupal's settings.php has no preceding doc/placeholder block to strip first
 
 func toStringCell(v any) string {
 	switch t := v.(type) {
@@ -53,8 +48,7 @@ func itoa(n int) string { return strconv.Itoa(n) }
 
 var flarumBackupDBNameRE = regexp.MustCompile(`'database'\s*=>\s*'([^']*)'`)
 
-// extractFlarumDatabaseInfoForBackup reads config.php straight off the
-// host filesystem.
+// extractFlarumDatabaseInfoForBackup reads config.php straight off the host filesystem
 func extractFlarumDatabaseInfoForBackup(userContext, docroot string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
 	if !strings.HasPrefix(docroot, wwwPrefix) {
@@ -82,8 +76,7 @@ type flarumBackupDateInfo struct {
 	HasFilesBackup bool   `json:"hasFilesBackup"`
 }
 
-// handleFlarumGetBackupDates mirrors drupal/backups.go's
-// handleDrupalGetBackupDates.
+// handleFlarumGetBackupDates mirrors drupal/backups.go's handleDrupalGetBackupDates
 func handleFlarumGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
@@ -131,8 +124,7 @@ func handleFlarumGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 var flarumBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// handleFlarumRestoreBackup mirrors drupal/backups.go's
-// handleDrupalRestoreBackup.
+// handleFlarumRestoreBackup mirrors drupal/backups.go's handleDrupalRestoreBackup
 func handleFlarumRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")

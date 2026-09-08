@@ -23,8 +23,7 @@ import (
 
 const wgetStateDir = "/tmp/filemanager_wget_states"
 
-// downloadState is the shared progress/status record for a wget download,
-// persisted to disk so status polling survives across requests/goroutines.
+// downloadState is the shared progress/status record for a wget download, persisted to disk so status polling survives across requests/goroutines
 type downloadState struct {
 	Progress           int    `json:"progress"`
 	Status             string `json:"status"`
@@ -79,8 +78,7 @@ func loadDownloadState(downloadID string) (downloadState, bool) {
 
 var extensionSuffixRE = regexp.MustCompile(`\.[A-Za-z0-9]{1,10}$`)
 
-// filenameFromURL derives a safe local filename from a download URL,
-// falling back to a generated name when the URL path or query has none.
+// filenameFromURL derives a safe local filename from a download URL, falling back to a generated name when the URL path or query has none
 func filenameFromURL(rawURL string) string {
 	parsed, err := url.Parse(rawURL)
 	if err != nil {
@@ -104,11 +102,7 @@ func filenameFromURL(rawURL string) string {
 	return name
 }
 
-// validateWgetURL only allows http/https, and requires the resolved host
-// to not be a private/loopback/link-local/reserved/multicast/unspecified
-// address - an SSRF guard against http://localhost:6379/ or
-// http://169.254.169.254/latest/meta-data/. It must actually be called
-// from the download path, not just defined, or the guard is worthless.
+// validateWgetURL only allows http/https, and requires the resolved host to not be a private/loopback/link-local/reserved/multicast/unspecified address - an SSRF guard against http://localhost:6379/ or the AWS metadata endpoint, worthless unless actually called from the download path
 func validateWgetURL(rawURL string) error {
 	parsed, err := url.Parse(rawURL)
 	if err != nil {
@@ -134,12 +128,9 @@ func validateWgetURL(rawURL string) error {
 	return nil
 }
 
-// handleWgetFiles validates the submitted URL and destination, then kicks
-// off an asynchronous download and returns its download ID for polling.
+// handleWgetFiles validates the submitted URL and destination, then kicks off an asynchronous download and returns its download ID for polling
 func handleWgetFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	// The form is submitted as multipart/form-data (a JS FormData body),
-	// not application/x-www-form-urlencoded - ParseForm() alone doesn't
-	// read multipart bodies, which left every field empty.
+	// the form is submitted as multipart/form-data (a JS FormData body), not urlencoded - ParseForm() alone doesn't read multipart bodies, which left every field empty
 	_ = r.ParseMultipartForm(1 << 20)
 	rawURL := strings.TrimSpace(r.Form.Get("url"))
 	pathParam := strings.TrimSpace(r.Form.Get("path_param"))
@@ -190,10 +181,7 @@ func handleWgetFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"download_id": downloadID})
 }
 
-// runWgetWithProgress runs the actual `wget` download and updates the
-// persisted state as it progresses. It runs detached from the triggering
-// request (context.Background()) so the download continues even after the
-// HTTP response that started it has been sent.
+// runWgetWithProgress runs the actual `wget` download and updates the persisted state as it progresses - it runs detached from the triggering request (context.Background()) so the download continues even after the HTTP response that started it has been sent
 func runWgetWithProgress(a *appctx.App, downloadID string) {
 	info, ok := loadDownloadState(downloadID)
 	if !ok {
@@ -275,8 +263,7 @@ func runWgetWithProgress(a *appctx.App, downloadID string) {
 
 var wgetPercentRE = regexp.MustCompile(`(\d+)%`)
 
-// handleWgetStatus reports the current progress/status of a download,
-// logging the completed action exactly once the first time it's seen done.
+// handleWgetStatus reports the current progress/status of a download, logging the completed action exactly once the first time it's seen done
 func handleWgetStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	downloadID := r.PathValue("download_id")
 	info, ok := loadDownloadState(downloadID)

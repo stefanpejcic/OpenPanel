@@ -1,28 +1,4 @@
-// Package flarum installs and manages a Composer-based Flarum forum
-// (`composer create-project flarum/flarum`) inside an existing domain's
-// docroot, run in the domain's existing php-fpm container - same shape as
-// internal/modules/drupal.
-//
-// Flarum's non-interactive installer is `php <installPath>/flarum install
-// --file=<json> --config=<path>` (Flarum\Install\Console\InstallCommand) -
-// see install.go's doc comment for two things that don't match either
-// docs.flarum.org (which only documents the browser wizard) or a first
-// pass at this that trusted a stale scraped doc summary over the live
-// container.
-//
-// Two Drupal-parity features are deliberately NOT implemented, since
-// Flarum has no equivalent to reach for:
-//   - Maintenance mode: Drupal's toggle is `drush state:set
-//     system.maintenance_mode`, a state key Drupal's own front controller
-//     already checks. Flarum core has no "site offline" concept at all.
-//   - Admin auto-login: Drupal's is `drush user:login`, reusing the same
-//     one-time-login-hash mechanism as password resets. Flarum's console
-//     (AssetsPublishCommand, CacheClearCommand, InfoCommand,
-//     MigrateCommand, ResetCommand, ScheduleListCommand,
-//     ScheduleRunCommand - the full list per ConsoleServiceProvider) has no
-//     session/login command, and forging a valid Flarum session directly
-//     against its access_tokens table would be working around undocumented
-//     internals rather than a real integration point.
+// Package flarum installs and manages a Composer-based Flarum forum (`composer create-project flarum/flarum`) inside an existing domain's docroot, same shape as internal/modules/drupal - the non-interactive installer is `php <installPath>/flarum install --file=<json> --config=<path>` (see install.go's doc comment for details that don't match docs.flarum.org's browser-wizard-only docs), and two Drupal-parity features are deliberately NOT implemented since Flarum has no equivalent: maintenance mode (Flarum core has no "site offline" concept) and admin auto-login (Flarum's console has no session/login command, and forging a session against access_tokens directly would be working around undocumented internals)
 package flarum
 
 import (
@@ -80,9 +56,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 
 const randomStringAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// generateRandomString generates a throwaway db name/user/password when the
-// install form leaves one blank. Uses crypto/rand since the result ends up
-// as a real database credential.
+// generateRandomString generates a throwaway db name/user/password when the install form leaves one blank, uses crypto/rand since the result ends up as a real database credential
 func generateRandomString(length int) string {
 	b := make([]byte, length)
 	for i := range b {
@@ -92,9 +66,7 @@ func generateRandomString(length int) string {
 	return string(b)
 }
 
-// lockFilePath returns the per-user krompir.lock path shared with the
-// wordpress/phpapp/drupal/joomla modules to serialize any one "app install"
-// operation per user at a time - not a Flarum-specific lock.
+// lockFilePath is the per-user krompir.lock path shared with wordpress/phpapp/drupal/joomla, so only one app install runs per user at a time, not a Flarum-specific lock
 func lockFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
 }

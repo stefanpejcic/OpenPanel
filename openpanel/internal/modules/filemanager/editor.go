@@ -20,8 +20,7 @@ import (
 
 var allowedEditors = map[string]bool{"monaco": true, "ace": true, "codemirror": true, "text": true}
 
-// isEditableFile is a crude binary-file sniff: no NUL byte in the first
-// 8KB.
+// isEditableFile is a crude binary-file sniff: no NUL byte in the first 8KB
 func isEditableFile(realPath string) bool {
 	f, err := os.Open(realPath)
 	if err != nil {
@@ -49,9 +48,7 @@ func imageExtensions(a *appctx.App) []string {
 	return strings.Fields(raw)
 }
 
-// splitExtNames splits a config extension list into (dotted extensions,
-// bare filename substrings) depending on whether each entry starts with
-// a dot.
+// splitExtNames splits a config extension list into (dotted extensions, bare filename substrings) depending on whether each entry starts with a dot
 func splitExtNames(exts []string) (dotted, bare []string) {
 	for _, e := range exts {
 		lower := strings.ToLower(e)
@@ -82,15 +79,13 @@ func containsString(list []string, s string) bool {
 	return false
 }
 
-// unixLineEndingExts lists file types that get \r\n -> \n normalization
-// and a stripped BOM on save.
+// unixLineEndingExts lists file types that get \r\n -> \n normalization and a stripped BOM on save
 var unixLineEndingExts = []string{
 	".sh", ".bash", ".zsh", ".py", ".conf", ".service", ".env", ".ini", ".cfg", ".json", ".php",
 	".html", ".htm", ".css", ".js", ".sql", ".xml", ".txt", ".md", ".htaccess", ".log", "error_log",
 }
 
-// handleEditFile serves the file editor page on GET and saves the
-// submitted content on POST.
+// handleEditFile serves the file editor page on GET and saves the submitted content on POST
 func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filePath string) {
 	ctx := r.Context()
 	user, err := currentUser(ctx, a, r)
@@ -197,9 +192,7 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 	renderEditFilePage(a, w, r, filePath, fileContent, editor)
 }
 
-// handleDownloadFile streams the file to the client, aborting once a
-// wall-clock time limit is exceeded so a stalled connection can't hold
-// the handler open indefinitely.
+// handleDownloadFile streams the file to the client, aborting once a wall-clock time limit is exceeded so a stalled connection can't hold the handler open indefinitely
 func handleDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filename string) {
 	ctx := r.Context()
 	user, err := currentUser(ctx, a, r)
@@ -260,9 +253,7 @@ func handleDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 	}
 }
 
-// handleViewFile serves a file's raw content for the in-browser viewer,
-// enforcing the same extension allowlist and binary-file check as the
-// editor.
+// handleViewFile serves a file's raw content for the in-browser viewer, enforcing the same extension allowlist and binary-file check as the editor
 func handleViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filename string) {
 	ctx := r.Context()
 	user, err := currentUser(ctx, a, r)

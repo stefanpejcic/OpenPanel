@@ -14,8 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterAPI wires the /api/fix-permissions routes onto mux, gated
-// behind the "fix_permissions" feature flag.
+// RegisterAPI wires the /api/fix-permissions routes onto mux, gated behind the "fix_permissions" feature flag
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "fix_permissions", "GET /api/fix-permissions", func(w http.ResponseWriter, r *http.Request) { apiFixPermissionsList(a, w, r) })
 	apiregistry.Handle(mux, a, "fix_permissions", "POST /api/fix-permissions", func(w http.ResponseWriter, r *http.Request) { apiFixPermissionsRun(a, w, r) })
@@ -27,8 +26,7 @@ func writeAPIFixPermsJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiFixPermissionsList lists every directory under /var/www/html/ (the
-// same `find`-backed listing the web page's directory picker uses).
+// apiFixPermissionsList lists every directory under /var/www/html/ (the same `find`-backed listing the web page's directory picker uses)
 func apiFixPermissionsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -52,8 +50,7 @@ func apiFixPermissionsList(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeAPIFixPermsJSON(w, http.StatusOK, map[string]any{"directories": directories})
 }
 
-// apiFixPermissionsRun is handleFixPermissions's POST path (fixpermissions.go)
-// with a JSON body/response instead of a form post + flash.
+// apiFixPermissionsRun is handleFixPermissions's POST path (fixpermissions.go) with a JSON body/response instead of a form post + flash
 func apiFixPermissionsRun(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

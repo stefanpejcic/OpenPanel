@@ -19,9 +19,7 @@ import (
 
 var secureFilenameRE = regexp.MustCompile(`[^A-Za-z0-9_.-]`)
 
-// secureFilename strips directory components and anything but ASCII
-// letters/digits/dot/dash/underscore, so an uploaded filename can't be used
-// to escape the target directory or inject odd characters into a path.
+// secureFilename strips directory components and anything but ASCII letters/digits/dot/dash/underscore, so an uploaded filename can't escape the target directory or inject odd characters into a path
 func secureFilename(name string) string {
 	name = filepath.Base(strings.ReplaceAll(name, "\\", "/"))
 	name = secureFilenameRE.ReplaceAllString(name, "_")
@@ -29,8 +27,7 @@ func secureFilename(name string) string {
 	return name
 }
 
-// handleUploadFiles handles both the initial GET (render the upload form)
-// and the POST that actually saves the submitted files.
+// handleUploadFiles handles both the initial GET (render the upload form) and the POST that actually saves the submitted files
 func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := currentUser(ctx, a, r)
@@ -130,11 +127,7 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderUploadPage(a, w, r, pathParam, fileLimitMB)
 }
 
-// flashOnlySession queues a flash and saves the session immediately -
-// upload_files() (unlike most POST handlers in this package) always falls
-// through to re-rendering the upload form itself rather than redirecting,
-// so the flash has to be persisted right away instead of piggybacking on
-// a later redirect's Set-Cookie write.
+// flashOnlySession queues a flash and saves the session immediately - unlike most POST handlers here, upload_files() always falls through to re-rendering the upload form instead of redirecting, so the flash has to be persisted right away instead of piggybacking on a later redirect's Set-Cookie write
 func flashOnlySession(a *appctx.App, r *http.Request, w http.ResponseWriter, category, message string) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	flash.Add(sess, category, message)

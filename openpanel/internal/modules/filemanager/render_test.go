@@ -19,9 +19,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 	}
 }
 
-// TestRenderFilesPage exercises filemanager.html + every included partial
-// through html/template's real executor, covering both the
-// populated-directory and empty-directory branches.
+// TestRenderFilesPage exercises filemanager.html + every included partial through html/template's real executor, covering both the populated-directory and empty-directory branches
 func TestRenderFilesPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 

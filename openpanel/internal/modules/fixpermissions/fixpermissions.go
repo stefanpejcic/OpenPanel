@@ -14,8 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// Register wires the fix-permissions route onto mux, gated behind the
-// "fix_permissions" feature flag.
+// Register wires the fix-permissions route onto mux, gated behind the "fix_permissions" feature flag
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "fix_permissions")(h)

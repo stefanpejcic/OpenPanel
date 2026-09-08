@@ -23,8 +23,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// handleInstallPage renders the install form / checks the plan's site
-// limit for a GET, and hands POST off to handleInstallStream.
+// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -62,8 +61,7 @@ func formOr(r *http.Request, key, def string) string {
 	return def
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up.
+// ensureContainerRunning starts the container if it isn't already running, polling briefly for it to come up
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -79,11 +77,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// handleInstallStream drives a Flarum install end to end, streaming NDJSON
-// progress events to the client as each step completes: create a Composer
-// project (flarum/flarum), create a MySQL database, run Flarum's own
-// console installer (see runFlarumInstaller's doc comment), then record
-// the site.
+// handleInstallStream drives a Flarum install end to end over NDJSON: create a Composer project (flarum/flarum), create a MySQL database, run Flarum's own console installer (see runFlarumInstaller's doc comment), then record the site
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -168,14 +162,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		phpContainer = "php-fpm-" + phpVersion
 	}
 
-	// Only flarum/core 2.x requires PHP 8.1+ (1.x, which is what "latest"
-	// resolves to below since no stable 2.0.0 has shipped yet - confirmed
-	// live against the real tags feed - needs only PHP >=7.3). This guard
-	// only applies when the user explicitly types a 2.x version: without
-	// it, picking 2.x on old PHP would silently downgrade to flarum/core
-	// 1.x instead of failing (composer falls back to the newest release
-	// that DOES satisfy the domain's PHP version), leaving config.php
-	// never written via a completely different, untested console installer.
+	// only flarum/core 2.x requires PHP 8.1+ (1.x, what "latest" resolves to since no stable 2.0.0 has shipped, needs only PHP >=7.3) - this guard only applies when the user explicitly types a 2.x version, since otherwise composer would silently fall back to 1.x on old PHP instead of failing
 	if !isLitespeed && strings.HasPrefix(strings.TrimPrefix(flarumVersion, "v"), "2.") && phpVersionBelow(phpVersion, 8, 1) {
 		emit(map[string]any{"error": "Flarum 2.x requires PHP 8.1 or newer, but this domain is set to PHP " + phpVersion + ". Change the domain's PHP version (or install into a subdirectory using PHP 8.1+) and try again."})
 		return
@@ -202,22 +189,13 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	if flarumVersion != "" && flarumVersion != "latest" {
 		projectConstraint = "flarum/flarum:^" + strings.TrimPrefix(flarumVersion, "v")
 	} else {
-		// No explicit pin for "latest" - fetch the real latest *stable*
-		// numeric release rather than letting composer's own resolution
-		// run unconstrained, so this can never silently pick up a future
-		// 2.0.0 pre-release the moment one ships (composer's "prefer
-		// stable, else newest" default is exactly what caused this bug
-		// in the first place: ^2.0.0 + --stability=beta below used to
-		// force-select 2.0.0-rc.7 since no stable 2.x exists yet).
+		// no explicit pin for "latest" - fetch the real latest *stable* numeric release rather than letting composer's own resolution run unconstrained, so this never silently picks up a future 2.0.0 pre-release the moment one ships
 		if version, verErr := latestFlarumVersion(ctx); verErr == nil {
 			projectConstraint = "flarum/flarum:^" + version
 		}
 	}
 
-	// Deliberately not pre-creating hostOSPath: composer create-project
-	// makes its own target directory (see drupal/install.go's identical
-	// comment about a host-side mkdir racing composer's own directory
-	// creation over the rootless bind mount).
+	// deliberately not pre-creating hostOSPath, composer create-project makes its own target dir (see drupal/install.go's identical comment about a host-side mkdir racing composer over the rootless bind mount)
 	emit(map[string]any{"status": "Creating Composer project " + projectConstraint})
 	composerArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "composer"),
 		"create-project", projectConstraint, installPath, "--no-interaction")
@@ -227,18 +205,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// flarum/flarum's docroot is the public/ subdirectory, not the composer
-	// project root - same shape as Drupal's web/ subdirectory quirk. We
-	// symlink public/'s entries up into installPath so installPath itself
-	// is servable, EXCEPT index.php: it does a literal `require
-	// '../site.php'`, which PHP resolves relative to the entry script's
-	// path as given by SCRIPT_FILENAME (the symlink's own location, not
-	// the symlinked-to real path) - so a plain symlink makes it look one
-	// directory too high and 500s on every request (confirmed live via a
-	// real install: "Failed opening required '../site.php'"). Instead we
-	// write a tiny wrapper at installPath/index.php that requires the real
-	// public/index.php by its real absolute path, so PHP resolves that
-	// file's own relative require correctly against public/.
+	// flarum/flarum's docroot is public/, not the project root, same shape as Drupal's web/ quirk - we symlink public/'s entries up into installPath EXCEPT index.php, since its literal `require '../site.php'` resolves against the symlink's own location (SCRIPT_FILENAME) not the real path, landing one directory too high and 500ing on every request; instead we write a tiny wrapper at installPath/index.php that requires the real public/index.php by its absolute path, so its own relative require resolves correctly against public/
 	emit(map[string]any{"status": "Linking public root into docroot"})
 	linkScript := `cd "$1/public" && for f in .[!.]* ..?* *; do [ "$f" = "index.php" ] && continue; [ -e "$f" ] || continue; ln -sfn "public/$f" "$1/$f"; done
 printf '%s\n' '<?php' 'chdir(__DIR__ . "/public"); require __DIR__ . "/public/index.php";' > "$1/index.php"`
@@ -340,11 +307,7 @@ type flarumInstallParams struct {
 	adminUsername, adminPassword, adminEmail string
 }
 
-// flarumInstallConfig is the --file=<json> schema Flarum's own
-// Install\Console\FileDataProvider expects (confirmed against its source:
-// it reads .debug, .baseUrl, .databaseConfiguration.{driver,host,port,
-// database,username,password,prefix}, .adminUser.{username,password,email},
-// .settings).
+// flarumInstallConfig is the --file=<json> schema Flarum's own Install\Console\FileDataProvider expects (reads .debug, .baseUrl, .databaseConfiguration.{driver,host,port,database,username,password,prefix}, .adminUser.{username,password,email}, .settings)
 type flarumInstallConfig struct {
 	Debug                 bool                        `json:"debug"`
 	BaseURL               string                      `json:"baseUrl"`
@@ -373,22 +336,7 @@ type flarumInstallSettings struct {
 	ForumTitle string `json:"forum_title"`
 }
 
-// runFlarumInstaller finishes a Flarum install via its own console
-// installer: `php <installPath>/flarum install --file=<json> --config=...`.
-//
-// Two things this had to work around, found by testing against a live
-// container rather than trusting docs.flarum.org (which only documents
-// the browser wizard) or a stale doc summary (which missed a parameter):
-//   - `install` IS a real, supported non-interactive command
-//     (Flarum\Install\Console\InstallCommand, using FileDataProvider for
-//     --file) - it's just not registered in the ConsoleServiceProvider
-//     list that (only) applies to an already-installed site, so grepping
-//     that list alone misses it.
-//   - The container's `php` on PATH is a wrapper
-//     (/usr/local/aliases/php in the shinsenter/php image) that does not
-//     reliably preserve cwd for relative-path script resolution, so the
-//     entry script must be invoked as an absolute path
-//     (installPath+"/flarum", not a bare "flarum" after cd).
+// runFlarumInstaller finishes a Flarum install via its own console installer: `php <installPath>/flarum install --file=<json> --config=...` - two things had to be worked around by testing against a live container rather than trusting docs.flarum.org's browser-wizard-only docs: `install` IS a real supported non-interactive command (Flarum\Install\Console\InstallCommand via FileDataProvider) but isn't registered in the ConsoleServiceProvider list that only applies to an already-installed site, so grepping that list alone misses it; and the container's `php` on PATH is a wrapper (/usr/local/aliases/php in shinsenter/php) that doesn't reliably preserve cwd for relative-path resolution, so the entry script must be an absolute path
 func runFlarumInstaller(ctx context.Context, userContext, phpContainer, installPath string, p flarumInstallParams) ([]byte, error) {
 	cfg := flarumInstallConfig{
 		BaseURL: p.baseURL,
@@ -407,17 +355,10 @@ func runFlarumInstaller(ctx context.Context, userContext, phpContainer, installP
 	}
 
 	const jsonPath = "/tmp/openpanel-flarum-install.json"
-	// --config is resolved as base+"/"+value internally (confirmed by
-	// testing against a live container: passing the already-absolute
-	// installPath+"/config.php" here produced a doubled path,
-	// ".../config.php//var/www/html/.../config.php", and StoreConfig's
-	// file_put_contents failed on that bogus path) - so this must be a
-	// bare relative filename, not the absolute path install.go uses
-	// everywhere else.
+	// --config is resolved as base+"/"+value internally - passing the already-absolute installPath+"/config.php" produced a doubled bogus path and StoreConfig's file_put_contents failed, so this must be a bare relative filename, not the absolute path install.go uses everywhere else
 	const configRelPath = "config.php"
 	flarumScript := installPath + "/flarum"
-	// The JSON is passed as "$1" (a discrete argv element, not interpolated
-	// into the shell script text) so its content never needs shell-quoting.
+	// the JSON is passed as "$1" (a discrete argv element, not interpolated into the shell script text) so its content never needs shell-quoting
 	installScript := `set -e; printf '%s' "$1" > ` + jsonPath + `; php ` + flarumScript +
 		` install --file=` + jsonPath + ` --config=` + configRelPath + `; rc=$?; rm -f ` + jsonPath + `; exit $rc`
 
@@ -449,10 +390,7 @@ func emitCleanupDatabase(ctx context.Context, userContext, dbName, dbUser, dbHos
 	emit(map[string]any{"status": "Cleanup: dropped database `" + dbName + "` and user `" + dbUser + "`"})
 }
 
-// phpVersionBelow reports whether version (e.g. "7.2", "8.5") is older
-// than wantMajor.wantMinor. An unparseable version is treated as too old,
-// so an unexpected format fails safe (blocks the install with a clear
-// message) rather than silently proceeding.
+// phpVersionBelow reports whether version (e.g. "7.2") is older than wantMajor.wantMinor - an unparseable version fails safe as "too old" (blocks the install with a clear message) rather than silently proceeding
 func phpVersionBelow(version string, wantMajor, wantMinor int) bool {
 	major, minor := 0, 0
 	if _, err := fmt.Sscanf(version, "%d.%d", &major, &minor); err != nil {

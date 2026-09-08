@@ -16,8 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// handleCreateFile creates an empty file at the given path and optionally
-// redirects straight into the editor for it.
+// handleCreateFile creates an empty file at the given path and optionally redirects straight into the editor for it
 func handleCreateFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	filename := strings.TrimSpace(r.Form.Get("filename"))
@@ -112,8 +111,7 @@ func handleCreateFolder(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, filesRedirectPath(pathParam), http.StatusFound)
 }
 
-// handleRenameFile renames or moves a file/directory within the same
-// listing by renaming it in place.
+// handleRenameFile renames or moves a file/directory within the same listing by renaming it in place
 func handleRenameFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	oldName := r.Form.Get("old_name")
@@ -153,8 +151,7 @@ func handleRenameFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	flashAndRedirect(a, w, r, "success", "File renamed successfully.", filesRedirectPath(pathParam))
 }
 
-// handleDeleteFile deletes a file or directory, either permanently or by
-// moving it to the trash depending on the "mode" query parameter.
+// handleDeleteFile deletes a file or directory, either permanently or by moving it to the trash depending on the "mode" query parameter
 func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	itemName := r.URL.Query().Get("filename")
 	pathParam := r.URL.Query().Get("path_param")
@@ -209,8 +206,7 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 var permissionsRE = regexp.MustCompile(`^[0-7]{3,4}$`)
 
-// handleChangePermissions applies an octal permissions string to one or
-// more selected files.
+// handleChangePermissions applies an octal permissions string to one or more selected files
 func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	filenames := r.Form["filename"]
@@ -261,8 +257,7 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	http.Redirect(w, r, filesRedirectPath(pathParam), http.StatusFound)
 }
 
-// handleCopyItem copies a file or directory to a destination path, failing
-// if the destination already exists.
+// handleCopyItem copies a file or directory to a destination path, failing if the destination already exists
 func handleCopyItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	itemName := q.Get("item_name")

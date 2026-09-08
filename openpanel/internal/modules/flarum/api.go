@@ -17,10 +17,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiInstallFlarum delegates straight to handleInstallPage (which itself
-// calls handleInstallStream on POST): same site-limit check, same NDJSON
-// progress stream written directly to the response - just fed from the
-// API's JSON body instead of a UI form post.
+// apiInstallFlarum delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
 func apiInstallFlarum(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID      string `json:"domain_id"`
@@ -52,9 +49,7 @@ func apiInstallFlarum(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleInstallPage(a, w, withFlarumForm(r, form))
 }
 
-// apiRemoveFlarum delegates to handleRemoveFlarum with the path's
-// {site_id} translated into the "id" form field it expects, and
-// output=json forced so it returns JSON instead of a flash-and-redirect.
+// apiRemoveFlarum delegates to handleRemoveFlarum with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemoveFlarum(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withFlarumForm(r, url.Values{"id": {siteID}})
@@ -64,9 +59,7 @@ func apiRemoveFlarum(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleRemoveFlarum(a, w, cloned)
 }
 
-// apiResolveFlarumSite resolves {site_id} into the (domain, docroot) pair
-// every handler in this file needs - mirrors drupal/api.go's
-// apiResolveDrupalSite.
+// apiResolveFlarumSite resolves {site_id} into the (domain, docroot) pair every handler in this file needs - mirrors drupal/api.go's apiResolveDrupalSite
 func apiResolveFlarumSite(ctx context.Context, a *appctx.App, siteID string) (domain, docroot string, ok bool) {
 	var siteName string
 	var rootDocroot sql.NullString
@@ -85,9 +78,7 @@ func apiResolveFlarumSite(ctx context.Context, a *appctx.App, siteID string) (do
 	return siteName, docroot, true
 }
 
-// apiFlarumClone delegates to handleFlarumClone, resolving {site_id} into
-// the source_domain/source_folder fields it expects and taking every other
-// clone field from the JSON body - mirrors apiWordPressClone/apiDrupalClone.
+// apiFlarumClone delegates to handleFlarumClone, resolving {site_id} into the source_domain/source_folder fields it expects and taking every other clone field from the JSON body - mirrors apiWordPressClone/apiDrupalClone
 func apiFlarumClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	sourceDomain, sourceFolder, ok := apiResolveFlarumSite(r.Context(), a, siteID)
@@ -124,8 +115,7 @@ func apiFlarumClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleFlarumClone(a, w, withFlarumForm(r, form))
 }
 
-// apiFlarumUpdate resolves {site_id} into the domain/docroot query params
-// handleFlarumUpdate reads directly, then delegates to it as-is.
+// apiFlarumUpdate resolves {site_id} into the domain/docroot query params handleFlarumUpdate reads directly, then delegates to it as-is
 func apiFlarumUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	domain, docroot, ok := apiResolveFlarumSite(r.Context(), a, siteID)
@@ -140,9 +130,7 @@ func apiFlarumUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleFlarumUpdate(a, w, r)
 }
 
-// apiFlarumCache resolves {site_id} into the domain/docroot query params
-// handleFlarumCacheClear reads (via flarumRequestParams), then delegates to
-// it as-is.
+// apiFlarumCache resolves {site_id} into the domain/docroot query params handleFlarumCacheClear reads (via flarumRequestParams), then delegates to it as-is
 func apiFlarumCache(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	domain, docroot, ok := apiResolveFlarumSite(r.Context(), a, siteID)

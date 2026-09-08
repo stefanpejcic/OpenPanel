@@ -15,8 +15,7 @@ type FileEntry struct {
 	Type        string // "directory" | "file" | "symlink" | "unknown"
 }
 
-// parseLsOutput parses `ls -l`/`ls -la` output into structured entries,
-// respecting quoted names and symlink " -> " targets.
+// parseLsOutput parses `ls -l`/`ls -la` output into structured entries, respecting quoted names and symlink " -> " targets
 func parseLsOutput(output string) []FileEntry {
 	var entries []FileEntry
 
@@ -68,9 +67,7 @@ func parseLsOutput(output string) []FileEntry {
 	return entries
 }
 
-// splitFields splits on runs of whitespace, but stops splitting after
-// maxFields-1 splits so the final field (the filename, which may itself
-// contain spaces) is left intact.
+// splitFields splits on runs of whitespace, but stops after maxFields-1 splits so the final field (the filename, which may itself contain spaces) is left intact
 func splitFields(line string, maxFields int) []string {
 	var fields []string
 	rest := line

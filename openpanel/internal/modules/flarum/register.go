@@ -9,9 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// Register wires the Flarum install/remove/manage routes onto mux, gated
-// behind the "flarum" feature flag. No maintenance or login routes - see
-// flarum.go's package doc comment for why those two aren't implemented.
+// Register wires the Flarum install/remove/manage routes onto mux, gated behind the "flarum" feature flag - no maintenance or login routes, see flarum.go's package doc comment for why those two aren't implemented
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "flarum")(h)
@@ -27,9 +25,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /flarum/update", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFlarumUpdate(a, w, r) }))
 }
 
-// withFlarumForm clones r as a POST carrying the given values as both Form
-// and PostForm, so a UI handler that reads r.FormValue(...) sees exactly
-// the fields the API's JSON body supplied.
+// withFlarumForm clones r as a POST carrying values as both Form and PostForm, so a UI handler reading r.FormValue(...) sees the API's JSON body fields
 func withFlarumForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost

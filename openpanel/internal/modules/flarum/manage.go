@@ -21,9 +21,7 @@ var (
 	removeDBUserRE = regexp.MustCompile(`'username'\s*=>\s*'([^']*)'`)
 )
 
-// handleRemoveFlarum fully uninstalls a Flarum site: drops the database
-// and user (parsed out of config.php), deletes the whole install
-// directory, and removes the sites row.
+// handleRemoveFlarum fully uninstalls a Flarum site: drops the database and user (parsed out of config.php), deletes the install directory, and removes the sites row
 func handleRemoveFlarum(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

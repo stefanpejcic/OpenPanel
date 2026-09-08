@@ -10,10 +10,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 )
 
-// moveItemToTrash moves a file or folder into the user's trash directory,
-// picking a unique name if one already exists there. This is the piece
-// handleDeleteFile depends on directly; the /trash list/restore/empty page
-// is a separate later phase.
+// moveItemToTrash moves a file or folder into the user's trash directory, picking a unique name if one already exists there - this is the piece handleDeleteFile depends on directly, the /trash list/restore/empty page is a separate later phase
 func moveItemToTrash(ctx context.Context, a *appctx.App, itemPath, itemName, userContext string) (string, error) {
 	trashDir := "/home/" + userContext + "/.local/share/Trash"
 	trashInfoPath := filepath.Join(trashDir, ".trash_restore")

@@ -12,13 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 )
 
-// This file mirrors drupal/clone.go's shape (site-limit check, file copy,
-// DB create+dump-pipe, config rewrite, sites-table insert), sharing the
-// generic bits via internal/core/cmsclone. One thing differs from Drupal
-// specifically: Flarum's config.php stores its base URL explicitly (unlike
-// Drupal, whose URL is request-derived at runtime), so a clone must also
-// rewrite the 'url' key or the cloned forum keeps pointing at the source
-// domain - forumURLRE below handles that.
+// mirrors drupal/clone.go's shape (site-limit check, file copy, DB create+dump-pipe, config rewrite, sites-table insert) via internal/core/cmsclone - unlike Drupal's request-derived URL, Flarum's config.php stores its base URL explicitly, so a clone must also rewrite the 'url' key or the cloned forum keeps pointing at the source domain, handled below
 
 var (
 	cloneFlarumDatabaseRE = regexp.MustCompile(`'database'\s*=>\s*'.*?',`)

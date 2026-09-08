@@ -15,11 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// flarumRequestParams pulls the domain/docroot query params every handler
-// in this file needs, splits the main domain out of a possible
-// subdirectory suffix, verifies ownership, and resolves the PHP container
-// to exec the flarum console inside - mirrors drupal/drush.go's
-// drushRequestParams.
+// flarumRequestParams pulls the domain/docroot query params every handler in this file needs, splits the main domain from any subdirectory suffix, verifies ownership, and resolves the PHP container to exec the flarum console inside - mirrors drupal/drush.go's drushRequestParams
 func flarumRequestParams(ctx context.Context, a *appctx.App, r *http.Request, userID int, userContext string) (domain, docroot, phpContainer string, ok bool) {
 	domain = r.URL.Query().Get("domain")
 	docroot = r.URL.Query().Get("docroot")
@@ -44,10 +40,7 @@ func flarumRequestParams(ctx context.Context, a *appctx.App, r *http.Request, us
 	return domain, docroot, phpContainer, true
 }
 
-// handleFlarumCacheClear runs `php flarum cache:clear` - Flarum's console
-// does have this command (Flarum\Foundation\Console\CacheClearCommand,
-// registered in ConsoleServiceProvider), unlike the install/login commands
-// this module can't use - see flarum.go's package doc comment.
+// handleFlarumCacheClear runs `php flarum cache:clear` - Flarum's console does have this command (Flarum\Foundation\Console\CacheClearCommand, registered in ConsoleServiceProvider), unlike the install/login commands this module can't use, see flarum.go's package doc comment
 func handleFlarumCacheClear(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -73,12 +66,7 @@ func handleFlarumCacheClear(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusOK, map[string]string{"message": "Cache cleared successfully."})
 }
 
-// handleFlarumLogs returns the tail of storage/logs/flarum.log as plain
-// text. Flarum has no `watchdog:show`-style console command the way
-// Drupal does, so this reads its Laravel-style daily log file directly off
-// the host filesystem instead of exec-ing into the container - same
-// live-read-from-disk approach internal/modules/websites uses for every
-// other CMS's version/DB info.
+// handleFlarumLogs returns the tail of storage/logs/flarum.log as plain text - Flarum has no `watchdog:show`-style console command like Drupal, so this reads its Laravel-style daily log file directly off the host filesystem instead of exec-ing into the container, same live-read-from-disk approach internal/modules/websites uses for every other CMS's version/DB info
 func handleFlarumLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)
@@ -107,9 +95,7 @@ func handleFlarumLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Tail the last 300 lines - the same order of magnitude as drush
-	// watchdog:show's default --count, and this file has no built-in
-	// rotation/size cap the way a DB-backed log would.
+	// tail the last 300 lines, same order of magnitude as drush watchdog:show's default --count, and this file has no built-in rotation/size cap the way a DB-backed log would
 	lines := strings.Split(strings.TrimRight(string(content), "\n"), "\n")
 	const maxLines = 300
 	if len(lines) > maxLines {

@@ -1,7 +1,4 @@
-// Package filemanager implements the file browser (list/upload/create/
-// delete/rename/move/copy/compress/extract/permissions/edit), built on top
-// of internal/core/paths' SecureUserPath guard for every user-supplied
-// path.
+// Package filemanager implements the file browser (list/upload/create/delete/rename/move/copy/compress/extract/permissions/edit), built on top of internal/core/paths' SecureUserPath guard for every user-supplied path
 package filemanager
 
 import (
@@ -21,18 +18,14 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// Register wires the file manager's routes onto mux, gated behind the
-// "filemanager" feature flag.
+// Register wires the file manager's routes onto mux, gated behind the "filemanager" feature flag
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "filemanager")(h)
 	}
 
 	mux.Handle("GET /files", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFiles(a, w, r, "") }))
-	// "GET /files/{path_param...}" already covers the bare "/files/" case
-	// too (path_param resolves to "" for that exact path), so no separate
-	// registration is needed for it - net/http.ServeMux would refuse to
-	// register both anyway (they'd be flagged as an ambiguous conflict).
+	// "GET /files/{path_param...}" already covers the bare "/files/" case too (path_param resolves to "" there), so no separate registration is needed - ServeMux would refuse to register both anyway (ambiguous conflict)
 	mux.Handle("GET /files/{path_param...}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleFiles(a, w, r, r.PathValue("path_param"))
 	}))
@@ -66,8 +59,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}))
 }
 
-// stripQuotes trims a leading/trailing matching pair of single or double
-// quotes, used for config values that may be quoted in openpanel.config.
+// stripQuotes trims a leading/trailing matching pair of single or double quotes, used for config values that may be quoted in openpanel.config
 func stripQuotes(s string) string {
 	s = strings.TrimSpace(s)
 	if len(s) >= 2 {
@@ -79,8 +71,7 @@ func stripQuotes(s string) string {
 	return s
 }
 
-// injectedUser is the small subset of InjectData() every filemanager route
-// needs.
+// injectedUser is the small subset of InjectData() every filemanager route needs
 type injectedUser struct {
 	Username string
 	Context  string
@@ -111,8 +102,7 @@ func filesRedirectPath(pathParam string) string {
 	return "/files/" + pathParam
 }
 
-// pathErrorStatus extracts the HTTP status from a *paths.Error, defaulting
-// to 500 for anything else.
+// pathErrorStatus extracts the HTTP status from a *paths.Error, defaulting to 500 for anything else
 func pathErrorStatus(err error) (int, string) {
 	if perr, ok := err.(*paths.Error); ok {
 		return perr.Code, perr.Message
@@ -126,9 +116,7 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// chownToUser sets ownership of path to the given user's uid. It's
-// best-effort: the error is returned but not acted on here, leaving each
-// caller to decide whether to flash a warning or ignore it.
+// chownToUser sets ownership of path to the given user's uid - best-effort: the error is returned but not acted on here, leaving each caller to decide whether to flash a warning or ignore it
 func chownToUser(ctx context.Context, a *appctx.App, path, userContext string) error {
 	uid, err := a.GetUID(ctx, userContext)
 	if err != nil || uid <= 0 {
@@ -137,9 +125,7 @@ func chownToUser(ctx context.Context, a *appctx.App, path, userContext string) e
 	return os.Chown(path, uid, uid)
 }
 
-// chownRecursive sets ownership of root and everything beneath it,
-// used after extract/copy/move so the destination ends up owned by the
-// target user rather than the panel process.
+// chownRecursive sets ownership of root and everything beneath it, used after extract/copy/move so the destination ends up owned by the target user rather than the panel process
 func chownRecursive(ctx context.Context, a *appctx.App, root, userContext string) {
 	uid, err := a.GetUID(ctx, userContext)
 	if err != nil || uid <= 0 {
@@ -163,8 +149,7 @@ func atoiDefault(s string, def int) int {
 	return n
 }
 
-// runCommand runs a command and returns its error, for the simple
-// fire-and-check call sites in this package that don't need output.
+// runCommand runs a command and returns its error, for the simple fire-and-check call sites in this package that don't need output
 func runCommand(ctx context.Context, name string, args ...string) error {
 	cmd := exec.CommandContext(ctx, name, args...)
 	return cmd.Run()

@@ -53,16 +53,14 @@ var editFilePage = web.MustLoadPage(
 	"files/edit_file.html",
 )
 
-// Breadcrumb mirrors one segment of the filemanager.html / edit_file.html
-// path breadcrumb trail.
+// Breadcrumb mirrors one segment of the filemanager.html / edit_file.html path breadcrumb trail
 type Breadcrumb struct {
 	Name string
 	Path string
 	Last bool
 }
 
-// buildBreadcrumbs splits a path into breadcrumb segments after trimming
-// leading/trailing slashes.
+// buildBreadcrumbs splits a path into breadcrumb segments after trimming leading/trailing slashes
 func buildBreadcrumbs(pathParam string) []Breadcrumb {
 	trimmed := strings.Trim(pathParam, "/")
 	if trimmed == "" {
@@ -80,18 +78,13 @@ func buildBreadcrumbs(pathParam string) []Breadcrumb {
 	return crumbs
 }
 
-// PageEntry is one rendered pagination control: either a page number link
-// or an ellipsis. Pages that match neither condition in the pagination
-// rules below render nothing at all, so they simply don't appear here.
+// PageEntry is one rendered pagination control: either a page number link or an ellipsis - pages that match neither condition below render nothing, so they simply don't appear here
 type PageEntry struct {
 	Number     int
 	IsEllipsis bool
 }
 
-// buildPageEntries mirrors filemanager.html's pagination loop exactly:
-// current page (active), first/last page, and current±2 render as links;
-// page 2 and total_pages-1 render as an ellipsis when they don't already
-// qualify above; every other page renders nothing.
+// buildPageEntries mirrors filemanager.html's pagination loop exactly: current page, first/last page, and current±2 render as links, page 2 and total_pages-1 render as an ellipsis unless they already qualify above, everything else renders nothing
 func buildPageEntries(current, total int) []PageEntry {
 	var entries []PageEntry
 	for p := 1; p <= total; p++ {
@@ -134,8 +127,7 @@ func urlEncodedJoin(parts ...string) string {
 	return b.String()
 }
 
-// filesPageParams is what handleFiles passes to renderFilesPage - the
-// already-paginated slice of files() plus the surrounding page context.
+// filesPageParams is what handleFiles passes to renderFilesPage - the already-paginated slice of files() plus the surrounding page context
 type filesPageParams struct {
 	Title                               string
 	PathParam                           string

@@ -11,12 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
-// HandleDirectorySize serves `/json/directory-size`, used by both the file
-// manager table's "Calculate" links and various app single-page views.
-// Feature name "helpers" is unconditionally granted to every user (see
-// baselineFeatures), so - like /docker/tags and /json/check_if_file_exists -
-// this is registered unconditionally rather than gated behind the
-// "filemanager" flag.
+// HandleDirectorySize serves `/json/directory-size`, used by both the file manager table's "Calculate" links and various app single-page views - feature "helpers" is unconditionally granted to every user (see baselineFeatures), so like /docker/tags and /json/check_if_file_exists this is registered unconditionally rather than gated behind "filemanager"
 func HandleDirectorySize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	user, err := currentUser(r.Context(), a, r)
 	if err != nil {
