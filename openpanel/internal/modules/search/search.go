@@ -1,7 +1,4 @@
-// Package search implements the sidebar's entity search box, covering
-// feature/page search (everyone) and, for Enterprise licenses, cross-entity
-// search over databases/domains/emails/ftp/containers/services/websites/
-// crons.
+// Package search implements the sidebar's entity search box, covering feature/page search (everyone) and, for Enterprise licenses, cross-entity search over databases/domains/emails/ftp/containers/services/websites/crons.
 package search
 
 import (
@@ -24,8 +21,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// enterpriseSearchTypes lists the search sub-types gated behind an
-// Enterprise license.
+// enterpriseSearchTypes lists the search sub-types gated behind an Enterprise license
 var enterpriseSearchTypes = map[string]bool{
 	"mysql_databases": true, "mysql_users": true,
 	"postgresql_databases": true, "postgresql_users": true,
@@ -33,9 +29,7 @@ var enterpriseSearchTypes = map[string]bool{
 	"services": true, "websites": true, "crons": true,
 }
 
-// gateFor returns the feature gate for a search sub-type: nil means no
-// feature required, a non-empty slice means "at least one of these
-// features".
+// gateFor returns the feature gate for a search sub-type: nil means no feature required, a non-empty slice means "at least one of these features"
 func gateFor(what string) (required []string, ok bool) {
 	gates := map[string][]string{
 		"files": {"filemanager"}, "folders": {"filemanager"},
@@ -76,8 +70,7 @@ type item struct {
 	Link string `json:"link"`
 }
 
-// HandleSearch dispatches a /json/search/{what} request to its sub-type
-// handler after checking the Enterprise and feature gates.
+// HandleSearch dispatches a /json/search/{what} request to its sub-type handler after checking the Enterprise and feature gates
 func HandleSearch(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	what := r.PathValue("what")
 	ctx := r.Context()
@@ -442,9 +435,7 @@ func searchFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, userCo
 	writeJSON(w, http.StatusOK, results)
 }
 
-// walkLimitedDepth visits root and its subdirectories up to maxDepth levels
-// below root, calling visit(dir, entries) for each - visit returns false to
-// stop the walk early (result cap reached).
+// walkLimitedDepth visits root and its subdirectories up to maxDepth levels below root, calling visit(dir, entries) for each - visit returns false to stop the walk early (result cap reached)
 func walkLimitedDepth(root string, baseDepth, maxDepth int, visit func(dir string, entries []os.DirEntry) bool) error {
 	entries, err := os.ReadDir(root)
 	if err != nil {

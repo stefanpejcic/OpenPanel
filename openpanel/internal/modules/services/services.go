@@ -1,8 +1,4 @@
-// Package services provides a simplified, filtered view of the
-// docker-compose services list (excluding all but the currently-active
-// webserver/mysql engine) with enable/disable/restart actions and a
-// real-time status/log widget, built entirely on top of
-// internal/modules/docker's existing podman CLI layer.
+// Package services provides a simplified, filtered view of the docker-compose services list (excluding all but the currently-active webserver/mysql engine) with enable/disable/restart actions and a real-time status/log widget, built on top of internal/modules/docker's existing podman CLI layer.
 package services
 
 import (
@@ -18,8 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// Register wires the services routes onto mux, gated behind the
-// "services" feature flag.
+// Register wires the services routes onto mux, gated behind the "services" feature flag
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "services")(h)
@@ -30,9 +25,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/services/{service}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleManageService(a, w, r)
 	}))
-	// The services page's log widget (_service_log.html) hard-depends on
-	// this route, so it's registered alongside the rest of this package
-	// rather than living with the other JSON helper endpoints.
+	// the services page's log widget (_service_log.html) hard-depends on this route, so it's registered here rather than with the other JSON helper endpoints
 	mux.Handle("GET /json/containers/log/{service_name}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleViewLog(a, w, r)
 	}))
@@ -43,9 +36,7 @@ var webserverServices = map[string]bool{
 }
 var mysqlServices = map[string]bool{"mysql": true, "mariadb": true}
 
-// FilterServices shows only the currently-active webserver and mysql
-// engine, hides every other webserver/mysql service, and passes everything
-// else through unchanged.
+// FilterServices shows only the currently-active webserver and mysql engine, hides every other webserver/mysql service, and passes everything else through unchanged
 func FilterServices(all []string, webserver, mysqlType string) []string {
 	var result []string
 	for _, s := range all {
@@ -56,9 +47,7 @@ func FilterServices(all []string, webserver, mysqlType string) []string {
 	return result
 }
 
-// handleManageService renders the service picker (no service selected) or
-// a single service's detail/status page, and applies enable/disable/restart
-// actions posted from that page.
+// handleManageService renders the service picker (no service selected) or a single service's detail/status page, and applies enable/disable/restart actions posted from that page
 func handleManageService(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")
@@ -72,11 +61,7 @@ func handleManageService(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	username, _ := injected["current_username"].(string)
 	userContext, _ := injected["context"].(string)
 
-	// A YAML parse error returns a plain 500 with no flash message, since
-	// there's no template render afterward to pop one. A missing compose
-	// file isn't distinguished from "no services yet" here - LoadCompose
-	// already treats it as an empty (not error) config, matching every
-	// other caller in internal/modules/docker.
+	// a YAML parse error returns a plain 500 with no flash message since there's no render afterward to pop one - a missing compose file isn't distinguished from "no services yet" since LoadCompose already treats it as empty, not an error
 	composeData, err := docker.LoadCompose(userContext)
 	if err != nil {
 		http.Error(w, "Error reading services.", http.StatusInternalServerError)
@@ -94,8 +79,7 @@ func handleManageService(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	if !containsString(allowedServices, service) {
-		// A plain 403 with no flash message, since there's no template
-		// render afterward to pop one.
+		// plain 403 with no flash message since there's no render afterward to pop one
 		http.Error(w, "Service '"+service+"' does not exist.", http.StatusForbidden)
 		return
 	}
@@ -123,14 +107,7 @@ func handleManageService(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	renderServiceDetailPage(a, w, r, service, userContext, status)
 }
 
-// HandleServiceAction applies an enable/disable/restart action and queues a
-// flash message on the request's session object, but does not persist it -
-// unlike every other handler in this codebase, this route doesn't redirect
-// after a POST, it falls through to rendering the same page in the same
-// response. gorilla/sessions caches one *sessions.Session per *http.Request,
-// so the later web.BuildLayoutData -> flash.Pop call during that render
-// reuses this exact session object (including the flash just added here)
-// and performs the one real Save/Set-Cookie write for the response.
+// HandleServiceAction applies an enable/disable/restart action and queues a flash message on the request's session object without persisting it - unlike every other handler here this route falls through to rendering the same page instead of redirecting, and gorilla/sessions caches one session per request so the later flash.Pop during that render reuses this exact object and does the real Save/Set-Cookie write
 func HandleServiceAction(a *appctx.App, r *http.Request, action, service, userContext, username string) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 

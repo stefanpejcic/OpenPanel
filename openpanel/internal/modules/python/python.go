@@ -1,6 +1,4 @@
-// Package python installs a Python application into a domain via a
-// docker-compose service + reverse proxy. All the actual logic lives in
-// internal/modules/appinstall, shared with the nodejs package.
+// Package python installs a Python application into a domain via a docker-compose service + reverse proxy - the actual logic lives in internal/modules/appinstall, shared with the nodejs package
 package python
 
 import (

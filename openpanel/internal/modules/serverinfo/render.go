@@ -31,9 +31,7 @@ var (
 	usageHistoryPage = loadPage("user/history_usage.html")
 )
 
-// ServerInfoPageData is system/server_info.html's template context. The
-// page is filled in almost entirely client-side via the
-// /json/system/hosting/* fetches, so this only carries the layout.
+// ServerInfoPageData is system/server_info.html's template context - the page is filled in almost entirely client-side via /json/system/hosting/* fetches, so this only carries the layout
 type ServerInfoPageData struct {
 	web.LayoutData
 }
@@ -84,10 +82,7 @@ type PageEntry struct {
 	IsEllipsis bool
 }
 
-// buildPageEntries builds the pagination control list: current page
-// (active), first/last page, and current+-2 render as links; page 2 and
-// total_pages-1 render as an ellipsis when they don't already qualify
-// above; every other page renders nothing.
+// buildPageEntries builds the pagination control list: current page (active), first/last page, and current+-2 render as links; page 2 and total_pages-1 render as an ellipsis when they don't already qualify above; every other page renders nothing
 func buildPageEntries(current, total int) []PageEntry {
 	var entries []PageEntry
 	for p := 1; p <= total; p++ {

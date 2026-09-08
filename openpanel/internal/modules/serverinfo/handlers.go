@@ -13,8 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 )
 
-// handleServerInfo serves a static page shell, entirely filled in
-// client-side via the /json/system/hosting/* fetches below.
+// handleServerInfo serves a static page shell, entirely filled in client-side via the /json/system/hosting/* fetches below
 func handleServerInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderServerInfoPage(a, w, r)
 }
@@ -105,10 +104,7 @@ func handleUsageHistory(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderUsageHistoryPage(a, w, r, chartsMode, showAll, itemsPerPage, totalPages, totalLines, currentPage, paginated)
 }
 
-// buildHostingInfo gathers platform/uname info, uptime, load average, and
-// the server's public IP - the data behind both /json/system/hosting/info
-// and /api/hosting/info (and, combined with buildHostingPlan/Ports, the
-// single-call /api/server/info).
+// buildHostingInfo gathers platform/uname info, uptime, load average, and the server's public IP - the data behind both /json/system/hosting/info and /api/hosting/info
 func buildHostingInfo(a *appctx.App, r *http.Request, username string) map[string]any {
 	uptime, loadAvg := getUptimeAndLoad()
 	platform := getPlatformInfo()
@@ -126,8 +122,7 @@ func buildHostingInfo(a *appctx.App, r *http.Request, username string) map[strin
 	}
 }
 
-// handleSystemHostingInfo returns platform/uname info, uptime, load
-// average, and the server's public IP.
+// handleSystemHostingInfo returns platform/uname info, uptime, load average, and the server's public IP
 func handleSystemHostingInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	data, err := injected(a, r)
 	if err != nil {
@@ -139,10 +134,7 @@ func handleSystemHostingInfo(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	writeJSON(w, http.StatusOK, buildHostingInfo(a, r, username))
 }
 
-// buildHostingPlan gathers the user's hosting plan limits plus the
-// webserver/mysql type and nameservers configured for their context - the
-// data behind both /json/system/hosting/plan and /api/hosting/plan (and,
-// combined with buildHostingInfo/Ports, the single-call /api/server/info).
+// buildHostingPlan gathers the user's hosting plan limits plus the webserver/mysql type and nameservers configured for their context - the data behind both /json/system/hosting/plan and /api/hosting/plan
 func buildHostingPlan(a *appctx.App, r *http.Request, userContext string, planID int) map[string]any {
 	plan := appctx.PlanDetails{
 		DomainsLimit: "0", WebsitesLimit: "0", DBLimit: "0", CPU: "0", RAM: "0",
@@ -183,8 +175,7 @@ func buildHostingPlan(a *appctx.App, r *http.Request, userContext string, planID
 	}
 }
 
-// handleSystemHostingPlan returns the user's hosting plan limits plus the
-// webserver/mysql type and nameservers configured for their context.
+// handleSystemHostingPlan returns the user's hosting plan limits plus the webserver/mysql type and nameservers configured for their context
 func handleSystemHostingPlan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	data, err := injected(a, r)
 	if err != nil {
@@ -197,8 +188,7 @@ func handleSystemHostingPlan(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	writeJSON(w, http.StatusOK, buildHostingPlan(a, r, userContext, planID))
 }
 
-// getEnvPort reads /home/<context>/.env and, for host:port style values,
-// returns just the port segment.
+// getEnvPort reads /home/<context>/.env and, for host:port style values, returns just the port segment
 func getEnvPort(context, key string) string {
 	content, err := os.ReadFile("/home/" + context + "/.env")
 	if err != nil {
@@ -224,10 +214,7 @@ func getEnvPort(context, key string) string {
 	return ""
 }
 
-// buildHostingPorts gathers the host-exposed ports for the user's MySQL
-// and Postgres containers - the data behind both
-// /json/system/hosting/ports and /api/hosting/ports (and, combined with
-// buildHostingInfo/Plan, the single-call /api/server/info).
+// buildHostingPorts gathers the host-exposed ports for the user's MySQL and Postgres containers - the data behind both /json/system/hosting/ports and /api/hosting/ports
 func buildHostingPorts(username string) map[string]any {
 	return map[string]any{
 		"remote_mysql_port":    getEnvPort(username, "MYSQL_PORT"),
@@ -235,8 +222,7 @@ func buildHostingPorts(username string) map[string]any {
 	}
 }
 
-// handleSystemHostingPorts returns the host-exposed ports for the user's
-// MySQL and Postgres containers.
+// handleSystemHostingPorts returns the host-exposed ports for the user's MySQL and Postgres containers
 func handleSystemHostingPorts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	data, err := injected(a, r)
 	if err != nil {

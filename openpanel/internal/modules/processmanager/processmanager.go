@@ -1,6 +1,4 @@
-// Package processmanager lists the processes running inside every
-// container of a user's stack (via `podman top`) and lets the user
-// terminate one.
+// Package processmanager lists the processes running inside every container of a user's stack (via `podman top`) and lets the user terminate one.
 package processmanager
 
 import (
@@ -20,18 +18,10 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// topDescriptors are the fields requested from `podman top`. "user", not
-// "uid" - "uid" isn't one of podman's recognized AIX format descriptors
-// (see `podman top --help`), so including it makes podman treat the whole
-// list as ps(1) flags and exec ps(1) inside the container instead, which
-// fails on any image whose ps doesn't support BSD-style syntax (busybox,
-// Alpine, ...) - i.e. every container, so the page always showed "No
-// processes".
+// topDescriptors are the fields requested from `podman top` - "user", not "uid", since "uid" isn't a recognized AIX format descriptor and including it makes podman exec ps(1) inside the container instead, which fails on busybox/Alpine's ps and always showed "No processes"
 var topDescriptors = []string{"user", "pid", "ppid", "pcpu", "stime", "tty", "time", "args"}
 
-// timeFieldRE matches the elapsed-TIME field ("7s", "23m13s", "1h2m3s") or
-// classic "HH:MM:SS" - used to re-anchor field parsing since STIME isn't
-// reliably a single token (see getPodmanProcesses).
+// timeFieldRE matches the elapsed-TIME field ("7s", "23m13s", "1h2m3s") or classic "HH:MM:SS" - used to re-anchor field parsing since STIME isn't reliably a single token (see getPodmanProcesses)
 var timeFieldRE = regexp.MustCompile(`^(?:(?:\d+h)?(?:\d+m)?\d+s|\d+:\d{2}(?::\d{2})?)$`)
 
 // Process is one row of `podman top` output, tagged with its container.
@@ -58,8 +48,7 @@ func injected(a *appctx.App, r *http.Request) (username, userContext string, err
 	return username, userContext, nil
 }
 
-// serviceNamesFromCompose extracts every service name from a parsed
-// docker-compose.yml.
+// serviceNamesFromCompose extracts every service name from a parsed docker-compose.yml
 func serviceNamesFromCompose(compose map[string]any) []string {
 	services, ok := compose["services"].(map[string]any)
 	if !ok {
@@ -72,9 +61,7 @@ func serviceNamesFromCompose(compose map[string]any) []string {
 	return names
 }
 
-// getPodmanProcesses runs `podman top` against every running service
-// container in the user's compose stack and returns the combined,
-// PID-sorted process list.
+// getPodmanProcesses runs `podman top` against every running service container in the user's compose stack and returns the combined, PID-sorted process list
 func getPodmanProcesses(ctx context.Context, userContext string) ([]Process, error) {
 	compose, err := podmanmanager.LoadComposeConfig(ctx, userContext)
 	if err != nil {
@@ -158,8 +145,7 @@ func getPodmanProcesses(ctx context.Context, userContext string) ([]Process, err
 	return processes, nil
 }
 
-// isDisplayableCmd filters out entrypoint/healthcheck noise rows that
-// aren't useful to show the user.
+// isDisplayableCmd filters out entrypoint/healthcheck noise rows that aren't useful to show the user
 func isDisplayableCmd(cmd string) bool {
 	return !strings.Contains(cmd, "/etc/entrypoint.sh") &&
 		!strings.Contains(cmd, "ps -eo pid,%cpu,time,cmd") &&

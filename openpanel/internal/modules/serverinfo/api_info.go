@@ -7,10 +7,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// RegisterInfoAPI wires GET /api/server/info onto mux: a single-call
-// convenience endpoint combining the three buildHosting* payloads that
-// /server/info's page already fetches client-side as separate
-// /json/system/hosting/* (and /api/hosting/*) calls.
+// RegisterInfoAPI wires GET /api/server/info onto mux: a single-call convenience endpoint combining the three buildHosting* payloads /server/info's page already fetches client-side as separate calls
 func RegisterInfoAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "info", "GET /api/server/info", func(w http.ResponseWriter, r *http.Request) { handleServerInfoAPI(a, w, r) })
 }

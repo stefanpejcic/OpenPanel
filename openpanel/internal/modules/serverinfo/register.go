@@ -15,10 +15,7 @@ func RegisterInfo(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /server/info", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleServerInfo(a, w, r) }))
 }
 
-// RegisterHostingJSON wires the /json/system/hosting/* routes onto mux.
-// Unlike RegisterInfo, these are always registered rather than gated by
-// enabled_modules, so callers should register this alongside the
-// always-on modules, not behind the "info" feature flag.
+// RegisterHostingJSON wires the /json/system/hosting/* routes onto mux - unlike RegisterInfo, these are always registered rather than gated by enabled_modules, so register this alongside the always-on modules, not behind the "info" feature flag
 func RegisterHostingJSON(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "info")(h)

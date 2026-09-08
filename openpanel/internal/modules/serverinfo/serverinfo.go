@@ -1,6 +1,4 @@
-// Package serverinfo implements the server information page,
-// current/historical resource usage pages, and the /json/system/hosting/*
-// endpoints those pages fetch from.
+// Package serverinfo implements the server information page, current/historical resource usage pages, and the /json/system/hosting/* endpoints those pages fetch from.
 package serverinfo
 
 import (
@@ -26,8 +24,7 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// platformInfo holds the uname-derived fields shown on the server info
-// page.
+// platformInfo holds the uname-derived fields shown on the server info page
 type platformInfo struct {
 	System, Node, Release, Version, Machine, Processor string
 }
@@ -43,9 +40,7 @@ func unameToString(b [65]int8) string {
 	return string(buf)
 }
 
-// getPlatformInfo reads system/node/release/version/machine via
-// syscall.Uname (no subprocess needed), and shells out to `uname -p` for
-// the processor field, which has no equivalent in the uname struct.
+// getPlatformInfo reads system/node/release/version/machine via syscall.Uname (no subprocess needed), and shells out to `uname -p` for the processor field, which has no equivalent in the uname struct
 func getPlatformInfo() platformInfo {
 	var info platformInfo
 	var uts syscall.Utsname
@@ -67,8 +62,7 @@ var (
 	loadAvgRE = regexp.MustCompile(`load average: (.*)$`)
 )
 
-// getUptimeAndLoad shells out to `uptime` and regex-extracts the two
-// pieces callers actually want.
+// getUptimeAndLoad shells out to `uptime` and regex-extracts the two pieces callers actually want
 func getUptimeAndLoad() (uptime, loadAvg string) {
 	out, err := exec.Command("uptime").Output()
 	if err != nil {
@@ -84,8 +78,7 @@ func getUptimeAndLoad() (uptime, loadAvg string) {
 	return uptime, loadAvg
 }
 
-// humanValue is the shared {pct, human} shape used throughout
-// resource_usage.txt's JSON lines.
+// humanValue is the shared {pct, human} shape used throughout resource_usage.txt's JSON lines
 type humanValue struct {
 	Pct   float64 `json:"pct"`
 	Human string  `json:"human"`
@@ -95,9 +88,7 @@ type humanOnly struct {
 	Human string `json:"human"`
 }
 
-// ResourceUsageLine is the shared per-line schema of
-// /home/<context>/resource_usage.txt, used by both the current-usage page
-// (last line only) and the usage-history page (every line).
+// ResourceUsageLine is the shared per-line schema of /home/<context>/resource_usage.txt, used by both the current-usage page (last line only) and the usage-history page (every line)
 type ResourceUsageLine struct {
 	Timestamp string `json:"timestamp"`
 	CPU       struct {
