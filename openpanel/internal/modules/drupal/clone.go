@@ -12,25 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 )
 
-// This file mirrors wordpress/manage.go's handleCloneWordPress in overall
-// shape (site-limit check, file copy, DB create+dump-pipe, config
-// rewrite, sites-table insert), sharing everything but the docroot copy
-// and config-rewrite steps with every other CMS's clone.go via
-// internal/core/cmsclone - see that package's doc comment for why those
-// two steps stay local. Two things differ from WordPress specifically:
-//
-//  1. Drupal's base URL is request-derived at runtime and this install
-//     flow never sets $settings['trusted_host_patterns'] (confirmed via
-//     grep of install.go - absent), so there's no host-allowlist to update
-//     and no wp-cli-style DB search-replace step: any URL a user has
-//     hardcoded into node/content body text will still point at the source
-//     domain after cloning. Same known, deliberate limitation as
-//     joomla/clone.go documents for the same reason.
-//  2. cmsclone.ValidDocroot accepts the real "/var/www/html/..."
-//     absolute-path form .Docroot actually uses everywhere else in this
-//     codebase - WordPress's own validateDocroot() rejects any leading
-//     "/", which would reject its own clone form's real source_folder
-//     value. Not replicating that bug here.
+// mirrors wordpress/manage.go's handleCloneWordPress in shape (site-limit check, file copy, DB create+dump-pipe, config rewrite, sites-table insert) via internal/core/cmsclone, but differs from WordPress in two ways: Drupal's base URL is request-derived with no trusted_host_patterns set, so there's no host-allowlist to update and no wp-cli-style DB search-replace - hardcoded URLs in node content still point at the source domain after cloning, same known limitation as joomla/clone.go; and cmsclone.ValidDocroot accepts the real "/var/www/html/..." absolute-path form .Docroot actually uses, unlike WordPress's own validateDocroot() which rejects a leading "/"
 
 var (
 	cloneDrupalDatabaseRE = regexp.MustCompile(`'database'\s*=>\s*'.*?',`)

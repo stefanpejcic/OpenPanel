@@ -12,15 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// handleDrupalUpdate updates an existing Drupal install in place: composer
-// update of drupal/core-recommended (and its transient deps), then drush's
-// own database-schema-update and cache-rebuild steps, matching Drupal's
-// documented Composer-based update procedure. Streams NDJSON progress like
-// install does. No automatic backup - the UI tells the user to take one
-// from the Backups tab first, since a DB dump strategy that's safe to run
-// unattended here would need the same per-CMS table-discovery logic
-// backups.go already has, and running it silently before every update
-// hides how large/slow that step can be from the user.
+// handleDrupalUpdate updates an existing Drupal install in place: composer update of drupal/core-recommended and its deps, then drush's database-schema-update and cache-rebuild steps, matching Drupal's documented Composer-based update procedure, streaming NDJSON like install does - no automatic backup, the UI tells the user to take one from the Backups tab first since running that silently would hide how slow it can be
 func handleDrupalUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

@@ -20,8 +20,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 )
 
-// handleInstallPage renders the install form / checks the plan's site
-// limit for a GET, and hands POST off to handleInstallStream.
+// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -59,8 +58,7 @@ func formOr(r *http.Request, key, def string) string {
 	return def
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up (mirrors phpapp.ensureContainerRunning).
+// ensureContainerRunning starts the container if it isn't already running, polling briefly for it to come up (mirrors phpapp.ensureContainerRunning)
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -76,10 +74,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// handleInstallStream drives a Drupal install end to end, streaming NDJSON
-// progress events to the client as each step completes: create a Composer
-// project (drupal/recommended-project), create a MySQL database, run
-// `drush site:install`, then record the site.
+// handleInstallStream drives a Drupal install end to end over NDJSON: create a Composer project (drupal/recommended-project), create a MySQL database, run `drush site:install`, then record the site
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -186,10 +181,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		projectConstraint = "drupal/recommended-project:" + drupalVersion
 	}
 
-	// Deliberately not pre-creating hostOSPath: composer create-project
-	// makes its own target directory (see phpapp/install.go's identical
-	// comment about a host-side mkdir racing composer's own directory
-	// creation over the rootless bind mount).
+	// deliberately not pre-creating hostOSPath, composer create-project makes its own target dir (see phpapp/install.go's identical comment about a host-side mkdir racing composer over the rootless bind mount)
 	emit(map[string]any{"status": "Creating Composer project " + projectConstraint})
 	composerArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "composer"),
 		"create-project", projectConstraint, installPath, "--no-interaction")
@@ -199,9 +191,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// drupal/recommended-project deliberately doesn't bundle Drush (has not
-	// since Drupal 9) - it has to be required explicitly before it can be
-	// invoked for site:install below.
+	// drupal/recommended-project doesn't bundle Drush (hasn't since Drupal 9), has to be required explicitly before site:install below
 	emit(map[string]any{"status": "Requiring drush/drush"})
 	requireDrushArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "composer"),
 		"--working-dir="+installPath, "require", "drush/drush", "--no-interaction")
@@ -212,27 +202,12 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Composer doesn't reliably leave any of vendor/bin/* (or the real
-	// binaries those wrapper scripts exec, like vendor/drush/drush/drush)
-	// executable in this environment (confirmed live: every single file
-	// under vendor/bin/ came out 644, not 755 - drush's own wrapper chain
-	// alone hits three of them, vendor/bin/drush -> vendor/drush/drush/
-	// drush -> vendor/bin/drush.php, and every later drush call,
-	// including the manager page's own autologin button, failed with
-	// "exists but it is not executable: Operation not permitted"). Force
-	// the whole directory plus drush's real binary rather than trusting
-	// composer's own bin-dir handling.
+	// composer doesn't reliably leave vendor/bin/* executable here (came out 644 not 755, breaking every later drush call including the manager page's autologin button), so force chmod the whole dir plus drush's real binary rather than trusting composer's bin-dir handling
 	chmodDrushArgv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "find",
 		installPath+"/vendor/bin", installPath+"/vendor/drush/drush/drush", "-type", "f", "-exec", "chmod", "+x", "{}", "+")
 	_, _ = podmanmanager.Command(ctx, userContext, chmodDrushArgv).CombinedOutput()
 
-	// drupal/recommended-project's docroot is the web/ subdirectory, not the
-	// composer project root - but OpenPanel's per-domain (or subdirectory)
-	// docroot always maps directly to installPath. Symlinking web/'s entries
-	// up into installPath (rather than moving them) makes installPath itself
-	// servable without touching web/'s own relative includes (autoload.php's
-	// `__DIR__ . '/../vendor/autoload.php'` still resolves correctly, since
-	// PHP resolves __DIR__/__FILE__ against the symlink target).
+	// drupal/recommended-project's docroot is web/, not the project root, but OpenPanel's docroot always maps to installPath - symlinking web/'s entries up into installPath (rather than moving them) makes it servable without breaking web/'s own relative includes, since PHP resolves __DIR__/__FILE__ against the symlink target
 	emit(map[string]any{"status": "Linking web root into docroot"})
 	linkScript := `cd "$1/web" && for f in .[!.]* ..?* *; do [ -e "$f" ] || continue; ln -sfn "web/$f" "$1/$f"; done`
 	linkArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "sh", "-c", linkScript, "sh"), installPath)
@@ -287,10 +262,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	emit(map[string]any{"status": "Running drush site:install"})
 	dbURL := "mysql://" + dbUser + ":" + dbPassword + "@" + mysqlVersion + "/" + dbName
-	// Absolute path, not "vendor/bin/drush" - podman exec's cwd is the
-	// container's default workdir (/var/www/html), not installPath, so a
-	// relative path resolves to the wrong location for subdirectory/
-	// non-root installs.
+	// absolute path, not "vendor/bin/drush" - podman exec's cwd is the container's default workdir, not installPath, so a relative path resolves wrong for subdirectory/non-root installs
 	drushArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, installPath+"/vendor/bin/drush"),
 		"site:install", "standard",
 		"--db-url="+dbURL,
@@ -332,10 +304,7 @@ func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, curr
 	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
 }
 
-// emitCleanupFiles removes a failed install's partially-created directory.
-// Unlike WordPress's itemized top-level-file cleanup, Drupal's install
-// target is always a fresh directory composer create-project just made, so
-// deleting the whole thing is safe and simpler.
+// emitCleanupFiles removes a failed install's partially-created directory - unlike WordPress's itemized cleanup, Drupal's install target is always a fresh dir composer create-project just made, so deleting the whole thing is safe and simpler
 func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)
 	if err := podmanmanager.Command(ctx, userContext, argv).Run(); err != nil {

@@ -19,17 +19,9 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors wordpress/backups.go's directory layout, naming and
-// restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,
-// files.tar.gz} structure under the user's html_data volume) - only the DB
-// name/prefix lookup differs, since Drupal has no wp-cli equivalent to ask
-// for it: extractDrupalDatabaseInfoForBackup reads settings.php directly
-// instead. Drupal core rarely uses a table prefix (empty by default), so an
-// empty prefix means "back up/restore every table" rather than "no tables
-// match".
+// mirrors wordpress/backups.go's layout and restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,files.tar.gz} structure) - only the DB name/prefix lookup differs since Drupal has no wp-cli equivalent, so extractDrupalDatabaseInfoForBackup reads settings.php directly, and an empty prefix means "back up/restore every table" not "no tables match"
 
-// toStringCell converts one mysqlmanager.Exec() result cell to a string.
-// Mirrors wordpress/backups.go's identical helper.
+// toStringCell converts one mysqlmanager.Exec() result cell to a string, mirrors wordpress/backups.go's identical helper
 func toStringCell(v any) string {
 	switch t := v.(type) {
 	case nil:
@@ -60,10 +52,7 @@ var (
 	drupalBackupDBPrefixRE = regexp.MustCompile(`'prefix'\s*=>\s*'([^']*)'`)
 )
 
-// extractDrupalDatabaseInfoForBackup reads settings.php straight off the
-// host filesystem, skipping the documentation comment block the same way
-// websites.extractDrupalDatabaseInfo does, so the placeholder example lines
-// in it don't match first.
+// extractDrupalDatabaseInfoForBackup reads settings.php straight off the host filesystem, skipping the doc comment block the same way websites.extractDrupalDatabaseInfo does so the placeholder example lines don't match first
 func extractDrupalDatabaseInfoForBackup(userContext, docroot string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
 	if !strings.HasPrefix(docroot, wwwPrefix) {
@@ -103,8 +92,7 @@ type drupalBackupDateInfo struct {
 	HasFilesBackup bool   `json:"hasFilesBackup"`
 }
 
-// handleDrupalGetBackupDates mirrors wordpress/backups.go's
-// handleGetBackupDates.
+// handleDrupalGetBackupDates mirrors wordpress/backups.go's handleGetBackupDates
 func handleDrupalGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
@@ -152,8 +140,7 @@ func handleDrupalGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 var drupalBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// handleDrupalRestoreBackup mirrors wordpress/backups.go's
-// handleRestoreBackup.
+// handleDrupalRestoreBackup mirrors wordpress/backups.go's handleRestoreBackup
 func handleDrupalRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")

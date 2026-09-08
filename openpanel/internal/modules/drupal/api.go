@@ -17,10 +17,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiInstallDrupal delegates straight to handleInstallPage (which itself
-// calls handleInstallStream on POST): same site-limit check, same NDJSON
-// progress stream written directly to the response - just fed from the
-// API's JSON body instead of a UI form post.
+// apiInstallDrupal delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
 func apiInstallDrupal(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID      string `json:"domain_id"`
@@ -52,9 +49,7 @@ func apiInstallDrupal(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleInstallPage(a, w, withDrupalForm(r, form))
 }
 
-// apiRemoveDrupal delegates to handleRemoveDrupal with the path's
-// {site_id} translated into the "id" form field it expects, and
-// output=json forced so it returns JSON instead of a flash-and-redirect.
+// apiRemoveDrupal delegates to handleRemoveDrupal with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemoveDrupal(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withDrupalForm(r, url.Values{"id": {siteID}})
@@ -64,13 +59,7 @@ func apiRemoveDrupal(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleRemoveDrupal(a, w, cloned)
 }
 
-// apiResolveDrupalSite resolves {site_id} into the (domain, docroot) pair
-// every drush-backed handler in this file needs - domain includes any
-// subdirectory suffix (e.g. "example.com/blog") exactly like sites.site_name
-// stores it, and docroot is the real install path (domains.docroot with
-// that subdirectory appended), matching how install.go's own installPath
-// and handleRemoveDrupal's own realInstallPath are both computed from the
-// same two columns.
+// apiResolveDrupalSite resolves {site_id} into the (domain, docroot) pair every drush-backed handler needs - domain includes any subdirectory suffix like sites.site_name stores it, and docroot is the real install path (domains.docroot plus that subdirectory), same as install.go and handleRemoveDrupal compute it
 func apiResolveDrupalSite(ctx context.Context, a *appctx.App, siteID string) (domain, docroot string, ok bool) {
 	var siteName string
 	var rootDocroot sql.NullString
@@ -89,11 +78,7 @@ func apiResolveDrupalSite(ctx context.Context, a *appctx.App, siteID string) (do
 	return siteName, docroot, true
 }
 
-// apiDrupalClone delegates to handleDrupalClone (which already writes a
-// JSON response as-is), resolving {site_id} into the source_domain/
-// source_folder fields it expects and taking every other clone field from
-// the JSON body - same shape as wordpress/api.go's apiWordPressClone, minus
-// source_domain/source_folder since those come from the path here instead.
+// apiDrupalClone delegates to handleDrupalClone (already writes JSON as-is), resolving {site_id} into source_domain/source_folder and taking every other clone field from the JSON body - same shape as wordpress/api.go's apiWordPressClone
 func apiDrupalClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	sourceDomain, sourceFolder, ok := apiResolveDrupalSite(r.Context(), a, siteID)
@@ -130,10 +115,7 @@ func apiDrupalClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleDrupalClone(a, w, withDrupalForm(r, form))
 }
 
-// apiDrupalUpdate resolves {site_id} into the domain/docroot query params
-// handleDrupalUpdate reads directly (r.URL.Query(), not r.FormValue), then
-// delegates to it as-is - same NDJSON progress stream the UI's Update
-// button gets.
+// apiDrupalUpdate resolves {site_id} into the domain/docroot query params handleDrupalUpdate reads directly (r.URL.Query(), not r.FormValue), then delegates to it as-is, same NDJSON progress stream the UI's Update button gets
 func apiDrupalUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	domain, docroot, ok := apiResolveDrupalSite(r.Context(), a, siteID)
@@ -148,9 +130,7 @@ func apiDrupalUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleDrupalUpdate(a, w, r)
 }
 
-// apiDrupalCache resolves {site_id} into the domain/docroot query params
-// handleDrupalCacheRebuild reads (via drushRequestParams), then delegates
-// to it as-is.
+// apiDrupalCache resolves {site_id} into the domain/docroot query params handleDrupalCacheRebuild reads (via drushRequestParams), then delegates to it as-is
 func apiDrupalCache(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	domain, docroot, ok := apiResolveDrupalSite(r.Context(), a, siteID)

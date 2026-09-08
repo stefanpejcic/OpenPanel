@@ -21,8 +21,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "dynamic_dns", "DELETE /api/dynamic-dns", func(w http.ResponseWriter, r *http.Request) { apiDynamicDNSDelete(a, w, r) })
 }
 
-// apiDynamicDNSList returns every dynamic DNS entry across all of the
-// user's domains, grouped by domain.
+// apiDynamicDNSList returns every dynamic DNS entry across all of the user's domains, grouped by domain
 func apiDynamicDNSList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -62,8 +61,7 @@ func lineNumberFromBody(v any) (int, bool) {
 	}
 }
 
-// apiDynamicDNSCreate creates a new dynamic DNS entry and returns it along
-// with its generated token.
+// apiDynamicDNSCreate creates a new dynamic DNS entry and returns it along with its generated token
 func apiDynamicDNSCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -117,8 +115,7 @@ func apiDynamicDNSCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	writeJSON(w, http.StatusCreated, map[string]any{"message": "Dynamic DNS entry created", "entry": entry})
 }
 
-// apiDynamicDNSUpdate rewrites an existing dynamic DNS entry's zone line
-// by line number.
+// apiDynamicDNSUpdate rewrites an existing dynamic DNS entry's zone line by line number
 func apiDynamicDNSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -167,8 +164,7 @@ func apiDynamicDNSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	writeJSON(w, http.StatusOK, map[string]string{"message": "Dynamic DNS entry updated"})
 }
 
-// apiDynamicDNSDelete removes a dynamic DNS entry's zone line by line
-// number.
+// apiDynamicDNSDelete removes a dynamic DNS entry's zone line by line number
 func apiDynamicDNSDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

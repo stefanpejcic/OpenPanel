@@ -9,8 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// Register wires the Drupal list/install/remove routes onto mux, gated
-// behind the "drupal" feature flag.
+// Register wires the Drupal list/install/remove routes onto mux, gated behind the "drupal" feature flag
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "drupal")(h)
@@ -28,10 +27,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /drupal/update", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDrupalUpdate(a, w, r) }))
 }
 
-// withDrupalForm clones r as a POST carrying the given values as both Form
-// and PostForm, so a UI handler that reads r.FormValue(...) sees exactly
-// the fields the API's JSON body supplied - same pattern used by
-// wordpress/api.go's withWPForm and backups/api.go's withForm.
+// withDrupalForm clones r as a POST carrying values as both Form and PostForm, so a UI handler reading r.FormValue(...) sees the API's JSON body fields, same pattern as wordpress/api.go's withWPForm and backups/api.go's withForm
 func withDrupalForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost

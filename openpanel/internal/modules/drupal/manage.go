@@ -21,11 +21,7 @@ var (
 	removeDBUserRE = regexp.MustCompile(`'username'\s*=>\s*'([^']*)'`)
 )
 
-// stripPHPCommentLines drops every line whose trimmed content starts with
-// "*" - settings.php ships a large /** ... */ documentation block with
-// placeholder 'database' => 'database_name' style example lines that would
-// otherwise match removeDBNameRE/removeDBUserRE before the real
-// $databases['default'] array drush appends near the end of the file.
+// stripPHPCommentLines drops every line starting with "*" - settings.php ships a doc comment block with placeholder 'database' => 'database_name' lines that would otherwise match removeDBNameRE/removeDBUserRE before the real array drush appends
 func stripPHPCommentLines(content string) string {
 	var codeLines []string
 	for _, line := range strings.Split(content, "\n") {
@@ -37,12 +33,7 @@ func stripPHPCommentLines(content string) string {
 	return strings.Join(codeLines, "\n")
 }
 
-// handleRemoveDrupal fully uninstalls a Drupal site: drops the database
-// and user (parsed out of settings.php, same regex-scrape approach
-// wordpress/manage.go uses for wp-config.php), deletes the whole install
-// directory, and removes the sites row. Unlike phpapp's no-op delete, this
-// matches WordPress's full-cleanup uninstall behavior per this feature's
-// scope.
+// handleRemoveDrupal fully uninstalls a Drupal site: drops the database and user (parsed out of settings.php, same regex-scrape approach wordpress/manage.go uses for wp-config.php), deletes the install directory, and removes the sites row - unlike phpapp's no-op delete, this matches WordPress's full-cleanup uninstall
 func handleRemoveDrupal(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

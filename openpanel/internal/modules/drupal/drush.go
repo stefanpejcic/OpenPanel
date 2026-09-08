@@ -13,11 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// drushRequestParams pulls the domain/docroot query params every
-// drush-backed handler in this file needs, splits the main domain out of a
-// possible subdirectory suffix, verifies ownership, and resolves the PHP
-// container to exec drush inside - shared by login/cache/logs so each
-// handler only has its own drush subcommand to worry about.
+// drushRequestParams pulls the domain/docroot query params every drush-backed handler needs, splits the main domain from any subdirectory suffix, verifies ownership, and resolves the PHP container to exec drush inside - shared by login/cache/logs so each handler only worries about its own drush subcommand
 func drushRequestParams(ctx context.Context, a *appctx.App, r *http.Request, userID int, userContext string) (domain, docroot, phpContainer string, ok bool) {
 	domain = r.URL.Query().Get("domain")
 	docroot = r.URL.Query().Get("docroot")
@@ -40,32 +36,13 @@ func drushRequestParams(ctx context.Context, a *appctx.App, r *http.Request, use
 		phpContainer = "php-fpm-" + phpVersion
 	}
 
-	// Every drush-backed handler in this file needs both the PHP container
-	// (to exec into) and the database container (drush queries it directly
-	// for logs/cache/etc.) actually running - confirmed live that a
-	// container stopped for any reason (host reboot, manual stop) made
-	// every one of these fail with either a podman "container state
-	// improper" exec error or drush's own "unable to query the database"
-	// error, neither of which explained the real cause. Starting both
-	// (a no-op if already running) here means every drush-backed page
-	// action self-heals instead of surfacing a confusing low-level error.
+	// every drush-backed handler needs both the PHP and db containers actually running, or it fails with a confusing podman/drush low-level error instead of the real cause - starting both here (a no-op if already running) makes every action self-heal
 	ensureContainerRunning(ctx, userContext, phpContainer)
 	if mysqlContainer := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE"); mysqlContainer != "" {
 		ensureContainerRunning(ctx, userContext, mysqlContainer)
 	}
 
-	// Composer doesn't reliably leave any of vendor/bin/* (or the real
-	// binaries those wrapper scripts exec, like vendor/drush/drush/drush)
-	// executable in this environment - confirmed live, every single file
-	// under vendor/bin/ came out 644, not 755. drush's own wrapper chain
-	// alone hits three of them (vendor/bin/drush -> vendor/drush/drush/
-	// drush -> vendor/bin/drush.php), so every drush-backed request
-	// chmods the whole vendor/bin/ directory plus drush's real binary,
-	// self-healing any site installed before install.go started doing
-	// this too, without needing a reinstall. `find ... -exec` (not
-	// `sh -c` with a glob) so docroot - user-supplied, from the request
-	// query string - is passed as a plain argv entry rather than
-	// interpolated into shell syntax.
+	// composer doesn't reliably leave vendor/bin/* executable here (came out 644 not 755), and drush's own wrapper chain hits three of those files, so every drush request chmods vendor/bin/ plus drush's real binary, self-healing sites installed before install.go did this too - uses `find -exec` not `sh -c` with a glob so the user-supplied docroot is a plain argv entry, not interpolated into shell syntax
 	chmodArgv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "find",
 		docroot+"/vendor/bin", docroot+"/vendor/drush/drush/drush", "-type", "f", "-exec", "chmod", "+x", "{}", "+")
 	_, _ = podmanmanager.Command(ctx, userContext, chmodArgv).CombinedOutput()
@@ -73,11 +50,7 @@ func drushRequestParams(ctx context.Context, a *appctx.App, r *http.Request, use
 	return domain, docroot, phpContainer, true
 }
 
-// handleDrupalLogin generates a one-time admin login link via Drush's
-// built-in `user:login` (uli) command - unlike WordPress, Drupal core
-// already has this mechanism (the same one-time-login-hash system used for
-// password resets), so there's no need for a custom mu-plugin/token table
-// the way wordpress/wpcli.go's "login" action needs one.
+// handleDrupalLogin generates a one-time admin login link via Drush's built-in `user:login` (uli) - Drupal core already has this via the same one-time-login-hash system used for password resets, so no custom mu-plugin/token table is needed unlike wordpress/wpcli.go's "login" action
 func handleDrupalLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -110,10 +83,7 @@ func handleDrupalLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"login_link": loginLink})
 }
 
-// handleDrupalCacheRebuild runs `drush cache:rebuild` (cr) - Drupal's
-// equivalent of `wp cache flush`, except Drupal doesn't have a single
-// pluggable "cache type" the way WordPress does, so this rebuilds every
-// cache bin (render, page, config, etc.) rather than targeting one backend.
+// handleDrupalCacheRebuild runs `drush cache:rebuild` (cr), Drupal's equivalent of `wp cache flush` - Drupal has no single pluggable "cache type" like WordPress, so this rebuilds every cache bin rather than targeting one backend
 func handleDrupalCacheRebuild(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -141,9 +111,7 @@ func handleDrupalCacheRebuild(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	writeJSON(w, http.StatusOK, map[string]string{"message": "Cache rebuilt successfully."})
 }
 
-// handleDrupalLogs returns the last N watchdog (dblog) entries via `drush
-// watchdog:show`, as plain text - the same shape python/node's /pm2/logs/
-// endpoint returns, so the Logs tab can reuse that page's rendering JS.
+// handleDrupalLogs returns the last N watchdog (dblog) entries via `drush watchdog:show` as plain text, same shape python/node's /pm2/logs/ endpoint returns so the Logs tab can reuse that page's rendering JS
 func handleDrupalLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)

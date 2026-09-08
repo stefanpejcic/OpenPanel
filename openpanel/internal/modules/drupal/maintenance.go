@@ -10,11 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// handleDrupalMaintenance reads (GET) or toggles (POST, action=enable|disable)
-// Drupal's built-in maintenance mode via drush's `state:get`/`state:set` on
-// the system.maintenance_mode state key - Drupal core's own front controller
-// already checks this on every request, so no extra code needs to ship into
-// the docroot.
+// handleDrupalMaintenance reads (GET) or toggles (POST, action=enable|disable) Drupal's built-in maintenance mode via drush's `state:get`/`state:set` on system.maintenance_mode - Drupal core's own front controller already checks this, so no extra code ships into the docroot
 func handleDrupalMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
