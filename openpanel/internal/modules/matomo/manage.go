@@ -21,10 +21,7 @@ var (
 	removeDBUserRE = regexp.MustCompile(`(?m)^username\s*=\s*"([^"]*)"`)
 )
 
-// handleRemoveMatomo fully uninstalls a Matomo site: drops the database and
-// user (parsed out of config/config.ini.php), deletes the whole install
-// directory, removes the stored admin credentials, and removes the sites
-// row. Mirrors opencart/prestashop's handleRemove{OpenCart,Prestashop}.
+// handleRemoveMatomo fully uninstalls a Matomo site: drops the database and user (parsed out of config/config.ini.php), deletes the install directory, removes the stored admin credentials, and removes the sites row - mirrors opencart/prestashop's handleRemove{OpenCart,Prestashop}
 func handleRemoveMatomo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

@@ -1,18 +1,4 @@
-// Package matomo installs and manages a Matomo (self-hosted web analytics)
-// site downloaded from GitHub releases inside an existing domain's docroot,
-// run in the domain's existing php-fpm container - same shape as
-// internal/modules/opencart, internal/modules/nextcloud and
-// internal/modules/prestashop. Unlike those, Matomo ships no non-interactive
-// CLI installer (its `console` command only exposes dev/admin tooling, no
-// `core:install` - confirmed by inspecting a real 5.12.0 release), so
-// install.go instead drives Matomo's own browser installation wizard
-// (plugins/Installation/Controller.php) as a sequence of plain HTTP
-// requests, exactly the steps/fields a real browser would submit -
-// confirmed field-by-field against that controller's source and verified
-// live end to end (DB setup -> table creation -> superuser -> first site ->
-// finish -> login). No maintenance-mode toggle exists here (Matomo has no
-// offline-mode primitive to switch), but backups.go is included (pure DB
-// dump + file tar, no CMS-specific dependency beyond DB name/prefix).
+// Package matomo installs and manages a Matomo (self-hosted web analytics) site downloaded from GitHub releases inside an existing domain's docroot, same shape as internal/modules/opencart, nextcloud and prestashop - unlike those, Matomo ships no non-interactive CLI installer, so install.go instead drives Matomo's own browser installation wizard (plugins/Installation/Controller.php) as a sequence of plain HTTP requests matching what a real browser would submit (DB setup -> table creation -> superuser -> first site -> finish -> login) - no maintenance-mode toggle exists here since Matomo has no offline-mode primitive, but backups.go is included (pure DB dump + file tar, no CMS-specific dependency beyond DB name/prefix)
 package matomo
 
 import (
@@ -68,9 +54,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 	}
 }
 
-// lockFilePath returns the per-user krompir.lock path shared with the
-// other CMS install modules to serialize any one "app install" operation
-// per user at a time - not a Matomo-specific lock.
+// lockFilePath is the per-user krompir.lock path shared with the other CMS install modules, so only one app install runs per user at a time, not a Matomo-specific lock
 func lockFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
 }
@@ -87,9 +71,7 @@ func removeLockFile(username string) {
 	_ = os.Remove(lockFilePath(username))
 }
 
-// countUserWebsites counts the user's sites, capped at 1000 - same query
-// every other CMS install module duplicates locally rather than sharing
-// across packages for something this small.
+// countUserWebsites counts the user's sites, capped at 1000 - same query every other CMS install module duplicates locally rather than sharing for something this small
 func countUserWebsites(a *appctx.App, userID int) (int, error) {
 	rows, err := a.DB.Query(
 		"SELECT site_name FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000", userID)
@@ -113,10 +95,7 @@ func atoiDefault(s string, def int) int {
 
 const randomStringAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// generateRandomString generates a throwaway db name/user/password or admin
-// password when needed. Uses crypto/rand since results end up as real
-// credentials (same approach as every other CMS module's identical
-// helper).
+// generateRandomString generates a throwaway db name/user/password or admin password when needed, uses crypto/rand since results end up as real credentials (same approach as every other CMS module's identical helper)
 func generateRandomString(length int) string {
 	b := make([]byte, length)
 	for i := range b {

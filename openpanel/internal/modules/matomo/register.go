@@ -9,10 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// Register wires the Matomo install/remove/manage routes onto mux, gated
-// behind the "matomo" feature flag. No list page (matches
-// drupal/joomla/opencart/nextcloud/prestashop's scope: manage via the
-// general Site Manager instead).
+// Register wires the Matomo install/remove/manage routes onto mux, gated behind the "matomo" feature flag - no list page, matches drupal/joomla/opencart/nextcloud/prestashop's scope of managing via the general Site Manager instead
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "matomo")(h)
@@ -30,10 +27,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /matomo/update", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMatomoUpdate(a, w, r) }))
 }
 
-// withMatomoForm clones r as a POST carrying the given values as both Form
-// and PostForm, so a UI handler that reads r.FormValue(...) sees exactly
-// the fields the API's JSON body supplied - same pattern used by every
-// other CMS module's with{CMS}Form.
+// withMatomoForm clones r as a POST carrying values as both Form and PostForm, so a UI handler reading r.FormValue(...) sees the API's JSON body fields - same pattern used by every other CMS module's with{CMS}Form
 func withMatomoForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost

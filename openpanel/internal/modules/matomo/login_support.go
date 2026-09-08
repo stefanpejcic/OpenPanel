@@ -11,8 +11,7 @@ import (
 	"strings"
 )
 
-// toStringCell converts one mysqlmanager.Exec() result cell to a string.
-// Mirrors every other CMS module's identical helper.
+// toStringCell converts one mysqlmanager.Exec() result cell to a string, mirrors every other CMS module's identical helper
 func toStringCell(v any) string {
 	switch t := v.(type) {
 	case nil:
@@ -38,22 +37,14 @@ func toStringCell(v any) string {
 
 func itoa(n int) string { return strconv.Itoa(n) }
 
-// generateSecretToken returns a long random hex string used as the
-// login-helper's shared secret (see login_php.go).
+// generateSecretToken returns a long random hex string used as the login-helper's shared secret (see login_php.go)
 func generateSecretToken() string {
 	b := make([]byte, 32)
 	_, _ = rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
-// matomoCredentials is what saveMatomoCredentials/loadMatomoCredentials
-// persist per install, root-only, outside the webroot - unlike the other
-// CMS modules (which need only a one-time hashed token because Matomo's own
-// CLI/DB offers no equivalent of Drush's `user:login` or a bcrypt-free
-// session bootstrap they could reuse), the auto-login flow here needs the
-// real admin password to replay Matomo's own login form server-side (see
-// login_php.go) - kept in the same trust boundary as every other CMS
-// module's plaintext DB password already sitting in its own config file.
+// matomoCredentials is what saveMatomoCredentials/loadMatomoCredentials persist per install, root-only, outside the webroot - unlike the other CMS modules (which need only a one-time hashed token), the auto-login flow here needs the real admin password to replay Matomo's own login form server-side (see login_php.go), kept in the same trust boundary as every other CMS module's plaintext DB password already sitting in its own config file
 type matomoCredentials struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
@@ -97,12 +88,7 @@ var (
 	matomoDBPrefixRE = regexp.MustCompile(`(?m)^tables_prefix\s*=\s*"([^"]*)"`)
 )
 
-// extractMatomoDatabaseInfoForBackup reads config/config.ini.php straight
-// off the host filesystem - same "read config from host path" pattern as
-// every other CMS module's login_support.go, just parsing Matomo's INI
-// format (a regex-based line match, matching the rest of this codebase's
-// preference for small regexes over pulling in an INI-parsing library)
-// instead of a PHP array/define() list.
+// extractMatomoDatabaseInfoForBackup reads config/config.ini.php straight off the host filesystem - same "read config from host path" pattern as every other CMS module's login_support.go, just parsing Matomo's INI format with a small regex instead of a PHP array/define() list
 func extractMatomoDatabaseInfoForBackup(userContext, docroot string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
 	if !strings.HasPrefix(docroot, wwwPrefix) {

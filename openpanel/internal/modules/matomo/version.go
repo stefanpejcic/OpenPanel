@@ -22,11 +22,7 @@ type githubRelease struct {
 	} `json:"assets"`
 }
 
-// listMatomoVersions hits the GitHub releases API and returns every stable
-// version that ships a matomo-X.Y.Z.zip release asset, newest first -
-// confirmed live against the 5.12.0 release that this asset is attached
-// directly to the GitHub release (unlike PrestaShop, no separate download
-// host is needed).
+// listMatomoVersions hits the GitHub releases API and returns every stable version that ships a matomo-X.Y.Z.zip release asset, newest first - this asset is attached directly to the GitHub release (unlike PrestaShop, no separate download host is needed)
 func listMatomoVersions(ctx context.Context) ([]string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/matomo-org/matomo/releases?per_page=40", nil)
 	if err != nil {
@@ -72,8 +68,7 @@ func listMatomoVersions(ctx context.Context) ([]string, error) {
 	return versions, nil
 }
 
-// latestMatomoVersion returns the highest available installable version -
-// used server-side when the install form's version field is left blank.
+// latestMatomoVersion returns the highest available installable version - used server-side when the install form's version field is left blank
 func latestMatomoVersion(ctx context.Context) (string, error) {
 	versions, err := listMatomoVersions(ctx)
 	if err != nil {
@@ -82,8 +77,7 @@ func latestMatomoVersion(ctx context.Context) (string, error) {
 	return versions[0], nil
 }
 
-// compareVersions compares two dotted numeric versions ("5.12.0" vs
-// "5.9.1"); returns >0 if a > b.
+// compareVersions compares two dotted numeric versions ("5.12.0" vs "5.9.1"), returns >0 if a > b
 func compareVersions(a, b string) int {
 	partsA := strings.Split(a, ".")
 	partsB := strings.Split(b, ".")

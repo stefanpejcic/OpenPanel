@@ -17,10 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// unpackMatomoUpdateArchive is unpackMatomoArchive's update-time sibling:
-// replaces every top-level entry from the new release except config/
-// (config.ini.php holds live DB credentials), matching how
-// nextcloud/update.go's unpackNextcloudUpdateArchive preserves config/data.
+// unpackMatomoUpdateArchive is unpackMatomoArchive's update-time sibling: replaces every top-level entry from the new release except config/ (config.ini.php holds live DB credentials), matching how nextcloud/update.go's unpackNextcloudUpdateArchive preserves config/data
 func unpackMatomoUpdateArchive(ctx context.Context, archivePath, destDir string) error {
 	tmpDir := destDir + ".update-tmp"
 	script := `set -e
@@ -47,13 +44,7 @@ rm -rf "$2"
 	return nil
 }
 
-// handleMatomoUpdate updates an existing Matomo install in place: downloads
-// the latest release, replaces core files (preserving config/), then runs
-// `console core:update -n` to bring the database schema up to date -
-// Matomo's own documented manual-update procedure (unlike a fresh install,
-// which has no CLI equivalent - see install.go's comment - an *existing*
-// install can be updated via console since core:update doesn't need the
-// interactive wizard). Streams NDJSON progress like install does.
+// handleMatomoUpdate updates an existing Matomo install in place: downloads the latest release, replaces core files (preserving config/), then runs `console core:update -n` to bring the database schema up to date - Matomo's documented manual-update procedure (unlike a fresh install which has no CLI equivalent, an existing install can be updated via console since core:update doesn't need the interactive wizard), streaming NDJSON progress like install does
 func handleMatomoUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
