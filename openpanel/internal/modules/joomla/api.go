@@ -14,10 +14,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiInstallJoomla delegates straight to handleInstallPage (which itself
-// calls handleInstallStream on POST): same site-limit check, same NDJSON
-// progress stream written directly to the response - just fed from the
-// API's JSON body instead of a UI form post.
+// apiInstallJoomla delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
 func apiInstallJoomla(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID      string `json:"domain_id"`
@@ -51,9 +48,7 @@ func apiInstallJoomla(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleInstallPage(a, w, withJoomlaForm(r, form))
 }
 
-// apiRemoveJoomla delegates to handleRemoveJoomla with the path's
-// {site_id} translated into the "id" form field it expects, and
-// output=json forced so it returns JSON instead of a flash-and-redirect.
+// apiRemoveJoomla delegates to handleRemoveJoomla with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemoveJoomla(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withJoomlaForm(r, url.Values{"id": {siteID}})
@@ -63,8 +58,7 @@ func apiRemoveJoomla(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleRemoveJoomla(a, w, cloned)
 }
 
-// apiCloneJoomla delegates straight to handleJoomlaClone, which already
-// writes a JSON response as-is.
+// apiCloneJoomla delegates straight to handleJoomlaClone, which already writes a JSON response as-is
 func apiCloneJoomla(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		SourceDomain         string `json:"source_domain"`
@@ -88,11 +82,7 @@ func apiCloneJoomla(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleJoomlaClone(a, w, withJoomlaForm(r, form))
 }
 
-// apiCacheJoomla resolves the path's {site_id} into the domain/docroot
-// handleJoomlaCacheClean expects, using the same "id" lookup query
-// apiRemoveJoomla (via handleRemoveJoomla) and manage.go use, then
-// delegates to it with domain/docroot set as URL query params
-// (joomlaRequestParams reads r.URL.Query(), not form values).
+// apiCacheJoomla resolves the path's {site_id} into the domain/docroot handleJoomlaCacheClean expects, using the same "id" lookup query apiRemoveJoomla (via handleRemoveJoomla) and manage.go use, then delegates to it with domain/docroot set as URL query params (joomlaRequestParams reads r.URL.Query(), not form values)
 func apiCacheJoomla(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 

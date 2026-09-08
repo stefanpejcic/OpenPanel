@@ -18,23 +18,18 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 )
 
-// Register wires the inodes-explorer route onto mux, gated behind the
-// "inodes" feature flag.
+// Register wires the inodes-explorer route onto mux, gated behind the "inodes" feature flag
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "inodes")(h)
 	}
-	// "{directory...}" already covers the bare "/inodes-explorer/" case
-	// too (directory resolves to "" for that exact path).
+	// "{directory...}" already covers the bare "/inodes-explorer/" case too (directory resolves to "" for that exact path)
 	mux.Handle("GET /inodes-explorer/{directory...}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleInodesExplorer(a, w, r)
 	}))
 }
 
-// resolveUnderHome is the same inline path-traversal guard used by
-// internal/modules/diskusage (see that package's comment) - not shared
-// cross-package since it's a handful of lines duplicated across two
-// near-identical, independently-gated modules.
+// resolveUnderHome is the same inline path-traversal guard used by internal/modules/diskusage (see that package's comment) - not shared cross-package since it's a handful of lines duplicated across two near-identical, independently-gated modules
 func resolveUnderHome(userContext, directory string) (string, error) {
 	volume := "/home/" + userContext + "/"
 	target := filepath.Join(volume, strings.TrimPrefix(directory, "/")) + "/"
@@ -87,12 +82,7 @@ type countedFolder struct {
 	Count  int
 }
 
-// inodesOutput runs `find . -printf '%h\n'` under actualFolder and tallies
-// the results per top-level folder, cached 10s.
-//
-// Requires GNU find (the `-printf` action is a GNU findutils extension,
-// not supported by BusyBox find); the runtime image installs the
-// `findutils` package for this.
+// inodesOutput runs `find . -printf '%h\n'` under actualFolder and tallies the results per top-level folder, cached 10s - requires GNU find (`-printf` is a GNU findutils extension, not supported by BusyBox find), so the runtime image installs the `findutils` package for this
 func inodesOutput(ctx context.Context, a *appctx.App, userContext, actualFolder string) string {
 	out, _ := cache.Memoize(ctx, a.Cache, "inodes_explorer:"+userContext+":"+actualFolder, 10*time.Second, func() (string, error) {
 		cmd := exec.CommandContext(ctx, "find", ".", "-printf", "%h\n")
@@ -102,9 +92,7 @@ func inodesOutput(ctx context.Context, a *appctx.App, userContext, actualFolder 
 			if _, ok := err.(*exec.ExitError); !ok {
 				return "", nil //nolint:nilerr // command failure -> empty output, not an error response
 			}
-			// find exits non-zero on permission-denied for individual
-			// subdirectories but still writes the rest of its output to
-			// stdout, so keep using it instead of discarding everything.
+			// find exits non-zero on permission-denied for individual subdirectories but still writes the rest of its output to stdout, so keep using it instead of discarding everything
 		}
 
 		counts := map[string]int{}

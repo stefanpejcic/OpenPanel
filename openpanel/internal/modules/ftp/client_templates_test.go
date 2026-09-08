@@ -7,8 +7,7 @@ import (
 	"testing"
 )
 
-// withFTPServerConf points ftpServerConfPath at a temp file for the
-// duration of the test.
+// withFTPServerConf points ftpServerConfPath at a temp file for the duration of the test
 func withFTPServerConf(t *testing.T, content string) {
 	t.Helper()
 	dir := t.TempDir()

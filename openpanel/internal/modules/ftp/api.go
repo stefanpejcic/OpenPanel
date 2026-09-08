@@ -14,13 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterAPI wires the FTP module's API routes onto mux. PATCH
-// .../password and .../path share a username prefix with a literal
-// suffix - Go's http.ServeMux requires a "{...}" wildcard to be the final
-// segment, so both are merged into one "{rest...}" catch-all and
-// apiFTPPatchDispatch strips the known suffix by hand to recover the
-// username and dispatch to the right handler. apiregistry.Add still
-// records each logical route separately for /api/endpoints.
+// RegisterAPI wires the FTP module's API routes onto mux - PATCH .../password and .../path share a username prefix with a literal suffix, so since Go's ServeMux requires a "{...}" wildcard to be the final segment, both are merged into one "{rest...}" catch-all and apiFTPPatchDispatch strips the known suffix by hand to recover the username, while apiregistry.Add still records each logical route separately for /api/endpoints
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "ftp", "GET /api/ftp", func(w http.ResponseWriter, r *http.Request) { apiFTPList(a, w, r) })
 	apiregistry.Handle(mux, a, "ftp", "POST /api/ftp", func(w http.ResponseWriter, r *http.Request) { apiFTPCreate(a, w, r) })
@@ -55,8 +49,7 @@ func writeAPIFTPJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiFTPServiceCheck writes an error response and returns false if the FTP
-// container isn't running.
+// apiFTPServiceCheck writes an error response and returns false if the FTP container isn't running
 func apiFTPServiceCheck(w http.ResponseWriter, r *http.Request) bool {
 	if isFTPContainerRunning(r.Context(), ftpContainerName) {
 		return true
@@ -65,8 +58,7 @@ func apiFTPServiceCheck(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
-// apiServerIP returns the FTP host to advertise for a user: their
-// dedicated IP if one is configured, otherwise the shared server IP.
+// apiServerIP returns the FTP host to advertise for a user: their dedicated IP if one is configured, otherwise the shared server IP
 func apiServerIP(a *appctx.App, r *http.Request, currentUsername string) string {
 	ftpHost := a.GetCachedIPForUserOrPublicIPv4(r.Context(), currentUsername)
 	dedicatedIPPath := "/etc/openpanel/openpanel/core/users/" + currentUsername + "/ip.json"
@@ -119,8 +111,7 @@ func apiFTPList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// apiFTPCreate creates a new FTP account scoped to a domain the caller
-// owns.
+// apiFTPCreate creates a new FTP account scoped to a domain the caller owns
 func apiFTPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if !apiFTPServiceCheck(w, r) {
 		return
@@ -312,8 +303,7 @@ func apiFTPConnections(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIFTPJSON(w, http.StatusOK, map[string]string{"connections": string(out)})
 }
 
-// apiFTPConfiguration generates a client config file (Cyberduck or
-// FileZilla) for an FTP account.
+// apiFTPConfiguration generates a client config file (Cyberduck or FileZilla) for an FTP account
 func apiFTPConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	configType := r.PathValue("config_type")
 	if configType != "cyberduck" && configType != "filezilla" {

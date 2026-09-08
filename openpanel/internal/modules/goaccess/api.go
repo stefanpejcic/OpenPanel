@@ -22,8 +22,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiStatsList reports, for every domain the caller owns, whether a
-// pre-rendered GoAccess stats file currently exists for it.
+// apiStatsList reports, for every domain the caller owns, whether a pre-rendered GoAccess stats file currently exists for it
 func apiStatsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -47,8 +46,7 @@ func apiStatsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIJSON(w, http.StatusOK, map[string]any{"domains": result})
 }
 
-// apiStatsDomain returns the pre-rendered GoAccess HTML report for a single
-// domain the caller owns.
+// apiStatsDomain returns the pre-rendered GoAccess HTML report for a single domain the caller owns
 func apiStatsDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

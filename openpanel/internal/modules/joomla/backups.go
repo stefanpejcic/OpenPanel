@@ -18,12 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors wordpress/backups.go's directory layout, naming and
-// restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,
-// files.tar.gz} structure under the user's html_data volume) - only the
-// DB name/prefix lookup differs, since Joomla has no wp-cli equivalent to
-// ask for it: extractJoomlaDatabaseInfoForLogin reads configuration.php
-// directly instead.
+// mirrors wordpress/backups.go's layout and restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,files.tar.gz} structure) - only the DB name/prefix lookup differs since Joomla has no wp-cli equivalent, so extractJoomlaDatabaseInfoForLogin reads configuration.php directly
 
 var joomlaBackupFolderRE = regexp.MustCompile(`^20\d{2}-`)
 
@@ -33,8 +28,7 @@ type joomlaBackupDateInfo struct {
 	HasFilesBackup bool   `json:"hasFilesBackup"`
 }
 
-// handleJoomlaGetBackupDates mirrors wordpress/backups.go's
-// handleGetBackupDates.
+// handleJoomlaGetBackupDates mirrors wordpress/backups.go's handleGetBackupDates
 func handleJoomlaGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
@@ -82,8 +76,7 @@ func handleJoomlaGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 var joomlaBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// handleJoomlaRestoreBackup mirrors wordpress/backups.go's
-// handleRestoreBackup.
+// handleJoomlaRestoreBackup mirrors wordpress/backups.go's handleRestoreBackup
 func handleJoomlaRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")

@@ -14,13 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// joomlaRequestParams pulls the domain/docroot query params every
-// CLI-backed handler in this file needs, splits the main domain out of a
-// possible subdirectory suffix, verifies ownership, and resolves the PHP
-// container to exec `cli/joomla.php` inside - shared by cache/logs so each
-// handler only has its own subcommand to worry about. (Login doesn't use
-// this - it talks to the DB directly and hands the browser a URL instead of
-// running a CLI command.)
+// joomlaRequestParams pulls the domain/docroot query params every CLI-backed handler needs, splits the main domain from any subdirectory suffix, verifies ownership, and resolves the PHP container to exec `cli/joomla.php` inside - shared by cache/logs, but login doesn't use this since it talks to the DB directly and hands the browser a URL instead of running a CLI command
 func joomlaRequestParams(ctx context.Context, a *appctx.App, r *http.Request, userID int, userContext string) (domain, docroot, phpContainer string, ok bool) {
 	domain = r.URL.Query().Get("domain")
 	docroot = r.URL.Query().Get("docroot")
@@ -45,8 +39,7 @@ func joomlaRequestParams(ctx context.Context, a *appctx.App, r *http.Request, us
 	return domain, docroot, phpContainer, true
 }
 
-// handleJoomlaCacheClean runs `cli/joomla.php cache:clean` - Joomla's own
-// system cache flush command.
+// handleJoomlaCacheClean runs `cli/joomla.php cache:clean` - Joomla's own system cache flush command
 func handleJoomlaCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -73,10 +66,7 @@ func handleJoomlaCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusOK, map[string]string{"message": "Cache cleared successfully."})
 }
 
-// handleJoomlaLogs returns the contents of administrator/logs/*.php (the
-// only logging Joomla core does by default - there's no watchdog-style
-// activity log the way Drupal has one built in), as plain text, with each
-// file's `<?php die('Forbidden.'); ?>` security header line stripped.
+// handleJoomlaLogs returns the contents of administrator/logs/*.php (the only logging Joomla core does by default, no watchdog-style activity log like Drupal has) as plain text, with each file's `<?php die('Forbidden.'); ?>` security header line stripped
 func handleJoomlaLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)
@@ -108,13 +98,7 @@ func handleJoomlaLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(out)
 }
 
-// handleJoomlaLogin generates a one-time admin login link. Unlike Drupal's
-// drush user:login, Joomla core ships no CLI command for this, so this
-// mirrors WordPress's approach instead: a small token table (created here
-// lazily, isolated from Joomla's own schema) plus a login helper PHP file
-// deployed into the docroot at install time (see openpanel-login.php below)
-// that verifies the token then binds an admin User to the Joomla session
-// through the CMS's own Session/User APIs.
+// handleJoomlaLogin generates a one-time admin login link - unlike Drupal's drush user:login, Joomla core ships no CLI command for this, so this mirrors WordPress's approach instead: a small token table (created here lazily, isolated from Joomla's own schema) plus a login helper PHP file deployed into the docroot at install time (see openpanel-login.php below) that verifies the token then binds an admin User to the Joomla session through the CMS's own Session/User APIs
 func handleJoomlaLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

@@ -1,7 +1,4 @@
-// Package java installs a Java application into a domain via a
-// docker-compose service + reverse proxy. All the actual logic lives in
-// internal/modules/appinstall, shared with the nodejs, python, and ruby
-// packages.
+// Package java installs a Java application into a domain via a docker-compose service + reverse proxy - all the actual logic lives in internal/modules/appinstall, shared with the nodejs, python, and ruby packages
 package java
 
 import (

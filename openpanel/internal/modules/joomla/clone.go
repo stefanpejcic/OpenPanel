@@ -12,26 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 )
 
-// This file mirrors wordpress/manage.go's handleCloneWordPress in overall
-// shape (site-limit check, file copy, DB create+dump-pipe, config
-// rewrite, sites-table insert), sharing everything but the docroot
-// copy and config-rewrite steps with every other CMS's clone.go via
-// internal/core/cmsclone - see that package's doc comment for why those
-// two steps stay local. Two things differ from WordPress specifically:
-//
-//  1. Joomla's configuration.php has no hardcoded site URL (Joomla derives
-//     it from the request at runtime), so there is no wp-cli
-//     `search-replace`-equivalent step here. This is a known, deliberate
-//     limitation: any URL a user has hardcoded into article/module content
-//     will still point at the source domain after cloning - out of scope,
-//     same as a stock Joomla site itself doesn't rewrite such content on a
-//     manual domain move either.
-//  2. cmsclone.ValidDocroot intentionally accepts the "/var/www/html/..."
-//     absolute-path form every other handler in this package already uses
-//     for .Docroot (see joomlaRequestParams) - WordPress's own
-//     validateDocroot() rejects any leading "/", which would reject the
-//     real .Docroot value WordPress's own clone form submits as
-//     source_folder. Not replicating that bug here.
+// mirrors wordpress/manage.go's handleCloneWordPress in shape (site-limit check, file copy, DB create+dump-pipe, config rewrite, sites-table insert) via internal/core/cmsclone, but differs from WordPress in two ways: Joomla's configuration.php has no hardcoded site URL (derived from the request at runtime), so there's no wp-cli search-replace step - hardcoded URLs in article/module content still point at the source domain after cloning, same as a manual domain move on a stock Joomla site; and cmsclone.ValidDocroot intentionally accepts the "/var/www/html/..." absolute-path form every handler in this package already uses for .Docroot, unlike WordPress's own validateDocroot() which rejects a leading "/"
 
 var (
 	cloneJoomlaUserRE     = regexp.MustCompile(`\$user\s*=\s*'.*?';`)
@@ -129,12 +110,7 @@ func handleJoomlaClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	strContent := string(content)
-	// Go's regexp.ReplaceAllString treats a literal '$' in the replacement
-	// string as a capture-group reference (e.g. $user would look for a
-	// group named "user" and silently substitute empty string when none
-	// exists) - '$$' is the escape for a literal '$', which every
-	// replacement below needs since Joomla's configuration.php uses
-	// "public $propertyName = ...;" syntax.
+	// Go's regexp.ReplaceAllString treats a literal '$' in the replacement as a capture-group reference, silently substituting empty string when none exists - '$$' is the escape for a literal '$', needed since Joomla's configuration.php uses "public $propertyName = ...;" syntax
 	strContent = cloneJoomlaUserRE.ReplaceAllString(strContent, "$$user = '"+escapePHPSingleQuoted(dstDBUser)+"';")
 	strContent = cloneJoomlaPasswordRE.ReplaceAllString(strContent, "$$password = '"+escapePHPSingleQuoted(dstDBUserPassword)+"';")
 	strContent = cloneJoomlaDBRE.ReplaceAllString(strContent, "$$db = '"+escapePHPSingleQuoted(dstDB)+"';")

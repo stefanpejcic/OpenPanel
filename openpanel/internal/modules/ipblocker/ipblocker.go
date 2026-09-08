@@ -22,9 +22,7 @@ func injected(a *appctx.App, r *http.Request) (username string, err error) {
 	return username, nil
 }
 
-// normalizeIP: a "/" means CIDR (host bits are zeroed out to the network
-// address), otherwise a plain address. Returns ok=false for anything that
-// fails to parse, which callers treat as silently skippable.
+// normalizeIP: a "/" means CIDR (host bits are zeroed out to the network address), otherwise a plain address - returns ok=false for anything that fails to parse, which callers treat as silently skippable
 func normalizeIP(ip string) (string, bool) {
 	if strings.Contains(ip, "/") {
 		prefix, err := netip.ParsePrefix(ip)

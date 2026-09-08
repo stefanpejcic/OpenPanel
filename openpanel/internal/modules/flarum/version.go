@@ -15,14 +15,7 @@ import (
 
 var flarumVersionRE = regexp.MustCompile(`^v?\d+\.\d+\.\d+$`)
 
-// listFlarumVersions hits the GitHub tags API and returns every stable
-// "vX.Y.Z" tag, newest first - mirrors the exact filtering the install/
-// update tab's own client-side JS already does (flarum_install.html /
-// flarum_app.html's versionRe), so the server-side "latest" fallback below
-// can never disagree with what's shown in the UI. flarum/core has no
-// stable v2.0.0 yet (still v2.0.0-rc.N/beta.N as of this writing - verified
-// live against the real tags feed), and this regex excludes every such
-// pre-release tag, same as the frontend's.
+// listFlarumVersions hits the GitHub tags API and returns every stable "vX.Y.Z" tag, newest first - mirrors the exact filtering the install/update tab's own client-side JS already does (flarum_install.html / flarum_app.html's versionRe), so the server-side "latest" fallback below can never disagree with what's shown in the UI, and excludes flarum/core's pre-release tags (still no stable v2.0.0 as of this writing) same as the frontend's regex
 func listFlarumVersions(ctx context.Context) ([]string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/flarum/core/tags?per_page=100", nil)
 	if err != nil {
@@ -60,8 +53,7 @@ func listFlarumVersions(ctx context.Context) ([]string, error) {
 	return versions, nil
 }
 
-// latestFlarumVersion returns the highest available stable version - used
-// server-side when the install form's version field is left blank/"latest".
+// latestFlarumVersion returns the highest available stable version - used server-side when the install form's version field is left blank/"latest"
 func latestFlarumVersion(ctx context.Context) (string, error) {
 	versions, err := listFlarumVersions(ctx)
 	if err != nil {
@@ -70,8 +62,7 @@ func latestFlarumVersion(ctx context.Context) (string, error) {
 	return versions[0], nil
 }
 
-// compareFlarumVersions compares two dotted numeric versions ("1.8.19" vs
-// "2.0.0"); returns >0 if a > b.
+// compareFlarumVersions compares two dotted numeric versions ("1.8.19" vs "2.0.0"), returns >0 if a > b
 func compareFlarumVersions(a, b string) int {
 	partsA := strings.Split(a, ".")
 	partsB := strings.Split(b, ".")

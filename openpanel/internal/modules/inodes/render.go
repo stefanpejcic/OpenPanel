@@ -58,8 +58,7 @@ type Row struct {
 	Directory, Count, Href, FileManagerHref string
 }
 
-// parseInodesOutput splits each "<count> <path>" line of inodesOutput into
-// a table row, skipping the "." directory row.
+// parseInodesOutput splits each "<count> <path>" line of inodesOutput into a table row, skipping the "." directory row
 func parseInodesOutput(output, urlPath string) []Row {
 	var rows []Row
 	for _, line := range strings.Split(output, "\n") {

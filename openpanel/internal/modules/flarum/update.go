@@ -13,10 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// parseFlarumCoreVersion reads flarum/core's resolved version out of
-// composer.lock content already fetched via podman exec cat, mirroring
-// websites.go's getFlarumVersion (which reads the same file from the host
-// bind mount) without needing this package to import that one.
+// parseFlarumCoreVersion reads flarum/core's resolved version out of composer.lock content already fetched via podman exec cat, mirroring websites.go's getFlarumVersion (which reads the same file from the host bind mount) without needing this package to import that one
 func parseFlarumCoreVersion(lockContent []byte) string {
 	var lock struct {
 		Packages []struct {
@@ -35,12 +32,7 @@ func parseFlarumCoreVersion(lockContent []byte) string {
 	return "Unknown"
 }
 
-// handleFlarumUpdate updates an existing Flarum install in place: composer
-// update of flarum/core (and its transient deps), then `php flarum migrate`
-// and `php flarum cache:clear`, matching Flarum's own documented Composer
-// update procedure. Streams NDJSON progress like install does. Reuses the
-// same absolute-flarum-script-path workaround install.go needs (the PHP
-// wrapper doesn't reliably resolve relative script paths).
+// handleFlarumUpdate updates an existing Flarum install in place: composer update of flarum/core and its deps, then `php flarum migrate` and `php flarum cache:clear`, matching Flarum's documented Composer update procedure, streaming NDJSON like install does - reuses the same absolute-flarum-script-path workaround install.go needs since the PHP wrapper doesn't reliably resolve relative script paths
 func handleFlarumUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -94,35 +86,20 @@ func handleFlarumUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		currentVersion = parseFlarumCoreVersion(lockOut)
 	}
 
-	// Only flarum/core 2.x requires PHP 8.1+ (see install.go's identical
-	// guard) - an install already sitting on the 1.x line (the common
-	// case, since "latest" resolves to 1.x until a stable 2.0.0 ships)
-	// must still be able to take routine 1.x patch updates on older PHP.
+	// only flarum/core 2.x requires PHP 8.1+ (see install.go's identical guard) - an install already sitting on the 1.x line (the common case) must still be able to take routine 1.x patch updates on older PHP
 	if !isLitespeed && strings.HasPrefix(currentVersion, "2.") && phpVersionBelow(phpVersion, 8, 1) {
 		emit(map[string]any{"error": "Flarum 2.x requires PHP 8.1 or newer, but this domain is set to PHP " + phpVersion + ". Change the domain's PHP version and try again."})
 		return
 	}
 
-	// Pin to the latest *stable* numeric release explicitly rather than
-	// an unconstrained "flarum/core" bump - composer.json's own
-	// minimum-stability:beta (inherited from flarum/flarum's own
-	// recommended-project template) would otherwise let this silently
-	// jump to a 2.0.0 pre-release the moment one ships, exactly like
-	// install.go's ^2.0.0 + --stability=beta combo used to force one
-	// even though none is stable yet (confirmed live against the real
-	// tags feed: v2.0.0-rc.7 is still the newest 2.x tag).
+	// pin to the latest *stable* numeric release explicitly rather than an unconstrained "flarum/core" bump - composer.json's minimum-stability:beta would otherwise let this silently jump to a 2.0.0 pre-release the moment one ships
 	updateTarget := "flarum/core"
 	if latestVersion, verErr := latestFlarumVersion(ctx); verErr == nil {
 		updateTarget = "flarum/core:^" + latestVersion
 	}
 
 	emit(map[string]any{"status": "Running composer require (" + updateTarget + ")"})
-	// flarum/core is a transitive dependency pulled in by flarum/flarum,
-	// not a direct "require" entry in composer.json - "composer update
-	// flarum/core" refuses to touch a package composer.json doesn't name
-	// directly ("Run composer require flarum/core instead"), confirmed
-	// live against a real install. "composer require" both adds/bumps the
-	// constraint and installs it in one step, which is what's needed here.
+	// flarum/core is a transitive dependency pulled in by flarum/flarum, not a direct "require" entry in composer.json, so "composer update flarum/core" refuses to touch it ("Run composer require flarum/core instead") - "composer require" both adds/bumps the constraint and installs it in one step, which is what's needed here
 	composerArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "composer"),
 		"--working-dir="+docroot, "require", updateTarget, "--with-all-dependencies", "--no-interaction")
 	out, runErr := podmanmanager.Command(ctx, userContext, composerArgv).CombinedOutput()

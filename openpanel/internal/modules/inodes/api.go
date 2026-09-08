@@ -22,8 +22,7 @@ type inodesEntry struct {
 	InodeCount int    `json:"inode_count"`
 }
 
-// apiHandleInodes returns the inode count for each subdirectory of the
-// requested directory, one level deep, as JSON.
+// apiHandleInodes returns the inode count for each subdirectory of the requested directory, one level deep, as JSON
 func apiHandleInodes(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

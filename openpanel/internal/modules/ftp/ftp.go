@@ -22,8 +22,7 @@ import (
 
 const ftpContainerName = "openadmin_ftp"
 
-// Register wires the FTP account routes onto mux, gated behind the "ftp"
-// feature flag.
+// Register wires the FTP account routes onto mux, gated behind the "ftp" feature flag
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "ftp")(h)
@@ -47,9 +46,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 // legalUsernameChars is the set of characters allowed in an FTP username.
 const legalUsernameChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_@."
 
-// isValidUsername reports whether username has exactly one "@", a
-// non-empty local part and domain, and only characters drawn from the
-// legal set.
+// isValidUsername reports whether username has exactly one "@", a non-empty local part and domain, and only characters drawn from the legal set
 func isValidUsername(username string) bool {
 	if username == "" || !strings.Contains(username, "@") {
 		return false
@@ -69,8 +66,7 @@ func isValidUsername(username string) bool {
 	return true
 }
 
-// isFTPContainerRunning reports whether the FTP container is currently
-// running.
+// isFTPContainerRunning reports whether the FTP container is currently running
 func isFTPContainerRunning(ctx context.Context, containerName string) bool {
 	out, err := exec.CommandContext(ctx, "podman", "ps", "--filter", "name="+containerName, "--format", "{{.Names}}").Output()
 	if err != nil {
@@ -170,8 +166,7 @@ func handleFTPAccounts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderFTPAccountsPage(a, w, r, serverIP, dedicatedIP, ftpHost, ftpPort, accounts)
 }
 
-// handleListFTPConnections renders the page listing currently active FTP
-// connections for the user.
+// handleListFTPConnections renders the page listing currently active FTP connections for the user
 func handleListFTPConnections(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentUsername, _, err := injected(a, r)
 	if err != nil {
@@ -192,8 +187,7 @@ func handleListFTPConnections(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	renderFTPConnectionsPage(a, w, r, string(out))
 }
 
-// handleAddFTPAccount handles both the new-FTP-account form page and its
-// submission.
+// handleAddFTPAccount handles both the new-FTP-account form page and its submission
 func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -298,8 +292,7 @@ func handleDeleteFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	flashAndRedirectToAccounts(a, w, r, "error", "Failed to delete FTP account "+usernameToDelete+". Output: "+string(out))
 }
 
-// handleChangeFTPPassword handles both the change-password form page and
-// its submission for one FTP account.
+// handleChangeFTPPassword handles both the change-password form page and its submission for one FTP account
 func handleChangeFTPPassword(a *appctx.App, w http.ResponseWriter, r *http.Request, username string) {
 	if !requireFTPRunning(a, w, r) {
 		return
@@ -336,8 +329,7 @@ func handleChangeFTPPassword(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	renderFTPPasswordPage(a, w, r, username)
 }
 
-// handleChangeFTPPath handles both the change-path form page and its
-// submission for one FTP account.
+// handleChangeFTPPath handles both the change-path form page and its submission for one FTP account
 func handleChangeFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request, username string) {
 	currentUsername, _, err := injected(a, r)
 	if err != nil {
@@ -375,8 +367,7 @@ func handleChangeFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	renderFTPPathPage(a, w, r, username)
 }
 
-// handleFTPConfiguration generates a Cyberduck/FileZilla bookmark file for
-// one account and streams it back as a download.
+// handleFTPConfiguration generates a Cyberduck/FileZilla bookmark file for one account and streams it back as a download
 func handleFTPConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request, clientType, account string) {
 	if clientType != "cyberduck" && clientType != "filezilla" {
 		flashAndRedirectToAccounts(a, w, r, "danger", "Invalid configuration type, please use cyberduck or filezilla only!")
