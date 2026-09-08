@@ -38,8 +38,7 @@ type ActivityLogRow struct {
 	Action    string
 }
 
-// parseActivityLine splits on a literal single space, not whitespace-collapsing - logger.go's format has an intentional double space between timestamp and IP that needs to land as an empty token to keep later fields at the right index. Skips lines with fewer than 6 tokens.
-// parts[4] is always the literal word "User" from the log format (`... User <username> <action>`), so there's nothing to branch on there.
+// parseActivityLine splits on a literal single space, not whitespace-collapsing, since logger.go's format has an intentional double space between timestamp and IP that needs to land as an empty token to keep later fields at the right index - skips lines with fewer than 6 tokens; parts[4] is always the literal word "User", nothing to branch on there
 func parseActivityLine(line string) (ActivityLogRow, bool) {
 	parts := strings.Split(line, " ")
 	if len(parts) < 6 {

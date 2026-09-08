@@ -59,8 +59,7 @@ func TestRenderTrashPage(t *testing.T) {
 func TestDisplayOriginalPath(t *testing.T) {
 	cases := []struct{ in, want string }{
 		{"", ""},
-		// First "_data/" match lands inside "..._html_data/", not the later
-		// literal "_data" folder - see displayOriginalPath's doc comment.
+		// First "_data/" match lands inside "..._html_data/", not the later literal "_data" folder - see displayOriginalPath's doc comment.
 		{"/home/user/docker-data/volumes/user_html_data/_data/foo.txt", "/var/www/html/_data/foo.txt"},
 		{"/home/user/.local/share/Trash/foo.txt", "/home/user/.local/share/Trash/foo.txt"},
 	}

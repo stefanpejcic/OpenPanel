@@ -13,8 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 )
 
-// FetchContainerLog runs `podman logs` for the given service, cached 60s.
-// Returns (body, httpStatus).
+// FetchContainerLog runs `podman logs` for the given service, cached 60s, and returns (body, httpStatus).
 func FetchContainerLog(ctx context.Context, a *appctx.App, userContext, serviceName string, tail int) (string, int) {
 	type result struct {
 		Body   string

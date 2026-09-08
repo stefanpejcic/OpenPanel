@@ -90,8 +90,7 @@ func setGOMAXPROCSFromCgroup() {
 	log.Printf("BOOTSTRAP - GOMAXPROCS set to %d (container CPU quota), host reports %d cores", quota, runtime.NumCPU())
 }
 
-// cgroupCPUQuota reads the container's CPU allotment from cgroup v2 (cpu.max), falling back to cgroup v1 (cfs_quota_us/cfs_period_us).
-// fractional quotas round up so a small allotment never collapses to 0.
+// cgroupCPUQuota reads the container's CPU allotment from cgroup v2 (cpu.max), falling back to cgroup v1 - fractional quotas round up so a small allotment never collapses to 0
 func cgroupCPUQuota() (int, bool) {
 	if data, err := os.ReadFile("/sys/fs/cgroup/cpu.max"); err == nil {
 		fields := strings.Fields(strings.TrimSpace(string(data)))
@@ -185,8 +184,7 @@ func checkSSLExists(domain string) (dir string, ok bool) {
 	return "", false
 }
 
-// tlsCertPaths decides if this server should terminate TLS itself: only when the panel's domain already has a cert and the admin port isn't 443 (so Caddy isn't already handling it).
-// Falls back to plain HTTP otherwise - no domain, no cert, Caddy on 443, or listenAddr not matching the configured admin port (LISTEN_ADDR can be overridden for testing on another port).
+// tlsCertPaths decides if this server should terminate TLS itself: only when the domain already has a cert and the admin port isn't 443 - falls back to plain HTTP otherwise (no domain, no cert, Caddy on 443, or listenAddr not matching the configured admin port)
 func tlsCertPaths(listenAddr string) (certFile, keyFile string, ok bool) {
 	domain, domainOK := opencli("domain")
 	if !domainOK || domain == "" {

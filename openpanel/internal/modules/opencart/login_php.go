@@ -3,9 +3,7 @@ package opencart
 // openpanelLoginFileName is the login helper's filename inside the docroot, deployed at install time (install.go) and read by handleOpenCartLogin (cli.go)
 const openpanelLoginFileName = "openpanel-login.php"
 
-// openpanelLoginPHP mirrors joomla/login_php.go's approach: booting admin/config.php + startup.php + framework.php with the route forced to "common/login" gives a working $registry with db/session wired up, since OpenCart's Session only persists via a real request/response cycle
-// the redirect builds its own absolute URL from $_SERVER instead of OpenCart's url library, same subdirectory-safety reason as joomla/login_php.go
-// the session cookie is re-issued with SameSite=Lax before redirecting since OpenCart defaults to Strict, which browsers silently drop on the cross-origin window.open() the "Login as Admin" button uses (curl doesn't enforce SameSite so this was missed in curl testing)
+// openpanelLoginPHP mirrors joomla/login_php.go's approach: booting admin/config.php + startup.php + framework.php with the route forced to "common/login" gives a working $registry with db/session wired up, since OpenCart's Session only persists via a real request/response cycle; the redirect builds its own absolute URL from $_SERVER instead of OpenCart's url library, same subdirectory-safety reason as joomla/login_php.go; the session cookie is re-issued with SameSite=Lax before redirecting since OpenCart defaults to Strict, which browsers silently drop on the cross-origin window.open() the "Login as Admin" button uses (curl doesn't enforce SameSite so this was missed in curl testing)
 const openpanelLoginPHP = `<?php
 /**
  * OpenPanel one-time admin login handler.

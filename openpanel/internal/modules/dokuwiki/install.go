@@ -341,9 +341,7 @@ func escapePHPSingleQuoted(value string) string {
 	return value
 }
 
-// escapeAuthField strips the colon delimiter users.auth.php's line format
-// depends on, since a stray colon in a display name/email would silently
-// shift every field after it.
+// escapeAuthField strips the colon delimiter users.auth.php's line format depends on, since a stray colon in a display name/email would silently shift every field after it
 func escapeAuthField(value string) string {
 	return strings.ReplaceAll(value, ":", "")
 }

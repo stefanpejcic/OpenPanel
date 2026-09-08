@@ -26,8 +26,7 @@ func writeAPIServicesJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiAllowedServices is the compose-load + FilterServices prelude shared by
-// all three routes. Returns ok=false once it has written an error response.
+// apiAllowedServices is the compose-load + FilterServices prelude shared by all three routes, returns ok=false once it has written an error response
 func apiAllowedServices(w http.ResponseWriter, userContext string) (allowed []string, ok bool) {
 	composeData, err := docker.LoadCompose(userContext)
 	if err != nil {
@@ -69,8 +68,7 @@ func apiServicesList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIServicesJSON(w, http.StatusOK, map[string]any{"services": list})
 }
 
-// apiServiceGet returns one service's current container status and the
-// actions available on it.
+// apiServiceGet returns one service's current container status and the actions available on it
 func apiServiceGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

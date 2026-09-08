@@ -14,8 +14,7 @@ import (
 
 var postgresPortRE = regexp.MustCompile(`^(127\.0\.0\.1:)?(\d+):5432$`)
 
-// handleRemotePostgres toggles PostgreSQL's exposed port between bound to
-// 127.0.0.1 (disabled) and 0.0.0.0 (enabled for remote access).
+// handleRemotePostgres toggles PostgreSQL's exposed port between bound to 127.0.0.1 (disabled) and 0.0.0.0 (enabled for remote access)
 func handleRemotePostgres(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

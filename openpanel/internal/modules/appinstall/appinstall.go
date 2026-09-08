@@ -135,9 +135,7 @@ func getValidatedInt(value, def string) int {
 	return d
 }
 
-// gitBootstrapCmd returns the shell snippet that makes sure `git` is on PATH (the official node/python images don't include it and can't be edited), then fetches the repo's default branch and hard-resets the working tree to it, every time the container starts. gitURL is already validated by isValidGitURL, so single-quoting it here is safe.
-//
-// Avoids `git clone` (refuses a non-empty directory - a repo can get connected to an already-installed app whose docroot already has files) and `git pull` (needs upstream tracking info that `reset --hard FETCH_HEAD` doesn't set up, so a later plain pull would fail). `init`+`remote add` are both idempotent, and `fetch origin HEAD` resolves the default branch without needing to name it.
+// gitBootstrapCmd returns the shell snippet that makes sure `git` is on PATH (the official node/python images don't include it), then fetches the repo's default branch and hard-resets the working tree to it every time the container starts - gitURL is already validated by isValidGitURL so single-quoting it is safe. Avoids `git clone` (refuses a non-empty directory) and `git pull` (needs upstream tracking info reset --hard FETCH_HEAD doesn't set up); `init`+`remote add` are idempotent, and `fetch origin HEAD` resolves the default branch without naming it.
 func gitBootstrapCmd(gitURL string) string {
 	if gitURL == "" {
 		return ""

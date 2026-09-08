@@ -28,8 +28,7 @@ func configIntOrDefault(a *appctx.App, key string, def int) int {
 	return v
 }
 
-// handleWAFLog: with no domain, shows a domain picker; with one, its
-// paginated Coraza JSON log.
+// handleWAFLog: with no domain, shows a domain picker; with one, its paginated Coraza JSON log
 func handleWAFLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	domainName := r.PathValue("domain_name")

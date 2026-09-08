@@ -24,8 +24,7 @@ func RegisterExtensionsAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "php_extensions", "GET /api/php/{version}/extensions/install/status", func(w http.ResponseWriter, r *http.Request) { apiPHPExtensionsInstallStatus(a, w, r) })
 }
 
-// apiPHPExtensionsList returns the supported extensions for a PHP version
-// along with their active/disabled/not-installed state and install history.
+// apiPHPExtensionsList returns the supported extensions for a PHP version along with their active/disabled/not-installed state and install history
 func apiPHPExtensionsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
@@ -63,8 +62,7 @@ func apiPHPExtensionsList(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	})
 }
 
-// apiPHPExtensionToggle enables or disables one already-installed PHP
-// extension and restarts the PHP service to apply the change.
+// apiPHPExtensionToggle enables or disables one already-installed PHP extension and restarts the PHP service to apply the change
 func apiPHPExtensionToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -132,8 +130,7 @@ func apiPHPExtensionToggle(a *appctx.App, w http.ResponseWriter, r *http.Request
 	})
 }
 
-// apiPHPExtensionsAvailable lists all extensions supported for a PHP
-// version, flagging which ones are already installed.
+// apiPHPExtensionsAvailable lists all extensions supported for a PHP version, flagging which ones are already installed
 func apiPHPExtensionsAvailable(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
@@ -171,8 +168,7 @@ func apiPHPExtensionsAvailable(a *appctx.App, w http.ResponseWriter, r *http.Req
 
 var apiExtensionsCommaSplitRE = regexp.MustCompile(`\s*,\s*`)
 
-// apiPHPExtensionsInstall queues an asynchronous install of one or more
-// PHP extensions and returns an install ID for polling progress.
+// apiPHPExtensionsInstall queues an asynchronous install of one or more PHP extensions and returns an install ID for polling progress
 func apiPHPExtensionsInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -239,8 +235,7 @@ func apiPHPExtensionsInstall(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	})
 }
 
-// apiPHPExtensionsInstallStatus reports the progress of a queued extension
-// install, logging the user action once it completes.
+// apiPHPExtensionsInstallStatus reports the progress of a queued extension install, logging the user action once it completes
 func apiPHPExtensionsInstallStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)

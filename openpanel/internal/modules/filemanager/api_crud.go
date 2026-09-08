@@ -14,8 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// apiCreateFile is handleCreateFile (crud.go) with a JSON body/response
-// instead of a form post + flash/redirect.
+// apiCreateFile is handleCreateFile (crud.go) with a JSON body/response instead of a form post + flash/redirect.
 func apiCreateFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Path     string `json:"path"`

@@ -107,8 +107,7 @@ func BuildWPCLIBaseCommand(userContext, phpContainer string) []string {
 	)
 }
 
-// BuildComposeUpDownCommand returns the `podman-compose up -d`/`down` argv and working directory for a container; ok is false for an unrecognized action.
-// "up" always passes --no-deps - callers already start real dependencies themselves, and the vendored podman-compose actually crashes with a KeyError resolving a `${VAR:-default}` depends_on entry otherwise, which looks like activate silently failed.
+// BuildComposeUpDownCommand returns the `podman-compose up -d`/`down` argv and working directory for a container (ok is false for an unrecognized action) - "up" always passes --no-deps since callers already start real dependencies themselves, and the vendored podman-compose crashes with a KeyError resolving a `${VAR:-default}` depends_on entry otherwise, which looks like activate silently failed
 func BuildComposeUpDownCommand(userContext, containerName, action string) (argv []string, dir string, ok bool) {
 	dir = "/home/" + userContext
 	switch action {

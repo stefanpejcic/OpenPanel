@@ -1,5 +1,4 @@
-// Package config reads /etc/openpanel/openpanel/conf/openpanel.config, a
-// plain key=value configuration file.
+// Package config reads /etc/openpanel/openpanel/conf/openpanel.config, a plain key=value configuration file.
 package config
 
 import (

@@ -20,8 +20,7 @@ import (
 // isoLayout is the timestamp format for "created_at"/"last_active" in the Redis session hash - must match what internal/modules/account/login.go writes
 const isoLayout = "2006-01-02T15:04:05.999999"
 
-// RequireLogin is middleware that enforces an authenticated session (existence, max lifetime, IP binding, 2FA, demo-mode writes) and gates access by feature.
-// Access is granted if the caller has any one of featureNames - a route shared by two modules passes both so it works when either is enabled.
+// RequireLogin is middleware that enforces an authenticated session (existence, max lifetime, IP binding, 2FA, demo-mode writes) and gates access by feature - granted if the caller has any one of featureNames, so a route shared by two modules passes both
 func RequireLogin(a *appctx.App, featureNames ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

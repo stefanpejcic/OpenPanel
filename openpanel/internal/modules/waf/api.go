@@ -67,9 +67,7 @@ func apiWAFDomainGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// readWAFStatus shares handleWAFDomain's GET-branch logic, factored out
-// for the API's single-domain GET route which needs the values directly
-// rather than a rendered page.
+// readWAFStatus shares handleWAFDomain's GET-branch logic, factored out for the API's single-domain GET route which needs the values directly rather than a rendered page
 func readWAFStatus(domain string) (status string, removedRules, removedTags []string) {
 	content, readErr := os.ReadFile(domainConfigPath(domain))
 	if readErr != nil {
@@ -175,8 +173,7 @@ func apiWAFDomainRules(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	// removed_tags has no meaningful format restriction - any non-empty
-	// string is accepted as a tag.
+	// removed_tags has no meaningful format restriction - any non-empty string is accepted as a tag
 	for _, tag := range body.RemovedTags {
 		if tag == "" {
 			writeJSONError(w, http.StatusBadRequest, "removed_tags contains invalid characters")

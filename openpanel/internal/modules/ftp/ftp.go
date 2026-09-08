@@ -1,6 +1,4 @@
-// Package ftp implements FTP sub-account list/create/delete/password/path
-// management, backed by the `opencli ftp-*` CLI tools and the FTP
-// container's own /etc/openpanel/ftp/users/ flat-file account list.
+// Package ftp implements FTP sub-account list/create/delete/password/path management, backed by the `opencli ftp-*` CLI tools and the FTP container's own /etc/openpanel/ftp/users/ flat-file account list.
 package ftp
 
 import (

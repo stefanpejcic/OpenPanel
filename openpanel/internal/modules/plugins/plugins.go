@@ -15,8 +15,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	if len(a.PluginNames) == 0 {
 		return
 	}
-	// The feature name for a route that isn't tied to a specific module is
-	// "app" - always granted, see baselineFeatures.
+	// the feature name for a route that isn't tied to a specific module is "app" - always granted, see baselineFeatures
 	requireLogin := auth.RequireLogin(a, "app")
 	mux.Handle("GET /plugins", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handlePluginsPage(a, w, r)

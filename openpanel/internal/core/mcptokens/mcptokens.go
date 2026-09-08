@@ -43,8 +43,7 @@ type AuthResult struct {
 	ReadOnly bool
 }
 
-// Authenticate looks up rawToken by hash, rejects/deletes it if expired,
-// and bumps last_used_at on success.
+// Authenticate looks up rawToken by hash, rejects/deletes it if expired, and bumps last_used_at on success
 func Authenticate(db *sql.DB, rawToken string) (*AuthResult, error) {
 	if rawToken == "" || !strings.HasPrefix(rawToken, TokenPrefix) {
 		return nil, nil

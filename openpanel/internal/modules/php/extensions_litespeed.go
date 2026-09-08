@@ -27,8 +27,7 @@ func litespeedPackagePrefix(version string) string {
 	return litespeedVersionDir(version) + "-"
 }
 
-// litespeedConfDir is the ini scan directory for one PHP version inside the
-// LiteSpeed container.
+// litespeedConfDir is the ini scan directory for one PHP version inside the LiteSpeed container
 func litespeedConfDir(version string) string {
 	return "/usr/local/lsws/" + litespeedVersionDir(version) + "/etc/php/" + version + "/mods-available"
 }

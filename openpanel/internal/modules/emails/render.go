@@ -56,9 +56,7 @@ func addressesOf(lines []string) []string {
 	return out
 }
 
-// ---------------------------------------------------------------------------
 // accounts.html
-// ---------------------------------------------------------------------------
 
 // AccountsPageData is emails/accounts.html's template context.
 type AccountsPageData struct {
@@ -120,9 +118,7 @@ func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, c
 	}
 }
 
-// ---------------------------------------------------------------------------
 // new.html
-// ---------------------------------------------------------------------------
 
 // NewEmailPageData is emails/new.html's template context.
 type NewEmailPageData struct {
@@ -144,9 +140,7 @@ func renderNewEmailPage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 	}
 }
 
-// ---------------------------------------------------------------------------
 // single_account.html
-// ---------------------------------------------------------------------------
 
 // SingleAccountPageData is emails/single_account.html's template context.
 type SingleAccountPageData struct {
@@ -176,9 +170,7 @@ func renderSingleAccountPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 }
 
-// ---------------------------------------------------------------------------
 // delete.html
-// ---------------------------------------------------------------------------
 
 // DeletePageData is emails/delete.html's template context.
 type DeletePageData struct {
@@ -199,9 +191,7 @@ func renderDeletePage(a *appctx.App, w http.ResponseWriter, r *http.Request, add
 	}
 }
 
-// ---------------------------------------------------------------------------
 // info.html
-// ---------------------------------------------------------------------------
 
 // InfoPageData is emails/info.html's template context.
 type InfoPageData struct {
@@ -223,9 +213,7 @@ func renderInfoPage(a *appctx.App, w http.ResponseWriter, r *http.Request, addre
 	}
 }
 
-// ---------------------------------------------------------------------------
 // aliases.html
-// ---------------------------------------------------------------------------
 
 // AliasesPageData is emails/aliases.html's template context.
 type AliasesPageData struct {
@@ -246,9 +234,7 @@ func renderAliasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, al
 	}
 }
 
-// ---------------------------------------------------------------------------
 // alias_detail.html
-// ---------------------------------------------------------------------------
 
 // AliasDetailPageData is emails/alias_detail.html's template context.
 type AliasDetailPageData struct {
@@ -269,9 +255,7 @@ func renderAliasDetailPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 }
 
-// ---------------------------------------------------------------------------
 // alias_new.html
-// ---------------------------------------------------------------------------
 
 // AliasNewPageData is emails/alias_new.html's template context.
 type AliasNewPageData struct {
@@ -291,9 +275,7 @@ func renderAliasNewPage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 	}
 }
 
-// ---------------------------------------------------------------------------
 // alias_delete.html
-// ---------------------------------------------------------------------------
 
 // AliasDeletePageData is emails/alias_delete.html's template context.
 type AliasDeletePageData struct {
@@ -318,9 +300,7 @@ func renderAliasDeletePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 }
 
-// ---------------------------------------------------------------------------
 // default_address.html
-// ---------------------------------------------------------------------------
 
 // DefaultAddressPageData is emails/default_address.html's template context.
 type DefaultAddressPageData struct {
@@ -342,9 +322,7 @@ func renderDefaultAddressPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// ---------------------------------------------------------------------------
 // deliverability.html / deliverability_domain.html
-// ---------------------------------------------------------------------------
 
 // DeliverabilityPageData is emails/deliverability.html's template context.
 type DeliverabilityPageData struct {
@@ -382,9 +360,7 @@ func renderDeliverabilityDomainPage(a *appctx.App, w http.ResponseWriter, r *htt
 	}
 }
 
-// ---------------------------------------------------------------------------
 // filter.html
-// ---------------------------------------------------------------------------
 
 // FilterPageData is emails/filter.html's template context.
 type FilterPageData struct {
@@ -412,9 +388,7 @@ func renderFilterPage(a *appctx.App, w http.ResponseWriter, r *http.Request, ema
 	}
 }
 
-// ---------------------------------------------------------------------------
 // import.html / confirm_import.html
-// ---------------------------------------------------------------------------
 
 func renderImportPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Import")

@@ -1,5 +1,4 @@
-// Package cmsclone holds the clone-workflow steps shared by every CMS's clone.go (validation, site-limit check, destination lookup, DB dump/create, chown, and the finalize tail).
-// Each CMS package still owns its own file-copy and config-rewrite steps, since those genuinely differ per CMS.
+// Package cmsclone holds the clone-workflow steps shared by every CMS's clone.go (validation, site-limit check, destination lookup, DB dump/create, chown, and the finalize tail) - each CMS package still owns its own file-copy and config-rewrite steps since those genuinely differ per CMS.
 package cmsclone
 
 import (
@@ -24,8 +23,7 @@ var (
 	dbNameRE = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 )
 
-// ValidDomain/ValidDB/ValidDocroot replace the identical validation helpers every CMS clone.go used to define for itself.
-// ValidDocroot accepts the "/var/www/html/..." absolute form clone handlers actually use, unlike WordPress's own stricter validateDocroot().
+// ValidDomain/ValidDB/ValidDocroot replace the identical validation helpers every CMS clone.go used to define for itself - ValidDocroot accepts the "/var/www/html/..." absolute form clone handlers actually use, unlike WordPress's own stricter validateDocroot()
 func ValidDomain(name string) bool { return name != "" && domainRE.MatchString(name) }
 func ValidDB(name string) bool     { return name != "" && dbNameRE.MatchString(name) }
 func ValidDocroot(path string) bool {
@@ -101,8 +99,7 @@ type dumpStageError struct{ err error }
 func (e *dumpStageError) Error() string { return e.err.Error() }
 func (e *dumpStageError) Unwrap() error { return e.err }
 
-// CreateDatabaseAndDump creates dstDB/dstDBUser, grants privileges, and pipes a dump of srcDB into dstDB.
-// escapedPassword is returned for callers that need it for a config-file rewrite step. Use DumpStageFailed(err) to tell which error response shape to write.
+// CreateDatabaseAndDump creates dstDB/dstDBUser, grants privileges, and pipes a dump of srcDB into dstDB - escapedPassword is returned for callers that need it for a config-file rewrite step, use DumpStageFailed(err) to tell which error response shape to write
 func CreateDatabaseAndDump(ctx context.Context, userContext, mysqlVersion, dumpCmd, srcDB, dstDB, dstDBUser, dstDBUserPassword string) (escapedPassword string, err error) {
 	escapedPassword = strings.ReplaceAll(dstDBUserPassword, `\`, `\\`)
 	escapedPassword = strings.ReplaceAll(escapedPassword, `'`, `\'`)

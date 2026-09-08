@@ -2,8 +2,7 @@ package trash
 
 import "strings"
 
-// Entry is one parsed trash item: an `ls -l` row enriched with its
-// original path and deletion date from .trash_restore.
+// Entry is one parsed trash item: an `ls -l` row enriched with its original path and deletion date from .trash_restore
 type Entry struct {
 	Permissions  string
 	Links        string
@@ -24,9 +23,7 @@ type trashMeta struct {
 	deletionDate string
 }
 
-// parseTrashRestoreFile parses .trash_restore's
-// trashed_name=original_path|deletion_date=... lines, best-effort:
-// malformed lines are simply skipped.
+// parseTrashRestoreFile parses .trash_restore's trashed_name=original_path|deletion_date=... lines, best-effort: malformed lines are simply skipped
 func parseTrashRestoreFile(content string) map[string]trashMeta {
 	metadata := make(map[string]trashMeta)
 	for _, line := range strings.Split(content, "\n") {
@@ -47,9 +44,7 @@ func parseTrashRestoreFile(content string) map[string]trashMeta {
 	return metadata
 }
 
-// parseLsOutputTrash parses `ls -l`/`ls -la` output into structured
-// entries, enriched with deletion date/original path looked up from
-// .trash_restore's content.
+// parseLsOutputTrash parses `ls -l`/`ls -la` output into structured entries, enriched with deletion date/original path looked up from .trash_restore's content
 func parseLsOutputTrash(output, trashInfoContent string) []Entry {
 	metadata := parseTrashRestoreFile(trashInfoContent)
 
@@ -107,9 +102,7 @@ func parseLsOutputTrash(output, trashInfoContent string) []Entry {
 	return entries
 }
 
-// splitFields splits line on whitespace, stopping after maxFields-1 splits
-// so the final field keeps any remaining whitespace-separated content
-// intact (up to maxFields elements).
+// splitFields splits line on whitespace, stopping after maxFields-1 splits so the final field keeps any remaining whitespace-separated content intact (up to maxFields elements)
 func splitFields(line string, maxFields int) []string {
 	var fields []string
 	rest := line

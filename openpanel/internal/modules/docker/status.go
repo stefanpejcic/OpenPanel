@@ -163,8 +163,7 @@ func mapToHostID(entries []idMapEntry, id int) (hostID int, ok bool) {
 	return 0, false
 }
 
-// fixSearchEngineOwnership works around a shared-image-store limitation that leaves elasticsearch/opensearch stuck crash-looping in "starting": rootless podman pulls each image once into a store shared across every tenant, so it can't be UID-shifted per tenant, and the image-baked non-root uid gets a flat permission denied in every tenant's namespace.
-// The compose template gives both services dedicated data/config/logs volumes, which are plain host directories (unlike the container's own overlay mount, which lives in a private mount namespace nothing outside it can chown) - so this resolves the tenant's container-uid -> host-uid mapping via `podman info`, finds each volume's real host path via `podman volume inspect`, and chowns it directly over the remote API, no unshare or local execution involved.
+// fixSearchEngineOwnership works around a shared-image-store limitation that leaves elasticsearch/opensearch stuck crash-looping in "starting": rootless podman pulls each image once into a store shared across every tenant, so it can't be UID-shifted per tenant, and the image-baked non-root uid gets a flat permission denied in every tenant's namespace. The compose template gives both services dedicated data/config/logs volumes, which are plain host directories, so this resolves the tenant's container-uid -> host-uid mapping via `podman info`, finds each volume's real host path via `podman volume inspect`, and chowns it directly over the remote API, no unshare or local execution involved.
 func fixSearchEngineOwnership(ctx context.Context, userContext, containerName string) {
 	fix, ok := searchEngineFix[containerName]
 	if !ok {

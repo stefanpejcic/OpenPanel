@@ -1,5 +1,4 @@
-// Package webserver reads a per-user .env value and runs each web server's
-// own config syntax test inside its container.
+// Package webserver reads a per-user .env value and runs each web server's own config syntax test inside its container.
 package webserver
 
 import (

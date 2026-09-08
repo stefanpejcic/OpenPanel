@@ -8,8 +8,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 )
 
-// ComposeContainer is a small start/stop/status/restart helper other modules use directly on the shared services (redis, memcached, mysql, postgres, phpmyadmin, valkey) rather than through the docker-compose.yml edit/save flow the rest of this package uses. Exported here since internal/app can't import this package.
-// "restart" is fire-and-forget: the underlying process is started but not waited on, so this reports whether it launched, not whether it finished.
+// ComposeContainer is a small start/stop/status/restart helper other modules use directly on the shared services (redis, memcached, mysql, postgres, phpmyadmin, valkey) rather than through the docker-compose.yml edit/save flow the rest of this package uses, exported here since internal/app can't import this package - "restart" is fire-and-forget, so this reports whether it launched, not whether it finished.
 func ComposeContainer(ctx context.Context, userContext, name, action string) bool {
 	switch action {
 	case "start", "stop", "restart":

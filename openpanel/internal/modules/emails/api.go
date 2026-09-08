@@ -66,9 +66,7 @@ func apiOwnEmailOr403(a *appctx.App, w http.ResponseWriter, r *http.Request, use
 	return apiOwnDomainOr403(a, w, r, userID, domain)
 }
 
-// ---------------------------------------------------------------------------
 // Mailboxes
-// ---------------------------------------------------------------------------
 
 type apiMailboxEntry struct {
 	Address    string `json:"address"`
@@ -363,9 +361,7 @@ func apiEmailDetailDelete(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	writeAPIEmailsJSON(w, http.StatusOK, map[string]string{"message": "Email " + email + " deleted"})
 }
 
-// ---------------------------------------------------------------------------
 // Client configuration download
-// ---------------------------------------------------------------------------
 
 // apiEmailConfiguration generates a downloadable mail-client config file (Thunderbird, Outlook, or Apple mobileconfig) for one email account - deliberately its own, simpler templates distinct from the richer ones handleEmailConfiguration (the UI's /emails/configuration route) generates
 func apiEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -465,9 +461,7 @@ func apiEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request
 	_, _ = w.Write([]byte(content))
 }
 
-// ---------------------------------------------------------------------------
 // Aliases
-// ---------------------------------------------------------------------------
 
 // apiEmailAliasesList returns every alias belonging to the current user's domains.
 func apiEmailAliasesList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -664,9 +658,7 @@ func apiEmailAliasDetailDelete(a *appctx.App, w http.ResponseWriter, r *http.Req
 	writeAPIEmailsJSON(w, http.StatusOK, map[string]string{"message": "Target " + target + " removed from " + email})
 }
 
-// ---------------------------------------------------------------------------
 // Default / catch-all alias
-// ---------------------------------------------------------------------------
 
 // apiEmailDefaultGet returns a domain's current default (catch-all) destination, if any.
 func apiEmailDefaultGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -728,9 +720,7 @@ func apiEmailDefaultPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIEmailsJSON(w, http.StatusOK, map[string]any{"domain": domain, "destination": destPtr})
 }
 
-// ---------------------------------------------------------------------------
 // Deliverability
-// ---------------------------------------------------------------------------
 
 // apiEmailDeliverabilityAll checks deliverability (SPF/DKIM/DMARC/rDNS etc.) for every domain the current user owns, concurrently
 func apiEmailDeliverabilityAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -778,9 +768,7 @@ func apiEmailDeliverabilityDomain(a *appctx.App, w http.ResponseWriter, r *http.
 	writeAPIEmailsJSON(w, http.StatusOK, checkDomainDeliverability(ctx, a, domain, serverIP))
 }
 
-// ---------------------------------------------------------------------------
 // Sieve filters
-// ---------------------------------------------------------------------------
 
 // apiEmailFilterGet returns the raw and parsed Sieve filter for an email account.
 func apiEmailFilterGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {

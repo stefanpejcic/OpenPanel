@@ -53,8 +53,7 @@ func ProxyPortSwapPair(state string) (old, replacement string, err error) {
 	}
 }
 
-// SwapWebserverComposePort swaps one webserver's port-mapping variable in place. podman-compose can't resolve a ${VAR} nested inside another ${VAR:-default}, so docker-compose.yml keeps each webserver's port mapping flat - the swap is scoped to the block between the webserver's `container_name:` line and its `HTTPS_PORT` line, so only that service's mapping is touched.
-// Callers must keep exactly one webserver's block on PROXY_HTTP_PORT ("on") at a time when varnish is running, so both toggling varnish and switching the active webserver need to call this.
+// SwapWebserverComposePort swaps one webserver's port-mapping variable in place. podman-compose can't resolve a ${VAR} nested inside another ${VAR:-default}, so docker-compose.yml keeps each webserver's port mapping flat - the swap is scoped to the block between the webserver's `container_name:` line and its `HTTPS_PORT` line, so only that service's mapping is touched. Callers must keep exactly one webserver's block on PROXY_HTTP_PORT ("on") at a time when varnish is running, so both toggling varnish and switching the active webserver need to call this.
 func SwapWebserverComposePort(userContext, webserver, state string) error {
 	old, replacement, err := ProxyPortSwapPair(state)
 	if err != nil {

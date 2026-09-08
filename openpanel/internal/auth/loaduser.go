@@ -95,8 +95,7 @@ func parseJWT(tokenString string, secret []byte) (int, error) {
 	}
 }
 
-// enforceAccessDomain redirects to the configured access domain if the request's Host doesn't match, returning true if it wrote a redirect.
-// Skipped entirely when ForceDomain is empty (opencli not installed/configured, so there's nothing to enforce).
+// enforceAccessDomain redirects to the configured access domain if the request's Host doesn't match, returning true if it wrote a redirect - skipped entirely when ForceDomain is empty
 func enforceAccessDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) bool {
 	desiredDomain := strings.TrimSpace(a.ForceDomain)
 	if desiredDomain == "" {

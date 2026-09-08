@@ -75,8 +75,7 @@ func renderStatsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, rawS
 	}
 }
 
-// PageEntry is one rendered pagination control: either a page number link
-// or an ellipsis.
+// PageEntry is one rendered pagination control: either a page number link or an ellipsis
 type PageEntry struct {
 	Number     int
 	IsEllipsis bool

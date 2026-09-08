@@ -14,8 +14,7 @@ import (
 
 const temporaryLinkFallback = "https://preview.openpanel.org/index.php"
 
-// temporaryLinkSetting reads the `temporary_links` config value, memoized
-// for 2 hours since it's rarely changed.
+// temporaryLinkSetting reads the `temporary_links` config value, memoized for 2 hours since it's rarely changed
 func temporaryLinkSetting(ctx context.Context, a *appctx.App) string {
 	setting, _ := cache.Memoize(ctx, a.Cache, "temporary_links_setting", 2*time.Hour, func() (string, error) {
 		return a.Config.Get("temporary_links", ""), nil

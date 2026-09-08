@@ -90,8 +90,7 @@ func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 var rubyCleanTagRE = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
 
-// fetchRubyDockerHubVersions queries Docker Hub's registry API for the official `ruby` image's tags, keeping only plain "X.Y.Z" ones - variant tags like "3.3.6-slim" are excluded since the compose template substitutes this value as-is into `ruby:${...TAG}`, not as a suffix.
-// Doesn't rely on the API's `ordering` param: `ordering=-name` doesn't actually sort descending in practice, and `ordering=-last_updated` doesn't track version either (old patches get rebuilt for security fixes more than recent releases do). So this just pages through all ~1700 tags and sorts properly in Go.
+// fetchRubyDockerHubVersions queries Docker Hub's registry API for the official `ruby` image's tags, keeping only plain "X.Y.Z" ones - variant tags like "3.3.6-slim" are excluded since the compose template substitutes this value as-is into `ruby:${...TAG}`. Doesn't rely on the API's `ordering` param since neither -name nor -last_updated actually sorts by version in practice, so this pages through all ~1700 tags and sorts properly in Go.
 func fetchRubyDockerHubVersions(ctx context.Context) ([]string, error) {
 	client := &http.Client{Timeout: 8 * time.Second}
 	seen := make(map[string]bool)

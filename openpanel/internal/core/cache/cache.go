@@ -1,5 +1,4 @@
-// Package cache wraps the Redis instance the panel uses for caching,
-// reached over a unix socket.
+// Package cache wraps the Redis instance the panel uses for caching, reached over a unix socket.
 package cache
 
 import (

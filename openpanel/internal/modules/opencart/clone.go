@@ -12,9 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 )
 
-// mirrors wordpress/manage.go's handleCloneWordPress in shape (file copy, DB create+dump, config rewrite, sites insert), sharing everything but docroot copy and config rewrite with every other CMS via internal/core/cmsclone
-// OpenCart hardcodes its URL and filesystem path in two files, config.php and admin/config.php - only HTTP_SERVER/HTTP_CATALOG and DIR_OPENCART need rewriting since every other DIR_* constant derives from DIR_OPENCART, and oc_setting stores no url-related key so no DB-side fix is needed
-// cmsclone.ValidDocroot accepts the real absolute "/var/www/html/..." form used everywhere here, unlike wordpress's own validateDocroot which would reject it
+// mirrors wordpress/manage.go's handleCloneWordPress in shape (file copy, DB create+dump, config rewrite, sites insert), sharing everything but docroot copy and config rewrite with every other CMS via internal/core/cmsclone; OpenCart hardcodes its URL and filesystem path in two files, config.php and admin/config.php, so only HTTP_SERVER/HTTP_CATALOG and DIR_OPENCART need rewriting since every other DIR_* constant derives from DIR_OPENCART, and oc_setting stores no url-related key so no DB-side fix is needed; cmsclone.ValidDocroot accepts the real absolute "/var/www/html/..." form used everywhere here, unlike wordpress's own validateDocroot which would reject it
 
 var (
 	cloneOCHTTPServerRE  = regexp.MustCompile(`define\('HTTP_SERVER',\s*'.*?'\);`)

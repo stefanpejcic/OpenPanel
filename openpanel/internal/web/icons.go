@@ -2,8 +2,7 @@ package web
 
 import "html/template"
 
-// Sidebar group icons, transcribed verbatim from base.html's
-// {% set X_icon = '...' %} literals (lines ~348-360).
+// Sidebar group icons, transcribed verbatim from base.html's {% set X_icon = '...' %} literals.
 const (
 	websitesIcon   template.HTML = `<svg class="icon icon-tabler icons-tabler-outline icon-tabler-notification" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"  width="18" height="18"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 6h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"></path><path d="M17 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path></svg>`
 	filesIcon      template.HTML = `<svg class="icon icon-tabler icons-tabler-outline icon-tabler-folder" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor" fill="none" viewBox="0 0 24 24" height="18" width="18" xmlns="http://www.w3.org/2000/svg"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 3a1 1 0 0 1 .608 .206l.1 .087l2.706 2.707h6.586a3 3 0 0 1 2.995 2.824l.005 .176v8a3 3 0 0 1 -2.824 2.995l-.176 .005h-14a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-11a3 3 0 0 1 2.824 -2.995l.176 -.005h4z" /></svg>`

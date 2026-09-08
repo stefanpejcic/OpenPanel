@@ -20,8 +20,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules"
 )
 
-// Regression test: gorilla/csrf defaults to field name "gorilla.csrf.Token" but our templates render "csrf_token", so every POST (including login) got rejected without csrf.FieldName("csrf_token") set.
-// Simulates a real browser: GET /login for a token+cookie, then POST it back and check it's not rejected.
+// regression test: gorilla/csrf defaults to field name "gorilla.csrf.Token" but our templates render "csrf_token", so every POST got rejected without csrf.FieldName("csrf_token") set - simulates a real browser via GET /login then POST back
 func TestCSRFFieldNameMatchesTemplates(t *testing.T) {
 	c := cache.New(filepath.Join(t.TempDir(), "no-redis.sock"))
 	a := &appctx.App{

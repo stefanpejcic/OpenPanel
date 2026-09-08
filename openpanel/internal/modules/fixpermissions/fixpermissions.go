@@ -1,5 +1,4 @@
-// Package fixpermissions runs `opencli files-fix_permissions` over a
-// user-chosen directory under /var/www/html/.
+// Package fixpermissions runs `opencli files-fix_permissions` over a user-chosen directory under /var/www/html/.
 package fixpermissions
 
 import (

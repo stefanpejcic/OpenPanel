@@ -205,10 +205,7 @@ func (a *App) QueryPlanDetailsByID(ctx context.Context, planID int) (PlanDetails
 			EmailLimit: emailLimit.String, FTPLimit: ftpLimit.String, DiskLimit: diskLimit.String,
 			InodesLimit: inodesLimit.String, Bandwidth: bandwidth.String, MaxEmailQuota: maxEmailQuota.String,
 		}
-		// Upsell offers are an Enterprise-only feature: leave the fields
-		// unset on any other license so HasUpsell()/UpgradeMessage() stay
-		// silent for non-Enterprise installs regardless of what's configured
-		// in the plans table.
+		// upsell offers are Enterprise-only, leave the fields unset on any other license so HasUpsell()/UpgradeMessage() stay silent regardless of what's configured in the plans table
 		if strings.HasPrefix(a.LicenseKey, "enterprise") {
 			plan.UpsellPlanID = upsellPlanID.String
 			plan.UpsellPlanName = upsellPlanName.String

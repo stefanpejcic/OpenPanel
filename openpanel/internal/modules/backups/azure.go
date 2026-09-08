@@ -9,8 +9,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 )
 
-// azureStore is the remoteStore implementation for the "azure" backup.env
-// section (Azure Blob Storage).
+// azureStore is the remoteStore implementation for the "azure" backup.env section (Azure Blob Storage).
 type azureStore struct {
 	config map[string]string
 }

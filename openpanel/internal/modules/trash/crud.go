@@ -24,8 +24,7 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// handleRestoreFile moves one trashed item back to its original path,
-// recorded in .trash_restore.
+// handleRestoreFile moves one trashed item back to its original path, recorded in .trash_restore
 func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	itemName := r.URL.Query().Get("filename")
 	if itemName == "" {
@@ -171,8 +170,7 @@ func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, jsonResult{Success: true, Message: "Deleted permanently"})
 }
 
-// handleDeleteAll empties the whole Trash, keeping .trash_restore itself
-// (truncated) rather than removing it outright.
+// handleDeleteAll empties the whole Trash, keeping .trash_restore itself (truncated) rather than removing it outright
 func handleDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	username, userContext, err := injected(a, r)
 	if err != nil {
@@ -212,10 +210,7 @@ func handleDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	flashAndRedirectToTrash(a, w, r, "success", "Trash emptied successfully")
 }
 
-// handleRestoreAll restores every item listed in .trash_restore back to
-// its original path. Note the containment check here uses plain abspath
-// (no symlink resolution), unlike handleRestoreFile's resolveOrSelf - an
-// intentional asymmetry, not an oversight.
+// handleRestoreAll restores every item listed in .trash_restore back to its original path - the containment check here uses plain abspath (no symlink resolution), unlike handleRestoreFile's resolveOrSelf, an intentional asymmetry not an oversight
 func handleRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	username, userContext, err := injected(a, r)
 	if err != nil {
@@ -300,8 +295,7 @@ func absPath(p string) string {
 	return filepath.Clean(abs)
 }
 
-// resolveOrSelf resolves symlinks, falling back to the cleaned absolute
-// path if the target doesn't exist yet.
+// resolveOrSelf resolves symlinks, falling back to the cleaned absolute path if the target doesn't exist yet
 func resolveOrSelf(p string) string {
 	if resolved, err := filepath.EvalSymlinks(p); err == nil {
 		return resolved

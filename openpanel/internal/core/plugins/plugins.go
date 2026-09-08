@@ -1,5 +1,4 @@
-// Package plugins scans /etc/openpanel/modules/<folder>/readme.txt for admin-installed plugin announcements and serves them for the sidebar/dashboard.
-// Plugins here are metadata-only - no dynamic code-loading, since Go's stdlib `plugin` package needs an exact toolchain match and isn't practical here anyway.
+// Package plugins scans /etc/openpanel/modules/<folder>/readme.txt for admin-installed plugin announcements and serves them for the sidebar/dashboard - metadata-only, no dynamic code-loading, since Go's stdlib `plugin` package needs an exact toolchain match and isn't practical here.
 package plugins
 
 import (

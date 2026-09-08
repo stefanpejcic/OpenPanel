@@ -1,5 +1,4 @@
-// Package ipblocker is a per-user IP/CIDR blocklist backed by the
-// opencli user-block_ip wrapper.
+// Package ipblocker is a per-user IP/CIDR blocklist backed by the opencli user-block_ip wrapper.
 package ipblocker
 
 import (

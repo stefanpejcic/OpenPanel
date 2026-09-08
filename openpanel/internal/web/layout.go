@@ -9,10 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 )
 
-// FlashDisplay is a pre-processed flash message ready for the flash-message
-// stack: reversed order (newest on top), a 1-based Index, and ZClass
-// already resolved from the z-index cycle, with any leading "<br>" stripped
-// from the message text.
+// FlashDisplay is a pre-processed flash message ready for the flash-message stack: reversed order (newest on top), a 1-based Index, ZClass already resolved from the z-index cycle, and any leading "<br>" stripped from the text.
 type FlashDisplay struct {
 	Index  int
 	ZClass string
@@ -21,8 +18,7 @@ type FlashDisplay struct {
 
 var flashZClasses = []string{"z-10", "z-20", "z-30", "z-40", "z-50"}
 
-// BuildFlashDisplay reverses messages (newest first), cycles z-index
-// classes across them, and strips a leading "<br>" from each message's text.
+// BuildFlashDisplay reverses messages (newest first), cycles z-index classes across them, and strips a leading "<br>" from each message's text
 func BuildFlashDisplay(messages []flash.Message) []FlashDisplay {
 	result := make([]FlashDisplay, len(messages))
 	for i := range messages {
@@ -37,9 +33,7 @@ func BuildFlashDisplay(messages []flash.Message) []FlashDisplay {
 	return result
 }
 
-// LayoutData is everything the shared page layout and its partials need -
-// nav, branding, flashes, translator, and the rest of the per-request
-// context common to every authenticated page.
+// LayoutData is everything the shared page layout and its partials need - nav, branding, flashes, translator, and the rest of the per-request context common to every authenticated page.
 type LayoutData struct {
 	Title         string
 	BrandName     string
@@ -68,30 +62,17 @@ type LayoutData struct {
 	Impersonating bool
 	AdminPort     string
 
-	// PasswordStrength is the clamped password_strength config value every
-	// page's passwordStrength() Alpine component reads as its minimum-score
-	// threshold.
-	PasswordStrength int
+	PasswordStrength int // clamped password_strength config value every page's passwordStrength() Alpine component reads as its minimum-score threshold
 
-	// Service is set by pages that manage a single service; the dashboard
-	// doesn't set it, so it's always "" there and any partials guarded on
-	// {{if .Service}} render nothing.
-	Service string
+	Service string // set by pages that manage a single service; "" on the dashboard, so {{if .Service}} partials render nothing there
 
-	// DashboardIconView is the user's saved dashboard icon-section layout
-	// ("icon" or "list"), read server-side from the dashboard_icon_view
-	// cookie (see ReadDashboardIconView) on every page - not just
-	// /dashboard - so the sidebar's layout toggle (visible only on
-	// /dashboard, see _footer.html) and the dashboard's own icon_section
-	// template both render the saved choice on first paint with no
-	// Alpine/localStorage hydration flicker.
+	// DashboardIconView is the user's saved dashboard icon-section layout ("icon" or "list"), read server-side from the dashboard_icon_view cookie on every page (not just /dashboard) so the sidebar toggle and the dashboard's icon_section template both render the saved choice on first paint with no Alpine/localStorage hydration flicker
 	DashboardIconView string
 
 	T i18n.Translator
 }
 
-// UserAllowedList renders m's keys as a JSON array, for embedding the
-// user's permission flags into the page as a client-side JS value.
+// UserAllowedList renders m's keys as a JSON array, for embedding the user's permission flags into the page as a client-side JS value.
 func UserAllowedList(allowed map[string]bool) template.JS {
 	keys := make([]string, 0, len(allowed))
 	for k, ok := range allowed {

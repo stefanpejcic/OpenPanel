@@ -1,5 +1,4 @@
-// Package session configures the panel's cookie store: cookie name and
-// max-age/lifetime settings.
+// Package session configures the panel's cookie store: cookie name and max-age/lifetime settings.
 package session
 
 import (

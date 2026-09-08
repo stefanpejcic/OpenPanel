@@ -67,8 +67,7 @@ func containerFailureDetail(ctx context.Context, userContext, serviceName string
 // vendoredComposeServiceIndent is the leading-space indent the vendored SERVICE.yml templates hardcode for their own top-level service key
 const vendoredComposeServiceIndent = 2
 
-// composeServiceIndent detects the indent actually used by service keys under "services:", from the file's lines following that line - the indent of the first non-blank line, which is always a service key.
-// Can't be assumed fixed: a vendored file starts at 2 spaces, but once docker.SaveCompose rewrites it, yaml.v3 always re-indents to 4. Defaults to vendoredComposeServiceIndent if there's no non-blank line.
+// composeServiceIndent detects the indent actually used by service keys under "services:", from the indent of the first non-blank line following it (always a service key) - can't be assumed fixed since a vendored file starts at 2 spaces but yaml.v3 re-indents to 4 once docker.SaveCompose rewrites it. Defaults to vendoredComposeServiceIndent if there's no non-blank line.
 func composeServiceIndent(linesAfterServices []string) int {
 	for _, line := range linesAfterServices {
 		trimmed := strings.TrimRight(line, "\n")

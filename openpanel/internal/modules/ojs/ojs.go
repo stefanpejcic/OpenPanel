@@ -1,6 +1,4 @@
-// Package ojs installs and manages Open Journal Systems (OJS, pkp/ojs) sites inside an existing domain's docroot and php-fpm container - same overall shape as internal/modules/moodle
-// OJS ships no ready-made GitHub release tarball since the repo uses git submodules a plain archive/zip silently omits, so releases are pulled from https://pkp.sfu.ca/ojs/download/ instead (see version.go)
-// unlike Moodle's approot+public/ split, OJS's tarball root is itself the full web root - this module still uses a sibling app-root dir + docroot symlink anyway, just to give update.go an atomic swap-and-rollback target, plus a separate "_ojsfiles" sibling dir for files_dir kept outside the web-accessible tree
+// Package ojs installs and manages Open Journal Systems (OJS, pkp/ojs) sites inside an existing domain's docroot and php-fpm container, same overall shape as internal/modules/moodle; OJS ships no ready-made GitHub release tarball since the repo uses git submodules a plain archive/zip silently omits, so releases are pulled from https://pkp.sfu.ca/ojs/download/ instead (see version.go); unlike Moodle's approot+public/ split, OJS's tarball root is itself the full web root, so this module still uses a sibling app-root dir + docroot symlink anyway, just to give update.go an atomic swap-and-rollback target, plus a separate "_ojsfiles" sibling dir for files_dir kept outside the web-accessible tree
 package ojs
 
 import (

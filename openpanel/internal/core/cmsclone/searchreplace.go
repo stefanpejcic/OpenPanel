@@ -8,8 +8,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 )
 
-// SearchReplaceDatabase swaps oldStr for newStr across every text/blob column of dbName - the generic wp-cli search-replace equivalent, since none of the other CMS CLIs have one built in.
-// dbName is already validated by ValidDB so it's safe to interpolate directly. Best-effort per column, and can't safely fix PHP-serialized strings since replacing changes their byte length.
+// SearchReplaceDatabase swaps oldStr for newStr across every text/blob column of dbName - the generic wp-cli search-replace equivalent since none of the other CMS CLIs have one built in; dbName is already validated by ValidDB so it's safe to interpolate directly, best-effort per column, and can't safely fix PHP-serialized strings since replacing changes their byte length
 func SearchReplaceDatabase(ctx context.Context, userContext, dbName, oldStr, newStr string) {
 	if dbName == "" || oldStr == "" || oldStr == newStr {
 		return

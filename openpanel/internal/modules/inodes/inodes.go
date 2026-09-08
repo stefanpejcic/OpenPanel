@@ -1,5 +1,4 @@
-// Package inodes is a per-top-level-directory inode count browser
-// (`find . -printf '%h\n'`, tallied by first path segment).
+// Package inodes is a per-top-level-directory inode count browser (`find . -printf '%h\n'`, tallied by first path segment).
 package inodes
 
 import (

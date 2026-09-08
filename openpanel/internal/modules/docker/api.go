@@ -32,8 +32,7 @@ func writeAPIDockerJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiWebserverGroups maps an active webserver to the set of sibling
-// webserver service-name substrings to hide.
+// apiWebserverGroups maps an active webserver to the set of sibling webserver service-name substrings to hide.
 var apiWebserverGroups = map[string][]string{
 	"apache":        {"nginx", "openresty", "openlitespeed", "litespeed"},
 	"nginx":         {"apache", "openresty", "openlitespeed", "litespeed"},
@@ -75,8 +74,7 @@ func apiFilterServices(services map[string]any, webserver, mysqlType string) map
 	return result
 }
 
-// apiContainersList serves the compose service list, filtered to hide
-// inactive webserver/database alternatives.
+// apiContainersList serves the compose service list, filtered to hide inactive webserver/database alternatives.
 func apiContainersList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := apiInjected(a, r)
@@ -127,8 +125,7 @@ func apiContainerServiceStatus(a *appctx.App, w http.ResponseWriter, r *http.Req
 	writeAPIDockerJSON(w, http.StatusOK, map[string]string{"service": service, "state": status.State, "health": status.Health})
 }
 
-// apiContainerStart starts (activates) a container, optionally pulling
-// its image first.
+// apiContainerStart starts (activates) a container, optionally pulling its image first.
 func apiContainerStart(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := apiInjected(a, r)

@@ -14,9 +14,7 @@ type NavLink struct {
 	Target string // "_blank" or ""
 }
 
-// NavGroup is one collapsible section of the sidebar navigation: a labeled
-// group of NavLinks, shown only when the user has access to at least one
-// feature in that group.
+// NavGroup is one collapsible section of the sidebar navigation: a labeled group of NavLinks, shown only when the user has access to at least one feature in that group.
 type NavGroup struct {
 	Label  string
 	Icon   template.HTML
@@ -26,13 +24,7 @@ type NavGroup struct {
 	Active bool
 }
 
-// NavPath derives BuildSidebarNav's path argument from a request: r.URL.Path,
-// with "?method=download" appended for the file-manager upload page's
-// download-from-URL variant - the one nav item whose active state depends
-// on a query param rather than the path alone. Every other path in
-// the sidebar is compared with plain prefix/equality checks that this
-// suffix never touches, since it's only ever appended to
-// "/file-manager/upload".
+// NavPath derives BuildSidebarNav's path argument from a request: r.URL.Path, with "?method=download" appended for the file-manager upload page's download-from-URL variant - the one nav item whose active state depends on a query param rather than the path alone.
 func NavPath(r *http.Request) string {
 	path := r.URL.Path
 	if path == "/file-manager/upload" && r.URL.Query().Get("method") == "download" {
@@ -50,10 +42,7 @@ func hasAnyPrefix(path string, prefixes ...string) bool {
 	return false
 }
 
-// BuildSidebarNav builds the sidebar's feature-conditional menu groups from
-// user_allowed and the current request path, one group per feature area
-// (Websites, Files, MySQL, ...), each included only when the user has
-// access to at least one feature in it.
+// BuildSidebarNav builds the sidebar's feature-conditional menu groups from user_allowed and the current request path, one group per feature area, each included only when the user has access to at least one feature in it.
 func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 	var groups []NavGroup
 
@@ -66,9 +55,7 @@ func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 		return false
 	}
 
-	// Websites group.
-	// mautic/flarum are excluded: legacy code slated for removal from the
-	// codebase entirely, not ported here (per user decision).
+	// Websites group - mautic/flarum are excluded, legacy code slated for removal entirely, not ported here per user decision
 	if has("wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "website_builder", "nodejs", "python") {
 		var links []NavLink
 		if allowed["autoinstaller"] {

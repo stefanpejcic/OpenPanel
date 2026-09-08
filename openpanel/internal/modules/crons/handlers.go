@@ -432,8 +432,7 @@ func readLinesKeepEnds(content string) []string {
 	return lines
 }
 
-// sectionHeaderComment mirrors section[0].split('"')[1] - the quoted name
-// inside a [job-exec "name"] header line.
+// sectionHeaderComment mirrors section[0].split('"')[1] - the quoted name inside a [job-exec "name"] header line.
 func sectionHeaderComment(headerLine string) (string, bool) {
 	parts := strings.Split(headerLine, `"`)
 	if len(parts) < 2 {

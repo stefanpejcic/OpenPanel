@@ -64,8 +64,7 @@ func TestSearchFeaturesFiltersByModuleAndCapsAt100(t *testing.T) {
 		t.Fatal("expected at least one route to pass the allow-everything filter")
 	}
 	if count > 100 {
-		// searchFeatures caps at 100; sanity check our test data isn't
-		// already violating the assumption the handler relies on.
+		// searchFeatures caps at 100, sanity check our test data isn't already violating that assumption
 		t.Logf("embedded filter.json has %d routes matching allowed modules - handler will cap at 100", count)
 	}
 }

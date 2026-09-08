@@ -14,8 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterContainerManageAPI wires up create/edit/delete for a compose service. Split out from RegisterAPI (api.go) since it covers a different slice of routes (new/edit/delete) rather than status/start/stop/logs, though it's gated on the same "docker" flag.
-// The MySQL/webserver-swap and change-image-tag twins are registered separately below, each behind its own feature flag instead of "docker".
+// RegisterContainerManageAPI wires up create/edit/delete for a compose service, split out from RegisterAPI (api.go) since it covers a different slice of routes (new/edit/delete) rather than status/start/stop/logs, though it's gated on the same "docker" flag - the MySQL/webserver-swap and change-image-tag twins are registered separately below, each behind its own feature flag instead of "docker".
 func RegisterContainerManageAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "docker", "POST /api/containers", func(w http.ResponseWriter, r *http.Request) { apiContainerCreate(a, w, r) })
 	apiregistry.Handle(mux, a, "docker", "PATCH /api/containers/{service}", func(w http.ResponseWriter, r *http.Request) { apiContainerEdit(a, w, r) })

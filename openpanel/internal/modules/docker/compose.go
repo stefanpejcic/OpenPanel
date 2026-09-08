@@ -352,8 +352,7 @@ func setComposePerconaConfig(userContext string, percona bool) error {
 	return SaveCompose(userContext, composeData)
 }
 
-// ensureMyCnfClientSocket adds an explicit "socket=" line to my.cnf's [client] section, pointing CLI tools like mysql/mysqldump at the shared /var/run/mysqld/mysqld.sock this compose file bind-mounts into every mysql-adjacent container.
-// Needed only for Percona: mysql/mariadb's Debian-based images already default to that socket path, but Percona's RPM-based image defaults to /var/lib/mysql/mysql.sock instead, which breaks import/export without this override.
+// ensureMyCnfClientSocket adds an explicit "socket=" line to my.cnf's [client] section, pointing CLI tools like mysql/mysqldump at the shared /var/run/mysqld/mysqld.sock this compose file bind-mounts into every mysql-adjacent container - needed only for Percona, since mysql/mariadb's Debian-based images already default to that socket path but Percona's RPM-based image defaults to /var/lib/mysql/mysql.sock instead, which breaks import/export without this override.
 func ensureMyCnfClientSocket(userContext string) error {
 	path := homePath(userContext, "my.cnf")
 	data, err := os.ReadFile(path)

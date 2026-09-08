@@ -20,8 +20,7 @@ func RegisterDefaultAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "php", "PUT /api/php/default", func(w http.ResponseWriter, r *http.Request) { apiPHPDefault(a, w, r) })
 }
 
-// apiPHPDefault gets or updates the server-wide default PHP version applied
-// to newly created domains that don't have an explicit per-domain override.
+// apiPHPDefault gets or updates the server-wide default PHP version applied to newly created domains that don't have an explicit per-domain override
 func apiPHPDefault(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

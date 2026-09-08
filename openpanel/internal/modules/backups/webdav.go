@@ -92,8 +92,7 @@ func (r davResponse) isCollection() bool {
 	return false
 }
 
-// List issues a Depth:1 PROPFIND against the target folder and returns the
-// non-directory entries' filenames.
+// List issues a Depth:1 PROPFIND against the target folder and returns the non-directory entries' filenames.
 func (s *webdavStore) List(ctx context.Context) ([]string, error) {
 	target, err := s.targetURL()
 	if err != nil {

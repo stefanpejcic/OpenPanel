@@ -41,8 +41,7 @@ var (
 	configurationPage = loadPage("mysql/configuration.html")
 )
 
-// ServiceStatusData is the container_state/health_status view-model shared
-// by databases.html and users.html.
+// ServiceStatusData is the container_state/health_status view-model shared by databases.html and users.html.
 type ServiceStatusData struct {
 	ContainerState string
 	HealthStatus   string

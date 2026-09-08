@@ -307,8 +307,7 @@ func EnsureExtensionInstalled(ctx context.Context, userContext, service, extensi
 }
 
 // ----------------------------
-// Per-version install history: which extensions this user has installed at
-// least once.
+// Per-version install history: which extensions this user has installed at least once.
 // ----------------------------
 
 const extensionsHistoryFilename = "installed.json"
@@ -383,9 +382,7 @@ func isInstallRunningInContainer(ctx context.Context, userContext, service strin
 }
 
 // ----------------------------
-// Background installs (phpaddmod) + persistent state, following the same
-// pattern as the file-manager wget download flow
-// (internal/modules/filemanager/wget.go).
+// Background installs (phpaddmod) + persistent state, following the same pattern as the file-manager wget download flow (internal/modules/filemanager/wget.go).
 // ----------------------------
 
 const installStateDir = "/tmp/php_extension_installs"

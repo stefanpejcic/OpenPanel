@@ -1,5 +1,4 @@
-// Package werkzeugpw reimplements the previous panel's password-hash format (pbkdf2/scrypt, salted and method-prefixed) so it produces byte-identical output against existing stored hashes.
-// The previous panel's default method changed over time (pbkdf2 -> scrypt, and pbkdf2's iteration count went up too), so CheckPasswordHash still needs to parse whatever method a given stored hash embeds.
+// Package werkzeugpw reimplements the previous panel's password-hash format (pbkdf2/scrypt, salted and method-prefixed) so it produces byte-identical output against existing stored hashes - the default method changed over time (pbkdf2 -> scrypt, and pbkdf2's iteration count went up), so CheckPasswordHash still needs to parse whatever method a given stored hash embeds.
 package werkzeugpw
 
 import (

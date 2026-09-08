@@ -57,8 +57,7 @@ func readAliasesFile(username string, userDomains map[string]bool) []AliasEntry 
 	return aliases
 }
 
-// GetAliasList returns the user's alias list, cached 1h; the cache is
-// (re)populated from `opencli` on first access.
+// GetAliasList returns the user's alias list, cached 1h; the cache is (re)populated from `opencli` on first access
 func GetAliasList(ctx context.Context, a *appctx.App, userID int, username string, userDomains map[string]bool) []AliasEntry {
 	result, _ := cache.Memoize(ctx, a.Cache, "alias_list:"+username, time.Hour, func() ([]AliasEntry, error) {
 		if _, err := os.Stat(aliasesCacheFile(username)); err != nil {
@@ -113,9 +112,7 @@ func ImportUserAliases(currentUsername string, userDomains map[string]bool) {
 	_ = os.WriteFile(path, []byte(strings.Join(filtered, "\n")+"\n"), 0o644)
 }
 
-// ---------------------------------------------------------------------------
 // routes
-// ---------------------------------------------------------------------------
 
 // handleAliases lists all aliases for the current user's domains.
 func handleAliases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -274,9 +271,7 @@ func deleteAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email st
 	writeJSON(w, http.StatusOK, map[string]any{"success": true})
 }
 
-// ---------------------------------------------------------------------------
 // create alias (new source address)
-// ---------------------------------------------------------------------------
 
 // handleAliasNew creates a new alias from a username/domain/target form submission.
 func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -346,9 +341,7 @@ func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderAliasNewPage(a, w, r, domains)
 }
 
-// ---------------------------------------------------------------------------
 // delete alias page (confirmation view)
-// ---------------------------------------------------------------------------
 
 // handleAliasDeletePage renders the alias deletion confirmation view, either for a single alias or the full list
 func handleAliasDeletePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {

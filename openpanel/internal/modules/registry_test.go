@@ -13,11 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// testApp builds a minimal *appctx.App good enough to exercise route
-// wiring and any handler paths that don't touch the DB (e.g. the login
-// page's GET request) - a lightweight substitute for appctx.New(), which
-// requires reading real files under /etc/openpanel that aren't writable in
-// a sandboxed test environment.
+// testApp builds a minimal *appctx.App good enough to exercise route wiring and any handler paths that don't touch the DB (e.g. the login page's GET request) - a lightweight substitute for appctx.New(), which requires reading real files under /etc/openpanel that aren't writable in a sandboxed test environment
 func testApp(t *testing.T) *appctx.App {
 	t.Helper()
 	c := cache.New(filepath.Join(t.TempDir(), "no-redis.sock"))
@@ -31,9 +27,7 @@ func testApp(t *testing.T) *appctx.App {
 	}
 }
 
-// TestRegisterAllWiresRoutes is an end-to-end smoke test of the module
-// registry: real HTTP requests through the real mux, verifying the routes
-// that don't need a live database/redis actually respond as expected.
+// TestRegisterAllWiresRoutes is an end-to-end smoke test of the module registry: real HTTP requests through the real mux, verifying the routes that don't need a live database/redis actually respond as expected
 func TestRegisterAllWiresRoutes(t *testing.T) {
 	a := testApp(t)
 	mux := http.NewServeMux()

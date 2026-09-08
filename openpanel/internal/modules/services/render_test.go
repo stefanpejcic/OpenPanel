@@ -93,11 +93,7 @@ func TestStatusKeyFor(t *testing.T) {
 	}
 }
 
-// TestStatusColorLabelStopping guards against "stopping" - libpod's real
-// State.Status for a container mid-shutdown - falling through to the
-// generic "Unknown" fallback. This used to happen for real: a render
-// landing between a container being told to stop and it actually reaching
-// "exited"/"removing" showed literal "Unknown" with no mapped label.
+// TestStatusColorLabelStopping guards against "stopping" (libpod's real State.Status mid-shutdown) falling through to the generic "Unknown" fallback - used to happen for real when a render landed before the container reached "exited"/"removing"
 func TestStatusColorLabelStopping(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	_, label := StatusColorLabel(mgr.Translator("en"), StatusKeyFor("stopping", "none"))

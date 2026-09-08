@@ -26,8 +26,7 @@ func apiIniPath(userContext, version string) string {
 	return "/home/" + userContext + "/php.ini/" + version + ".ini"
 }
 
-// apiRestartPHP restarts the PHP container for a version (or the LiteSpeed
-// container, if that's what's serving PHP), if it's currently running.
+// apiRestartPHP restarts the PHP container for a version (or the LiteSpeed container, if that's what's serving PHP), if it's currently running
 func apiRestartPHP(ctx context.Context, userContext, version string) string {
 	ws := strings.ToLower(webserver.GetEnvFileValue(userContext, "WEB_SERVER"))
 	container := "php-fpm-" + version

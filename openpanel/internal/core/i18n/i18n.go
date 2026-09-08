@@ -35,8 +35,7 @@ func NewManager(dir string, c *cache.Cache) *Manager {
 	return &Manager{dir: dir, cache: c, locales: make(map[string]*gotext.Locale)}
 }
 
-// AvailableLocales returns every subdirectory of dir with LC_MESSAGES/messages.po, plus "en", cached for 1h.
-// `opencli locale` busts its own cache after installing a locale, but not this Go cache entry - a new locale won't show up here until the 1h TTL expires.
+// AvailableLocales returns every subdirectory of dir with LC_MESSAGES/messages.po, plus "en", cached for 1h - `opencli locale` busts its own cache after installing a locale but not this one, so a new locale won't show up here until the TTL expires
 func (m *Manager) AvailableLocales(ctx context.Context) []string {
 	locales, _ := cache.Memoize(ctx, m.cache, "app.get_available_locales", time.Hour, func() ([]string, error) {
 		return m.scanLocales(), nil

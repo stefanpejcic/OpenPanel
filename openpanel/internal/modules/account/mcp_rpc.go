@@ -386,8 +386,7 @@ func handleMCPEndpoint(dispatcher http.Handler, limiter *mcpRateLimiter, a *appc
 	}
 }
 
-// RegisterMCPEndpoint wires the POST /mcp route onto mux, separate from RegisterMCP (the /account/mcp token-management pages) so the two can be reasoned about independently.
-// tools/call replays go through mux wrapped in auth.LoadUser, since the live server only runs LoadUser as part of main.go's outer middleware chain - without it, every replayed call would 401.
+// RegisterMCPEndpoint wires the POST /mcp route onto mux, separate from RegisterMCP (the /account/mcp token-management pages) so the two can be reasoned about independently - tools/call replays go through mux wrapped in auth.LoadUser since the live server only runs LoadUser as part of main.go's outer middleware chain, without it every replayed call would 401
 func RegisterMCPEndpoint(mux *http.ServeMux, a *appctx.App) {
 	limiter := newMCPRateLimiter(a)
 	dispatcher := auth.LoadUser(a)(mux)

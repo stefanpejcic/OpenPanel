@@ -14,15 +14,10 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 )
 
-// DashboardIconViewCookie is the browser cookie storing the user's chosen
-// dashboard icon-section layout ("icon" or "list"), set client-side by the
-// sidebar's layout toggle (see _footer.html) and read server-side by
-// ReadDashboardIconView so the dashboard renders the saved layout on first
-// paint with no flicker.
+// DashboardIconViewCookie is the browser cookie storing the user's chosen dashboard icon-section layout ("icon" or "list"), set client-side by the sidebar's layout toggle and read server-side by ReadDashboardIconView so the dashboard renders the saved layout on first paint with no flicker.
 const DashboardIconViewCookie = "dashboard_icon_view"
 
-// ReadDashboardIconView reads the dashboard_icon_view cookie, defaulting to
-// "icon" for a missing or unrecognized value.
+// ReadDashboardIconView reads the dashboard_icon_view cookie, defaulting to "icon" for a missing or unrecognized value
 func ReadDashboardIconView(r *http.Request) string {
 	if c, err := r.Cookie(DashboardIconViewCookie); err == nil && c.Value == "list" {
 		return "list"
@@ -30,11 +25,7 @@ func ReadDashboardIconView(r *http.Request) string {
 	return "icon"
 }
 
-// BuildLayoutData assembles the shared app-shell data every authenticated
-// page needs (nav, flashes, branding, translator, ...), factored out so
-// each module (dashboard, docker, ...) doesn't reimplement it. Returns
-// the injected user-context map too, since callers need fields like
-// current_username/context/hosting_plan for their own page-specific data.
+// BuildLayoutData assembles the shared app-shell data every authenticated page needs (nav, flashes, branding, translator, ...), factored out so each module doesn't reimplement it - also returns the injected user-context map since callers need fields like current_username/context/hosting_plan for their own page-specific data.
 func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, title string) (LayoutData, map[string]any, error) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -72,23 +63,14 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 	panelDir, _ := injected["panel_dir"].(string)
 	isEnterprise, _ := injected["is_enterprise"].(bool)
 
-	// A reseller can set their own logo, applied instead of the global
-	// default throughout the app for every account they own (see
-	// RESELLER_LOGO_URL in opencli's user-add/admin-update-branding
-	// flow) -- except the login page, which always uses the global
-	// default regardless (built via LoginPageData, not this function).
+	// a reseller can set their own logo (RESELLER_LOGO_URL), applied instead of the global default for every account they own - except the login page, which always uses the global default (built via LoginPageData, not this function)
 	logo := a.Config.Get("logo", "")
 	if resellerLogo := webserver.GetEnvFileValue(userContext, "RESELLER_LOGO_URL"); resellerLogo != "" {
 		logo = resellerLogo
 	}
 
 	layout := LayoutData{
-		// t.Get falls back to returning its input unchanged when no
-		// catalog entry matches (e.g. a dynamically built title like
-		// "Delete container "+service, or a bare domain name) - safe to
-		// call unconditionally, translates the common literal-string
-		// titles ("Websites", "FTP Accounts", ...) that make up most
-		// call sites without needing every one of them updated.
+		// t.Get falls back to its input unchanged when no catalog entry matches (e.g. a dynamic title like "Delete container "+service), so it's safe to call unconditionally
 		Title:             t.Get(title),
 		BrandName:         a.Config.Get("brand_name", ""),
 		Logo:              logo,

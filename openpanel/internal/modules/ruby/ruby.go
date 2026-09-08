@@ -1,6 +1,4 @@
-// Package ruby installs a Ruby application into a domain via a
-// docker-compose service + reverse proxy. All the actual logic lives in
-// internal/modules/appinstall, shared with the nodejs and python packages.
+// Package ruby installs a Ruby application into a domain via a docker-compose service + reverse proxy - the actual logic lives in internal/modules/appinstall, shared with the nodejs and python packages
 package ruby
 
 import (

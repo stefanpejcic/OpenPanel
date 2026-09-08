@@ -1,6 +1,4 @@
-// Package goaccess serves the pre-rendered GoAccess HTML report per domain,
-// generated externally (opencli/cron, once every 24h per the UI copy) and
-// simply read from disk here.
+// Package goaccess serves the pre-rendered GoAccess HTML report per domain, generated externally (opencli/cron, once every 24h per the UI copy) and simply read from disk here.
 package goaccess
 
 import (

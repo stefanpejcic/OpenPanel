@@ -107,9 +107,7 @@ func randomURLToken(nBytes int) string {
 	return base64.RawURLEncoding.EncodeToString(b)
 }
 
-// ---------------------------------------------------------------------------
 // email list cache
-// ---------------------------------------------------------------------------
 
 func emailsCacheKey(username string) string { return "email_list:" + username }
 
@@ -214,9 +212,7 @@ func ImportUserEmails(currentUsername string, userDomains map[string]bool) {
 	_ = os.WriteFile(path, []byte(strings.Join(filtered, "\n")+"\n"), 0o644)
 }
 
-// ---------------------------------------------------------------------------
 // quota helpers
-// ---------------------------------------------------------------------------
 
 var quotaUnitMultipliers = map[byte]float64{'B': 1, 'K': 1024, 'M': 1024 * 1024, 'G': 1024 * 1024 * 1024, 'T': 1024 * 1024 * 1024 * 1024}
 
@@ -307,9 +303,7 @@ func getDedicatedOrSharedIP(ctx context.Context, currentUsername string) string 
 	return ipStr
 }
 
-// ---------------------------------------------------------------------------
 // NEW EMAIL
-// ---------------------------------------------------------------------------
 
 // handleEmailsNew mirrors emails_new().
 func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -422,9 +416,7 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderNewEmailPage(a, w, r, domains, maxEmailQuotaNumeric, allocatedUnit)
 }
 
-// ---------------------------------------------------------------------------
 // quota-line parsing (mirrors accounts.html's and single_account.html's inline Jinja parsing of one `opencli email-setup email list` line, e.g. "* info@demo.rs ( 0 / 2.0G ) [0%]")
-// ---------------------------------------------------------------------------
 
 func isAllDigits(s string) bool {
 	if s == "" {
@@ -539,9 +531,7 @@ func parseSingleEmailQuota(entry string) SingleEmailQuota {
 	}
 }
 
-// ---------------------------------------------------------------------------
 // SINGLE EMAIL: LIST, EDIT, DELETE
-// ---------------------------------------------------------------------------
 
 // handleEmails handles GET /emails, GET/POST/DELETE /emails and /emails/edit/{email} (email is "" when hit at the bare /emails path)
 func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -713,9 +703,7 @@ func deleteSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, em
 	flashAndRedirect(a, w, r, "error", "ERROR: Failed to delete email "+email+": "+strings.TrimSpace(string(out)), "/emails")
 }
 
-// ---------------------------------------------------------------------------
 // DELETE (select-then-confirm page)
-// ---------------------------------------------------------------------------
 
 // handleEmailsDelete mirrors emails_delete().
 func handleEmailsDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -740,9 +728,7 @@ func handleEmailsDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderDeletePage(a, w, r, address, currentEmailsList)
 }
 
-// ---------------------------------------------------------------------------
 // SERVER INFO
-// ---------------------------------------------------------------------------
 
 // handleEmailsServerInfo mirrors emails_server_info().
 func handleEmailsServerInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -760,9 +746,7 @@ func handleEmailsServerInfo(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	renderInfoPage(a, w, r, address, scheme, a.ForceDomain)
 }
 
-// ---------------------------------------------------------------------------
 // CONNECT DEVICES
-// ---------------------------------------------------------------------------
 
 // handleEmailConfiguration mirrors email_configuration().
 func handleEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request) {

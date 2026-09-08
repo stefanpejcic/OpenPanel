@@ -11,22 +11,18 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// wafDisabledMarkerPath is the per-account switch for whether WAF is
-// applied to newly created domains - not to be confused with a single
-// domain's own SecRuleRemoveById/SecRuleRemoveByTag exclusions (waf.go).
+// wafDisabledMarkerPath is the per-account switch for whether WAF is applied to newly created domains - not to be confused with a single domain's own SecRuleRemoveById/SecRuleRemoveByTag exclusions (waf.go)
 func wafDisabledMarkerPath(userContext string) string {
 	return fmt.Sprintf("/home/%s/waf.disabled", userContext)
 }
 
-// AccountWAFEnabled reports whether WAF is enabled by default for new
-// domains on this account: enabled unless wafDisabledMarkerPath exists.
+// AccountWAFEnabled reports whether WAF is enabled by default for new domains on this account: enabled unless wafDisabledMarkerPath exists
 func AccountWAFEnabled(userContext string) bool {
 	_, err := os.Stat(wafDisabledMarkerPath(userContext))
 	return os.IsNotExist(err)
 }
 
-// SetAccountWAFEnabled creates or removes wafDisabledMarkerPath to match
-// enabled, the same on/off switch AccountWAFEnabled reads.
+// SetAccountWAFEnabled creates or removes wafDisabledMarkerPath to match enabled, the same on/off switch AccountWAFEnabled reads
 func SetAccountWAFEnabled(userContext string, enabled bool) error {
 	path := wafDisabledMarkerPath(userContext)
 	if enabled {
@@ -41,10 +37,7 @@ func SetAccountWAFEnabled(userContext string, enabled bool) error {
 	return os.WriteFile(path, nil, 0o644)
 }
 
-// injectedContext is like injected() (waf.go) but also returns the
-// account's context, needed for /home/<context>/-rooted paths like
-// wafDisabledMarkerPath - injected() only returns current_username since
-// none of its other callers need context.
+// injectedContext is like injected() (waf.go) but also returns the account's context, needed for /home/<context>/-rooted paths like wafDisabledMarkerPath - injected() only returns current_username since none of its other callers need context
 func injectedContext(a *appctx.App, r *http.Request) (username, userContext string, err error) {
 	userID, _ := auth.UserID(r)
 	data, err := a.InjectData(r.Context(), userID)
@@ -56,9 +49,7 @@ func injectedContext(a *appctx.App, r *http.Request) (username, userContext stri
 	return username, userContext, nil
 }
 
-// RegisterAccountAPI wires the account-wide WAF on/off toggle onto mux -
-// JSON only, no page of its own (the onboarding wizard is its first
-// caller; a settings page can call the same GET/POST later).
+// RegisterAccountAPI wires the account-wide WAF on/off toggle onto mux - JSON only, no page of its own (the onboarding wizard is its first caller; a settings page can call the same GET/POST later)
 func RegisterAccountAPI(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "waf")(h)

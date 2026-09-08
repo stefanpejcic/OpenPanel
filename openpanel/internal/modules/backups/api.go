@@ -37,8 +37,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	})
 }
 
-// withJSONOutput clones r with "output=json" set on the query string, so a
-// UI handler that branches on that param returns JSON instead of HTML.
+// withJSONOutput clones r with "output=json" set on the query string, so a UI handler that branches on that param returns JSON instead of HTML.
 func withJSONOutput(r *http.Request) *http.Request {
 	clone := r.Clone(r.Context())
 	q := clone.URL.Query()

@@ -1,7 +1,4 @@
-// Package modules resolves openpanel.config's enabled_modules list to Go
-// packages: every module is a normal compiled-in Go package exposing a
-// Register(mux, app) function, and a small static map resolves config
-// names to those functions.
+// Package modules resolves openpanel.config's enabled_modules list to Go packages: every module is a normal compiled-in Go package exposing a Register(mux, app) function, and a small static map resolves config names to those functions.
 package modules
 
 import (
@@ -69,9 +66,7 @@ import (
 // Registrar wires one feature module's routes onto mux.
 type Registrar func(mux *http.ServeMux, a *appctx.App)
 
-// alwaysOn is the set of routes that register regardless of
-// enabled_modules (core login/dashboard/search/etc.), unlike everything
-// dispatched through the for-loop below.
+// alwaysOn is the set of routes that register regardless of enabled_modules (core login/dashboard/search/etc.), unlike everything dispatched through the for-loop below
 var alwaysOn = []Registrar{
 	account.Register,              // login, login_autologin, logout
 	account.RegisterPasswordReset, // gated internally on the password_reset config
@@ -96,13 +91,8 @@ var alwaysOn = []Registrar{
 	plugins.RegisterAPI,               // same guard, API twin
 }
 
-// configured maps openpanel.config's enabled_modules entries to their Go
-// package's Register function - every module that exists at all is
-// already compiled in, so this is just a name-to-function lookup.
-//
-// Only modules that have been ported so far appear here. A name present in
-// enabled_modules but missing from this map is silently skipped - the
-// expected, normal state during an incremental port, not a broken install.
+// configured maps openpanel.config's enabled_modules entries to their Go package's Register function - every module that exists at all is already compiled in, so this is just a name-to-function lookup.
+// Only modules that have been ported so far appear here - a name present in enabled_modules but missing from this map is silently skipped, the expected state during an incremental port, not a broken install.
 var configured = map[string]Registrar{
 	// mysql and the rest land here as their phases are ported.
 	"docker": func(mux *http.ServeMux, a *appctx.App) {
@@ -295,8 +285,7 @@ var configured = map[string]Registrar{
 	},
 }
 
-// RegisterAll wires up the always-on modules plus every configured module
-// that has a Go implementation yet.
+// RegisterAll wires up the always-on modules plus every configured module that has a Go implementation yet
 func RegisterAll(mux *http.ServeMux, a *appctx.App) {
 	for _, reg := range alwaysOn {
 		reg(mux, a)
@@ -311,13 +300,7 @@ func RegisterAll(mux *http.ServeMux, a *appctx.App) {
 		log.Printf("APP - Registered module: %s", name)
 	}
 
-	// /json/services backs base.html's site-wide fetchServiceData helper,
-	// used by containers.html, the services module's own service cards,
-	// and cache's redis/memcached widgets - so it must work whenever
-	// either "docker" or "services" is enabled. It's registered once here,
-	// outside the configured map, so it isn't missed when only one of the
-	// two is enabled and isn't double-registered (which would panic) when
-	// both are.
+	// /json/services backs base.html's site-wide fetchServiceData helper, used by containers.html, the services module's own service cards, and cache's redis/memcached widgets, so it must work whenever either "docker" or "services" is enabled - registered once here, outside the configured map, so it isn't missed when only one is enabled and isn't double-registered (which would panic) when both are
 	if a.ModuleEnabled("docker") || a.ModuleEnabled("services") {
 		docker.RegisterServicesJSON(mux, a)
 	}

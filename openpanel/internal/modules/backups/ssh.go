@@ -30,8 +30,7 @@ func loadPrivateKey(path, passphrase string) (ssh.Signer, error) {
 	return signer, nil
 }
 
-// dialSSH connects to the remote backup host and unconditionally trusts its host key (a known, pre-existing tradeoff, not something introduced here).
-// Auth mirrors what the "backup" container's own docker-volume-backup tool accepts: a private key (SSH_IDENTITY_FILE) when present, otherwise a plain password (SSH_PASSWORD) - a password-only destination is a normal, supported setup.
+// dialSSH connects to the remote backup host and unconditionally trusts its host key (a known, pre-existing tradeoff, not something introduced here) - auth mirrors what the "backup" container's own docker-volume-backup tool accepts: a private key (SSH_IDENTITY_FILE) when present, otherwise a plain password (SSH_PASSWORD), which is a normal supported setup
 func dialSSH(config map[string]string) (*ssh.Client, error) {
 	var authMethod ssh.AuthMethod
 	if keyPath := config["SSH_IDENTITY_FILE"]; keyPath != "" {

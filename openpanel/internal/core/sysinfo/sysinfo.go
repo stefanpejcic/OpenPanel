@@ -76,8 +76,7 @@ func GetOpenPanelVersion(ctx context.Context, c *cache.Cache) string {
 	return v
 }
 
-// HasSSL reports whether hostname has an issued cert (ACME or custom),
-// cached per-hostname for 6 minutes.
+// HasSSL reports whether hostname has an issued cert (ACME or custom), cached per-hostname for 6 minutes
 func HasSSL(ctx context.Context, c *cache.Cache, hostname string) bool {
 	v, _ := cache.Memoize(ctx, c, "app.has_ssl:"+hostname, 6*time.Minute, func() (bool, error) {
 		acme := "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/" + hostname + "/" + hostname + ".crt"

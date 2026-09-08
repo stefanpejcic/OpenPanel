@@ -10,8 +10,7 @@ type KV struct {
 	Key, Value string
 }
 
-// parseUncommentedEnv parses backup.env into key/value pairs: strip blank/comment lines, split on the first "=", strip a wrapping pair of quotes from the value.
-// Both single- and double-quote wrappers are stripped, since docker-volume-backup's templates write single-quoted values (e.g. AWS_ENDPOINT='s3.amazonaws.com') that would otherwise leak literal quote chars into the settings form. Matches readBackupEnv's (the SSH restore path) handling of the same file.
+// parseUncommentedEnv parses backup.env into key/value pairs: strips blank/comment lines, splits on the first "=", and strips a wrapping pair of quotes from the value - both single and double, since docker-volume-backup's templates write single-quoted values that would otherwise leak literal quote chars into the settings form. Matches readBackupEnv's handling of the same file for the SSH restore path.
 func parseUncommentedEnv(path string) ([]KV, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
