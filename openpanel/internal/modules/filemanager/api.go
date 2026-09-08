@@ -7,22 +7,12 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// RegisterAPI wires the /api/ equivalents of the file manager's routes
-// onto mux, gated behind the "filemanager" feature flag. Several handlers
-// already speak pure JSON with no session/flash dependency
-// (handleFolders, handleDeleteFile, handleCopyItem, handleMoveItem,
-// handleWgetFiles, handleWgetStatus) and are reused here unmodified; the
-// listing/edit-file GET handlers already support "?output=json" and are
-// invoked with that forced on via forceJSONOutput. Everything else
-// (create/rename/permissions/upload/archive/save) needed a JSON-response
-// variant, split across api_crud.go, api_content.go, and api_transfer.go.
+// RegisterAPI wires the /api/ equivalents of the file manager's routes onto mux, gated behind the "filemanager" feature flag - several handlers already speak pure JSON with no session/flash dependency and are reused unmodified, the listing/edit-file GET handlers support "?output=json" via forceJSONOutput, and everything else (create/rename/permissions/upload/archive/save) needed a JSON-response variant, split across api_crud.go, api_content.go, and api_transfer.go
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "filemanager", "GET /api/files", func(w http.ResponseWriter, r *http.Request) {
 		handleFiles(a, w, forceJSONOutput(r), "")
 	})
-	// "GET /api/files/{path_param...}" doesn't cover the bare "/api/files"
-	// case (no trailing slash) - see filemanager.go's identical note on the
-	// web routes this mirrors.
+	// "GET /api/files/{path_param...}" doesn't cover the bare "/api/files" case (no trailing slash) - see filemanager.go's identical note on the web routes this mirrors
 	apiregistry.Handle(mux, a, "filemanager", "GET /api/files/{path_param...}", func(w http.ResponseWriter, r *http.Request) {
 		handleFiles(a, w, forceJSONOutput(r), r.PathValue("path_param"))
 	})
@@ -61,9 +51,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "filemanager", "GET /api/file-manager/wget/status/{download_id}", func(w http.ResponseWriter, r *http.Request) { handleWgetStatus(a, w, r) })
 }
 
-// forceJSONOutput clones r with output=json set on the query string, so a
-// handler that already branches on "?output=json" for its API-shaped
-// response can be reused unmodified for a dedicated /api/ route.
+// forceJSONOutput clones r with output=json set on the query string, so a handler that already branches on "?output=json" for its API-shaped response can be reused unmodified for a dedicated /api/ route
 func forceJSONOutput(r *http.Request) *http.Request {
 	q := r.URL.Query()
 	q.Set("output", "json")

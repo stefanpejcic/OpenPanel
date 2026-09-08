@@ -12,8 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// handleEmailExport streams the current user's mailboxes as a CSV
-// download (email, password, quota columns; password is always blank).
+// handleEmailExport streams the current user's mailboxes as a CSV download (email, password, quota columns; password is always blank)
 func handleEmailExport(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

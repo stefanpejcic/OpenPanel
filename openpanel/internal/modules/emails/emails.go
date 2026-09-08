@@ -1,6 +1,4 @@
-// Package emails handles email account CRUD, quota management, aliases,
-// catch-all addresses, SPF/DKIM/DMARC deliverability checks, CSV/XLSX
-// export/import, Sieve filters, and webmail single-sign-on.
+// Package emails handles email account CRUD, quota management, aliases, catch-all addresses, SPF/DKIM/DMARC deliverability checks, CSV/XLSX export/import, Sieve filters, and webmail single-sign-on
 package emails
 
 import (
@@ -40,9 +38,7 @@ var baseMailPath = readEmailStorageLocation()
 
 const adminIniPath = "/etc/openpanel/openadmin/config/admin.ini"
 
-// readEmailStorageLocation reads admin.ini's [EMAIL] email_storage_location
-// value (default "/var/mail") - a minimal single-purpose INI reader since
-// this is the only place that needs admin.ini's [EMAIL] section.
+// readEmailStorageLocation reads admin.ini's [EMAIL] email_storage_location value (default "/var/mail") - a minimal single-purpose INI reader since this is the only place that needs admin.ini's [EMAIL] section
 func readEmailStorageLocation() string {
 	const fallback = "/var/mail"
 	data, err := os.ReadFile(adminIniPath)
@@ -121,8 +117,7 @@ func cachedEmailsFile(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/emails.yml"
 }
 
-// readEmailsFile mirrors _read_emails_file(): lines starting with '*' whose
-// domain (the part after '@' up to the next space) is in userDomains.
+// readEmailsFile mirrors _read_emails_file(): lines starting with '*' whose domain (the part after '@' up to the next space) is in userDomains
 func readEmailsFile(username string, userDomains map[string]bool) []string {
 	data, err := os.ReadFile(cachedEmailsFile(username))
 	if err != nil {
@@ -183,8 +178,7 @@ func InvalidateEmailCache(ctx context.Context, a *appctx.App, userID int, userna
 	ImportUserEmails(username, domainSet(domains))
 }
 
-// ImportUserEmails mirrors import_user_emails(): (re)writes the per-user
-// on-disk email cache file from `opencli email-setup email list`.
+// ImportUserEmails mirrors import_user_emails(): (re)writes the per-user on-disk email cache file from `opencli email-setup email list`
 func ImportUserEmails(currentUsername string, userDomains map[string]bool) {
 	path := cachedEmailsFile(currentUsername)
 	if _, err := os.Stat(path); err != nil {
@@ -244,8 +238,7 @@ func quotaToBytes(value string) (float64, error) {
 	return num * mult, nil
 }
 
-// emailSetQuota returns (message, ok); ok=false with an empty message
-// means "invalid quota format".
+// emailSetQuota returns (message, ok); ok=false with an empty message means "invalid quota format"
 func emailSetQuota(email, gb, format, maxEmailQuota string, maxEmailQuotaNumeric float64, allocatedUnit string) (string, bool) {
 	if gb == "0" {
 		_ = exec.Command("opencli", "email-setup", "quota", "del", email).Run()
@@ -275,8 +268,7 @@ func emailSetQuota(email, gb, format, maxEmailQuota string, maxEmailQuotaNumeric
 	return "set quota to " + requestedQuota, true
 }
 
-// trimFloat formats a float without a trailing ".0" when it's a whole
-// number - the max quota value is often a whole number in practice.
+// trimFloat formats a float without a trailing ".0" when it's a whole number - the max quota value is often a whole number in practice
 func trimFloat(f float64) string {
 	if f == float64(int64(f)) {
 		return strconv.FormatInt(int64(f), 10)
@@ -299,10 +291,7 @@ func parseMaxQuota(maxEmailQuota string) (float64, string) {
 	return n, "G"
 }
 
-// getDedicatedOrSharedIP mirrors _get_dedicated_or_shared_ip(): a
-// standalone, uncached IP lookup distinct from
-// appctx.GetCachedIPForUserOrPublicIPv4 (its own fresh curl call, not the
-// shared 1h-cached fallback chain).
+// getDedicatedOrSharedIP mirrors _get_dedicated_or_shared_ip(): a standalone, uncached IP lookup distinct from appctx.GetCachedIPForUserOrPublicIPv4 (its own fresh curl call, not the shared 1h-cached fallback chain)
 func getDedicatedOrSharedIP(ctx context.Context, currentUsername string) string {
 	if ip, ok := appctx.ReadDedicatedIPFromFile(currentUsername); ok {
 		return ip
@@ -399,8 +388,7 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		var stderrBuf strings.Builder
 		cmd.Stderr = &stderrBuf
 		stdout, cmdErr := cmd.Output()
-		// mirrors emails_new(): a zero-exit run with non-empty stdout is
-		// ALSO treated as a failure (opencli's success case prints nothing).
+		// mirrors emails_new(): a zero-exit run with non-empty stdout is ALSO treated as a failure (opencli's success case prints nothing)
 		if cmdErr != nil || strings.TrimSpace(string(stdout)) != "" {
 			stderrStr := strings.TrimSpace(stderrBuf.String())
 			if !strings.Contains(stderrStr, "Supplied non-number argument") && !strings.Contains(stderrStr, "User doesn't exist") {
@@ -435,9 +423,7 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 }
 
 // ---------------------------------------------------------------------------
-// quota-line parsing (mirrors accounts.html's and single_account.html's
-// inline Jinja parsing of one `opencli email-setup email list` line, e.g.
-// "* info@demo.rs ( 0 / 2.0G ) [0%]")
+// quota-line parsing (mirrors accounts.html's and single_account.html's inline Jinja parsing of one `opencli email-setup email list` line, e.g. "* info@demo.rs ( 0 / 2.0G ) [0%]")
 // ---------------------------------------------------------------------------
 
 func isAllDigits(s string) bool {
@@ -557,8 +543,7 @@ func parseSingleEmailQuota(entry string) SingleEmailQuota {
 // SINGLE EMAIL: LIST, EDIT, DELETE
 // ---------------------------------------------------------------------------
 
-// handleEmails handles GET /emails, GET/POST/DELETE /emails and
-// /emails/edit/{email} (email is "" when hit at the bare /emails path).
+// handleEmails handles GET /emails, GET/POST/DELETE /emails and /emails/edit/{email} (email is "" when hit at the bare /emails path)
 func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

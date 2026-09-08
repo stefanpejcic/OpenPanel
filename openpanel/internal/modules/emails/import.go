@@ -30,13 +30,10 @@ type ImportRow struct {
 	IsValid     bool   `json:"is_valid"`
 }
 
-// csvSeparatorRE splits each row on either a comma or a semicolon, since
-// uploaded files use either as a field delimiter.
+// csvSeparatorRE splits each row on either a comma or a semicolon, since uploaded files use either as a field delimiter
 var csvSeparatorRE = regexp.MustCompile(`[;,]`)
 
-// parseImportCSV reads an uploaded email-import file, discarding the
-// header row and keeping at most the first 3 columns (email, password,
-// quota) of each remaining row.
+// parseImportCSV reads an uploaded email-import file, discarding the header row and keeping at most the first 3 columns (email, password, quota) of each remaining row
 func parseImportCSV(r io.Reader) ([][3]string, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Buffer(make([]byte, 0, 64*1024), 10*1024*1024)
@@ -65,8 +62,7 @@ func parseImportCSV(r io.Reader) ([][3]string, error) {
 	return rows, nil
 }
 
-// handleImportEmails validates an uploaded CSV of mailboxes and stages the
-// valid/invalid rows for confirmation before any accounts are created.
+// handleImportEmails validates an uploaded CSV of mailboxes and stages the valid/invalid rows for confirmation before any accounts are created
 func handleImportEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		renderImportPage(a, w, r)
@@ -85,9 +81,7 @@ func handleImportEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	filename := strings.ToLower(header.Filename)
 	if !strings.HasSuffix(filename, ".csv") {
-		// .xls/.xlsx are intentionally unsupported (no Excel parsing
-		// dependency pulled in for one upload path) - reported the same
-		// way as any other unrecognized extension.
+		// .xls/.xlsx are intentionally unsupported (no Excel parsing dependency for one upload path), reported the same as any other unrecognized extension
 		flashAndRedirect(a, w, r, "error", `Error: Unsupported file format, please upload a .csv or .xls file.`, "/emails/import")
 		return
 	}
@@ -117,10 +111,7 @@ func handleImportEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	domains, _ := a.AllDomainsForUser(ctx, userID)
 	userDomains := domainSet(domains)
-	// existingEmails is the set of already-registered bare addresses,
-	// extracted from the formatted "* addr ( used / quota ) [pct%]" list
-	// lines so EmailExists actually matches against a plain address
-	// rather than the whole formatted line.
+	// existingEmails is the set of already-registered bare addresses, extracted from the formatted "* addr ( used / quota ) [pct%]" list lines so EmailExists matches a plain address, not the whole formatted line
 	existingEmails := make(map[string]bool)
 	for _, addr := range addressesOf(GetEmailList(ctx, a, userID, currentUsername, userDomains)) {
 		existingEmails[addr] = true
@@ -158,8 +149,7 @@ func handleImportEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderConfirmImportPage(a, w, r, validRows, invalidRows)
 }
 
-// handleConfirmEmailImport creates the previously staged mailboxes one by
-// one, streaming progress to the client as plain text.
+// handleConfirmEmailImport creates the previously staged mailboxes one by one, streaming progress to the client as plain text
 func handleConfirmEmailImport(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

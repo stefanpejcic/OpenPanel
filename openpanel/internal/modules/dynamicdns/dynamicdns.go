@@ -1,8 +1,4 @@
-// Package dynamicdns implements a CRUD panel for token-authenticated
-// dynamic DNS entries (stored as specially-tagged comments on ordinary
-// A/AAAA records in the same BIND zone files the dns package manages)
-// plus the public, unauthenticated webcall endpoint routers/IoT devices
-// hit to push their current IP.
+// Package dynamicdns implements a CRUD panel for token-authenticated dynamic DNS entries (stored as specially-tagged comments on ordinary A/AAAA records in the same BIND zone files the dns package manages) plus the public, unauthenticated webcall endpoint routers/IoT devices hit to push their current IP
 package dynamicdns
 
 import (
@@ -45,15 +41,12 @@ func validateIP(ip string) bool {
 	return net.ParseIP(ip) != nil
 }
 
-// nowUTCStr returns the current UTC time in the format stored in each
-// entry's "updated=" marker.
+// nowUTCStr returns the current UTC time in the format stored in each entry's "updated=" marker
 func nowUTCStr() string {
 	return time.Now().UTC().Format("2006-01-02T15:04:05Z")
 }
 
-// DynDNSEntry is one dynamic DNS entry parsed from a zone file. Its JSON
-// tags are read back out in the browser by dynamic_dns.html's Alpine
-// component, which consumes a JSON-serialized flat array of these.
+// DynDNSEntry is one dynamic DNS entry parsed from a zone file, its JSON tags read back out by dynamic_dns.html's Alpine component as a flat array
 type DynDNSEntry struct {
 	LineNumber  int    `json:"line_number"`
 	Subdomain   string `json:"subdomain"`
@@ -63,10 +56,7 @@ type DynDNSEntry struct {
 	Token       string `json:"token"`
 	LastUpdated string `json:"last_updated"`
 	RawLine     string `json:"raw_line"`
-	// Index is this entry's 0-based position in the flattened entry list
-	// that dynamic_dns.html's openEdit()/openDelete() index into. Computed
-	// when building the page data, since text/template has no ergonomic
-	// running counter across nested range loops.
+	// Index is this entry's 0-based position in the flattened list that openEdit()/openDelete() index into, computed here since text/template has no running counter across nested range loops
 	Index int `json:"-"`
 }
 
@@ -77,9 +67,7 @@ func zoneFilePath(domain string) string {
 	return dns.ZoneFileDir + domain + ".zone"
 }
 
-// parseDynamicDNSFromZone scans a domain's zone file for lines carrying a
-// "; webcall=TOKEN updated=TS" marker comment - those are this feature's
-// entries, distinguishable from ordinary records by that comment alone.
+// parseDynamicDNSFromZone scans a domain's zone file for lines carrying a "; webcall=TOKEN updated=TS" marker comment, distinguishable from ordinary records by that comment alone
 func parseDynamicDNSFromZone(domain string) []DynDNSEntry {
 	content, err := os.ReadFile(zoneFilePath(domain))
 	if err != nil {
@@ -88,8 +76,7 @@ func parseDynamicDNSFromZone(domain string) []DynDNSEntry {
 	return parseDynamicDNSFromZoneContent(string(content))
 }
 
-// parseDynamicDNSFromZoneContent is parseDynamicDNSFromZone()'s pure
-// parsing half, split out for testability without touching the filesystem.
+// parseDynamicDNSFromZoneContent is parseDynamicDNSFromZone()'s pure parsing half, split out for testability without touching the filesystem
 func parseDynamicDNSFromZoneContent(content string) []DynDNSEntry {
 	var entries []DynDNSEntry
 	lines := strings.Split(content, "\n")
@@ -121,8 +108,7 @@ func parseDynamicDNSFromZoneContent(content string) []DynDNSEntry {
 	return entries
 }
 
-// buildZoneLine formats a dynamic DNS entry as a zone-file record line
-// carrying its "; webcall=TOKEN updated=TS" marker comment.
+// buildZoneLine formats a dynamic DNS entry as a zone-file record line carrying its "; webcall=TOKEN updated=TS" marker comment
 func buildZoneLine(subdomain, recordType, ip, token, updated string) string {
 	ts := updated
 	if ts == "" {
@@ -131,9 +117,7 @@ func buildZoneLine(subdomain, recordType, ip, token, updated string) string {
 	return subdomain + " 300 IN " + recordType + " " + ip + " ; webcall=" + token + " updated=" + ts
 }
 
-// writeZoneLines writes lines back to domain's zone file under an
-// exclusive flock, guarding against concurrent writers - this route and
-// the public update webcall both write the same file.
+// writeZoneLines writes lines back to domain's zone file under an exclusive flock, guarding against concurrent writers since this route and the public update webcall both write the same file
 func writeZoneLines(domain string, lines []string) error {
 	path := zoneFilePath(domain)
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0o644)
@@ -194,8 +178,7 @@ func deleteZoneLine(domain string, lineNumber int) (deleted string, ok bool) {
 	return strings.TrimSpace(deleted), true
 }
 
-// addDynamicDNSEntry appends a new dynamic DNS record to domain's zone
-// file and returns its generated token.
+// addDynamicDNSEntry appends a new dynamic DNS record to domain's zone file and returns its generated token
 func addDynamicDNSEntry(domain, subdomain, recordType, ip string) (token string, ok bool) {
 	token = generateToken(16)
 	newLine := buildZoneLine(subdomain, recordType, ip, token, "")

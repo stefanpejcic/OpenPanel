@@ -69,8 +69,7 @@ type AccountsPageData struct {
 	QuotaToastMsg string
 }
 
-// emailQuotaToast mirrors accounts.html's ns.quota_issues +
-// quota_toast_issues 1/2/multiple pluralization branch (percent_val > 80).
+// emailQuotaToast mirrors accounts.html's ns.quota_issues + quota_toast_issues 1/2/multiple pluralization branch (percent_val > 80)
 func emailQuotaToast(rows []EmailListRow) (id, message string) {
 	type issue struct {
 		address string
@@ -365,8 +364,7 @@ func renderDeliverabilityPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// DeliverabilityDomainPageData is emails/deliverability_domain.html's
-// template context.
+// DeliverabilityDomainPageData is emails/deliverability_domain.html's template context.
 type DeliverabilityDomainPageData struct {
 	web.LayoutData
 	Domain string

@@ -19,8 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// apiUploadFiles is handleUploadFiles's POST path (upload.go) with a JSON
-// response instead of a flash + re-rendered form.
+// apiUploadFiles is handleUploadFiles's POST path (upload.go) with a JSON response instead of a flash + re-rendered form
 func apiUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := currentUser(ctx, a, r)

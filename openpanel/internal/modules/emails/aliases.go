@@ -77,9 +77,7 @@ func InvalidateAliasCache(ctx context.Context, a *appctx.App, userID int, userna
 	ImportUserAliases(username, domainSet(domains))
 }
 
-// ImportUserAliases rewrites the user's cached aliases.yml from the
-// output of `opencli email-setup alias list`, keeping only aliases whose
-// source domain is in userDomains.
+// ImportUserAliases rewrites the user's cached aliases.yml from `opencli email-setup alias list`, keeping only aliases whose source domain is in userDomains
 func ImportUserAliases(currentUsername string, userDomains map[string]bool) {
 	path := aliasesCacheFile(currentUsername)
 	if _, err := os.Stat(path); err != nil {
@@ -352,8 +350,7 @@ func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // delete alias page (confirmation view)
 // ---------------------------------------------------------------------------
 
-// handleAliasDeletePage renders the alias deletion confirmation view,
-// either for a single alias or the full list.
+// handleAliasDeletePage renders the alias deletion confirmation view, either for a single alias or the full list
 func handleAliasDeletePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

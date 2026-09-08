@@ -17,16 +17,12 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// apiGetFileContent is handleEditFile's GET branch (editor.go), reused via
-// forceJSONOutput so it already returns the raw content as a bare JSON
-// string (matching the web editor's own "?output=json" AJAX contract) -
-// same allowlist/binary-sniff/size-limit checks apply.
+// apiGetFileContent is handleEditFile's GET branch (editor.go), reused via forceJSONOutput so it already returns the raw content as a bare JSON string (matching the web editor's own "?output=json" AJAX contract) - same allowlist/binary-sniff/size-limit checks apply
 func apiGetFileContent(a *appctx.App, w http.ResponseWriter, r *http.Request, filePath string) {
 	handleEditFile(a, w, forceJSONOutput(r), filePath)
 }
 
-// apiSaveFileContent is handleEditFile's POST branch (editor.go) with a
-// JSON body/response instead of a form post + flash/redirect.
+// apiSaveFileContent is handleEditFile's POST branch (editor.go) with a JSON body/response instead of a form post + flash/redirect
 func apiSaveFileContent(a *appctx.App, w http.ResponseWriter, r *http.Request, filePath string) {
 	ctx := r.Context()
 	user, err := currentUser(ctx, a, r)
@@ -87,9 +83,7 @@ func apiSaveFileContent(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 	writeJSON(w, http.StatusOK, map[string]string{"message": "File saved successfully"})
 }
 
-// apiDownloadFile is handleDownloadFile (editor.go) with JSON error
-// responses instead of flash+redirect. The success path (streaming the
-// file) is unchanged.
+// apiDownloadFile is handleDownloadFile (editor.go) with JSON error responses instead of flash+redirect - the success path (streaming the file) is unchanged
 func apiDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filename string) {
 	ctx := r.Context()
 	user, err := currentUser(ctx, a, r)
@@ -149,9 +143,7 @@ func apiDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, file
 	}
 }
 
-// apiViewFile is handleViewFile (editor.go) with JSON error responses
-// instead of flash+redirect. The success path (serving raw content) is
-// unchanged.
+// apiViewFile is handleViewFile (editor.go) with JSON error responses instead of flash+redirect - the success path (serving raw content) is unchanged
 func apiViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filename string) {
 	ctx := r.Context()
 	user, err := currentUser(ctx, a, r)

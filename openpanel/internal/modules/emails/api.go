@@ -21,12 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 )
 
-// RegisterEmailsAPI wires the emails API routes onto mux. Literal
-// sub-paths (aliases, configuration, default, deliverability, filters) are
-// registered as their own patterns alongside the generic
-// "{email...}"/"{...}" catch-alls - Go's http.ServeMux picks the pattern
-// with more literal segments (a proper subset of matches) over the
-// wildcard, so the more specific routes always win.
+// RegisterEmailsAPI wires the emails API routes onto mux - literal sub-paths (aliases, configuration, default, deliverability, filters) are registered as their own patterns alongside the generic "{email...}"/"{...}" catch-alls, since Go's ServeMux picks the pattern with more literal segments over the wildcard
 func RegisterEmailsAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "emails", "GET /api/emails", func(w http.ResponseWriter, r *http.Request) { apiEmailsList(a, w, r) })
 	apiregistry.Handle(mux, a, "emails", "POST /api/emails", func(w http.ResponseWriter, r *http.Request) { apiEmailsCreate(a, w, r) })
@@ -61,8 +56,7 @@ func apiOwnDomainOr403(a *appctx.App, w http.ResponseWriter, r *http.Request, us
 	return true
 }
 
-// apiOwnEmailOr403 validates email's format and writes a 403 if the
-// current user doesn't own its domain.
+// apiOwnEmailOr403 validates email's format and writes a 403 if the current user doesn't own its domain
 func apiOwnEmailOr403(a *appctx.App, w http.ResponseWriter, r *http.Request, userID int, email string) bool {
 	if !isValidEmail(email) {
 		writeAPIEmailsJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid email format."})
@@ -373,11 +367,7 @@ func apiEmailDetailDelete(a *appctx.App, w http.ResponseWriter, r *http.Request)
 // Client configuration download
 // ---------------------------------------------------------------------------
 
-// apiEmailConfiguration generates a downloadable mail-client config file
-// (Thunderbird, Outlook, or Apple mobileconfig) for one email account.
-// Deliberately its own, simpler templates distinct from the richer ones
-// handleEmailConfiguration (the UI's /emails/configuration route)
-// generates.
+// apiEmailConfiguration generates a downloadable mail-client config file (Thunderbird, Outlook, or Apple mobileconfig) for one email account - deliberately its own, simpler templates distinct from the richer ones handleEmailConfiguration (the UI's /emails/configuration route) generates
 func apiEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	account := r.PathValue("account")
@@ -742,8 +732,7 @@ func apiEmailDefaultPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // Deliverability
 // ---------------------------------------------------------------------------
 
-// apiEmailDeliverabilityAll checks deliverability (SPF/DKIM/DMARC/rDNS
-// etc.) for every domain the current user owns, concurrently.
+// apiEmailDeliverabilityAll checks deliverability (SPF/DKIM/DMARC/rDNS etc.) for every domain the current user owns, concurrently
 func apiEmailDeliverabilityAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

@@ -13,15 +13,12 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterEmailExportAPI wires the email export API route onto mux, gated
-// behind the same "email_export" feature as the web UI's /emails/export.
+// RegisterEmailExportAPI wires the email export API route onto mux, gated behind the same "email_export" feature as the web UI's /emails/export
 func RegisterEmailExportAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "email_export", "GET /api/emails/export", func(w http.ResponseWriter, r *http.Request) { apiEmailExport(a, w, r) })
 }
 
-// apiEmailExport streams the current user's mailboxes as a CSV download
-// (email, password, quota columns; password is always blank), mirroring
-// the web UI's /emails/export.
+// apiEmailExport streams the current user's mailboxes as a CSV download (email, password, quota columns; password is always blank), mirroring the web UI's /emails/export
 func apiEmailExport(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

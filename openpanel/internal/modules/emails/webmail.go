@@ -140,9 +140,7 @@ func mailserverExistsAndRunning(ctx context.Context) bool {
 	return strings.ToLower(strings.TrimSpace(string(stateOut))) == "true"
 }
 
-// ensureMasterUser mirrors ensure_master_user(), run once at startup (from
-// Register(), not an unconditional package init, so importing this package
-// in tests doesn't shell out to podman).
+// ensureMasterUser mirrors ensure_master_user(), run once at startup (from Register(), not an unconditional package init, so importing this package in tests doesn't shell out to podman)
 func ensureMasterUser(ctx context.Context) bool {
 	log.Println("WEBMAIL - Ensuring dovecot master account exists for webmail autologon..")
 
@@ -157,11 +155,7 @@ func ensureMasterUser(ctx context.Context) bool {
 		return false
 	}
 
-	// A fresh mailserver (or one that hasn't finished starting up yet, e.g.
-	// right after boot when this runs) has no dovecot-masters.cf file at
-	// all, so `list` itself errors out - that's not a real failure, it
-	// just means no master user exists yet and `add` still needs to run;
-	// only errors from the actual add/update below are worth bailing on.
+	// a fresh mailserver (or one still starting up, e.g. right after boot) has no dovecot-masters.cf file yet, so `list` itself errors out - that's not a real failure, it just means no master user exists yet and `add` still needs to run
 	out, listErr := exec.CommandContext(ctx, "podman", "exec", mailserverContainerName, "setup", "dovecot-master", "list").Output()
 	exists := listErr == nil && strings.Contains(string(out), masterUser)
 

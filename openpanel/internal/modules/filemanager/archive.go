@@ -24,8 +24,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// handleExtractFiles extracts an uploaded archive (zip/tar/tar.gz/tgz/gz)
-// into a destination directory, validating member paths first.
+// handleExtractFiles extracts an uploaded archive (zip/tar/tar.gz/tgz/gz) into a destination directory, validating member paths first
 func handleExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	selectedFile := strings.TrimSpace(r.Form.Get("archiveName"))
@@ -107,8 +106,7 @@ func handleExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	flashAndRedirect(a, w, r, "success", "File extracted successfully", filesRedirectPath(pathParam))
 }
 
-// isSafeMember reports whether an extracted member resolves to somewhere
-// inside destinationPath - a zip-slip / tar-slip guard.
+// isSafeMember reports whether an extracted member resolves to somewhere inside destinationPath - a zip-slip / tar-slip guard
 func isSafeMember(destinationPath, memberName string) bool {
 	target := filepath.Join(destinationPath, memberName)
 	rel, err := filepath.Rel(destinationPath, target)
@@ -118,9 +116,7 @@ func isSafeMember(destinationPath, memberName string) bool {
 	return rel == "." || (rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)))
 }
 
-// validateArchiveMembers pre-checks every entry in the archive before
-// shelling out to unzip/tar, so a malicious archive can't write outside
-// destinationPath.
+// validateArchiveMembers pre-checks every entry in the archive before shelling out to unzip/tar, so a malicious archive can't write outside destinationPath
 func validateArchiveMembers(archivePath, selectedFile, destinationPath string) error {
 	switch {
 	case strings.HasSuffix(selectedFile, ".zip"):
@@ -198,10 +194,7 @@ func extractSingleGzip(archivePath, selectedFile, destinationPath string) error 
 
 var shellArgQuoteRE = regexp.MustCompile(`[^\w@%+=:,./-]`)
 
-// shellQuote is the minimal POSIX-shell single-quoting needed to safely
-// embed an argument in the "sh -c" command string this route builds -
-// compression shells out to zip/tar rather than reimplementing archive
-// creation in Go.
+// shellQuote is the minimal POSIX-shell single-quoting needed to safely embed an argument in the "sh -c" command string this route builds - compression shells out to zip/tar rather than reimplementing archive creation in Go
 func shellQuote(s string) string {
 	if s == "" {
 		return "''"
@@ -212,8 +205,7 @@ func shellQuote(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", `'"'"'`) + "'"
 }
 
-// handleCompressFiles archives the selected files into a new zip/tar/
-// tar.gz by shelling out to the corresponding command-line tool.
+// handleCompressFiles archives the selected files into a new zip/tar/tar.gz by shelling out to the corresponding command-line tool
 func handleCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	archiveNameRaw := strings.TrimPrefix(strings.TrimSpace(r.Form.Get("archiveName")), "/")

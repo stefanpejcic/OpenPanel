@@ -19,10 +19,7 @@ var (
 	errPathTraversal      = errors.New("Path traversal detected")
 )
 
-// resolveSievePath resolves an email address to its Sieve filter path,
-// validating the address and confirming the user owns the domain.
-// Domain-ownership failure is reported separately from other errors so the
-// caller can return 403 instead of a generic 400.
+// resolveSievePath resolves an email address to its Sieve filter path, validating the address and confirming the user owns the domain - domain-ownership failure is reported separately so the caller can return 403 instead of a generic 400
 func resolveSievePath(email string, userDomains map[string]bool) (path string, forbidden bool, err error) {
 	if !isValidEmail(email) {
 		return "", false, errInvalidEmailFormat
@@ -40,8 +37,7 @@ func resolveSievePath(email string, userDomains map[string]bool) (path string, f
 	return candidate, false, nil
 }
 
-// writeSieve writes the Sieve filter content to disk, creating the parent
-// directory first if it doesn't already exist.
+// writeSieve writes the Sieve filter content to disk, creating the parent directory first if it doesn't already exist
 func writeSieve(resolvedPath, content string) error {
 	dir := filepath.Dir(resolvedPath)
 	if _, err := os.Stat(dir); err != nil {

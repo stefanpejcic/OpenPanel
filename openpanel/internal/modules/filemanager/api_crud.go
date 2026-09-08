@@ -160,8 +160,7 @@ func apiRenameFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"message": "File renamed successfully.", "path": newRelPath})
 }
 
-// apiChangePermissions is handleChangePermissions (crud.go) with a JSON
-// body/response.
+// apiChangePermissions is handleChangePermissions (crud.go) with a JSON body/response
 func apiChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Path        string   `json:"path"`

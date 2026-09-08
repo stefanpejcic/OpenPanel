@@ -27,9 +27,7 @@ var pageFiles = []string{
 
 var dynamicDNSPage = web.MustLoadPage(append(append([]string{}, pageFiles...), "domains/dynamic_dns.html")...)
 
-// DomainEntries is one domain's group of dynamic DNS entries, kept as a
-// slice in userDomains' insertion order rather than a map, since Go maps
-// don't preserve iteration order.
+// DomainEntries is one domain's group of dynamic DNS entries, kept as a slice in userDomains' insertion order rather than a map since Go maps don't preserve order
 type DomainEntries struct {
 	DomainName string
 	Entries    []DynDNSEntry
@@ -40,18 +38,13 @@ type DynamicDNSPageData struct {
 	web.LayoutData
 	DomainEntries []DomainEntries
 	Domains       []appctx.Domain
-	// AllEntries is DomainEntries flattened in the same order - the JS
-	// array openEdit(idx)/openDelete(idx) index into by Index.
+	// AllEntries is DomainEntries flattened in the same order, the JS array openEdit(idx)/openDelete(idx) index into by Index
 	AllEntries []DynDNSEntry
-	// BaseURL is the reconstructed scheme://host:port/, used to build the
-	// absolute webcall update URL shown for each entry.
+	// BaseURL is the reconstructed scheme://host:port/, used to build the absolute webcall update URL shown for each entry
 	BaseURL string
 }
 
-// publicBaseURL reconstructs the scheme+host+port the same way
-// enforceAccessDomain() (internal/auth/loaduser.go) does for the
-// canonical-domain redirect - by the time an authenticated page like this
-// one renders, the request's host has already passed that check.
+// publicBaseURL reconstructs the scheme+host+port the same way enforceAccessDomain() (internal/auth/loaduser.go) does for the canonical-domain redirect - by render time, the request's host has already passed that check
 func publicBaseURL(ctx context.Context, a *appctx.App, r *http.Request) string {
 	requestHost, requestPort := r.Host, ""
 	if h, p, err := net.SplitHostPort(requestHost); err == nil {
@@ -68,12 +61,7 @@ func publicBaseURL(ctx context.Context, a *appctx.App, r *http.Request) string {
 		scheme = "https"
 	}
 
-	// a.ForcePort comes from `opencli port`, which can fail to resolve in
-	// some deployments (e.g. a config file it depends on not being
-	// reachable from inside this container); when that happens, fall back
-	// to the port this very request came in on rather than omitting the
-	// port entirely, since that's the port the panel is actually being
-	// accessed through right now.
+	// a.ForcePort comes from `opencli port`, which can fail to resolve in some deployments - fall back to the port this request came in on rather than omitting it, since that's the port actually in use right now
 	portSuffix := ""
 	switch {
 	case a.ForcePort != "":

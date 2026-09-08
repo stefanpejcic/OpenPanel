@@ -44,8 +44,7 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 
 var dynDNSTokenRE = regexp.MustCompile(`^[a-zA-Z0-9]+$`)
 
-// handleDynamicDNS serves the create/edit/delete panel and its POST
-// action dispatch.
+// handleDynamicDNS serves the create/edit/delete panel and its POST action dispatch
 func handleDynamicDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -156,11 +155,7 @@ func handleDynamicDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderDynamicDNSPage(a, w, r, domainEntries, userDomains)
 }
 
-// handleDynamicDNSUpdate is the public, unauthenticated webcall a
-// router/IoT device hits with just its token to push its current IP. Not
-// wrapped in auth.RequireLogin, and needs no CSRF exemption - it's
-// GET-only, and gorilla/csrf only enforces the token on unsafe methods by
-// default.
+// handleDynamicDNSUpdate is the public, unauthenticated webcall a router/IoT device hits with just its token to push its current IP - not wrapped in auth.RequireLogin, and needs no CSRF exemption since it's GET-only and gorilla/csrf only enforces the token on unsafe methods
 func handleDynamicDNSUpdate(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("token")
 	if token == "" {

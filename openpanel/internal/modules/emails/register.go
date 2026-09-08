@@ -106,15 +106,12 @@ func RegisterImport(mux *http.ServeMux, a *appctx.App) {
 
 var webmailInitOnce sync.Once
 
-// RegisterWebmail wires the webmail routes onto mux, and ensures the
-// webmail master user exists once - only when "webmail" is an enabled
-// module, since that's the only time this function is called at all.
+// RegisterWebmail wires the webmail routes onto mux, and ensures the webmail master user exists once - only when "webmail" is an enabled module, since that's the only time this function is called at all
 func RegisterWebmail(mux *http.ServeMux, a *appctx.App) {
 	webmailInitOnce.Do(func() {
 		defer func() {
 			if r := recover(); r != nil {
-				// Never let a webmail setup failure abort the rest of
-				// RegisterAll.
+				// never let a webmail setup failure abort the rest of RegisterAll
 			}
 		}()
 		ensureMasterUser(context.Background())

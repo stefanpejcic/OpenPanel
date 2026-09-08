@@ -16,27 +16,18 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterEmailImportAPI wires the email import API routes onto mux, gated
-// behind the same "email_import" feature as the web UI's /emails/import.
+// RegisterEmailImportAPI wires the email import API routes onto mux, gated behind the same "email_import" feature as the web UI's /emails/import
 func RegisterEmailImportAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "email_import", "POST /api/emails/import", func(w http.ResponseWriter, r *http.Request) { apiEmailImportPreview(a, w, r) })
 	apiregistry.Handle(mux, a, "email_import", "POST /api/emails/import/confirm", func(w http.ResponseWriter, r *http.Request) { apiEmailImportConfirm(a, w, r) })
 }
 
-// apiImportCacheKey mirrors the cache key format handleImportEmails /
-// handleConfirmEmailImport use, so a staged import can be confirmed
-// regardless of whether it was staged through the web UI or the API.
+// apiImportCacheKey mirrors the cache key format handleImportEmails / handleConfirmEmailImport use, so a staged import can be confirmed regardless of whether it was staged through the web UI or the API
 func apiImportCacheKey(userID int, token string) string {
 	return fmt.Sprintf("email_import:%d:%s", userID, token)
 }
 
-// apiEmailImportPreview validates an uploaded CSV of mailboxes (email,
-// password, quota columns) and stages the valid/invalid rows for
-// confirmation before any accounts are created. Unlike the web UI, which
-// keeps the staged import keyed off a token in the session cookie, the API
-// is stateless (bearer-token auth, no session) so the token is returned in
-// the response body instead - the caller passes it back to
-// /api/emails/import/confirm.
+// apiEmailImportPreview validates an uploaded CSV of mailboxes (email, password, quota columns) and stages the valid/invalid rows for confirmation before any accounts are created - unlike the web UI, which keys the staged import off a token in the session cookie, the API is stateless so the token is returned in the response body instead, and the caller passes it back to /api/emails/import/confirm
 func apiEmailImportPreview(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -117,8 +108,7 @@ type apiImportResult struct {
 	Detail string `json:"detail,omitempty"`
 }
 
-// apiEmailImportConfirm creates the mailboxes staged by a prior call to
-// apiEmailImportPreview.
+// apiEmailImportConfirm creates the mailboxes staged by a prior call to apiEmailImportPreview
 func apiEmailImportConfirm(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

@@ -22,8 +22,7 @@ const (
 
 var quotedChunkRE = regexp.MustCompile(`"([^"]*)"`)
 
-// readDKIMExpectedRecord reads the DKIM TXT record we generated for domain
-// and reconstructs the full value from its (possibly split) quoted chunks.
+// readDKIMExpectedRecord reads the DKIM TXT record we generated for domain and reconstructs the full value from its (possibly split) quoted chunks
 func readDKIMExpectedRecord(domain string) (string, bool) {
 	keyFile := dkimKeysBasePath + "/" + domain + "/mail.txt"
 	content, err := os.ReadFile(keyFile)
@@ -53,8 +52,7 @@ func zoneTemplateText(ctx context.Context, a *appctx.App) string {
 	return text
 }
 
-// defaultSPFRecord returns the default SPF record for serverIP, parsed
-// out of the zone template if present, falling back to a generic record.
+// defaultSPFRecord returns the default SPF record for serverIP, parsed out of the zone template if present, falling back to a generic record
 func defaultSPFRecord(ctx context.Context, a *appctx.App, serverIP string) string {
 	for _, line := range strings.Split(zoneTemplateText(ctx, a), "\n") {
 		if strings.Contains(line, "spf1") {
@@ -66,8 +64,7 @@ func defaultSPFRecord(ctx context.Context, a *appctx.App, serverIP string) strin
 	return "v=spf1 ip4:" + serverIP + " +a +mx ~all"
 }
 
-// defaultDMARCRecord returns the default DMARC record, parsed out of the
-// zone template if present, falling back to a generic "p=none" policy.
+// defaultDMARCRecord returns the default DMARC record, parsed out of the zone template if present, falling back to a generic "p=none" policy
 func defaultDMARCRecord(ctx context.Context, a *appctx.App) string {
 	for _, line := range strings.Split(zoneTemplateText(ctx, a), "\n") {
 		if strings.Contains(line, "_dmarc") {
@@ -79,8 +76,7 @@ func defaultDMARCRecord(ctx context.Context, a *appctx.App) string {
 	return "v=DMARC1; p=none;"
 }
 
-// queryTXTRecords looks up TXT records for name; each returned string is
-// one record's chunks joined together.
+// queryTXTRecords looks up TXT records for name; each returned string is one record's chunks joined together
 func queryTXTRecords(name string) []string {
 	records, err := net.LookupTXT(name)
 	if err != nil {
@@ -89,8 +85,7 @@ func queryTXTRecords(name string) []string {
 	return records
 }
 
-// DeliverabilityCheck is the result of checking a domain's DKIM/SPF/DMARC
-// deliverability status.
+// DeliverabilityCheck is the result of checking a domain's DKIM/SPF/DMARC deliverability status
 type DeliverabilityCheck struct {
 	Domain   string            `json:"domain"`
 	ServerIP string            `json:"server_ip"`
@@ -114,8 +109,7 @@ func strPtr(s string, ok bool) *string {
 	return &s
 }
 
-// checkDomainDeliverability compares the domain's live DKIM/SPF/DMARC DNS
-// records against the expected values and reports a status for each.
+// checkDomainDeliverability compares the domain's live DKIM/SPF/DMARC DNS records against the expected values and reports a status for each
 func checkDomainDeliverability(ctx context.Context, a *appctx.App, domain, serverIP string) DeliverabilityCheck {
 	dkimExpected, dkimExpectedOK := readDKIMExpectedRecord(domain)
 	dkimTXT := queryTXTRecords("mail._domainkey." + domain)
@@ -176,8 +170,7 @@ func checkDomainDeliverability(ctx context.Context, a *appctx.App, domain, serve
 	}
 }
 
-// handleEmailsDeliverability renders (or, with ?output=json, returns) the
-// deliverability status of every domain owned by the current user.
+// handleEmailsDeliverability renders (or, with ?output=json, returns) the deliverability status of every domain owned by the current user
 func handleEmailsDeliverability(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -212,8 +205,7 @@ func handleEmailsDeliverability(a *appctx.App, w http.ResponseWriter, r *http.Re
 	renderDeliverabilityPage(a, w, r, domains)
 }
 
-// handleEmailDeliverabilityDomain renders (or, with ?output=json, returns)
-// the deliverability status for a single domain.
+// handleEmailDeliverabilityDomain renders (or, with ?output=json, returns) the deliverability status for a single domain
 func handleEmailDeliverabilityDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
