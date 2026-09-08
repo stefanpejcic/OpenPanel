@@ -9,8 +9,7 @@ import (
 	"strconv"
 )
 
-// toStringCell converts one mysqlmanager.Exec() result cell to a string.
-// Mirrors every other CMS module's identical helper.
+// toStringCell converts one mysqlmanager.Exec() result cell to a string, mirrors every other CMS module's identical helper
 func toStringCell(v any) string {
 	switch t := v.(type) {
 	case nil:
@@ -41,14 +40,7 @@ func sha256Hex(s string) string {
 
 func itoa(n int) string { return strconv.Itoa(n) }
 
-// config.inc.php is OJS's config file - INI format (php.ini-style
-// "key = value" lines under "[section]" headers), not a PHP $CFG-> variable
-// assignment file the way Moodle/WordPress/Joomla's config files are, so
-// every regex here matches a bare "key = ..." line instead. Since key names
-// are unique across the sections this module actually touches (driver/
-// host/username/password/name only live under [database]; base_url/
-// time_zone only under [general]), a plain "^key\s*=" match is safe without
-// also anchoring on the preceding "[section]" line.
+// config.inc.php is INI format ("key = value" under "[section]"), not a PHP $CFG-> assignment file like Moodle/WordPress/Joomla, so these match a bare "key = ..." line - safe without anchoring on the section since key names don't collide across the sections this module touches
 var (
 	iniDatabaseDriverRE   = regexp.MustCompile(`(?m)^driver\s*=.*$`)
 	iniDatabaseHostRE     = regexp.MustCompile(`(?m)^host\s*=.*$`)
@@ -72,10 +64,7 @@ func iniBare(key, value string) string {
 	return key + " = " + value
 }
 
-// ojsApprootDir maps an OJS site's docroot (a symlink to <slug>_ojsapp -
-// see ojs.go's package doc comment) to its backing app-root directory,
-// where config.inc.php/tools/index.php actually live, the same
-// domain/subdirectory-derived siteSlug() install.go used to create it.
+// ojsApprootDir maps a site's docroot (a symlink to <slug>_ojsapp, see ojs.go) to its backing app-root directory where config.inc.php/tools/index.php live, via the same siteSlug() install.go used to create it
 func ojsApprootDir(userContext, directory string) string {
 	const wwwPrefix = "/var/www/html/"
 	relPath := directory
@@ -86,10 +75,7 @@ func ojsApprootDir(userContext, directory string) string {
 	return "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + slug + "_ojsapp"
 }
 
-// extractOJSDatabaseInfoForLogin reads database name/username straight out
-// of the approot's config.inc.php - only the fields the autologin/backup
-// flows actually need (OJS has no per-site table prefix the way
-// Moodle/Joomla/WordPress do, so there's no "database_prefix" to extract).
+// extractOJSDatabaseInfoForLogin reads database name/username out of the approot's config.inc.php - just what autologin/backup need, no "database_prefix" since OJS has no per-site table prefix
 func extractOJSDatabaseInfoForLogin(userContext, domain string) map[string]string {
 	approot := ojsApprootDir(userContext, domain)
 	content, err := os.ReadFile(filepath.Join(approot, "config.inc.php"))

@@ -7,11 +7,7 @@ import (
 	"time"
 )
 
-// latestOpenCartVersion asks GitHub's releases API for the latest stable
-// OpenCart tag (e.g. "4.1.0.4") - used server-side only when the install
-// form's version field is left blank ("Latest"), since the install form
-// itself populates specific versions client-side straight from the same
-// releases list (see opencart_install.html's version-fetch script).
+// latestOpenCartVersion asks GitHub's releases API for the latest stable tag, used server-side only when the install form's version field is left blank
 func latestOpenCartVersion(ctx context.Context) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/opencart/opencart/releases/latest", nil)
 	if err != nil {

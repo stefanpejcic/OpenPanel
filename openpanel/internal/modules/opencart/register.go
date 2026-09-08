@@ -9,9 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// Register wires the OpenCart install/remove/manage routes onto mux, gated
-// behind the "opencart" feature flag. No list page (matches drupal/joomla's
-// scope: manage via the general Site Manager instead).
+// Register wires the OpenCart install/remove/manage routes onto mux, gated behind the "opencart" feature flag - no list page, matches drupal/joomla, managed via the general Site Manager instead
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "opencart")(h)
@@ -28,10 +26,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /opencart/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOpenCartClone(a, w, r) }))
 }
 
-// withOpenCartForm clones r as a POST carrying the given values as both
-// Form and PostForm, so a UI handler that reads r.FormValue(...) sees
-// exactly the fields the API's JSON body supplied - same pattern used by
-// joomla/register.go's withJoomlaForm.
+// withOpenCartForm clones r as a POST carrying values as both Form and PostForm so r.FormValue reads the API's JSON body fields, same pattern as joomla/register.go's withJoomlaForm
 func withOpenCartForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost

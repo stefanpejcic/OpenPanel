@@ -21,11 +21,7 @@ var (
 	removeDBUserRE = regexp.MustCompile(`DB_USERNAME'\s*,\s*'([^']*)'`)
 )
 
-// handleRemoveOpenCart fully uninstalls an OpenCart site: drops the
-// database and user (parsed out of config.php), deletes the whole install
-// directory, and removes the sites row. Mirrors joomla/manage.go's
-// handleRemoveJoomla - OpenCart's generated config.php is a plain define()
-// list with no preceding documentation block to accidentally match first.
+// handleRemoveOpenCart fully uninstalls an OpenCart site: drops the db/user parsed out of config.php, deletes the install dir, and removes the sites row - mirrors joomla/manage.go's handleRemoveJoomla
 func handleRemoveOpenCart(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

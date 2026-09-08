@@ -16,17 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// handleOJSUpdate updates an existing OJS install by extracting the new
-// version's tarball into a fresh sibling directory (never touching the
-// live one in place), copying the old install's config.inc.php across
-// unmodified (files_dir/database credentials/base_url all stay correct
-// since none of those are version-specific), then atomically repointing the
-// docroot symlink at the new tree and running OJS's own
-// `tools/upgrade.php upgrade` (confirmed genuinely non-interactive/
-// flag-based, unlike tools/install.php - see
-// lib/pkp/classes/cliTool/UpgradeTool.php). On failure the symlink is
-// pointed back at the untouched old tree, so a bad upgrade never leaves the
-// site down.
+// handleOJSUpdate extracts the new version into a fresh sibling directory, copies the old config.inc.php across unmodified, atomically repoints the docroot symlink, then runs tools/upgrade.php upgrade - on failure the symlink is pointed back at the untouched old tree so a bad upgrade never leaves the site down
 func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -176,10 +166,7 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	emit(map[string]any{"status": "Finalizing: replacing previous version"})
 	_ = os.RemoveAll(approotHostPath)
 	if renameErr := os.Rename(newApprootHostPath, approotHostPath); renameErr != nil {
-		// The upgrade already ran successfully against newApprootHostPath and
-		// the symlink already points at "<slug>_ojsapp.new" on disk - this
-		// rename failing just means the directory keeps its ".new" name; not
-		// fatal, but repoint the symlink at the actual path it ended up at.
+		// upgrade already succeeded and the symlink points at ".new" - not fatal, just repoint the symlink at wherever the dir ended up
 		emit(map[string]any{"status": "Warning: could not rename new version into place: " + renameErr.Error()})
 		_ = os.Remove(docrootSymlinkHostPath)
 		_ = os.Symlink(newApprootContainerPath, docrootSymlinkHostPath)
@@ -197,19 +184,13 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	emit(map[string]any{"status": "Update completed!", "version": dotted})
 }
 
-// resolveOJSDocrootSymlink returns the host-side path of the domain's
-// docroot symlink (the thing install.go created pointing at
-// "<slug>_ojsapp") by looking it up from the domains table, the same way
-// install.go originally derived it, rather than assuming the caller already
-// has it (update.go's own route only carries ?domain=, not ?docroot=).
+// resolveOJSDocrootSymlink returns the host-side path of the domain's docroot symlink, derived the same way install.go does, since update.go's route only carries ?domain=, not ?docroot=
 func resolveOJSDocrootSymlink(userContext, selectedDomain string) (string, error) {
 	slug := siteSlug(selectedDomain)
 	approotContainerPath := "/var/www/html/" + slug + "_ojsapp"
 	htmlVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
 
-	// docroot on disk is literally "/var/www/html/<selectedDomain>" mapped
-	// onto htmlVolume - the exact relation install.go's own hostOSPath
-	// construction relies on.
+	// docroot on disk is "/var/www/html/<selectedDomain>" mapped onto htmlVolume, same relation install.go's hostOSPath construction relies on
 	hostOSPath := filepath.Join(htmlVolume, selectedDomain)
 	if info, statErr := os.Lstat(hostOSPath); statErr == nil && info.Mode()&os.ModeSymlink != 0 {
 		return hostOSPath, nil

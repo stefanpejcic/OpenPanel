@@ -17,16 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors moodle/backups.go's directory layout, naming and
-// restore/run logic (same backups/<domain>/<timestamp>/{database.sql,
-// files.tar.gz} structure under the user's html_data volume), adjusted for
-// OJS having no per-site table prefix (Moodle/WordPress/Joomla all do) so
-// the whole database is dumped/restored rather than a prefix-filtered
-// subset, and for OJS's "files" directory being the thing worth backing up
-// (its docroot, like Moodle's, is a symlink to a sibling app-root directory
-// containing nothing but the stock release code - see ojs.go's package doc
-// comment - all real site content, submission uploads etc., lives in the
-// separate "_ojsfiles" sibling directory instead).
+// mirrors moodle/backups.go's layout and restore/run logic, but dumps the whole database (OJS has no per-site table prefix) and backs up the "_ojsfiles" sibling dir instead of docroot, since docroot is just a symlink to the stock release code (see ojs.go)
 
 var ojsBackupFolderRE = regexp.MustCompile(`^20\d{2}-`)
 
@@ -36,8 +27,7 @@ type ojsBackupDateInfo struct {
 	HasFilesBackup bool   `json:"hasFilesBackup"`
 }
 
-// handleOJSGetBackupDates mirrors moodle/backups.go's
-// handleMoodleGetBackupDates.
+// handleOJSGetBackupDates mirrors moodle/backups.go's handleMoodleGetBackupDates
 func handleOJSGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
@@ -85,9 +75,7 @@ func handleOJSGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 var ojsBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// handleOJSRestoreBackup mirrors moodle/backups.go's
-// handleMoodleRestoreBackup, restoring into the "files" directory instead
-// of docroot (see this file's top comment).
+// handleOJSRestoreBackup mirrors moodle/backups.go's handleMoodleRestoreBackup, restoring into the "files" directory instead of docroot
 func handleOJSRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")
@@ -170,10 +158,7 @@ func handleOJSRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	_, _ = w.Write([]byte("No files to restore, expected files: " + backupDatePathInContainer + "/files.tar.gz " + databaseSQLPathInContainer + "."))
 }
 
-// handleOJSRunBackup mirrors moodle/backups.go's handleMoodleRunBackup,
-// tar'ing the "files" directory instead of docroot (see this file's top
-// comment), and dumping the whole database rather than a prefix-filtered
-// table subset (OJS has no per-site table prefix).
+// handleOJSRunBackup mirrors moodle/backups.go's handleMoodleRunBackup, tar'ing the "files" directory instead of docroot and dumping the whole database (no per-site table prefix)
 func handleOJSRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")

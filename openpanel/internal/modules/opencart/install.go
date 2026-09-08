@@ -21,8 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// handleInstallPage renders the install form / checks the plan's site
-// limit for a GET, and hands POST off to handleInstallStream.
+// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -60,9 +59,7 @@ func formOr(r *http.Request, key, def string) string {
 	return def
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up (mirrors joomla/drupal/phpapp's
-// identical helper).
+// ensureContainerRunning starts the container if it isn't already running and polls briefly for it to come up, mirrors joomla/drupal/phpapp's identical helper
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -78,10 +75,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// unpackOpenCartArchive extracts only the zip's upload/ subtree (the actual
-// OpenCart application - the rest of the release zip is repo scaffolding:
-// docs/, .github/, composer.json, tools/) directly into destDir, flattened
-// (upload/index.php -> destDir/index.php, not destDir/upload/index.php).
+// unpackOpenCartArchive extracts only the zip's upload/ subtree (the actual app, the rest is repo scaffolding) flattened directly into destDir
 func unpackOpenCartArchive(ctx context.Context, archivePath, destDir string) error {
 	tmpDir := destDir + ".extract-tmp"
 	script := `set -e
@@ -112,17 +106,7 @@ type execError struct {
 func (e *execError) Error() string { return e.msg }
 func (e *execError) Unwrap() error { return e.err }
 
-// handleInstallStream drives an OpenCart install end to end, streaming
-// NDJSON progress events: download the release archive from GitHub (mirrors
-// wordpress/install.go's wordpress.org download and joomla/install.go's
-// GitHub download), extract its upload/ subtree directly into the docroot,
-// create a MySQL database, copy config-dist.php -> config.php (and the
-// admin/ equivalent - OpenCart's CLI installer requires both to already
-// exist and be writable, it doesn't create them), then run OpenCart's own
-// `install/cli_install.php install` CLI installer (confirmed against a live
-// OpenCart 4 release: no --root/--uri flags needed beyond --http_server,
-// and the install/ folder is left behind afterward - we remove it
-// ourselves, matching what a manual install always recommends).
+// handleInstallStream drives an OpenCart install end to end over NDJSON: download from GitHub, extract upload/ into the docroot, create the DB, copy config-dist.php to config.php (both root and admin/, since the CLI installer needs them to already exist), then run install/cli_install.php and remove the install/ folder afterward
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -270,13 +254,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Host-side chown, not `podman exec ... chown` - the archive was
-	// extracted host-side, so the files are owned by this process's own
-	// (real, unmapped) UID. A rootless container's own "root" is confined
-	// to its user-namespace's UID range and cannot chown files it doesn't
-	// already own outside that mapping (confirmed live while building the
-	// Joomla module: that silently failed with "Operation not permitted",
-	// leaving the docroot unwritable by the container's PHP process).
+	// host-side chown, not podman exec chown - a rootless container's root can't chown files outside its UID mapping (silently failed with "Operation not permitted" when building Joomla)
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr != nil {
@@ -329,10 +307,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	emit(map[string]any{"status": "Running OpenCart CLI installer"})
 	httpServer := "https://" + selectedDomain + "/"
-	// cli_install.php's own argv parser only recognises space-separated
-	// `--flag value` pairs (substr($argv[$i], 2) as the key) - `--flag=value`
-	// silently fails to populate anything, confirmed live: it produced a
-	// "missing or invalid" error for every field passed that way.
+	// cli_install.php only recognizes space-separated "--flag value" pairs - "--flag=value" silently fails to populate anything
 	installArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "php"),
 		installPath+"/install/cli_install.php", "install",
 		"--username", adminUsername,
@@ -391,9 +366,7 @@ func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, curr
 	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
 }
 
-// emitCleanupFiles removes a failed install's partially-created directory -
-// like joomla/drupal's identical helper, always safe to blow away entirely
-// since it's always a directory install.go just created.
+// emitCleanupFiles removes a failed install's partially-created directory, always safe since it's a directory install.go just created
 func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)
 	if err := podmanmanager.Command(ctx, userContext, argv).Run(); err != nil {

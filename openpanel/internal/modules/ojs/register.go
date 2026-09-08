@@ -9,10 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// Register wires the OJS install/remove/manage routes onto mux, gated
-// behind the "ojs" feature flag. No list page (matches
-// drupal/joomla/moodle's scope: manage via the general Site Manager
-// instead).
+// Register wires the OJS install/remove/manage routes onto mux, gated behind the "ojs" feature flag - no list page, matches drupal/joomla/moodle, managed via the general Site Manager instead
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "ojs")(h)
@@ -29,10 +26,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /ojs/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOJSClone(a, w, r) }))
 }
 
-// withOJSForm clones r as a POST carrying the given values as both Form and
-// PostForm, so a UI handler that reads r.FormValue(...) sees exactly the
-// fields the API's JSON body supplied - same pattern used by every other
-// CMS module's with{CMS}Form.
+// withOJSForm clones r as a POST carrying values as both Form and PostForm so r.FormValue reads the API's JSON body fields, same pattern as every other CMS module's with{CMS}Form
 func withOJSForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost

@@ -1,36 +1,11 @@
 package opencart
 
-// openpanelLoginFileName is the login helper's filename inside the
-// OpenCart docroot - deployed once at install time (install.go) and read
-// by handleOpenCartLogin (cli.go) to build the link the browser opens.
+// openpanelLoginFileName is the login helper's filename inside the docroot, deployed at install time (install.go) and read by handleOpenCartLogin (cli.go)
 const openpanelLoginFileName = "openpanel-login.php"
 
-// openpanelLoginPHP mirrors joomla/login_php.go's approach: OpenCart core
-// ships no CLI equivalent of a one-time login link, so this happens
-// through an actual HTTP request instead (OpenCart's Session library only
-// persists via a real request/response cycle - confirmed live: booting
-// admin/config.php + system/startup.php + system/framework.php with the
-// route forced to the harmless "common/login" and output buffered away
-// gives a fully working $registry with 'db' and 'session' already wired
-// up, without needing to touch OpenCart's router/dispatch logic at all).
-//
-// The redirect deliberately builds its own absolute URL from $_SERVER
-// rather than relying on OpenCart's own url library with a relative path,
-// for the same subdirectory-safety reason documented in
-// joomla/login_php.go.
-//
-// The session cookie is re-issued explicitly with SameSite=Lax right
-// before redirecting - confirmed live: OpenCart's installer defaults
-// config_session_samesite to "Strict", and framework.php's own
-// startup/session bootstrap sets the cookie with that flag. The "Login as
-// Admin" button opens this script via window.open() from the OpenPanel
-// dashboard, a different origin - browsers correctly treat that as a
-// cross-site-initiated navigation and silently drop a Strict cookie on it
-// (curl has no SameSite enforcement at all, which is why testing via curl
-// missed this entirely: it worked every time there, but real browsers,
-// incognito included, landed back on the login form with OpenCart's own
-// "Invalid token session" warning). Lax still permits the cookie on this
-// kind of top-level GET navigation, which is exactly the case here.
+// openpanelLoginPHP mirrors joomla/login_php.go's approach: booting admin/config.php + startup.php + framework.php with the route forced to "common/login" gives a working $registry with db/session wired up, since OpenCart's Session only persists via a real request/response cycle
+// the redirect builds its own absolute URL from $_SERVER instead of OpenCart's url library, same subdirectory-safety reason as joomla/login_php.go
+// the session cookie is re-issued with SameSite=Lax before redirecting since OpenCart defaults to Strict, which browsers silently drop on the cross-origin window.open() the "Login as Admin" button uses (curl doesn't enforce SameSite so this was missed in curl testing)
 const openpanelLoginPHP = `<?php
 /**
  * OpenPanel one-time admin login handler.

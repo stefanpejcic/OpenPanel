@@ -14,8 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// handlePHPInfo renders `php -i` output for one PHP version, starting its
-// container first if needed.
+// handlePHPInfo renders `php -i` output for one PHP version, starting its container first if needed
 func handlePHPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)

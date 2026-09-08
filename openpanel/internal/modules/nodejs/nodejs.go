@@ -1,6 +1,4 @@
-// Package nodejs installs a NodeJS application into a domain via a
-// docker-compose service + reverse proxy. All the actual logic lives in
-// internal/modules/appinstall, shared with the python package.
+// Package nodejs installs a NodeJS application into a domain via a docker-compose service + reverse proxy - the actual logic lives in internal/modules/appinstall, shared with the python package
 package nodejs
 
 import (

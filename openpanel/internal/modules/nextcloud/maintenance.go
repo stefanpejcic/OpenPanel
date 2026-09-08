@@ -10,9 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// handleNextcloudMaintenance reads (GET) or toggles (POST, action=enable|
-// disable) Nextcloud's own maintenance mode via `occ maintenance:mode`,
-// mirroring joomla/drupal's maintenance.go handlers for the same feature.
+// handleNextcloudMaintenance reads (GET) or toggles (POST) maintenance mode via occ maintenance:mode, mirrors joomla/drupal's maintenance.go handlers
 func handleNextcloudMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

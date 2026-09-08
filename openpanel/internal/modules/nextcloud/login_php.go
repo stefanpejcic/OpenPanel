@@ -1,44 +1,12 @@
 package nextcloud
 
-// openpanelLoginFileName is the login helper's filename inside the
-// Nextcloud docroot - deployed once at install time (install.go) and read
-// by handleNextcloudLogin (cli.go) to build the link the browser opens.
+// openpanelLoginFileName is the login helper's filename inside the docroot, deployed at install time (install.go) and read by handleNextcloudLogin (cli.go)
 const openpanelLoginFileName = "openpanel-login.php"
 
-// openpanelLoginPHP mirrors joomla/opencart's one-time-token approach:
-// Nextcloud core ships no CLI equivalent of a one-time login link either.
-// Unlike Joomla/OpenCart, Nextcloud exposes a genuine, documented public
-// login API for exactly this situation -
-// \OCP\IUserSession::completeLogin(IUser $user, array $loginDetails, bool
-// $regenerateSessionId) - the same call Nextcloud's own SSO/SAML apps use
-// internally after external auth succeeds, rather than reverse-engineered
-// framework poking.
-//
-// Confirmed live (this was the hard part): completeLogin()'s $loginDetails
-// array MUST use an empty string for 'password', never null -
-// \OCP\User\Events\PostLoginEvent's constructor declares $password as a
-// non-nullable string, and completeLogin() dispatches that event
-// internally. Passing null throws a TypeError deep inside completeLogin()
-// which (if uncaught) aborts before prepareUserLogin()'s CSRF-token
-// refresh, leaving the session in a half-initialized state. An empty
-// string avoids the exception entirely and lets the full flow - including
-// the CSRF refresh - complete cleanly.
-//
-// $_COOKIE is deliberately cleared before requiring lib/base.php: Nextcloud
-// runs its own CSRF defense (performSameSiteCookieProtection) on every
-// script except index.php/cron.php/public.php, and if the browser has any
-// pre-existing cookies for the domain when this script is hit, that check
-// can 412 the request outright before our own code ever runs - the same
-// family of bug as the SameSite issue found and fixed in OpenCart's login
-// helper, just tripped via a different code path here. This script
-// authenticates purely off the one-time token in the URL, so it never
-// needs the incoming cookies anyway; presenting an empty $_COOKIE makes
-// Nextcloud's own check take its harmless no-op branch instead.
-//
-// The redirect deliberately builds its own absolute URL from $_SERVER
-// rather than relying on Nextcloud's own URL generator for this throwaway
-// redirect, for the same subdirectory-safety reason documented in
-// joomla/opencart's login_php.go.
+// openpanelLoginPHP mirrors joomla/opencart's one-time-token approach, but Nextcloud actually has a real public login API for it: \OCP\IUserSession::completeLogin(), the same call its SSO/SAML apps use
+// completeLogin()'s $loginDetails must use an empty string for 'password', never null - PostLoginEvent's constructor requires a non-nullable string and a null throws mid-login, leaving the session half-initialized
+// $_COOKIE is cleared before requiring lib/base.php so Nextcloud's own CSRF cookie check can't 412 the request - same bug family as the SameSite issue fixed in OpenCart's login helper
+// the redirect builds its own absolute URL from $_SERVER instead of Nextcloud's URL generator, same subdirectory-safety reason as joomla/opencart's login_php.go
 const openpanelLoginPHP = `<?php
 /**
  * OpenPanel one-time admin login handler.

@@ -17,15 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// unpackNextcloudUpdateArchive is unpackNextcloudArchive's update-time
-// sibling: it replaces every top-level entry from the new release except
-// config/ and data/, which must survive an update untouched (config.php
-// holds live DB credentials/trusted domains, data/ holds user files) -
-// install.go's version has no such exclusion since a fresh install has
-// neither yet. Deleting the old copy of each entry before moving the new
-// one in (rather than just overwriting) mirrors Nextcloud's own documented
-// manual-update rsync --delete behavior, so files removed from newer
-// releases don't linger.
+// unpackNextcloudUpdateArchive is unpackNextcloudArchive's update-time sibling: replaces every top-level entry except config/ and data/, deleting the old copy first to mirror Nextcloud's documented rsync --delete update behavior
 func unpackNextcloudUpdateArchive(ctx context.Context, archivePath, destDir string) error {
 	tmpDir := destDir + ".update-tmp"
 	script := `set -e
@@ -52,11 +44,7 @@ rm -rf "$2"
 	return nil
 }
 
-// handleNextcloudUpdate updates an existing Nextcloud install in place:
-// downloads the latest release archive, replaces core files (preserving
-// config/ and data/), then runs occ upgrade wrapped in maintenance mode -
-// Nextcloud's own documented manual-update procedure. Streams NDJSON
-// progress like install does.
+// handleNextcloudUpdate updates an install in place: downloads the latest release, replaces core files, then runs occ upgrade wrapped in maintenance mode - streams NDJSON progress like install does
 func handleNextcloudUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

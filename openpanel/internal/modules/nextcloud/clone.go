@@ -12,35 +12,10 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 )
 
-// This file mirrors wordpress/manage.go's handleCloneWordPress in overall
-// shape (site-limit check, file copy, DB create+dump-pipe, config
-// rewrite, sites-table insert), sharing everything but the docroot copy
-// and config-rewrite steps with every other CMS's clone.go via
-// internal/core/cmsclone - see that package's doc comment for why those
-// two steps stay local. Nextcloud is the most config-heavy of the 8:
-// config/config.php (confirmed live against a real installed Nextcloud's
-// $CONFIG array) hardcodes 'datadirectory' as an ABSOLUTE container path
-// that MUST match the new docroot after the file copy or Nextcloud refuses
-// to serve, plus 'trusted_domains' (a numbered PHP array, index 1 holds
-// the install-time domain per install.go), plus 'overwrite.cli.url', plus
-// the usual dbname/dbuser/dbpassword. All of these are fixed via plain
-// regex text-replace on config.php directly rather than shelling out to
-// `occ config:system:set` - occ requires a working PHP runtime matching
-// Nextcloud's own minimum version, and this session already hit
-// PHP-version failures running occ against some test containers (see
-// maintenance.go's handler failing the same way on a PHP 7.2 container);
-// a text edit has no such runtime dependency and this codebase already
-// edits config.php directly elsewhere (extractNextcloudDatabaseInfoForLogin
-// reads it the same way). 'instanceid' is deliberately left untouched: the
-// file copy also copies data/appdata_<instanceid>/, so keeping the same
-// instanceid keeps that directory's name consistent with what's now inside
-// it.
-//
-// cmsclone.ValidDocroot accepts the real "/var/www/html/..." absolute-path
-// form .Docroot actually uses everywhere else in this codebase -
-// WordPress's own validateDocroot() rejects any leading "/", which would
-// reject its own clone form's real source_folder value. Not replicating
-// that bug here.
+// mirrors wordpress/manage.go's handleCloneWordPress in shape (file copy, DB create+dump, config rewrite, sites insert), sharing everything but docroot copy and config rewrite with every other CMS via internal/core/cmsclone
+// config.php's datadirectory, trusted_domains (index 1), overwrite.cli.url and db creds are fixed via regex text-replace rather than occ, since occ needs a matching PHP runtime and this hit PHP-version failures elsewhere (see maintenance.go)
+// instanceid is left untouched so the copied data/appdata_<instanceid>/ dir keeps matching it
+// cmsclone.ValidDocroot accepts the real absolute "/var/www/html/..." form used everywhere here, unlike wordpress's own validateDocroot which would reject it
 
 var (
 	cloneNCDataDirRE   = regexp.MustCompile(`'datadirectory'\s*=>\s*'.*?',`)
@@ -48,10 +23,7 @@ var (
 	cloneNCDBNameRE    = regexp.MustCompile(`'dbname'\s*=>\s*'.*?',`)
 	cloneNCDBUserRE    = regexp.MustCompile(`'dbuser'\s*=>\s*'.*?',`)
 	cloneNCDBPasswdRE  = regexp.MustCompile(`'dbpassword'\s*=>\s*'.*?',`)
-	// Matches the trusted_domains array's second entry specifically
-	// (index 1, right after the always-present "0 => 'localhost'," line -
-	// see install.go's trusted_domains handling for why index 1 is where
-	// the site's own domain lives).
+	// matches trusted_domains index 1, right after the always-present "0 => 'localhost'," line - see install.go for why index 1 holds the site's domain
 	cloneNCTrustedDomainRE = regexp.MustCompile(`(0 => 'localhost',\s*\n\s*1 => )'.*?'(,)`)
 )
 
@@ -162,7 +134,7 @@ func handleNextcloudClone(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	adminEmail := formOr(r, "admin_email", "admin@"+dstDomain)
 	nextcloudVersion := formOr(r, "nextcloud_version", "latest")
-	// Rewrites hardcoded source-domain URLs left in page/content body text (the config-file rewrite above only fixes the DB connection settings, not application data) - the generic equivalent of wp-cli's search-replace, which this CMS's own CLI has no built-in version of.
+	// rewrites hardcoded source-domain URLs left in content body text, the generic equivalent of wp-cli's search-replace which Nextcloud's CLI lacks
 	cmsclone.SearchReplaceDatabase(ctx, userContext, dstDB, "https://"+providedDomain, "https://"+dstDomainWithSubdir)
 
 	cmsclone.FinalizeSite(ctx, w, r, cmsclone.FinalizeParams{

@@ -19,17 +19,14 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// ConfigEntry is one parsed line of a php.ini file. Value is only
-// meaningful when HasValue is true - a bare directive name with no '='
-// still counts as an entry, just with no value.
+// ConfigEntry is one parsed line of a php.ini file - Value is only meaningful when HasValue is true, since a bare directive with no '=' still counts as an entry
 type ConfigEntry struct {
 	Key      string
 	Value    string
 	HasValue bool
 }
 
-// parseConfigContent skips blank/comment/section lines and splits the rest
-// on the first '='.
+// parseConfigContent skips blank/comment/section lines and splits the rest on the first '='
 func parseConfigContent(content string) []ConfigEntry {
 	var entries []ConfigEntry
 	for _, rawLine := range strings.Split(content, "\n") {
@@ -48,8 +45,7 @@ func parseConfigContent(content string) []ConfigEntry {
 	return entries
 }
 
-// configEntriesToMap collapses parsed entries into a map; later entries
-// win on a duplicate key.
+// configEntriesToMap collapses parsed entries into a map; later entries win on a duplicate key
 func configEntriesToMap(entries []ConfigEntry) map[string]string {
 	m := make(map[string]string, len(entries))
 	for _, e := range entries {
@@ -58,8 +54,7 @@ func configEntriesToMap(entries []ConfigEntry) map[string]string {
 	return m
 }
 
-// loadKeysFromFile returns the editable option keys: a per-user override
-// file, else a global override file, else the built-in default key list.
+// loadKeysFromFile returns the editable option keys: a per-user override file, else a global override file, else the built-in default key list
 func loadKeysFromFile(userContext string) []string {
 	userFilePath := "/home/" + userContext + "/php.ini/options.txt"
 	if content, err := os.ReadFile(userFilePath); err == nil {
@@ -87,8 +82,7 @@ func splitNonEmptyLines(content []byte) []string {
 	return keys
 }
 
-// keyExistsAndNotCommented reports whether key has an active (uncommented)
-// line in the given PHP version's php.ini.
+// keyExistsAndNotCommented reports whether key has an active (uncommented) line in the given PHP version's php.ini
 func keyExistsAndNotCommented(userContext, version, key string) bool {
 	content, err := os.ReadFile("/home/" + userContext + "/php.ini/" + version + ".ini")
 	if err != nil {
@@ -106,20 +100,13 @@ func keyExistsAndNotCommented(userContext, version, key string) bool {
 	return false
 }
 
-// updatePHPConfigFile deletes, updates, or appends each key in keyOrder in
-// php.ini by shelling out to sed rather than reimplementing the line
-// matching in Go, since a hand-rolled parser could diverge from the exact
-// line-matching behavior admins may already depend on for hand-edited ini
-// files.
+// updatePHPConfigFile deletes, updates, or appends each key in keyOrder by shelling out to sed rather than reimplementing the line matching in Go, since a hand-rolled parser could diverge from behavior admins may depend on for hand-edited files
 func updatePHPConfigFile(ctx context.Context, userContext, version string, keyOrder []string, values map[string]string) {
 	phpIniFile := "/home/" + userContext + "/php.ini/" + version + ".ini"
 
 	for _, key := range keyOrder {
 		if key == "" {
-			// An empty key would build a delete pattern matching almost
-			// every active directive in the file (see splitNonEmptyLines,
-			// which is the only source of keyOrder besides the built-in
-			// list) - never act on one, whatever produced it.
+			// an empty key would build a delete pattern matching almost every active directive - never act on one
 			continue
 		}
 		value := values[key]
@@ -143,10 +130,7 @@ func updatePHPConfigFile(ctx context.Context, userContext, version string, keyOr
 	}
 }
 
-// availableTimezones lists the IANA timezones available for the
-// date.timezone option. The Go stdlib has no bundled zone list, so this
-// walks /usr/share/zoneinfo (present on every host this panel targets) and
-// filters out the non-zone metadata files that directory also contains.
+// availableTimezones lists the IANA timezones available for the date.timezone option - the Go stdlib has no bundled zone list, so this walks /usr/share/zoneinfo and filters out the non-zone metadata files it also contains
 var timezoneSkipNames = map[string]bool{
 	"posixrules": true, "Factory": true, "iso3166.tab": true, "zone.tab": true,
 	"zone1970.tab": true, "leapseconds": true, "tzdata.zi": true, "leap-seconds.list": true,
@@ -191,9 +175,7 @@ type TimezoneOption struct {
 	Selected bool
 }
 
-// OptionField is one rendered row of options.html's key/value table -
-// precomputed server-side so the template just switches on Kind instead of
-// re-deriving the value-classification logic itself.
+// OptionField is one rendered row of options.html's key/value table, precomputed server-side so the template just switches on Kind instead of re-deriving the value-classification logic itself
 type OptionField struct {
 	Key        string
 	Kind       string // "checkbox_binary" | "timezone" | "checkbox_onoff" | "unit" | "number" | "text"
@@ -242,8 +224,7 @@ func buildOptionField(key, value string, timezones []string) OptionField {
 	return OptionField{Key: key, Kind: "text", Value: value}
 }
 
-// handlePHPOptions gets or updates the PHP options table for one version.
-// versionSeg is "" for the bare /php/options route (version picker only).
+// handlePHPOptions gets or updates the PHP options table for one version, versionSeg is "" for the bare /php/options route (version picker only)
 func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, versionSeg string) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

@@ -1,13 +1,4 @@
-// Package opencart installs and manages an OpenCart site (downloaded from
-// GitHub releases + OpenCart's own CLI installer,
-// `install/cli_install.php install`) inside an existing domain's docroot,
-// run in the domain's existing php-fpm container - same shape as
-// internal/modules/joomla. Deliberately minimal, matching drupal/joomla's
-// scope: no cloning, no scan-for-existing-installs, no hardening rules, no
-// dedicated backup/restore system - just install, a small read-only
-// manage/overview page (files, database, PHP/DB versions, screenshot), a
-// Logs tab, cache clearing, a one-time admin login link, and uninstall.
-// MySQL/MariaDB only.
+// Package opencart installs and manages an OpenCart site via install/cli_install.php inside an existing domain's docroot and php-fpm container - same shape as internal/modules/joomla, MySQL/MariaDB only
 package opencart
 
 import (
@@ -65,9 +56,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 
 const randomStringAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// generateRandomString generates a throwaway db name/user/password or login
-// token when needed. Uses crypto/rand since results end up as real
-// credentials/tokens (same approach as joomla.generateRandomString).
+// generateRandomString generates a throwaway db name/user/password or login token, uses crypto/rand since results end up as real credentials
 func generateRandomString(length int) string {
 	b := make([]byte, length)
 	for i := range b {
@@ -77,9 +66,7 @@ func generateRandomString(length int) string {
 	return string(b)
 }
 
-// lockFilePath returns the per-user krompir.lock path shared with the
-// wordpress/phpapp/drupal/joomla modules to serialize any one "app install"
-// operation per user at a time - not an OpenCart-specific lock.
+// lockFilePath returns the per-user krompir.lock path shared with wordpress/phpapp/drupal/joomla to serialize one app install at a time per user
 func lockFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
 }
@@ -116,9 +103,7 @@ func lookupDomainByID(ctx context.Context, a *appctx.App, domainID string) (doma
 	return d, true, nil
 }
 
-// countUserWebsites counts the user's sites, capped at 1000 - same query
-// wordpress/phpapp/drupal/joomla each duplicate locally rather than sharing
-// across packages for something this small.
+// countUserWebsites counts the user's sites, capped at 1000 - same query duplicated locally in wordpress/phpapp/drupal/joomla
 func countUserWebsites(a *appctx.App, userID int) (int, error) {
 	rows, err := a.DB.Query(
 		"SELECT site_name FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000", userID)

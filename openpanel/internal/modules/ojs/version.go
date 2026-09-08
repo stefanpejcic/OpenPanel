@@ -13,12 +13,7 @@ import (
 	"time"
 )
 
-// ojsVersionRE matches pkp/ojs's GitHub tag naming - inconsistent across
-// history: newer tags are bare "3_5_0-5", older ones are prefixed
-// "ojs-3_1_2-4" (confirmed live against the tags API). A real release tag
-// always ends in "-<build>"; anything else (e.g. "3_4_0rc3", beta/alpha
-// tags) is a pre-release and is excluded by this pattern requiring the
-// string to end right after the build number.
+// ojsVersionRE matches pkp/ojs's GitHub tag naming, inconsistent across history (newer tags are bare "3_5_0-5", older ones prefixed "ojs-3_1_2-4") - requiring the string to end right after the build number excludes pre-release tags like "3_4_0rc3"
 var ojsVersionRE = regexp.MustCompile(`^(?:ojs-)?(\d+)_(\d+)_(\d+)-(\d+)$`)
 
 type githubTag struct {
@@ -27,14 +22,11 @@ type githubTag struct {
 
 // ojsVersion is one parsed, displayable OJS release.
 type ojsVersion struct {
-	Dotted                 string // e.g. "3.5.0-5" - used in the download URL and shown to the user
+	Dotted                      string // e.g. "3.5.0-5", used in the download URL and shown to the user
 	Major, Minor, Patch, Build int
 }
 
-// listOJSVersions hits the GitHub tags API (paginated, since the full
-// history of real releases spans more than one page of 100) and returns
-// every stable "x.y.z-build" release, newest first. Pre-release tags
-// (rc/beta/alpha) are excluded by ojsVersionRE itself.
+// listOJSVersions hits the GitHub tags API (paginated, since real releases span more than one page of 100) and returns every stable "x.y.z-build" release, newest first
 func listOJSVersions(ctx context.Context) ([]ojsVersion, error) {
 	client := &http.Client{Timeout: 15 * time.Second}
 	var versions []ojsVersion
@@ -97,8 +89,7 @@ func fetchOJSTagsPage(ctx context.Context, client *http.Client, page int) ([]git
 	return tags, nil
 }
 
-// latestOJSVersion returns the highest available version - used
-// server-side when the install form's version field is left blank.
+// latestOJSVersion returns the highest available version, used server-side when the install form's version field is left blank
 func latestOJSVersion(ctx context.Context) (ojsVersion, error) {
 	versions, err := listOJSVersions(ctx)
 	if err != nil {
@@ -107,10 +98,7 @@ func latestOJSVersion(ctx context.Context) (ojsVersion, error) {
 	return versions[0], nil
 }
 
-// findOJSVersion resolves a "3.5.0-5"-style dotted version string (as
-// submitted by the install form) back into an ojsVersion, re-validating it
-// against the live tag list so an install can't be pointed at an
-// arbitrary/non-existent tarball URL.
+// findOJSVersion resolves a "3.5.0-5"-style dotted version from the install form back into an ojsVersion, re-validating against the live tag list so an install can't be pointed at an arbitrary tarball URL
 func findOJSVersion(ctx context.Context, dotted string) (ojsVersion, error) {
 	versions, err := listOJSVersions(ctx)
 	if err != nil {
@@ -138,9 +126,7 @@ func compareOJSVersions(a, b ojsVersion) int {
 	return a.Build - b.Build
 }
 
-// ojsDownloadURL builds PKP's own direct-hosted, submodule-bundled release
-// package URL for a dotted version (see ojs.go's package doc comment for
-// why GitHub's own archive endpoints can't be used instead).
+// ojsDownloadURL builds PKP's own direct-hosted, submodule-bundled release package URL for a dotted version (see ojs.go for why GitHub's archive endpoints can't be used instead)
 func ojsDownloadURL(dotted string) string {
 	return "https://pkp.sfu.ca/ojs/download/ojs-" + dotted + ".tar.gz"
 }

@@ -13,20 +13,9 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 )
 
-// This file mirrors moodle/clone.go's overall shape (site-limit check, DB
-// create+dump-pipe via internal/core/cmsclone, sites-table insert, cron
-// registration) - see that package's doc comment for why those steps are
-// shared but the file-copy and config-rewrite steps aren't. Like Moodle,
-// OJS's docroot is a symlink, not a real directory (see ojs.go's package
-// doc comment), so this resolves the approot/files sibling directories
-// itself from the source domain name, the same siteSlug() call install.go
-// used to create them, and config.inc.php's INI syntax needs line-based
-// regex replacement instead of Moodle's PHP $CFG-> assignment syntax (see
-// config.go).
+// mirrors moodle/clone.go's shape (site-limit check, DB create+dump via internal/core/cmsclone, sites insert, cron registration), but docroot is a symlink so this resolves the approot/files siblings itself via siteSlug(), and config.inc.php's INI syntax needs line-based regex instead of Moodle's $CFG-> assignments
 
-// handleOJSClone mirrors moodle/clone.go's handleMoodleClone, adapted for
-// OJS's approot/files/symlink layout (see install.go) and config.inc.php's
-// INI format.
+// handleOJSClone mirrors moodle/clone.go's handleMoodleClone, adapted for OJS's approot/files/symlink layout (see install.go) and config.inc.php's INI format
 func handleOJSClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -113,9 +102,7 @@ func handleOJSClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	cmsclone.ChownRecursive(ctx, userContext, dstApprootHostPath, dstFilesHostPath)
 	_ = exec.Command("chmod", "-R", "777", dstFilesHostPath).Run()
 
-	// Docroot destination host path, and the symlink target must be the
-	// container-visible path (/var/www/html/...), not the host filesystem
-	// path - same gotcha install.go's own symlink call documents.
+	// the symlink target must be the container-visible path, not the host filesystem path - same gotcha install.go's symlink call documents
 	const wwwBaseDirectory = "/var/www/html/"
 	dstHostOSPath := strings.Replace(filepath.Clean(docroot), wwwBaseDirectory, htmlVolume, 1)
 	if _, statErr := os.Lstat(dstHostOSPath); statErr == nil {
@@ -174,10 +161,7 @@ func handleOJSClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	adminEmail := formOr(r, "admin_email", "admin@"+dstDomain)
 	ojsVersion := formOr(r, "ojs_version", "latest")
-	// Rewrites hardcoded source-domain URLs left in the database (the
-	// config-file rewrite above only fixes the DB connection settings and
-	// base_url, not application data) - the generic equivalent of wp-cli's
-	// search-replace, which OJS has no built-in version of.
+	// rewrites hardcoded source-domain URLs left in the database, the generic equivalent of wp-cli's search-replace which OJS lacks
 	cmsclone.SearchReplaceDatabase(ctx, userContext, dstDB, "https://"+providedDomain, "https://"+dstDomainWithSubdir)
 
 	cmsclone.FinalizeSite(ctx, w, r, cmsclone.FinalizeParams{

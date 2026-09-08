@@ -10,10 +10,7 @@ import (
 	"strings"
 )
 
-// toStringCell converts one mysqlmanager.Exec() result cell to a string.
-// Mirrors wordpress/backups.go's identical helper - see that file's
-// comment for why every numeric driver type needs its own case (a missing
-// one silently becomes "" rather than a compile error).
+// toStringCell converts one mysqlmanager.Exec() result cell to a string, mirrors wordpress/backups.go's identical helper
 func toStringCell(v any) string {
 	switch t := v.(type) {
 	case nil:
@@ -44,11 +41,7 @@ func sha256Hex(s string) string {
 
 func itoa(n int) string { return strconv.Itoa(n) }
 
-// extractOpenCartDatabaseInfoForLogin is a local copy of
-// websites.extractOpenCartDatabaseInfo (unexported in another package, so
-// duplicated here - same small-helper-duplication pattern the other CMS
-// modules already use rather than sharing across module packages). Only
-// the field handleOpenCartLogin actually needs is populated.
+// extractOpenCartDatabaseInfoForLogin is a local copy of websites.extractOpenCartDatabaseInfo (unexported there, duplicated here like the other CMS modules do), only populates the field handleOpenCartLogin needs
 func extractOpenCartDatabaseInfoForLogin(userContext, directory string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
 	if !strings.HasPrefix(directory, wwwPrefix) {

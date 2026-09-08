@@ -1,6 +1,4 @@
-// Package php handles default/per-domain PHP version selection, php.ini
-// editing, PHP option tuning, extension management, and the phpMyAdmin
-// redirect.
+// Package php handles default/per-domain PHP version selection, php.ini editing, PHP option tuning, extension management, and the phpMyAdmin redirect.
 package php
 
 import (
@@ -22,19 +20,12 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// phpVersionFromSegment extracts the version from a "php<version>" URL path
-// segment (e.g. "php8.2" -> "8.2"). Go's net/http.ServeMux only allows a
-// wildcard to span an entire path segment (see its Patterns doc) - it
-// can't sit inside a literal "php<version>" segment - so routes register
-// the whole segment as a wildcard and every handler unwraps it with this
-// helper instead.
+// phpVersionFromSegment extracts the version from a "php<version>" URL path segment - Go's ServeMux only lets a wildcard span an entire segment, so routes register the whole segment as a wildcard and every handler unwraps it with this
 func phpVersionFromSegment(seg string) string {
 	return strings.TrimPrefix(seg, "php")
 }
 
-// phpVersionFromIniSegment extracts the version from a "php<version>.ini"
-// segment (e.g. "php8.2.ini" -> "8.2"), used by the
-// /php/{phpiniversion}/editor route.
+// phpVersionFromIniSegment extracts the version from a "php<version>.ini" segment, used by the /php/{phpiniversion}/editor route
 func phpVersionFromIniSegment(seg string) string {
 	return strings.TrimSuffix(phpVersionFromSegment(seg), ".ini")
 }
@@ -63,9 +54,7 @@ func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, 
 	_ = a.Sessions.Save(r, w, sess)
 }
 
-// checkPHPIniSyntax mirrors check_php_ini_syntax(): have the PHP CLI inside
-// the relevant container parse php.ini, returning the parse error string if
-// invalid, or "" if valid or unable to check (e.g. service not running).
+// checkPHPIniSyntax mirrors check_php_ini_syntax(): has the PHP CLI inside the relevant container parse php.ini, returning the parse error string if invalid, or "" if valid or unable to check
 func checkPHPIniSyntax(ctx context.Context, userContext, version string) string {
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	var container, iniPath string
@@ -92,23 +81,16 @@ func checkPHPIniSyntax(ctx context.Context, userContext, version string) string 
 	return strings.TrimSpace(stderr.String())
 }
 
-// domainConfVersionRE mirrors the `php-fpm-(\d+\.\d+)` search used by
-// get_php_v_for_domain() and php_version() to read the version straight out
-// of a domain's vhost config.
+// domainConfVersionRE mirrors the `php-fpm-(\d+\.\d+)` search used by get_php_v_for_domain() and php_version() to read the version straight out of a domain's vhost config
 var domainConfVersionRE = regexp.MustCompile(`php-fpm-(\d+\.\d+)`)
 
 var validDomainRE = regexp.MustCompile(`^[a-zA-Z0-9.-]+$`)
 var validContextRE = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 
-// litespeedTagVersionRE mirrors the `(\d)(\d)$` fallback used to derive a
-// PHP version from an OPENLITESPEED_VERSION/LITESPEED_VERSION tag (e.g.
-// "1.8.5-lsphp83" -> "8.3") when the container isn't running to ask directly.
+// litespeedTagVersionRE mirrors the `(\d)(\d)$` fallback used to derive a PHP version from an OPENLITESPEED_VERSION/LITESPEED_VERSION tag when the container isn't running to ask directly
 var litespeedTagVersionRE = regexp.MustCompile(`(\d)(\d)$`)
 
-// GetPHPVForDomain is the PHP version currently configured for domainURL,
-// read from its vhost file (PHP-FPM) or queried live from the running
-// container (LiteSpeed). Exported for other app-installer callers
-// (wordpress, websites) that need it too.
+// GetPHPVForDomain is the PHP version currently configured for domainURL, read from its vhost file (PHP-FPM) or queried live from the running container (LiteSpeed) - exported for other app-installer callers (wordpress, websites) too
 func GetPHPVForDomain(ctx context.Context, a *appctx.App, userContext, domainURL string) string {
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 
@@ -223,9 +205,7 @@ func computeFetchPHPVersions(ctx context.Context, userContext string) []string {
 	return versions
 }
 
-// sortVersionsDesc mirrors sorted(..., key=lambda x: tuple(map(int,
-// x.split('.'))), reverse=True): numeric major.minor comparison, not
-// lexical.
+// sortVersionsDesc mirrors sorted(..., key=lambda x: tuple(map(int, x.split('.'))), reverse=True): numeric major.minor comparison, not lexical
 func sortVersionsDesc(versions []string) {
 	less := func(a, b string) bool {
 		amaj, amin := parseMajorMinor(a)
@@ -252,8 +232,7 @@ func parseMajorMinor(v string) (int, int) {
 	return maj, min
 }
 
-// stopPHPServiceIfRunningAndUnused mirrors
-// stop_php_service_if_running_and_unused().
+// stopPHPServiceIfRunningAndUnused mirrors stop_php_service_if_running_and_unused()
 func stopPHPServiceIfRunningAndUnused(ctx context.Context, userContext, oldPHPVersion string) {
 	phpDefaultVersion := webserver.GetEnvFileValue(userContext, "DEFAULT_PHP_VERSION")
 	if oldPHPVersion == phpDefaultVersion {

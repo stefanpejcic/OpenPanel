@@ -13,17 +13,14 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// HealthIssue is a {id, severity, message} toast issue, rendered
-// client-side via reportHealthIssues().
+// HealthIssue is a {id, severity, message} toast issue, rendered client-side via reportHealthIssues()
 type HealthIssue struct {
 	ID       string `json:"id"`
 	Severity string `json:"severity"`
 	Message  string `json:"message"`
 }
 
-// handlePHPIniEditor edits the php.ini file for one PHP version (or, with
-// no version, just renders the version-picker form). versionSeg is "" for
-// the bare /php/php_ini_editor route.
+// handlePHPIniEditor edits the php.ini file for one PHP version, or just renders the version-picker form when versionSeg is "" (the bare /php/php_ini_editor route)
 func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, versionSeg string) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

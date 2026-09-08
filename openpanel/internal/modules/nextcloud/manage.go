@@ -21,10 +21,7 @@ var (
 	removeDBUserRE = regexp.MustCompile(`'dbuser'\s*=>\s*'([^']*)'`)
 )
 
-// handleRemoveNextcloud fully uninstalls a Nextcloud site: drops the
-// database and user (parsed out of config/config.php), deletes the whole
-// install directory, and removes the sites row. Mirrors
-// opencart/manage.go's handleRemoveOpenCart.
+// handleRemoveNextcloud fully uninstalls a Nextcloud site: drops the db/user parsed out of config/config.php, deletes the install dir, and removes the sites row - mirrors opencart/manage.go's handleRemoveOpenCart
 func handleRemoveNextcloud(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

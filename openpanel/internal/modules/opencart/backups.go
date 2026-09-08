@@ -18,16 +18,11 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors wordpress/backups.go's directory layout, naming and
-// restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,
-// files.tar.gz} structure under the user's html_data volume) - only the DB
-// name/prefix lookup differs, since OpenCart has no wp-cli equivalent to
-// ask for it: opencartDBInfoForBackup reads config.php directly instead.
+// mirrors wordpress/backups.go's layout and restore/run logic exactly, just with the DB name/prefix read from config.php instead of wp-cli
 
 var backupDBPrefixRE = regexp.MustCompile(`DB_PREFIX'\s*,\s*'([^']*)'`)
 
-// opencartDBInfoForBackup extends extractOpenCartDatabaseInfoForLogin
-// (database_name only) with the table prefix backup/restore also need.
+// opencartDBInfoForBackup extends extractOpenCartDatabaseInfoForLogin (database_name only) with the table prefix backup/restore also need
 func opencartDBInfoForBackup(userContext, docroot string) map[string]string {
 	info := extractOpenCartDatabaseInfoForLogin(userContext, docroot)
 	if info["error"] != "" {
@@ -53,8 +48,7 @@ type opencartBackupDateInfo struct {
 	HasFilesBackup bool   `json:"hasFilesBackup"`
 }
 
-// handleOpenCartGetBackupDates mirrors wordpress/backups.go's
-// handleGetBackupDates.
+// handleOpenCartGetBackupDates mirrors wordpress/backups.go's handleGetBackupDates
 func handleOpenCartGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
@@ -102,8 +96,7 @@ func handleOpenCartGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.
 
 var opencartBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// handleOpenCartRestoreBackup mirrors wordpress/backups.go's
-// handleRestoreBackup.
+// handleOpenCartRestoreBackup mirrors wordpress/backups.go's handleRestoreBackup
 func handleOpenCartRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")
@@ -210,7 +203,7 @@ func handleOpenCartRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.R
 	_, _ = w.Write([]byte("No files to restore, expected files: " + backupDatePathInContainer + "/files.tar.gz " + databaseSQLPathInContainer + "."))
 }
 
-// handleOpenCartRunBackup mirrors wordpress/backups.go's handleRunBackup.
+// handleOpenCartRunBackup mirrors wordpress/backups.go's handleRunBackup
 func handleOpenCartRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")

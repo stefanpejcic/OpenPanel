@@ -1,28 +1,6 @@
-// Package ojs installs and manages Open Journal Systems (OJS, pkp/ojs)
-// sites inside an existing domain's docroot, run in the domain's existing
-// php-fpm container - same overall shape as internal/modules/moodle.
-//
-// OJS ships no ready-made release tarball on GitHub itself: the repo uses
-// git submodules (lib/pkp, several plugins, ui-library) that a plain GitHub
-// archive/zip silently omits (confirmed: .gitmodules present at every
-// released tag), which would produce a broken install. The real
-// already-bundled release packages are hosted directly by PKP at
-// https://pkp.sfu.ca/ojs/download/ojs-{dotted-version}.tar.gz (see
-// version.go).
-//
-// Like Moodle, OJS needs its file-storage directory (submission uploads
-// etc.) to live outside the public web root - unlike Moodle, though, OJS
-// itself is *not* split into an approot+public/ pair; the release tarball's
-// top-level directory (after stripping the wrapper) is itself the full web
-// root (index.php, tools/, lib/, etc. all live there, same flat shape as
-// this codebase's joomla module). So this module still uses a Moodle-style
-// "app root" sibling directory + docroot symlink (not a flat "extract
-// straight into docroot" layout like Joomla) purely to give update.go an
-// atomic swap-and-rollback target (extract the new version into a fresh
-// sibling directory, then repoint the symlink - see update.go), with a
-// second, separate sibling directory ("_ojsfiles") for the files_dir OJS
-// installer prompts for, kept outside the docroot/approot tree entirely so
-// it's never web-accessible.
+// Package ojs installs and manages Open Journal Systems (OJS, pkp/ojs) sites inside an existing domain's docroot and php-fpm container - same overall shape as internal/modules/moodle
+// OJS ships no ready-made GitHub release tarball since the repo uses git submodules a plain archive/zip silently omits, so releases are pulled from https://pkp.sfu.ca/ojs/download/ instead (see version.go)
+// unlike Moodle's approot+public/ split, OJS's tarball root is itself the full web root - this module still uses a sibling app-root dir + docroot symlink anyway, just to give update.go an atomic swap-and-rollback target, plus a separate "_ojsfiles" sibling dir for files_dir kept outside the web-accessible tree
 package ojs
 
 import (
@@ -81,9 +59,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 
 const randomStringAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// generateRandomString generates a throwaway db name/user/password when
-// needed. Uses crypto/rand since results end up as real credentials (same
-// approach as every other CMS module's identical helper).
+// generateRandomString generates a throwaway db name/user/password, uses crypto/rand since results end up as real credentials
 func generateRandomString(length int) string {
 	b := make([]byte, length)
 	for i := range b {
@@ -93,8 +69,7 @@ func generateRandomString(length int) string {
 	return string(b)
 }
 
-// lockFilePath returns the per-user krompir.lock path shared with every
-// other "app install" module to serialize one install operation per user.
+// lockFilePath returns the per-user krompir.lock path shared with every other "app install" module to serialize one install operation per user
 func lockFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
 }
@@ -131,9 +106,7 @@ func lookupDomainByID(ctx context.Context, a *appctx.App, domainID string) (doma
 	return d, true, nil
 }
 
-// countUserWebsites counts the user's sites, capped at 1000 - duplicated
-// locally per established convention (every CMS module does this rather
-// than sharing across packages).
+// countUserWebsites counts the user's sites, capped at 1000 - duplicated locally per established convention rather than shared across packages
 func countUserWebsites(a *appctx.App, userID int) (int, error) {
 	rows, err := a.DB.Query(
 		"SELECT site_name FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000", userID)
@@ -155,21 +128,14 @@ func atoiDefault(s string, def int) int {
 	return def
 }
 
-// siteSlug turns a "domain.com/sub/dir"-style site name into a filesystem-
-// and cron-comment-safe token, used to name the approot/files sibling
-// directories and the cron job's unique comment.
+// siteSlug turns a "domain.com/sub/dir"-style site name into a filesystem- and cron-comment-safe token, used to name the approot/files sibling directories and the cron job's unique comment
 func siteSlug(selectedDomain string) string {
 	slug := strings.ReplaceAll(selectedDomain, "/", "_")
 	slug = strings.ReplaceAll(slug, ".", "_")
 	return slug
 }
 
-// ojsCronComment is the crons.ini comment used both by install.go's
-// crons.AddJob call and manage.go's crons.RemoveJobByComment call - it must
-// be derived identically in both places to actually find/remove the same
-// job later. Registers lib/pkp/tools/scheduler.php run, the documented way
-// to run OJS's scheduled tasks outside of its (discouraged for real
-// traffic) built-in end-of-request task runner.
+// ojsCronComment is the crons.ini comment shared by install.go's AddJob and manage.go's RemoveJobByComment calls - must be derived identically in both to find/remove the same job later
 func ojsCronComment(selectedDomain string) string {
 	return "ojs-" + siteSlug(selectedDomain)
 }

@@ -18,10 +18,7 @@ import (
 
 var phpVersionFormRE = regexp.MustCompile(`^\d+\.\d+$`)
 
-// domainConfDeclaredVersionRE extracts the PHP version declared in a
-// domain's vhost upstream line (`php-fpm-(\d+\.\d+):\d+`), distinct from
-// domainConfVersionRE (php.go) which matches the looser `php-fpm-(\d+\.\d+)`
-// against just the first line.
+// domainConfDeclaredVersionRE extracts the PHP version from a domain's vhost upstream line, distinct from domainConfVersionRE (php.go) which matches the looser pattern against just the first line
 var domainConfDeclaredVersionRE = regexp.MustCompile(`php-fpm-(\d+\.\d+):\d+`)
 
 // PHPDomainRow is one row of php/settings.html's table.
@@ -29,9 +26,7 @@ type PHPDomainRow struct {
 	DomainID   int
 	DomainURL  string
 	PHPVersion string
-	// Level is "unset" (php_version == "/"), "good", "secure", or
-	// "unsupported" - which 3-bar badge color settings.html renders.
-	Level string
+	Level string // "unset", "good", "secure", or "unsupported" - the 3-bar badge color settings.html renders
 }
 
 // PHPVersionCount is one entry of settings.html's summary counter row.
@@ -56,8 +51,7 @@ func classifyPHPVersionLevel(version string, data map[string]VersionInfo) (level
 	return "unsupported", "Unsupported"
 }
 
-// handlePHPDomains renders the per-domain PHP version table and handles
-// the version-switch POST from it.
+// handlePHPDomains renders the per-domain PHP version table and handles the version-switch POST from it
 func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -169,10 +163,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderPHPSettingsPage(a, w, r, rows, counts, outdated, installedVersions)
 }
 
-// buildPHPDomainRows resolves each domain's PHP version by reading its
-// vhost config and matching the php-fpm-X.Y:port upstream line, falling
-// back to "/" when none is found, and tallies per-version counts plus the
-// number of domains on an outdated (unsupported) version.
+// buildPHPDomainRows resolves each domain's PHP version from its vhost config's php-fpm-X.Y:port upstream line (falling back to "/"), and tallies per-version counts plus the number of domains on an outdated version
 func buildPHPDomainRows(userContext string, domainsList []appctx.Domain, phpVersionsData map[string]VersionInfo) (rows []PHPDomainRow, counts []PHPVersionCount, outdatedDomains int) {
 	countIndex := map[string]int{}
 

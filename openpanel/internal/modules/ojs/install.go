@@ -23,8 +23,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// handleInstallPage renders the install form / checks the plan's site
-// limit for a GET, and hands POST off to handleInstallStream.
+// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -62,9 +61,7 @@ func formOr(r *http.Request, key, def string) string {
 	return def
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up (mirrors every other CMS module's
-// identical helper).
+// ensureContainerRunning starts the container if it isn't already running and polls briefly for it to come up, mirrors every other CMS module's identical helper
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -80,11 +77,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// unpackOJSArchive extracts PKP's packaged tarball (a single top-level
-// "ojs-{dotted-version}/" directory containing index.php, tools/, lib/,
-// public/, etc. directly at its root - confirmed live against the 3.5.0-5
-// release tarball) directly into destDir, stripping that wrapper directory
-// so destDir itself becomes the OJS app root/web root.
+// unpackOJSArchive extracts PKP's packaged tarball into destDir, stripping the top-level "ojs-{version}/" wrapper so destDir itself becomes the app root/web root
 func unpackOJSArchive(ctx context.Context, archivePath, destDir string) error {
 	if err := os.MkdirAll(destDir, 0o755); err != nil {
 		return err
@@ -105,14 +98,7 @@ type execError struct {
 func (e *execError) Error() string { return e.msg }
 func (e *execError) Unwrap() error { return e.err }
 
-// buildOJSInstallAnswers builds the newline-joined stdin block
-// tools/install.php's OJSInstallTool::readParams() (which wraps
-// PKP\cliTool\InstallTool::readParams()) expects, in the exact order it
-// prompts for them - confirmed by reading
-// lib/pkp/classes/cliTool/InstallTool.php and tools/install.php directly:
-// there is no --flag CLI form the way Moodle/WordPress's installers have,
-// only interactive stdin prompts, and (confirmed) no timeZone prompt exists
-// in this CLI path even though the web install form has one.
+// buildOJSInstallAnswers builds the newline-joined stdin block tools/install.php expects, in prompt order - there's no --flag CLI form like Moodle/WordPress's installers, only interactive stdin, and no timeZone prompt exists here even though the web form has one
 func buildOJSInstallAnswers(filesDirContainerPath, adminUsername, adminPassword, adminEmail, dbHost, dbUser, dbPassword, dbName, oaiRepositoryID string) string {
 	lines := []string{
 		"en",                     // locale
@@ -134,11 +120,7 @@ func buildOJSInstallAnswers(filesDirContainerPath, adminUsername, adminPassword,
 	return strings.Join(lines, "\n") + "\n"
 }
 
-// runOJSInstaller execs tools/install.php inside phpContainer, feeding it
-// buildOJSInstallAnswers' stdin block. Needs "-i" on the podman exec (not
-// just "exec ... php ...") so stdin is actually piped into the container
-// process - the same flag backups.go already relies on for the mysql
-// import's `podman exec -i`.
+// runOJSInstaller execs tools/install.php inside phpContainer, feeding it buildOJSInstallAnswers' stdin block - needs "-i" on podman exec so stdin actually pipes into the container, same as backups.go's mysql import
 func runOJSInstaller(ctx context.Context, userContext, phpContainer, approotContainerPath, answers string) (string, error) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", "-i", phpContainer, "php", approotContainerPath+"/tools/install.php")
 	cmd := podmanmanager.Command(ctx, userContext, argv)
@@ -147,16 +129,7 @@ func runOJSInstaller(ctx context.Context, userContext, phpContainer, approotCont
 	return string(out), err
 }
 
-// fixUpOJSConfig rewrites base_url and time_zone in the freshly-installed
-// config.inc.php. Both are left wrong/blank by tools/install.php when run
-// non-interactively: PKPInstall::updateConfig() sets base_url from
-// $request->getBaseUrl() (there is no real HTTP request in a CLI process,
-// so this resolves to something useless) and time_zone from
-// $this->getParam('timeZone') (a param InstallTool::readParams() never
-// actually prompts for on the CLI path, so it's always empty) - confirmed
-// by reading lib/pkp/classes/install/PKPInstall.php directly. Both matter:
-// base_url drives every URL OJS itself generates, and an empty time_zone
-// leaves PHP's timezone unset.
+// fixUpOJSConfig rewrites base_url and time_zone in the freshly-installed config.inc.php - both are left wrong/blank by tools/install.php when run non-interactively (base_url has no real HTTP request to derive from, timeZone is never prompted for on the CLI path)
 func fixUpOJSConfig(configPath, selectedDomain string) error {
 	content, err := os.ReadFile(configPath)
 	if err != nil {
@@ -165,29 +138,12 @@ func fixUpOJSConfig(configPath, selectedDomain string) error {
 	text := string(content)
 	text = iniBaseURLRE.ReplaceAllString(text, iniQuoted("base_url", "https://"+selectedDomain))
 	text = iniTimeZoneRE.ReplaceAllString(text, iniQuoted("time_zone", "UTC"))
-	// The CLI installer (unlike the web form, which collects a real
-	// hostname list) always writes allowed_hosts as a JSON array containing
-	// one empty string (`["";]`) - AllowedHostsPolicy treats any non-""
-	// value here as "restrict access to exactly these hosts" (see
-	// lib/pkp/classes/security/authorization/AllowedHostsPolicy.php's
-	// applies()/effect()), so a CLI install locks itself out of its own
-	// site with "400 Server host not allowed" unless this is reset back to
-	// the template's actual empty-string default (confirmed live).
+	// the CLI installer always writes allowed_hosts non-empty, which locks the site out with "400 Server host not allowed" unless reset back to the empty-string default
 	text = iniAllowedHostsRE.ReplaceAllString(text, iniQuoted("allowed_hosts", ""))
 	return os.WriteFile(configPath, []byte(text), 0o644)
 }
 
-// handleInstallStream drives an OJS install end to end, streaming NDJSON
-// progress events: download the packaged tarball from pkp.sfu.ca, extract
-// it into a sibling "app root" directory (see ojs.go's package doc comment
-// for why), symlink the domain's docroot to it, create a separate sibling
-// "files" directory outside the docroot for OJS's file storage, create a
-// MySQL database, run OJS's own `tools/install.php` non-interactively (via
-// piped stdin - see buildOJSInstallAnswers), fix up base_url/time_zone,
-// deploy the autologin helper PHP file, and register a per-minute
-// lib/pkp/tools/scheduler.php cron job (OJS's documented way to run
-// scheduled tasks in production instead of its discouraged built-in
-// end-of-request task runner).
+// handleInstallStream drives an OJS install end to end over NDJSON: download the tarball, extract into a sibling app-root dir (see ojs.go), symlink docroot to it, create a sibling files dir, create the DB, run tools/install.php via piped stdin, fix up base_url/time_zone, deploy the autologin helper, and register the per-minute scheduler.php cron job
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -345,12 +301,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Host-side chown, not `podman exec ... chown` - the archive was
-	// extracted host-side, so the files are owned by this process's own
-	// (real, unmapped) UID, and a rootless container's own "root" cannot
-	// chown files it doesn't already own outside its own user-namespace UID
-	// range (same gotcha documented in moodle/install.go and
-	// joomla/install.go, both fixed the same way).
+	// host-side chown, not podman exec chown - a rootless container's root can't chown files outside its UID mapping, same gotcha as moodle/joomla install.go
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr != nil {
@@ -365,11 +316,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	emit(map[string]any{"status": "Linking web root to OJS app directory"})
 	_ = os.Remove(hostOSPath)
-	// The symlink target must be the container-visible path
-	// (/var/www/html/...), not approotHostPath's host filesystem path - the
-	// symlink is created host-side but read by the php-fpm container, which
-	// only sees its own /var/www/html/ bind mount (same gotcha documented
-	// live in moodle/install.go's identical symlink call).
+	// the symlink target must be the container-visible path, not the host filesystem path, since php-fpm only sees its own /var/www/html/ bind mount - same gotcha as moodle/install.go
 	if symErr := os.Symlink(approotContainerPath, hostOSPath); symErr != nil {
 		emit(map[string]any{"error": "Error creating web root symlink: " + symErr.Error()})
 		_ = os.RemoveAll(approotHostPath)
@@ -413,12 +360,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 	invalidateMySQLCaches(ctx, a, userContext, currentUsername)
 
-	// OJS's Composer platform check fails hard (before install.php even
-	// reads its stdin answers) if the "ftp" PHP extension isn't present -
-	// confirmed live against a real php-fpm-8.5 image that didn't ship it.
-	// Installing it here, right before the CLI installer runs, means the
-	// install form doesn't need its own "missing extension" precheck/error
-	// path - it just self-heals on first install.
+	// OJS's Composer platform check fails hard if the "ftp" PHP extension isn't present, so install it here rather than adding a precheck/error path to the form
 	emit(map[string]any{"status": "Ensuring PHP 'ftp' extension is installed"})
 	if extErr := php.EnsureExtensionInstalled(ctx, userContext, phpContainer, "ftp"); extErr != nil {
 		emit(map[string]any{"error": "Could not install required PHP extension 'ftp': " + extErr.Error()})
@@ -477,9 +419,7 @@ func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, curr
 	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
 }
 
-// emitCleanupFiles removes a failed install's docroot symlink and its
-// backing approot/files directories - always safe since install.go just
-// created all three.
+// emitCleanupFiles removes a failed install's docroot symlink and its backing approot/files directories, always safe since install.go just created all three
 func emitCleanupFiles(hostOSPath, approotHostPath, filesHostPath string, emit func(map[string]any)) {
 	_ = os.Remove(hostOSPath)
 	_ = os.RemoveAll(approotHostPath)

@@ -14,13 +14,7 @@ import (
 
 var maintenancePrefixRE = regexp.MustCompile(`DB_PREFIX'\s*,\s*'([^']*)'`)
 
-// handleOpenCartMaintenance reads (GET) or toggles (POST, action=enable|
-// disable) OpenCart's built-in "Maintenance Mode" store setting
-// (config_maintenance in `{prefix}setting`, store_id 0) - the same flag
-// OpenCart's own admin Design > Design settings page writes, which its
-// front controller already checks on every storefront request. Mirrors
-// prestashop/maintenance.go's DB-flag approach (OpenCart has no CLI tool
-// like drush/occ to shell out to).
+// handleOpenCartMaintenance reads (GET) or toggles (POST) the config_maintenance flag in {prefix}setting, the same one OpenCart's admin Design settings page writes - mirrors prestashop/maintenance.go's DB-flag approach since OpenCart has no CLI tool like drush/occ
 func handleOpenCartMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

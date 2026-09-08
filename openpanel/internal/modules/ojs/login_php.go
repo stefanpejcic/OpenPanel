@@ -1,24 +1,9 @@
 package ojs
 
-// openpanelLoginFileName is the login helper's filename inside the OJS
-// approot - deployed once at install time (install.go) and read by
-// handleOJSLogin (login.go) to build the link the browser opens.
+// openpanelLoginFileName is the login helper's filename inside the OJS approot, deployed at install time (install.go) and read by handleOJSLogin (login.go)
 const openpanelLoginFileName = "openpanel-login.php"
 
-// openpanelLoginPHP mirrors joomla/login_php.go's technique: OJS core (like
-// Joomla) ships no CLI equivalent of Drupal's `drush user:login`/WP-CLI's
-// `wp login create`, so a one-time login has to happen through an actual
-// bootstrapped OJS application object. Unlike Joomla though, OJS's own
-// index.php bootstrap ('./lib/pkp/includes/bootstrap.php', which
-// constructs \APP\core\Application() - see install.go's fixUpOJSConfig
-// comment and the package doc comment for how that was confirmed by
-// reading PKPApplication's constructor) initializes everything a normal
-// request needs (Laravel container, session guard, DB) on its own, with no
-// separate "administrator" sub-application the way Joomla has - so this is
-// simpler than Joomla's version: no Session/User class aliasing dance, just
-// Application::get()->getRequest() and PKP\security\Validation's own
-// registerUserSession() helper, which does exactly what a normal
-// Validation::login() call does short of checking the password.
+// openpanelLoginPHP mirrors joomla/login_php.go's technique, but simpler: OJS's own bootstrap sets up everything a normal request needs on its own, so this just calls Application::get()->getRequest() and PKP\security\Validation::registerUserSession()
 const openpanelLoginPHP = `<?php
 /**
  * OpenPanel one-time admin login handler.

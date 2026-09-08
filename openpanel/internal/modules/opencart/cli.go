@@ -14,11 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// openCartRequestParams pulls the domain/docroot query params every
-// handler in this file needs, splits the main domain out of a possible
-// subdirectory suffix, verifies ownership, and resolves the PHP container -
-// shared by cache/logs/login, mirroring drupal/drush.go's
-// drushRequestParams and joomla/cli.go's joomlaRequestParams.
+// openCartRequestParams pulls domain/docroot, splits off any subdirectory suffix, checks ownership, and resolves the PHP container - shared by cache/logs/login, mirrors drupal/drush.go's drushRequestParams and joomla/cli.go's joomlaRequestParams
 func openCartRequestParams(ctx context.Context, a *appctx.App, r *http.Request, userID int, userContext string) (domain, docroot, phpContainer string, ok bool) {
 	domain = r.URL.Query().Get("domain")
 	docroot = r.URL.Query().Get("docroot")
@@ -43,9 +39,7 @@ func openCartRequestParams(ctx context.Context, a *appctx.App, r *http.Request, 
 	return domain, docroot, phpContainer, true
 }
 
-// handleOpenCartCacheClean deletes every cache.* file under
-// system/storage/cache/ - OpenCart has no CLI cache-clear command, this is
-// exactly what the admin "Refresh Cache" tool button does under the hood.
+// handleOpenCartCacheClean deletes every cache.* file under system/storage/cache/ - OpenCart has no CLI cache-clear command, this is what the admin "Refresh Cache" button does under the hood
 func handleOpenCartCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -72,8 +66,7 @@ func handleOpenCartCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	writeJSON(w, http.StatusOK, map[string]string{"message": "Cache cleared successfully."})
 }
 
-// handleOpenCartLogs returns the tail of system/storage/logs/error.log -
-// the single file OpenCart logs PHP warnings/errors and admin activity to.
+// handleOpenCartLogs returns the tail of system/storage/logs/error.log, the single file OpenCart logs PHP warnings/errors and admin activity to
 func handleOpenCartLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)
@@ -104,14 +97,7 @@ func handleOpenCartLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(out)
 }
 
-// handleOpenCartLogin generates a one-time admin login link. Like Joomla,
-// OpenCart core ships no CLI command for this, so this mirrors that
-// module's approach: a small token table (created here lazily, isolated
-// from OpenCart's own schema) plus a login helper PHP file deployed into
-// the docroot at install time (see openpanel-login.php below) that
-// verifies the token then binds an admin user to the OpenCart session
-// through the CMS's own Session library, exactly the way
-// admin/controller/common/login.php does after a real password check.
+// handleOpenCartLogin generates a one-time admin login link, mirrors joomla's approach with a lazily-created token table plus the login helper PHP deployed at install time
 func handleOpenCartLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

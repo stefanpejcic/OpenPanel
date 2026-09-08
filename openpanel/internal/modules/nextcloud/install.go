@@ -21,8 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// handleInstallPage renders the install form / checks the plan's site
-// limit for a GET, and hands POST off to handleInstallStream.
+// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -60,9 +59,7 @@ func formOr(r *http.Request, key, def string) string {
 	return def
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up (mirrors joomla/drupal/opencart's
-// identical helper).
+// ensureContainerRunning starts the container if it isn't already running and polls briefly for it to come up, mirrors joomla/drupal/opencart's identical helper
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -78,10 +75,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// unpackNextcloudArchive extracts the zip's single `nextcloud/` wrapper
-// folder directly into destDir, flattened (nextcloud/index.php ->
-// destDir/index.php, not destDir/nextcloud/index.php) - same shape as
-// opencart's unpackOpenCartArchive, just a different inner folder name.
+// unpackNextcloudArchive extracts the zip's nextcloud/ wrapper folder flattened directly into destDir, same shape as opencart's unpackOpenCartArchive with a different inner folder name
 func unpackNextcloudArchive(ctx context.Context, archivePath, destDir string) error {
 	tmpDir := destDir + ".extract-tmp"
 	script := `set -e
@@ -112,15 +106,7 @@ type execError struct {
 func (e *execError) Error() string { return e.msg }
 func (e *execError) Unwrap() error { return e.err }
 
-// handleInstallStream drives a Nextcloud install end to end, streaming
-// NDJSON progress events: download the release archive from
-// download.nextcloud.com, extract its nextcloud/ wrapper directly into the
-// docroot, create a MySQL database, then run Nextcloud's own
-// `occ maintenance:install` CLI installer (occ-based, unlike
-// Joomla/OpenCart's web-form CLI installers - confirmed live against a
-// real Nextcloud 34 release). trusted_domains MUST be set afterward or the
-// site 400s with "Access through untrusted domain" - confirmed live, this
-// is not optional the way it would be for the other CMS modules.
+// handleInstallStream drives a Nextcloud install end to end over NDJSON: download, extract, create the DB, then run occ maintenance:install (unlike Joomla/OpenCart's web-form installers) - trusted_domains must be set afterward or the site 400s with "Access through untrusted domain"
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -256,13 +242,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Host-side chown, not `podman exec ... chown` - the archive was
-	// extracted host-side, so the files are owned by this process's own
-	// (real, unmapped) UID. A rootless container's own "root" is confined
-	// to its user-namespace's UID range and cannot chown files it doesn't
-	// already own outside that mapping (confirmed live while building the
-	// Joomla module: that silently failed with "Operation not permitted",
-	// leaving the docroot unwritable by the container's PHP process).
+	// host-side chown, not podman exec chown - a rootless container's root can't chown files outside its UID mapping (silently failed with "Operation not permitted" when building Joomla)
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr != nil {
@@ -334,11 +314,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Configuring trusted domain and site URL"})
-	// trusted_domains is matched against the request Host header only, never
-	// the path - confirmed live: setting it to selectedDomain (which
-	// includes the /<subdirectory> suffix for subdirectory installs) never
-	// matches any real Host header, so the site 400s with "Access through
-	// untrusted domain" forever. Must be the bare domain.
+	// trusted_domains matches only the Host header, never the path, so it must be the bare domain - the /<subdirectory> suffix never matches a real Host header
 	trustedArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "php"),
 		installPath+"/occ", "config:system:set", "trusted_domains", "1", "--value="+dom.DomainURL)
 	if _, tErr := podmanmanager.Command(ctx, userContext, trustedArgv).CombinedOutput(); tErr != nil {
@@ -373,9 +349,7 @@ func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, curr
 	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
 }
 
-// emitCleanupFiles removes a failed install's partially-created directory -
-// like joomla/opencart's identical helper, always safe to blow away
-// entirely since it's always a directory install.go just created.
+// emitCleanupFiles removes a failed install's partially-created directory, always safe since it's a directory install.go just created
 func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)
 	if err := podmanmanager.Command(ctx, userContext, argv).Run(); err != nil {

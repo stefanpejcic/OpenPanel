@@ -9,10 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// Register wires the Nextcloud install/remove/manage routes onto mux,
-// gated behind the "nextcloud" feature flag. No list page (matches
-// drupal/joomla/opencart's scope: manage via the general Site Manager
-// instead).
+// Register wires the Nextcloud install/remove/manage routes onto mux, gated behind the "nextcloud" feature flag - no list page, matches drupal/joomla/opencart, managed via the general Site Manager instead
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "nextcloud")(h)
@@ -31,10 +28,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /nextcloud/update", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleNextcloudUpdate(a, w, r) }))
 }
 
-// withNextcloudForm clones r as a POST carrying the given values as both
-// Form and PostForm, so a UI handler that reads r.FormValue(...) sees
-// exactly the fields the API's JSON body supplied - same pattern used by
-// opencart/register.go's withOpenCartForm.
+// withNextcloudForm clones r as a POST carrying values as both Form and PostForm so r.FormValue reads the API's JSON body fields, same pattern as opencart/register.go's withOpenCartForm
 func withNextcloudForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost

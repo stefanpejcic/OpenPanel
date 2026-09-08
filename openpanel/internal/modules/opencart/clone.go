@@ -12,26 +12,9 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 )
 
-// This file mirrors wordpress/manage.go's handleCloneWordPress in overall
-// shape (site-limit check, file copy, DB create+dump-pipe, config
-// rewrite, sites-table insert), sharing everything but the docroot copy
-// and config-rewrite steps with every other CMS's clone.go via
-// internal/core/cmsclone - see that package's doc comment for why those
-// two steps stay local. OpenCart hardcodes its own URL and filesystem path
-// in TWO files - confirmed live against a real installed OpenCart's
-// config.php and admin/config.php: both only need HTTP_SERVER (+ admin's
-// HTTP_CATALOG) and DIR_OPENCART rewritten - every other DIR_* constant
-// derives from DIR_OPENCART via string concatenation in the file itself,
-// so fixing that one constant fixes all of them. `oc_setting` has no
-// url-related key stored (config_url/config_ssl are absent on a stock
-// install; confirmed via a live SELECT), so no DB-side URL fix is needed
-// the way PrestaShop's ps_shop_url needs one.
-//
-// cmsclone.ValidDocroot accepts the real "/var/www/html/..." absolute-path
-// form .Docroot actually uses everywhere else in this codebase -
-// WordPress's own validateDocroot() rejects any leading "/", which would
-// reject its own clone form's real source_folder value. Not replicating
-// that bug here.
+// mirrors wordpress/manage.go's handleCloneWordPress in shape (file copy, DB create+dump, config rewrite, sites insert), sharing everything but docroot copy and config rewrite with every other CMS via internal/core/cmsclone
+// OpenCart hardcodes its URL and filesystem path in two files, config.php and admin/config.php - only HTTP_SERVER/HTTP_CATALOG and DIR_OPENCART need rewriting since every other DIR_* constant derives from DIR_OPENCART, and oc_setting stores no url-related key so no DB-side fix is needed
+// cmsclone.ValidDocroot accepts the real absolute "/var/www/html/..." form used everywhere here, unlike wordpress's own validateDocroot which would reject it
 
 var (
 	cloneOCHTTPServerRE  = regexp.MustCompile(`define\('HTTP_SERVER',\s*'.*?'\);`)
@@ -166,7 +149,7 @@ func handleOpenCartClone(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	adminEmail := formOr(r, "admin_email", "admin@"+dstDomain)
 	openCartVersion := formOr(r, "opencart_version", "latest")
-	// Rewrites hardcoded source-domain URLs left in page/content body text (the config-file rewrite above only fixes the DB connection settings, not application data) - the generic equivalent of wp-cli's search-replace, which this CMS's own CLI has no built-in version of.
+	// rewrites hardcoded source-domain URLs left in content body text, the generic equivalent of wp-cli's search-replace which OpenCart's CLI lacks
 	cmsclone.SearchReplaceDatabase(ctx, userContext, dstDB, "https://"+providedDomain, "https://"+dstDomainWithSubdir)
 
 	cmsclone.FinalizeSite(ctx, w, r, cmsclone.FinalizeParams{

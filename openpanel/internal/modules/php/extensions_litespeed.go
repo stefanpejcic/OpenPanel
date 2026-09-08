@@ -14,19 +14,7 @@ import (
 
 // ----------------------------
 // LiteSpeed/OpenLiteSpeed PHP extensions.
-//
-// Unlike the php-fpm images (one container per PHP version, extensions
-// installed via docker-php-extension-installer's `phpaddmod`), a single
-// "openlitespeed"/"litespeed" container serves every PHP version, and
-// extensions are plain Debian packages from litespeedtech's apt repo, named
-// "lsphp<major><minor>-<extension>" (e.g. "lsphp83-redis"). Installing one
-// drops its .ini straight into
-// /usr/local/lsws/lsphp<ver>/etc/php/<version>/mods-available - which is
-// *also* the interpreter's ini scan directory (`php --ini`), so there's no
-// separate mods-enabled/conf.d tier to symlink into: presence of the .ini
-// there is exactly "enabled". Disabling mirrors the php-fpm convention of
-// renaming to "*.ini.disabled" so the shared toggle UI/state model still
-// applies.
+// Unlike php-fpm's one-container-per-version setup, a single "openlitespeed"/"litespeed" container serves every PHP version, and extensions are Debian packages from litespeedtech's apt repo ("lsphp<major><minor>-<extension>") whose .ini lands directly in the interpreter's scan directory - so disabling mirrors the php-fpm ".ini.disabled" rename convention to keep the same toggle UI/state model.
 // ----------------------------
 
 // litespeedVersionDir is e.g. "8.3" -> "lsphp83".
@@ -45,9 +33,7 @@ func litespeedConfDir(version string) string {
 	return "/usr/local/lsws/" + litespeedVersionDir(version) + "/etc/php/" + version + "/mods-available"
 }
 
-// litespeedExcludedPackages are lsphp<ver>-* packages that aren't
-// standalone extensions (build/debug/meta packages, or ones needing manual
-// license acceptance) and shouldn't be offered for install.
+// litespeedExcludedPackages are lsphp<ver>-* packages that aren't standalone extensions (build/debug/meta, or needing manual license acceptance) and shouldn't be offered for install
 var litespeedExcludedPackages = map[string]bool{
 	"common":         true,
 	"dev":            true,
@@ -57,18 +43,12 @@ var litespeedExcludedPackages = map[string]bool{
 	"ioncube":        true,
 }
 
-// litespeedExtensionAliases maps a package/extension name to the set of
-// ini basenames it may install, for packages whose ini file(s) don't share
-// the package's name (e.g. package "mysql" ships "mysqli.ini" and
-// "pdo_mysql.ini", not "mysql.ini").
+// litespeedExtensionAliases maps a package/extension name to the ini basenames it may install, for packages whose ini files don't share the package's name (e.g. "mysql" ships "mysqli.ini" and "pdo_mysql.ini")
 var litespeedExtensionAliases = map[string][]string{
 	"mysql": {"mysql", "mysqli", "pdo_mysql"},
 }
 
-// litespeedExtensionMatchNames returns the ini basenames that belong to
-// extension/package "name" - its own name, a "pdo_"-prefixed variant (most
-// database-driver packages also ship a same-named PDO driver ini), and any
-// explicit alias.
+// litespeedExtensionMatchNames returns the ini basenames that belong to extension/package "name" - its own name, a "pdo_"-prefixed variant, and any explicit alias
 func litespeedExtensionMatchNames(name string) []string {
 	lname := strings.ToLower(name)
 	if aliases, ok := litespeedExtensionAliases[lname]; ok {
@@ -79,19 +59,14 @@ func litespeedExtensionMatchNames(name string) []string {
 
 var litespeedIniPriorityPrefixRE = regexp.MustCompile(`^\d+-`)
 
-// litespeedIniBaseName strips a package's numeric load-priority prefix
-// (e.g. "50-redis.ini" -> "redis") and the .ini/.ini.disabled suffix from a
-// mods-available filename.
+// litespeedIniBaseName strips a package's numeric load-priority prefix (e.g. "50-redis.ini" -> "redis") and the .ini/.ini.disabled suffix from a mods-available filename
 func litespeedIniBaseName(fname string) string {
 	base := strings.TrimSuffix(strings.TrimSuffix(fname, ".disabled"), ".ini")
 	base = litespeedIniPriorityPrefixRE.ReplaceAllString(base, "")
 	return strings.ToLower(base)
 }
 
-// litespeedExtensionsSupportedForVersion lists the extension packages
-// litespeedtech's apt repo offers for this PHP version (queried live from
-// the container's local apt cache - no network round trip, so unlike the
-// php-fpm catalog this isn't file-cached).
+// litespeedExtensionsSupportedForVersion lists the extension packages litespeedtech's apt repo offers for this PHP version, queried live from the container's local apt cache so unlike the php-fpm catalog this isn't file-cached
 func litespeedExtensionsSupportedForVersion(ctx context.Context, userContext, container, version string) []string {
 	prefix := litespeedPackagePrefix(version)
 	argv := podmanmanager.PodmanArgv(userContext, "exec", container, "apt-cache", "pkgnames", prefix)
@@ -118,8 +93,7 @@ func litespeedExtensionsSupportedForVersion(ctx context.Context, userContext, co
 	return names
 }
 
-// getLitespeedInstalledPackages returns the (lowercased, prefix-stripped)
-// set of lsphp<ver>-* packages currently installed via dpkg.
+// getLitespeedInstalledPackages returns the lowercased, prefix-stripped set of lsphp<ver>-* packages currently installed via dpkg
 func getLitespeedInstalledPackages(ctx context.Context, userContext, container, version string) map[string]bool {
 	prefix := litespeedPackagePrefix(version)
 	argv := podmanmanager.PodmanArgv(userContext, "exec", container, "sh", "-c",
@@ -142,9 +116,7 @@ func getLitespeedInstalledPackages(ctx context.Context, userContext, container, 
 	return installed
 }
 
-// getLitespeedExtensionsState lists the mods-available directory once and
-// returns, by ini basename, which are enabled (a bare ".ini") and which are
-// disabled (renamed to ".ini.disabled").
+// getLitespeedExtensionsState lists the mods-available directory once and returns, by ini basename, which are enabled (a bare ".ini") and which are disabled (renamed to ".ini.disabled")
 func getLitespeedExtensionsState(ctx context.Context, userContext, container, version string) (enabled, disabled map[string]bool) {
 	enabled = map[string]bool{}
 	disabled = map[string]bool{}
@@ -164,9 +136,7 @@ func getLitespeedExtensionsState(ctx context.Context, userContext, container, ve
 	return enabled, disabled
 }
 
-// litespeedExtensionState resolves one extension's row state from the
-// installed-package set and the enabled/disabled ini basename sets built
-// above.
+// litespeedExtensionState resolves one extension's row state from the installed-package set and the enabled/disabled ini basename sets built above
 func litespeedExtensionState(name string, installed, enabledBase, disabledBase map[string]bool) string {
 	hasEnabled, hasDisabled := false, false
 	for _, m := range litespeedExtensionMatchNames(name) {
@@ -183,8 +153,7 @@ func litespeedExtensionState(name string, installed, enabledBase, disabledBase m
 	case hasDisabled:
 		return "disabled"
 	case installed[strings.ToLower(name)]:
-		// Package installed but no matching ini found (unexpected) - assume
-		// it's loaded rather than silently hiding it as "not installed".
+		// package installed but no matching ini found - assume it's loaded rather than hiding it as "not installed"
 		return "active"
 	default:
 		return "not_installed"
@@ -204,8 +173,7 @@ func litespeedExtensionRows(ctx context.Context, userContext, container, version
 	return rows
 }
 
-// toggleLitespeedExtension enables or disables an already-installed
-// extension by renaming its owned ini file(s) to/from a ".disabled" suffix.
+// toggleLitespeedExtension enables or disables an already-installed extension by renaming its owned ini file(s) to/from a ".disabled" suffix
 func toggleLitespeedExtension(ctx context.Context, userContext, container, version, extension string, enable bool) (ok bool, errMessage string) {
 	confDir := litespeedConfDir(version)
 	argv := podmanmanager.PodmanArgv(userContext, "exec", container, "sh", "-c", "ls -1 "+confDir+"/ 2>/dev/null")
@@ -258,11 +226,7 @@ func toggleLitespeedExtension(ctx context.Context, userContext, container, versi
 	return true, ""
 }
 
-// litespeedRunningPHPVersion asks the container's default `php` binary
-// (symlinked to whichever lsphp version is currently active) for its
-// major.minor version, needed to build mods-available paths since - unlike
-// php-fpm's one-container-per-version - a single LiteSpeed container can
-// only run one PHP version at a time.
+// litespeedRunningPHPVersion asks the container's default `php` binary for its major.minor version, needed to build mods-available paths since a single LiteSpeed container can only run one PHP version at a time
 func litespeedRunningPHPVersion(ctx context.Context, userContext, container string) string {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", container, "php", "-r", "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;")
 	out, err := runShort(ctx, userContext, argv)
@@ -272,10 +236,7 @@ func litespeedRunningPHPVersion(ctx context.Context, userContext, container stri
 	return strings.TrimSpace(out)
 }
 
-// installLitespeedExtensionsArgv builds the argv for a blocking
-// `apt-get install` of one or more extension packages inside the LiteSpeed
-// container, refreshing the apt index first since the base image's index
-// may be stale.
+// installLitespeedExtensionsArgv builds the argv for a blocking apt-get install of one or more extension packages, refreshing the apt index first since the base image's index may be stale
 func installLitespeedExtensionsArgv(userContext, container, version string, extensions []string) []string {
 	prefix := litespeedPackagePrefix(version)
 	pkgs := make([]string, len(extensions))
@@ -286,8 +247,7 @@ func installLitespeedExtensionsArgv(userContext, container, version string, exte
 	return podmanmanager.PodmanArgv(userContext, "exec", container, "sh", "-c", shCmd)
 }
 
-// ensureLitespeedExtensionInstalled is EnsureExtensionInstalled's LiteSpeed
-// counterpart - see that function's doc comment for the three cases.
+// ensureLitespeedExtensionInstalled is EnsureExtensionInstalled's LiteSpeed counterpart, see that function's doc comment for the three cases
 func ensureLitespeedExtensionInstalled(ctx context.Context, userContext, container, extension string) error {
 	version := litespeedRunningPHPVersion(ctx, userContext, container)
 	if version == "" {

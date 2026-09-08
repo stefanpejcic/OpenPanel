@@ -14,10 +14,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiInstallOpenCart delegates straight to handleInstallPage (which itself
-// calls handleInstallStream on POST): same site-limit check, same NDJSON
-// progress stream written directly to the response - just fed from the
-// API's JSON body instead of a UI form post.
+// apiInstallOpenCart delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
 func apiInstallOpenCart(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID        string `json:"domain_id"`
@@ -48,9 +45,7 @@ func apiInstallOpenCart(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleInstallPage(a, w, withOpenCartForm(r, form))
 }
 
-// apiRemoveOpenCart delegates to handleRemoveOpenCart with the path's
-// {site_id} translated into the "id" form field it expects, and
-// output=json forced so it returns JSON instead of a flash-and-redirect.
+// apiRemoveOpenCart delegates to handleRemoveOpenCart with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemoveOpenCart(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withOpenCartForm(r, url.Values{"id": {siteID}})
@@ -60,10 +55,7 @@ func apiRemoveOpenCart(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleRemoveOpenCart(a, w, cloned)
 }
 
-// resolveOpenCartSiteID looks up the path's {site_id} the same way
-// apiRemoveOpenCart (via handleRemoveOpenCart) and manage.go's own "id"
-// lookup do, returning the site's full site_name (domain[/subdirectory])
-// and docroot.
+// resolveOpenCartSiteID looks up the path's {site_id} the same way apiRemoveOpenCart and manage.go's own "id" lookup do, returning the site's full site_name and docroot
 func resolveOpenCartSiteID(a *appctx.App, r *http.Request, siteID string) (siteName, docroot string, ok bool) {
 	row := a.DB.QueryRowContext(r.Context(), `
 		SELECT sites.site_name, domains.docroot
@@ -76,11 +68,7 @@ func resolveOpenCartSiteID(a *appctx.App, r *http.Request, siteID string) (siteN
 	return siteName, docroot, true
 }
 
-// apiCloneOpenCart resolves the path's {site_id} into the source domain/
-// docroot handleOpenCartClone expects as source_domain/source_folder (same
-// "id" lookup as apiRemoveOpenCart), derives source_db from config.php via
-// extractOpenCartDatabaseInfoForLogin, and takes the destination-side
-// fields from the JSON body.
+// apiCloneOpenCart resolves {site_id} into source_domain/source_folder, derives source_db from config.php via extractOpenCartDatabaseInfoForLogin, and takes the destination-side fields from the JSON body
 func apiCloneOpenCart(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	siteName, docroot, ok := resolveOpenCartSiteID(a, r, siteID)
@@ -128,10 +116,7 @@ func apiCloneOpenCart(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleOpenCartClone(a, w, withOpenCartForm(r, form))
 }
 
-// apiCacheOpenCart resolves the path's {site_id} the same way
-// apiCloneOpenCart does, then delegates to handleOpenCartCacheClean with
-// domain/docroot set as URL query params (openCartRequestParams reads
-// r.URL.Query(), not form values).
+// apiCacheOpenCart resolves {site_id} the same way apiCloneOpenCart does, then delegates to handleOpenCartCacheClean with domain/docroot as URL query params since openCartRequestParams reads r.URL.Query()
 func apiCacheOpenCart(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	siteName, docroot, ok := resolveOpenCartSiteID(a, r, siteID)

@@ -27,8 +27,7 @@ func writeJSONError(w http.ResponseWriter, status int, message string) {
 
 var litespeedDefaultVersions = map[float64]bool{8.5: true, 8.4: true, 8.3: true, 8.2: true}
 
-// handleDefaultPHPVersion gets or sets the default PHP version applied to
-// newly created domains.
+// handleDefaultPHPVersion gets or sets the default PHP version applied to newly created domains
 func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -110,10 +109,7 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	renderDefaultPage(a, w, r, phpDefaultVersion, service, installedVersions)
 }
 
-// computeDefaultPHPVersionAndService resolves the current default PHP
-// version and the service name that runs it, querying the LiteSpeed
-// container directly when running under LiteSpeed since it has no
-// per-domain php-fpm service.
+// computeDefaultPHPVersionAndService resolves the current default PHP version and the service that runs it, querying the LiteSpeed container directly when running under LiteSpeed since it has no per-domain php-fpm service
 func computeDefaultPHPVersionAndService(ctx context.Context, userContext, webServer string, isLitespeed bool) (version, service string) {
 	if !isLitespeed {
 		version = webserver.GetEnvFileValue(userContext, "DEFAULT_PHP_VERSION")

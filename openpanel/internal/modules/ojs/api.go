@@ -17,10 +17,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiInstallOJS delegates straight to handleInstallPage (which itself
-// calls handleInstallStream on POST): same site-limit check, same NDJSON
-// progress stream written directly to the response - just fed from the
-// API's JSON body instead of a UI form post.
+// apiInstallOJS delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
 func apiInstallOJS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID      string `json:"domain_id"`
@@ -51,9 +48,7 @@ func apiInstallOJS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleInstallPage(a, w, withOJSForm(r, form))
 }
 
-// apiRemoveOJS delegates to handleRemoveOJS with the path's {site_id}
-// translated into the "id" form field it expects, and output=json forced
-// so it returns JSON instead of a flash-and-redirect.
+// apiRemoveOJS delegates to handleRemoveOJS with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemoveOJS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withOJSForm(r, url.Values{"id": {siteID}})
@@ -63,12 +58,7 @@ func apiRemoveOJS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleRemoveOJS(a, w, cloned)
 }
 
-// apiResolveOJSSite resolves {site_id} into the (domain, docroot) pair
-// every handler in this file needs - mirrors moodle/api.go's
-// apiResolveMoodleSite. docroot isn't read by handleOJSClone (OJS's docroot
-// is a symlink derived from siteSlug(), not a stored source_folder form
-// field - see clone.go's package doc comment) but is still needed by
-// ojsRequestParams for the cache endpoint.
+// apiResolveOJSSite resolves {site_id} into the (domain, docroot) pair every handler needs, mirrors moodle/api.go's apiResolveMoodleSite - docroot isn't read by handleOJSClone (see clone.go) but is still needed by ojsRequestParams for the cache endpoint
 func apiResolveOJSSite(ctx context.Context, a *appctx.App, siteID string) (domain, docroot string, ok bool) {
 	var siteName string
 	var rootDocroot sql.NullString
@@ -87,10 +77,7 @@ func apiResolveOJSSite(ctx context.Context, a *appctx.App, siteID string) (domai
 	return siteName, docroot, true
 }
 
-// apiOJSClone delegates to handleOJSClone, resolving {site_id} into the
-// source_domain field it expects (no source_folder - see
-// apiResolveOJSSite's comment) and taking every other clone field from the
-// JSON body - mirrors apiMoodleClone.
+// apiOJSClone delegates to handleOJSClone, resolving {site_id} into the source_domain field it expects (no source_folder, see apiResolveOJSSite) and taking every other clone field from the JSON body - mirrors apiMoodleClone
 func apiOJSClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	sourceDomain, _, ok := apiResolveOJSSite(r.Context(), a, siteID)
@@ -127,8 +114,7 @@ func apiOJSClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleOJSClone(a, w, withOJSForm(r, form))
 }
 
-// apiOJSUpdate resolves {site_id} into the domain query param
-// handleOJSUpdate reads directly, then delegates to it as-is.
+// apiOJSUpdate resolves {site_id} into the domain query param handleOJSUpdate reads directly, then delegates to it as-is
 func apiOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	domain, docroot, ok := apiResolveOJSSite(r.Context(), a, siteID)
@@ -143,9 +129,7 @@ func apiOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleOJSUpdate(a, w, r)
 }
 
-// apiOJSCache resolves {site_id} into the domain/docroot query params
-// handleOJSCacheClean reads (via ojsRequestParams), then delegates to it
-// as-is.
+// apiOJSCache resolves {site_id} into the domain/docroot query params handleOJSCacheClean reads (via ojsRequestParams), then delegates to it as-is
 func apiOJSCache(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	domain, docroot, ok := apiResolveOJSSite(r.Context(), a, siteID)

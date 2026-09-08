@@ -13,13 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 )
 
-// handleRemoveOJS fully uninstalls an OJS site: removes the per-minute
-// scheduler cron job registered at install time, drops the database and
-// user (parsed out of the approot's config.inc.php), deletes the docroot
-// symlink plus its backing approot/files directories, and removes the sites
-// row. Mirrors moodle/manage.go's handleRemoveMoodle, adjusted for
-// config.inc.php's INI syntax (see config.go) and OJS having no per-site
-// table prefix.
+// handleRemoveOJS fully uninstalls an OJS site: removes the scheduler cron job, drops the db/user parsed out of config.inc.php, deletes the docroot symlink plus its approot/files dirs, and removes the sites row - mirrors moodle/manage.go's handleRemoveMoodle
 func handleRemoveOJS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

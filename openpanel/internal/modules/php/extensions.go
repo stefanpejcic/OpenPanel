@@ -45,8 +45,7 @@ func splitMarkdownTableRow(line string) []string {
 	return parts
 }
 
-// parseExtensionsTable parses the extension-installer README's markdown
-// support table into {extension_name: {"8.3": true, ...}}.
+// parseExtensionsTable parses the extension-installer README's markdown support table into {extension_name: {"8.3": true, ...}}
 func parseExtensionsTable(body string) map[string]map[string]bool {
 	lines := strings.Split(body, "\n")
 	headerIdx := -1
@@ -167,12 +166,7 @@ const confDPath = "/usr/local/etc/php/conf.d"
 
 var extConfNameRE = regexp.MustCompile(`(?i)docker-php-ext-([a-z0-9_]+)`)
 
-// ensurePHPServiceRunning starts the PHP service if it isn't already
-// running, checking success via the command's exit code plus a live
-// IsServiceRunning recheck rather than sniffing command output - real
-// podman-compose stdout for a successful `up -d` doesn't reliably contain
-// any fixed marker word (it just prints the container name), so a text
-// sniff would reject genuinely successful starts.
+// ensurePHPServiceRunning starts the PHP service if needed, checking success via exit code plus a live IsServiceRunning recheck rather than sniffing command output, since a successful `up -d` prints no reliable marker word
 func ensurePHPServiceRunning(ctx context.Context, userContext, service string) (ok bool, errMessage string) {
 	if docker.IsServiceRunning(ctx, userContext, service) {
 		return true, ""
@@ -184,9 +178,7 @@ func ensurePHPServiceRunning(ctx context.Context, userContext, service string) (
 	return true, ""
 }
 
-// getActiveAndDisabledExtensions inspects the running PHP container to
-// determine which extensions are active (loaded by `php -m`) versus
-// disabled (their conf.d file renamed to *.disabled).
+// getActiveAndDisabledExtensions inspects the running PHP container to determine which extensions are active (loaded by `php -m`) versus disabled (conf.d file renamed to *.disabled)
 func getActiveAndDisabledExtensions(ctx context.Context, userContext, service string) (active, disabled map[string]bool) {
 	active = map[string]bool{}
 	disabled = map[string]bool{}
@@ -239,8 +231,7 @@ func findExtensionConfFile(ctx context.Context, userContext, service, extension 
 	return ""
 }
 
-// toggleExtension enables or disables an extension by renaming its conf.d
-// file to (or from) a .disabled suffix inside the PHP container.
+// toggleExtension enables or disables an extension by renaming its conf.d file to (or from) a .disabled suffix inside the PHP container
 func toggleExtension(ctx context.Context, userContext, service, extension string, enable bool) (ok bool, errMessage string) {
 	var src, dst string
 	if enable {
@@ -269,28 +260,8 @@ func toggleExtension(ctx context.Context, userContext, service, extension string
 	return true, ""
 }
 
-// EnsureExtensionInstalled makes sure a PHP extension is present and
-// enabled before some other module's installer runs (e.g. OJS requires
-// "ftp" - see internal/modules/ojs's install.go), on either backend: a
-// PHP-FPM service (php-fpm-<version>) or the LiteSpeed/OpenLiteSpeed
-// webserver container (dispatched to ensureLitespeedExtensionInstalled).
-// Reuses this file's own install machinery (`phpaddmod`, the same command
-// the Extensions page's "Install" button runs) rather than duplicating it,
-// so results and failure modes are identical to the browser-driven
-// Extensions flow.
-//
-// Three cases, cheapest first:
-//  1. Already active (`php -m` lists it) - no-op.
-//  2. Installed but disabled (a "<ext>.ini.disabled" file exists) - just
-//     re-enable it (rename off ".disabled"), then restart PHP-FPM.
-//  3. Not installed at all - run `phpaddmod <extension>` inside the
-//     container (this can take a while - a real package install/compile,
-//     not a config toggle), then restart PHP-FPM.
-//
-// In all restart cases this blocks until the service reports running again
-// (mirrors ensureContainerRunning's identical poll loop used throughout
-// this codebase's CMS installers), so the caller can safely proceed
-// straight to using the extension afterward.
+// EnsureExtensionInstalled makes sure a PHP extension is present and enabled before some other module's installer runs (e.g. OJS requires "ftp"), reusing this file's own phpaddmod install machinery so results match the browser-driven Extensions flow
+// three cases cheapest first: already active is a no-op, installed-but-disabled just gets re-enabled, not-installed runs phpaddmod - all restart cases block until the service reports running again
 func EnsureExtensionInstalled(ctx context.Context, userContext, service, extension string) error {
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	if strings.Contains(strings.ToLower(webServer), "litespeed") {
@@ -472,8 +443,7 @@ func loadInstallState(installID string) (installState, bool) {
 	return s, true
 }
 
-// runExtensionInstall runs the extension install in its own goroutine so it
-// outlives the triggering request.
+// runExtensionInstall runs the extension install in its own goroutine so it outlives the triggering request
 func runExtensionInstall(installID string) {
 	info, ok := loadInstallState(installID)
 	if !ok {
@@ -537,10 +507,7 @@ type ExtensionRow struct {
 	State string `json:"state"` // "active" | "disabled" | "not_installed"
 }
 
-// phpExtensionsService resolves which container PHP extension management
-// for "version" acts on: "php-fpm-<version>" normally, or the single
-// LiteSpeed/OpenLiteSpeed webserver container (which serves every PHP
-// version) when that's this account's webserver.
+// phpExtensionsService resolves which container PHP extension management for "version" acts on: "php-fpm-<version>" normally, or the single LiteSpeed/OpenLiteSpeed webserver container when that's this account's webserver
 func phpExtensionsService(userContext, version string) (service string, isLitespeed bool) {
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	if strings.Contains(strings.ToLower(webServer), "litespeed") {
@@ -549,8 +516,7 @@ func phpExtensionsService(userContext, version string) (service string, isLitesp
 	return "php-fpm-" + version, false
 }
 
-// handlePHPExtensionsSelect renders the PHP-version picker for the
-// extensions page.
+// handlePHPExtensionsSelect renders the PHP-version picker for the extensions page
 func handlePHPExtensionsSelect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
@@ -563,8 +529,7 @@ func handlePHPExtensionsSelect(a *appctx.App, w http.ResponseWriter, r *http.Req
 	renderPHPExtensionsSelectPage(a, w, r, installedVersions)
 }
 
-// handlePHPExtensions renders the extensions table for one PHP version and
-// handles the enable/disable POST from it.
+// handlePHPExtensions renders the extensions table for one PHP version and handles the enable/disable POST from it
 func handlePHPExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, versionSeg string) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -655,8 +620,7 @@ func handlePHPExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	renderPHPExtensionsPage(a, w, r, version, extensions, history, recentlyRemoved)
 }
 
-// handlePHPAvailableExtensions returns the full extensions catalog for one
-// PHP version, flagging which are already installed.
+// handlePHPAvailableExtensions returns the full extensions catalog for one PHP version, flagging which are already installed
 func handlePHPAvailableExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, versionSeg string) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
@@ -698,8 +662,7 @@ func handlePHPAvailableExtensions(a *appctx.App, w http.ResponseWriter, r *http.
 	writeJSON(w, http.StatusOK, map[string]any{"extensions": extensions, "service": service, "cached_until": cachedUntil})
 }
 
-// handlePHPExtensionsHistory gets or appends to the per-version install
-// history of extensions this user has installed at least once.
+// handlePHPExtensionsHistory gets or appends to the per-version install history of extensions this user has installed at least once
 func handlePHPExtensionsHistory(a *appctx.App, w http.ResponseWriter, r *http.Request, versionSeg string) {
 	_, userContext, err := injected(a, r)
 	if err != nil {
@@ -732,8 +695,7 @@ func handlePHPExtensionsHistory(a *appctx.App, w http.ResponseWriter, r *http.Re
 	writeJSON(w, http.StatusOK, map[string]any{"extensions": loadExtensionsHistory(userContext, version)})
 }
 
-// handlePHPInstallExtensions queues an asynchronous install of one or more
-// PHP extensions for a version, returning an install ID for polling.
+// handlePHPInstallExtensions queues an asynchronous install of one or more PHP extensions for a version, returning an install ID for polling
 func handlePHPInstallExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, versionSeg string) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -781,8 +743,7 @@ func handlePHPInstallExtensions(a *appctx.App, w http.ResponseWriter, r *http.Re
 	writeJSON(w, http.StatusOK, map[string]any{"install_id": installID})
 }
 
-// handlePHPInstallExtensionsStatus reports the progress of a queued
-// extension install, logging the user action once it completes.
+// handlePHPInstallExtensionsStatus reports the progress of a queued extension install, logging the user action once it completes
 func handlePHPInstallExtensionsStatus(a *appctx.App, w http.ResponseWriter, r *http.Request, versionSeg string) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
