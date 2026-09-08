@@ -1,5 +1,4 @@
-// Package websites (this file) implements the "Live Preview" button's
-// temporary .openpanel.org-style preview link.
+// Package websites (this file) implements the "Live Preview" button's temporary .openpanel.org-style preview link.
 package websites
 
 import (
@@ -24,12 +23,7 @@ func temporaryLinkSetting(ctx context.Context, a *appctx.App) string {
 	return setting
 }
 
-// temporaryLinkForDomain requests a preview link from the temporary-links
-// service for the given domain. The response is memoized for 800s (~13m)
-// per user+domain since the upstream link doesn't change that often and
-// the request is relatively expensive. Returns the response payload and the
-// HTTP status it should be written with. Shared by the UI's
-// handleTemporaryLink and the API's apiTemporaryLink.
+// temporaryLinkForDomain requests a preview link from the temporary-links service for the given domain, memoized for 800s per user+domain since the upstream link rarely changes and the request is expensive - returns the response payload and the HTTP status to write it with, shared by handleTemporaryLink and apiTemporaryLink.
 func temporaryLinkForDomain(ctx context.Context, a *appctx.App, currentUsername, domain string) (map[string]any, int) {
 	cacheKey := "temporary_link:" + currentUsername + ":" + domain
 	result, _ := cache.Memoize(ctx, a.Cache, cacheKey, 800*time.Second, func() (map[string]any, error) {
@@ -81,8 +75,7 @@ func temporaryLinkForDomain(ctx context.Context, a *appctx.App, currentUsername,
 	return result, status
 }
 
-// handleTemporaryLink is the UI-facing handler for GET /domains/temporary-link
-// (domain passed as a query param).
+// handleTemporaryLink is the UI-facing handler for GET /domains/temporary-link (domain passed as a query param).
 func handleTemporaryLink(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, _, err := injected(a, r)

@@ -26,16 +26,13 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiWebserverConfLabels gives each web server's short display label.
-// webserverConfEntry.PageTitle is a different, longer string used only
-// for the UI page title, so this stays a separate small lookup.
+// apiWebserverConfLabels gives each web server's short display label - webserverConfEntry.PageTitle is a different, longer string used only for the UI page title, so this stays a separate small lookup
 var apiWebserverConfLabels = map[string]string{
 	"nginx": "Nginx", "apache": "Apache", "openresty": "OpenResty",
 	"openlitespeed": "OpenLiteSpeed", "litespeed": "LiteSpeed",
 }
 
-// apiWebserverConfGet returns the current user's webserver config file
-// content.
+// apiWebserverConfGet returns the current user's webserver config file content
 func apiWebserverConfGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, userContext, err := injected(a, r)
 	if err != nil {
@@ -68,8 +65,7 @@ func apiWebserverConfGet(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// apiWebserverConfPut saves new webserver config content, syntax-checks
-// it, and restarts the service - rolling back on a failed check.
+// apiWebserverConfPut saves new webserver config content, syntax-checks it, and restarts the service - rolling back on a failed check
 func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

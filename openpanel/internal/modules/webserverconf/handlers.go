@@ -25,8 +25,7 @@ func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, cat
 	http.Redirect(w, r, redirectPath, http.StatusFound)
 }
 
-// handleWebserverConf serves the in-browser editor for a user's main
-// webserver configuration file and handles saving/restoring it.
+// handleWebserverConf serves the in-browser editor for a user's main webserver configuration file and handles saving/restoring it
 func handleWebserverConf(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	username, userContext, err := injected(a, r)
 	if err != nil {
@@ -64,10 +63,7 @@ func handleWebserverConf(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, canRestoreDefault, existingContent)
 }
 
-// handleSaveOrRestore performs the POST action - either "restore_default"
-// or the normal save-and-validate path, followed by a service restart.
-// Returns false once it has written a response (redirect), so the caller
-// should stop.
+// handleSaveOrRestore performs the POST action - either "restore_default" or the normal save-and-validate path, followed by a service restart - returns false once it has written a response (redirect), so the caller should stop
 func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, username, userContext, webServer string, entry webserverConfEntry, configFilePath string) bool {
 	_ = r.ParseForm()
 	action := r.Form.Get("action")
@@ -121,9 +117,7 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		actionDescription = "edited " + entry.ConfFile
 	}
 
-	// Restart service. Unlike the early-exit error branches above, every
-	// path from here on falls through to re-read the file and render the
-	// page directly - it does not redirect.
+	// restart service - unlike the early-exit error branches above, every path from here on falls through to re-read the file and render the page directly, it does not redirect
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	if docker.IsServiceRunning(r.Context(), userContext, entry.ServiceName) {
 		argv := podmanmanager.PodmanArgv(userContext, "restart", entry.ServiceName)

@@ -1,6 +1,4 @@
-// Package waf handles per-domain OWASP Coraza WAF enable/disable
-// toggling, excluded rule ID/tag management, and the Coraza access log
-// viewer.
+// Package waf handles per-domain OWASP Coraza WAF enable/disable toggling, excluded rule ID/tag management, and the Coraza access log viewer.
 package waf
 
 import (
@@ -15,24 +13,14 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
-// excludedRuleID and excludedTag are always the first (hidden) entry in
-// SecRuleRemoveById/SecRuleRemoveByTag, stripped from what's shown/edited
-// in the UI.
+// excludedRuleID and excludedTag are always the first (hidden) entry in SecRuleRemoveById/SecRuleRemoveByTag, stripped from what's shown/edited in the UI
 const (
 	excludedRuleID = "007"
 	excludedTag    = "example"
 )
 
-// parseWAFRemovals extracts the currently-removed rule IDs and tags from
-// a domain conf's Coraza directives block, stripping the hidden
-// excludedRuleID/excludedTag sentinel that's always written first.
-//
-// SecRuleRemoveById accepts multiple space-separated IDs on one line, so
-// that line is parsed as-is. SecRuleRemoveByTag only accepts a single tag
-// argument per directive, so removed tags are written one per line;
-// parsing collects every consecutive SecRuleRemoveByTag line it finds
-// (also tolerating legacy files where multiple tags were incorrectly
-// joined onto one line).
+// parseWAFRemovals extracts the currently-removed rule IDs and tags from a domain conf's Coraza directives block, stripping the hidden excludedRuleID/excludedTag sentinel that's always written first
+// SecRuleRemoveById accepts multiple space-separated IDs on one line, so that line is parsed as-is; SecRuleRemoveByTag only accepts one tag per directive, so this collects every consecutive SecRuleRemoveByTag line (also tolerating legacy files where multiple tags were joined onto one line)
 func parseWAFRemovals(contentStr string) (removedRules, removedTags []string) {
 	foundRule := false
 	tagBlockStarted, tagBlockEnded := false, false
@@ -85,8 +73,7 @@ func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, map[string]string{"error": msg})
 }
 
-// firstPathSegment drops an accidental subfolder suffix from a path
-// parameter, keeping only the leading domain component.
+// firstPathSegment drops an accidental subfolder suffix from a path parameter, keeping only the leading domain component
 func firstPathSegment(s string) string {
 	if idx := strings.Index(s, "/"); idx != -1 {
 		return s[:idx]
@@ -115,11 +102,7 @@ type wafLogEntry struct {
 	} `json:"transaction"`
 }
 
-// readWAFLogs scans a Coraza JSON-lines log file
-// backwards in 1KB blocks, counting checks/blocks within the last
-// `seconds`, and stops as soon as it reaches a line older than the
-// window (the log is chronological, so anything before that is older
-// still).
+// readWAFLogs scans a Coraza JSON-lines log file backwards in 1KB blocks, counting checks/blocks within the last `seconds`, and stops as soon as it reaches a line older than the window
 func readWAFLogs(path string, seconds int) wafLogStats {
 	stats := wafLogStats{}
 

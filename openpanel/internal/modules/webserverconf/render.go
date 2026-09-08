@@ -26,8 +26,7 @@ func loadPage(files ...string) *web.Page {
 
 var webserverConfPage = loadPage("system/apache_nginx_conf_editor.html")
 
-// WebserverConfPageData is system/apache_nginx_conf_editor.html's
-// template context.
+// WebserverConfPageData is system/apache_nginx_conf_editor.html's template context
 type WebserverConfPageData struct {
 	web.LayoutData
 	Service           string

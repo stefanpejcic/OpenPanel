@@ -28,9 +28,7 @@ func RegisterWebsiteBuilderAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "website_builder", "POST /api/website-builder/sites/{site_id}/detach", func(w http.ResponseWriter, r *http.Request) { apiWebsiteBuilderDetach(a, w, r) })
 }
 
-// apiSiteDir resolves the on-disk site directory for a domain[/folder]
-// path param: look up the domain's docroot, append the folder if any, and
-// strip the '/var/www/html/' prefix to get the volume-relative path.
+// apiSiteDir resolves the on-disk site directory for a domain[/folder] path param: looks up the domain's docroot, appends the folder if any, and strips the '/var/www/html/' prefix to get the volume-relative path.
 func apiSiteDir(a *appctx.App, r *http.Request, userContext, domain string) (siteDir, docroot string, ok bool, statusIfNotFound int) {
 	domainRoot, _ := splitDomainAndFolder(domain)
 	row := a.DB.QueryRowContext(r.Context(), "SELECT docroot FROM domains WHERE domain_url = ?", domainRoot)
@@ -81,8 +79,7 @@ func apiWebsiteBuilderGet(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	writeJSON(w, http.StatusOK, map[string]string{"domain": domain, "docroot": docroot, "html": html, "css": css})
 }
 
-// apiWebsiteBuilderSave writes submitted HTML/CSS content to a site's
-// directory.
+// apiWebsiteBuilderSave writes submitted HTML/CSS content to a site's directory.
 func apiWebsiteBuilderSave(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -132,9 +129,7 @@ func apiWebsiteBuilderSave(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusOK, map[string]string{"message": "Content saved successfully", "domain": domain})
 }
 
-// apiWebsiteBuilderInstall creates a new website-builder site: validates
-// plan limits and the target path, then writes starter HTML/CSS files and
-// inserts the site's database row.
+// apiWebsiteBuilderInstall creates a new website-builder site: validates plan limits and the target path, then writes starter HTML/CSS files and inserts the site's database row.
 func apiWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -247,8 +242,7 @@ func apiWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	writeJSON(w, http.StatusCreated, map[string]string{"message": "Website created successfully on " + siteName, "site_name": siteName})
 }
 
-// apiGetSite looks up a site by ID and reports ownership separately from
-// existence, so callers can distinguish 403 from 404.
+// apiGetSite looks up a site by ID and reports ownership separately from existence, so callers can distinguish 403 from 404.
 func apiGetSite(ctx context.Context, a *appctx.App, userID int, siteID string) (siteName, docroot string, forbidden, found bool) {
 	var name, root sql.NullString
 	row := a.DB.QueryRowContext(ctx, `
@@ -267,8 +261,7 @@ func apiGetSite(ctx context.Context, a *appctx.App, userID int, siteID string) (
 	return name.String, root.String, false, true
 }
 
-// apiWebsiteBuilderRemove deletes a site's generated files and its
-// database row.
+// apiWebsiteBuilderRemove deletes a site's generated files and its database row.
 func apiWebsiteBuilderRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -306,8 +299,7 @@ func apiWebsiteBuilderRemove(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	writeJSON(w, http.StatusOK, map[string]string{"message": "Website deleted successfully"})
 }
 
-// apiWebsiteBuilderDetach removes a site's database row without touching
-// its files on disk.
+// apiWebsiteBuilderDetach removes a site's database row without touching its files on disk.
 func apiWebsiteBuilderDetach(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, _, err := injected(a, r)

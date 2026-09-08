@@ -1,6 +1,4 @@
-// Package webserverconf implements an in-browser editor for a user's main
-// webserver configuration file, with a syntax-test-before-restart safety
-// net and a restore-to-stock-defaults option.
+// Package webserverconf implements an in-browser editor for a user's main webserver configuration file, with a syntax-test-before-restart safety net and a restore-to-stock-defaults option.
 package webserverconf
 
 import (
@@ -11,9 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
-// defaultConfTemplates lists the stock configuration files shipped in
-// openpanel-configuration, used to restore a user's webserver conf file
-// back to the default.
+// defaultConfTemplates lists the stock configuration files shipped in openpanel-configuration, used to restore a user's webserver conf file back to the default
 var defaultConfTemplates = map[string]string{
 	"nginx":         "/etc/openpanel/nginx/nginx.conf",
 	"apache":        "/etc/openpanel/apache/httpd.conf",
@@ -22,8 +18,7 @@ var defaultConfTemplates = map[string]string{
 	// TODO: file for LSWS ENTERPRISE!
 }
 
-// webserverConfEntry is one row of the WEB_SERVER -> (filename, service,
-// page title) lookup table.
+// webserverConfEntry is one row of the WEB_SERVER -> (filename, service, page title) lookup table
 type webserverConfEntry struct {
 	ConfFile    string
 	ServiceName string
@@ -38,8 +33,7 @@ var webserverConfs = map[string]webserverConfEntry{
 	"litespeed":     {"openlitespeed.conf", "litespeed", "Litespeed Configuration Editor"},
 }
 
-// lookupWebserverConf returns webServer's config entry, or a fallback with
-// just a generic page title if webServer is unrecognized.
+// lookupWebserverConf returns webServer's config entry, or a fallback with just a generic page title if webServer is unrecognized
 func lookupWebserverConf(webServer string) webserverConfEntry {
 	if entry, ok := webserverConfs[webServer]; ok {
 		return entry

@@ -20,28 +20,17 @@ type SiteRow struct {
 	Type        string
 	Container   string
 	Ports       string
-	// IsStatic mirrors the case-sensitive `'static' in site[5]` check in
-	// sites.html's Actions column (unlike every other type check on this
-	// page, that one isn't lowercased first).
-	IsStatic bool
-	// Docroot is the site's full container-path docroot (the owning
-	// domain's docroot plus any subdirectory suffix parsed out of
-	// SiteName) - same computation dispatch.go's /website handler already
-	// does per-request, needed here too so the Actions column's autologin
-	// button can pass it straight through to each CMS's /<type>/login
-	// endpoint without a second lookup.
-	Docroot string
+	IsStatic bool   // mirrors the case-sensitive `'static' in site[5]` check in sites.html's Actions column, unlike every other type check on this page that one isn't lowercased first
+	Docroot  string // the site's full container-path docroot (domain's docroot + subdirectory suffix parsed out of SiteName), same computation dispatch.go's /website handler does per-request, needed here so the Actions column's autologin button can pass it through without a second lookup
 }
 
-// SiteGroup is one type-grouped section of the /sites table (e.g. all
-// "wordpress" rows together), in first-seen order.
+// SiteGroup is one type-grouped section of the /sites table (e.g. all "wordpress" rows together), in first-seen order.
 type SiteGroup struct {
 	Type  string
 	Sites []SiteRow
 }
 
-// handleListSites loads the current user's sites, grouped by type, for the
-// /sites listing page (or as JSON when requested).
+// handleListSites loads the current user's sites, grouped by type, for the /sites listing page (or as JSON when requested).
 func handleListSites(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

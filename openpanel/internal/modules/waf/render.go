@@ -75,17 +75,13 @@ func renderWAFDomainPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	}
 }
 
-// PageEntry is one rendered pagination control: either a page number link
-// or an ellipsis.
+// PageEntry is one rendered pagination control: either a page number link or an ellipsis
 type PageEntry struct {
 	Number     int
 	IsEllipsis bool
 }
 
-// buildLogPageEntries mirrors waf_logs.html's own pagination window logic:
-// a fixed window of 2 pages around current, with page 1 and total_pages
-// always shown (bridged by a single ellipsis each side when there's a
-// gap).
+// buildLogPageEntries mirrors waf_logs.html's own pagination window logic: a fixed window of 2 pages around current, with page 1 and total_pages always shown, bridged by a single ellipsis each side when there's a gap
 func buildLogPageEntries(current, total int) []PageEntry {
 	const window = 2
 	start := current - window
@@ -116,9 +112,7 @@ func buildLogPageEntries(current, total int) []PageEntry {
 	return entries
 }
 
-// WAFLogsPageData is system/waf_logs.html's template context, covering
-// both the domain-picker state (Domains set, JSONLogs nil) and the
-// log-viewer state for one domain (JSONLogs set).
+// WAFLogsPageData is system/waf_logs.html's template context, covering both the domain-picker state (Domains set, JSONLogs nil) and the log-viewer state for one domain (JSONLogs set)
 type WAFLogsPageData struct {
 	web.LayoutData
 	DomainName                  string
