@@ -195,8 +195,7 @@ func writeJSONFavorites(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// FavoriteRow is user/favorites.html's per-row template shape (title
-// renamed to "name", matching edit_favorites_user()'s in-place rename).
+// FavoriteRow is user/favorites.html's per-row template shape (title renamed to "name", matching edit_favorites_user()'s in-place rename)
 type FavoriteRow struct {
 	Name string
 	Link string
@@ -232,8 +231,7 @@ func handleFavoritesPage(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	renderFavoritesPage(a, w, r, rows)
 }
 
-// RegisterFavorites wires the favorites routes onto mux, gated behind the
-// "favorites" feature flag.
+// RegisterFavorites wires the favorites routes onto mux, gated behind the "favorites" feature flag
 func RegisterFavorites(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "favorites")(h)

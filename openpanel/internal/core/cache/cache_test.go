@@ -8,10 +8,7 @@ import (
 	"time"
 )
 
-// These tests intentionally point at a redis socket that doesn't exist,
-// since CI/dev sandboxes won't have the panel's redis instance running.
-// Memoize must degrade gracefully (fall through to fn) rather than fail
-// the request when the cache is unreachable.
+// these tests point at a redis socket that doesn't exist, since CI/dev sandboxes won't have redis running - Memoize should fall through to fn, not fail
 
 func unreachableCache(t *testing.T) *Cache {
 	t.Helper()

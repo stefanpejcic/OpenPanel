@@ -1,7 +1,4 @@
-// Package i18n reuses the panel's existing gettext .po/.mo catalogs (no
-// retranslation needed) and resolves the active locale via a priority
-// chain: session -> per-account locale file -> Accept-Language -> system
-// default -> "en".
+// Package i18n reuses the panel's existing gettext .po/.mo catalogs and resolves the locale via session -> per-account file -> Accept-Language -> system default -> "en".
 package i18n
 
 import (
@@ -38,13 +35,8 @@ func NewManager(dir string, c *cache.Cache) *Manager {
 	return &Manager{dir: dir, cache: c, locales: make(map[string]*gotext.Locale)}
 }
 
-// AvailableLocales returns every subdirectory of dir containing
-// LC_MESSAGES/messages.po, plus "en", cached for 1h.
-//
-// Note: `opencli locale` busts the cached locale list after installing a
-// new locale, but that cache-busting doesn't reach this Go cache entry, so
-// a freshly installed locale won't show up here until this entry's own 1h
-// TTL expires. Revisit when opencli is updated for the Go binary.
+// AvailableLocales returns every subdirectory of dir with LC_MESSAGES/messages.po, plus "en", cached for 1h.
+// `opencli locale` busts its own cache after installing a locale, but not this Go cache entry - a new locale won't show up here until the 1h TTL expires.
 func (m *Manager) AvailableLocales(ctx context.Context) []string {
 	locales, _ := cache.Memoize(ctx, m.cache, "app.get_available_locales", time.Hour, func() ([]string, error) {
 		return m.scanLocales(), nil
@@ -94,9 +86,7 @@ func (m *Manager) SystemDefaultLocale(ctx context.Context) string {
 	return locale
 }
 
-// UserLocale reads /home/<systemUsername>/locale, the per-account override
-// checked before falling back to Accept-Language. Returns "" if unset, so
-// the caller can keep checking the rest of the priority chain.
+// UserLocale reads /home/<systemUsername>/locale, the per-account override; returns "" if unset so the caller keeps checking the rest of the chain
 func UserLocale(systemUsername string) string {
 	if systemUsername == "" {
 		return ""
@@ -108,10 +98,7 @@ func UserLocale(systemUsername string) string {
 	return strings.TrimSpace(string(data))
 }
 
-// ResolveLocale runs the locale priority chain. sessionLocale and
-// userLocale are pre-extracted by the caller (session cookie value, and
-// UserLocale() above) since this package doesn't know about sessions or the
-// user database.
+// ResolveLocale runs the locale priority chain; sessionLocale/userLocale are pre-extracted by the caller since this package doesn't know about sessions or the user DB
 func (m *Manager) ResolveLocale(ctx context.Context, sessionLocale, userLocale, acceptLanguageHeader string) string {
 	if sessionLocale != "" {
 		return sessionLocale
@@ -144,18 +131,9 @@ func (m *Manager) locale(lang string) *gotext.Locale {
 	return loc
 }
 
-// Get translates str for lang. kv is an alternating key/value list
-// substituted into %(key)s placeholders in the translated string, e.g.
-// Get("en", "Hello %(name)s", "name", "Stefan"). A missing translation
-// falls back to str itself, with substitution still applied.
+// Get translates str for lang, substituting kv's alternating key/value pairs into %(key)s placeholders, e.g. Get("en", "Hello %(name)s", "name", "Stefan"). Falls back to str itself if untranslated.
 func (m *Manager) Get(lang, str string, kv ...string) string {
-	// Bound method value, not a direct m.locale(lang).Get(str) call: go
-	// vet's printf checker sees gotext's Get(str string, vars ...any)
-	// internally Sprintf-ing and flags str as a "non-constant format
-	// string" - str is a translation key, not a format string, and no
-	// vars are ever passed here, so there's nothing to format. Routing
-	// the call through a variable is enough to stop vet tracing it as a
-	// printf wrapper.
+	// bound as a variable, not called directly - otherwise go vet's printf checker flags str as a non-constant format string, even though it's just a translation key
 	get := m.locale(lang).Get
 	translated := get(str)
 	if len(kv) == 0 {
@@ -172,11 +150,7 @@ func substitute(s string, kv []string) string {
 	return result
 }
 
-// Translator is bound to one request's resolved locale and passed as
-// template data (e.g. `{{.T.Get "text"}}`) rather than registered in the
-// shared *template.Template's FuncMap, since Funcs() mutates that shared,
-// cached template and isn't safe to call per-request under concurrent
-// handlers.
+// Translator is bound to one request's locale and passed as template data (`{{.T.Get "text"}}`) instead of living in the shared template's FuncMap, since Funcs() isn't safe to call per-request
 type Translator struct {
 	manager *Manager
 	locale  string
@@ -234,10 +208,7 @@ func parseAcceptLanguage(header string) []acceptEntry {
 	return entries
 }
 
-// bestMatch picks the best Accept-Language match against our catalog,
-// which only ever contains primary-subtag locale codes (en, de, sr, ...):
-// try an exact tag match first, then a primary-subtag match (so "en-US"
-// matches available "en"), in header preference order.
+// bestMatch picks the best Accept-Language match against our catalog (exact tag first, then primary subtag so "en-US" matches "en"), in header preference order
 func bestMatch(header string, available []string) string {
 	entries := parseAcceptLanguage(header)
 	if len(entries) == 0 {

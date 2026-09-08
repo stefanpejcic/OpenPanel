@@ -9,9 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// pageFiles is the standard authenticated-layout template set, shared by
-// every page in this file (as opposed to loginPage in login.go, which
-// renders standalone since it predates a session/sidebar existing).
+// pageFiles is the standard authenticated-layout template set, shared by every page in this file - unlike loginPage in login.go, which renders standalone with no session/sidebar yet
 var pageFiles = []string{
 	"base.html",
 	"partials/_header.html",

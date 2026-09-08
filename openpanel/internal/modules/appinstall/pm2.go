@@ -1,8 +1,4 @@
-// Package appinstall (this file) handles the generic PM2-style app
-// management routes (/pm2/logs, /pm2/<action>, /pm2/delete) - these work
-// identically regardless of whether the underlying app is a Python or
-// NodeJS install, which is why they're grouped here rather than under
-// either install type specifically.
+// This file handles the generic PM2-style app management routes (/pm2/logs, /pm2/<action>, /pm2/delete) - these work identically regardless of whether the app is Python or NodeJS, so they're grouped here rather than under either install type
 package appinstall
 
 import (
@@ -24,12 +20,10 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// undeletableAppActions is a confusingly-named variable: it's actually the
-// *allowed* app_actions list, not a list of undeletable things.
+// undeletableAppActions is a confusingly-named variable - it's actually the *allowed* app_actions list, not a list of undeletable things
 var undeletableAppActions = map[string]bool{"start": true, "stop": true, "update": true, "restart": true, "envvars": true}
 
-// undeletableServices are core panel services app_actions/app_delete
-// refuse to touch even if asked.
+// undeletableServices are core panel services app_actions/app_delete refuse to touch even if asked
 var undeletableServices = map[string]bool{
 	"elasticsearch": true, "redis": true, "valkey": true, "postgres": true, "mysql": true,
 	"mariadb": true, "phpmyadmin": true, "opensearch": true, "memcached": true,
@@ -44,9 +38,7 @@ func flashAndRedirectApp(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	http.Redirect(w, r, path, http.StatusFound)
 }
 
-// RegisterPM2 wires the three /pm2/* routes onto mux. Like RegisterShared,
-// these are gated on the "helpers" feature, which is unconditionally
-// granted to every user - login-only in practice.
+// RegisterPM2 wires the three /pm2/* routes onto mux. Like RegisterShared, gated on "helpers", which is unconditionally granted - login-only in practice.
 func RegisterPM2(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "helpers")(h)
@@ -91,14 +83,7 @@ func handlePM2Logs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// `podman logs` itself, not a raw json-file-log-driver path on the
-	// host - that path assumed Docker's default logging driver layout
-	// (/home/<user>/docker-data/containers/<id>/<id>-json.log), which
-	// doesn't exist under podman (confirmed live: the directory itself
-	// isn't even created). `podman logs` works regardless of log driver
-	// and rootless/remote setup, matching how every other container
-	// operation in this codebase already goes through podmanmanager
-	// rather than assuming a host-visible file layout.
+	// `podman logs` itself, not a raw json-file-log-driver path on the host - that assumed Docker's default logging layout, which doesn't exist under podman. `podman logs` works regardless of log driver and rootless/remote setup, matching how every other container op here goes through podmanmanager.
 	logsArgv := podmanmanager.PodmanArgv(userContext, "logs", "--tail", strconv.Itoa(lines), "--timestamps", containerID)
 	out, logsErr := podmanmanager.Command(r.Context(), userContext, logsArgv).CombinedOutput()
 	if logsErr != nil {
@@ -111,9 +96,7 @@ func handlePM2Logs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(out)
 }
 
-// pm2SiteLookup mirrors the "find the app type for this site" query shared
-// by app_actions() and app_delete() (each with its own slightly different
-// WHERE clause).
+// pm2SiteLookup mirrors the "find the app type for this site" query shared by app_actions() and app_delete() (each with its own slightly different WHERE clause)
 type pm2SiteLookup struct {
 	Type, SiteName, Container string
 }
@@ -214,13 +197,7 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 var envVarLineRE = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*=.*$`)
 
-// handlePM2EnvVars saves the Env Vars tab's textarea (one KEY=VALUE per
-// line, blank lines and #-comments ignored) as the service's
-// docker-compose.yml `environment:` list - same LoadCompose/SaveCompose
-// round-trip handlePM2Update already uses for command/pids, so this never
-// hand-edits YAML text. A full replace, not a merge: these apps have no
-// other source of truth for their env vars, so the textarea IS the
-// complete set the user wants running.
+// handlePM2EnvVars saves the Env Vars tab's textarea (one KEY=VALUE per line, blank/#-comment lines ignored) as the service's docker-compose.yml `environment:` list, via the same LoadCompose/SaveCompose round-trip handlePM2Update uses - never hand-edits YAML text. A full replace, not a merge, since the textarea is the only source of truth for these vars.
 func handlePM2EnvVars(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, containerName, nameForManager string) {
 	_ = r.ParseForm()
 	redirectPath := "/website?domain=" + nameForManager
@@ -272,18 +249,7 @@ func handlePM2EnvVars(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 	flashAndRedirectApp(a, w, r, "success", "Environment variables saved, make sure to restart the application for changes to take effect.", redirectPath)
 }
 
-// pm2Settings is every field the Update tab lets a user change, and the
-// only shape a PM2 app's .env/docker-compose.yml service ever gets
-// written from - handlePM2Update (an interactive form) and
-// handlePM2RestoreBackup (a backup's settings.json, which the user could
-// have hand-edited on disk) both go through validatePM2Settings and
-// applyPM2Settings below, so a crafted backup file gets exactly the same
-// scrutiny a live form submission would. Container name, image, ports,
-// volumes, and networks are never fields here - there's no code path
-// that lets either caller change them, which is what actually stops a
-// restored backup from repointing this service at another container,
-// binding a port, or mounting something it shouldn't, rather than any
-// one specific check.
+// pm2Settings is every field the Update tab lets a user change, and the only shape a PM2 app's .env/docker-compose.yml service ever gets written from - both handlePM2Update and handlePM2RestoreBackup go through validatePM2Settings/applyPM2Settings below, so a hand-edited backup file gets the same scrutiny as a live form. Container name, image, ports, volumes, and networks are never fields here, which is what actually stops a restored backup from repointing the service at something it shouldn't.
 type pm2Settings struct {
 	Version      string `json:"version"`
 	Requirements string `json:"requirements"`
@@ -296,8 +262,7 @@ type pm2Settings struct {
 	GitRepoURL   string `json:"git_repo_url"`
 }
 
-// validatePM2Settings returns every validation failure in s (empty means
-// valid) using the exact same checks handlePM2Update always has.
+// validatePM2Settings returns every validation failure in s (empty means valid) using the exact same checks handlePM2Update always has
 func validatePM2Settings(s pm2Settings) []string {
 	var errs []string
 	if !isValidVersion(s.Version) {
@@ -330,11 +295,7 @@ func validatePM2Settings(s pm2Settings) []string {
 	return errs
 }
 
-// applyPM2Settings writes an already-validated s into containerName's
-// .env entries and docker-compose.yml command/pids-limit, exactly what
-// handlePM2Update always did inline - factored out so
-// handlePM2RestoreBackup can reach the identical apply step. Callers
-// must run validatePM2Settings first; this doesn't re-validate.
+// applyPM2Settings writes an already-validated s into containerName's .env entries and docker-compose.yml command/pids-limit - factored out so handlePM2RestoreBackup can reach the identical apply step. Callers must run validatePM2Settings first; this doesn't re-validate.
 func applyPM2Settings(a *appctx.App, ctx context.Context, userContext, containerName string, kind Kind, s pm2Settings) error {
 	prefix := strings.ToUpper(containerName) + "_" + kind.PyOrNode + "_"
 	envFile := "/home/" + userContext + "/.env"
@@ -366,10 +327,7 @@ func applyPM2Settings(a *appctx.App, ctx context.Context, userContext, container
 		if services, ok := composeData["services"].(map[string]any); ok {
 			if svc, svcOK := services[containerName].(map[string]any); svcOK {
 				svc["command"] = `sh -c "` + resolvedCommand + `"`
-				// Installs from before PIDs became editable have "pids: 100"
-				// hardcoded rather than referencing prefix+PIDS - point it
-				// at the env var here so a saved edit actually takes effect
-				// on the next restart, not just future installs.
+				// installs from before PIDs became editable hardcode "pids: 100" instead of the env var - point it there now so a saved edit takes effect on restart, not just future installs
 				if deploy, ok := svc["deploy"].(map[string]any); ok {
 					if resources, ok := deploy["resources"].(map[string]any); ok {
 						if limits, ok := resources["limits"].(map[string]any); ok {
@@ -514,10 +472,7 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/sites", http.StatusFound)
 }
 
-// revertWebserverConfig's Apache branch searches for what
-// editApacheConfig() actually writes ("http://{service_name}"), not the
-// "http://localhost" a naive revert might assume - matching the real
-// inserted lines is what makes the revert actually find and remove them.
+// revertWebserverConfig's Apache branch searches for what editApacheConfig() actually writes ("http://{service_name}"), not "http://localhost" - matching the real inserted lines is what makes the revert find and remove them
 func revertWebserverConfig(userContext, subdirectory, webServerType, domainURL, serviceName string) {
 	vhostsPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
 	content, err := os.ReadFile(vhostsPath)

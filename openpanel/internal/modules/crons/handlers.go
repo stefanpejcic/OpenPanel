@@ -180,9 +180,7 @@ func writeCronFile(path, content string, truncate bool) error {
 	return err
 }
 
-// restartOrActivateCron mirrors the repeated `if not is_docker_service_running
-// ... else compose_container(..., 'restart')` block in save_cronjob(),
-// edit_cronjob(), and delete_cronjob().
+// restartOrActivateCron mirrors the repeated "activate if not running, else restart" block in save_cronjob(), edit_cronjob(), and delete_cronjob()
 func restartOrActivateCron(ctx context.Context, userContext string) {
 	if !docker.IsServiceRunning(ctx, userContext, "cron") {
 		docker.StartOrStopContainer(ctx, userContext, "cron", "activate", "detached")
@@ -300,10 +298,7 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	flashAndRedirect(a, w, r, "success", "Crontab file saved successfully!", "/cronjobs?view=code")
 }
 
-// splitJobExecSections implements a zero-width lookahead split on
-// "(?=\[job-exec )" manually, since Go's RE2 regexp doesn't support
-// lookahead. sections[0] is everything before the first match (possibly
-// ""); every later section starts with "[job-exec ".
+// splitJobExecSections implements a zero-width lookahead split on "(?=\[job-exec )" manually, since Go's RE2 doesn't support lookahead. sections[0] is everything before the first match (possibly ""); every later section starts with "[job-exec ".
 func splitJobExecSections(content string) []string {
 	const marker = "[job-exec "
 	var indices []int
@@ -418,8 +413,7 @@ func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	flashAndRedirect(a, w, r, "success", "Cron job was successfully edited.", "/cronjobs")
 }
 
-// readLinesKeepEnds splits content into lines, each keeping its
-// trailing '\n'.
+// readLinesKeepEnds splits content into lines, each keeping its trailing '\n'
 func readLinesKeepEnds(content string) []string {
 	if content == "" {
 		return nil

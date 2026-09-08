@@ -19,10 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// dokuwikiStableTarball is DokuWiki's version-agnostic "always current
-// stable" download, confirmed live to resolve to a real dated release
-// (2026-07-14b "Mort" as of this module being written) wrapped in a single
-// top-level dokuwiki-<version>/ directory inside the tarball.
+// dokuwikiStableTarball is DokuWiki's version-agnostic "always current stable" download, wrapped in a single top-level dokuwiki-<version>/ dir inside the tarball
 const dokuwikiStableTarball = "https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz"
 
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -62,8 +59,7 @@ func formOr(r *http.Request, key, def string) string {
 	return def
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up.
+// ensureContainerRunning starts the container if it isn't already running, polling briefly for it to come up
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -79,10 +75,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// phpVersionBelow reports whether version (e.g. "7.2", "8.5") is older
-// than wantMajor.wantMinor - the opposite guard SofaWiki needs (DokuWiki
-// needs a PHP floor, not a ceiling). An unparseable version is treated as
-// too old, so an unexpected format fails safe.
+// phpVersionBelow reports whether version (e.g. "7.2") is older than wantMajor.wantMinor, opposite of sofawiki's ceiling check - an unparseable version fails safe as "too old"
 func phpVersionBelow(version string, wantMajor, wantMinor int) bool {
 	major, minor := 0, 0
 	if _, err := fmt.Sscanf(version, "%d.%d", &major, &minor); err != nil {
@@ -101,15 +94,7 @@ func isValidSubdirectory(subdirectory string) bool {
 	return !strings.Contains(subdirectory, "..") && !strings.HasPrefix(subdirectory, "/")
 }
 
-// hashDokuwikiPassword shells out to `php -r 'echo password_hash(...)'`
-// inside the same php-fpm container the site will run in, rather than
-// reimplementing bcrypt in Go - guarantees byte-for-byte the same hash
-// format DokuWiki's own install.php produces (confirmed live: PassHash's
-// hash_bcrypt() is a thin wrapper around PHP's crypt()/password_hash with
-// the standard $2y$ prefix), so there's no risk of a subtly incompatible
-// hash locking the generated admin account out. Password is passed as a
-// separate argv element (not interpolated into a shell string), so it's
-// safe regardless of its contents.
+// hashDokuwikiPassword shells out to php's password_hash() in the site's own php-fpm container instead of reimplementing bcrypt in Go, so the hash format always matches what install.php would produce - password is passed as a separate argv element, not interpolated into the shell string
 func hashDokuwikiPassword(ctx context.Context, userContext, phpContainer, password string) (string, error) {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "php", "-r",
 		"echo password_hash($argv[1], PASSWORD_BCRYPT);", "--", password)
@@ -124,13 +109,7 @@ func hashDokuwikiPassword(ctx context.Context, userContext, phpContainer, passwo
 	return hash, nil
 }
 
-// handleInstallStream drives a DokuWiki install end to end, streaming
-// NDJSON progress events: download+extract the current stable tarball,
-// write conf/local.php + conf/users.auth.php + conf/acl.auth.php directly
-// (replicating exactly what DokuWiki's own install.php wizard would have
-// written for a single-admin, ACL-enabled site - see dokuwiki.go's package
-// doc comment), fix ownership, record the site, and remove install.php
-// since it's never needed and DokuWiki's own docs recommend deleting it.
+// handleInstallStream drives a DokuWiki install end to end over NDJSON: download+extract the stable tarball, write the conf files directly, fix ownership, record the site, and remove install.php
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -205,10 +184,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		phpContainer = "php-fpm-" + phpVersion
 	}
 
-	// DokuWiki needs PHP 7.4+ - the opposite constraint of SofaWiki's PHP
-	// 8-fatals ceiling. Confirmed against a live copy of the current
-	// stable release; older releases needed even less, but this server
-	// only ever offers 7.4+ containers anyway.
+	// DokuWiki needs PHP 7.4+, opposite of sofawiki's PHP 8-fatals ceiling
 	if !isLitespeed && phpVersionBelow(phpVersion, 7, 4) {
 		emit(map[string]any{"error": "DokuWiki requires PHP 7.4 or newer, but this domain is set to PHP " + phpVersion + ". Change the domain's PHP version and try again."})
 		return
@@ -281,15 +257,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "DokuWiki installation completed!", "admin_user": adminUser, "admin_password": adminPassword})
 }
 
-// runDokuwikiExtract downloads the current stable tarball and extracts it
-// into installPath, returning the installed version string (read from the
-// extracted VERSION file). The tarball wraps everything in a single
-// top-level dokuwiki-<version>/ directory (confirmed live), so this
-// extracts to a scratch location first and copies that directory's
-// *contents* into installPath - same reasoning as sofawiki's
-// runSofawikiExtract for why `cp -a` beats `mv` here (a root, no-
-// subdirectory install's installPath already exists as the domain's
-// docroot, even though empty).
+// runDokuwikiExtract downloads and extracts the stable tarball to a scratch dir then copies its top-level dokuwiki-<version>/ contents into installPath with cp -a (installPath may already exist as the docroot, even if empty, so mv won't work - same as sofawiki's runSofawikiExtract), returning the version read from VERSION
 func runDokuwikiExtract(ctx context.Context, userContext, phpContainer, installPath string) (version string, out []byte, err error) {
 	scratch := "/tmp/openpanel-dokuwiki-" + strconv.FormatInt(time.Now().UnixNano(), 36)
 	script := `set -e
@@ -324,14 +292,7 @@ type dokuwikiConfigParams struct {
 	AdminEmail string
 }
 
-// writeDokuwikiConfig writes conf/local.php, conf/users.auth.php and
-// conf/acl.auth.php directly inside the container, byte-for-byte
-// replicating what DokuWiki's own install.php wizard's store_data()
-// function writes for a single-admin, ACL-enabled, open-read wiki -
-// confirmed against that function's source on a live extracted copy
-// rather than guessed. AdminHash must already be a valid DokuWiki
-// password hash (see hashDokuwikiPassword) - this function only writes
-// files, it never handles a clear-text password.
+// writeDokuwikiConfig writes conf/local.php, users.auth.php and acl.auth.php directly, matching what install.php's wizard writes for a single-admin ACL-enabled wiki - AdminHash must already be hashed (see hashDokuwikiPassword), this never touches a clear-text password
 func writeDokuwikiConfig(ctx context.Context, userContext, phpContainer, installPath string, p dokuwikiConfigParams) error {
 	localPHP := "<?php\n" +
 		"$conf['title'] = '" + escapePHPSingleQuoted(p.Title) + "';\n" +

@@ -1,7 +1,4 @@
-// Package app holds the panel's shared runtime state - config, DB pool,
-// cache, sessions, i18n - and the handful of user/feature lookups needed
-// across the whole panel rather than owned by any one feature module.
-// Later phases' module packages take an *App as their dependency bag.
+// Package app holds the panel's shared runtime state (config, DB pool, cache, sessions, i18n) that module packages take as their dependency bag.
 package app
 
 import (
@@ -32,8 +29,7 @@ const (
 	MySQLOptFile  = db.OptionFile
 )
 
-// mainModules are always enabled regardless of the admin's enabled_modules
-// setting.
+// mainModules are always enabled, regardless of the admin's enabled_modules setting
 var mainModules = []string{"dashboard", "websites"}
 
 type App struct {
@@ -46,10 +42,7 @@ type App struct {
 
 	EnabledModules   []string
 	enabledModuleSet map[string]bool
-	// PluginNames is the set of plugin folder names found under
-	// plugins.BaseDir at startup; it is fixed for the process lifetime and
-	// not re-scanned per request - see internal/core/plugins for what is
-	// and isn't implemented of the plugin system.
+	// PluginNames is the set of plugin folders found under plugins.BaseDir at startup, fixed for the process lifetime
 	PluginNames map[string]bool
 
 	LicenseKey   string
@@ -65,10 +58,7 @@ type App struct {
 	TwofaEnforce            bool
 	DemoMode                bool
 
-	// CustomCSS/CustomJS record whether an admin-provided override was
-	// found on disk at startup. Set by cmd/openpanel after building the
-	// static asset handler, not here - this package doesn't know about
-	// static serving.
+	// CustomCSS/CustomJS record whether an admin override was found on disk. Set by cmd/openpanel, not here - this package doesn't know about static serving.
 	CustomCSS bool
 	CustomJS  bool
 }
@@ -159,8 +149,7 @@ func (a *App) Close() {
 	a.Cache.Close()
 }
 
-// ModuleEnabled reports whether module is turned on in openpanel.config's
-// enabled_modules list (or is dashboard/websites, always on).
+// ModuleEnabled reports whether module is on in openpanel.config's enabled_modules list (dashboard/websites are always on)
 func (a *App) ModuleEnabled(module string) bool {
 	return a.enabledModuleSet[module]
 }

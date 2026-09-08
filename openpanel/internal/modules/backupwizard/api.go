@@ -12,8 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterAPI wires the /api/backup-wizard routes onto mux, gated behind
-// the "backup_wizard" feature flag.
+// RegisterAPI wires the /api/backup-wizard routes onto mux, gated behind the "backup_wizard" feature flag
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "backup_wizard", "GET /api/backup-wizard/status", func(w http.ResponseWriter, r *http.Request) { apiBackupWizardStatus(a, w, r) })
 	apiregistry.Handle(mux, a, "backup_wizard", "POST /api/backup-wizard/create", func(w http.ResponseWriter, r *http.Request) { apiBackupWizardCreate(a, w, r) })
@@ -22,8 +21,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	})
 }
 
-// apiBackupWizardStatus reuses the exact same statusPayload shape as
-// handleBackupWizardStatus (backupwizard.go).
+// apiBackupWizardStatus reuses the exact same statusPayload shape as handleBackupWizardStatus (backupwizard.go)
 func apiBackupWizardStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentUsername, userContext, err := injected(a, r)
 	if err != nil {
@@ -43,8 +41,7 @@ func apiBackupWizardStatus(a *appctx.App, w http.ResponseWriter, r *http.Request
 	})
 }
 
-// apiBackupWizardCreate is handleBackupWizardCreate (backupwizard.go) with
-// a JSON response instead of a flash+redirect.
+// apiBackupWizardCreate is handleBackupWizardCreate (backupwizard.go) with a JSON response instead of a flash+redirect
 func apiBackupWizardCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentUsername, userContext, err := injected(a, r)
 	if err != nil {
@@ -73,8 +70,7 @@ func apiBackupWizardCreate(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusAccepted, map[string]string{"message": "Backup started. Poll GET /api/backup-wizard/status for progress."})
 }
 
-// apiBackupWizardDownload is handleBackupWizardDownload (backupwizard.go)
-// with JSON error responses instead of a flash+redirect.
+// apiBackupWizardDownload is handleBackupWizardDownload (backupwizard.go) with JSON error responses instead of a flash+redirect
 func apiBackupWizardDownload(a *appctx.App, w http.ResponseWriter, r *http.Request, filename string) {
 	currentUsername, userContext, err := injected(a, r)
 	if err != nil {

@@ -13,11 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
 )
 
-// licenseTagRegex matches simple <tag>value</tag> pairs in the license
-// server's response. Go's RE2 engine doesn't support backreferences, so it
-// can't require the closing tag to match the opening one directly; tags
-// are matched with a plain capture group instead and verified against the
-// closing tag manually in parseLicenseResponse.
+// licenseTagRegex matches <tag>value</tag> pairs in the license server's response - Go's RE2 has no backreferences, so the closing tag is checked manually in parseLicenseResponse
 var licenseTagRegex = regexp.MustCompile(`<([^<>]+)>([^<]+)</([^<>]+)>`)
 
 func parseLicenseResponse(body string) map[string]string {
@@ -31,9 +27,7 @@ func parseLicenseResponse(body string) map[string]string {
 	return result
 }
 
-// checkLicenseStartup performs a single remote license verification call
-// once at boot. Network/parse failures are swallowed and treated as "not
-// valid" rather than surfaced as startup errors.
+// checkLicenseStartup does one remote license check at boot; network/parse failures just count as "not valid"
 func (a *App) checkLicenseStartup(ctx context.Context) bool {
 	if a.LicenseKey == "" {
 		return false
@@ -73,11 +67,7 @@ func (a *App) checkLicenseStartup(ctx context.Context) bool {
 	return data["status"] == "Active"
 }
 
-// LicenseCheckPasses reports whether the current license allows access: an
-// empty key means no license is configured (always allowed), a key
-// prefixed with "enterprise", "noc", or "lifetime" is always allowed
-// without a remote check, and any other key falls back to the
-// startup-computed LicenseValid result.
+// LicenseCheckPasses reports whether the current license allows access - no key or an enterprise/noc/lifetime key always passes, anything else falls back to the startup-computed LicenseValid
 func (a *App) LicenseCheckPasses() bool {
 	if a.LicenseKey == "" {
 		return true

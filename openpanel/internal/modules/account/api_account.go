@@ -50,8 +50,7 @@ func apiAccountGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// apiAccountUpdate applies any of email/password/username changes present
-// in the request body.
+// apiAccountUpdate applies any of email/password/username changes present in the request body
 func apiAccountUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

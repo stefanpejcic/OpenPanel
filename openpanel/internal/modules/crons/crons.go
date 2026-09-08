@@ -1,6 +1,4 @@
-// Package crons manages the per-user crons.ini file (dodo/go-cron
-// "job-exec" blocks executed inside a container), its table and raw-file
-// editor views, and the log viewer for the shared cron container.
+// Package crons manages the per-user crons.ini file (dodo/go-cron "job-exec" blocks executed inside a container), its table and raw-file editor views, and the log viewer for the shared cron container.
 package crons
 
 import (
@@ -42,8 +40,7 @@ func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, 
 	_ = a.Sessions.Save(r, w, sess)
 }
 
-// cronMaxFileSizeBytes is derived from cron_max_file_size_kb (default
-// 100 KB). a.Config is loaded once at process startup.
+// cronMaxFileSizeBytes is derived from cron_max_file_size_kb (default 100 KB); a.Config is loaded once at process startup
 func cronMaxFileSizeBytes(a *appctx.App) int {
 	kb, err := strconv.Atoi(a.Config.Get("cron_max_file_size_kb", "100"))
 	if err != nil {
@@ -70,11 +67,7 @@ func hasCronJobs(lines []string) bool {
 	return false
 }
 
-// validateCronSchedule mirrors validate_cron_schedule(): the Go cron
-// implementation used (robfig/cron, WithSeconds()) needs 6 numeric fields
-// (seconds minutes hours day month weekday), not the usual 5.
-// @every/@daily-style descriptors are passed through as-is. Returns "" when
-// valid.
+// validateCronSchedule mirrors validate_cron_schedule(): the Go cron implementation used (robfig/cron, WithSeconds()) needs 6 numeric fields, not the usual 5. @every/@daily-style descriptors pass through as-is. Returns "" when valid.
 func validateCronSchedule(schedule string) string {
 	schedule = strings.TrimSpace(schedule)
 	if schedule == "" {
@@ -94,8 +87,7 @@ func validateCronSchedule(schedule string) string {
 	}
 }
 
-// forbiddenPatterns/execPatterns mirror save_cronjob()'s forbidden_patterns
-// and exec_patterns (case-insensitive, word-boundary matches).
+// forbiddenPatterns/execPatterns mirror save_cronjob()'s forbidden_patterns and exec_patterns (case-insensitive, word-boundary matches)
 var (
 	forbiddenPatterns = []*regexp.Regexp{
 		regexp.MustCompile(`(?i)\bimage\s*=`),
@@ -126,8 +118,7 @@ type CronJob struct {
 	NoOverlap bool
 }
 
-// ScheduleIssue is one entry of cronjobs.html's health_toast() issues list
-// (one per invalid-schedule cron job, matching cron_schedule_issues).
+// ScheduleIssue is one entry of cronjobs.html's health_toast() issues list (one per invalid-schedule cron job, matching cron_schedule_issues)
 type ScheduleIssue struct {
 	ID       string `json:"id"`
 	Severity string `json:"severity"`
@@ -136,13 +127,10 @@ type ScheduleIssue struct {
 
 var cronJobHeaderRE = regexp.MustCompile(`\[job-exec\s+"([^"]*)"\]`)
 
-// cronBlockSplitRE splits crons.ini content on one-or-more blank lines
-// (the "empty row between them" separator the GUI requires between
-// [job-exec] blocks).
+// cronBlockSplitRE splits crons.ini content on one-or-more blank lines (the "empty row between them" separator the GUI requires between [job-exec] blocks)
 var cronBlockSplitRE = regexp.MustCompile(`\r?\n[ \t]*\r?\n[ \t\r\n]*`)
 
-// splitCronBlocks splits raw crons.ini content into trimmed, non-empty
-// [job-exec] blocks separated by blank lines.
+// splitCronBlocks splits raw crons.ini content into trimmed, non-empty [job-exec] blocks separated by blank lines
 func splitCronBlocks(content string) []string {
 	trimmed := strings.TrimSpace(content)
 	if trimmed == "" {
@@ -167,10 +155,7 @@ func splitKV(line string) (key, val string, ok bool) {
 	return strings.TrimSpace(line[:idx]), strings.TrimSpace(line[idx+1:]), true
 }
 
-// ParseCronFile mirrors parse_cron_file(). It's intentionally tolerant of
-// key order and extra whitespace so existing/legacy crons.ini files keep
-// rendering even if they don't match the stricter format enforced by
-// ValidateCronFileFormat for new saves from the raw editor.
+// ParseCronFile mirrors parse_cron_file(). Intentionally tolerant of key order and extra whitespace so existing/legacy crons.ini files keep rendering even if they don't match the stricter format ValidateCronFileFormat enforces for new saves.
 func ParseCronFile(content string) []CronJob {
 	var jobs []CronJob
 	for _, block := range splitCronBlocks(content) {
@@ -203,12 +188,7 @@ func ParseCronFile(content string) []CronJob {
 	return jobs
 }
 
-// uniqueCronComment returns base unchanged if no job in existing already
-// uses it as its comment, otherwise it appends "-1", "-2", etc. until it
-// finds a name that isn't taken. Used when a new job's comment is left
-// empty and defaults to the container name, so scheduling several jobs
-// against the same container doesn't silently collide (e.g. "apache",
-// "apache-1", "apache-2").
+// uniqueCronComment returns base unchanged if no job in existing already uses it, otherwise appends "-1", "-2", etc. until it finds one that's free - used when a new job's comment defaults to the container name, so several jobs on the same container don't collide (e.g. "apache", "apache-1", "apache-2")
 func uniqueCronComment(existing []CronJob, base string) string {
 	taken := make(map[string]bool, len(existing))
 	for _, j := range existing {
@@ -225,8 +205,7 @@ func uniqueCronComment(existing []CronJob, base string) string {
 	}
 }
 
-// ValidateCronFileFormat enforces the format required by the table/GUI view
-// for content saved from the raw file editor (?view=code):
+// ValidateCronFileFormat enforces the format required by the table/GUI view for content saved from the raw file editor (?view=code):
 //
 //	[job-exec "name"]
 //	schedule = ...
@@ -234,9 +213,7 @@ func uniqueCronComment(existing []CronJob, base string) string {
 //	command = ...
 //	no-overlap   (optional)
 //
-// with exactly one blank line separating each block. Returns "" when the
-// content is well-formed (or empty), otherwise a human-readable message
-// describing the first problem found.
+// with exactly one blank line separating each block. Returns "" if well-formed (or empty), otherwise a message describing the first problem found.
 func ValidateCronFileFormat(content string) string {
 	for i, block := range splitCronBlocks(content) {
 		lines := strings.Split(block, "\n")
@@ -277,8 +254,7 @@ func ValidateCronFileFormat(content string) string {
 	return ""
 }
 
-// serviceNames mirrors the containers = load_compose_config(context)["services"]
-// keys-minus-excluded pattern shared by cronjobs()/cronjobs_new().
+// serviceNames mirrors the containers = load_compose_config(context)["services"] keys-minus-excluded pattern shared by cronjobs()/cronjobs_new()
 func serviceNamesFromCompose(compose map[string]any) ([]string, bool) {
 	servicesRaw, ok := compose["services"]
 	if !ok {

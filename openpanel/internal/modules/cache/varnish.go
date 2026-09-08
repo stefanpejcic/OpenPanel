@@ -29,10 +29,7 @@ func RegisterVarnish(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /cache/varnish/stats", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleVarnishStats(a, w, r) }))
 }
 
-// getVarnishStats caches parsed varnishstat output for 5s, keyed per
-// userContext since this panel runs many independent per-user containers
-// on one host - a single shared cache key would let two different hosting
-// accounts' varnish containers serve each other's cached stats.
+// getVarnishStats caches parsed varnishstat output for 5s, keyed per userContext - a single shared cache key would let two different hosting accounts' varnish containers serve each other's cached stats
 func getVarnishStats(ctx context.Context, a *appctx.App, userContext string) map[string]float64 {
 	stats, _ := cache.Memoize(ctx, a.Cache, "varnish_stats:"+userContext, 5*time.Second, func() (map[string]float64, error) {
 		return computeVarnishStats(ctx, userContext), nil
@@ -64,8 +61,7 @@ func computeVarnishStats(ctx context.Context, userContext string) map[string]flo
 	return flat
 }
 
-// handleVarnishStats returns computed cache-hit ratio, traffic, backend
-// health, and memory metrics derived from varnishstat.
+// handleVarnishStats returns computed cache-hit ratio, traffic, backend health, and memory metrics derived from varnishstat
 func handleVarnishStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := cacheInjected(a, r)
@@ -118,8 +114,7 @@ func handleVarnishStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 func round4(v float64) float64 { return math.Round(v*10000) / 10000 }
 
-// handleVarnish serves the varnish page and handles its enable/disable/
-// per-domain-toggle form actions.
+// handleVarnish serves the varnish page and handles its enable/disable/per-domain-toggle form actions
 func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -138,17 +133,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		ipAddress := reqip.ClientIP(r)
 		outputJSON := r.URL.Query().Get("output") == "json"
 
-		// enable/disable run several sequential podman operations (remove +
-		// recreate two containers, with a retry on either) that can add up
-		// past what an impatient client/browser is willing to wait on this
-		// request - and r.Context() is canceled the moment the client gives
-		// up, which would SIGKILL whichever podman command is running at
-		// that instant via exec.CommandContext, abandoning the operation
-		// mid-way (confirmed live: that's exactly how the webserver was
-		// left permanently missing after a Varnish disable that otherwise
-		// reported success). A background context with its own generous
-		// timeout keeps this running to completion regardless of what the
-		// client does.
+		// enable/disable run several sequential podman operations that can outlast an impatient client, and r.Context() cancels the moment the client gives up - which would SIGKILL whatever podman command is running via exec.CommandContext, abandoning the operation mid-way (this is exactly how a webserver was once left permanently missing after a Varnish disable that reported success). A background context with its own generous timeout keeps this running to completion regardless of the client.
 		opCtx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
 		defer cancel()
 
@@ -157,27 +142,10 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			if !docker.IsServiceRunning(ctx, userContext, service) {
 				_ = docker.ToggleProxyHTTPPort(userContext, "on")
 				_ = docker.SwapAllWebserversComposePort(userContext, "on")
-				// Not docker.ComposeContainer(webserver, "stop") - see
-				// ForceRemoveContainer's doc comment for why "podman-compose
-				// down" isn't safe to use here (it cascades through
-				// depends_on and takes php-fpm down with it).
+				// not docker.ComposeContainer(webserver, "stop") - see ForceRemoveContainer's doc comment for why "podman-compose down" isn't safe here (it cascades through depends_on and takes php-fpm down with it)
 				docker.ForceRemoveContainer(opCtx, userContext, webserver)
 
-				// The webserver has to come up BEFORE varnish, not after:
-				// varnish's VCL resolves the webserver's container-network
-				// hostname at startup (`.host = "webserver_name"`), and if
-				// that name isn't registered yet varnish's VCL compile
-				// fails outright and it exits (confirmed live: "Backend
-				// host ... could not be resolved to an IP address" /
-				// "VCL compilation failed", exit code 2) - its
-				// restart:unless-stopped policy eventually recovers it
-				// once the webserver is up, but a container repeatedly
-				// crash-looping through that window responds slowly to a
-				// later `podman rm -f` (confirmed live: a ~10s stall on
-				// removal during disable), long enough to blow past
-				// whatever's waiting on this request and cancel the
-				// handler mid-flight, abandoning the webserver recreation
-				// it was still running.
+				// the webserver has to come up BEFORE varnish, not after: varnish's VCL resolves the webserver's container-network hostname at startup, and if that name isn't registered yet the VCL compile fails and it exits ("Backend host could not be resolved", exit code 2). It recovers via restart:unless-stopped once the webserver is up, but a crash-looping container responds slowly to a later `podman rm -f` (~10s stall), long enough to blow past the request and abandon the webserver recreation mid-flight.
 				if !restartWebserverAfterVarnishToggle(opCtx, userContext, webserver).Success {
 					_ = docker.SwapAllWebserversComposePort(userContext, "off")
 					restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
@@ -191,18 +159,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-				// Checks the actual running state rather than sniffing the
-				// activate command's stdout for the word "started" - real
-				// podman-compose output doesn't reliably contain it (see the
-				// identical fix in internal/modules/php/extensions.go).
-				// Polls instead of checking once: varnish's entrypoint copies
-				// and rewrites its VCL file before exec'ing varnishd, and on
-				// an account that's never run varnish before the image may
-				// still need to be pulled - both can take a few seconds past
-				// when `podman-compose up` returns, and a single immediate
-				// check was misreporting that as a start failure (issue
-				// #1091), rolling back and surfacing the compose command's
-				// raw stdout (a container ID) as a bogus "error" message.
+				// checks the actual running state rather than sniffing the activate command's stdout for "started" - real podman-compose output doesn't reliably contain it (see the identical fix in php/extensions.go). Polls instead of checking once: varnish's entrypoint rewrites its VCL before exec'ing varnishd, and the image may still need pulling on a first run, both can take a few seconds longer than `podman-compose up` takes to return - a single immediate check misreported that as a start failure (issue #1091).
 				result := docker.StartOrStopContainer(opCtx, userContext, service, "activate", "run")
 				if !result.Success || !docker.WaitForServiceRunning(opCtx, userContext, service) {
 					_ = docker.SwapAllWebserversComposePort(userContext, "off")
@@ -225,10 +182,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			if docker.IsServiceRunning(ctx, userContext, service) {
 				_ = docker.ToggleProxyHTTPPort(userContext, "off")
 				_ = docker.SwapAllWebserversComposePort(userContext, "off")
-				// Not docker.ComposeContainer(..., "stop") - see
-				// ForceRemoveContainer's doc comment for why "podman-compose
-				// down" isn't safe to use here (it cascades through
-				// depends_on and takes php-fpm down with it).
+				// not docker.ComposeContainer(..., "stop") - see ForceRemoveContainer's doc comment for why "podman-compose down" isn't safe here (it cascades through depends_on and takes php-fpm down with it)
 				docker.ForceRemoveContainer(opCtx, userContext, webserver)
 				docker.ForceRemoveContainer(opCtx, userContext, service)
 

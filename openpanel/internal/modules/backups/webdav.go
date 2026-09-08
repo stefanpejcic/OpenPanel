@@ -15,18 +15,12 @@ import (
 	"strings"
 )
 
-// webdavStore is the remoteStore implementation for the "webdav"
-// backup.env section. There's no client library involved - just plain
-// PROPFIND/GET requests over net/http, which is all a WebDAV client needs
-// for listing a folder and downloading a file.
+// webdavStore is the remoteStore implementation for the "webdav" backup.env section. No client library involved, just plain PROPFIND/GET requests over net/http - all a WebDAV client needs for listing a folder and downloading a file.
 type webdavStore struct {
 	config map[string]string
 }
 
-// targetURL is the folder backups live in: WEBDAV_URL (the server root)
-// joined with WEBDAV_PATH (the folder within it), always ending in "/" so
-// resolving a filename against it with url.Parse/ResolveReference never
-// accidentally drops the last path segment.
+// targetURL is the folder backups live in: WEBDAV_URL joined with WEBDAV_PATH, always ending in "/" so resolving a filename against it with url.Parse/ResolveReference never accidentally drops the last path segment
 func (s *webdavStore) targetURL() (*url.URL, error) {
 	base := strings.TrimSpace(s.config["WEBDAV_URL"])
 	if base == "" {

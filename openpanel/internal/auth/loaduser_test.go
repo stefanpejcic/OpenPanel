@@ -57,8 +57,7 @@ func TestParseJWTExpired(t *testing.T) {
 }
 
 func TestParseJWTRejectsAlgNone(t *testing.T) {
-	// alg=none is the classic JWT confusion attack: an attacker-crafted
-	// token with no signature that a naive verifier accepts anyway.
+	// alg=none is the classic JWT attack - an unsigned token a naive verifier accepts anyway
 	unsigned := "eyJhbGciOiJub25lIn0.eyJzdWIiOiIxIn0."
 	if _, err := parseJWT(unsigned, []byte("test-secret")); err == nil {
 		t.Error("expected alg=none token to be rejected")

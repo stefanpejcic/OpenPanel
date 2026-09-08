@@ -1,6 +1,4 @@
-// Package backupwizard is the single-click "back up my whole account"
-// flow, backed by `opencli user-backup` writing .tar.gz archives into the
-// user's docroot volume's _backups/ folder.
+// Package backupwizard is the single-click "back up my whole account" flow, backed by `opencli user-backup` writing .tar.gz archives into the user's docroot volume's _backups/ folder.
 package backupwizard
 
 import (
@@ -24,8 +22,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// Register wires the backup wizard routes onto mux, gated behind the
-// "backup_wizard" feature flag.
+// Register wires the backup wizard routes onto mux, gated behind the "backup_wizard" feature flag
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "backup_wizard")(h)
@@ -62,9 +59,7 @@ func formatSize(numBytes float64) string {
 
 var inProgressLogNameRE = regexp.MustCompile(`_backup_(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})\.log$`)
 
-// inProgressInfo mirrors _in_progress_info(): (started, currentSize,
-// inProgressFilename) for the currently-running backup, best-effort from
-// the newest matching log file and the newest .tar.gz on disk.
+// inProgressInfo mirrors _in_progress_info(): (started, currentSize, inProgressFilename) for the currently-running backup, best-effort from the newest matching log file and the newest .tar.gz on disk
 func inProgressInfo(currentUsername, userContext string) (started, currentSize, inProgressFile string) {
 	logDir := "/var/log/openpanel/admin/backups"
 	if entries, err := os.ReadDir(logDir); err == nil {
@@ -237,8 +232,7 @@ type statusPayload struct {
 	Backups           []BackupFile `json:"backups"`
 }
 
-// handleBackupWizardCreate fires `opencli user-backup` in the background
-// as a fire-and-forget child process that must outlive this request.
+// handleBackupWizardCreate fires `opencli user-backup` in the background as a fire-and-forget child process that must outlive this request
 func handleBackupWizardCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentUsername, userContext, err := injected(a, r)
 	if err != nil {
@@ -256,9 +250,7 @@ func handleBackupWizardCreate(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// nil Stdout/Stderr discard the child's output; a bare exec.Command (no
-	// context) plus the detached goroutine below keeps the backup running
-	// even after this request returns.
+	// nil Stdout/Stderr discard the child's output; a bare exec.Command (no context) plus the detached goroutine below keeps the backup running even after this request returns
 	cmd := exec.Command("opencli", "user-backup", "--account", currentUsername)
 	if err := cmd.Start(); err != nil {
 		flashAndRedirectToWizard(a, w, r, "error", "Failed to start backup.")

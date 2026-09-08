@@ -6,15 +6,7 @@ import (
 	"strings"
 )
 
-// AddJob appends a new [job-exec "<comment>"] block to userContext's
-// crons.ini and (re)starts the cron container - the same effect as
-// handleSaveCronjob's non-interactive path (see handlers.go), exported for
-// other modules (e.g. an app installer that needs its own periodic task,
-// such as Moodle's admin/cli/cron.php) to register a job directly at
-// install time instead of going through the HTTP form. comment must be
-// unique within the user's crons.ini - callers that might install more
-// than once per user should pick a comment that encodes the site (e.g.
-// "moodle-" + domain) and pair this with RemoveJobByComment at uninstall.
+// AddJob appends a new [job-exec "<comment>"] block to userContext's crons.ini and (re)starts the cron container - the same effect as handleSaveCronjob's non-interactive path, exported for other modules (like an app installer registering its own periodic task) to use directly instead of going through the HTTP form. comment must be unique within the user's crons.ini - callers that might install more than once per user should pick a comment that encodes the site (e.g. "moodle-" + domain) and pair this with RemoveJobByComment at uninstall.
 func AddJob(ctx context.Context, userContext, comment, schedule, container, command string, noOverlap bool) error {
 	path := cronFilePath(userContext)
 	block := "[job-exec \"" + comment + "\"]\n" +
@@ -31,10 +23,7 @@ func AddJob(ctx context.Context, userContext, comment, schedule, container, comm
 	return nil
 }
 
-// RemoveJobByComment deletes the [job-exec "<comment>"] block (if any) from
-// userContext's crons.ini and restarts the cron container - the uninstall-
-// time counterpart to AddJob. A missing crons.ini or a comment that isn't
-// present are both treated as success (nothing to remove).
+// RemoveJobByComment deletes the [job-exec "<comment>"] block (if any) from userContext's crons.ini and restarts the cron container - the uninstall-time counterpart to AddJob. A missing crons.ini or an absent comment are both treated as success (nothing to remove).
 func RemoveJobByComment(ctx context.Context, userContext, comment string) error {
 	path := cronFilePath(userContext)
 	content, err := os.ReadFile(path)

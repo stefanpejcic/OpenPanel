@@ -18,10 +18,7 @@ func TestCountFTPAccounts(t *testing.T) {
 	a := testApp(t)
 	ctx := context.Background()
 
-	// countFTPAccounts hardcodes /etc/openpanel/ftp/users/<context>/users.list,
-	// which this sandbox can't write to - verify the "missing file -> 0"
-	// path, which is real, exercised behavior for a non-installed FTP
-	// feature.
+	// countFTPAccounts hardcodes a system path this sandbox can't write to - verify the "missing file -> 0" path, real behavior for a non-installed FTP feature
 	got := countFTPAccounts(a, ctx, "definitely-does-not-exist-user")
 	if got != 0 {
 		t.Errorf("countFTPAccounts() for missing file = %d, want 0", got)

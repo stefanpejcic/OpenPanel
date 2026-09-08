@@ -175,8 +175,7 @@ overlap-typo`); got == "" {
 		t.Error("bad trailing line: expected an error")
 	}
 
-	// Two blocks jammed together with no blank line between them must fail
-	// (the GUI's required "empty row between them").
+	// two blocks jammed together with no blank line between them must fail (the GUI's required "empty row between them")
 	fused := `[job-exec "apache"]
 schedule = @every 30s
 container = apache

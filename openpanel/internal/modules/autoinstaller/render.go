@@ -28,10 +28,7 @@ type AutoinstallerPageData struct {
 	Domains []appctx.Domain
 	Counts  map[string]int
 
-	// UpsellAllowed/UpsellPlanName/UpsellURL back the disabled-tile hover
-	// tooltip: when a module key is in UpsellAllowed, the tile offers an
-	// upgrade CTA naming UpsellPlanName/UpsellURL instead of the plain
-	// "contact your administrator" message.
+	// UpsellAllowed/UpsellPlanName/UpsellURL back the disabled-tile hover tooltip: when a module key is in UpsellAllowed, the tile offers an upgrade CTA instead of the plain "contact your administrator" message
 	UpsellAllowed  map[string]bool
 	UpsellPlanName string
 	UpsellURL      string

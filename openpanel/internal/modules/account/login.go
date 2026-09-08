@@ -1,8 +1,4 @@
-// Package account implements the panel's own login form, admin
-// autologin/impersonation, and 2FA challenge. CAPTCHA and the login
-// notification email are deferred - both are separate modules this one
-// merely calls into; their absence doesn't change whether login itself
-// works.
+// Package account implements the panel's own login form, admin autologin/impersonation, and 2FA challenge. CAPTCHA and the login notification email are separate modules this one just calls into.
 package account
 
 import (
@@ -42,9 +38,7 @@ var loginPage = web.MustLoadPage("user/_login.html", "user/login.html")
 
 var validAutologinUsername = regexp.MustCompile(`^[A-Za-z0-9_.-]+$`)
 
-// Register wires /login, /login_autologin and /logout onto mux. These
-// routes are always available regardless of which optional modules are
-// enabled.
+// Register wires /login, /login_autologin and /logout onto mux; always available regardless of which optional modules are enabled
 func Register(mux *http.ServeMux, a *appctx.App) {
 	limiter := newLoginRateLimiter(a)
 
@@ -70,8 +64,7 @@ type localeOption struct {
 	FlagCode string
 }
 
-// flagOverrides maps locale codes to a different flag image code, for
-// locales whose ISO code doesn't match the corresponding country flag.
+// flagOverrides maps locale codes to a different flag image code, for locales whose ISO code doesn't match the corresponding country flag
 var flagOverrides = map[string]string{"en": "gb", "zh": "cn", "uk": "ua"}
 
 func localeOptions(codes []string) []localeOption {
@@ -107,9 +100,7 @@ type loginPageData struct {
 	FirstFlash        *flash.Message
 	T                 i18n.Translator
 
-	// Email and PasswordStrength are only used by the reset_password pages
-	// (forgotpassword.go), which reuse this struct rather than defining
-	// their own near-identical one.
+	// Email/PasswordStrength are only used by the reset_password pages (forgotpassword.go), which reuse this struct instead of defining their own
 	Email            string
 	PasswordStrength int
 }
@@ -221,9 +212,7 @@ func handleLoginTwofa(a *appctx.App, w http.ResponseWriter, r *http.Request, ses
 	completeLogin(a, w, r, sess, userID, username, "logged in with 2FA code", "2fa")
 }
 
-// loginNotifyMessage builds the "New login to OpenPanel" notification body
-// for each of the three login flows (password, 2FA, passkey - see
-// passkeys.go), passed to checkIfUserShouldBeNotified.
+// loginNotifyMessage builds the "New login to OpenPanel" notification body for each login flow (password, 2FA, passkey), passed to checkIfUserShouldBeNotified
 func loginNotifyMessage(kind, ip string) string {
 	switch kind {
 	case "password":
@@ -237,22 +226,13 @@ func loginNotifyMessage(kind, ip string) string {
 	}
 }
 
-// completeLogin establishes the session, logs/notifies, and redirects to
-// the dashboard - the tail shared by all three login flows (password,
-// 2FA, and the browser-redirect form of passkey login). The fetch()-based
-// passkey completion endpoint in passkeys.go needs the same session/log/
-// notify work but a JSON response instead of a redirect, so that shared
-// part lives in finishLoginSession below.
+// completeLogin establishes the session, logs/notifies, and redirects to the dashboard - shared by password, 2FA, and browser-redirect passkey login. The fetch()-based passkey endpoint needs the same work but a JSON response, hence finishLoginSession below.
 func completeLogin(a *appctx.App, w http.ResponseWriter, r *http.Request, sess *sessions.Session, userID int, username, action, notifyKind string) {
 	finishLoginSession(a, w, r, sess, userID, username, action, notifyKind)
 	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 
-// finishLoginSession is the common tail shared by all three success paths:
-// establish the session, append to .lastlogin, record the activity log
-// entry, clear rate-limit state, and fire the "new login" notification
-// email. Does not write any HTTP response - callers do that themselves
-// (a redirect for password/2FA, a JSON body for passkey login).
+// finishLoginSession is the common tail for all three success paths: establish the session, append to .lastlogin, log the activity, clear rate-limit state, and fire the login notification. Writes no HTTP response - callers do that themselves.
 func finishLoginSession(a *appctx.App, w http.ResponseWriter, r *http.Request, sess *sessions.Session, userID int, username, action, notifyKind string) {
 	ip := reqip.ClientIP(r)
 
@@ -270,9 +250,7 @@ func finishLoginSession(a *appctx.App, w http.ResponseWriter, r *http.Request, s
 	checkIfUserShouldBeNotified(a, r.Context(), userID, username, "notify_account_login", loginNotifyMessage(notifyKind, ip))
 }
 
-// logUserLogin appends to the user's .lastlogin history file, then creates
-// the Redis-backed session record RequireLogin validates on every
-// subsequent request.
+// logUserLogin appends to the user's .lastlogin history file, then creates the Redis-backed session record RequireLogin validates on every later request
 func logUserLogin(a *appctx.App, r *http.Request, sess *sessions.Session, userID int, username, ip string) error {
 	userFolder := filepath.Join("/etc/openpanel/openpanel/core/users", username)
 	if err := os.MkdirAll(userFolder, 0o755); err != nil {
@@ -323,8 +301,7 @@ func atoiDefault(s string, def int) int {
 	return n
 }
 
-// getCountryCode looks up the country for an IP via a public geolocation
-// API, cached for 6 minutes to avoid hitting it on every login.
+// getCountryCode looks up the country for an IP via a public geolocation API, cached for 6 minutes to avoid hitting it on every login
 func getCountryCode(a *appctx.App, ctx context.Context, ip string) string {
 	code, _ := cache.Memoize(ctx, a.Cache, "get_country_code:"+ip, 6*time.Minute, func() (string, error) {
 		client := &http.Client{Timeout: 5 * time.Second}
@@ -415,9 +392,7 @@ func handleAutologin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 
-// handleLogout only clears the browser-side session cookie - the
-// server-side Redis session record is left to expire on its own TTL
-// rather than being deleted immediately.
+// handleLogout only clears the browser-side session cookie - the server-side Redis record is left to expire on its own TTL instead of being deleted immediately
 func handleLogout(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 
@@ -455,9 +430,7 @@ func renderLogin(w http.ResponseWriter, status int, data loginPageData) {
 	}
 }
 
-// resolveLocale determines the locale for the pre-auth login page: session
-// value first, then Accept-Language/default. Login is reachable pre-auth,
-// so there's no per-account locale file to check yet.
+// resolveLocale determines the locale for the pre-auth login page: session value first, then Accept-Language/default - no per-account locale file yet since there's no logged-in user
 func resolveLocale(a *appctx.App, r *http.Request, sess *sessions.Session) string {
 	sessionLocale, _ := sess.Values["locale"].(string)
 	return a.I18n.ResolveLocale(r.Context(), sessionLocale, "", r.Header.Get("Accept-Language"))

@@ -26,9 +26,7 @@ func updateEmailByID(ctx context.Context, a *appctx.App, userID int, newEmail st
 	return err
 }
 
-// clearUserSessions deletes every "session:<id>:*" Redis key for the user,
-// forcing all of that user's devices (including, per clearCurrentSession
-// below, this one) to need to log in again.
+// clearUserSessions deletes every "session:<id>:*" Redis key for the user, forcing all of that user's devices (including this one) to log in again
 func clearUserSessions(ctx context.Context, a *appctx.App, userID int) int {
 	pattern := fmt.Sprintf("session:%d:*", userID)
 	var keys []string
@@ -56,10 +54,7 @@ func clearSessionValues(sess *sessions.Session) {
 	}
 }
 
-// updatePasswordByID rejects a weak password, otherwise hashes it, saves
-// it, and clears every Redis session for the user (including - if it's the
-// caller's own session, as it always is on this self-service page - the
-// current one).
+// updatePasswordByID rejects a weak password, otherwise hashes it, saves it, and clears every Redis session for the user, including the caller's own current one
 func updatePasswordByID(ctx context.Context, a *appctx.App, sess *sessions.Session, userID int, newPassword string) bool {
 	threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
 	if !validators.IsPasswordStrongEnough(newPassword, threshold) {
@@ -92,8 +87,7 @@ func notifySentinelPasswordChange(username string) {
 	_ = cmd.Start()
 }
 
-// handleAccountSettings implements email/password/username self-service,
-// mounted at both /settings and /account.
+// handleAccountSettings implements email/password/username self-service, mounted at both /settings and /account
 func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	ctx := r.Context()
@@ -185,9 +179,7 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 	renderAccountPage(a, w, r, permitUsernameChange)
 }
 
-// RegisterSettings wires the account self-service routes onto mux, gated
-// behind the "account" feature flag (unlike login/logout, which Register
-// in login.go wires unconditionally).
+// RegisterSettings wires the account self-service routes onto mux, gated behind "account" - unlike login/logout, which Register in login.go wires unconditionally
 func RegisterSettings(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "account")(h)

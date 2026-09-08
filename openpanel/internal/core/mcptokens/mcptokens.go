@@ -1,7 +1,4 @@
-// Package mcptokens implements long-lived bearer tokens used to
-// authenticate MCP clients (and other non-interactive /api/ consumers) via
-// the Authorization header, as an alternative to session cookies or
-// short-lived JWTs.
+// Package mcptokens implements long-lived bearer tokens for MCP clients and other non-interactive /api/ consumers, as an alternative to session cookies or JWTs.
 package mcptokens
 
 import (
@@ -85,9 +82,7 @@ func Authenticate(db *sql.DB, rawToken string) (*AuthResult, error) {
 	return &AuthResult{UserID: userID, ReadOnly: readOnly}, nil
 }
 
-// Token is one row of mcp_tokens, the shape the /account/mcp settings page
-// needs (never the token itself, which is only ever known at creation
-// time - only its hash is stored).
+// Token is one row of mcp_tokens, the shape the /account/mcp settings page needs - never the raw token itself, only its hash is stored
 type Token struct {
 	ID          int
 	Name        string
@@ -122,8 +117,7 @@ func GetTokensForUser(ctx context.Context, db *sql.DB, userID int) ([]Token, err
 	return tokens, rows.Err()
 }
 
-// randomURLSafeToken generates nBytes random bytes, base64url-encoded
-// without padding.
+// randomURLSafeToken generates nBytes random bytes, base64url-encoded without padding
 func randomURLSafeToken(nBytes int) (string, error) {
 	b := make([]byte, nBytes)
 	if _, err := rand.Read(b); err != nil {
@@ -132,9 +126,7 @@ func randomURLSafeToken(nBytes int) (string, error) {
 	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
-// CreateTokenForUser generates and persists a new token, returning the raw
-// token (shown to the caller exactly once) or an error if it couldn't be
-// persisted.
+// CreateTokenForUser generates and persists a new token, returning the raw token (shown to the caller exactly once)
 func CreateTokenForUser(ctx context.Context, db *sql.DB, userID int, name string, readOnly bool, expiresInDays int) (string, error) {
 	suffix, err := randomURLSafeToken(32)
 	if err != nil {
@@ -160,9 +152,7 @@ func CreateTokenForUser(ctx context.Context, db *sql.DB, userID int, name string
 	return rawToken, nil
 }
 
-// RevokeToken deletes the token row matching tokenID and userID, returning
-// whether a matching row was deleted (false means "not found", not an
-// error).
+// RevokeToken deletes the token row matching tokenID and userID; false means "not found", not an error
 func RevokeToken(ctx context.Context, db *sql.DB, tokenID, userID int) (bool, error) {
 	if err := EnsureTable(db); err != nil {
 		return false, err

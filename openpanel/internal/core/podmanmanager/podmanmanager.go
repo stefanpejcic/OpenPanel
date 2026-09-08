@@ -1,9 +1,4 @@
-// Package podmanmanager builds the right `podman`/`podman-compose` argv and
-// environment for a given hosting account's context (its own rootless
-// podman socket) versus the root/default context (the panel host's own
-// podman). It only covers CLI invocation; a REST-client half (a Podman API
-// client) isn't implemented yet - it's only needed by later-phase modules,
-// not by anything in scope here.
+// Package podmanmanager builds the right `podman`/`podman-compose` argv and environment for a hosting account's own rootless podman socket, versus the root/default context's own podman. CLI only, no REST client yet.
 package podmanmanager
 
 import (
@@ -17,8 +12,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// isRootContext reports whether userContext means "talk to the local/root
-// podman instance directly" instead of a per-user rootless one.
+// isRootContext reports whether userContext means "talk to the local/root podman directly" instead of a per-user rootless one
 func isRootContext(userContext string) bool {
 	switch userContext {
 	case "", "default", "root":
@@ -28,8 +22,7 @@ func isRootContext(userContext string) bool {
 	}
 }
 
-// GetUID returns the owning UID of /home/<context>, used to find that
-// user's rootless podman socket.
+// GetUID returns the owning UID of /home/<context>, used to find that user's rootless podman socket
 func GetUID(userContext string) (int, error) {
 	info, err := os.Stat("/home/" + userContext)
 	if err != nil {
@@ -42,9 +35,7 @@ func GetUID(userContext string) (int, error) {
 	return int(stat.Uid), nil
 }
 
-// PodmanUserSocket returns the unix:// URL for <context>'s rootless podman
-// socket. The /hostfs prefix matters because this binary runs inside its
-// own container with the host rootfs bind-mounted at /hostfs.
+// PodmanUserSocket returns the unix:// URL for <context>'s rootless podman socket - the /hostfs prefix matters since this binary runs in a container with the host rootfs bind-mounted there
 func PodmanUserSocket(userContext string) string {
 	uid, err := GetUID(userContext)
 	if err != nil {
@@ -53,9 +44,7 @@ func PodmanUserSocket(userContext string) string {
 	return fmt.Sprintf("unix:///hostfs/run/user/%d/podman/podman.sock", uid)
 }
 
-// PodmanEnv returns the current process environment, with CONTAINER_HOST
-// set for per-user contexts and stripped for the local/root context - an
-// env override, not a full environment replacement.
+// PodmanEnv returns the process environment with CONTAINER_HOST set for per-user contexts and stripped for the local/root context
 func PodmanEnv(userContext string) []string {
 	env := os.Environ()
 	filtered := make([]string, 0, len(env)+1)
@@ -70,9 +59,7 @@ func PodmanEnv(userContext string) []string {
 	return filtered
 }
 
-// PodmanArgv returns argv for a `podman` CLI call against <context>'s
-// instance. Root/default talks to the local socket directly (no --remote);
-// per-user contexts go through --remote + CONTAINER_HOST.
+// PodmanArgv returns argv for a `podman` CLI call against <context>'s instance - root/default hits the local socket directly, per-user goes through --remote + CONTAINER_HOST
 func PodmanArgv(userContext string, args ...string) []string {
 	if isRootContext(userContext) {
 		return append([]string{"podman"}, args...)
@@ -80,26 +67,19 @@ func PodmanArgv(userContext string, args ...string) []string {
 	return append([]string{"podman", "--remote"}, args...)
 }
 
-// PodmanComposeArgv returns argv for a `podman-compose` CLI call. It never
-// takes --remote - podman-compose inserts extra podman-args after the
-// subcommand, so --remote (only valid as a global flag) breaks it;
-// CONTAINER_HOST via PodmanEnv() is enough.
+// PodmanComposeArgv returns argv for a `podman-compose` call, never with --remote - podman-compose puts extra podman-args after the subcommand, which breaks a global-only flag like --remote, so CONTAINER_HOST via PodmanEnv() carries it instead
 func PodmanComposeArgv(args ...string) []string {
 	return append([]string{"podman-compose"}, args...)
 }
 
-// Command builds an *exec.Cmd for argv (from PodmanArgv/PodmanComposeArgv)
-// with the right environment for userContext already applied.
+// Command builds an *exec.Cmd for argv (from PodmanArgv/PodmanComposeArgv) with userContext's environment already applied
 func Command(ctx context.Context, userContext string, argv []string) *exec.Cmd {
 	cmd := exec.CommandContext(ctx, argv[0], argv[1:]...)
 	cmd.Env = PodmanEnv(userContext)
 	return cmd
 }
 
-// LoadComposeConfig runs `podman-compose config` for <context> and returns
-// the merged compose file. podman-compose's `config` subcommand has no
-// --format flag (unlike docker-compose), so this parses its default YAML
-// output.
+// LoadComposeConfig runs `podman-compose config` for <context> and returns the merged compose file, parsing its default YAML output since it has no --format flag like docker-compose does
 func LoadComposeConfig(ctx context.Context, userContext string) (map[string]any, error) {
 	argv := PodmanComposeArgv("-f", "/home/"+userContext+"/docker-compose.yml", "config")
 	cmd := Command(ctx, userContext, argv)
@@ -114,10 +94,7 @@ func LoadComposeConfig(ctx context.Context, userContext string) (map[string]any,
 	return result, nil
 }
 
-// BuildWPCLIBaseCommand returns the `podman exec ... php ...
-// /usr/local/bin/wp` argv prefix shared by all WP-CLI calls. Callers must
-// run this via Command(ctx, userContext, argv) to reach the right per-user
-// socket.
+// BuildWPCLIBaseCommand returns the `podman exec ... php ... /usr/local/bin/wp` argv prefix shared by all WP-CLI calls; run it via Command(ctx, userContext, argv) to reach the right socket
 func BuildWPCLIBaseCommand(userContext, phpContainer string) []string {
 	return PodmanArgv(userContext, "exec", phpContainer,
 		"php",
@@ -130,18 +107,8 @@ func BuildWPCLIBaseCommand(userContext, phpContainer string) []string {
 	)
 }
 
-// BuildComposeUpDownCommand returns the `podman-compose up -d`/`down`
-// argv and working directory for a container. ok is false for an
-// unrecognized action.
-//
-// "up" always passes --no-deps: callers already start each container's
-// real dependencies themselves (e.g. varnish's caller stops/starts the
-// active webserver explicitly), and letting podman-compose resolve
-// depends_on itself is actively harmful here - the vendored podman-compose
-// crashes with a KeyError while resolving a `${VAR:-default}`-interpolated
-// depends_on entry (e.g. `depends_on: ["${WEB_SERVER:-nginx}"]`), which
-// aborts the whole "up" before it starts anything and looks like the
-// activate silently failed.
+// BuildComposeUpDownCommand returns the `podman-compose up -d`/`down` argv and working directory for a container; ok is false for an unrecognized action.
+// "up" always passes --no-deps - callers already start real dependencies themselves, and the vendored podman-compose actually crashes with a KeyError resolving a `${VAR:-default}` depends_on entry otherwise, which looks like activate silently failed.
 func BuildComposeUpDownCommand(userContext, containerName, action string) (argv []string, dir string, ok bool) {
 	dir = "/home/" + userContext
 	switch action {

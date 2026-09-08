@@ -13,12 +13,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// loadPrivateKey auto-detects the key algorithm (Ed25519/ECDSA/RSA/DSA)
-// from the PEM headers via ssh.ParsePrivateKey, which handles every
-// algorithm without needing each key class tried in turn. loadPrivateKey
-// is used uniformly everywhere an SSH connection is opened, since there's
-// no reason a restore should require a different key type than a reindex
-// against the very same destination.
+// loadPrivateKey auto-detects the key algorithm (Ed25519/ECDSA/RSA/DSA) from the PEM headers via ssh.ParsePrivateKey, and is used uniformly everywhere an SSH connection is opened - a restore shouldn't need a different key type than a reindex against the same destination
 func loadPrivateKey(path, passphrase string) (ssh.Signer, error) {
 	pemBytes, err := os.ReadFile(path)
 	if err != nil {
@@ -29,23 +24,14 @@ func loadPrivateKey(path, passphrase string) (ssh.Signer, error) {
 	}
 	signer, err := ssh.ParsePrivateKeyWithPassphrase(pemBytes, []byte(passphrase))
 	if err != nil {
-		// Fall back to unencrypted parsing in case the key doesn't
-		// actually require the configured passphrase.
+		// fall back to unencrypted parsing in case the key doesn't actually require the configured passphrase
 		return ssh.ParsePrivateKey(pemBytes)
 	}
 	return signer, nil
 }
 
-// dialSSH connects to the remote backup host and unconditionally trusts
-// its host key (a known, pre-existing security tradeoff, not something
-// introduced here).
-//
-// Auth mirrors what the "backup" container's own docker-volume-backup tool
-// accepts for its SSH/SFTP target: a private key (SSH_IDENTITY_FILE) when
-// present, otherwise a plain password (SSH_PASSWORD) - backup.env's ssh
-// section documents both as valid, and a destination configured with only
-// a password (no identity file) is a normal, supported setup, not a
-// misconfiguration.
+// dialSSH connects to the remote backup host and unconditionally trusts its host key (a known, pre-existing tradeoff, not something introduced here).
+// Auth mirrors what the "backup" container's own docker-volume-backup tool accepts: a private key (SSH_IDENTITY_FILE) when present, otherwise a plain password (SSH_PASSWORD) - a password-only destination is a normal, supported setup.
 func dialSSH(config map[string]string) (*ssh.Client, error) {
 	var authMethod ssh.AuthMethod
 	if keyPath := config["SSH_IDENTITY_FILE"]; keyPath != "" {
@@ -74,8 +60,7 @@ func dialSSH(config map[string]string) (*ssh.Client, error) {
 	return ssh.Dial("tcp", addr, clientConfig)
 }
 
-// runSSHCommand runs a single command over a fresh channel/session on the
-// shared connection and returns stdout only.
+// runSSHCommand runs a single command over a fresh channel/session on the shared connection and returns stdout only
 func runSSHCommand(client *ssh.Client, command string) (string, error) {
 	session, err := client.NewSession()
 	if err != nil {
@@ -87,20 +72,12 @@ func runSSHCommand(client *ssh.Client, command string) (string, error) {
 	return string(out), err
 }
 
-// sshStore is the remoteStore implementation for the "ssh" backup.env
-// section. Each method opens its own short-lived connection rather than
-// sharing one across a doReindex run, matching how handleRestoreFromBackup/
-// handleDownloadBackup already dialed a fresh connection per request before
-// this type existed - simpler than plumbing connection lifetime through the
-// remoteStore interface for a destination that's only reindexed manually,
-// not on every page load.
+// sshStore is the remoteStore implementation for the "ssh" backup.env section. Each method opens its own short-lived connection rather than sharing one across a doReindex run - simpler than plumbing connection lifetime through the remoteStore interface for a destination that's only reindexed manually.
 type sshStore struct {
 	config map[string]string
 }
 
-// List reports the remote backup directory's entries via SFTP (rather than
-// shelling out to `ls`), so it works the same regardless of what shell (or
-// lack thereof) the SSH destination provides.
+// List reports the remote backup directory's entries via SFTP rather than shelling out to `ls`, so it works the same regardless of what shell (or lack thereof) the SSH destination provides
 func (s *sshStore) List(ctx context.Context) ([]string, error) {
 	client, err := dialSSH(s.config)
 	if err != nil {
@@ -129,9 +106,7 @@ func (s *sshStore) List(ctx context.Context) ([]string, error) {
 	return names, nil
 }
 
-// Fetch downloads one backup archive from the SSH/SFTP destination into a
-// local temp file. The caller must call cleanup() once done with the local
-// copy.
+// Fetch downloads one backup archive from the SSH/SFTP destination into a local temp file. The caller must call cleanup() once done with the local copy.
 func (s *sshStore) Fetch(ctx context.Context, filename string) (localPath string, cleanup func(), err error) {
 	client, err := dialSSH(s.config)
 	if err != nil {
@@ -177,10 +152,7 @@ func (s *sshStore) Fetch(ctx context.Context, filename string) (localPath string
 	return localPath, cleanup, nil
 }
 
-// Classify lists one remote archive's members with a remote `tar -tzf`
-// instead of downloading it first - a meaningful savings for large
-// archives, and the reason SSH keeps its own connection-based Classify
-// instead of falling back to classifyViaDownload like every other backend.
+// Classify lists one remote archive's members with a remote `tar -tzf` instead of downloading it first - a meaningful savings for large archives, and the reason SSH keeps its own connection-based Classify instead of falling back to classifyViaDownload like every other backend
 func (s *sshStore) Classify(ctx context.Context, filename string) (BackupInfo, error) {
 	client, err := dialSSH(s.config)
 	if err != nil {

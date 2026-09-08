@@ -17,21 +17,11 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// isoLayout is the timestamp format used for the "created_at" and
-// "last_active" fields stored in the Redis session hash - it must match
-// the format internal/modules/account/login.go writes when it creates
-// the session ("2024-01-02T15:04:05.678901", fractional seconds omitted
-// entirely when zero, which Go's ".999999" layout element also handles).
+// isoLayout is the timestamp format for "created_at"/"last_active" in the Redis session hash - must match what internal/modules/account/login.go writes
 const isoLayout = "2006-01-02T15:04:05.999999"
 
-// RequireLogin is middleware that enforces an authenticated session -
-// checking session existence, max lifetime, IP binding, 2FA enrollment,
-// and demo-mode write restrictions - and gates access by feature.
-// featureNames are the feature-gate keys checked against the caller's
-// enabled features; each route registration passes its own feature
-// name(s) explicitly. Access is granted if the caller has any one of
-// them - a route shared by two modules (e.g. docker's and services'
-// /json/services) passes both so it works whenever either is enabled.
+// RequireLogin is middleware that enforces an authenticated session (existence, max lifetime, IP binding, 2FA, demo-mode writes) and gates access by feature.
+// Access is granted if the caller has any one of featureNames - a route shared by two modules passes both so it works when either is enabled.
 func RequireLogin(a *appctx.App, featureNames ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -155,9 +145,7 @@ func refreshLastActive(ctx context.Context, a *appctx.App, sessionKey, lastActiv
 	_, _ = pipe.Exec(ctx)
 }
 
-// clearSession empties the session's values map. It does not save -
-// callers add any flash message after calling this and save once at the
-// end, so the flash message survives the clear.
+// clearSession empties the session's values map but doesn't save - callers add a flash message after this and save once, so it survives the clear
 func clearSession(sess *sessions.Session) {
 	for k := range sess.Values {
 		delete(sess.Values, k)
@@ -186,8 +174,7 @@ func contains(list []string, want string) bool {
 	return false
 }
 
-// RequireAPI is middleware for API routes: Bearer-token auth only (JWT or
-// MCP token), feature-gated the same way as RequireLogin.
+// RequireAPI is middleware for API routes: Bearer-token auth only (JWT or MCP), feature-gated like RequireLogin
 func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

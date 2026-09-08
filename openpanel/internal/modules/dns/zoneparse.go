@@ -4,8 +4,7 @@ import (
 	"strings"
 )
 
-// ZoneLineEntry is one logical DNS record, which may span multiple
-// physical lines (parenthesized multi-line TXT/DKIM records).
+// ZoneLineEntry is one logical DNS record, which may span multiple physical lines (parenthesized multi-line TXT/DKIM records)
 type ZoneLineEntry struct {
 	LineNumber    int
 	EndLineNumber int
@@ -14,9 +13,7 @@ type ZoneLineEntry struct {
 	Multiline     bool
 }
 
-// parseZoneWithLineNumbers skips indented/comment/directive lines and the
-// apex SOA/NS lines, merges parenthesized continuation lines into one
-// logical record, and extracts any trailing (non-quoted) comment.
+// parseZoneWithLineNumbers skips indented/comment/directive lines and the apex SOA/NS lines, merges parenthesized continuation lines into one logical record, and extracts any trailing (non-quoted) comment
 func parseZoneWithLineNumbers(content string) []ZoneLineEntry {
 	rawLines := strings.Split(content, "\n")
 	totalLines := len(rawLines)
@@ -59,9 +56,7 @@ func parseZoneWithLineNumbers(content string) []ZoneLineEntry {
 	return entries
 }
 
-// isSkippedZoneLine reports whether a line should be skipped when parsing
-// a zone: indented/comment/directive lines, and the apex SOA/NS
-// declaration lines.
+// isSkippedZoneLine reports whether a line should be skipped when parsing a zone: indented/comment/directive lines, and the apex SOA/NS declaration lines
 func isSkippedZoneLine(line string) bool {
 	if line == "" {
 		return false
@@ -76,9 +71,7 @@ func isSkippedZoneLine(line string) bool {
 	return false
 }
 
-// ZoneRow is one rendered row of the zone table view - a record split
-// into up to 5 whitespace-separated fields, with the SOA line excluded
-// and the display value comment/quote-stripped, precomputed server-side.
+// ZoneRow is one rendered row of the zone table view - a record split into up to 5 whitespace-separated fields, with the SOA line excluded and the display value comment/quote-stripped, precomputed server-side
 type ZoneRow struct {
 	LineNumber    int
 	EndLineNumber int
@@ -91,9 +84,7 @@ type ZoneRow struct {
 	Multiline     bool
 }
 
-// buildZoneRows splits each entry's merged line into fields, drops the
-// SOA line, and computes the display value (quote-stripped,
-// comment-stripped).
+// buildZoneRows splits each entry's merged line into fields, drops the SOA line, and computes the display value (quote-stripped, comment-stripped)
 func buildZoneRows(entries []ZoneLineEntry) []ZoneRow {
 	var rows []ZoneRow
 	for _, item := range entries {

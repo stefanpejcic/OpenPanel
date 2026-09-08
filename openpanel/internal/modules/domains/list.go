@@ -78,9 +78,7 @@ func handleDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderDomainsPage(a, w, r, paginated, totalPages, page, startIndex+1, endIndex, totalDomains)
 }
 
-// subdomainURLSet reduces domain categorization to just the set of URLs
-// classified as subdomains - the domains list only needs
-// domain.is_subdomain, not the full main/sub split.
+// subdomainURLSet reduces domain categorization to just the set of URLs classified as subdomains - the list page only needs is_subdomain, not the full main/sub split
 func subdomainURLSet(domainData []DomainWithSite) map[string]bool {
 	urls := make([]appctx.Domain, len(domainData))
 	for i, d := range domainData {

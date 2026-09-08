@@ -32,14 +32,7 @@ func ensurePasskeysTable(ctx context.Context, a *appctx.App) error {
 	return err
 }
 
-// rpIDAndOrigin computes the WebAuthn Relying Party ID (the request host
-// without a port) and origin (the full scheme+host) - which the browser's
-// own clientDataJSON.origin must match byte-for-byte for registration/login
-// to verify. This panel's backend listens on plain HTTP behind a Caddy
-// TLS-terminating reverse proxy, so the raw, unproxied connection scheme
-// would almost always read "http" even though the browser is on https -
-// this trusts X-Forwarded-Proto first since that's what actually reflects
-// what the browser used.
+// rpIDAndOrigin computes the WebAuthn Relying Party ID (host without port) and origin (scheme+host), which must match the browser's clientDataJSON.origin byte-for-byte. Trusts X-Forwarded-Proto first since this backend usually sits behind a Caddy TLS-terminating proxy.
 func rpIDAndOrigin(r *http.Request) (rpID, origin string) {
 	host := r.Host
 	rpID = host
@@ -57,21 +50,12 @@ func rpIDAndOrigin(r *http.Request) (rpID, origin string) {
 	return rpID, scheme + "://" + host
 }
 
-// isIPHost reports whether host (already stripped of any port) is a literal
-// IP address rather than a domain name.
+// isIPHost reports whether host (already stripped of any port) is a literal IP address rather than a domain name
 func isIPHost(host string) bool {
 	return net.ParseIP(host) != nil
 }
 
-// webAuthnUnavailableReason reports why the browser's WebAuthn API won't be
-// usable for the current request, or "" if it should work fine. Browsers
-// only expose navigator.credentials in a secure context (HTTPS, or
-// localhost), and additionally refuse to register/verify a credential when
-// the effective domain is a literal IP address rather than a real domain -
-// hitting either case leaves navigator.credentials undefined client-side,
-// which without this check surfaces only as a cryptic "can't access
-// property 'create', navigator.credentials is undefined" in the browser
-// console instead of an explanation on the page.
+// webAuthnUnavailableReason reports why WebAuthn won't work for this request, or "" if it should work fine - browsers only expose navigator.credentials over HTTPS/localhost, and refuse an IP-address domain, so we explain that up front instead of a cryptic "navigator.credentials is undefined" in the console
 func webAuthnUnavailableReason(r *http.Request) string {
 	rpID, origin := rpIDAndOrigin(r)
 	switch {
@@ -84,9 +68,7 @@ func webAuthnUnavailableReason(r *http.Request) string {
 	}
 }
 
-// newWebAuthnForRequest builds a *webauthn.WebAuthn scoped to the current
-// request's host, recomputed on every call rather than configured once,
-// since the RP ID/origin depend on the request's host.
+// newWebAuthnForRequest builds a *webauthn.WebAuthn scoped to the current request's host, recomputed on every call since the RP ID/origin depend on it
 func newWebAuthnForRequest(r *http.Request, brandName string) (*webauthn.WebAuthn, error) {
 	rpID, origin := rpIDAndOrigin(r)
 	if brandName == "" {
@@ -99,12 +81,7 @@ func newWebAuthnForRequest(r *http.Request, brandName string) (*webauthn.WebAuth
 	})
 }
 
-// passkeyUser adapts a user row to go-webauthn's webauthn.User interface.
-// WebAuthnID intentionally returns the decimal-ASCII encoding of the
-// numeric user id rather than the library's recommended random opaque
-// handle - the handle is embedded by the authenticator into
-// already-registered credentials, so changing this scheme would break
-// every passkey a user already registered.
+// passkeyUser adapts a user row to go-webauthn's webauthn.User interface. WebAuthnID returns the decimal-ASCII user id rather than a random opaque handle - changing this would break every already-registered passkey.
 type passkeyUser struct {
 	userID      int
 	username    string
@@ -127,8 +104,7 @@ type passkeyRow struct {
 	SignCount    uint32
 }
 
-// getPasskeysForUser returns id, name, created_at, last_used_at only - the
-// shape the settings page table needs.
+// getPasskeysForUser returns id, name, created_at, last_used_at only - the shape the settings page table needs
 func getPasskeysForUser(ctx context.Context, a *appctx.App, userID int) ([]passkeyRow, error) {
 	if err := ensurePasskeysTable(ctx, a); err != nil {
 		return nil, err
@@ -151,8 +127,7 @@ func getPasskeysForUser(ctx context.Context, a *appctx.App, userID int) ([]passk
 	return result, rows.Err()
 }
 
-// decodeCredentialID decodes the raw credential ID bytes stored (as a
-// base64url string, no padding) in user_passkeys.credential_id.
+// decodeCredentialID decodes the raw credential ID bytes stored as a base64url string (no padding) in user_passkeys.credential_id
 func decodeCredentialID(s string) ([]byte, error) {
 	return base64.RawURLEncoding.DecodeString(s)
 }

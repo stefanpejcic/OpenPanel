@@ -1,9 +1,4 @@
-// Package mysqlmanager maintains a per-user connection pool to that user's
-// own MySQL/MariaDB instance, reached over
-// a unix socket at /home/<context>/sockets/mysqld/mysqld.sock using
-// credentials from that user's own /home/<context>/my.cnf - a completely
-// separate database from the panel's own (internal/core/db), one pool per
-// hosting account.
+// Package mysqlmanager maintains a per-user connection pool to that user's own MySQL/MariaDB instance, over a unix socket using their /home/<context>/my.cnf credentials - separate from the panel's own DB (internal/core/db).
 package mysqlmanager
 
 import (
@@ -30,9 +25,7 @@ var (
 	pools   = map[string]*sql.DB{}
 )
 
-// mycnfCredentials reads the [client] section of /home/<context>/my.cnf.
-// Same ini format as /etc/my.cnf (internal/core/db), but a distinct
-// per-user file.
+// mycnfCredentials reads the [client] section of /home/<context>/my.cnf, same ini format as /etc/my.cnf but a distinct per-user file
 func mycnfCredentials(userContext string) (user, password string, err error) {
 	path := fmt.Sprintf("/home/%s/my.cnf", userContext)
 	f, err := os.Open(path)
@@ -69,7 +62,7 @@ func mycnfCredentials(userContext string) (user, password string, err error) {
 	return opts["user"], opts["password"], nil
 }
 
-// waitForSocket waits for a freshly-started mysqld to create its socket.
+// waitForSocket waits for a freshly-started mysqld to create its socket
 func waitForSocket(socketPath string) error {
 	deadline := time.Now().Add(socketWaitTimeout)
 	for {
@@ -100,8 +93,7 @@ func openPool(userContext string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	// One connection, reused: this hits a per-user mysqld meant for light
-	// panel-side queries, not app traffic.
+	// one connection, reused - this is a per-user mysqld for light panel-side queries, not app traffic
 	db.SetMaxOpenConns(1)
 	db.SetConnMaxLifetime(time.Hour)
 
@@ -124,8 +116,7 @@ func getPool(userContext string) (*sql.DB, error) {
 	return db, nil
 }
 
-// InvalidatePool drops and closes the cached pool for a user, e.g. after
-// their mysqld container restarts.
+// InvalidatePool drops and closes the cached pool for a user, e.g. after their mysqld container restarts
 func InvalidatePool(userContext string) {
 	poolsMu.Lock()
 	db, ok := pools[userContext]
@@ -137,9 +128,7 @@ func InvalidatePool(userContext string) {
 	}
 }
 
-// getConnection gets the pool, validates it with SELECT 1, and
-// transparently reopens once if that fails (covers the
-// mysqld-container-restarted case without the caller needing to know).
+// getConnection gets the pool, pings it, and transparently reopens once if that fails - covers a restarted mysqld container without the caller needing to know
 func getConnection(ctx context.Context, userContext string) (*sql.DB, error) {
 	db, err := getPool(userContext)
 	if err == nil {
@@ -155,11 +144,7 @@ func getConnection(ctx context.Context, userContext string) (*sql.DB, error) {
 	return getPool(userContext)
 }
 
-// Exec runs one statement (optionally against a specific database first,
-// via `USE `db“) and returns every row as a slice of columns - the same
-// shape regardless of statement type, since callers range from SELECT
-// COUNT(*) to SHOW GRANTS to CREATE DATABASE (which simply returns no
-// rows).
+// Exec runs one statement (optionally USE-ing database first) and returns every row as a slice of columns, the same shape whether it's a SELECT, SHOW GRANTS, or CREATE DATABASE
 func Exec(ctx context.Context, userContext, query string, database string) ([][]any, error) {
 	db, err := getConnection(ctx, userContext)
 	if err != nil {
@@ -205,10 +190,7 @@ func Exec(ctx context.Context, userContext, query string, database string) ([][]
 	return result, rows.Err()
 }
 
-// ToInt converts one Exec result cell to an int, tolerating the different
-// concrete types the driver may hand back for numeric aggregates ([]byte,
-// int64, etc.) depending on the query - callers doing a COUNT(*)-style
-// query just need `int(result[0][0])`.
+// ToInt converts one Exec result cell to an int, tolerating whatever concrete type the driver hands back ([]byte, int64, etc.) for numeric aggregates
 func ToInt(v any) int {
 	switch t := v.(type) {
 	case int64:

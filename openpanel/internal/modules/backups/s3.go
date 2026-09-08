@@ -12,20 +12,12 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-// s3Store is the remoteStore implementation for the "s3" backup.env
-// section. It talks to whatever S3-compatible endpoint the "backup"
-// container itself is configured against (AWS S3 by default, or any
-// self-hosted/compatible service via AWS_ENDPOINT) using the same
-// AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY credentials, so there's nothing
-// destination-specific to configure beyond what backup.env already has.
+// s3Store is the remoteStore implementation for the "s3" backup.env section. Talks to whatever S3-compatible endpoint the "backup" container is configured against (AWS S3 by default, or self-hosted via AWS_ENDPOINT) using the same credentials, so nothing extra needs configuring.
 type s3Store struct {
 	config map[string]string
 }
 
-// client builds a fresh minio client from config - cheap enough (no
-// network round-trip on construction) that there's no need to cache one
-// across List/Fetch/Classify calls, matching sshStore's per-call-connection
-// approach.
+// client builds a fresh minio client from config - cheap enough (no network round-trip on construction) that there's no need to cache one across calls, matching sshStore's per-call-connection approach
 func (s *s3Store) client() (*minio.Client, string, string, error) {
 	bucket := s.config["AWS_S3_BUCKET_NAME"]
 	if bucket == "" {

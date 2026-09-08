@@ -57,13 +57,7 @@ func TestIndentComposeService(t *testing.T) {
 	})
 }
 
-// TestComposeServiceInsertProducesValidYAML reproduces the live bug: a
-// vendored, never-saved compose file (2-space service keys) got a new
-// service unconditionally pushed to 4 spaces, so the inserted service sat
-// deeper than its siblings under services: - invalid YAML ("expected
-// <block end>, but found '<block mapping start>'"), which is exactly what
-// broke every fresh Python/NodeJS/Ruby install. Assert the merged result
-// actually parses and both services show up as siblings.
+// reproduces the live bug: a vendored 2-space compose file got a new service unconditionally pushed to 4 spaces, sitting deeper than its siblings - invalid YAML, which broke every fresh install. Assert the merged result actually parses with both services as siblings.
 func TestComposeServiceInsertProducesValidYAML(t *testing.T) {
 	existing := "services:\n\n  openlitespeed:\n    image: openlitespeed\n    networks:\n      - www\n"
 	composeLines := strings.SplitAfter(existing, "\n")

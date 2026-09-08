@@ -234,11 +234,7 @@ func handlePasskeysLoginBegin(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	writeJSONPasskeys(w, http.StatusOK, assertion.Response)
 }
 
-// handlePasskeysLoginComplete verifies a WebAuthn login assertion and
-// establishes the session - unauthenticated. Uses the same
-// finishLoginSession tail as password/2FA login in login.go, but responds
-// with JSON (this endpoint is called via fetch(), not a form submit)
-// instead of a redirect.
+// handlePasskeysLoginComplete verifies a WebAuthn login assertion and establishes the session (unauthenticated). Uses the same finishLoginSession tail as login.go, but responds with JSON since this is called via fetch(), not a form submit.
 func handlePasskeysLoginComplete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -325,9 +321,7 @@ func handlePasskeysLoginComplete(a *appctx.App, w http.ResponseWriter, r *http.R
 	writeJSONPasskeys(w, http.StatusOK, map[string]any{"success": true, "redirect": "/dashboard"})
 }
 
-// RegisterPasskeys wires the passkey routes onto mux, gated behind the
-// "passkeys" feature flag - including the unauthenticated
-// /login/passkey/* endpoints.
+// RegisterPasskeys wires the passkey routes onto mux, gated behind "passkeys" - including the unauthenticated /login/passkey/* endpoints
 func RegisterPasskeys(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "passkeys")(h)

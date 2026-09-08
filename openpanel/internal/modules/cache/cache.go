@@ -1,7 +1,4 @@
-// Package cache implements five near-identical single-container cache
-// services (redis, memcached, elasticsearch, opensearch, valkey) that just
-// enable/disable/restart a fixed compose service, plus varnish's richer
-// per-domain reverse-cache toggle and live varnishstat metrics.
+// Package cache implements five near-identical single-container cache services (redis, memcached, elasticsearch, opensearch, valkey) that just enable/disable/restart a fixed compose service, plus varnish's richer per-domain reverse-cache toggle and live varnishstat metrics.
 package cache
 
 import (
@@ -13,8 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/services"
 )
 
-// serviceDef is one of the five generic cache services' fixed identity:
-// its service name, port, title, and description.
+// serviceDef is one of the five generic cache services' fixed identity: its service name, port, title, and description
 type serviceDef struct {
 	Name        string
 	Port        int
@@ -54,11 +50,7 @@ func registerGenericService(mux *http.ServeMux, a *appctx.App, def serviceDef) {
 	}))
 }
 
-// RegisterRedis, RegisterMemcached, RegisterElasticsearch, RegisterOpensearch
-// and RegisterValkey each wire up one generic cache service's route. Kept
-// as separate Registrar entries (rather than one bundled registrar, unlike
-// e.g. the domains/php phases' satellite-module bundling) since each has
-// its own real enabled_modules entry admins toggle independently.
+// RegisterRedis, RegisterMemcached, RegisterElasticsearch, RegisterOpensearch and RegisterValkey each wire up one generic cache service's route. Kept as separate entries rather than one bundled registrar since each has its own real enabled_modules entry admins toggle independently.
 func RegisterRedis(mux *http.ServeMux, a *appctx.App) { registerGenericService(mux, a, redisDef) }
 func RegisterMemcached(mux *http.ServeMux, a *appctx.App) {
 	registerGenericService(mux, a, memcachedDef)
@@ -71,8 +63,7 @@ func RegisterOpensearch(mux *http.ServeMux, a *appctx.App) {
 }
 func RegisterValkey(mux *http.ServeMux, a *appctx.App) { registerGenericService(mux, a, valkeyDef) }
 
-// handleGenericService implements the shared enable/disable/restart page
-// for all five generic cache services - identical apart from the def.
+// handleGenericService implements the shared enable/disable/restart page for all five generic cache services - identical apart from the def
 func handleGenericService(a *appctx.App, w http.ResponseWriter, r *http.Request, def serviceDef) {
 	ctx := r.Context()
 	username, userContext, err := cacheInjected(a, r)

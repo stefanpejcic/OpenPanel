@@ -26,9 +26,7 @@ func RegisterVarnishAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "varnish", "POST /api/cache/varnish/domains/{domain}", func(w http.ResponseWriter, r *http.Request) { apiVarnishDomainToggle(a, w, r) })
 }
 
-// varnishDomainStatuses reports each of the user's domains' varnish
-// on/off state, derived from whether its webserver config still proxies
-// to the plain HTTPS backend uncommented.
+// varnishDomainStatuses reports each of the user's domains' varnish on/off state, derived from whether its webserver config still proxies to the plain HTTPS backend uncommented
 func varnishDomainStatuses(a *appctx.App, r *http.Request, userID int) map[string]string {
 	domains, _ := a.AllDomainsForUser(r.Context(), userID)
 	result := make(map[string]string, len(domains))
@@ -55,8 +53,7 @@ func varnishDomainStatuses(a *appctx.App, r *http.Request, userID int) map[strin
 	return result
 }
 
-// apiVarnishStatus returns varnish's container state, health, available
-// actions, and per-domain toggle statuses.
+// apiVarnishStatus returns varnish's container state, health, available actions, and per-domain toggle statuses
 func apiVarnishStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	_, userContext, err := cacheInjected(a, r)
@@ -75,9 +72,7 @@ func apiVarnishStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// apiVarnishAction enables, disables, or restarts varnish, swapping the
-// active webserver's proxy port and stopping/starting containers as
-// needed around the transition.
+// apiVarnishAction enables, disables, or restarts varnish, swapping the active webserver's proxy port and stopping/starting containers as needed around the transition
 func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentUsername, userContext, err := cacheInjected(a, r)
 	if err != nil {
@@ -93,12 +88,7 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	action := strings.ToLower(strings.TrimSpace(body.Action))
 
-	// enable/disable run several sequential podman operations (remove +
-	// recreate two containers, with a retry on either) that can add up
-	// past what an impatient client is willing to wait on this request -
-	// see the identical opCtx comment in handleVarnish
-	// (internal/modules/cache/varnish.go) for why that's dangerous with
-	// r.Context() specifically.
+	// enable/disable run several sequential podman operations (remove + recreate two containers, with a retry on either) that can outlast an impatient client - see the identical opCtx comment in handleVarnish (varnish.go) for why that's dangerous with r.Context() specifically
 	opCtx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
 	defer cancel()
 
@@ -117,17 +107,10 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		_ = docker.ToggleProxyHTTPPort(userContext, "on")
 		_ = docker.SwapAllWebserversComposePort(userContext, "on")
-		// Not docker.ComposeContainer(webserver, "stop") - see
-		// docker.ForceRemoveContainer's doc comment for why "podman-compose
-		// down" isn't safe here (it cascades through depends_on and takes
-		// php-fpm down with it).
+		// not docker.ComposeContainer(webserver, "stop") - see docker.ForceRemoveContainer's doc comment for why "podman-compose down" isn't safe here (it cascades through depends_on and takes php-fpm down with it)
 		docker.ForceRemoveContainer(opCtx, userContext, webserver)
 
-		// The webserver has to come up BEFORE varnish - see the identical
-		// comment in handleVarnish (internal/modules/cache/varnish.go)'s
-		// "enable" case for why (varnish's VCL resolves the webserver's
-		// container-network hostname at startup and crash-loops if it
-		// isn't registered yet).
+		// the webserver has to come up BEFORE varnish - see the identical comment in handleVarnish (varnish.go)'s "enable" case: varnish's VCL resolves the webserver's container-network hostname at startup and crash-loops if it isn't registered yet
 		if !restartWebserverAfterVarnishToggle(opCtx, userContext, webserver).Success {
 			_ = docker.SwapAllWebserversComposePort(userContext, "off")
 			restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
@@ -136,8 +119,7 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Polls rather than checking once - see the identical fix/comment in
-		// handleVarnish (internal/modules/cache/varnish.go), issue #1091.
+		// polls rather than checking once - see the identical fix/comment in handleVarnish (varnish.go), issue #1091
 		result := docker.StartOrStopContainer(opCtx, userContext, "varnish", "activate", "run")
 		if !result.Success || !docker.WaitForServiceRunning(opCtx, userContext, "varnish") {
 			_ = docker.SwapAllWebserversComposePort(userContext, "off")
@@ -158,10 +140,7 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		_ = docker.ToggleProxyHTTPPort(userContext, "off")
 		_ = docker.SwapAllWebserversComposePort(userContext, "off")
-		// Not docker.ComposeContainer(..., "stop") - see
-		// docker.ForceRemoveContainer's doc comment for why "podman-compose
-		// down" isn't safe here (it cascades through depends_on and takes
-		// php-fpm down with it).
+		// not docker.ComposeContainer(..., "stop") - see docker.ForceRemoveContainer's doc comment for why "podman-compose down" isn't safe here (it cascades through depends_on and takes php-fpm down with it)
 		docker.ForceRemoveContainer(opCtx, userContext, webserver)
 		docker.ForceRemoveContainer(opCtx, userContext, "varnish")
 		result := restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
@@ -178,13 +157,13 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// apiVarnishDomainsList returns every domain's varnish on/off status.
+// apiVarnishDomainsList returns every domain's varnish on/off status
 func apiVarnishDomainsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	writeJSON(w, http.StatusOK, map[string]any{"domain_statuses": varnishDomainStatuses(a, r, userID)})
 }
 
-// apiVarnishDomainToggle turns varnish caching on or off for one domain.
+// apiVarnishDomainToggle turns varnish caching on or off for one domain
 func apiVarnishDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

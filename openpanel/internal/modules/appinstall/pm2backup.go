@@ -18,15 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// pm2BackupManifest is what settings.json in a backup folder holds - the
-// exact same fields the Update tab manages, plus the Env Vars tab's
-// custom KEY=VALUE list. There is deliberately no container_name/image/
-// volumes/networks field: since applyPM2Settings only ever writes into
-// the site's own already-verified container (looked up from the sites
-// table, never from the backup file), a hand-edited settings.json has no
-// way to repoint this restore at a different container, bind a port, or
-// change a volume/network - those fields simply aren't inputs to any
-// code path a restore goes through.
+// pm2BackupManifest is what settings.json in a backup folder holds - the same fields the Update tab manages, plus the Env Vars tab's KEY=VALUE list. No container_name/image/volumes/networks field on purpose: applyPM2Settings only ever writes into the site's own already-verified container, so a hand-edited file has no way to repoint a restore at a different container or network.
 type pm2BackupManifest struct {
 	pm2Settings
 	EnvVars string `json:"env_vars"`
@@ -44,10 +36,7 @@ func RegisterPM2Backup(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /pm2/restore/{site_name...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePM2RestoreBackup(a, w, r) }))
 }
 
-// lookupPM2Site resolves the {site_name} path segment (actually the
-// container/service identifier, matching every other /pm2/* route's own
-// convention) to the owning user's sites-table row, the same query
-// handlePM2Action already uses.
+// lookupPM2Site resolves the {site_name} path segment (actually the container/service identifier, matching every other /pm2/* route) to the owning user's sites-table row, the same query handlePM2Action uses
 func lookupPM2Site(a *appctx.App, userID int, pathSiteName string) (pm2SiteLookup, Kind, bool) {
 	var lookup pm2SiteLookup
 	row := a.DB.QueryRow(`
@@ -62,9 +51,7 @@ func lookupPM2Site(a *appctx.App, userID int, pathSiteName string) (pm2SiteLooku
 	return lookup, kind, ok
 }
 
-// pm2InstallPaths resolves a site's docroot, both as the container-visible
-// "/var/www/html/..." path and as its real host-filesystem path under the
-// user's html_data volume.
+// pm2InstallPaths resolves a site's docroot, both as the container-visible "/var/www/html/..." path and as its real host-filesystem path under the user's html_data volume
 func pm2InstallPaths(a *appctx.App, userContext, siteName string) (installPath, installHostPath string, ok bool) {
 	domain, subdir, _ := strings.Cut(siteName, "/")
 	var docrootBase string
@@ -84,10 +71,7 @@ func pm2BackupsDir(userContext, siteName string) string {
 	return "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/backups/" + siteName
 }
 
-// getCurrentPM2EnvVars mirrors websites.getCurrentEnvVars (unreachable
-// from here - that package imports this one) closely enough for a
-// backup's purposes: the service's current `environment:` list, one
-// "KEY=VALUE" per line.
+// getCurrentPM2EnvVars mirrors websites.getCurrentEnvVars (unreachable from here since that package imports this one) closely enough for a backup: the service's current `environment:` list, one "KEY=VALUE" per line
 func getCurrentPM2EnvVars(userContext, containerName string) string {
 	composeData, err := docker.LoadCompose(userContext)
 	if err != nil {
@@ -114,11 +98,7 @@ func getCurrentPM2EnvVars(userContext, containerName string) string {
 	return strings.Join(lines, "\n")
 }
 
-// handlePM2CreateBackup archives the app's docroot and records its
-// current Update-tab settings + custom env vars into settings.json -
-// mirrors every CMS backups.go's handleXRunBackup in directory layout
-// (backups/<site_name>/<timestamp>/...) so the same restore/list UI
-// pattern applies here too.
+// handlePM2CreateBackup archives the app's docroot and records its current Update-tab settings + custom env vars into settings.json - mirrors every CMS backups.go's directory layout (backups/<site_name>/<timestamp>/...) so the same restore/list UI works here too
 func handlePM2CreateBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -180,8 +160,7 @@ func handlePM2CreateBackup(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusOK, map[string]string{"status": "success", "date": timestamp})
 }
 
-// handlePM2ListBackups returns every backup timestamp available for the
-// site, newest first.
+// handlePM2ListBackups returns every backup timestamp available for the site, newest first
 func handlePM2ListBackups(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	_, userContext, err := injectedContext(a, r)
@@ -211,15 +190,7 @@ func handlePM2ListBackups(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	writeJSON(w, http.StatusOK, dates)
 }
 
-// handlePM2RestoreBackup extracts a backup's files and re-applies its
-// settings.json - every setting goes through the exact same
-// validatePM2Settings/applyPM2Settings path a live Update-tab submission
-// does (see pm2Settings' doc comment for why that's what actually makes
-// a hand-edited backup file safe to restore), and the env_vars list gets
-// the same per-line KEY=VALUE check handlePM2EnvVars already enforces.
-// The whole restore is rejected up front if anything fails validation -
-// nothing is extracted or written until the backup's settings have
-// already passed.
+// handlePM2RestoreBackup extracts a backup's files and re-applies its settings.json through the exact same validatePM2Settings/applyPM2Settings path a live Update-tab submission uses, and the env_vars list gets the same per-line check handlePM2EnvVars enforces. The whole restore is rejected up front if anything fails validation - nothing is extracted or written until it passes.
 func handlePM2RestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -312,11 +283,7 @@ func handlePM2RestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	// -f composeFile explicitly - podman-compose has no reliable default
-	// working directory here (podmanmanager.Command doesn't set cmd.Dir),
-	// confirmed live: down/up without -f silently did nothing (no error
-	// surfaced, container just never came back up) while the identical
-	// command with -f worked immediately.
+	// -f composeFile explicitly, since podman-compose has no reliable default working directory here (podmanmanager.Command doesn't set cmd.Dir) - down/up without it silently did nothing, no error, container just never came back up
 	composeFile := "/home/" + userContext + "/docker-compose.yml"
 	downArgv := podmanmanager.PodmanComposeArgv("-f", composeFile, "down", containerName)
 	downOut, _ := podmanmanager.Command(ctx, userContext, downArgv).CombinedOutput()

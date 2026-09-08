@@ -16,19 +16,9 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
 )
 
-// This file holds the shared lookup helpers used widely across other
-// modules: AllDomainsForUser, CheckDomainBelongsToUser,
-// GetCachedIPForUserOrPublicIPv4, GetResourceUsage, GetLastLoginData,
-// QueryPlanDetailsByID, QueryPlanEmailMailboxLimits,
-// ReadDedicatedIPFromFile, and GetUID. Standalone JSON routes are not
-// here; they belong to whichever later phase owns each one. The
-// podman/docker-CLI dependent shared helpers (container compose/start/stop,
-// log fetching, the undeletable-services list) live in
-// internal/modules/docker instead, since this package can't import that
-// one without an import cycle (docker already imports appctx).
+// shared lookup helpers used across modules live here. The podman/docker-CLI dependent ones live in internal/modules/docker instead, to avoid an import cycle.
 
-// AllDomainsForUser queries the domains table for every domain belonging
-// to userID. Uncached - each call hits the database directly.
+// AllDomainsForUser queries the domains table for userID's domains, uncached
 func (a *App) AllDomainsForUser(ctx context.Context, userID int) ([]Domain, error) {
 	rows, err := a.DB.QueryContext(ctx,
 		"SELECT domain_id, docroot, domain_url, php_version FROM domains WHERE user_id = ?", userID)
@@ -53,11 +43,7 @@ func (a *App) AllDomainsForUser(ctx context.Context, userID int) ([]Domain, erro
 	return result, rows.Err()
 }
 
-// CheckDomainBelongsToUser reports whether domainParam (a numeric
-// domain_id or a domain name) belongs to userID. Domain names are
-// IDNA-encoded before the lookup. Any error (DB or IDNA conversion) is
-// treated as "doesn't belong to this user" rather than surfaced as an
-// error.
+// CheckDomainBelongsToUser reports whether domainParam (a domain_id or domain name) belongs to userID; any error just means "no"
 func (a *App) CheckDomainBelongsToUser(ctx context.Context, userID int, domainParam string) bool {
 	if idx := strings.Index(domainParam, "/"); idx != -1 {
 		domainParam = domainParam[:idx]
@@ -85,9 +71,7 @@ func (a *App) CheckDomainBelongsToUser(ctx context.Context, userID int, domainPa
 	return gotUserID == userID
 }
 
-// ReadDedicatedIPFromFile reads a user's dedicated-IP JSON file, if
-// present. Returns ("", false) if the file doesn't exist or the "ip" key
-// is absent/empty.
+// ReadDedicatedIPFromFile reads a user's dedicated-IP file, returning ("", false) if it's missing or empty
 func ReadDedicatedIPFromFile(username string) (string, bool) {
 	path := fmt.Sprintf("/etc/openpanel/openpanel/core/users/%s/ip.json", username)
 	data, err := os.ReadFile(path)
@@ -103,9 +87,7 @@ func ReadDedicatedIPFromFile(username string) (string, bool) {
 	return parsed.IP, true
 }
 
-// GetCachedIPForUserOrPublicIPv4 returns a user's dedicated IP if set,
-// else the server's public IPv4, cached 10 minutes. Used on dashboard,
-// temporary links, ftp and emails.
+// GetCachedIPForUserOrPublicIPv4 returns the user's dedicated IP if set, else the server's public IPv4, cached 10 minutes
 func (a *App) GetCachedIPForUserOrPublicIPv4(ctx context.Context, username string) string {
 	ip, _ := cache.Memoize(ctx, a.Cache, "get_cached_ip_for_user_or_public_ipv4:"+username, 600*time.Second, func() (string, error) {
 		if ip, ok := ReadDedicatedIPFromFile(username); ok {
@@ -116,8 +98,7 @@ func (a *App) GetCachedIPForUserOrPublicIPv4(ctx context.Context, username strin
 	return ip
 }
 
-// GetResourceUsage returns the last JSON line of
-// /home/<context>/resource_usage.txt, cached 6 minutes.
+// GetResourceUsage returns the last JSON line of /home/<context>/resource_usage.txt, cached 6 minutes
 func (a *App) GetResourceUsage(ctx context.Context, username, userContext string) (map[string]any, error) {
 	return cache.Memoize(ctx, a.Cache, "get_resource_usage:"+username, 360*time.Second, func() (map[string]any, error) {
 		path := fmt.Sprintf("/home/%s/resource_usage.txt", userContext)
@@ -146,8 +127,7 @@ func lastLineOf(path string) (string, error) {
 	return last, nil
 }
 
-// PlanDetails holds the full plans-table row shape returned by
-// QueryPlanDetailsByID.
+// PlanDetails is the full plans-table row returned by QueryPlanDetailsByID
 type PlanDetails struct {
 	Description   string
 	DomainsLimit  string
@@ -162,26 +142,18 @@ type PlanDetails struct {
 	Bandwidth     string
 	MaxEmailQuota string
 
-	// Upsell fields, set by openadmin's plan editor
-	// (https://github.com/stefanpejcic/OpenPanel/discussions/1079):
-	// UpsellPlanName/UpsellURL are only non-empty when the plan has an
-	// upsell_plan_id pointing at a plan that still exists.
+	// upsell fields, set by openadmin's plan editor - UpsellPlanName/UpsellURL are only set when upsell_plan_id points at a plan that still exists
 	UpsellPlanID   string
 	UpsellPlanName string
 	UpsellURL      string
 }
 
-// HasUpsell reports whether this plan has an upgrade target to offer the
-// user when they hit a limit.
+// HasUpsell reports whether this plan has an upgrade target to offer when the user hits a limit
 func (p PlanDetails) HasUpsell() bool {
 	return p.UpsellPlanName != ""
 }
 
-// UpgradeMessage returns a sentence to append to a "you've reached your
-// plan limit" message, naming the configured upsell plan and its upgrade
-// URL (when set by the admin in openadmin's plan editor). Returns "" when
-// no upsell plan is configured, so callers can safely do
-// `msg + plan.UpgradeMessage()` unconditionally.
+// UpgradeMessage returns a sentence to append to a plan-limit message, or "" if no upsell plan is configured, so callers can just do `msg + plan.UpgradeMessage()`
 func (p PlanDetails) UpgradeMessage() string {
 	if !p.HasUpsell() {
 		return ""
@@ -192,9 +164,7 @@ func (p PlanDetails) UpgradeMessage() string {
 	return fmt.Sprintf(" Upgrade to the %s plan for higher limits.", p.UpsellPlanName)
 }
 
-// QueryPlanDetailsByID returns the full plans-table row for planID, cached
-// 5 minutes. Every column is read as nullable so a NULL column doesn't
-// fail the whole scan - it just comes back as an empty string.
+// QueryPlanDetailsByID returns the full plans row for planID, cached 5 minutes; columns are nullable so a NULL doesn't fail the scan, just comes back empty
 func (a *App) QueryPlanDetailsByID(ctx context.Context, planID int) (PlanDetails, error) {
 	return cache.Memoize(ctx, a.Cache, fmt.Sprintf("query_plan_details_by_id:%d", planID), 300*time.Second, func() (PlanDetails, error) {
 		var (
@@ -216,11 +186,7 @@ func (a *App) QueryPlanDetailsByID(ctx context.Context, planID int) (PlanDetails
 			&inodesLimit, &bandwidth, &maxEmailQuota,
 			&upsellPlanID, &upsellPlanName, &upsellURL)
 		if err != nil {
-			// The upsell_plan_id/upsell_url columns are added by openadmin's
-			// startup migration (paneldb.EnsurePlansSchema) -- on a
-			// mismatched-version deployment where openadmin hasn't run yet,
-			// fall back to the pre-upsell column set rather than losing
-			// every plan limit.
+			// upsell_plan_id/upsell_url are added by openadmin's migration - fall back to the old column set if that hasn't run yet, rather than losing every plan limit
 			row := a.DB.QueryRowContext(ctx, `
 				SELECT description, domains_limit, websites_limit, db_limit,
 				       cpu, ram, email_limit, ftp_limit, disk_limit,
@@ -252,11 +218,7 @@ func (a *App) QueryPlanDetailsByID(ctx context.Context, planID int) (PlanDetails
 	})
 }
 
-// UpgradeMessageForUser is a one-call convenience for call sites that only
-// have userID/ctx in scope (most CMS install/clone flows) and want to
-// append an upgrade offer to a "you've reached your plan limit" message
-// without separately looking up hosting_plan and calling
-// QueryPlanDetailsByID themselves.
+// UpgradeMessageForUser is a shortcut for call sites that only have userID/ctx and want an upgrade message without looking up the plan themselves
 func (a *App) UpgradeMessageForUser(ctx context.Context, userID int) string {
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
@@ -264,8 +226,7 @@ func (a *App) UpgradeMessageForUser(ctx context.Context, userID int) string {
 	return plan.UpgradeMessage()
 }
 
-// QueryPlanEmailMailboxLimits returns the (email_limit, max_email_quota)
-// pair for a plan, cached 6 minutes.
+// QueryPlanEmailMailboxLimits returns the (email_limit, max_email_quota) pair for a plan, cached 6 minutes
 func (a *App) QueryPlanEmailMailboxLimits(ctx context.Context, planID int) (emailLimit, maxEmailQuota string, err error) {
 	type limits struct{ EmailLimit, MaxEmailQuota string }
 	result, err := cache.Memoize(ctx, a.Cache, fmt.Sprintf("query_plan_email_mailbox_limits:%d", planID), 360*time.Second, func() (limits, error) {
@@ -286,8 +247,7 @@ type LastLogin struct {
 	LoginTime   string
 }
 
-// GetLastLoginData returns a user's parsed login history, cached 10
-// minutes.
+// GetLastLoginData returns a user's parsed login history, cached 10 minutes
 func (a *App) GetLastLoginData(ctx context.Context, username string) ([]LastLogin, error) {
 	return cache.Memoize(ctx, a.Cache, "get_last_login_data:"+username, 600*time.Second, func() ([]LastLogin, error) {
 		path := fmt.Sprintf("/etc/openpanel/openpanel/core/users/%s/.lastlogin", username)
@@ -300,9 +260,7 @@ func (a *App) GetLastLoginData(ctx context.Context, username string) ([]LastLogi
 	})
 }
 
-// parseLastLoginLines parses "IP: <ip> - Country: <cc> - Login Time: <ts>"
-// entries, one per line. Split out as a pure function so it's testable
-// without the filesystem/cache.
+// parseLastLoginLines parses "IP: <ip> - Country: <cc> - Login Time: <ts>" lines, split out as a pure function so it's testable without the filesystem/cache
 func parseLastLoginLines(lines []string) []LastLogin {
 	var entries []LastLogin
 	for _, line := range lines {
@@ -326,11 +284,7 @@ func parseLastLoginLines(lines []string) []LastLogin {
 	return entries
 }
 
-// GetUID returns the numeric UID that owns /home/<username>, cached 2h.
-// podmanmanager.GetUID does the same os.Stat lookup uncached (it's called
-// inline when building podman socket paths); this wraps it with a
-// longer-lived cache for the separate (less latency-sensitive) callers
-// that just need the UID for display/URL purposes.
+// GetUID returns the numeric UID that owns /home/<username>, cached 2h - podmanmanager.GetUID does the same lookup uncached for latency-sensitive callers
 func (a *App) GetUID(ctx context.Context, username string) (int, error) {
 	return cache.Memoize(ctx, a.Cache, "get_uid:"+username, 2*time.Hour, func() (int, error) {
 		uid, err := podmanmanager.GetUID(username)

@@ -2,13 +2,9 @@ package cpanelpw
 
 import "testing"
 
-// TestVerifySHA512CryptAgainstRealHash cross-checks against a hash
-// actually produced by the system's SHA-512 crypt(3) implementation,
-// reproducible with:
+// cross-checks against a hash from the real crypt(3), reproducible with:
 //
 //	python3 -c "import crypt; print(crypt.crypt('mysecret123', crypt.mksalt(crypt.METHOD_SHA512)))"
-//
-// -> $6$viStI4RiT06JI0qH$0NWpLWJSPD71mXoQkpAvDNpFL8QXXQzqvqQr9VnKw7CB.9LUk2nEdZhz.eDZSVd/z/BBturvjsW26uTYYrH2n/
 func TestVerifySHA512CryptAgainstRealHash(t *testing.T) {
 	hash := "$6$viStI4RiT06JI0qH$0NWpLWJSPD71mXoQkpAvDNpFL8QXXQzqvqQr9VnKw7CB.9LUk2nEdZhz.eDZSVd/z/BBturvjsW26uTYYrH2n/"
 

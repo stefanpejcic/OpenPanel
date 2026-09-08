@@ -18,13 +18,8 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// readBackupEnv returns the full (commented lines excluded, quotes
-// stripped) backup.env key/value map, with SSH_IDENTITY_FILE rewritten
-// from its /var/www/html/ docroot-relative form to the real host path.
-//
-// SSH_IDENTITY_FILE is absent entirely for any non-SSH destination; a Go
-// map simply returns "" for a missing key, so the "ok" check below handles
-// that case without any special-casing.
+// readBackupEnv returns the full (commented lines excluded, quotes stripped) backup.env key/value map, with SSH_IDENTITY_FILE rewritten from its /var/www/html/ docroot-relative form to the real host path.
+// SSH_IDENTITY_FILE is absent entirely for any non-SSH destination; a Go map just returns "" for a missing key, so the "ok" check below handles that without special-casing.
 func readBackupEnv(username string) (map[string]string, string) {
 	userHome := "/home/" + username
 	envFile := filepath.Join(userHome, "backup.env")
@@ -64,8 +59,7 @@ type BackupInfo struct {
 
 var dbTimestampSuffixRE = regexp.MustCompile(`_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// processBackup lists one remote .tar.gz's members (without downloading
-// it) and classifies what's inside.
+// processBackup lists one remote .tar.gz's members (without downloading it) and classifies what's inside
 func processBackup(client *ssh.Client, backup, remotePath string) BackupInfo {
 	if !strings.HasSuffix(backup, ".tar.gz") && !strings.HasSuffix(backup, ".tgz") {
 		return BackupInfo{BackupFile: backup, Types: []string{}, Databases: []string{}}
@@ -76,10 +70,7 @@ func processBackup(client *ssh.Client, backup, remotePath string) BackupInfo {
 	return classifyTarListing(backup, out)
 }
 
-// classifyTarListing works out which sections (html/vhosts/mail/mysql/
-// postgres/crons) and database dumps are present, given a `tar -tzf`
-// listing's stdout. Split out from processBackup so it's testable
-// without a live SSH session.
+// classifyTarListing works out which sections (html/vhosts/mail/mysql/postgres/crons) and database dumps are present, given a `tar -tzf` listing's stdout. Split out from processBackup so it's testable without a live SSH session.
 func classifyTarListing(backup, listing string) BackupInfo {
 	info := BackupInfo{BackupFile: backup, Types: []string{}, Databases: []string{}}
 
@@ -133,14 +124,7 @@ func shellQuoteArg(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
 }
 
-// classifyLocalArchive is classifyTarListing's counterpart for a backup
-// archive that's already been downloaded to a local file, used by every
-// remoteStore backend that has no way to inspect an archive's contents
-// without downloading it first (see classifyViaDownload in store.go). It
-// walks the same tar+gzip structure restoreFilesFromTar/scanSQLMembers
-// read, collecting just the entry names, then reuses classifyTarListing's
-// classification logic so both code paths agree on what "html"/"mysql"/
-// "crons" etc. mean.
+// classifyLocalArchive is classifyTarListing's counterpart for an archive already downloaded to a local file, used by any remoteStore backend that can't inspect contents without downloading first (see classifyViaDownload in store.go). Walks the same tar+gzip structure restoreFilesFromTar/scanSQLMembers read, then reuses classifyTarListing so both paths agree on what "html"/"mysql"/"crons" mean.
 func classifyLocalArchive(backup, localPath string) (BackupInfo, error) {
 	f, err := os.Open(localPath)
 	if err != nil {
@@ -170,10 +154,7 @@ func classifyLocalArchive(backup, localPath string) (BackupInfo, error) {
 	return classifyTarListing(backup, strings.Join(names, "\n")), nil
 }
 
-// doReindex runs in a background goroutine, connects to whichever
-// destination is currently configured (s3/webdav/ssh/azure/dropbox), lists
-// the remote backups, classifies each archive (3 at a time), writes
-// jsonFile, and always removes lockFile.
+// doReindex runs in a background goroutine, connects to whichever destination is currently configured, lists the remote backups, classifies each archive (3 at a time), writes jsonFile, and always removes lockFile
 func doReindex(userHome string, config map[string]string, jsonFile, lockFile string) {
 	defer os.Remove(lockFile)
 
@@ -213,9 +194,7 @@ func doReindex(userHome string, config map[string]string, jsonFile, lockFile str
 	}
 	wg.Wait()
 
-	// results is indexed by submission order, not completion order, so
-	// the output list is deterministic even though the workers finish in
-	// whatever order the goroutines happen to complete.
+	// results is indexed by submission order, not completion order, so the output stays deterministic regardless of which goroutine finishes first
 	b, err := json.MarshalIndent(results, "", "    ")
 	if err != nil {
 		writeError(err.Error())

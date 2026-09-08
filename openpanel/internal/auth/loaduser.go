@@ -20,9 +20,7 @@ const (
 	jwtSubClaim  = "sub"
 )
 
-// LoadUser resolves the caller's identity from a Bearer token (MCP token
-// or JWT) or, failing that, the session cookie, then enforces the
-// configured access domain.
+// LoadUser resolves the caller's identity from a Bearer token (MCP or JWT), falling back to the session cookie, then enforces the configured access domain
 func LoadUser(a *appctx.App) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -97,16 +95,8 @@ func parseJWT(tokenString string, secret []byte) (int, error) {
 	}
 }
 
-// enforceAccessDomain redirects the request to the configured access
-// domain when the request's Host doesn't match it. Returns true if it
-// already wrote a redirect response.
-//
-// If ForceDomain is empty (e.g. the `opencli domain` lookup failed or
-// isn't installed, which is the normal case outside a real panel
-// install), the redirect is skipped entirely: a real deployment always
-// has opencli configured with a domain, so an empty ForceDomain only
-// happens in environments where domain enforcement isn't meaningful
-// anyway.
+// enforceAccessDomain redirects to the configured access domain if the request's Host doesn't match, returning true if it wrote a redirect.
+// Skipped entirely when ForceDomain is empty (opencli not installed/configured, so there's nothing to enforce).
 func enforceAccessDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) bool {
 	desiredDomain := strings.TrimSpace(a.ForceDomain)
 	if desiredDomain == "" {
@@ -132,10 +122,7 @@ func enforceAccessDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		scheme = "https"
 	}
 
-	// a.ForcePort comes from `opencli port`, which can fail to resolve in
-	// some deployments; when that happens, fall back to the port this
-	// very request came in on rather than omitting the port entirely -
-	// see dynamicdns.publicBaseURL for the same fallback and why.
+	// a.ForcePort can fail to resolve, so fall back to the port this request came in on rather than dropping it - see dynamicdns.publicBaseURL for the same trick
 	portSuffix := ""
 	switch {
 	case a.ForcePort != "":

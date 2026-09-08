@@ -14,9 +14,7 @@ func activityLogPath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/activity.log"
 }
 
-// readActivityLog returns the user's activity log with the newest entry
-// first (the log file itself is append-only chronological, so this just
-// reverses it), or nil if the user has no log yet.
+// readActivityLog returns the user's activity log newest-first (the file itself is append-only chronological, so this just reverses it), or nil if there's no log yet
 func readActivityLog(username string) []string {
 	content, err := os.ReadFile(activityLogPath(username))
 	if err != nil {
@@ -40,16 +38,8 @@ type ActivityLogRow struct {
 	Action    string
 }
 
-// parseActivityLine splits on a literal single space (not
-// whitespace-collapsing - logger.go's entry format has an intentional
-// double space between the timestamp and IP, which must land as an empty
-// token to keep every later field at its expected index). Lines with
-// fewer than 6 tokens are skipped.
-//
-// Note: parts[4] is always the literal word "User" from the log format
-// itself (`... User <username> <action>`), so there's no per-role
-// distinction to render - every row is treated the same way regardless of
-// who performed the action.
+// parseActivityLine splits on a literal single space, not whitespace-collapsing - logger.go's format has an intentional double space between timestamp and IP that needs to land as an empty token to keep later fields at the right index. Skips lines with fewer than 6 tokens.
+// parts[4] is always the literal word "User" from the log format (`... User <username> <action>`), so there's nothing to branch on there.
 func parseActivityLine(line string) (ActivityLogRow, bool) {
 	parts := strings.Split(line, " ")
 	if len(parts) < 6 {
@@ -63,17 +53,13 @@ func parseActivityLine(line string) (ActivityLogRow, bool) {
 	}, true
 }
 
-// PageEntry is one rendered pagination control: either a page number link
-// or an ellipsis.
+// PageEntry is one rendered pagination control: either a page number link or an ellipsis
 type PageEntry struct {
 	Number     int
 	IsEllipsis bool
 }
 
-// buildPageEntries builds the pagination control list: current page
-// (active), first/last page, and current+-2 render as links; page 2 and
-// total_pages-1 render as an ellipsis when they don't already qualify
-// above; every other page renders nothing.
+// buildPageEntries builds the pagination list: current page, first/last, and current+-2 render as links; page 2 and total_pages-1 render as an ellipsis if they don't already qualify; everything else is skipped
 func buildPageEntries(current, total int) []PageEntry {
 	var entries []PageEntry
 	for p := 1; p <= total; p++ {
@@ -101,8 +87,7 @@ type ActivityPageResult struct {
 	PageEntries  []PageEntry
 }
 
-// paginateActivityLog filters the log lines by searchTerm (if any) and
-// slices out the requested page.
+// paginateActivityLog filters the log lines by searchTerm (if any) and slices out the requested page
 func paginateActivityLog(a *appctx.App, lines []string, searchTerm string, showAll bool, page int) ActivityPageResult {
 	filtered := lines
 	if searchTerm != "" {
@@ -166,8 +151,7 @@ func paginateActivityLog(a *appctx.App, lines []string, searchTerm string, showA
 	}
 }
 
-// handleViewActivityPage renders the account activity log page, applying
-// any search/pagination query parameters.
+// handleViewActivityPage renders the account activity log page, applying any search/pagination query parameters
 func handleViewActivityPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	data, err := a.InjectData(r.Context(), userID)
@@ -190,8 +174,7 @@ func handleViewActivityPage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	renderActivityPage(a, w, r, result)
 }
 
-// RegisterActivity wires the /account/activity route onto mux, gated
-// behind the "activity" feature flag.
+// RegisterActivity wires the /account/activity route onto mux, gated behind the "activity" feature flag
 func RegisterActivity(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "activity")(h)

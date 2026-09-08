@@ -9,9 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 )
 
-// containerStatEntry is the shape containers.html's JS and base.html's
-// per-service status widget both expect from /json/services (see
-// RegisterServicesJSON in docker.go for how that route gets wired up).
+// containerStatEntry is the shape containers.html's JS and base.html's per-service status widget both expect from /json/services (see RegisterServicesJSON in docker.go for how that route gets wired up)
 type containerStatEntry struct {
 	ID       string `json:"ID"`
 	Name     string `json:"Name"`
@@ -23,12 +21,7 @@ type containerStatEntry struct {
 	PIDs     string `json:"PIDs"`
 }
 
-// podmanStatsRow is one element of `podman stats --format json`'s output -
-// podman's own CLI already computes and formats every field this route
-// needs, so there's no need to hit the lower-level /libpod/containers/stats
-// endpoint and format the numbers by hand. Using the CLI here keeps this
-// consistent with the rest of the package (podmanmanager.Command), rather
-// than adding a REST client dependency just for this one route.
+// podmanStatsRow is one element of `podman stats --format json`'s output - podman's CLI already computes and formats every field this route needs, so there's no need to hit the lower-level /libpod/containers/stats endpoint and format the numbers by hand. Keeps this consistent with the rest of the package (podmanmanager.Command) instead of adding a REST client dependency for one route.
 type podmanStatsRow struct {
 	ID         string `json:"id"`
 	Name       string `json:"name"`
@@ -40,8 +33,7 @@ type podmanStatsRow struct {
 	PIDs       string `json:"pids"`
 }
 
-// handleServicesStats serves GET /json/services[?name=], returning live
-// per-container CPU/memory/network/PID stats.
+// handleServicesStats serves GET /json/services[?name=], returning live per-container CPU/memory/network/PID stats
 func handleServicesStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

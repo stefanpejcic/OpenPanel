@@ -51,17 +51,13 @@ type DomainsPageData struct {
 	PageEntries     []PageEntry
 }
 
-// PageEntry is one rendered pagination control: either a page number link
-// or an ellipsis.
+// PageEntry is one rendered pagination control: either a page number link or an ellipsis
 type PageEntry struct {
 	Number     int
 	IsEllipsis bool
 }
 
-// buildPageEntries mirrors domains.html's pagination loop: current page
-// (active), first/last page, and current±2 render as links; page 2 and
-// total_pages-1 render as an ellipsis when they don't already qualify
-// above; every other page renders nothing.
+// buildPageEntries mirrors domains.html's pagination loop: current page, first/last page, and current±2 render as links, page 2 and total_pages-1 render as an ellipsis unless they already qualify above, everything else renders nothing
 func buildPageEntries(current, total int) []PageEntry {
 	var entries []PageEntry
 	for p := 1; p <= total; p++ {
@@ -94,9 +90,7 @@ func renderDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, ro
 	}
 }
 
-// NewDomainPageData is new.html's template context (stateless besides
-// layout - the form posts via fetch()/SSE, not a normal redirect-driven
-// flow).
+// NewDomainPageData is new.html's template context (stateless besides layout, the form posts via fetch()/SSE, not a normal redirect-driven flow)
 type NewDomainPageData struct {
 	web.LayoutData
 }
@@ -137,9 +131,7 @@ func renderDeleteDomainPage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// DomainSelectorPageData is the shared shape for every "pick a domain,
-// then act on it" page (suspend/unsuspend/docroot/logs/vhost/redirect/
-// ssl) in their no-domain-selected state.
+// DomainSelectorPageData is the shared shape for every "pick a domain, then act on it" page (suspend/unsuspend/docroot/logs/vhost/redirect/ssl) in their no-domain-selected state
 type DomainSelectorPageData struct {
 	web.LayoutData
 	DomainName string
@@ -215,10 +207,7 @@ type DomainLogsPageData struct {
 	LogPageEntries              []PageEntry
 }
 
-// buildLogPageEntries mirrors logs.html's own pagination window logic
-// (distinct from domains.html's current±2 scheme): a fixed window of 2
-// pages around current, with page 1 and total_pages always shown
-// (bridged by a single ellipsis each side when there's a gap).
+// buildLogPageEntries mirrors logs.html's own pagination window (distinct from domains.html's current±2 scheme): a fixed window of 2 pages around current, with page 1 and total_pages always shown, bridged by a single ellipsis each side when there's a gap
 func buildLogPageEntries(current, total int) []PageEntry {
 	const window = 2
 	start := current - window

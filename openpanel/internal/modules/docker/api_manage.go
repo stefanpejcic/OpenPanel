@@ -14,52 +14,37 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterContainerManageAPI wires up create/edit/delete for a compose
-// service. Split out from RegisterAPI (api.go) since it covers a different
-// slice of docker.go's routes (/containers/new, /containers/edit/{service},
-// /containers/delete/{service}) rather than status/start/stop/logs. Same
-// "docker" feature flag as RegisterAPI.
-//
-// The MySQL/webserver-swap and change-image-tag twins are registered
-// separately below, each behind its own feature flag instead of "docker".
+// RegisterContainerManageAPI wires up create/edit/delete for a compose service. Split out from RegisterAPI (api.go) since it covers a different slice of routes (new/edit/delete) rather than status/start/stop/logs, though it's gated on the same "docker" flag.
+// The MySQL/webserver-swap and change-image-tag twins are registered separately below, each behind its own feature flag instead of "docker".
 func RegisterContainerManageAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "docker", "POST /api/containers", func(w http.ResponseWriter, r *http.Request) { apiContainerCreate(a, w, r) })
 	apiregistry.Handle(mux, a, "docker", "PATCH /api/containers/{service}", func(w http.ResponseWriter, r *http.Request) { apiContainerEdit(a, w, r) })
 	apiregistry.Handle(mux, a, "docker", "DELETE /api/containers/{service}", func(w http.ResponseWriter, r *http.Request) { apiContainerDelete(a, w, r) })
 }
 
-// RegisterChangeDBAPI wires the MySQL/MariaDB-swap REST endpoint onto mux,
-// gated behind its own "change_db" feature flag (same flag as
-// docker.RegisterChangeDB's web route).
+// RegisterChangeDBAPI wires the MySQL/MariaDB-swap REST endpoint onto mux, gated behind its own "change_db" feature flag (same flag as docker.RegisterChangeDB's web route)
 func RegisterChangeDBAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "change_db", "POST /api/containers/mysql", func(w http.ResponseWriter, r *http.Request) { apiContainerSwitchMySQL(a, w, r) })
 }
 
-// RegisterChangeWSAPI wires the webserver-swap REST endpoint onto mux,
-// gated behind its own "change_ws" feature flag (same flag as
-// docker.RegisterChangeWS's web route).
+// RegisterChangeWSAPI wires the webserver-swap REST endpoint onto mux, gated behind its own "change_ws" feature flag (same flag as docker.RegisterChangeWS's web route)
 func RegisterChangeWSAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "change_ws", "POST /api/containers/webserver", func(w http.ResponseWriter, r *http.Request) { apiContainerSwitchWebserver(a, w, r) })
 }
 
-// RegisterChangeImageAPI wires the change-image-tag REST endpoint onto mux,
-// gated behind its own "change_image" feature flag (same flag as
-// docker.RegisterChangeImage's web route).
+// RegisterChangeImageAPI wires the change-image-tag REST endpoint onto mux, gated behind its own "change_image" feature flag (same flag as docker.RegisterChangeImage's web route)
 func RegisterChangeImageAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "change_image", "PATCH /api/containers/{service}/image", func(w http.ResponseWriter, r *http.Request) { apiContainerChangeImage(a, w, r) })
 }
 
-// containerVolumeInput is one entry of the JSON-body "volumes" array for
-// create/edit, mirroring the volume_name[]/volume_mount[]/volume_readonly[]
-// parallel form fields the HTML page posts.
+// containerVolumeInput is one entry of the JSON-body "volumes" array for create/edit, mirroring the volume_name[]/volume_mount[]/volume_readonly[] parallel form fields the HTML page posts
 type containerVolumeInput struct {
 	Name     string `json:"name"`
 	Mount    string `json:"mount"`
 	ReadOnly bool   `json:"readonly"`
 }
 
-// containerServiceBody is the shared request-body shape for creating and
-// editing a compose service.
+// containerServiceBody is the shared request-body shape for creating and editing a compose service
 type containerServiceBody struct {
 	ServiceName string                 `json:"service_name"`
 	Image       string                 `json:"image"`
@@ -72,10 +57,7 @@ type containerServiceBody struct {
 	Volumes     []containerVolumeInput `json:"volumes"`
 }
 
-// decodeContainerServiceBody decodes a JSON containerServiceBody, falling
-// back to form fields (matching the HTML add/edit-service forms) if the
-// body isn't valid JSON. It also returns the volume fields as the parallel
-// slices ParseVolumeEntries expects.
+// decodeContainerServiceBody decodes a JSON containerServiceBody, falling back to form fields (matching the HTML add/edit-service forms) if the body isn't valid JSON. Also returns the volume fields as the parallel slices ParseVolumeEntries expects.
 func decodeContainerServiceBody(r *http.Request) (body containerServiceBody, volNames, volMounts, volReadonly []string) {
 	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr == nil {
 		for _, v := range body.Volumes {
@@ -101,9 +83,7 @@ func decodeContainerServiceBody(r *http.Request) (body containerServiceBody, vol
 	return body, r.Form["volume_name"], r.Form["volume_mount"], r.Form["volume_readonly"]
 }
 
-// apiContainerCreate adds a new service to docker-compose.yml - same logic
-// as handleAddContainer's POST branch (containers.go), but returns JSON
-// instead of a flash+redirect.
+// apiContainerCreate adds a new service to docker-compose.yml - same logic as handleAddContainer's POST branch (containers.go), but returns JSON instead of a flash+redirect
 func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentUsername, userContext, err := apiInjected(a, r)
 	if err != nil {
@@ -181,10 +161,7 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIDockerJSON(w, http.StatusCreated, map[string]any{"message": fmt.Sprintf("Container %s created successfully!", serviceName), "service": serviceName})
 }
 
-// apiContainerEdit updates an existing service's compose definition, same
-// as handleEditContainer's POST branch (containers.go). If service_name is
-// present in the body it must match the {service} path value - renaming
-// isn't supported here either.
+// apiContainerEdit updates an existing service's compose definition, same as handleEditContainer's POST branch (containers.go). If service_name is present in the body it must match the {service} path value - renaming isn't supported here either.
 func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	service := r.PathValue("service")
 
@@ -276,9 +253,7 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIDockerJSON(w, http.StatusOK, map[string]any{"message": "Container updated successfully.", "service": service})
 }
 
-// apiContainerDelete stops and removes a service, its image, and its
-// per-service env vars - same as handleDeleteContainer's POST branch
-// (containers.go). No confirmation step here; DELETE is the confirmation.
+// apiContainerDelete stops and removes a service, its image, and its per-service env vars - same as handleDeleteContainer's POST branch (containers.go). No confirmation step here; DELETE is the confirmation.
 func apiContainerDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")
@@ -331,8 +306,7 @@ func apiContainerDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIDockerJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("Service '%s' deleted successfully.", service)})
 }
 
-// apiContainerSwitchMySQL swaps between mysql/mariadb, wiping the old data
-// volume - same as handleContainersMySQL's POST branch (switch.go).
+// apiContainerSwitchMySQL swaps between mysql/mariadb, wiping the old data volume - same as handleContainersMySQL's POST branch (switch.go)
 func apiContainerSwitchMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := apiInjected(a, r)
@@ -360,9 +334,7 @@ func apiContainerSwitchMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// Percona isn't a separate compose service the way mariadb is - it's
-	// drop-in compatible with the "mysql" service, just a different image
-	// (see setComposePerconaConfig).
+	// Percona isn't a separate compose service the way mariadb is - it's drop-in compatible with the "mysql" service, just a different image (see setComposePerconaConfig)
 	targetService := newSQL
 	if newSQL == "percona" {
 		targetService = "mysql"
@@ -410,8 +382,7 @@ func apiContainerSwitchMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	writeAPIDockerJSON(w, http.StatusOK, map[string]any{"message": fmt.Sprintf("Successfully switched to %s!", newSQL), "warnings": warnings})
 }
 
-// apiContainerSwitchWebserver swaps the active webserver container - same
-// as handleContainersWebserver's POST branch (switch.go).
+// apiContainerSwitchWebserver swaps the active webserver container - same as handleContainersWebserver's POST branch (switch.go)
 func apiContainerSwitchWebserver(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -467,10 +438,7 @@ func apiContainerSwitchWebserver(a *appctx.App, w http.ResponseWriter, r *http.R
 	writeAPIDockerJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("Successfully switched to %s!", newWebserver)})
 }
 
-// apiContainerChangeImage changes a service's image tag/version (the
-// SERVICE_VERSION env var), stopping the container first so the old image
-// can be pruned later - same as handleContainersChangeImage's POST branch
-// (images.go).
+// apiContainerChangeImage changes a service's image tag/version (the SERVICE_VERSION env var), stopping the container first so the old image can be pruned later - same as handleContainersChangeImage's POST branch (images.go)
 func apiContainerChangeImage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")

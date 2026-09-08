@@ -47,10 +47,7 @@ var dashboardPage = web.MustLoadPage(
 	"dashboard/onboarding.html",
 )
 
-// Register wires the dashboard routes onto mux. "dashboard" is always in
-// EnabledModules (mainModules forces it, see internal/app), so this
-// registers unconditionally like the always-on account routes, not
-// through the enabled_modules dispatch table.
+// Register wires the dashboard routes onto mux. "dashboard" is always in EnabledModules (mainModules forces it), so this registers unconditionally like the always-on account routes, not through the enabled_modules dispatch table.
 func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/json/resource_usage", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleResourceUsage(a, w, r)
@@ -61,11 +58,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.HandleFunc("/openpanel", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusFound)
 	})
-	// net/http.ServeMux's "/" pattern catches any path nothing else matches
-	// (Go 1.22+ routing), so we need an explicit check to 404 anything that
-	// isn't the literal root. That check has to come before RequireLogin -
-	// otherwise an unknown route would redirect an unauthenticated visitor
-	// to /login instead of 404ing.
+	// http.ServeMux's "/" pattern catches any path nothing else matches, so we need an explicit check to 404 anything that isn't the literal root - and that check has to come before RequireLogin, or an unknown route would redirect an unauthenticated visitor to /login instead of 404ing
 	rootHandler := auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/dashboard", http.StatusFound)
 	}))
@@ -110,9 +103,7 @@ func handleDashboard(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// buildDashboardPageData assembles the shared app-shell data (nav,
-// flashes, branding) plus the dashboard page's own template data into one
-// DashboardPageData.
+// buildDashboardPageData assembles the shared app-shell data (nav, flashes, branding) plus the dashboard page's own template data into one DashboardPageData
 func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Request, injected map[string]any, d DashboardData) DashboardPageData {
 	ctx := r.Context()
 	sess, _ := a.Sessions.Get(r, session.CookieName)
@@ -208,9 +199,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// anyPlanLimitReached reports whether the user is at or over any plan
-// limit shown on the dashboard's usage widget, so the upgrade banner only
-// appears when it's actually relevant.
+// anyPlanLimitReached reports whether the user is at or over any plan limit shown on the dashboard's usage widget, so the upgrade banner only appears when it's actually relevant
 func anyPlanLimitReached(d DashboardData) bool {
 	atOrOver := func(usage int, limit string) bool {
 		l := atoiDefault(limit, 0)
@@ -223,8 +212,7 @@ func anyPlanLimitReached(d DashboardData) bool {
 		atOrOver(d.FTPCount, d.Plan.FTPLimit)
 }
 
-// i18nUserLocale mirrors get_locale()'s per-account locale-file tier,
-// reading /home/<context>/locale via i18n.UserLocale.
+// i18nUserLocale mirrors get_locale()'s per-account locale-file tier, reading /home/<context>/locale via i18n.UserLocale
 func i18nUserLocale(injected map[string]any) string {
 	userContext, _ := injected["context"].(string)
 	return i18n.UserLocale(userContext)
@@ -316,10 +304,7 @@ func handleTourComplete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(map[string]bool{"ok": true})
 }
 
-// handleOnboardingComplete marks the onboarding wizard dismissed for good
-// (finished, skipped, or closed - all treated the same, matching
-// handleTourComplete's skip.tour semantics above), so it won't be offered
-// again on a later dashboard load.
+// handleOnboardingComplete marks the onboarding wizard dismissed for good (finished, skipped, or closed - all treated the same, matching handleTourComplete's skip.tour semantics above), so it won't be offered again on a later dashboard load
 func handleOnboardingComplete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	data, err := a.InjectData(r.Context(), userID)
@@ -380,8 +365,7 @@ type UserWebsite struct {
 	Type     string
 }
 
-// buildDashboardData mirrors dashboard()'s full body, everything up
-// through the render_template call.
+// buildDashboardData mirrors dashboard()'s full body, everything up through the render_template call
 func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected map[string]any) (DashboardData, error) {
 	currentUsername, _ := injected["current_username"].(string)
 	userContext, _ := injected["context"].(string)
@@ -476,9 +460,7 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 	if a.Config.Get("onboarding", "") == "yes" {
 		onboardingDoneFile := fmt.Sprintf("/home/%s/onboarding.completed", userContext)
 		if _, err := os.Stat(onboardingDoneFile); os.IsNotExist(err) {
-			// Demo accounts are reset/reused, so an existing domain or
-			// database doesn't mean this viewer has been onboarded -
-			// keep offering onboarding there regardless of usage.
+			// demo accounts are reset/reused, so an existing domain or database doesn't mean this viewer has been onboarded - keep offering onboarding there regardless of usage
 			if !a.DemoMode && (len(userDomains) > 0 || d.DBUsage > 0) {
 				_ = os.WriteFile(onboardingDoneFile, nil, 0o644)
 			} else {
@@ -490,9 +472,7 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 	return d, nil
 }
 
-// restrictedDatabasesSQL renders config's mysql_restricted_databases
-// (space-separated, optionally quoted) as a SQL string list for
-// `NOT IN (...)`.
+// restrictedDatabasesSQL renders config's mysql_restricted_databases (space-separated, optionally quoted) as a SQL string list for `NOT IN (...)`
 func restrictedDatabasesSQL(cfg config.Config) string {
 	raw := stripQuotes(cfg.Get("mysql_restricted_databases",
 		"information_schema performance_schema mysql phpmyadmin sys mariadb.sys"))
@@ -504,8 +484,7 @@ func restrictedDatabasesSQL(cfg config.Config) string {
 	return strings.Join(quoted, ", ")
 }
 
-// stripQuotes strips one layer of surrounding quotes if the whole string
-// is quote-wrapped.
+// stripQuotes strips one layer of surrounding quotes if the whole string is quote-wrapped
 func stripQuotes(s string) string {
 	s = strings.TrimSpace(s)
 	if len(s) >= 2 {
@@ -517,10 +496,7 @@ func stripQuotes(s string) string {
 	return s
 }
 
-// getDatabaseCount is cached 1h. Connects to the user's own MySQL
-// instance via mysqlmanager (a unix socket under
-// /home/<context>/sockets/mysqld/mysqld.sock, not the panel's own DB) -
-// returns 0 on any failure (container not running, socket not found, ...).
+// getDatabaseCount is cached 1h. Connects to the user's own MySQL instance via mysqlmanager (not the panel's own DB) - returns 0 on any failure (container not running, socket not found, ...).
 func getDatabaseCount(a *appctx.App, ctx context.Context, username, userContext string) int {
 	count, _ := cache.Memoize(ctx, a.Cache, "get_database_count:"+username, time.Hour, func() (int, error) {
 		query := "SELECT COUNT(*) AS total FROM information_schema.schemata WHERE schema_name NOT IN (" +
@@ -678,8 +654,7 @@ func howToLinksForDashboard(a *appctx.App, ctx context.Context) ([]map[string]an
 		}
 		kbData := readJSONFile("/etc/openpanel/openpanel/conf/knowledge_base_articles.json")
 		if kbData == nil {
-			// This default JSON is shipped alongside the templates/ tree,
-			// which lives at the container image's "/".
+			// this default JSON is shipped alongside the templates/ tree, which lives at the container image's "/"
 			kbData = readJSONFile("/templates/dashboard/knowledge_base_articles_default.json")
 		}
 		if kbData == nil {

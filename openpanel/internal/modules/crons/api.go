@@ -33,9 +33,7 @@ func writeAPICronsJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiCronPath resolves and validates the per-user crons.ini path, mirroring
-// the repeated `Path(f'/home/{context}/crons.ini').resolve()` +
-// base-dir-prefix guard shared by several routes.
+// apiCronPath resolves and validates the per-user crons.ini path, mirroring the repeated resolve+base-dir-prefix guard shared by several routes
 func apiCronPath(userContext string) (path string, ok bool) {
 	baseDir, baseErr := filepath.Abs("/home/" + userContext)
 	resolvedPath, resolveErr := filepath.Abs(cronFilePath(userContext))

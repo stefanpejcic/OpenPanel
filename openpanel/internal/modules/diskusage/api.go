@@ -21,8 +21,7 @@ type diskUsageEntry struct {
 	Path string `json:"path"`
 }
 
-// apiHandleDiskUsage returns per-subdirectory disk usage for the requested
-// directory as JSON.
+// apiHandleDiskUsage returns per-subdirectory disk usage for the requested directory as JSON
 func apiHandleDiskUsage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

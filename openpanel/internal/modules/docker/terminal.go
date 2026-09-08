@@ -21,8 +21,7 @@ import (
 
 const disableTerminalFlagFile = "/etc/openpanel/disable_openpanel_terminal_ui"
 
-// handleDockerTerminal renders either the service picker (no
-// container_name) or the terminal page itself.
+// handleDockerTerminal renders either the service picker (no container_name) or the terminal page itself
 func handleDockerTerminal(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if _, err := os.Stat(disableTerminalFlagFile); err == nil {
 		http.Error(w, "Web Terminal access is disabled.", http.StatusForbidden)
@@ -69,14 +68,12 @@ func terminalCommandTimeout(a *appctx.App) time.Duration {
 }
 
 var wsUpgrader = websocket.Upgrader{
-	// Same-origin-only by default (no CheckOrigin override), so
-	// cross-origin pages cannot open a terminal websocket.
+	// same-origin-only by default (no CheckOrigin override), so cross-origin pages can't open a terminal websocket
 	ReadBufferSize:  4096,
 	WriteBufferSize: 4096,
 }
 
-// handleDockerTerminalWS upgrades the request to a websocket and streams
-// an interactive shell session inside the target container.
+// handleDockerTerminalWS upgrades the request to a websocket and streams an interactive shell session inside the target container
 func handleDockerTerminalWS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if _, err := os.Stat(disableTerminalFlagFile); err == nil {
 		http.Error(w, "Web Terminal access is disabled.", http.StatusForbidden)
@@ -133,9 +130,7 @@ func handleDockerTerminalWS(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	runPTYSession(conn, argv, rows, cols, podmanmanager.PodmanEnv(userContext), terminalCommandTimeout(a))
 }
 
-// runPTYSession forks a PTY running argv, pumps its output to the
-// websocket, and forwards websocket input (keystrokes, or
-// {"type":"resize",...} control messages) to the PTY.
+// runPTYSession forks a PTY running argv, pumps its output to the websocket, and forwards websocket input (keystrokes, or {"type":"resize",...} control messages) to the PTY
 func runPTYSession(conn *websocket.Conn, argv []string, rows, cols int, extraEnv []string, readTimeout time.Duration) {
 	cmd := exec.Command(argv[0], argv[1:]...)
 	cmd.Env = append(append([]string{}, os.Environ()...), "TERM=xterm-256color", "COLORTERM=truecolor")
@@ -157,8 +152,7 @@ func runPTYSession(conn *websocket.Conn, argv []string, rows, cols int, extraEnv
 		closeOnce.Do(func() { close(done) })
 	}
 
-	// pump: PTY output -> websocket (the sole writer to conn, matching
-	// gorilla/websocket's one-writer-at-a-time requirement).
+	// pump: PTY output -> websocket (the sole writer to conn, matching gorilla/websocket's one-writer-at-a-time requirement)
 	go func() {
 		defer stop()
 		buf := make([]byte, 4096)

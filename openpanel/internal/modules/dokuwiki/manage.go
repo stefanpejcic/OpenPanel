@@ -12,8 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// handleRemoveDokuwiki uninstalls a DokuWiki site: deletes the whole
-// install directory and removes the sites row. No database to drop.
+// handleRemoveDokuwiki uninstalls a DokuWiki site: deletes the install directory and removes the sites row, no database to drop
 func handleRemoveDokuwiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

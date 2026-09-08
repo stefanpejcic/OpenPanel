@@ -30,10 +30,7 @@ func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, cat
 	http.Redirect(w, r, path, http.StatusFound)
 }
 
-// flashSess adds a flash message without redirecting - the POST branches
-// here fall through to the same GET rendering logic below rather than
-// redirecting, so a successful varnish/generic-service action re-renders
-// the page directly instead of round-tripping through a redirect.
+// flashSess adds a flash message without redirecting - the POST branches here fall through to the same GET rendering logic below, so a successful action re-renders the page directly instead of round-tripping through a redirect
 func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	flash.Add(sess, category, message)
@@ -46,18 +43,7 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// restartWebserverAfterVarnishToggle brings the webserver back up after a
-// Varnish enable/disable removed it (to pick up the swapped port mapping),
-// verifying it's actually running rather than trusting `podman-compose
-// up`'s exit code alone - confirmed live, that command can exit 0 while
-// the webserver still isn't running: podman-compose's own config-hash
-// reconciliation touches every service with a stale hash on each compose
-// invocation (not just the one named, even with --no-deps), and a
-// transient "container name already in use" on one of those unrelated
-// services can occasionally leave the actually-requested one never
-// created. One retry (a fresh force-remove + activate cycle) clears that
-// transient state; only report failure if the webserver still isn't up
-// after that.
+// restartWebserverAfterVarnishToggle brings the webserver back up after a Varnish enable/disable removed it, verifying it's actually running rather than trusting `podman-compose up`'s exit code alone - that command can exit 0 while the webserver still isn't running, since podman-compose's config-hash reconciliation touches every stale-hash service on each invocation and a transient "container name already in use" elsewhere can leave the requested one never created. One retry clears that; only report failure if it's still not up after that.
 func restartWebserverAfterVarnishToggle(ctx context.Context, userContext, webserver string) docker.StartStopResult {
 	result := docker.StartOrStopContainer(ctx, userContext, webserver, "activate", "run")
 	if result.Success && docker.WaitForServiceRunning(ctx, userContext, webserver) {

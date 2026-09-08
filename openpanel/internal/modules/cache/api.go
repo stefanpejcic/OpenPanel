@@ -1,5 +1,4 @@
-// Package cache (this file) implements the JSON status/action endpoints
-// for the five generic single-container cache services.
+// This file implements the JSON status/action endpoints for the five generic single-container cache services.
 package cache
 
 import (
@@ -16,9 +15,7 @@ import (
 
 var validCacheActions = map[string]bool{"enable": true, "disable": true, "restart": true}
 
-// RegisterRedisAPI, RegisterMemcachedAPI, RegisterElasticsearchAPI,
-// RegisterOpensearchAPI and RegisterValkeyAPI each wire up one generic
-// cache service's GET+POST pair.
+// RegisterRedisAPI, RegisterMemcachedAPI, RegisterElasticsearchAPI, RegisterOpensearchAPI and RegisterValkeyAPI each wire up one generic cache service's GET+POST pair
 func RegisterRedisAPI(mux *http.ServeMux, a *appctx.App)     { registerCacheAPI(mux, a, redisDef) }
 func RegisterMemcachedAPI(mux *http.ServeMux, a *appctx.App) { registerCacheAPI(mux, a, memcachedDef) }
 func RegisterElasticsearchAPI(mux *http.ServeMux, a *appctx.App) {
@@ -39,8 +36,7 @@ func registerCacheAPI(mux *http.ServeMux, a *appctx.App, def serviceDef) {
 	})
 }
 
-// apiCacheStatus returns a generic cache service's container state, health,
-// and the actions currently available for it.
+// apiCacheStatus returns a generic cache service's container state, health, and the actions currently available for it
 func apiCacheStatus(a *appctx.App, w http.ResponseWriter, r *http.Request, def serviceDef) {
 	_, userContext, err := cacheInjected(a, r)
 	if err != nil {

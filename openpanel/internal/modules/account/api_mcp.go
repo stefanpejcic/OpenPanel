@@ -14,8 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterMCPAPI wires the /api/account/mcp routes onto mux, gated behind
-// the "mcp" feature flag.
+// RegisterMCPAPI wires the /api/account/mcp routes onto mux, gated behind the "mcp" feature flag
 func RegisterMCPAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "mcp", "GET /api/account/mcp", func(w http.ResponseWriter, r *http.Request) { apiMCPList(a, w, r) })
 	apiregistry.Handle(mux, a, "mcp", "POST /api/account/mcp", func(w http.ResponseWriter, r *http.Request) { apiMCPCreate(a, w, r) })
@@ -32,8 +31,7 @@ type apiMCPTokenEntry struct {
 	ExpiresAt   string `json:"expires_at,omitempty"`
 }
 
-// apiMCPList returns the caller's MCP tokens (never the raw secret, which
-// is only ever known at creation time).
+// apiMCPList returns the caller's MCP tokens, never the raw secret (only ever known at creation time)
 func apiMCPList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	tokens, err := mcptokens.GetTokensForUser(r.Context(), a.DB, userID)
@@ -52,8 +50,7 @@ func apiMCPList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIAccountJSON(w, http.StatusOK, map[string]any{"tokens": entries})
 }
 
-// apiMCPCreate mints a new MCP token for the caller. The raw token is
-// returned exactly once, in this response.
+// apiMCPCreate mints a new MCP token for the caller; the raw token is returned exactly once, in this response
 func apiMCPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	ctx := r.Context()

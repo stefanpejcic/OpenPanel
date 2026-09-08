@@ -11,19 +11,14 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// RegisterSharedAPI wires /api/ equivalents of the three helper endpoints
-// the Python/NodeJS install forms call over AJAX (docker/tags,
-// check_if_file_exists, detect_git_startup_file). Gated on the "helpers"
-// feature, same as RegisterShared - unconditionally granted, so in
-// practice this is API-key-only.
+// RegisterSharedAPI wires /api/ equivalents of the three helper endpoints the Python/NodeJS install forms call over AJAX. Gated on "helpers", same as RegisterShared, which is unconditionally granted - so in practice this is API-key-only.
 func RegisterSharedAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "helpers", "GET /api/docker/tags/{type}", func(w http.ResponseWriter, r *http.Request) { HandleDockerTags(a, w, r) })
 	apiregistry.Handle(mux, a, "helpers", "POST /api/helpers/check-file-exists", func(w http.ResponseWriter, r *http.Request) { apiCheckFileExists(a, w, r) })
 	apiregistry.Handle(mux, a, "helpers", "POST /api/helpers/detect-git-startup-file", func(w http.ResponseWriter, r *http.Request) { apiDetectGitStartupFile(a, w, r) })
 }
 
-// apiCheckFileExists is HandleCheckFileExists (shared.go) with a
-// JSON-body request instead of a form post.
+// apiCheckFileExists is HandleCheckFileExists (shared.go) with a JSON-body request instead of a form post
 func apiCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, userContext, err := injectedContext(a, r)
 	if err != nil {
@@ -64,8 +59,7 @@ func apiCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"file": file, "exists": true})
 }
 
-// apiDetectGitStartupFile is HandleDetectGitStartupFile (gitdetect.go)
-// with a JSON-body request instead of a form post.
+// apiDetectGitStartupFile is HandleDetectGitStartupFile (gitdetect.go) with a JSON-body request instead of a form post
 func apiDetectGitStartupFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		GitRepoURL string `json:"git_repo_url"`

@@ -23,8 +23,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiHandleAutoinstaller returns the user's site counts per technology, plus
-// their site and domain lists, as JSON.
+// apiHandleAutoinstaller returns the user's site counts per technology, plus their site and domain lists, as JSON
 func apiHandleAutoinstaller(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

@@ -5,10 +5,7 @@ import (
 	"testing"
 )
 
-// These tests run without a real podman installation (this sandbox has
-// none), so they only exercise the "podman unavailable/container doesn't
-// exist" failure paths - which is real, meaningful behavior in its own
-// right (e.g. a freshly-provisioned account with no mysqld container yet).
+// these tests run without a real podman installation (this sandbox has none), so they only exercise the "podman unavailable/container doesn't exist" failure paths - real, meaningful behavior (e.g. a freshly-provisioned account with no mysqld container yet)
 
 func TestGetContainerStatusNoPodman(t *testing.T) {
 	status := GetContainerStatus(context.Background(), "someuser", "mysql")
@@ -55,10 +52,7 @@ func TestInsertAfterNoMatch(t *testing.T) {
 }
 
 func TestMapToHostID(t *testing.T) {
-	// The exact rootless mapping this fix was built and confirmed live
-	// against: container-uid 0 (root) aliases straight to the tenant's own
-	// real host uid, everything else 1..65536 shifts into their /etc/subuid
-	// range.
+	// the exact rootless mapping this fix was built against: container-uid 0 (root) aliases straight to the tenant's own real host uid, everything else 1..65536 shifts into their /etc/subuid range
 	entries := []idMapEntry{
 		{ContainerID: 0, HostID: 1001, Size: 1},
 		{ContainerID: 1, HostID: 100000, Size: 65536},

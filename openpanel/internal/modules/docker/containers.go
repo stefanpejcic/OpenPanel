@@ -13,8 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// UndeletableServices are the built-in services that can never be
-// removed through the delete-container flow.
+// UndeletableServices are the built-in services that can never be removed through the delete-container flow
 var UndeletableServices = map[string]bool{
 	"elasticsearch": true, "redis": true, "valkey": true, "postgres": true,
 	"mysql": true, "mariadb": true, "phpmyadmin": true,
@@ -23,9 +22,7 @@ var UndeletableServices = map[string]bool{
 	"cron": true, "backup": true, "tor": true,
 }
 
-// webserverHideFilters maps the active webserver to the service-name
-// substrings of every OTHER webserver, so the containers list only shows
-// the one actually in use.
+// webserverHideFilters maps the active webserver to the service-name substrings of every OTHER webserver, so the containers list only shows the one actually in use
 var webserverHideFilters = map[string][]string{
 	"apache":        {"nginx", "openresty", "openlitespeed", "litespeed"},
 	"nginx":         {"apache", "openresty", "openlitespeed", "litespeed"},
@@ -34,10 +31,7 @@ var webserverHideFilters = map[string][]string{
 	"openresty":     {"apache", "nginx", "openlitespeed", "litespeed"},
 }
 
-// filterContainerServices drops every OTHER webserver's service (per
-// webserverHideFilters) and the inactive MySQL/MariaDB variant, using exact
-// name matches - NOT strings.Contains, which would make "openlitespeed"
-// hide itself since it contains "litespeed" as a substring.
+// filterContainerServices drops every OTHER webserver's service (per webserverHideFilters) and the inactive MySQL/MariaDB variant, using exact name matches - not strings.Contains, which would make "openlitespeed" hide itself since it contains "litespeed"
 func filterContainerServices(services map[string]any, webserver, mysqlType string) map[string]any {
 	filtered := map[string]any{}
 	hide := webserverHideFilters[webserver]
@@ -73,8 +67,7 @@ func filterContainerServices(services map[string]any, webserver, mysqlType strin
 	return filtered
 }
 
-// handleContainersList serves the containers page, with services filtered
-// to the active webserver and MySQL/MariaDB variant.
+// handleContainersList serves the containers page, with services filtered to the active webserver and MySQL/MariaDB variant
 func handleContainersList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -113,9 +106,7 @@ func handleContainersList(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	renderContainersPage(a, w, r, totalCPU, totalRAM, mysqlType, webserver, dockerData)
 }
 
-// containerFormValidation runs the shared service_name/cpu/ram/pids
-// validation add_container() and edit_container() both do, returning ""
-// if all valid.
+// containerFormValidation runs the shared service_name/cpu/ram/pids validation add_container() and edit_container() both do, returning "" if all valid
 func validateServiceForm(serviceName, cpu, ram, pids string) string {
 	if !IsValidServiceName(serviceName) {
 		return "Invalid service name. Must start with a letter, contain only lowercase letters and digits, and be at least 3 characters long."
@@ -132,8 +123,7 @@ func validateServiceForm(serviceName, cpu, ram, pids string) string {
 	return ""
 }
 
-// handleAddContainer shows the add-service form and, on POST, validates
-// and appends a new service to docker-compose.yml.
+// handleAddContainer shows the add-service form and, on POST, validates and appends a new service to docker-compose.yml
 func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -253,8 +243,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	flashAndRedirect(a, w, r, "success", fmt.Sprintf("Container %s created successfully!", serviceName), "/containers")
 }
 
-// handleEditContainer shows the edit-service form prefilled from the
-// existing compose definition and, on POST, saves the updated service.
+// handleEditContainer shows the edit-service form prefilled from the existing compose definition and, on POST, saves the updated service
 func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")
@@ -441,8 +430,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// handleDeleteContainer stops and removes a service and its image, and on
-// GET shows a confirmation page first.
+// handleDeleteContainer stops and removes a service and its image, and on GET shows a confirmation page first
 func handleDeleteContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")

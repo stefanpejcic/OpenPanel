@@ -1,7 +1,4 @@
-// Package autoinstaller implements the "Auto Installer" hub page listing
-// every one-click app type (WordPress, Drupal, Joomla, Website Builder,
-// Mautic, NodeJS, Python), each showing how many instances of that type
-// this user already has installed.
+// Package autoinstaller implements the "Auto Installer" hub page listing every one-click app type, each showing how many instances the user already has installed.
 package autoinstaller
 
 import (
@@ -16,17 +13,13 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 )
 
-// technologies is every site type counted for the autoinstaller hub. Only
-// wordpress/drupal/sitebuilder (website_builder)/mautic/node/python have a
-// card in the template - the rest are counted but never displayed.
+// technologies is every site type counted for the autoinstaller hub - only some have a card in the template, the rest are counted but never displayed
 var technologies = []string{
 	"wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "sitebuilder", "node", "python", "php",
 	"java", "ruby", "bun", "mautic", "flarum", "fossbilling", "tinyphotogallery", "tinyfilemanager", "ojs",
 }
 
-// getAutoinstallerData returns every domain the user owns, plus a
-// per-technology count of sites whose type contains that technology's name
-// (case-insensitively).
+// getAutoinstallerData returns every domain the user owns, plus a per-technology count of sites whose type contains that technology's name (case-insensitively)
 func getAutoinstallerData(ctx context.Context, a *appctx.App, userID int) ([]appctx.Domain, map[string]int, error) {
 	domains, err := a.AllDomainsForUser(ctx, userID)
 	if err != nil {
@@ -59,11 +52,7 @@ func getAutoinstallerData(ctx context.Context, a *appctx.App, userID int) ([]app
 	return domains, counts, rows.Err()
 }
 
-// handleAutoinstaller renders the autoinstaller hub page. On a database
-// error, the response body is just the bare error text with no error
-// wrapping and no non-200 status - preserved here exactly since it's an
-// already-visible production behavior, not something to improve on
-// incidentally.
+// handleAutoinstaller renders the autoinstaller hub page. On a database error, the response body is just the bare error text with no wrapping and no non-200 status - preserved exactly as existing production behavior, not something to fix incidentally.
 func handleAutoinstaller(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	ctx := r.Context()
@@ -90,11 +79,7 @@ type autoinstallerData struct {
 	Counts  map[string]int
 }
 
-// upsellData carries what the template needs to grey out disabled tiles and
-// optionally offer an upgrade CTA instead of the plain "contact your
-// administrator" tooltip - populated only when the user's plan has an
-// upsell target configured (Enterprise-only, see PlanDetails.HasUpsell) and
-// that target plan's own feature set actually grants a given module.
+// upsellData carries what the template needs to grey out disabled tiles and optionally offer an upgrade CTA instead of the plain "contact your administrator" tooltip - populated only when the plan has an upsell target configured (Enterprise-only) that actually grants a given module
 type upsellData struct {
 	PlanName string
 	URL      string

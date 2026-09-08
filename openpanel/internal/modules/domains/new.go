@@ -27,17 +27,14 @@ func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, cat
 	http.Redirect(w, r, path, http.StatusFound)
 }
 
-// flashSess adds a flash message without redirecting - for the GET
-// branches that flash an error but still render the current page.
+// flashSess adds a flash message without redirecting, for GET branches that flash an error but still render the current page
 func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	flash.Add(sess, category, message)
 	_ = a.Sessions.Save(r, w, sess)
 }
 
-// resolveUnderVarWWWHTML resolves a path lexically (no symlink following -
-// the path may not exist yet) and confirms it stays under the docroot base,
-// used for onion key paths and docroot in handleDomainsNew.
+// resolveUnderVarWWWHTML resolves a path lexically (no symlink following, the path may not exist yet) and confirms it stays under the docroot base, used for onion key paths and docroot in handleDomainsNew
 func resolveUnderVarWWWHTML(raw string) (resolved string, ok bool) {
 	const base = "/var/www/html/"
 	abs := raw

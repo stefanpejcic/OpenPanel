@@ -2,10 +2,7 @@ package docker
 
 import "testing"
 
-// TestFilterContainerServicesKeepsActiveWebserver guards against the
-// openlitespeed-hides-itself regression: "litespeed" is a substring of
-// "openlitespeed", so a Contains-based filter removes the active webserver
-// along with the others it's meant to hide.
+// guards against the openlitespeed-hides-itself regression: "litespeed" is a substring of "openlitespeed", so a Contains-based filter removes the active webserver along with the others it's meant to hide
 func TestFilterContainerServicesKeepsActiveWebserver(t *testing.T) {
 	allWebservers := []string{"apache", "nginx", "openresty", "openlitespeed", "litespeed"}
 

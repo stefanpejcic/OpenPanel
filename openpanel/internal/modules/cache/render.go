@@ -24,16 +24,13 @@ var cacheServicePage = web.MustLoadPage(
 	"cache/service.html",
 )
 
-// DomainVarnishRow is one row of the varnish page's per-domain toggle
-// table.
+// DomainVarnishRow is one row of the varnish page's per-domain toggle table
 type DomainVarnishRow struct {
 	DomainURL string
 	Status    string // "On" | "Off" | "Unknown"
 }
 
-// CachePageData is cache/service.html's template context, shared by all
-// six cache routes. Port == 0 selects the varnish branch (no fixed TCP
-// port, per-domain toggle table instead of a port info card).
+// CachePageData is cache/service.html's template context, shared by all six cache routes. Port == 0 selects the varnish branch (no fixed TCP port, per-domain toggle table instead of a port info card).
 type CachePageData struct {
 	web.LayoutData
 

@@ -15,8 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
 )
 
-// UserDetails holds the user/plan fields returned by
-// GetUserDetailsWithPlan.
+// UserDetails holds the user/plan fields returned by GetUserDetailsWithPlan
 type UserDetails struct {
 	Username string
 	Context  string
@@ -26,10 +25,7 @@ type UserDetails struct {
 	Found    bool
 }
 
-// GetUserDetailsWithPlan looks up the user's details and plan, cached for
-// 1h. Should be evicted early when the user changes email/username, but
-// that account-management flow isn't implemented yet, so no eviction path
-// exists here either.
+// GetUserDetailsWithPlan looks up the user's details and plan, cached for 1h - should be evicted on email/username change, but that flow doesn't exist yet
 func (a *App) GetUserDetailsWithPlan(ctx context.Context, userID int) (UserDetails, error) {
 	key := "get_user_details_with_plan:" + strconv.Itoa(userID)
 	return cache.Memoize(ctx, a.Cache, key, time.Hour, func() (UserDetails, error) {
@@ -58,17 +54,13 @@ func (a *App) GetUserDetailsWithPlan(ctx context.Context, userID int) (UserDetai
 	})
 }
 
-// TwoFAStatus holds the (twofa_enabled, otp_secret) pair returned by
-// Get2FAStatusForUser.
+// TwoFAStatus holds the (twofa_enabled, otp_secret) pair returned by Get2FAStatusForUser
 type TwoFAStatus struct {
 	Enabled   bool
 	OTPSecret string
 }
 
-// Get2FAStatusForUser looks up a user's 2FA enrollment status, cached for
-// 6h. Only this single lookup lives here, for the login/dashboard 2FA-nag
-// check; the rest of 2FA (enrollment, verification) belongs to its own
-// later phase.
+// Get2FAStatusForUser looks up a user's 2FA enrollment status, cached 6h, for the login/dashboard 2FA-nag check
 func (a *App) Get2FAStatusForUser(ctx context.Context, userID int) (TwoFAStatus, error) {
 	key := "get_2fa_status_for_user:" + strconv.Itoa(userID)
 	return cache.Memoize(ctx, a.Cache, key, 6*time.Hour, func() (TwoFAStatus, error) {
@@ -87,12 +79,7 @@ func (a *App) Get2FAStatusForUser(ctx context.Context, userID int) (TwoFAStatus,
 	})
 }
 
-// GetFeatureSetOnPlan looks up the feature set name for a user's plan,
-// cached for 24h. Returns the literal string "None" (not an empty string)
-// when the user or plan isn't found - callers use this to build a
-// deliberately nonexistent
-// /etc/openpanel/openpanel/features/None.txt path that falls through to
-// the default feature set.
+// GetFeatureSetOnPlan looks up the feature set name for a user's plan, cached 24h. Returns "None" (not "") when not found, so callers build a nonexistent features/None.txt path that falls through to default.txt.
 func (a *App) GetFeatureSetOnPlan(ctx context.Context, username string) (string, error) {
 	key := "get_feature_set_on_plan:" + username
 	return cache.Memoize(ctx, a.Cache, key, 24*time.Hour, func() (string, error) {
@@ -116,9 +103,7 @@ func (a *App) GetFeatureSetOnPlan(ctx context.Context, username string) (string,
 	})
 }
 
-// GetFeatureSetNameByPlanID looks up the feature_set column for a plan by
-// id, cached 24h. Returns "None" (not "") when the plan isn't found, the
-// same not-found convention as GetFeatureSetOnPlan.
+// GetFeatureSetNameByPlanID looks up the feature_set column for a plan by id, cached 24h, same "None" not-found convention as GetFeatureSetOnPlan
 func (a *App) GetFeatureSetNameByPlanID(ctx context.Context, planID int) (string, error) {
 	key := "get_feature_set_name_by_plan_id:" + strconv.Itoa(planID)
 	return cache.Memoize(ctx, a.Cache, key, 24*time.Hour, func() (string, error) {
@@ -137,12 +122,7 @@ func (a *App) GetFeatureSetNameByPlanID(ctx context.Context, planID int) (string
 	})
 }
 
-// LoadFeaturesForPlanID returns the feature list configured for a plan id
-// (its feature_set file, falling back to default.txt) - used to check
-// whether an upsell target plan includes a given module, mirroring the
-// plan-file fallback step of LoadUserFeatures but skipping the
-// user-specific features.txt override, which only applies to the
-// requesting user's own account, not an upsell target plan.
+// LoadFeaturesForPlanID returns the feature list for a plan id (its feature_set file, falling back to default.txt), used to check if an upsell target plan includes a module - skips the user-specific features.txt override since there's no requesting user here
 func (a *App) LoadFeaturesForPlanID(ctx context.Context, planID int) ([]string, error) {
 	key := "load_features_for_plan_id:" + strconv.Itoa(planID)
 	return cache.Memoize(ctx, a.Cache, key, 24*time.Hour, func() ([]string, error) {
@@ -174,17 +154,13 @@ func (a *App) QueryContextByUsername(ctx context.Context, username string) (stri
 	})
 }
 
-// baselineFeatures are always granted regardless of the user's/plan's
-// feature file.
+// baselineFeatures are always granted, regardless of the user's/plan's feature file
 var baselineFeatures = []string{
 	"dashboard", "helpers", "websites", "databases_size_info",
 	"screenshots", "favicons", "logout", "errors", "search", "app",
 }
 
-// LoadUserFeatures returns the feature list for a user: user-specific
-// features.txt, else the plan's feature set file, else default.txt, else
-// empty - plus the always-on baseline and any enabled plugins. Cached for
-// 24h.
+// LoadUserFeatures returns a user's feature list (features.txt, else the plan's set, else default.txt) plus the baseline and any enabled plugins, cached 24h
 func (a *App) LoadUserFeatures(ctx context.Context, username, userContext string) ([]string, error) {
 	if userContext == "" {
 		var err error
@@ -240,9 +216,7 @@ func gravatarURL(avatarType, email string) string {
 	return "https://www.gravatar.com/avatar/" + hex.EncodeToString(sum[:]) + "?s=150&d=identicon"
 }
 
-// InjectData computes the per-request user/branding data every page
-// template needs. Returns an empty, non-nil map for anonymous requests
-// (userID == 0).
+// InjectData computes the per-request user/branding data every page template needs, returning an empty (non-nil) map for anonymous requests
 func (a *App) InjectData(ctx context.Context, userID int) (map[string]any, error) {
 	if userID == 0 {
 		return map[string]any{}, nil
@@ -286,8 +260,7 @@ func (a *App) InjectData(ctx context.Context, userID int) (map[string]any, error
 		"hosting_plan":      details.PlanID,
 		"hosting_plan_name": details.PlanName,
 		"panel_version":     sysinfo.GetOpenPanelVersion(ctx, a.Cache),
-		// "dir" here is the config key for UI text direction (ltr/rtl),
-		// unrelated to any filesystem path despite the "panel_dir" name below.
+		// "dir" is the config key for UI text direction (ltr/rtl), not a filesystem path
 		"panel_dir":          a.Config.Get("dir", "ltr"),
 		"avatar_type":        a.AvatarType,
 		"gravatar_image_url": gravatarURL(a.AvatarType, details.Email),

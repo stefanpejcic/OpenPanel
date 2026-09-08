@@ -1,20 +1,4 @@
-// Package dokuwiki installs and manages DokuWiki (dokuwiki.org) inside an
-// existing domain's docroot, run in the domain's existing php-fpm
-// container - same shape as internal/modules/sofawiki (the only other
-// flat-file, no-database module), but DokuWiki differs from SofaWiki in
-// three important ways: it ships real dated releases (so a real "installed
-// version" exists and an Update tab is feasible), it needs PHP 7.4+ (a
-// floor, not SofaWiki's PHP-8-fatals ceiling), and it has no CLI installer
-// but IS meant to be fully configured at install time - so install.go
-// writes conf/local.php, conf/users.auth.php and conf/acl.auth.php
-// directly, replicating exactly what DokuWiki's own browser install
-// wizard (install.php) would have written, confirmed by reading that
-// script's store_data() function on a real extracted copy rather than
-// guessing the format.
-//
-// install.php itself is deleted right after these files are written -
-// DokuWiki's own docs recommend removing it once a site is configured, and
-// here it never even needs to run.
+// Package dokuwiki installs and manages DokuWiki inside an existing domain's docroot, same shape as sofawiki (the other flat-file module), but it ships real dated releases (so Update is feasible), needs PHP 7.4+, and gets fully configured at install time - install.go writes conf/local.php, users.auth.php and acl.auth.php directly instead of running install.php, then deletes install.php same as DokuWiki's own docs recommend
 package dokuwiki
 
 import (
@@ -81,9 +65,7 @@ func generateRandomString(length int) string {
 	return string(b)
 }
 
-// lockFilePath returns the per-user krompir.lock path shared with the
-// wordpress/phpapp/drupal/joomla/flarum/sofawiki modules to serialize any
-// one "app install" operation per user at a time.
+// lockFilePath is the per-user krompir.lock path shared with wordpress/phpapp/drupal/joomla/flarum/sofawiki, so only one app install runs per user at a time
 func lockFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
 }

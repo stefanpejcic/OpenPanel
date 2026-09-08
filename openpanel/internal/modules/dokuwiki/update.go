@@ -14,17 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// handleDokuwikiUpdate downloads the current stable tarball, compares its
-// VERSION against the installed one, and - only if newer - extracts it
-// over the existing install while explicitly preserving conf/, data/ and
-// lib/plugins/ (installed themes/plugins live in lib/plugins too, so this
-// covers both), mirroring DokuWiki's own documented manual-upgrade
-// procedure. There is no CLI updater to drive (unlike drush/wp-cli), so
-// this whole check-then-update flow runs as one NDJSON-streamed request,
-// unlike flarum/update.go's separate always-check-first client-side call -
-// version strings here are dated codenames ("2026-07-14b"), not semver,
-// but they still compare correctly as plain strings since the format is
-// always YYYY-MM-DD[letter].
+// handleDokuwikiUpdate downloads the stable tarball, compares VERSION against the installed one, and if newer extracts it over the install while preserving conf/, data/ and lib/plugins/ - no CLI updater exists so check-then-update runs as one NDJSON-streamed request (unlike flarum's separate check-first call); dated version codenames like "2026-07-14b" still compare fine as plain strings since the format is always YYYY-MM-DD[letter]
 func handleDokuwikiUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -109,11 +99,7 @@ cat "$SRC"/VERSION`
 	}
 
 	emit(map[string]any{"status": "Applying update: " + currentVersion + " -> " + latestVersion})
-	// Copy every top-level entry from the fresh extract over the existing
-	// install EXCEPT conf/, data/ and lib/plugins/ - DokuWiki's own
-	// documented manual-upgrade procedure (there is no CLI updater), so a
-	// naive full overwrite would wipe the site's configuration, pages and
-	// installed plugins/themes.
+	// copy every top-level entry from the fresh extract over the install except conf/, data/ and lib/plugins/, or a full overwrite would wipe config, pages and installed plugins/themes
 	applyScript := `set -e
 cd "` + scratchExtractDir + `"
 for entry in *; do

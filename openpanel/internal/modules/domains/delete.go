@@ -11,8 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// SiteRow is one row of the delete-confirmation "websites using this
-// domain" list.
+// SiteRow is one row of the delete-confirmation "websites using this domain" list
 type SiteRow struct {
 	SiteName string
 }

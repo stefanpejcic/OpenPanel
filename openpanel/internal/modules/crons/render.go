@@ -29,8 +29,7 @@ var (
 	cronjobsNewPage = loadPage("system/cronjobs_new.html")
 )
 
-// CronjobsPageData is system/cronjobs.html's template context, covering
-// both view=table and view=code.
+// CronjobsPageData is system/cronjobs.html's template context, covering both view=table and view=code
 type CronjobsPageData struct {
 	web.LayoutData
 	View           string

@@ -6,8 +6,7 @@ import (
 	"strings"
 )
 
-// ToggleProxyHTTPPort comments or uncomments the PROXY_HTTP_PORT line in a
-// user's .env file, enabling or disabling the port varnish listens on.
+// ToggleProxyHTTPPort comments or uncomments the PROXY_HTTP_PORT line in a user's .env file, enabling or disabling the port varnish listens on
 func ToggleProxyHTTPPort(userContext, state string) error {
 	path := "/home/" + userContext + "/.env"
 	content, err := os.ReadFile(path)
@@ -17,8 +16,7 @@ func ToggleProxyHTTPPort(userContext, state string) error {
 	return os.WriteFile(path, []byte(RewriteProxyHTTPPortLines(string(content), state)), 0o644)
 }
 
-// RewriteProxyHTTPPortLines is ToggleProxyHTTPPort()'s pure line-rewriting
-// half, split out for testability without touching the filesystem.
+// RewriteProxyHTTPPortLines is ToggleProxyHTTPPort()'s pure line-rewriting half, split out for testability without touching the filesystem
 func RewriteProxyHTTPPortLines(content, state string) string {
 	lines := strings.SplitAfter(content, "\n")
 	var out strings.Builder
@@ -43,8 +41,7 @@ func RewriteProxyHTTPPortLines(content, state string) string {
 	return out.String()
 }
 
-// ProxyPortSwapPair picks the old/new port-variable pair to swap when
-// toggling varnish on or off.
+// ProxyPortSwapPair picks the old/new port-variable pair to swap when toggling varnish on or off
 func ProxyPortSwapPair(state string) (old, replacement string, err error) {
 	switch state {
 	case "on":
@@ -56,19 +53,8 @@ func ProxyPortSwapPair(state string) (old, replacement string, err error) {
 	}
 }
 
-// SwapWebserverComposePort swaps one webserver's port-mapping variable in
-// place. podman-compose can't resolve a ${VAR} nested inside another
-// ${VAR:-default}, so docker-compose.yml keeps each webserver's port
-// mapping flat rather than using a fallback expression - the swap is
-// scoped to the block between the webserver's own `container_name:` line
-// and its `HTTPS_PORT` line, so only that service's port mapping is
-// touched.
-//
-// Callers must keep exactly one webserver's block on PROXY_HTTP_PORT
-// ("on") at a time when varnish is running - both switching varnish on/off
-// and switching the active webserver need to call this so the compose
-// file's port mappings stay consistent with whichever webserver is
-// actually the one varnish proxies to.
+// SwapWebserverComposePort swaps one webserver's port-mapping variable in place. podman-compose can't resolve a ${VAR} nested inside another ${VAR:-default}, so docker-compose.yml keeps each webserver's port mapping flat - the swap is scoped to the block between the webserver's `container_name:` line and its `HTTPS_PORT` line, so only that service's mapping is touched.
+// Callers must keep exactly one webserver's block on PROXY_HTTP_PORT ("on") at a time when varnish is running, so both toggling varnish and switching the active webserver need to call this.
 func SwapWebserverComposePort(userContext, webserver, state string) error {
 	old, replacement, err := ProxyPortSwapPair(state)
 	if err != nil {
@@ -83,16 +69,10 @@ func SwapWebserverComposePort(userContext, webserver, state string) error {
 	return os.WriteFile(path, []byte(RewriteComposePortBlock(string(content), webserver, old, replacement)), 0o644)
 }
 
-// composeWebservers lists every webserver service whose ports line in
-// docker-compose.yml can use the varnish port variable. Only one of them
-// is actually running per account at a time, but the admin can switch the
-// active webserver later without re-toggling Varnish, so all of their
-// blocks need to agree on whether Varnish is on or off.
+// composeWebservers lists every webserver service whose ports line in docker-compose.yml can use the varnish port variable. Only one runs per account at a time, but the admin can switch it later without re-toggling Varnish, so all their blocks need to agree on whether Varnish is on or off.
 var composeWebservers = []string{"openlitespeed", "openresty", "nginx", "apache"}
 
-// SwapAllWebserversComposePort applies SwapWebserverComposePort to every
-// webserver block in one pass, so enabling/disabling Varnish keeps the
-// compose file consistent regardless of which webserver ends up active.
+// SwapAllWebserversComposePort applies SwapWebserverComposePort to every webserver block in one pass, so enabling/disabling Varnish keeps the compose file consistent regardless of which webserver ends up active
 func SwapAllWebserversComposePort(userContext, state string) error {
 	for _, webserver := range composeWebservers {
 		if err := SwapWebserverComposePort(userContext, webserver, state); err != nil {
@@ -102,8 +82,7 @@ func SwapAllWebserversComposePort(userContext, state string) error {
 	return nil
 }
 
-// RewriteComposePortBlock is SwapWebserverComposePort()'s pure block-scoped
-// rewrite, split out for testability without touching the filesystem.
+// RewriteComposePortBlock is SwapWebserverComposePort()'s pure block-scoped rewrite, split out for testability without touching the filesystem
 func RewriteComposePortBlock(content, webserver, old, replacement string) string {
 	lines := strings.SplitAfter(content, "\n")
 

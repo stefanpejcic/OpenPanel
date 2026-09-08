@@ -77,8 +77,7 @@ func contains(list []string, v string) bool {
 	return false
 }
 
-// RegisterLocale wires the locale-preference route onto mux, gated behind
-// the "locale" feature flag.
+// RegisterLocale wires the locale-preference route onto mux, gated behind the "locale" feature flag
 func RegisterLocale(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "locale")(h)

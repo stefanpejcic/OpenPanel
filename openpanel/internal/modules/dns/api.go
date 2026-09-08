@@ -17,13 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterAPI wires the DNS REST endpoints onto mux. Several routes share
-// a domain prefix with a literal suffix (e.g. /api/dns/<domain>/raw) - Go's
-// http.ServeMux requires a "{...}" wildcard to be the final segment, so
-// GET/PATCH/DELETE/POST each get one "{rest...}" catch-all per verb and
-// the dispatch funcs below strip the known suffix by hand so that a
-// literal suffix always wins over the wildcard. apiregistry.Add still
-// records each logical route separately for /api/endpoints.
+// RegisterAPI wires the DNS REST endpoints onto mux. Several routes share a domain prefix with a literal suffix (e.g. /api/dns/<domain>/raw), but http.ServeMux needs a "{...}" wildcard to be the final segment - so each verb gets one "{rest...}" catch-all and the dispatch funcs below strip the known suffix by hand. apiregistry.Add still records each logical route separately.
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "dns", "GET /api/dns", func(w http.ResponseWriter, r *http.Request) { apiDNSList(a, w, r) })
 
@@ -91,8 +85,7 @@ func apiDNSPostDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// apiZoneRecord is one parsed record from a zone file's line-numbered
-// breakdown.
+// apiZoneRecord is one parsed record from a zone file's line-numbered breakdown
 type apiZoneRecord struct {
 	LineNumber    int    `json:"line_number"`
 	EndLineNumber int    `json:"end_line_number"`
@@ -100,8 +93,7 @@ type apiZoneRecord struct {
 	Multiline     bool   `json:"multiline"`
 }
 
-// apiDNSList returns every domain owned by the user plus whether each has
-// a zone file on disk.
+// apiDNSList returns every domain owned by the user plus whether each has a zone file on disk
 func apiDNSList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	domains, _ := a.AllDomainsForUser(r.Context(), userID)
@@ -117,8 +109,7 @@ func apiDNSList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIDNSJSON(w, http.StatusOK, map[string]any{"domains": result})
 }
 
-// apiDNSGet returns a domain's zone parsed into line-numbered records,
-// along with its serial number and any validation error.
+// apiDNSGet returns a domain's zone parsed into line-numbered records, along with its serial number and any validation error
 func apiDNSGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	domain := r.PathValue("domain")
@@ -170,8 +161,7 @@ func apiDNSRawGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIDNSJSON(w, http.StatusOK, map[string]string{"domain": domain, "content": string(content)})
 }
 
-// apiDNSRawPut replaces a domain's whole zone file with the submitted
-// content, after validating it via named-checkzone.
+// apiDNSRawPut replaces a domain's whole zone file with the submitted content, after validating it via named-checkzone
 func apiDNSRawPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -330,8 +320,7 @@ func apiDNSAddRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIDNSJSON(w, http.StatusCreated, map[string]string{"message": "DNS record added", "record": newRecord})
 }
 
-// apiDNSUpdateRecord replaces one or more zone-file lines identified by
-// row ID with new content.
+// apiDNSUpdateRecord replaces one or more zone-file lines identified by row ID with new content
 func apiDNSUpdateRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -415,8 +404,7 @@ func apiDNSUpdateRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIDNSJSON(w, http.StatusOK, map[string]string{"message": "Record at line " + strconv.Itoa(rowID) + " updated", "record": newContent})
 }
 
-// apiDNSDeleteRecord removes one or more zone-file lines identified by row
-// ID.
+// apiDNSDeleteRecord removes one or more zone-file lines identified by row ID
 func apiDNSDeleteRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

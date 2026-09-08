@@ -8,10 +8,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/config"
 )
 
-// activityLogDir is a const pointing at a system path, so we can't redirect
-// it in a test without touching real filesystem state; these tests only
-// exercise it if writable (e.g. running as root in a container), and skip
-// otherwise rather than failing the suite in a normal dev sandbox.
+// activityLogDir is a const system path we can't redirect in tests, so this only runs if it's writable (e.g. root in a container) and skips otherwise
 func TestRecordUserAction(t *testing.T) {
 	testUser := "go-migration-test-user"
 	if err := os.MkdirAll(activityLogDir+"/"+testUser, 0o755); err != nil {

@@ -1,6 +1,4 @@
-// Package sysinfo provides startup-time lookups (public IP, panel version,
-// domain/port, SSL presence) that are cheap to cache and expensive to
-// recompute per request.
+// Package sysinfo provides startup-time lookups (public IP, panel version, domain/port, SSL presence) that are cheap to cache and expensive to recompute per request.
 package sysinfo
 
 import (
@@ -22,8 +20,7 @@ var defaultBindRegex = regexp.MustCompile(`default_bind\s+([\d.]+)`)
 
 var httpClient = &http.Client{Timeout: time.Second}
 
-// FetchPublicIP tries two well-known IP-echo services, then falls back to
-// Caddy's default_bind, then "Unknown". Cached for 1h.
+// FetchPublicIP tries two IP-echo services, then Caddy's default_bind, then "Unknown". Cached for 1h.
 func FetchPublicIP(ctx context.Context, c *cache.Cache) string {
 	ip, _ := cache.Memoize(ctx, c, "app.fetch_public_ip", time.Hour, func() (string, error) {
 		urls := []string{"https://ip.openpanel.com", "https://ifconfig.me/ip"}
@@ -95,8 +92,7 @@ func fileExists(path string) bool {
 	return err == nil
 }
 
-// GetOpenPanelDomain returns the panel's configured domain, cached for 6
-// minutes.
+// GetOpenPanelDomain returns the panel's configured domain, cached for 6 minutes
 func GetOpenPanelDomain(ctx context.Context, c *cache.Cache) string {
 	v, _ := cache.Memoize(ctx, c, "app.get_openpanel_domain", 6*time.Minute, func() (string, error) {
 		out, err := runOpencli("domain")
@@ -108,10 +104,7 @@ func GetOpenPanelDomain(ctx context.Context, c *cache.Cache) string {
 	return v
 }
 
-// GetOpenAdminPort returns the port the separate "openadmin" service
-// (which actually sends notification emails) listens on. Left uncached
-// since its only caller, notifyUserOfChange, already runs off the
-// request's hot path in a background goroutine.
+// GetOpenAdminPort returns the port the separate "openadmin" service (which sends notification emails) listens on; left uncached since its only caller already runs in a background goroutine
 func GetOpenAdminPort() string {
 	out, err := runOpencli("admin", "port")
 	if err != nil || out == "" {
@@ -120,8 +113,7 @@ func GetOpenAdminPort() string {
 	return out
 }
 
-// GetOpenPanelPort returns the port the panel itself listens on, cached
-// for 1h.
+// GetOpenPanelPort returns the port the panel itself listens on, cached for 1h
 func GetOpenPanelPort(ctx context.Context, c *cache.Cache) string {
 	v, _ := cache.Memoize(ctx, c, "app.get_openpanel_port", time.Hour, func() (string, error) {
 		out, err := runOpencli("port")

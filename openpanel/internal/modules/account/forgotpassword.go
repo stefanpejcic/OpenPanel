@@ -1,6 +1,4 @@
-// Package account (this file) implements the pre-login "forgot your
-// password" email-link flow. Distinct from passwords.go/settings.go's
-// self-service password change, which requires being already logged in.
+// This file implements the pre-login "forgot your password" email-link flow, distinct from passwords.go/settings.go's self-service change, which requires being logged in already.
 package account
 
 import (
@@ -38,13 +36,10 @@ var (
 	resetEmailFragment = web.MustLoadFragment("user/email_template.html")
 )
 
-// passwordResetTokenTTL: a reset token's signature is only accepted within
-// 15 minutes of being minted.
+// passwordResetTokenTTL: a reset token's signature is only accepted within 15 minutes of being minted
 const passwordResetTokenTTL = 15 * time.Minute
 
-// RegisterPasswordReset wires the reset-password routes onto mux, unless
-// disabled via the password_reset config value - in which case the routes
-// are simply never registered.
+// RegisterPasswordReset wires the reset-password routes onto mux, unless disabled via the password_reset config value
 func RegisterPasswordReset(mux *http.ServeMux, a *appctx.App) {
 	if strings.ToLower(a.Config.Get("password_reset", "yes")) != "yes" {
 		return
@@ -57,11 +52,7 @@ func RegisterPasswordReset(mux *http.ServeMux, a *appctx.App) {
 	})
 }
 
-// signResetToken produces a tamper-evident, timestamped token embedding the
-// user ID: nothing outside this app ever needs to parse it, only
-// sign/verify round-trip through this same process, so an HMAC-SHA256
-// payload+signature pair is all that's needed (can't be forged or replayed
-// past its age).
+// signResetToken produces a tamper-evident, timestamped token embedding the user ID - nothing outside this app ever parses it, just sign/verify round-trip, so an HMAC-SHA256 payload+signature pair is enough
 func signResetToken(secretKey []byte, userID int) string {
 	payload := fmt.Sprintf("%d.%d", userID, time.Now().Unix())
 	mac := hmac.New(sha256.New, secretKey)
@@ -70,8 +61,7 @@ func signResetToken(secretKey []byte, userID int) string {
 	return base64.RawURLEncoding.EncodeToString([]byte(payload)) + "." + base64.RawURLEncoding.EncodeToString(sig)
 }
 
-// resetTokenStatus distinguishes the three outcomes of verifying a reset
-// token: valid, expired, or malformed/tampered.
+// resetTokenStatus distinguishes the three outcomes of verifying a reset token: valid, expired, or malformed/tampered
 type resetTokenStatus int
 
 const (
@@ -80,8 +70,7 @@ const (
 	resetTokenInvalid
 )
 
-// verifyResetToken validates the HMAC signature and the embedded
-// timestamp's age.
+// verifyResetToken validates the HMAC signature and the embedded timestamp's age
 func verifyResetToken(secretKey []byte, token string) (userID int, status resetTokenStatus) {
 	payloadPart, sigPart, found := strings.Cut(token, ".")
 	if !found {
@@ -175,18 +164,10 @@ func handleForgotPassword(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	renderPage(w, requestEmailPage, http.StatusOK, data)
 }
 
-// errSMTPNotConfigured is returned when openpanel.config has no [SMTP]
-// mail_server set - the same section OpenAdmin's notification settings page
-// (Settings > Notifications) writes to. handleForgotPassword surfaces this
-// to the user instead of silently pretending the email was sent.
+// errSMTPNotConfigured is returned when openpanel.config has no [SMTP] mail_server set - handleForgotPassword surfaces this instead of silently pretending the email was sent
 var errSMTPNotConfigured = errors.New("smtp is not configured")
 
-// sendPasswordResetEmail stashes the token in Redis (default TTL, 300s/5m -
-// shorter than the token's own 15-minute signature window and shorter than
-// what the email tells the user, so the link silently stops working after
-// 5 minutes; a known quirk, not something to "fix" here), then emails the
-// reset link via the same SMTP relay OpenAdmin's own notification emails
-// use (see loadSMTPConfig).
+// sendPasswordResetEmail stashes the token in Redis (default TTL 5m, shorter than the token's own 15-minute window - a known quirk, not a bug), then emails the reset link via the same SMTP relay OpenAdmin uses (see loadSMTPConfig)
 func sendPasswordResetEmail(a *appctx.App, ctx context.Context, t i18n.Translator, userID int, username, email string) error {
 	cfg, ok := loadSMTPConfig(a)
 	if !ok {
@@ -223,10 +204,7 @@ func sendPasswordResetEmail(a *appctx.App, ctx context.Context, t i18n.Translato
 	return sendMail(cfg, email, subject, buf.String())
 }
 
-// smtpConfig is the [SMTP] section of openpanel.config, as configured via
-// OpenAdmin's Settings > Notifications page - the very same keys OpenAdmin's
-// own mailer (openadmin/internal/handlers/mailer.go) reads, so a single set
-// of SMTP credentials/relay serves both apps' outgoing mail.
+// smtpConfig is the [SMTP] section of openpanel.config, set via OpenAdmin's Settings > Notifications page - the same keys OpenAdmin's own mailer reads, so one set of credentials serves both apps
 type smtpConfig struct {
 	Host     string
 	Port     string
@@ -237,12 +215,7 @@ type smtpConfig struct {
 	UseTLS   bool
 }
 
-// loadSMTPConfig reads openpanel.config for mail_server et al. openpanel's
-// Config.Load has no notion of ini [section] headers, but its key=value
-// parser still picks these up regardless - a "[SMTP]" line simply doesn't
-// match its key=value regex and is skipped, so no separate config plumbing
-// is needed to share these values with OpenAdmin. Returns ok=false when no
-// mail_server is set, i.e. nobody has configured SMTP yet.
+// loadSMTPConfig reads openpanel.config for mail_server et al. Config.Load has no notion of [section] headers, but its key=value parser picks these up anyway since a "[SMTP]" line just doesn't match the regex and gets skipped. Returns ok=false if nobody's configured SMTP yet.
 func loadSMTPConfig(a *appctx.App) (smtpConfig, bool) {
 	host := a.Config.Get("mail_server", "")
 	if host == "" {
@@ -267,10 +240,7 @@ func loadSMTPConfig(a *appctx.App) (smtpConfig, bool) {
 	}, true
 }
 
-// sendMail sends an HTML email over cfg's relay: implicit TLS when UseSSL,
-// STARTTLS when UseTLS (and the server advertises it), plaintext otherwise -
-// mirroring OpenAdmin's own mailerSendRun so both apps behave the same way
-// for the same [SMTP] settings.
+// sendMail sends an HTML email over cfg's relay: implicit TLS if UseSSL, STARTTLS if UseTLS and the server advertises it, plaintext otherwise - mirrors OpenAdmin's own mailerSendRun
 func sendMail(cfg smtpConfig, to, subject, htmlBody string) error {
 	msg := "From: " + cfg.From + "\r\n" +
 		"To: " + to + "\r\n" +

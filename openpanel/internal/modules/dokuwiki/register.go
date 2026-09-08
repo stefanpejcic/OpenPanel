@@ -9,8 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// Register wires the DokuWiki install/remove/manage/update routes onto
-// mux, gated behind the "dokuwiki" feature flag.
+// Register wires the DokuWiki install/remove/manage/update routes onto mux, gated behind the "dokuwiki" feature flag
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "dokuwiki")(h)
@@ -24,9 +23,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /dokuwiki/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDokuwikiClone(a, w, r) }))
 }
 
-// withDokuwikiForm clones r as a POST carrying the given values as both
-// Form and PostForm, so a UI handler that reads r.FormValue(...) sees
-// exactly the fields the API's JSON body supplied.
+// withDokuwikiForm clones r as a POST carrying values as both Form and PostForm, so a UI handler reading r.FormValue(...) sees the API's JSON body fields
 func withDokuwikiForm(r *http.Request, values url.Values) *http.Request {
 	clone := r.Clone(r.Context())
 	clone.Method = http.MethodPost

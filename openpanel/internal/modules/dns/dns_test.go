@@ -99,10 +99,7 @@ func TestBuildZoneRows(t *testing.T) {
 	if rows[0].Name != "www" || rows[0].DisplayValue != "1.2.3.4" {
 		t.Errorf("rows[0] = %+v", rows[0])
 	}
-	// Known quirk: the quote-strip check runs against the
-	// pre-comment-stripped value, so a trailing " ; comment" (which makes
-	// the raw field no longer end in a bare quote) means the quotes never
-	// get stripped even though the comment itself does.
+	// known quirk: the quote-strip check runs against the pre-comment-stripped value, so a trailing " ; comment" means the quotes never get stripped even though the comment itself does
 	if rows[1].DisplayValue != `"v=spf1 -all"` {
 		t.Errorf("rows[1].DisplayValue = %q, want %q (comment removed, quotes NOT stripped)", rows[1].DisplayValue, `"v=spf1 -all"`)
 	}

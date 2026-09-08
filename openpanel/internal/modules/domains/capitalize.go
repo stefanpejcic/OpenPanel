@@ -13,10 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// capitalizedDomainsFile returns the per-account file storing display-case
-// overrides for domain names (e.g. "MyBrand.com" instead of "mybrand.com"),
-// using the same /home/<context>/ convention as every other per-account
-// file in this codebase.
+// capitalizedDomainsFile returns the per-account file storing display-case overrides (e.g. "MyBrand.com" instead of "mybrand.com"), same /home/<context>/ convention as every other per-account file
 func capitalizedDomainsFile(userContext string) string {
 	return "/home/" + userContext + "/capitalized_domains.json"
 }
@@ -25,8 +22,7 @@ func capitalizedDomainsCacheKey(userContext string) string {
 	return "capitalized_domains:" + userContext
 }
 
-// loadCapitalizedDomains reads (or returns the cached copy of) the full
-// domain -> display-case map for one account.
+// loadCapitalizedDomains reads (or returns the cached copy of) the full domain -> display-case map for one account
 func loadCapitalizedDomains(ctx context.Context, a *appctx.App, userContext string) map[string]string {
 	result, _ := cache.Memoize(ctx, a.Cache, capitalizedDomainsCacheKey(userContext), cache.DefaultTTL, func() (map[string]string, error) {
 		content, err := os.ReadFile(capitalizedDomainsFile(userContext))

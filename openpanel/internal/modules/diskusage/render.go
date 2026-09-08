@@ -29,8 +29,7 @@ type Breadcrumb struct {
 	Last       bool
 }
 
-// buildBreadcrumbs builds the breadcrumb trail for the current path: each
-// crumb links to the cumulative path through itself.
+// buildBreadcrumbs builds the breadcrumb trail for the current path: each crumb links to the cumulative path through itself
 func buildBreadcrumbs(root, urlPath string) []Breadcrumb {
 	trimmed := strings.Trim(urlPath, "/")
 	var parts []string
@@ -59,8 +58,7 @@ type Row struct {
 	Directory, Count, Href, FileManagerHref string
 }
 
-// parseDuOutput splits each "<size> <path>" line of `du` output into a
-// table row.
+// parseDuOutput splits each "<size> <path>" line of `du` output into a table row
 func parseDuOutput(output, urlPath string) []Row {
 	var rows []Row
 	for _, line := range strings.Split(output, "\n") {

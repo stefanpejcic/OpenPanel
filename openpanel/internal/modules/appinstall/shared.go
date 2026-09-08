@@ -33,13 +33,7 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// HandleDockerTags proxies endoflife.date's release feed for the
-// "version" dropdown on the nodejs/python install forms (cached 24h), or -
-// for ruby - queries Docker Hub's own tag list directly (per explicit
-// request: ruby's versions should come from Docker Hub, not endoflife.date)
-// and reshapes it into the same [{"latest": "X.Y.Z"}, ...] shape the
-// frontend already expects, so python_node_apps.html's fetch/render code
-// doesn't need a ruby-specific branch.
+// HandleDockerTags proxies endoflife.date's release feed for the "version" dropdown on the nodejs/python install forms (cached 24h). For ruby it queries Docker Hub's own tag list directly instead, reshaped into the same [{"latest": "X.Y.Z"}, ...] shape so the frontend doesn't need a ruby-specific branch.
 func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	appType := r.PathValue("type")
 	if appType != "nodejs" && appType != "python" && appType != "ruby" && appType != "java" {
@@ -49,14 +43,7 @@ func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	// ruby and java both come straight from Docker Hub's own tag list
-	// (per explicit request for ruby: its versions should come from
-	// Docker Hub, not endoflife.date) - java has no plain "X.Y.Z" tags at
-	// all (eclipse-temurin only ships suffixed tags like
-	// "21-jdk-jammy"/"21.0.12_8-jdk-jammy"), so it gets its own cache key
-	// and tag filter, reshaped into the same [{"latest": "X"}, ...] shape
-	// python_node_apps.html's fetch/render code already expects for every
-	// type, no java-specific branch needed there.
+	// ruby and java both come straight from Docker Hub's tag list. Java has no plain "X.Y.Z" tags at all (eclipse-temurin only ships suffixed tags like "21-jdk-jammy"), so it gets its own cache key and filter, reshaped into the same [{"latest": "X"}, ...] shape - no java-specific branch needed in the frontend.
 	if appType == "ruby" || appType == "java" {
 		cacheKey, fetch := "docker_tags_for_ruby", fetchRubyDockerHubVersions
 		if appType == "java" {
@@ -103,26 +90,8 @@ func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 var rubyCleanTagRE = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
 
-// fetchRubyDockerHubVersions queries Docker Hub's own registry API for the
-// official `ruby` image's every tag, keeping only plain "X.Y.Z" tags -
-// Docker Hub also lists variant tags like "3.3.6-slim", "3.3.6-alpine",
-// "3-bookworm" etc, which are deliberately excluded here since the compose
-// template (configuration/docker/compose/ruby.yml) only substitutes this
-// value as-is into `ruby:${...TAG}`, not as a suffix - a user picking a
-// version from this list expects the plain "ruby:X.Y.Z" image, not a
-// slim/alpine variant they didn't ask for.
-//
-// Deliberately does NOT rely on the API's `ordering` param to find the
-// newest versions quickly: confirmed live that `ordering=-name` fails to
-// surface current major versions first (a page_size=10&ordering=-name
-// request returned "1", "1.9", "1.9.3", ... i.e. ascending from the
-// oldest tag - the "-" descending prefix appears to be ignored entirely),
-// and `ordering=-last_updated` is no better, since older patch tags get
-// rebuilt for base-image security patches more often than a stable recent
-// release does, so "most recently updated" doesn't track "highest
-// version" either. The library/ruby repo has ~1700 tags total, so this
-// pages through all of them (default ordering, whatever Docker Hub
-// actually returns) and sorts properly in Go below instead.
+// fetchRubyDockerHubVersions queries Docker Hub's registry API for the official `ruby` image's tags, keeping only plain "X.Y.Z" ones - variant tags like "3.3.6-slim" are excluded since the compose template substitutes this value as-is into `ruby:${...TAG}`, not as a suffix.
+// Doesn't rely on the API's `ordering` param: `ordering=-name` doesn't actually sort descending in practice, and `ordering=-last_updated` doesn't track version either (old patches get rebuilt for security fixes more than recent releases do). So this just pages through all ~1700 tags and sorts properly in Go.
 func fetchRubyDockerHubVersions(ctx context.Context) ([]string, error) {
 	client := &http.Client{Timeout: 8 * time.Second}
 	seen := make(map[string]bool)
@@ -179,20 +148,10 @@ func compareRubyVersions(a, b string) int {
 	return 0
 }
 
-// javaCleanTagRE matches eclipse-temurin's plain major-version LTS tags
-// ("8-jdk-jammy", "17-jdk-jammy", "21-jdk-jammy", ...) - confirmed live
-// against the real Docker Hub tag list that eclipse-temurin ships no bare
-// "X.Y.Z" tags at all (unlike ruby/python/node), only ones suffixed with a
-// JVM variant (jdk/jre) and base OS (jammy/alpine/ubi...); "-jdk-jammy" is
-// the one this module's compose template (configuration/docker/compose/
-// java.yml) actually substitutes, so only that suffix is offered here -
-// same reasoning as rubyCleanTagRE excluding variants the compose
-// template doesn't use.
+// javaCleanTagRE matches eclipse-temurin's plain major-version LTS tags ("8-jdk-jammy", "17-jdk-jammy", ...) - eclipse-temurin ships no bare "X.Y.Z" tags at all, only ones suffixed with a JVM variant and base OS, and "-jdk-jammy" is the one the compose template actually substitutes, same reasoning as rubyCleanTagRE.
 var javaCleanTagRE = regexp.MustCompile(`^(\d+)-jdk-jammy$`)
 
-// fetchJavaDockerHubVersions queries Docker Hub's own registry API for the
-// official `eclipse-temurin` image's every tag, keeping only clean major-
-// version LTS tags (see javaCleanTagRE), newest first.
+// fetchJavaDockerHubVersions queries Docker Hub's registry API for the official `eclipse-temurin` image's tags, keeping only clean major-version LTS tags (see javaCleanTagRE), newest first
 func fetchJavaDockerHubVersions(ctx context.Context) ([]string, error) {
 	client := &http.Client{Timeout: 8 * time.Second}
 	seen := make(map[string]bool)
@@ -243,9 +202,7 @@ func compareJavaVersions(a, b string) int {
 	return na - nb
 }
 
-// HandleCheckFileExists mirrors helpers.check_file_exists(): used by both
-// install forms' startup-file input to show a live exists/does-not-exist
-// indicator.
+// HandleCheckFileExists mirrors helpers.check_file_exists(), used by both install forms' startup-file input to show a live exists/does-not-exist indicator
 func HandleCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, userContext, err := injectedContext(a, r)
 	if err != nil {
@@ -279,12 +236,7 @@ func HandleCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusOK, map[string]string{"message": file + " exists."})
 }
 
-// RegisterShared wires the two always-on routes only the Python/NodeJS
-// install forms use (/docker/tags/<type>, /json/check_if_file_exists).
-// Both are gated on the "helpers" feature, not "python"/"nodejs" -
-// "helpers" is unconditionally granted to every user (see
-// baselineFeatures), so in practice this is login-only, matching why it
-// belongs in alwaysOn rather than configured.
+// RegisterShared wires the two always-on routes only the Python/NodeJS install forms use. Gated on "helpers", not "python"/"nodejs" - "helpers" is unconditionally granted (see baselineFeatures), so in practice this is login-only.
 func RegisterShared(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "helpers")(h)

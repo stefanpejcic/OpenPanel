@@ -1,6 +1,4 @@
-// Package domains implements the domains list/add/delete page and its
-// satellite management pages (suspend, docroot, access logs, capitalize
-// display, virtual host editor, redirects, SSL).
+// Package domains implements the domains list/add/delete page and its satellite management pages (suspend, docroot, access logs, capitalize display, vhost editor, redirects, SSL)
 package domains
 
 import (
@@ -10,10 +8,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
-// Register wires all domain management routes onto mux. "domains" gates
-// the base list/add/delete flow, always available once the domains module
-// itself is enabled; the satellite pages are individually gated to match
-// the sidebar's own feature-conditional links.
+// Register wires all domain management routes onto mux - "domains" gates the base list/add/delete flow, the satellite pages are individually gated to match the sidebar's own feature-conditional links
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(feature string, h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, feature)(h)
@@ -29,9 +24,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/domains/docroot", requireLogin("docroot", func(w http.ResponseWriter, r *http.Request) { handleDomainDocroot(a, w, r) }))
 
 	mux.Handle("GET /domains/log", requireLogin("domain_logs", func(w http.ResponseWriter, r *http.Request) { handleViewDomainAccessLog(a, w, r) }))
-	// "GET /domains/log/{domain_name...}" already covers the bare
-	// "/domains/log/" case (domain_name resolves to ""), matching the
-	// established wildcard-route pattern used throughout this port.
+	// this route already covers the bare "/domains/log/" case (domain_name resolves to ""), matching the wildcard-route pattern used throughout this port
 	mux.Handle("GET /domains/log/{domain_name...}", requireLogin("domain_logs", func(w http.ResponseWriter, r *http.Request) { handleViewDomainAccessLog(a, w, r) }))
 
 	mux.Handle("GET /domains/capitalize", requireLogin("capitalize_domains", func(w http.ResponseWriter, r *http.Request) {

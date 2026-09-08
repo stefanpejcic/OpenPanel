@@ -35,10 +35,7 @@ func (c *Cache) Ping(ctx context.Context) error {
 	return c.rdb.Ping(ctx).Err()
 }
 
-// Raw exposes the underlying redis client for callers that need operations
-// Memoize doesn't cover - e.g. a hand-rolled session store using
-// hgetall/hset/expire/delete calls directly, which reads/writes a
-// different keyspace than the memoize cache.
+// Raw exposes the underlying redis client for callers that need operations Memoize doesn't cover, like the session store's direct hgetall/hset calls
 func (c *Cache) Raw() *redis.Client {
 	return c.rdb
 }
@@ -47,9 +44,7 @@ func (c *Cache) Close() error {
 	return c.rdb.Close()
 }
 
-// Memoize returns the cached value for key if present, otherwise calls fn,
-// caches its result for ttl, and returns it. The key is explicit rather
-// than derived from the function name and arguments.
+// Memoize returns the cached value for key if present, otherwise calls fn, caches the result for ttl, and returns it
 func Memoize[T any](ctx context.Context, c *Cache, key string, ttl time.Duration, fn func() (T, error)) (T, error) {
 	var zero T
 	fullKey := KeyPrefix + key

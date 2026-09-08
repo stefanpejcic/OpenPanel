@@ -9,9 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// baseLayout builds a representative web.LayoutData shared by every render
-// test below - the same app-shell fields BuildLayoutData would produce,
-// without needing a live *appctx.App/http.Request.
+// baseLayout builds a representative web.LayoutData shared by every render test below - the same app-shell fields BuildLayoutData would produce, without needing a live *appctx.App/http.Request
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 	userAllowed := map[string]bool{"dashboard": true, "docker": true}
 	return web.LayoutData{
@@ -30,9 +28,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 	}
 }
 
-// TestRenderContainersPage exercises containers.html with a representative
-// mix of rows: unlimited/limited CPU+RAM, a trusted and an untrusted image,
-// and a core service (no Edit/Delete) alongside a user-added one.
+// exercises containers.html with a representative mix of rows: unlimited/limited CPU+RAM, a trusted and an untrusted image, and a core service (no Edit/Delete) alongside a user-added one
 func TestRenderContainersPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := ContainersPageData{
@@ -59,8 +55,7 @@ func TestRenderContainersPage(t *testing.T) {
 	}
 }
 
-// TestRenderContainerFormPage covers all three form states: fresh add,
-// failed-validation redisplay, and GET-edit prefill.
+// covers all three form states: fresh add, failed-validation redisplay, and GET-edit prefill
 func TestRenderContainerFormPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
@@ -248,8 +243,7 @@ func TestRenderTerminalPage(t *testing.T) {
 	})
 }
 
-// TestBuildContainerRowsSorted guards against nondeterministic row order
-// (Go map iteration) leaking into the rendered table.
+// guards against nondeterministic row order (Go map iteration) leaking into the rendered table
 func TestBuildContainerRowsSorted(t *testing.T) {
 	rows := buildContainerRows(map[string]any{
 		"zeta":  map[string]any{"image": "z"},
@@ -261,10 +255,7 @@ func TestBuildContainerRowsSorted(t *testing.T) {
 	}
 }
 
-// TestBuildContainerRowsMemory guards against regressing to the "always
-// shows unlimited/0" bug: `podman-compose config` resolves
-// deploy.resources.limits.memory to a compose-style string like "0.5G",
-// confirmed against a live server, not a raw byte count.
+// guards against regressing to the "always shows unlimited/0" bug: `podman-compose config` resolves deploy.resources.limits.memory to a compose-style string like "0.5G", not a raw byte count
 func TestBuildContainerRowsMemory(t *testing.T) {
 	rows := buildContainerRows(map[string]any{
 		"nginx": map[string]any{

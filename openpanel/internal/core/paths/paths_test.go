@@ -6,8 +6,7 @@ import (
 	"testing"
 )
 
-// withHomeVolume creates a temp "home volume" directory for context "alice"
-// and points homeVolumeOverride at its parent for the duration of the test.
+// withHomeVolume creates a temp "home volume" dir for context "alice" and points homeVolumeOverride at its parent for the test
 func withHomeVolume(t *testing.T) (root string, context string) {
 	t.Helper()
 	tmp := t.TempDir()
@@ -164,8 +163,7 @@ func TestSecureUserPathAbsoluteLikeInputTreatedAsRelative(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// A leading "/" isn't rejected - it's deliberately treated as relative
-	// and just joined, staying inside userHome.
+	// a leading "/" isn't rejected - it's treated as relative and just joined, staying inside userHome
 	got, err := SecureUserPath("HOME", context, "/etc/passwd", true)
 	if err != nil {
 		t.Fatalf("SecureUserPath: %v", err)

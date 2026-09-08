@@ -19,10 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// restoreMySQLFromSQL drops/recreates the database, then executes the
-// dump in ";\n"-delimited chunks, tolerating failures on statements that
-// start with SET, /*, or -- (harmless SET/comment statements a dump may
-// contain that can fail depending on server config).
+// restoreMySQLFromSQL drops/recreates the database, then executes the dump in ";\n"-delimited chunks, tolerating failures on statements starting with SET, /*, or -- (harmless lines a dump may contain that can fail depending on server config)
 func restoreMySQLFromSQL(ctx context.Context, userContext, dbName, sqlContent string) error {
 	safeDB := strings.ReplaceAll(dbName, "`", "``")
 	if _, err := mysqlmanager.Exec(ctx, userContext, "DROP DATABASE IF EXISTS `"+safeDB+"`", ""); err != nil {
@@ -47,10 +44,7 @@ func restoreMySQLFromSQL(ctx context.Context, userContext, dbName, sqlContent st
 	return nil
 }
 
-// restorePostgresFromSQL drops/recreates the database, then executes the
-// dump the same tolerant way restoreMySQLFromSQL does (pg_dump output uses
-// the same "statement;\n" shape, and also emits harmless SET/comment lines
-// that can fail depending on server config/extensions installed).
+// restorePostgresFromSQL drops/recreates the database, then executes the dump the same tolerant way restoreMySQLFromSQL does - pg_dump uses the same "statement;\n" shape and also emits harmless SET/comment lines that can fail depending on server config
 func restorePostgresFromSQL(ctx context.Context, userContext, dbName, sqlContent string) error {
 	safeDB := strings.ReplaceAll(dbName, `"`, `""`)
 	if _, err := postgresmanager.Exec(ctx, userContext, `DROP DATABASE IF EXISTS "`+safeDB+`"`, ""); err != nil {
@@ -75,13 +69,7 @@ func restorePostgresFromSQL(ctx context.Context, userContext, dbName, sqlContent
 	return nil
 }
 
-// restoreSQLMember dispatches a tarSQLMember to the right engine based on
-// which backup/<engine>/ folder it came from - a backup archive can contain
-// both MySQL and PostgreSQL dumps side by side (see the "backup" service's
-// volume mounts in docker-compose.yml: mysql_dumps -> backup/mysql,
-// pg_data -> backup/postgres), and running a Postgres dump through
-// mysqlmanager (or vice versa) would fail outright or, worse, silently
-// corrupt the wrong engine's database of the same name.
+// restoreSQLMember dispatches a tarSQLMember to the right engine based on which backup/<engine>/ folder it came from - an archive can contain both MySQL and PostgreSQL dumps side by side, and running one through the wrong manager would fail outright or silently corrupt the wrong engine's database of the same name
 func restoreSQLMember(ctx context.Context, userContext string, member tarSQLMember, dbName string) error {
 	if member.Engine == "postgres" {
 		return restorePostgresFromSQL(ctx, userContext, dbName, member.Content)
@@ -89,10 +77,7 @@ func restoreSQLMember(ctx context.Context, userContext string, member tarSQLMemb
 	return restoreMySQLFromSQL(ctx, userContext, dbName, member.Content)
 }
 
-// chownAncestors chowns dir and every parent directory up to (but not
-// including) root - root already belongs to the account's bind-mounted
-// volume and is already correctly owned; this only needs to fix up any new
-// subdirectories os.MkdirAll just created (as real host root) beneath it.
+// chownAncestors chowns dir and every parent directory up to (but not including) root - root is already correctly owned, this just fixes up new subdirectories os.MkdirAll created as real host root beneath it
 func chownAncestors(dir, root string, uid int) {
 	for dir != root && dir != "." && dir != string(filepath.Separator) && strings.HasPrefix(dir, root) {
 		_ = os.Chown(dir, uid, uid)
@@ -110,14 +95,7 @@ var restoreFilesPathMap = func(userContext string) map[string]string {
 	}
 }
 
-// restoreFilesFromTar extracts html/vhosts/mail/crons entries from the
-// archive into their host paths. uid is the account's rootless-container
-// UID (from appctx.App.GetUID); every path this writes is chowned to it
-// afterward, since the writing process itself runs as real host root - a
-// file left root-owned on a bind-mounted volume is unreadable/undeletable
-// from inside the account's own (rootless, UID-remapped) containers, same
-// as internal/modules/filemanager's chownRecursive has to do after writing
-// into these volumes as root.
+// restoreFilesFromTar extracts html/vhosts/mail/crons entries from the archive into their host paths. uid is the account's rootless-container UID; every path written is chowned to it afterward, since this process runs as real host root and a root-owned file would be unreadable from inside the account's rootless containers - same as filemanager's chownRecursive has to do.
 func restoreFilesFromTar(localPath, userContext string, uid int) ([]string, error) {
 	pathMap := restoreFilesPathMap(userContext)
 
@@ -190,18 +168,14 @@ func restoreFilesFromTar(localPath, userContext string, uid int) ([]string, erro
 	return extracted, nil
 }
 
-// tarSQLMember is one *.sql entry found while scanning a downloaded
-// backup archive. Engine is "mysql" or "postgres", inferred from which
-// backup/<engine>/ top-level folder the entry lives under (see
-// restoreSQLMember).
+// tarSQLMember is one *.sql entry found while scanning a downloaded backup archive. Engine is "mysql" or "postgres", inferred from which backup/<engine>/ folder the entry lives under (see restoreSQLMember).
 type tarSQLMember struct {
 	Name    string
 	Content string
 	Engine  string
 }
 
-// scanSQLMembers collects every *.sql entry from a downloaded archive in a
-// single pass, since archive/tar.Reader can't seek backward.
+// scanSQLMembers collects every *.sql entry from a downloaded archive in a single pass, since archive/tar.Reader can't seek backward
 func scanSQLMembers(localPath string) ([]tarSQLMember, error) {
 	f, err := os.Open(localPath)
 	if err != nil {
@@ -242,9 +216,7 @@ func scanSQLMembers(localPath string) ([]tarSQLMember, error) {
 	return members, nil
 }
 
-// handleListBackupsFromDestination serves the list of remote backups
-// (from the cached index file) and, on POST, kicks off a background
-// reindex against the SSH destination.
+// handleListBackupsFromDestination serves the list of remote backups (from the cached index file) and, on POST, kicks off a background reindex against the SSH destination
 func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, userContext, err := injected(a, r)
 	if err != nil {
@@ -294,20 +266,13 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		// status=1 is the polling shape (used by the onboarding wizard's
-		// destination test): it needs "reindexing" to tell an in-progress
-		// run apart from a finished one, which the plain array/error shapes
-		// below don't carry - kept as an opt-in param so the existing
-		// Array.isArray() poller (backup_restore.html) keeps working
-		// unchanged.
+		// status=1 is the polling shape (onboarding wizard's destination test), which needs "reindexing" to tell an in-progress run apart from a finished one - kept opt-in so the existing Array.isArray() poller keeps working unchanged
 		if r.URL.Query().Get("status") == "1" {
 			writeJSON(w, http.StatusOK, map[string]any{"reindexing": reindexing, "error": reindexErr, "count": len(backups)})
 			return
 		}
 		if reindexErr != "" {
-			// Previously this fell through to the HTML error page even for
-			// output=json callers - return JSON instead, since nothing that
-			// actually wants JSON could have been relying on getting HTML.
+			// this used to fall through to the HTML error page even for output=json callers - return JSON instead
 			writeJSON(w, http.StatusOK, map[string]string{"error": reindexErr})
 			return
 		}
@@ -318,17 +283,14 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 	renderBackupRestorePage(a, w, r, backups, reindexing, reindexErr)
 }
 
-// handleRestoreFromBackup downloads a remote backup archive and restores
-// it - all files, a single database, or files only, per restore_target.
+// handleRestoreFromBackup downloads a remote backup archive and restores it - all files, a single database, or files only, per restore_target
 func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentUsername, userContext, err := injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	// The JS client sends a FormData body (multipart/form-data), not
-	// application/x-www-form-urlencoded - ParseForm() alone doesn't read
-	// multipart bodies.
+	// the JS client sends a FormData body, not urlencoded - ParseForm() alone doesn't read multipart bodies
 	_ = r.ParseMultipartForm(1 << 20)
 	backupFile := strings.TrimSpace(r.Form.Get("backup_file"))
 	restoreTarget := r.Form.Get("restore_target")
@@ -428,17 +390,14 @@ func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 }
 
-// handleDownloadBackup downloads a remote backup archive and streams it
-// back to the client.
+// handleDownloadBackup downloads a remote backup archive and streams it back to the client
 func handleDownloadBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentUsername, userContext, err := injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	// The JS client sends a FormData body (multipart/form-data), not
-	// application/x-www-form-urlencoded - ParseForm() alone doesn't read
-	// multipart bodies.
+	// the JS client sends a FormData body, not urlencoded - ParseForm() alone doesn't read multipart bodies
 	_ = r.ParseMultipartForm(1 << 20)
 	backupFile := strings.TrimSpace(r.Form.Get("backup_file"))
 	if backupFile == "" {

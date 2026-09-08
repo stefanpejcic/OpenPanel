@@ -84,8 +84,7 @@ type destinationMeta struct {
 	Icon                        template.HTML
 }
 
-// BackupDestinationsPageData is backup_destinations.html's template
-// context.
+// BackupDestinationsPageData is backup_destinations.html's template context.
 type BackupDestinationsPageData struct {
 	web.LayoutData
 	Active string

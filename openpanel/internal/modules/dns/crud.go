@@ -16,9 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// handleUpdateDNSRecord replaces one or more zone-file lines (rowID
-// through endRowID) with new content, after checking the serial number
-// hasn't changed since the client last loaded the zone.
+// handleUpdateDNSRecord replaces one or more zone-file lines (rowID through endRowID) with new content, after checking the serial number hasn't changed since the client last loaded the zone
 func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -99,10 +97,7 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeJSON(w, http.StatusOK, map[string]string{"updated_row": newContent, "message": fmt.Sprintf("Row with ID %d updated successfully", rowID)})
 }
 
-// handleDeleteDNSRecord deletes a zone record by line number. rowId in
-// the URL is 0-indexed (the JS caller sends item.line_number - 1), unlike
-// handleUpdateDNSRecord's 1-indexed row_id - an inconsistency between the
-// two routes kept for compatibility with the existing frontend.
+// handleDeleteDNSRecord deletes a zone record by line number. rowId in the URL is 0-indexed (the JS caller sends item.line_number - 1), unlike handleUpdateDNSRecord's 1-indexed row_id - an inconsistency kept for compatibility with the existing frontend.
 func handleDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -257,9 +252,7 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	flashAndRedirect(a, w, r, "success", "DNS record added successfully.", redirectTarget)
 }
 
-// handleSaveDNSZone validates the whole new zone content by copying it
-// into the shared DNS container and running named-checkzone before ever
-// touching the real on-disk file.
+// handleSaveDNSZone validates the whole new zone content by copying it into the shared DNS container and running named-checkzone before ever touching the real on-disk file
 func handleSaveDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -323,8 +316,7 @@ func handleSaveDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeText(w, "DNS zone saved and DNS service restarted.")
 }
 
-// handleRestartDNSZone resets a domain's zone file back to the default
-// template via opencli.
+// handleRestartDNSZone resets a domain's zone file back to the default template via opencli
 func handleRestartDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -357,8 +349,7 @@ func handleRestartDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	flashAndRedirect(a, w, r, "success", "DNS zone restarted successfully.", "/domains/edit-dns-zone/"+domain)
 }
 
-// zoneExportHeaderTemplate is the informational header block prepended to
-// an exported zone file.
+// zoneExportHeaderTemplate is the informational header block prepended to an exported zone file
 const zoneExportHeaderTemplate = `
 ;;
 ;; Domain:     %s
@@ -388,8 +379,7 @@ const zoneExportHeaderTemplate = `
 ;;
 `
 
-// handleExportDNSZone streams a domain's zone file for download, prefixed
-// with an informational header.
+// handleExportDNSZone streams a domain's zone file for download, prefixed with an informational header
 func handleExportDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

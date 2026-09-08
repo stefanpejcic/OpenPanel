@@ -12,8 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// handleContainersChangeImage changes a service's image tag, or, with no
-// service in the path, shows the picker of services to change.
+// handleContainersChangeImage changes a service's image tag, or, with no service in the path, shows the picker of services to change
 func handleContainersChangeImage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")

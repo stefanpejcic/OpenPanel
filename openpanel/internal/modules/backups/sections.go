@@ -1,7 +1,4 @@
-// Package backups implements the backup destination/settings wizard
-// (env-file-based credentials for S3/WebDAV/SSH/Azure/Dropbox targets,
-// backed by the "backup" service container) plus SSH-based remote backup
-// reindexing, restore, and download.
+// Package backups implements the backup destination/settings wizard (env-file-based credentials for S3/WebDAV/SSH/Azure/Dropbox targets, backed by the "backup" service container) plus SSH-based remote backup reindexing, restore, and download.
 package backups
 
 import (
@@ -12,11 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 )
 
-// sectionOrder/sectionKeys define the backup target sections in a fixed
-// order (s3, webdav, ssh, azure, dropbox), used everywhere the route
-// handlers build matched_sections/targets lists or JSON output - order
-// matters for API responses, so a plain Go map (unordered) isn't a
-// substitute.
+// sectionOrder/sectionKeys define the backup target sections in a fixed order, used everywhere the route handlers build matched_sections/targets lists or JSON output - order matters for API responses, so a plain Go map isn't a substitute
 var sectionOrder = []string{"s3", "webdav", "ssh", "azure", "dropbox"}
 
 var sectionKeys = map[string][]string{
@@ -46,8 +39,7 @@ func isSectionKey(target, key string) bool {
 	return false
 }
 
-// isBackupInProgress checks the backup container's lock file via `podman
-// exec backup test -f /var/run/lock/dockervolumebackup.lock`.
+// isBackupInProgress checks the backup container's lock file via `podman exec backup test -f /var/run/lock/dockervolumebackup.lock`
 func isBackupInProgress(ctx context.Context, userContext string) bool {
 	argv := podmanmanager.PodmanArgv(userContext, "exec", "backup", "test", "-f", "/var/run/lock/dockervolumebackup.lock")
 	cmd := exec.CommandContext(ctx, argv[0], argv[1:]...)
@@ -56,8 +48,7 @@ func isBackupInProgress(ctx context.Context, userContext string) bool {
 	return err == nil
 }
 
-// isBackupContainerRunning reports whether the user's "backup" container
-// is currently up.
+// isBackupContainerRunning reports whether the user's "backup" container is currently up
 func isBackupContainerRunning(ctx context.Context, userContext string) bool {
 	argv := podmanmanager.PodmanArgv(userContext, "ps", "--filter", "name=backup", "--format", "{{.Names}}")
 	cmd := exec.CommandContext(ctx, argv[0], argv[1:]...)

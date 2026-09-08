@@ -6,15 +6,12 @@ import (
 	"strings"
 )
 
-// vhostConfPath is the shared vhost config path used by all of this
-// file's edit_*Config() functions.
+// vhostConfPath is the shared vhost config path used by all of this file's edit_*Config() functions
 func vhostConfPath(userContext, domainURL string) string {
 	return "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
 }
 
-// editLswsConfig inserts an extprocessor+context proxy block into the
-// OpenLiteSpeed vhost conf, skipping if a block for this service already
-// exists, and restoring from a .bak on any write failure.
+// editLswsConfig inserts an extprocessor+context proxy block into the OpenLiteSpeed vhost conf, skipping if a block for this service already exists, and restoring from a .bak on any write failure
 func editLswsConfig(userContext, domainURL, subdirectory, serviceName string, port int) string {
 	confPath := vhostConfPath(userContext, domainURL)
 	content, err := os.ReadFile(confPath)
@@ -70,11 +67,7 @@ func editLswsConfig(userContext, domainURL, subdirectory, serviceName string, po
 	return ""
 }
 
-// editApacheConfig inserts a ProxyPass/ProxyPassReverse pair before every
-// occurrence of a marker line (</VirtualHost>, or the DirectoryIndex line
-// for the root-install case). Unlike editLswsConfig, this never returns
-// an error the caller acts on (failures are logged and swallowed) - so it
-// reports nothing back either; the install flow continues regardless.
+// editApacheConfig inserts a ProxyPass/ProxyPassReverse pair before every occurrence of a marker line (</VirtualHost>, or the DirectoryIndex line for a root install). Unlike editLswsConfig, failures are just logged and swallowed - the install flow continues regardless.
 func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, port int) {
 	confPath := vhostConfPath(userContext, domainURL)
 	content, err := os.ReadFile(confPath)
@@ -133,9 +126,7 @@ func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, 
 	}
 }
 
-// editNginxConfig inserts a location/proxy_pass block into every
-// "server {" block's "location / {" section. Like editApacheConfig,
-// every failure path here just logs, so this reports nothing back either.
+// editNginxConfig inserts a location/proxy_pass block into every "server {" block's "location / {" section. Like editApacheConfig, every failure path here just logs and reports nothing back.
 func editNginxConfig(userContext, domainURL, subdirectory, serviceName string, port int) {
 	confPath := vhostConfPath(userContext, domainURL)
 	content, err := os.ReadFile(confPath)

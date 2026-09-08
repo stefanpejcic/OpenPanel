@@ -9,9 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// kindDisplay is the template-only presentation detail for a Kind (icon
-// markup, label text) that appinstall's logic code has no need for -
-// separated out so Kind itself stays a plain data type.
+// kindDisplay is the template-only presentation detail for a Kind (icon markup, label text) that appinstall's logic code has no need for, kept separate so Kind stays a plain data type
 type kindDisplay struct {
 	Icon                template.HTML
 	Label               string
@@ -21,10 +19,7 @@ type kindDisplay struct {
 	RequirementsTooltip string
 }
 
-// displayFor looks up the pre-built per-type display config - the actual
-// icon/label/tooltip data lives in nodejs.go/python.go/ruby.go, split by
-// type; this is just the tiny bit of glue needed since kindDisplay is a
-// template-only concern that Kind itself (a plain data type) doesn't carry.
+// displayFor looks up the pre-built per-type display config - the actual icon/label/tooltip data lives in nodejs.go/python.go/ruby.go, this is just the glue since kindDisplay is a template-only concern Kind doesn't carry
 func displayFor(kind Kind) kindDisplay {
 	switch kind.AppType {
 	case NodeJS.AppType:

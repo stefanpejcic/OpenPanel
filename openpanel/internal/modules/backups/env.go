@@ -5,22 +5,13 @@ import (
 	"strings"
 )
 
-// KV is one env-file key=value pair, order-preserving (Go maps aren't -
-// and the templates render form fields in the file's line order).
+// KV is one env-file key=value pair, order-preserving (Go maps aren't, and templates render form fields in the file's line order)
 type KV struct {
 	Key, Value string
 }
 
-// parseUncommentedEnv parses backup.env into key/value pairs: strip
-// blank/comment lines, split on the first "=", strip a wrapping pair of
-// quotes from the value.
-//
-// Both single- and double-quote wrappers are stripped, not just double
-// quotes: docker-volume-backup's config templates write single-quoted
-// values (e.g. AWS_ENDPOINT='s3.amazonaws.com'), and leaving those quotes
-// in place would surface the literal quote characters in the settings
-// form's input values. This matches readBackupEnv's (the SSH restore
-// path's parser) handling of the same file.
+// parseUncommentedEnv parses backup.env into key/value pairs: strip blank/comment lines, split on the first "=", strip a wrapping pair of quotes from the value.
+// Both single- and double-quote wrappers are stripped, since docker-volume-backup's templates write single-quoted values (e.g. AWS_ENDPOINT='s3.amazonaws.com') that would otherwise leak literal quote chars into the settings form. Matches readBackupEnv's (the SSH restore path) handling of the same file.
 func parseUncommentedEnv(path string) ([]KV, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -42,20 +33,14 @@ func parseUncommentedEnv(path string) ([]KV, error) {
 	return out, nil
 }
 
-// EnvSections is the parsed-and-grouped shape backup_settings()/backups()
-// both build: which SECTIONS targets have at least one key present in the
-// file, their values (file order), and the leftover "settings" keys.
+// EnvSections is the parsed-and-grouped shape backup_settings()/backups() both build: which SECTIONS targets have at least one key present in the file, their values (file order), and the leftover "settings" keys
 type EnvSections struct {
 	MatchedSections []string
 	SectionValues   map[string][]KV
 	Settings        []KV
 }
 
-// groupBySections buckets parsed env entries into their matching
-// destination sections (s3/webdav/ssh/azure/dropbox) plus a leftover
-// "settings" group for keys that don't belong to any section - shared by
-// handleBackupSettings, handleBackupTarget's GET branch, and
-// handleBackupsPage.
+// groupBySections buckets parsed env entries into their matching destination sections (s3/webdav/ssh/azure/dropbox) plus a leftover "settings" group, shared by handleBackupSettings, handleBackupTarget's GET branch, and handleBackupsPage
 func groupBySections(entries []KV) EnvSections {
 	result := EnvSections{SectionValues: map[string][]KV{}}
 	used := map[string]bool{}

@@ -1,7 +1,6 @@
 package dashboard
 
-// SectionItem mirrors one icon-link dict in dashboard.html's `sections`
-// Jinja literal (e.g. {"key": "filemanager", "href": "/files", ...}).
+// SectionItem mirrors one icon-link dict in dashboard.html's `sections` Jinja literal (e.g. {"key": "filemanager", "href": "/files", ...})
 type SectionItem struct {
 	Key    string
 	Href   string
@@ -10,17 +9,14 @@ type SectionItem struct {
 	Target string
 }
 
-// Section mirrors one entry of dashboard.html's `sections` dict plus its
-// title from `section_titles`.
+// Section mirrors one entry of dashboard.html's `sections` dict plus its title from `section_titles`
 type Section struct {
 	Key   string
 	Title string
 	Items []SectionItem
 }
 
-// buildDashboardSections builds the dashboard's section/item list,
-// keeping only items whose key is in allowed, for dashboard.html's
-// {{range .Sections}}. Section order matches this slice's literal order.
+// buildDashboardSections builds the dashboard's section/item list, keeping only items whose key is in allowed, for dashboard.html's {{range .Sections}}. Section order matches this slice's literal order.
 func buildDashboardSections(allowed map[string]bool) []Section {
 	all := []Section{
 		{Key: "files", Title: "Files", Items: []SectionItem{
@@ -71,8 +67,7 @@ func buildDashboardSections(allowed map[string]bool) []Section {
 			{"remote_postgresql", "/postgresql/remote-postgresql", "bi-diagram-3", "Remote Access", ""},
 			{"postgresql_conf", "/postgresql/configuration", "bi-database-lock", "PostgreSQL Configuration", ""},
 		}},
-		// mautic/flarum omitted: legacy code slated for removal entirely,
-		// not ported here (per user decision).
+		// mautic/flarum omitted: legacy code slated for removal entirely, not ported here (per user decision)
 		{Key: "websites", Title: "Websites", Items: []SectionItem{
 			{"websites", "/sites", "bi-app-indicator", "Site Manager", ""},
 			{"autoinstaller", "/auto-installer", "bi-download", "Auto Installer", ""},

@@ -19,21 +19,13 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// containerStartPollAttempts/containerStartPollInterval bound how long the
-// post-install readiness check waits for a freshly started container to
-// report State.Running=true - see the call site for why a single fixed
-// delay isn't enough for language-runtime stacks.
+// containerStartPollAttempts/containerStartPollInterval bound how long the post-install readiness check waits for a freshly started container to report State.Running=true
 const (
 	containerStartPollAttempts = 30
 	containerStartPollInterval = 2 * time.Second
 )
 
-// containerFailureDetail inspects a container that never reached
-// State.Running=true and returns a human-readable reason - OOM-killed, a
-// non-zero exit code, a podman-reported start error, or a tail of its logs
-// (an entrypoint/pip/npm failure shows up there, not in State.Error) - or ""
-// if nothing more specific could be determined. Must be called before the
-// container is `rm -f`'d, which takes its logs and inspect state with it.
+// containerFailureDetail inspects a container that never reached State.Running=true and returns a human-readable reason (OOM-killed, exit code, podman start error, or a log tail), or "" if nothing specific was found. Must be called before the container is `rm -f`'d, which takes its logs and state with it.
 func containerFailureDetail(ctx context.Context, userContext, serviceName string) string {
 	inspectArgv := podmanmanager.PodmanArgv(userContext, "inspect", "-f",
 		"{{.State.Status}}\t{{.State.ExitCode}}\t{{.State.OOMKilled}}\t{{.State.Error}}", serviceName)
@@ -72,20 +64,11 @@ func containerFailureDetail(ctx context.Context, userContext, serviceName string
 	return reason
 }
 
-// vendoredComposeServiceIndent is the leading-space indent the vendored
-// SERVICE.yml templates hardcode for their own top-level service key.
+// vendoredComposeServiceIndent is the leading-space indent the vendored SERVICE.yml templates hardcode for their own top-level service key
 const vendoredComposeServiceIndent = 2
 
-// composeServiceIndent detects the indent actually used by service keys
-// under "services:" in a docker-compose.yml, from linesAfterServices (the
-// file's lines following the "services:" line). It's the indent of the
-// first non-blank line, since that's always a service key.
-//
-// This can't be assumed fixed: a vendored compose file starts at 2 spaces,
-// but once docker.SaveCompose has rewritten it (any env var/CPU/RAM edit
-// through the UI), yaml.v3's marshaler always re-indents to 4 spaces
-// regardless of the file's original style. Defaults to
-// vendoredComposeServiceIndent if linesAfterServices has no non-blank line.
+// composeServiceIndent detects the indent actually used by service keys under "services:", from the file's lines following that line - the indent of the first non-blank line, which is always a service key.
+// Can't be assumed fixed: a vendored file starts at 2 spaces, but once docker.SaveCompose rewrites it, yaml.v3 always re-indents to 4. Defaults to vendoredComposeServiceIndent if there's no non-blank line.
 func composeServiceIndent(linesAfterServices []string) int {
 	for _, line := range linesAfterServices {
 		trimmed := strings.TrimRight(line, "\n")
@@ -97,14 +80,7 @@ func composeServiceIndent(linesAfterServices []string) int {
 	return vendoredComposeServiceIndent
 }
 
-// indentComposeService re-indents a rendered SERVICE.yml template (whose
-// own service key sits at vendoredComposeServiceIndent) so it lines up
-// with existingIndent, the indent actually used by its siblings under
-// "services:" in the target file - see composeServiceIndent. Inserting it
-// at the wrong indent doesn't just look wrong: a sibling under services:
-// with deeper indent than its neighbors is invalid YAML ("expected <block
-// end>, but found '<block mapping start>'" - confirmed live, every fresh
-// Python/NodeJS/Ruby install failing with "Container failed to start").
+// indentComposeService re-indents a rendered SERVICE.yml template (whose service key sits at vendoredComposeServiceIndent) to match existingIndent, the indent its siblings actually use under "services:" - see composeServiceIndent. Getting this wrong isn't just cosmetic: a deeper-indented sibling is invalid YAML, and this broke every fresh install in production before it was fixed.
 func indentComposeService(serviceStr string, existingIndent int) string {
 	pad := ""
 	if existingIndent > vendoredComposeServiceIndent {
@@ -120,8 +96,7 @@ func atoiDefault(s string, def int) int {
 	return def
 }
 
-// countUserWebsites counts sites owned by any of this user's domains,
-// capped at 1000.
+// countUserWebsites counts sites owned by any of this user's domains, capped at 1000
 func countUserWebsites(a *appctx.App, userID int) (int, error) {
 	rows, err := a.DB.Query(
 		"SELECT site_name FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000", userID)
@@ -136,9 +111,7 @@ func countUserWebsites(a *appctx.App, userID int) (int, error) {
 	return n, rows.Err()
 }
 
-// HandleInstallPage renders the install form and handles the early
-// over-limit check for a POST; the streaming install itself is handled
-// separately by HandleInstall.
+// HandleInstallPage renders the install form and handles the early over-limit check for a POST; the streaming install itself is handled separately by HandleInstall
 func HandleInstallPage(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -172,14 +145,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 	}
 }
 
-// HandleInstall drives the NDJSON-streamed install of one app-type
-// service. Several failure branches deliberately end the stream early
-// with a bare `return` instead of emitting an {"error": ...} event: once
-// the response has started streaming, there's no clean way to signal a
-// mid-stream failure beyond just stopping, so the browser sees a silently
-// stalled response until the front-end's 5-minute hang timer fires. That
-// matches how the rest of the UI already treats an interrupted install
-// stream.
+// HandleInstall drives the NDJSON-streamed install of one app-type service. Some failure branches deliberately end the stream early with a bare `return` instead of an {"error":...} event - once streaming has started, there's no clean way to signal a mid-stream failure besides stopping, so the browser just sees it stall until the front-end's 5-minute hang timer fires, matching how the UI treats any interrupted install stream.
 func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -279,20 +245,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// A root-level (no subdirectory) Node/Python/Ruby install gets a
-	// catch-all `ProxyPass /` in the vhost (see webserverconfig.go), which
-	// Apache matches before any other path on that vhost - including
-	// every other site's own, more specific ProxyPass/file-serving rule,
-	// since mod_proxy matches directives in file order, not by
-	// specificity. That means a root app install would silently break
-	// every existing subdirectory site on the domain (confirmed live).
-	// The reverse also breaks: a subdirectory app installed onto a domain
-	// that already has a root-level proxy app would never be reachable,
-	// since the root's catch-all intercepts it first. Neither direction
-	// can be fixed just by reordering (both root and subdirectory rules
-	// sit at fixed positions in the vhost regardless of install order),
-	// so this blocks both rather than silently producing a site that
-	// looks installed but is actually unreachable.
+	// a root-level install gets a catch-all `ProxyPass /` in the vhost, which Apache matches before any other path (mod_proxy matches by file order, not specificity) - so a root app would silently break every subdirectory site on the domain, and the reverse breaks too (a subdirectory app behind an existing root app is unreachable). Neither can be fixed by reordering, so both cases are blocked outright.
 	if subdirectory == "" {
 		var otherSitesCount int
 		if countErr := a.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM sites WHERE site_name LIKE ?", topDomain+"/%").Scan(&otherSitesCount); countErr == nil && otherSitesCount > 0 {
@@ -326,11 +279,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	templateStr := string(templateBytes)
 
-	// The vendored SERVICE.yml templates hardcode "pids: 100" (not
-	// editable). Swap it for an env-var placeholder here, before the
-	// "SERVICE_NAME" -> serviceNameUp replace below, so it picks up that
-	// same substitution and PIDs becomes as editable as CPU/RAM post-install
-	// (see handlePM2Update in pm2.go).
+	// the vendored template hardcodes "pids: 100" - swap it for an env-var placeholder before the SERVICE_NAME replace below, so PIDs becomes as editable as CPU/RAM post-install (see handlePM2Update in pm2.go)
 	templateStr = strings.ReplaceAll(templateStr, "pids: 100", `pids: "${SERVICE_NAME_`+kind.PyOrNode+`_PIDS:-100}"`)
 
 	resolvedCommand := buildAppRunCommand(kind, requirements, customCmd, startupFile, gitRepoURL)
@@ -379,20 +328,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	// Anchored on "services:" (not "networks:") so this lands as a child of
-	// services: regardless of which order the file's top-level sections
-	// happen to be in - a prior docker.SaveCompose (env vars/version edits
-	// going through a real YAML round-trip) can reorder top-level keys
-	// however its marshaler likes, and this used to anchor on the first
-	// "networks:" line assuming it always came after services:, which
-	// silently corrupted the file (inserted the new service before
-	// everything, including a top-level networks: block that lists its
-	// own nested networks:) the moment that assumption stopped holding -
-	// confirmed live: every fresh Python/NodeJS/Ruby install failed with
-	// "Container failed to start" once this box's compose file had been
-	// re-saved once via LoadCompose/SaveCompose. See composeServiceIndent
-	// and indentComposeService for why the insert also has to match the
-	// file's actual existing indent rather than a fixed one.
+	// anchored on "services:" (not "networks:") so this lands as a child of services: regardless of the file's top-level key order - docker.SaveCompose's YAML round-trip can reorder keys, and anchoring on "networks:" used to silently corrupt the file once that assumption broke. See composeServiceIndent/indentComposeService for why the insert also has to match the file's real indent.
 	indentedServiceStr := indentComposeService(newServiceStr, composeServiceIndent(composeLines[insertPosition:]))
 
 	newLines := make([]string, 0, len(composeLines)+1)
@@ -431,13 +367,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	emit(map[string]any{"status": "Starting docker container.."})
 	startResult := docker.StartOrStopContainer(ctx, userContext, serviceName, "activate", "")
 	if !startResult.Success {
-		// `podman-compose up` itself failed (bad compose file, port
-		// conflict, image pull error, etc.) - no container was ever
-		// created, so there's nothing for containerFailureDetail below to
-		// inspect or read logs from. This is the only place the real
-		// reason is available; report it now instead of falling through
-		// to the poll loop, which would just time out and then report a
-		// generic failure.
+		// `podman-compose up` itself failed - no container was ever created, so containerFailureDetail below has nothing to inspect. Report the real reason now rather than falling through to the poll loop, which would just time out.
 		_ = copyFile(composeBackup, composeFile)
 		_ = copyFile(envBackup, envFile)
 		_ = os.Remove(lockPath)
@@ -446,29 +376,12 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 
 	emit(map[string]any{"status": "Checking if container started..."})
-	// A single fixed 3s sleep-then-check is enough for stacks that don't do
-	// any work at container start, but a NodeJS/Python app's entrypoint
-	// typically runs `npm install`/`pip install` before the process is
-	// actually up - and if this is the first time this particular
-	// language version's image is used, podman also has to pull it first.
-	// Both can comfortably exceed 3s, and a container that's still
-	// mid-install/mid-pull reports State.Running=false right up until it
-	// finishes, not true-with-a-delay - so a single early check is a false
-	// negative, not a slow-but-correct one. Poll instead, generously,
-	// before concluding it actually failed.
+	// a single fixed sleep-then-check would false-negative here: the entrypoint typically runs npm/pip install first, plus an image pull on first use, both easily exceeding a few seconds, and State.Running stays false the whole time it's mid-install/mid-pull, not true-with-a-delay. Poll generously instead.
 	isRunning := false
 	inspectArgv := podmanmanager.PodmanArgv(userContext, "inspect", "-f", "{{.State.Running}}", serviceName)
 	for attempt := 0; attempt < containerStartPollAttempts; attempt++ {
 		time.Sleep(containerStartPollInterval)
-		// podmanmanager.Command, not a bare exec.CommandContext - a
-		// per-user context talks to podman over --remote, which needs
-		// CONTAINER_HOST pointed at that user's own podman.sock (set by
-		// podmanmanager.Command's env, not inherited from this process's
-		// environment). Without it, this was silently inspecting nothing
-		// (root's default podman instance, where the service doesn't
-		// exist), so it could never observe State.Running=true no matter
-		// how long the poll loop waited - the container was actually up
-		// fine the whole time, this just never noticed.
+		// podmanmanager.Command, not a bare exec.CommandContext - a per-user context needs CONTAINER_HOST pointed at that user's podman.sock, which only podmanmanager.Command's env sets. Without it this was silently inspecting root's default podman instance instead, so it could never observe State.Running=true even though the container was actually fine.
 		inspectOut, inspectErr := podmanmanager.Command(ctx, userContext, inspectArgv).Output()
 		if inspectErr == nil && strings.TrimSpace(string(inspectOut)) == "true" {
 			isRunning = true
@@ -477,11 +390,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 
 	if !isRunning {
-		// Grab the reason before the container is torn away below - `podman
-		// rm -f` takes its logs and inspect state with it, so this is the
-		// only chance to see why it actually failed (OOM-killed, image
-		// pull/entrypoint error, port conflict, etc.) instead of just
-		// reporting that it isn't running.
+		// grab the reason before the container is torn away below - `podman rm -f` takes its logs and inspect state with it, so this is the only chance to see why it actually failed
 		failureDetail := containerFailureDetail(ctx, userContext, serviceName)
 		_ = copyFile(composeBackup, composeFile)
 		_ = copyFile(envBackup, envFile)
@@ -553,9 +462,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	_ = os.Remove(lockPath)
 }
 
-// formatPyFloat formats a float for the .env values written here,
-// keeping at least one digit after the decimal point - unlike
-// strconv.FormatFloat's -1 precision, which drops a bare ".0".
+// formatPyFloat formats a float for the .env values written here, keeping at least one digit after the decimal point - unlike strconv.FormatFloat's -1 precision, which drops a bare ".0"
 func formatPyFloat(v float64) string {
 	s := strconv.FormatFloat(v, 'f', -1, 64)
 	if !strings.Contains(s, ".") {

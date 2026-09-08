@@ -10,12 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterFavoritesAPI wires the /api/account/favorites routes onto mux,
-// gated behind the "favorites" feature flag. Reuses the same
-// read/add/deleteFavorite helpers as the /json/favorites page endpoint
-// (favorites.go) - this just gives it a stable, documented /api/ home with
-// REST-conventional verbs (POST to add, DELETE to remove) instead of
-// /json/favorites's PUT/DELETE pair.
+// RegisterFavoritesAPI wires the /api/account/favorites routes onto mux, gated behind "favorites". Reuses favorites.go's read/add/deleteFavorite helpers, just with REST-conventional verbs (POST/DELETE) instead of /json/favorites's PUT/DELETE pair.
 func RegisterFavoritesAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "favorites", "GET /api/account/favorites", func(w http.ResponseWriter, r *http.Request) { apiFavoritesList(a, w, r) })
 	apiregistry.Handle(mux, a, "favorites", "POST /api/account/favorites", func(w http.ResponseWriter, r *http.Request) { apiFavoritesAdd(a, w, r) })

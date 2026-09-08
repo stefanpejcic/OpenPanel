@@ -1,6 +1,4 @@
-// Package auth implements request-level authentication: identity
-// resolution from a session cookie, JWT, or MCP token, the login/API
-// access-gating middleware, and the license gate.
+// Package auth handles request-level authentication: identity from a session cookie/JWT/MCP token, the access-gating middleware, and the license gate.
 package auth
 
 import (
@@ -45,9 +43,7 @@ func MCPReadOnly(r *http.Request) bool {
 	return v
 }
 
-// SessionToken returns the session_token value read from the session
-// cookie during LoadUser, so downstream middleware doesn't need to
-// re-decode the session.
+// SessionToken returns the session_token read during LoadUser, so downstream middleware doesn't need to re-decode the session
 func SessionToken(r *http.Request) string {
 	v, _ := r.Context().Value(sessionTokenKey).(string)
 	return v

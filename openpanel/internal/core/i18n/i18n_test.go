@@ -115,10 +115,7 @@ func TestSubstitute(t *testing.T) {
 	}
 }
 
-// TestGetAgainstRealCatalog is a smoke test against the project's actual
-// Serbian translation file (sibling ../OpenPanel/translations repo) to
-// verify gotext parses real .po files from this codebase, not just
-// synthetic fixtures. It's skipped if that repo isn't checked out.
+// smoke test against the real Serbian translation file, to check gotext parses actual .po files from this repo, not just fixtures - skipped if that repo isn't checked out
 func TestGetAgainstRealCatalog(t *testing.T) {
 	src := "/home/stefan/OpenPanel/translations/sr-rs/messages.po"
 	data, err := os.ReadFile(src)

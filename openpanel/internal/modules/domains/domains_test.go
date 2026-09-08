@@ -81,9 +81,7 @@ func TestResolveUnderVarWWWHTML(t *testing.T) {
 		{"/var/www/html/", true, "/var/www/html"},
 		{"/var/www/html/example.com", true, "/var/www/html/example.com"},
 		{"/etc/passwd", false, "/etc/passwd"},
-		// filepath.Clean resolves ".." lexically: html/../.. only pops back
-		// to /var, landing on /var/etc/passwd (not /etc/passwd) - still
-		// correctly rejected as outside /var/www/html/.
+		// filepath.Clean resolves ".." lexically here, landing on /var/etc/passwd not /etc/passwd - still correctly rejected as outside /var/www/html/
 		{"/var/www/html/../../etc/passwd", false, "/var/etc/passwd"},
 	}
 	for _, c := range cases {
@@ -182,9 +180,7 @@ func TestSplitMax(t *testing.T) {
 }
 
 func TestGetRedirectURLFromRealFile(t *testing.T) {
-	// getRedirectURL() hardcodes /etc/openpanel/caddy/domains/, which isn't
-	// writable in a sandboxed test environment, so this just confirms the
-	// not-found path returns "" rather than panicking.
+	// getRedirectURL() hardcodes /etc/openpanel/caddy/domains/, not writable in a sandboxed test env, so this just confirms the not-found path returns "" rather than panicking
 	if got := getRedirectURL("no-such-domain-ever.example"); got != "" {
 		t.Errorf("expected empty string for a nonexistent domain conf, got %q", got)
 	}

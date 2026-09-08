@@ -21,9 +21,7 @@ type CustomSectionItem struct {
 	Label string
 }
 
-// DashboardPageData is everything dashboard.html and its includes need,
-// combining the shared app-shell data (web.LayoutData) with dashboard()'s
-// own render_template kwargs.
+// DashboardPageData is everything dashboard.html and its includes need, combining the shared app-shell data (web.LayoutData) with dashboard()'s own render_template kwargs
 type DashboardPageData struct {
 	web.LayoutData
 
@@ -62,19 +60,13 @@ type DashboardPageData struct {
 	EmailLimit    int
 	FTPLimit      int
 
-	// LimitReached is set when any resource above is at/over its plan
-	// limit, so the dashboard can surface an upgrade prompt
-	// (https://github.com/stefanpejcic/OpenPanel/discussions/1079).
-	// UpgradePlanName/UpgradeURL are only non-empty when the current plan
-	// has an upsell plan configured in openadmin.
+	// LimitReached is set when any resource above is at/over its plan limit, so the dashboard can surface an upgrade prompt. UpgradePlanName/UpgradeURL are only non-empty when the current plan has an upsell plan configured in openadmin.
 	LimitReached    bool
 	UpgradePlanName string
 	UpgradeURL      string
 }
 
-// twofaStatusMessage builds the "2FA is <b>{status}</b> for your account."
-// message. status itself ("enabled"/"disabled") is plain English and
-// never translated.
+// twofaStatusMessage builds the "2FA is <b>{status}</b> for your account." message; status itself ("enabled"/"disabled") is plain English and never translated
 func twofaStatusMessage(t i18n.Translator, enabled bool) template.HTML {
 	status := "disabled"
 	if enabled {

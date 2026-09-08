@@ -1,5 +1,4 @@
-// Package db provides the panel's own MySQL connection pool, reading
-// credentials from /etc/my.cnf (the standard MySQL option-file format).
+// Package db provides the panel's MySQL connection pool, reading credentials from /etc/my.cnf.
 package db
 
 import (
@@ -16,7 +15,6 @@ import (
 const OptionFile = "/etc/my.cnf"
 
 // clientOptions parses the [client] section of a MySQL option file
-// (ini-style: "key = value" lines under a "[section]" header).
 func clientOptions(path string) (map[string]string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -50,8 +48,7 @@ func clientOptions(path string) (map[string]string, error) {
 	return opts, scanner.Err()
 }
 
-// Open builds a *sql.DB pool from the [client] section of optionFile,
-// matching connect_to_database()'s pool_size=10 / database=panel setup.
+// Open builds a *sql.DB pool from optionFile's [client] section, matching connect_to_database()'s pool_size=10 / database=panel setup
 func Open(optionFile string) (*sql.DB, error) {
 	opts, err := clientOptions(optionFile)
 	if err != nil {

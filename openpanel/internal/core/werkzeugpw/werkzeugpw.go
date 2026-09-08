@@ -1,15 +1,5 @@
-// Package werkzeugpw reimplements the password-hash format used by the
-// previous panel version (pbkdf2/scrypt via a salted, method-prefixed
-// encoding), so it can produce and parse byte-identical output for the
-// same method/salt/password against existing stored hashes, rather than
-// just "a secure hash" of its own design.
-//
-// Ground truth for this format is the previous panel's password-hashing
-// implementation. That implementation's default method has changed over
-// time (from pbkdf2 to scrypt, and the pbkdf2 iteration count has also
-// increased), so CheckPasswordHash still needs to parse whatever method is
-// embedded in a given stored hash, since existing rows may predate either
-// change.
+// Package werkzeugpw reimplements the previous panel's password-hash format (pbkdf2/scrypt, salted and method-prefixed) so it produces byte-identical output against existing stored hashes.
+// The previous panel's default method changed over time (pbkdf2 -> scrypt, and pbkdf2's iteration count went up too), so CheckPasswordHash still needs to parse whatever method a given stored hash embeds.
 package werkzeugpw
 
 import (
@@ -69,9 +59,7 @@ func pbkdf2HashFunc(name string) (func() hash.Hash, int, bool) {
 	}
 }
 
-// hashInternal derives the password hash for the given method/salt/password
-// and returns it as a hex string, along with the canonical "method:args..."
-// string (with defaults filled in) to embed in the stored hash.
+// hashInternal derives the password hash for method/salt/password as a hex string, plus the canonical "method:args..." string (defaults filled in) to embed in the stored hash
 func hashInternal(method, salt, password string) (hexDigest, canonicalMethod string, err error) {
 	parts := strings.Split(method, ":")
 	name, args := parts[0], parts[1:]
@@ -129,8 +117,7 @@ func hashInternal(method, salt, password string) (hexDigest, canonicalMethod str
 	}
 }
 
-// GeneratePasswordHash hashes password using the current default method
-// ("scrypt") with a freshly generated random salt.
+// GeneratePasswordHash hashes password using the current default method ("scrypt") with a freshly generated random salt
 func GeneratePasswordHash(password string) (string, error) {
 	salt, err := genSalt(defaultSaltLength)
 	if err != nil {
@@ -143,10 +130,7 @@ func GeneratePasswordHash(password string) (string, error) {
 	return fmt.Sprintf("%s$%s$%s", canonicalMethod, salt, digest), nil
 }
 
-// CheckPasswordHash reports whether password matches pwhash. It returns
-// false (not an error) for any malformed or unsupported hash, so an
-// unrecognized hash format simply fails verification rather than
-// panicking or bubbling up an error.
+// CheckPasswordHash reports whether password matches pwhash, returning false (not an error) for any malformed or unsupported hash
 func CheckPasswordHash(pwhash, password string) bool {
 	parts := strings.SplitN(pwhash, "$", 3)
 	if len(parts) != 3 {

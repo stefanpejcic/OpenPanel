@@ -24,9 +24,7 @@ func notificationsFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/notifications.yaml"
 }
 
-// parseNotificationsFile is a simple "k=v" line parser (distinct from
-// notifications.go's own parser, which additionally skips "#" comment
-// lines - see the comment there for why the two aren't unified).
+// parseNotificationsFile is a simple "k=v" line parser, distinct from notifications.go's own parser (which also skips "#" comment lines)
 func parseNotificationsFile(content string) map[string]string {
 	prefs := make(map[string]string)
 	for _, line := range strings.Split(content, "\n") {
@@ -40,10 +38,7 @@ func parseNotificationsFile(content string) map[string]string {
 	return prefs
 }
 
-// getNotificationPreference reads one key from a user's
-// notifications.yaml-shaped preferences file, cached for 5 minutes (see
-// notifications.go for the same format written by the notifications
-// settings page).
+// getNotificationPreference reads one key from a user's notifications.yaml-shaped preferences file, cached for 5 minutes
 func getNotificationPreference(ctx context.Context, a *appctx.App, username, key string) int {
 	cacheKey := "get_from_file_value:" + username + ":" + key
 	v, _ := cache.Memoize(ctx, a.Cache, cacheKey, 300*time.Second, func() (int, error) {
@@ -63,13 +58,7 @@ func getNotificationPreference(ctx context.Context, a *appctx.App, username, key
 	return v
 }
 
-// checkIfUserShouldBeNotified fires an async notification email if the
-// "notifications" feature is
-// enabled for the account and the user has opted into this particular
-// key (or key is the always-on "notify_always" sentinel). username is
-// passed explicitly by the caller (rather than re-derived here) because
-// some callers - the username-change flow in particular - already know a
-// value that may not match InjectData's own cached current_username yet.
+// checkIfUserShouldBeNotified fires an async notification email if "notifications" is enabled and the user opted into key (or key is the always-on "notify_always"). username is passed by the caller rather than re-derived, since some callers (like the username-change flow) already know a value that may not match InjectData's cached current_username yet.
 func checkIfUserShouldBeNotified(a *appctx.App, ctx context.Context, userID int, username, key, message string) {
 	data, err := a.InjectData(ctx, userID)
 	if err != nil {
@@ -100,9 +89,7 @@ func checkIfUserShouldBeNotified(a *appctx.App, ctx context.Context, userID int,
 	}
 }
 
-// generateRandomTokenOnce rewrites the *existing* mail_security_token=
-// line in openpanel.config in place - a no-op if that line isn't already
-// present, it never appends a missing key.
+// generateRandomTokenOnce rewrites the *existing* mail_security_token= line in openpanel.config in place - a no-op if that line isn't already there, never appends a missing key
 func generateRandomTokenOnce() string {
 	const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, 64)
@@ -131,9 +118,7 @@ func generateRandomTokenOnce() string {
 	return token
 }
 
-// notifyUserOfChange looks up the recipient email if not already known,
-// then POSTs to the local "openadmin" service's /send_email. Meant to be
-// called via `go notifyUserOfChange(...)` - the caller doesn't wait for it.
+// notifyUserOfChange looks up the recipient email if not already known, then POSTs to the local "openadmin" service's /send_email; meant to be called via `go notifyUserOfChange(...)`
 func notifyUserOfChange(a *appctx.App, username, message, currentEmail string) {
 	ctx := context.Background()
 

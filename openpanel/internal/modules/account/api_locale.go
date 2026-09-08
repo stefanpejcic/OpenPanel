@@ -14,15 +14,13 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterLocaleAPI wires the /api/account/language routes onto mux,
-// gated behind the "locale" feature flag.
+// RegisterLocaleAPI wires the /api/account/language routes onto mux, gated behind the "locale" feature flag
 func RegisterLocaleAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "locale", "GET /api/account/language", func(w http.ResponseWriter, r *http.Request) { apiLocaleGet(a, w, r) })
 	apiregistry.Handle(mux, a, "locale", "PUT /api/account/language", func(w http.ResponseWriter, r *http.Request) { apiLocaleUpdate(a, w, r) })
 }
 
-// apiLocaleGet returns the caller's current UI language and the available
-// options.
+// apiLocaleGet returns the caller's current UI language and the available options
 func apiLocaleGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	ctx := r.Context()

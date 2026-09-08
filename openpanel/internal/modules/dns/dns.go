@@ -1,6 +1,4 @@
-// Package dns implements BIND zone file editing (table and raw code
-// views), record add/update/delete, serial-number bumping plus rndc
-// reload, zone export, and zone reset.
+// Package dns implements BIND zone file editing (table and raw code views), record add/update/delete, serial-number bumping plus rndc reload, zone export, and zone reset.
 package dns
 
 import (
@@ -23,8 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// HealthIssue is the {id, severity, message} shape consumed client-side
-// by reportHealthIssues() to render dismissible health toasts.
+// HealthIssue is the {id, severity, message} shape consumed client-side by reportHealthIssues() to render dismissible health toasts
 type HealthIssue struct {
 	ID       string `json:"id"`
 	Severity string `json:"severity"`
@@ -42,10 +39,7 @@ func writeText(w http.ResponseWriter, text string) {
 	_, _ = w.Write([]byte(text))
 }
 
-// readLinesKeepEnds splits content into lines, each keeping its trailing
-// "\n" (except possibly the last), and a trailing "\n" in the source
-// doesn't produce a spurious empty trailing element the way
-// strings.SplitAfter alone would.
+// readLinesKeepEnds splits content into lines, each keeping its trailing "\n" (except possibly the last) - a trailing "\n" in the source doesn't produce a spurious empty trailing element the way strings.SplitAfter alone would
 func readLinesKeepEnds(content string) []string {
 	if content == "" {
 		return nil
@@ -88,9 +82,7 @@ func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, 
 	_ = a.Sessions.Save(r, w, sess)
 }
 
-// validateZoneFile runs named-checkzone inside the shared openpanel_dns
-// container (bind-mounted at the same /etc/bind path, so the on-disk file
-// can be checked directly) and returns its error output, or "" if valid.
+// validateZoneFile runs named-checkzone inside the shared openpanel_dns container (bind-mounted at the same /etc/bind path, so the on-disk file can be checked directly) and returns its error output, or "" if valid
 func validateZoneFile(domain, zoneFilePath string) string {
 	cctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -102,13 +94,10 @@ func validateZoneFile(domain, zoneFilePath string) string {
 	return ""
 }
 
-// serialNumberRE matches an 8-digit date plus a 2-digit daily counter,
-// immediately followed by the "; Serial number" marker comment.
+// serialNumberRE matches an 8-digit date plus a 2-digit daily counter, immediately followed by the "; Serial number" marker comment
 var serialNumberRE = regexp.MustCompile(`(\d{8})(\d{2})\s*;\s*Serial number`)
 
-// RestartDNSService bumps the zone's serial number (same date ->
-// increment the daily counter, rolling over past 99; new date -> reset to
-// 01) and reloads the zone via rndc.
+// RestartDNSService bumps the zone's serial number (same date -> increment the daily counter, rolling over past 99; new date -> reset to 01) and reloads the zone via rndc
 func RestartDNSService(domainURL string) {
 	path := zoneFilePath(domainURL)
 	content, err := os.ReadFile(path)
@@ -151,16 +140,12 @@ func RestartDNSService(domainURL string) {
 	}
 }
 
-// cnameNameRE builds the per-call regex used to detect an existing CNAME
-// with the given name: `^<name>\s+\d+\s+IN\s+CNAME`.
+// cnameNameRE builds the per-call regex used to detect an existing CNAME with the given name: `^<name>\s+\d+\s+IN\s+CNAME`
 func cnameNameRE(name string) *regexp.Regexp {
 	return regexp.MustCompile(`(?i)^` + regexp.QuoteMeta(name) + `\s+\d+\s+IN\s+CNAME`)
 }
 
-// CnameRecordExists checks whether a CNAME record with the given name
-// already exists in the zone file, memoized for 10s since it's called
-// repeatedly during record validation. Exported so the domains package's
-// API handlers can reuse it instead of keeping their own copy.
+// CnameRecordExists checks whether a CNAME record with the given name already exists in the zone file, memoized for 10s since it's called repeatedly during record validation. Exported so the domains package's API handlers can reuse it instead of keeping their own copy.
 func CnameRecordExists(ctx context.Context, a *appctx.App, zoneFilePath, name string) bool {
 	exists, _ := cache.Memoize(ctx, a.Cache, "cname_record_exists:"+zoneFilePath+":"+name, 10*time.Second, func() (bool, error) {
 		content, err := os.ReadFile(zoneFilePath)
@@ -178,9 +163,7 @@ func CnameRecordExists(ctx context.Context, a *appctx.App, zoneFilePath, name st
 	return exists
 }
 
-// splitMaxN splits on runs of whitespace, stopping after n splits so the
-// final field keeps any remaining whitespace-separated content intact (up
-// to n+1 elements).
+// splitMaxN splits on runs of whitespace, stopping after n splits so the final field keeps any remaining whitespace-separated content intact (up to n+1 elements)
 func splitMaxN(s string, n int) []string {
 	var fields []string
 	rest := s
@@ -204,9 +187,7 @@ func splitMaxN(s string, n int) []string {
 	return fields
 }
 
-// extractComment returns the text after the last ';' that isn't inside a
-// quoted string. Since RE2 has no lookaround, this walks the line
-// tracking quote state instead of using a lookaround-based regex.
+// extractComment returns the text after the last ';' that isn't inside a quoted string - RE2 has no lookaround, so this walks the line tracking quote state instead
 func extractComment(line string) string {
 	lastSemicolon := -1
 	inQuotes := false
@@ -226,8 +207,7 @@ func extractComment(line string) string {
 	return strings.TrimSpace(line[lastSemicolon+1:])
 }
 
-// readSerialNumber finds the first line containing "; Serial number" and
-// returns its leading token (the serial number itself).
+// readSerialNumber finds the first line containing "; Serial number" and returns its leading token (the serial number itself)
 func readSerialNumber(lines []string) string {
 	for _, line := range lines {
 		if strings.Contains(line, "; Serial number") {

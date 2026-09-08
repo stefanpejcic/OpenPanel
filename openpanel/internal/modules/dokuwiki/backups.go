@@ -18,9 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors sofawiki/backups.go's directory layout and naming
-// (backups/<domain>/<timestamp>/files.tar.gz), minus everything database-
-// related - DokuWiki has no database.
+// mirrors sofawiki/backups.go's layout (backups/<domain>/<timestamp>/files.tar.gz) minus the db part, since dokuwiki has no database
 
 func itoa(n int) string { return strconv.Itoa(n) }
 

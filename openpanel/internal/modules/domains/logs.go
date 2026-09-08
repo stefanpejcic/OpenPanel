@@ -10,8 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
-// AccessLogRequest mirrors one Caddy JSON access-log line's nested
-// "request" object.
+// AccessLogRequest mirrors one Caddy JSON access-log line's nested "request" object
 type AccessLogRequest struct {
 	ClientIP string `json:"client_ip"`
 	Method   string `json:"method"`

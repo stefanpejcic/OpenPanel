@@ -17,11 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
 )
 
-// RegisterTwofaAPI wires the /api/account/2fa routes onto mux, gated
-// behind the "twofa" feature flag. Setup is two calls, mirroring the web
-// page's flow: POST .../setup generates and stores a pending secret (2FA
-// still off), then POST .../confirm validates a code against it and turns
-// 2FA on.
+// RegisterTwofaAPI wires the /api/account/2fa routes onto mux, gated behind "twofa". Setup is two calls, mirroring the web flow: .../setup stores a pending secret (2FA still off), then .../confirm validates a code and turns it on.
 func RegisterTwofaAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "twofa", "GET /api/account/2fa", func(w http.ResponseWriter, r *http.Request) { apiTwofaStatus(a, w, r) })
 	apiregistry.Handle(mux, a, "twofa", "POST /api/account/2fa/setup", func(w http.ResponseWriter, r *http.Request) { apiTwofaSetup(a, w, r) })
@@ -33,9 +29,7 @@ func otpauthURL(username, secret, issuer string) string {
 	return "otpauth://totp/" + url.PathEscape(username) + "?secret=" + secret + "&issuer=" + url.QueryEscape(issuer)
 }
 
-// twofaIssuerName is what shows up as the account issuer in the user's
-// authenticator app: the configured brand name, falling back to the panel's
-// own domain, falling back to "OpenPanel" if neither is set.
+// twofaIssuerName is the account issuer shown in the user's authenticator app: brand_name, falling back to the panel's domain, falling back to "OpenPanel"
 func twofaIssuerName(a *appctx.App, ctx context.Context) string {
 	if brandName := a.Config.Get("brand_name", ""); brandName != "" {
 		return brandName
@@ -57,8 +51,7 @@ func apiTwofaStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIAccountJSON(w, http.StatusOK, map[string]bool{"enabled": status.Enabled})
 }
 
-// apiTwofaSetup generates a new pending TOTP secret. 2FA remains disabled
-// until apiTwofaConfirm validates a code against it.
+// apiTwofaSetup generates a new pending TOTP secret; 2FA stays disabled until apiTwofaConfirm validates a code against it
 func apiTwofaSetup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	ctx := r.Context()
@@ -87,8 +80,7 @@ func apiTwofaSetup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// apiTwofaConfirm validates a code against the pending secret from
-// apiTwofaSetup and, on success, enables 2FA.
+// apiTwofaConfirm validates a code against the pending secret from apiTwofaSetup and, on success, enables 2FA
 func apiTwofaConfirm(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	ctx := r.Context()

@@ -19,8 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// triggerSSLGeneration reloads Caddy and visits the domain over HTTPS to
-// trigger on-demand certificate issuance.
+// triggerSSLGeneration reloads Caddy and visits the domain over HTTPS to trigger on-demand certificate issuance
 func triggerSSLGeneration(ctx context.Context, domainName string) (bool, string) {
 	if err := exec.CommandContext(ctx, "podman", "exec", "caddy", "caddy", "reload", "--config", "/etc/caddy/Caddyfile").Run(); err != nil {
 		return false, "Failed to reload Caddy: " + err.Error()
@@ -151,11 +150,7 @@ func handleCustomSSLUpload(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// The domains-ssl script strips "/var/www/html/" off
-	// displayCertPath/displayKeyPath and looks for the file under dataDir
-	// using what's left - so the on-disk filename must match the "_tmp"
-	// name passed to opencli, not a bare "{domain}.crt", or the script can
-	// never find it.
+	// domains-ssl strips "/var/www/html/" off displayCertPath/displayKeyPath and looks for the file under dataDir with what's left, so the on-disk filename must match the "_tmp" name passed to opencli, not a bare "{domain}.crt"
 	certPath := filepath.Join(dataDir, domainName+"_tmp.crt")
 	keyPath := filepath.Join(dataDir, domainName+"_tmp.key")
 	displayCertPath := "/var/www/html/" + domainName + "_tmp.crt"

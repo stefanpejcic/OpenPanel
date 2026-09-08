@@ -11,13 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterPasskeysAPI wires the /api/account/passkeys routes onto mux,
-// gated behind the "passkeys" feature flag. Registration itself
-// (BeginRegistration/FinishRegistration) isn't exposed here - the WebAuthn
-// ceremony is a browser-native ceremony (navigator.credentials) tied to a
-// session cookie for the in-progress challenge, which doesn't fit a
-// stateless Bearer-token API client. Listing and revoking existing
-// passkeys does fit, so only those two are exposed.
+// RegisterPasskeysAPI wires the /api/account/passkeys routes onto mux, gated behind "passkeys". Registration isn't exposed here - the WebAuthn ceremony is browser-native and tied to a session cookie, which doesn't fit a stateless Bearer-token client. Only list and revoke do.
 func RegisterPasskeysAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "passkeys", "GET /api/account/passkeys", func(w http.ResponseWriter, r *http.Request) { apiPasskeysList(a, w, r) })
 	apiregistry.Handle(mux, a, "passkeys", "DELETE /api/account/passkeys/{id}", func(w http.ResponseWriter, r *http.Request) { apiPasskeysDelete(a, w, r) })

@@ -8,8 +8,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// RegisterLoginHistoryAPI wires GET /api/account/login-history onto mux,
-// gated behind the "login_history" feature flag.
+// RegisterLoginHistoryAPI wires GET /api/account/login-history onto mux, gated behind the "login_history" feature flag
 func RegisterLoginHistoryAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "login_history", "GET /api/account/login-history", func(w http.ResponseWriter, r *http.Request) { apiLoginHistory(a, w, r) })
 }
@@ -20,8 +19,7 @@ type apiLoginHistoryEntry struct {
 	LoginTime   string `json:"login_time"`
 }
 
-// apiLoginHistory returns recent login attempts for the caller, most
-// recent first (matching the web page's ordering).
+// apiLoginHistory returns recent login attempts for the caller, most recent first (matching the web page's ordering)
 func apiLoginHistory(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	ctx := r.Context()

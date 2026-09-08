@@ -1,9 +1,5 @@
-// Package sieveparser implements a tokenizer + recursive-descent parser
-// that converts a .dovecot.sieve file into the structured filter list the
-// emails/filter.html GUI editor expects. Only the read side (Parse) is
-// implemented - a Sieve-generating counterpart is unnecessary dead code:
-// the GUI's "Save filters" button regenerates Sieve client-side in JS
-// instead, and posts the raw text directly.
+// Package sieveparser tokenizes and parses a .dovecot.sieve file into the structured filter list the emails/filter.html GUI editor expects.
+// Read-only - the GUI regenerates Sieve client-side in JS and posts the raw text back, so there's no writer side here.
 //
 // Supported subset (covers ~95% of real-world Dovecot personal filters):
 //   - require [...]
@@ -34,8 +30,7 @@ type AutoresponderValue struct {
 	Days    int    `json:"days"`
 }
 
-// Action is one action inside a Filter. Value is a plain string for every
-// action type except "autoresponder", where it's an *AutoresponderValue.
+// Action is one action inside a Filter; Value is a plain string except for "autoresponder", where it's an *AutoresponderValue
 type Action struct {
 	Type  string `json:"type"`
 	Value any    `json:"value"`
@@ -49,8 +44,7 @@ type Filter struct {
 	Actions []Action `json:"actions"`
 }
 
-// Parse tokenizes and parses a .dovecot.sieve file into a flattened list
-// of filters.
+// Parse tokenizes and parses a .dovecot.sieve file into a flattened list of filters
 func Parse(source string) []Filter {
 	if strings.TrimSpace(source) == "" {
 		return nil

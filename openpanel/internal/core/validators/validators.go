@@ -1,5 +1,4 @@
-// Package validators provides input-validation helpers for panel forms and
-// API requests.
+// Package validators provides input-validation helpers for panel forms and API requests.
 package validators
 
 import (
@@ -15,12 +14,9 @@ var (
 	upperRegex     = regexp.MustCompile(`[A-Z]`)
 	digitRegex     = regexp.MustCompile(`\d`)
 	specialRegex   = regexp.MustCompile(`[^a-zA-Z0-9]`)
-	// emailUsernameRegex mirrors the client-side pattern on
-	// templates/emails/new.html's username field - notably, it excludes
-	// '@' so a mailbox's local part can't smuggle in a second address.
+	// mirrors templates/emails/new.html's username field - excludes '@' so a mailbox's local part can't smuggle in a second address
 	emailUsernameRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+$`)
-	// panelUsernameRegex mirrors the client-side pattern on
-	// templates/user/account.html's username field.
+	// mirrors templates/user/account.html's username field
 	panelUsernameRegex = regexp.MustCompile(`^[a-zA-Z0-9]{3,20}$`)
 )
 
@@ -34,26 +30,17 @@ func IsValidHost(host string) bool {
 	return allowedMySQLHosts[host] || validHostRegex.MatchString(host)
 }
 
-// IsValidEmailUsername reports whether username is a valid mailbox local
-// part: letters, digits, and '.', '_', '%', '+', '-'. Critically, this
-// excludes '@' - without a server-side check, a value like "@example.com"
-// concatenates into a malformed two-address string wherever callers build
-// "username@domain" themselves.
+// IsValidEmailUsername reports whether username is a valid mailbox local part - crucially excludes '@', so callers building "username@domain" can't get a malformed two-address string
 func IsValidEmailUsername(username string) bool {
 	return emailUsernameRegex.MatchString(username)
 }
 
-// IsValidPanelUsername reports whether username is a valid OpenPanel
-// account username: 3-20 letters/digits, no other characters. Without a
-// server-side check here, a rename to a username outside this set could
-// confuse opencli's own path/identity assumptions downstream, since the
-// username becomes part of filesystem paths (e.g. /home/<username>).
+// IsValidPanelUsername reports whether username is 3-20 letters/digits - without this check, opencli's path/identity assumptions could break, since the username ends up in filesystem paths like /home/<username>
 func IsValidPanelUsername(username string) bool {
 	return panelUsernameRegex.MatchString(username)
 }
 
-// ClampPasswordStrength parses raw as an int and clamps it to [1, 100],
-// falling back to def on a parse failure.
+// ClampPasswordStrength parses raw as an int and clamps it to [1, 100], falling back to def on a parse failure
 func ClampPasswordStrength(raw string, def int) int {
 	value := def
 	if v, err := strconv.Atoi(raw); err == nil {
@@ -68,9 +55,7 @@ func ClampPasswordStrength(raw string, def int) int {
 	return value
 }
 
-// PasswordStrengthScore mirrors the 6-check rubric shared with
-// static/js/password-strength.js and opencli/lib/password_strength.sh -
-// keep all three in sync if this changes.
+// PasswordStrengthScore mirrors the 6-check rubric shared with static/js/password-strength.js and opencli/lib/password_strength.sh - keep all three in sync
 func PasswordStrengthScore(password string) int {
 	if password == "" {
 		return 0

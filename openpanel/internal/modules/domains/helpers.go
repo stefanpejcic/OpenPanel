@@ -45,8 +45,7 @@ func domainsWithSites(ctx context.Context, a *appctx.App, userID int) ([]DomainW
 	return result, rows.Err()
 }
 
-// getRedirectURL returns the first "redir <url>" line (not a comment)
-// inside a domain's Caddy config, if any.
+// getRedirectURL returns the first "redir <url>" line (not a comment) inside a domain's Caddy config, if any
 func getRedirectURL(domainURL string) string {
 	f, err := os.Open("/etc/openpanel/caddy/domains/" + domainURL + ".conf")
 	if err != nil {
@@ -60,9 +59,7 @@ func getRedirectURL(domainURL string) string {
 		if !strings.Contains(line, "redir ") {
 			continue
 		}
-		// Split the whole line (not just the part after "redir ") into at
-		// most 3 whitespace fields and take the second - matches even a
-		// naive "redir " match inside a comment line.
+		// split the whole line into at most 3 fields and take the second, matches even a naive "redir " inside a comment line
 		parts := splitMax(line, 3)
 		if len(parts) > 1 {
 			return strings.TrimSpace(parts[1])
@@ -78,8 +75,7 @@ type SSLStatus struct {
 	SuspendComment string
 }
 
-// isRewriteCondEnabled reads a domain's SSL/suspend status from its Caddy
-// config, cached 30s.
+// isRewriteCondEnabled reads a domain's SSL/suspend status from its Caddy config, cached 30s
 func isRewriteCondEnabled(ctx context.Context, a *appctx.App, domainURL string) SSLStatus {
 	status, _ := cache.Memoize(ctx, a.Cache, "is_rewrite_cond_enabled:"+domainURL, 30*time.Second, func() (SSLStatus, error) {
 		return computeRewriteCondEnabled(domainURL), nil
@@ -129,8 +125,7 @@ func invalidateRewriteCondCache(ctx context.Context, a *appctx.App, domainURL st
 	_ = a.Cache.Delete(ctx, "is_rewrite_cond_enabled:"+domainURL)
 }
 
-// splitMax splits on runs of whitespace, stopping after maxFields-1 splits
-// so the final field keeps any remaining whitespace-separated content intact.
+// splitMax splits on runs of whitespace, stopping after maxFields-1 splits so the final field keeps any remaining content intact
 func splitMax(s string, maxFields int) []string {
 	var fields []string
 	rest := s

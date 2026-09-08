@@ -23,9 +23,7 @@ func RegisterPM2Clone(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /pm2/clone/{site_name...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePM2Clone(a, w, r) }))
 }
 
-// readPrefixedEnvValues reads envFile and returns every PREFIX+KEY="value"
-// line's KEY -> value, quotes stripped - the read-side counterpart of the
-// PREFIX+KEY="value" lines handlePM2Update/HandleInstall write.
+// readPrefixedEnvValues reads envFile and returns every PREFIX+KEY="value" line's KEY -> value, quotes stripped - the read-side counterpart of what handlePM2Update/HandleInstall write
 func readPrefixedEnvValues(envFile, prefix string) map[string]string {
 	values := map[string]string{}
 	content, err := os.ReadFile(envFile)
@@ -47,16 +45,7 @@ func readPrefixedEnvValues(envFile, prefix string) map[string]string {
 	return values
 }
 
-// handlePM2Clone copies an existing Python/NodeJS/Ruby app's files and
-// settings (version, requirements, custom command, git URL, resource
-// limits) onto a new domain/subdirectory, for quick clone/staging copies.
-// It reuses HandleInstall itself (a direct Go call, not a new network
-// request) to create the new container/compose entry/webserver proxy/DB
-// row exactly as a fresh install would, then copies the source docroot's
-// files into the new one - HandleInstall never touches docroot files
-// itself (the app's own code is always added after install, normally via
-// git deploy or the file manager), so the copy step can run right after
-// without racing or overwriting anything HandleInstall wrote.
+// handlePM2Clone copies an existing app's files and settings onto a new domain/subdirectory, for quick clone/staging copies. Reuses HandleInstall (a direct Go call, not a network request) to create the new container/compose entry/proxy/DB row exactly like a fresh install, then copies the source docroot's files in - HandleInstall never touches docroot files itself, so this can run right after without racing anything it wrote.
 func handlePM2Clone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -118,8 +107,7 @@ func handlePM2Clone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		srcPath += "/" + srcSubdirectory
 	}
 
-	// Read the source app's current settings to carry over onto the clone
-	// - the same PREFIX+KEY="value" lines handlePM2Update writes.
+	// read the source app's current settings to carry over onto the clone - the same PREFIX+KEY="value" lines handlePM2Update writes
 	srcPrefix := strings.ToUpper(lookup.Container) + "_" + kind.PyOrNode + "_"
 	envFile := "/home/" + userContext + "/.env"
 	src := readPrefixedEnvValues(envFile, srcPrefix)
@@ -138,17 +126,7 @@ func handlePM2Clone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	srcHostPath := strings.Replace(srcPath, wwwBase, hostBase, 1)
 	dstHostPath := strings.Replace(targetPath, wwwBase, hostBase, 1)
 
-	// Copy the source app's files into place *before* triggering the
-	// install below - HandleInstall only considers the install successful
-	// once the container is actually observed running (polled for a few
-	// seconds after start), and a Ruby/Python/NodeJS container immediately
-	// exits if its startup file doesn't exist yet, which HandleInstall
-	// would then treat as a failed install and roll everything back. A
-	// fresh (non-clone) install normally avoids this either by pointing
-	// git_repo_url at a repo (auto-cloned into the container at startup)
-	// or by the user uploading files after install completes - a clone's
-	// whole point is to already have real files, so they need to land
-	// before HandleInstall's own container-start check runs, not after.
+	// copy the source app's files into place *before* triggering the install below - HandleInstall only considers it successful once the container is observed running, and the container immediately exits if its startup file doesn't exist yet, which HandleInstall would treat as a failed install and roll back. A fresh install avoids this via git_repo_url or a later file upload, but a clone needs its real files to land before the container-start check runs.
 	if info, statErr := os.Stat(srcHostPath); statErr != nil || !info.IsDir() {
 		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Source folder not found on disk: " + srcPath})
 		return
@@ -200,9 +178,7 @@ func orDefault(value, def string) string {
 	return value
 }
 
-// firstNDJSONError pulls the value out of the first `{"error":"..."}` line
-// HandleInstall's ndjson stream emitted, for a one-line summary instead of
-// dumping the whole stream back to the clone form.
+// firstNDJSONError pulls the value out of the first `{"error":"..."}` line HandleInstall's ndjson stream emitted, for a one-line summary instead of the whole stream
 func firstNDJSONError(ndjson string) string {
 	for _, line := range strings.Split(ndjson, "\n") {
 		if !strings.Contains(line, `"error"`) {

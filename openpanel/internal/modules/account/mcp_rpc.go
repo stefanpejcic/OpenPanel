@@ -19,19 +19,11 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// This file implements the /mcp JSON-RPC endpoint: a minimal MCP
-// Streamable HTTP transport (initialize, tools/list, tools/call). One tool
-// is generated per documented /api/ route+method (from apidocs.EndpointsJSON,
-// the same data /account/api's docs page renders), and calling a tool just
-// replays the equivalent HTTP request against the real route by dispatching
-// it straight through the app's own http.ServeMux, forwarding the caller's
-// own Authorization header - so this file never duplicates the business
-// logic already living in each module's api.go.
+// This file implements the /mcp JSON-RPC endpoint (initialize, tools/list, tools/call). One tool is generated per documented /api/ route+method (apidocs.EndpointsJSON), and calling a tool just replays the equivalent HTTP request through the app's own mux, forwarding the caller's Authorization header - no business logic gets duplicated here.
 
 const mcpProtocolVersion = "2025-06-18"
 
-// mcpExcludedToolPaths are routes that don't make sense as agent-facing
-// tools (auth/introspection).
+// mcpExcludedToolPaths are routes that don't make sense as agent-facing tools (auth/introspection)
 var mcpExcludedToolPaths = map[string]bool{
 	"/api/login":     true,
 	"/api/endpoints": true,
@@ -52,9 +44,7 @@ type docGroup struct {
 	Endpoints []docEndpoint `json:"endpoints"`
 }
 
-// featureField handles endpoint doc groups whose "feature" is usually a
-// single string but is a list for the one group gating on either of two
-// features (Node.js / Python Apps -> ["nodejs", "python"]).
+// featureField handles endpoint doc groups whose "feature" is usually a single string but a list for the one group gating on two features (Node.js/Python Apps -> ["nodejs", "python"])
 type featureField []string
 
 func (f *featureField) UnmarshalJSON(data []byte) error {
@@ -95,7 +85,7 @@ var (
 	mcpToolOrder    []string
 )
 
-// converterJSONType maps a path-param converter name to a JSON Schema type.
+// converterJSONType maps a path-param converter name to a JSON Schema type
 func converterJSONType(converterName string) string {
 	switch converterName {
 	case "int":
@@ -107,7 +97,7 @@ func converterJSONType(converterName string) string {
 	}
 }
 
-// mcpDescribeTool builds the MCP tool schema for one documented API endpoint.
+// mcpDescribeTool builds the MCP tool schema for one documented API endpoint
 func mcpDescribeTool(name, method, path, feature, description string, body json.RawMessage) *mcpTool {
 	var pathParams []mcpPathParam
 	for _, m := range mcpPathParamRE.FindAllStringSubmatch(path, -1) {
@@ -170,8 +160,7 @@ func mcpDescribeTool(name, method, path, feature, description string, body json.
 	}
 }
 
-// mcpPathSlug derives a stable, readable, unique-per-path tool-name base
-// from a route path.
+// mcpPathSlug derives a stable, readable, unique-per-path tool-name base from a route path
 func mcpPathSlug(path string) string {
 	slug := mcpPathParamRE.ReplaceAllString(path, "$1")
 	slug = strings.TrimPrefix(slug, "/api/")
@@ -179,10 +168,7 @@ func mcpPathSlug(path string) string {
 	return strings.Trim(slug, "_")
 }
 
-// getMCPToolRegistry builds the tool registry once from apidocs.EndpointsJSON
-// (the same data source /account/api's docs page renders), skipping
-// excluded paths, and disambiguating tool names by appending the lowercased
-// method only when the same path is documented under more than one HTTP method.
+// getMCPToolRegistry builds the tool registry once from apidocs.EndpointsJSON, skipping excluded paths, and disambiguates tool names by appending the lowercased method only when a path has more than one
 func getMCPToolRegistry() map[string]*mcpTool {
 	mcpRegistryOnce.Do(func() {
 		var groups []docGroup
@@ -222,11 +208,7 @@ func getMCPToolRegistry() map[string]*mcpTool {
 	return mcpRegistry
 }
 
-// mcpCallTool substitutes path params, then dispatches the equivalent HTTP
-// request straight through dispatcher (mux wrapped in auth.LoadUser, so the
-// replayed request's Authorization header actually gets resolved into a
-// user identity - raw mux.ServeHTTP skips that middleware entirely) rather
-// than over the network, forwarding the caller's Authorization header.
+// mcpCallTool substitutes path params, then dispatches the equivalent HTTP request through dispatcher (mux wrapped in auth.LoadUser, so the replayed Authorization header actually resolves to a user - raw mux.ServeHTTP would skip that)
 func mcpCallTool(dispatcher http.Handler, tool *mcpTool, arguments map[string]any, authHeader string) (any, int) {
 	body, hasBody := arguments["body"]
 	query, hasQuery := arguments["query"]
@@ -288,10 +270,7 @@ func toStringArg(v any) string {
 	}
 }
 
-// mcpRateLimiter is a fixed-window limit keyed per-account (mcp:<user_id>)
-// rather than per-IP, since one /mcp call can fan out into any of the
-// underlying /api/ actions - a shared IP shouldn't throttle everyone on it,
-// and a token used from a new IP shouldn't get a fresh allowance.
+// mcpRateLimiter is a fixed-window limit keyed per-account (mcp:<user_id>) rather than per-IP, since one /mcp call can fan out into any /api/ action - a shared IP shouldn't throttle everyone on it
 type mcpRateLimiter struct {
 	limit int
 	mu    sync.Mutex
@@ -341,7 +320,7 @@ func jsonRPCError(id any, code int, message string) map[string]any {
 	return map[string]any{"jsonrpc": "2.0", "id": id, "error": map[string]any{"code": code, "message": message}}
 }
 
-// handleMCPEndpoint dispatches one JSON-RPC request per MCP's Streamable HTTP transport.
+// handleMCPEndpoint dispatches one JSON-RPC request per MCP's Streamable HTTP transport
 func handleMCPEndpoint(dispatcher http.Handler, limiter *mcpRateLimiter, a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if !limiter.allow(mcpRateLimitKey(r)) {
 		w.Header().Set("Content-Type", "application/json")
@@ -407,15 +386,8 @@ func handleMCPEndpoint(dispatcher http.Handler, limiter *mcpRateLimiter, a *appc
 	}
 }
 
-// RegisterMCPEndpoint wires the POST /mcp route onto mux, separate from
-// RegisterMCP (the /account/mcp token-management pages) so the two can be
-// reasoned about independently.
-//
-// tools/call replays go through mux wrapped in auth.LoadUser (not raw mux):
-// the live server only runs LoadUser as part of the outer middleware chain
-// built in cmd/openpanel/main.go, which a direct mux.ServeHTTP bypasses
-// entirely - without it, the replayed request's Authorization header would
-// never get resolved into a user identity and every tool call would 401.
+// RegisterMCPEndpoint wires the POST /mcp route onto mux, separate from RegisterMCP (the /account/mcp token-management pages) so the two can be reasoned about independently.
+// tools/call replays go through mux wrapped in auth.LoadUser, since the live server only runs LoadUser as part of main.go's outer middleware chain - without it, every replayed call would 401.
 func RegisterMCPEndpoint(mux *http.ServeMux, a *appctx.App) {
 	limiter := newMCPRateLimiter(a)
 	dispatcher := auth.LoadUser(a)(mux)

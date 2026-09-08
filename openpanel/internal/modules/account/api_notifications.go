@@ -14,8 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// RegisterNotificationsAPI wires the /api/account/notifications routes
-// onto mux, gated behind the "notifications" feature flag.
+// RegisterNotificationsAPI wires the /api/account/notifications routes onto mux, gated behind the "notifications" feature flag
 func RegisterNotificationsAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "notifications", "GET /api/account/notifications", func(w http.ResponseWriter, r *http.Request) { apiNotificationsGet(a, w, r) })
 	apiregistry.Handle(mux, a, "notifications", "PUT /api/account/notifications", func(w http.ResponseWriter, r *http.Request) { apiNotificationsUpdate(a, w, r) })
@@ -48,10 +47,7 @@ func apiNotificationsGet(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	writeAPIAccountJSON(w, http.StatusOK, map[string]any{"preferences": toAPINotificationPrefs(readNotificationsPrefs(username))})
 }
 
-// apiNotificationsUpdate applies a partial set of preference changes:
-// {"preferences": {"notify_account_login": true, ...}}. Keys not present
-// in the body are left unchanged, unlike the web form (which submits every
-// checkbox at once).
+// apiNotificationsUpdate applies a partial set of preference changes ({"preferences": {"notify_account_login": true, ...}}); keys missing from the body are left unchanged, unlike the web form which submits every checkbox at once
 func apiNotificationsUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	ctx := r.Context()

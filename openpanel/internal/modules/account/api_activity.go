@@ -9,8 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 )
 
-// apiActivity serves the same search/pagination view as
-// handleViewActivityPage, as JSON instead of HTML.
+// apiActivity serves the same search/pagination view as handleViewActivityPage, as JSON instead of HTML
 func apiActivity(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	data, err := a.InjectData(r.Context(), userID)

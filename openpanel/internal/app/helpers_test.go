@@ -27,8 +27,7 @@ func TestLastLineOfMissingFile(t *testing.T) {
 }
 
 func TestGetLastLoginDataParsing(t *testing.T) {
-	// GetLastLoginData hardcodes /etc/openpanel/..., so this test verifies
-	// the parsing logic directly rather than the full read-file path.
+	// GetLastLoginData hardcodes /etc/openpanel/..., so test the parsing logic directly instead of the full read-file path
 	line := "IP: 1.2.3.4 - Country: US - Login Time: 2026-01-01 12:00:00"
 	entries := parseLastLoginLines([]string{line, "garbage line", ""})
 	if len(entries) != 1 {

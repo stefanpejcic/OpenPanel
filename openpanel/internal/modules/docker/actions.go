@@ -59,9 +59,7 @@ func GetRunningContainers(ctx context.Context, userContext string) ([]string, er
 	return strings.Split(trimmed, "\n"), nil
 }
 
-// updateContainerRAMOrCPU updates a container's RAM or CPU limit, both in
-// its .env entry and live via `podman update`. action is "ram" or "cpu".
-// Returns (message, success).
+// updateContainerRAMOrCPU updates a container's RAM or CPU limit, both in its .env entry and live via `podman update`. action is "ram" or "cpu". Returns (message, success).
 func updateContainerRAMOrCPU(a *appctx.App, ctx context.Context, userContext string, planID int, containerName, action, providedValue string) (string, bool) {
 	action = strings.ToLower(action)
 	if action != "ram" && action != "cpu" {
@@ -91,11 +89,7 @@ func updateContainerRAMOrCPU(a *appctx.App, ctx context.Context, userContext str
 		return err, false
 	}
 
-	// `podman update` needs a live cgroup to write to and fails (crun exit
-	// 125) against a stopped/exited container - podman inspect succeeds on
-	// those too, so it can't tell live from stopped. Skip the live update
-	// rather than surfacing that as a failure: the .env value above is
-	// already what the next `podman-compose up` will use.
+	// `podman update` needs a live cgroup to write to and fails (crun exit 125) against a stopped/exited container - podman inspect succeeds on those too, so it can't tell live from stopped. Skip the live update rather than surfacing that as a failure: the .env value above is already what the next `podman-compose up` will use.
 	if IsServiceRunning(ctx, userContext, containerName) {
 		var argv []string
 		if action == "ram" {
@@ -119,11 +113,7 @@ func updateContainerRAMOrCPU(a *appctx.App, ctx context.Context, userContext str
 	return fmt.Sprintf("Max %s for container %s set to %s", strings.ToUpper(action), containerName, value), true
 }
 
-// updateContainerPIDs updates a container's PIDs (max process count) limit,
-// both in its .env entry and live via `podman update`. Unlike RAM/CPU,
-// PIDs has no plan-level cap to fall back to, so "0" means literally
-// unlimited (podman's --pids-limit -1) rather than "reset to plan max".
-// Returns (message, success).
+// updateContainerPIDs updates a container's PIDs (max process count) limit, both in its .env entry and live via `podman update`. Unlike RAM/CPU, PIDs has no plan-level cap to fall back to, so "0" means literally unlimited (podman's --pids-limit -1) rather than "reset to plan max". Returns (message, success).
 func updateContainerPIDs(ctx context.Context, userContext, containerName, providedValue string) (string, bool) {
 	envVar := ServiceKeyPrefix(containerName) + "_PIDS"
 
@@ -131,9 +121,7 @@ func updateContainerPIDs(ctx context.Context, userContext, containerName, provid
 		return err, false
 	}
 
-	// See the identical comment in updateContainerRAMOrCPU: `podman update`
-	// fails against a stopped container, so this must check for running,
-	// not merely existing.
+	// see the identical comment in updateContainerRAMOrCPU: `podman update` fails against a stopped container, so this must check for running, not merely existing
 	if IsServiceRunning(ctx, userContext, containerName) {
 		podmanValue := providedValue
 		if podmanValue == "0" {
@@ -156,8 +144,7 @@ func updateContainerPIDs(ctx context.Context, userContext, containerName, provid
 	return fmt.Sprintf("Max PIDs for container %s set to %s", containerName, providedValue), true
 }
 
-// setContainerEnvLimit rewrites envVar's value in the user's .env file.
-// Returns a non-empty error message on failure, "" on success.
+// setContainerEnvLimit rewrites envVar's value in the user's .env file, returning a non-empty error message on failure, "" on success
 func setContainerEnvLimit(userContext, envVar, value string) string {
 	envPath := homePath(userContext, ".env")
 	data, err := os.ReadFile(envPath)
@@ -177,8 +164,7 @@ func setContainerEnvLimit(userContext, envVar, value string) string {
 	return ""
 }
 
-// RestartContainer stops and re-starts a single compose service via
-// `podman-compose down`/`up -d --no-deps`.
+// RestartContainer stops and re-starts a single compose service via `podman-compose down`/`up -d --no-deps`
 func RestartContainer(ctx context.Context, userContext, containerName string) StartStopResult {
 	downArgv, dir, _ := podmanmanager.BuildComposeUpDownCommand(userContext, containerName, "deactivate")
 	down := podmanmanager.Command(ctx, userContext, downArgv)
@@ -219,12 +205,7 @@ func handleContainersStatus(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	_ = json.NewEncoder(w).Encode(map[string]any{"running_containers": running})
 }
 
-// handleManageContainer mirrors manage_container(). action is one of
-// "start"/"stop"/"restart"/"cpu"/"ram", fixed by the caller (docker.go
-// registers one literal route per action, rather than a single
-// "{action}/{container_name}" wildcard route, which would create an
-// unresolvable net/http.ServeMux registration-time ambiguity against the
-// other literal-prefixed /containers/* routes like /containers/image/).
+// handleManageContainer mirrors manage_container(). action is one of "start"/"stop"/"restart"/"cpu"/"ram", fixed by the caller - docker.go registers one literal route per action rather than a single "{action}/{container_name}" wildcard, which would create an unresolvable net/http.ServeMux ambiguity against other literal-prefixed /containers/* routes like /containers/image/.
 func handleManageContainer(a *appctx.App, w http.ResponseWriter, r *http.Request, action string) {
 	containerName := r.PathValue("container_name")
 	ctx := r.Context()

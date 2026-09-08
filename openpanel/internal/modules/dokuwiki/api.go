@@ -14,9 +14,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiInstallDokuwiki delegates straight to handleInstallPage (which
-// itself calls handleInstallStream on POST): same site-limit check, same
-// NDJSON progress stream written directly to the response.
+// apiInstallDokuwiki delegates straight to handleInstallPage (which itself calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream written directly to the response
 func apiInstallDokuwiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID      string `json:"domain_id"`
@@ -44,9 +42,7 @@ func apiInstallDokuwiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleInstallPage(a, w, withDokuwikiForm(r, form))
 }
 
-// apiRemoveDokuwiki delegates to handleRemoveDokuwiki with the path's
-// {site_id} translated into the "id" form field it expects, and
-// output=json forced so it returns JSON instead of a flash-and-redirect.
+// apiRemoveDokuwiki delegates to handleRemoveDokuwiki with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemoveDokuwiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withDokuwikiForm(r, url.Values{"id": {siteID}})
@@ -56,10 +52,7 @@ func apiRemoveDokuwiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleRemoveDokuwiki(a, w, cloned)
 }
 
-// resolveDokuwikiSiteID looks up the path's {site_id} the same way
-// apiRemoveDokuwiki (via handleRemoveDokuwiki) and manage.go's own "id"
-// lookup do, returning the site's full site_name (domain[/subdirectory])
-// and docroot.
+// resolveDokuwikiSiteID looks up the path's {site_id} the same way apiRemoveDokuwiki (via handleRemoveDokuwiki) and manage.go's own "id" lookup do, returning the site's full site_name (domain[/subdirectory]) and docroot
 func resolveDokuwikiSiteID(a *appctx.App, r *http.Request, siteID string) (siteName, docroot string, ok bool) {
 	row := a.DB.QueryRowContext(r.Context(), `
 		SELECT sites.site_name, domains.docroot
@@ -72,11 +65,7 @@ func resolveDokuwikiSiteID(a *appctx.App, r *http.Request, siteID string) (siteN
 	return siteName, docroot, true
 }
 
-// apiCloneDokuwiki resolves the path's {site_id} into the source domain/
-// docroot handleDokuwikiClone expects as source_domain/source_folder (same
-// "id" lookup as apiRemoveDokuwiki) - there's no database to derive a
-// source_db from (DokuWiki is flat-file) - and takes the destination-side
-// fields from the JSON body.
+// apiCloneDokuwiki resolves the path's {site_id} into the source domain/docroot handleDokuwikiClone expects as source_domain/source_folder (same "id" lookup as apiRemoveDokuwiki) - there's no database to derive a source_db from since DokuWiki is flat-file - and takes the destination-side fields from the JSON body
 func apiCloneDokuwiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	siteName, docroot, ok := resolveDokuwikiSiteID(a, r, siteID)
@@ -107,11 +96,7 @@ func apiCloneDokuwiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleDokuwikiClone(a, w, withDokuwikiForm(r, form))
 }
 
-// apiUpdateDokuwiki resolves the path's {site_id} the same way
-// apiCloneDokuwiki does, then delegates to handleDokuwikiUpdate with
-// domain/docroot set as URL query params (that handler reads
-// r.URL.Query(), not form values) - the NDJSON progress stream is written
-// directly to the response as-is.
+// apiUpdateDokuwiki resolves the path's {site_id} the same way apiCloneDokuwiki does, then delegates to handleDokuwikiUpdate with domain/docroot set as URL query params (that handler reads r.URL.Query(), not form values) - the NDJSON progress stream is written directly to the response as-is
 func apiUpdateDokuwiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	siteName, docroot, ok := resolveDokuwikiSiteID(a, r, siteID)

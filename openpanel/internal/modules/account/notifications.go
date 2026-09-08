@@ -15,21 +15,14 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// NotificationPref is one key=value line from a user's notifications.yaml
-// preferences file, kept in on-disk order - the page rewrites the file in
-// the same order it read it.
+// NotificationPref is one key=value line from a user's notifications.yaml, kept in on-disk order since the page rewrites the file in the same order it read it
 type NotificationPref struct {
 	Key   string
 	Value string
 	Label string
 }
 
-// notificationLabel mirrors the display transform inline in
-// notifications.html: `key[6:].replace('_', ' ')` for the "notify_..."
-// keys this file actually ships (strips the literal "notify" prefix,
-// leaving a leading space before the first word), or Title Case for
-// anything else (dead in practice - every shipped key starts with
-// "notify", this only exists for a hypothetical non-"notify" key).
+// notificationLabel mirrors notifications.html's display transform: strips the "notify" prefix for shipped keys, or Title Case otherwise (dead in practice, every shipped key starts with "notify")
 func notificationLabel(key string) string {
 	if strings.HasPrefix(key, "notify") {
 		return strings.ReplaceAll(key[len("notify"):], "_", " ")
@@ -68,10 +61,7 @@ func readNotificationsPrefs(username string) []NotificationPref {
 	return prefs
 }
 
-// criticalNotificationKeys: flipping any of these
-// from '1' to '0' means the user just turned off a security-relevant
-// notification, which itself always fires a notification (so they don't
-// silently lose visibility into their own account being disabled).
+// criticalNotificationKeys always fire a notification themselves when flipped from '1' to '0', so the user doesn't silently lose visibility into a security-relevant setting being turned off
 var criticalNotificationKeys = []string{
 	"notify_account_login_notification_disabled",
 	"notify_contact_address_change_notification_disabled",
@@ -145,8 +135,7 @@ func handleAccountNotifications(a *appctx.App, w http.ResponseWriter, r *http.Re
 	renderNotificationsPage(a, w, r, prefs)
 }
 
-// RegisterNotifications wires the notification-preferences route onto mux,
-// gated behind the "notifications" feature flag.
+// RegisterNotifications wires the notification-preferences route onto mux, gated behind the "notifications" feature flag
 func RegisterNotifications(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "notifications")(h)

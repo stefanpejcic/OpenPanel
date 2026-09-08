@@ -11,10 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
-// DomainZoneRow represents a user's domain plus whether it has a zone
-// file on disk. DomainName is populated from the domain's docroot - odd,
-// but that's what the JSON output actually contains; nothing in dns.html
-// ever reads it.
+// DomainZoneRow represents a user's domain plus whether it has a zone file on disk. DomainName is populated from the domain's docroot - odd, but that's what the JSON output actually contains; nothing in dns.html ever reads it.
 type DomainZoneRow struct {
 	DomainID       int
 	DomainName     string
@@ -29,9 +26,7 @@ func (d DomainZoneRow) toJSONMap() map[string]any {
 	}
 }
 
-// hasSubdomainLabel reports whether domain has a label beyond its
-// registrable (eTLD+1) form. Used only to pick the right "zone file not
-// found" wording.
+// hasSubdomainLabel reports whether domain has a label beyond its registrable (eTLD+1) form, used only to pick the right "zone file not found" wording
 func hasSubdomainLabel(domain string) bool {
 	etldPlusOne, err := publicsuffix.EffectiveTLDPlusOne(domain)
 	if err != nil {
@@ -40,8 +35,7 @@ func hasSubdomainLabel(domain string) bool {
 	return !strings.EqualFold(domain, etldPlusOne)
 }
 
-// handleEditDNSZone serves the domain-list landing page, and (with a
-// domain) either the table view or the raw code view of its zone file.
+// handleEditDNSZone serves the domain-list landing page, and (with a domain) either the table view or the raw code view of its zone file
 func handleEditDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)

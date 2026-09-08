@@ -9,13 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// TestRenderDashboardPage exercises the full base.html + partials +
-// dashboard.html + includes template tree through html/template's real
-// executor - the only way to catch a broken {{template}} wiring, a
-// mismatched field name, or a nil-map access before a real request hits
-// it. Covers a user with a broad, representative feature set so most
-// conditional branches (sidebar groups, icon sections, usage widgets,
-// twofa nag, custom section) actually render.
+// exercises the full base.html + partials + dashboard.html + includes template tree through html/template's real executor - the only way to catch a broken {{template}} wiring, a mismatched field name, or a nil-map access before a real request hits it. Covers a user with a broad, representative feature set so most conditional branches actually render.
 func TestRenderDashboardPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
@@ -89,10 +83,7 @@ func TestRenderDashboardPage(t *testing.T) {
 	}
 }
 
-// TestRenderDashboardPageMinimalUser covers the opposite end: a user with
-// almost no features enabled, so most conditional sections render empty -
-// this is the branch most likely to hit a nil map / missing key panic that
-// a feature-rich test run wouldn't exercise.
+// covers the opposite end: a user with almost no features enabled, so most conditional sections render empty - the branch most likely to hit a nil map / missing key panic that a feature-rich test run wouldn't exercise
 func TestRenderDashboardPageMinimalUser(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	userAllowed := map[string]bool{"dashboard": true}
@@ -122,9 +113,7 @@ func TestRenderDashboardPageMinimalUser(t *testing.T) {
 	}
 }
 
-// TestRenderDashboardPageWithFlashAndImpersonation exercises the flash
-// message stack and impersonation banner, both of which are absent from
-// the other two tests.
+// exercises the flash message stack and impersonation banner, both absent from the other two tests
 func TestRenderDashboardPageWithFlashAndImpersonation(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	userAllowed := map[string]bool{"dashboard": true}

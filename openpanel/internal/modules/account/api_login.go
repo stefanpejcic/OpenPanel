@@ -20,10 +20,7 @@ import (
 
 const jwtExpSeconds = 3600 // API token lifetime: 1h
 
-// RegisterAPILogin wires POST /api/login onto mux. It lives in the account
-// package (rather than a generic api package) because it reuses
-// verifyPassword/logUserLogin/checkIfUserShouldBeNotified/
-// clearFailedAttempts directly rather than duplicating that logic.
+// RegisterAPILogin wires POST /api/login onto mux; it lives in account rather than a generic api package so it can reuse verifyPassword/logUserLogin/etc. directly
 func RegisterAPILogin(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Add("POST /api/login")
 	limiter := newLoginRateLimiter(a)
@@ -42,8 +39,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, body map[string]any) {
 	_ = json.NewEncoder(w).Encode(body)
 }
 
-// handleAPILogin authenticates a username/password (and optional 2FA code)
-// request and, on success, issues a signed JWT for subsequent API calls.
+// handleAPILogin authenticates a username/password (and optional 2FA code) request and, on success, issues a signed JWT for subsequent API calls
 func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	sess, _ := a.Sessions.Get(r, session.CookieName)
@@ -104,10 +100,7 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// mintAPIToken signs a Bearer JWT for userID, the same shape handleAPILogin
-// issues after a password check - reused by the /account/api Swagger page
-// to pre-authorize "Try it out" for an already-session-authenticated user,
-// without asking them to type their password again.
+// mintAPIToken signs a Bearer JWT for userID, same shape as handleAPILogin issues - reused by the /account/api Swagger page to pre-authorize "Try it out" for an already-logged-in user
 func mintAPIToken(a *appctx.App, userID int) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": strconv.Itoa(userID),
@@ -117,10 +110,7 @@ func mintAPIToken(a *appctx.App, userID int) (string, error) {
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(a.SecretKey)
 }
 
-// apiLoginErrorCode maps verifyPassword's translated error message back to
-// a stable machine-readable code for API clients. verifyPassword returns a
-// single translated string (shared with the session-login path), so this
-// pattern-matches on its content to recover a specific error category.
+// apiLoginErrorCode maps verifyPassword's translated error message back to a stable machine-readable code, pattern-matching its content since it only returns one shared translated string
 func apiLoginErrorCode(errMsg string) string {
 	switch {
 	case strings.Contains(errMsg, "suspended"):

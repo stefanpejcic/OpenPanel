@@ -15,8 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// Register wires the backups routes onto mux, gated behind the "backups"
-// feature flag.
+// Register wires the backups routes onto mux, gated behind the "backups" feature flag
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "backups")(h)
@@ -40,10 +39,7 @@ func envFilePath(userContext string) string {
 	return "/home/" + userContext + "/backup.env"
 }
 
-// parseFormGroups pulls out every "values[KEY]"/"settings[KEY]" field into
-// key->value. http.Request.PostForm is a map and doesn't preserve field
-// order, so callers that need stable ordering read the updated keys off
-// the env file's own line order instead.
+// parseFormGroups pulls out every "values[KEY]"/"settings[KEY]" field into key->value. PostForm is a map and doesn't preserve field order, so callers needing stable ordering read the updated keys off the env file's own line order instead.
 func parseFormGroups(r *http.Request, group string) map[string]string {
 	out := map[string]string{}
 	prefix := group + "["
@@ -55,8 +51,7 @@ func parseFormGroups(r *http.Request, group string) map[string]string {
 	return out
 }
 
-// handleBackupSettings serves and updates the backup.env key/value form
-// for the user's currently configured backup target.
+// handleBackupSettings serves and updates the backup.env key/value form for the user's currently configured backup target
 func handleBackupSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentUsername, userContext, err := injected(a, r)
 	if err != nil {
@@ -227,9 +222,7 @@ func kvToMap(entries []KV) map[string]string {
 	return m
 }
 
-// handleBackupTarget switches (or reports) which backup destination
-// section (s3/webdav/ssh/azure/dropbox) is active, by commenting out the
-// other sections' keys in backup.env.
+// handleBackupTarget switches (or reports) which backup destination section (s3/webdav/ssh/azure/dropbox) is active, by commenting out the other sections' keys in backup.env
 func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentUsername, userContext, err := injected(a, r)
 	if err != nil {
@@ -333,9 +326,7 @@ func belongsToOtherSection(target, key string) bool {
 	return false
 }
 
-// handleBackupsPage serves the backups landing page. Registered for GET
-// and POST, but the handler body never branches on method, so POST
-// behaves identically to GET - intentional, not an oversight.
+// handleBackupsPage serves the backups landing page. Registered for GET and POST, but never branches on method, so POST behaves identically to GET - intentional, not an oversight.
 func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, userContext, err := injected(a, r)
 	if err != nil {
@@ -382,10 +373,7 @@ func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderBackupsPage(a, w, r, target, hasAnyCredentialMarker(values), serviceActive)
 }
 
-// hasAnyCredentialMarker reports whether any of the well-known
-// per-destination credential keys (DROPBOX_APP_KEY, AWS_ACCESS_KEY_ID,
-// WEBDAV_USERNAME, SSH_HOST_NAME, AZURE_STORAGE_ACCOUNT_NAME) has a value,
-// used to decide whether the settings form should show as "configured".
+// hasAnyCredentialMarker reports whether any well-known per-destination credential key has a value, used to decide whether the settings form should show as "configured"
 func hasAnyCredentialMarker(values []KV) bool {
 	markers := map[string]bool{
 		"DROPBOX_APP_KEY": true, "AWS_ACCESS_KEY_ID": true, "WEBDAV_USERNAME": true,

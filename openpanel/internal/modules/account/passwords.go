@@ -25,11 +25,7 @@ type loginResult struct {
 	TwofaEnabled bool
 }
 
-// verifyPassword looks up the user and verifies their password against
-// whichever hash scheme is stored (cPanel SHA-512 crypt, CyberPanel
-// SHA-256+salt, or the werkzeugpw scheme), transparently upgrading legacy
-// hashes to the current scheme on success. Returns a non-empty errMsg
-// (already translated) on any failure.
+// verifyPassword looks up the user and verifies their password against whichever hash scheme is stored (cPanel, CyberPanel, or werkzeugpw), transparently upgrading legacy hashes on success. Returns a translated errMsg on any failure.
 func verifyPassword(a *appctx.App, ctx context.Context, username, password string, t i18n.Translator) (loginResult, string) {
 	var (
 		userID int
@@ -80,16 +76,13 @@ func verifyPassword(a *appctx.App, ctx context.Context, username, password strin
 	return loginResult{UserID: userID, Username: username, TwofaEnabled: twofa.Bool}, ""
 }
 
-// isCyberPanelHash reports whether pwHash looks like a CyberPanel-style
-// hash: a colon-separated hash part followed by a salt, where the hash
-// part is exactly 64 characters (a hex SHA-256 digest).
+// isCyberPanelHash reports whether pwHash looks like a CyberPanel-style hash: a colon-separated hash part (64-char hex SHA-256) followed by a salt
 func isCyberPanelHash(pwHash string) bool {
 	before, _, found := strings.Cut(pwHash, ":")
 	return found && len(before) == 64
 }
 
-// verifyCyberPanelPassword computes SHA-256(password+salt) hex and compares
-// it against the stored hash part.
+// verifyCyberPanelPassword computes SHA-256(password+salt) hex and compares it against the stored hash part
 func verifyCyberPanelPassword(password, storedHash string) bool {
 	hashPart, salt, ok := strings.Cut(storedHash, ":")
 	if !ok || len(hashPart) != 64 || len(salt) != 32 {

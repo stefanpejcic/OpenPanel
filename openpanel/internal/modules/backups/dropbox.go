@@ -14,17 +14,12 @@ import (
 	"strings"
 )
 
-// dropboxStore is the remoteStore implementation for the "dropbox"
-// backup.env section, talking to the Dropbox API v2 directly over
-// net/http/json - no SDK needed for three calls (token refresh, list
-// folder, download).
+// dropboxStore is the remoteStore implementation for the "dropbox" backup.env section, talking to the Dropbox API v2 directly over net/http/json - no SDK needed for three calls (token refresh, list folder, download)
 type dropboxStore struct {
 	config map[string]string
 }
 
-// remotePath normalizes DROPBOX_REMOTE_PATH into what the Dropbox API
-// expects: "" for the app's root, or a leading-"/" path otherwise (a bare
-// relative path like "backups" is rejected by the API).
+// remotePath normalizes DROPBOX_REMOTE_PATH into what the Dropbox API expects: "" for the app's root, or a leading-"/" path otherwise (a bare relative path like "backups" is rejected by the API)
 func (s *dropboxStore) remotePath() string {
 	p := strings.Trim(strings.TrimSpace(s.config["DROPBOX_REMOTE_PATH"]), "/")
 	if p == "" {
@@ -33,9 +28,7 @@ func (s *dropboxStore) remotePath() string {
 	return "/" + p
 }
 
-// accessToken exchanges DROPBOX_REFRESH_TOKEN for a short-lived access
-// token via the standard OAuth2 refresh flow - the same one the "backup"
-// container itself performs with these exact three env vars.
+// accessToken exchanges DROPBOX_REFRESH_TOKEN for a short-lived access token via the standard OAuth2 refresh flow - the same one the "backup" container itself performs with these exact three env vars
 func (s *dropboxStore) accessToken(ctx context.Context) (string, error) {
 	refreshToken := s.config["DROPBOX_REFRESH_TOKEN"]
 	appKey := s.config["DROPBOX_APP_KEY"]

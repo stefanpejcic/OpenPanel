@@ -78,8 +78,7 @@ func readVhostContent(userContext, domainName string) string {
 	return string(content)
 }
 
-// writeVhostContent saves the file, then validates+reloads the web server
-// via webserver.TestWebserverConfig rather than duplicating that logic here.
+// writeVhostContent saves the file, then validates+reloads via webserver.TestWebserverConfig rather than duplicating that logic here
 func writeVhostContent(ctx context.Context, domainName, userContext, webServerPreference, vhostContent string) (bool, string) {
 	path := vhostFilePath(userContext, domainName)
 	if err := os.WriteFile(path, []byte(vhostContent), 0o644); err != nil {

@@ -15,11 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// loginRateLimiter enforces a fixed-window request limit ("N per minute")
-// on POST /login, keyed per IP. State is kept in-process rather than in a
-// shared store - correct for a single Go binary instance, but won't share
-// state across multiple instances behind a load balancer if the deployment
-// ever grows that way.
+// loginRateLimiter enforces a fixed-window "N per minute" limit on POST /login, keyed per IP. State is in-process, correct for a single instance but won't share state across instances behind a load balancer.
 type loginRateLimiter struct {
 	limit int
 
@@ -64,9 +60,7 @@ func clearFailedAttempts(ip string) {
 	failedAttemptsMu.Unlock()
 }
 
-// handleRateLimitExceeded logs the throttled attempt, tracks a separate
-// (unbounded, in-memory) failure counter per IP, and temporarily blocks
-// the IP via CSF once that counter passes login_blocklimit.
+// handleRateLimitExceeded logs the throttled attempt, tracks a separate in-memory failure counter per IP, and temporarily blocks the IP via CSF once that counter passes login_blocklimit
 func handleRateLimitExceeded(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ip := reqip.ClientIP(r)
 	postLimit := atoiDefault(a.Config.Get("login_ratelimit", ""), 5)
@@ -99,8 +93,7 @@ func handleRateLimitExceeded(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
 
-// blockIPTemporarily appends a CSF tempban entry if CSF is installed,
-// otherwise just logs that it couldn't.
+// blockIPTemporarily appends a CSF tempban entry if CSF is installed, otherwise just logs that it couldn't
 func blockIPTemporarily(ip string, blockLimit int) {
 	const tempbanPath = "/var/lib/csf/csf.tempban"
 	const errorLogPath = "/var/log/openpanel/user/error.log"

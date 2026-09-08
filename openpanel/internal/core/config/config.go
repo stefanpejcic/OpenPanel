@@ -10,12 +10,10 @@ import (
 
 var lineRE = regexp.MustCompile(`^(\w+)=(.*)$`)
 
-// Config is the parsed key=value file. Missing keys fall back to a
-// caller-supplied default, via Get.
+// Config is the parsed key=value file; missing keys fall back to a default via Get
 type Config map[string]string
 
-// Load reads path and parses it line by line. A missing file is not an
-// error — it returns an empty Config.
+// Load reads and parses path line by line; a missing file just returns an empty Config
 func Load(path string) (Config, error) {
 	cfg := Config{}
 

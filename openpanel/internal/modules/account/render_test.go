@@ -12,10 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// baseLayout is a minimal web.LayoutData for rendering the authenticated
-// pages in this package (account settings, locale, 2FA, passkeys, etc.) -
-// distinct from loginPageData above, which is the pre-session login page's
-// own standalone context.
+// baseLayout is a minimal web.LayoutData for rendering the authenticated pages in this package, distinct from loginPageData's pre-session standalone context
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 	userAllowed := map[string]bool{"dashboard": true, "account": true}
 	return web.LayoutData{
@@ -26,11 +23,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 	}
 }
 
-// TestRenderLoginPage exercises the actual embedded template through
-// html/template's executor - the only way to catch a broken {{template
-// "content" .}} wiring, a typo'd field name, or an accidental package-load
-// panic (like the go:embed "_login.html" gotcha this test would have
-// caught) before a real request hits it.
+// exercises the actual embedded template through html/template's executor - the only way to catch broken wiring, a typo'd field name, or a package-load panic before a real request hits it
 func TestRenderLoginPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := loginPageData{

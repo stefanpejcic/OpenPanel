@@ -1,7 +1,4 @@
-// Package apiregistry tracks every /api/* route as it's registered, so
-// /api/endpoints can serve a dynamic introspection listing of them. Go's
-// http.ServeMux has no route-iteration API, so each RegisterAPI* function
-// records its own routes here as it registers them.
+// Package apiregistry tracks every /api/* route as it's registered, so /api/endpoints can list them - http.ServeMux has no route-iteration API of its own.
 package apiregistry
 
 import (
@@ -25,9 +22,7 @@ var (
 	endpoints []Endpoint
 )
 
-// Add records one route. pattern matches the net/http 1.22+ mux pattern
-// syntax ("GET /api/mysql/databases" or "/api/mysql/databases" for
-// all-methods); methods defaults to GET when a pattern has no explicit verb.
+// Add records one route. pattern is the net/http mux syntax ("GET /api/mysql/databases" or just the path for all methods); defaults to GET if no verb is given.
 func Add(pattern string) {
 	method := ""
 	path := pattern
@@ -61,9 +56,7 @@ func All() []Endpoint {
 	return out
 }
 
-// Handle registers pattern on mux behind auth.RequireAPI(a, featureName)
-// and records it for /api/endpoints in one call - the standard way every
-// RegisterAPI* function in every package wires up one route.
+// Handle registers pattern on mux behind auth.RequireAPI(a, featureName) and records it for /api/endpoints in one call
 func Handle(mux *http.ServeMux, a *appctx.App, featureName, pattern string, h http.HandlerFunc) {
 	Add(pattern)
 	mux.Handle(pattern, auth.RequireAPI(a, featureName)(h))

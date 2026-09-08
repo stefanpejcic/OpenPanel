@@ -13,10 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// httpURLRE requires the whole value to be a scheme plus at least one
-// non-whitespace character - not just a prefix check - so a redirect_url
-// can't smuggle a newline into the shared Caddyfile that
-// insertOrReplaceRedirect() splices this into as a raw config line.
+// httpURLRE requires the whole value to be a scheme plus at least one non-whitespace char, not just a prefix check, so a redirect_url can't smuggle a newline into the Caddyfile line insertOrReplaceRedirect() splices this into
 var httpURLRE = regexp.MustCompile(`^https?://\S+$`)
 
 func domainConfPath(domainURL string) string {
@@ -141,11 +138,7 @@ func handleSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderRedirectEditPage(a, w, r, domainName, redirectURL, domainsList)
 }
 
-// insertOrReplaceRedirect finds the `log {`/`import domain_log` anchor
-// line(s) in a vhost config and either replaces an existing `redir ` line
-// immediately before the anchor, or inserts a new one - supporting both the
-// legacy inline `log {` block and the newer `import domain_log` style (see
-// openpanel/openpanel#645).
+// insertOrReplaceRedirect finds the `log {`/`import domain_log` anchor line(s) in a vhost config and either replaces an existing `redir ` line right before it or inserts a new one, supporting both the legacy inline block and the newer import style (see openpanel/openpanel#645)
 func insertOrReplaceRedirect(content, redirectURL string) string {
 	lines := strings.Split(content, "\n")
 	redirectLine := "redir " + redirectURL

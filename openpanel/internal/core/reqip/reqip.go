@@ -1,6 +1,4 @@
-// Package reqip extracts the client's IP: prefer Cloudflare's
-// CF-Connecting-IP header (the panel typically sits behind
-// Cloudflare/Caddy), else the raw connection address.
+// Package reqip extracts the client's IP, preferring Cloudflare's CF-Connecting-IP header (the panel usually sits behind Cloudflare/Caddy) over the raw connection address.
 package reqip
 
 import (

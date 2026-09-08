@@ -7,9 +7,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
-// handleLoginHistory shows recent login attempts for this account. The
-// underlying a.GetLastLoginData is already cached (600s), so this doesn't
-// add another cache layer on top.
+// handleLoginHistory shows recent login attempts for this account; a.GetLastLoginData is already cached (600s), so no extra cache layer here
 func handleLoginHistory(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	ctx := r.Context()
@@ -32,8 +30,7 @@ func handleLoginHistory(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderLoginHistoryPage(a, w, r, lastLoginData)
 }
 
-// RegisterLoginHistory wires the login-history route onto mux, gated
-// behind the "login_history" feature flag.
+// RegisterLoginHistory wires the login-history route onto mux, gated behind the "login_history" feature flag
 func RegisterLoginHistory(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "login_history")(h)

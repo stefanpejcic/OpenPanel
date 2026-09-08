@@ -27,10 +27,7 @@ func loadPage(files ...string) *web.Page {
 
 var dnsPage = loadPage("domains/dns.html")
 
-// DNSPageData is domains/dns.html's template context, covering all three
-// states the page can render: the domain-list landing page (Domain == ""),
-// the table view (ViewMode == "table"), and the raw code view
-// (ViewMode == "code").
+// DNSPageData is domains/dns.html's template context, covering all three states the page can render: the domain-list landing page (Domain == ""), the table view (ViewMode == "table"), and the raw code view (ViewMode == "code")
 type DNSPageData struct {
 	web.LayoutData
 	Domain       string

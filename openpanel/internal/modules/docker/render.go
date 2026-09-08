@@ -29,8 +29,7 @@ var containersPage = web.MustLoadPage(
 	"docker/containers.html",
 )
 
-// coreServices mirrors containers.html's core_services set: services that
-// never show Edit/Delete (built-in, not user-added).
+// coreServices mirrors containers.html's core_services set: services that never show Edit/Delete (built-in, not user-added)
 var coreServices = map[string]bool{
 	"elasticsearch": true, "redis": true, "valkey": true, "postgres": true,
 	"mysql": true, "mariadb": true, "phpmyadmin": true,
@@ -39,16 +38,14 @@ var coreServices = map[string]bool{
 	"cron": true, "backup": true, "tor": true, "docker-proxy": true,
 }
 
-// imageTrustKeywords mirrors containers.html's keywords list: image
-// references containing one of these get the "verified" badge.
+// imageTrustKeywords mirrors containers.html's keywords list: image references containing one of these get the "verified" badge
 var imageTrustKeywords = []string{
 	"httpd", "openlitespeed", "litespeed", "offen/docker-volume-backup", "mcuadros/ofelia", "openresty", "postgres",
 	"elasticsearch", "mariadb", "memcached", "mysql", "redis", "valkey", "opensearchproject/opensearch",
 	"nginx", "-fpm", "openpanel", "phpmyadmin", "varnish", "docker-socket-proxy", "mongo",
 }
 
-// ContainerRow is one containers.html table row, pre-resolved from the
-// (already env-substituted, via `podman-compose config`) service details.
+// ContainerRow is one containers.html table row, pre-resolved from the (already env-substituted, via `podman-compose config`) service details
 type ContainerRow struct {
 	Service      string
 	DisplayName  string
@@ -100,11 +97,7 @@ func formatGB(bytes float64) string {
 
 var memoryValueRE = regexp.MustCompile(`(?i)^(\d+(?:\.\d+)?)\s*([kmgt]?)i?b?$`)
 
-// parseMemoryBytes parses a compose-spec memory limit value into bytes.
-// `podman-compose config` resolves deploy.resources.limits.memory to a
-// bare compose-style string like "0.5G" or "512M" (confirmed against a
-// live server's resolved config), not a raw byte count, so the unit
-// suffix has to be parsed explicitly for the real value to display.
+// parseMemoryBytes parses a compose-spec memory limit value into bytes. `podman-compose config` resolves deploy.resources.limits.memory to a bare compose-style string like "0.5G" or "512M", not a raw byte count, so the unit suffix has to be parsed explicitly for the real value to display.
 func parseMemoryBytes(s string) (float64, bool) {
 	m := memoryValueRE.FindStringSubmatch(strings.TrimSpace(s))
 	if m == nil {
@@ -128,8 +121,7 @@ func parseMemoryBytes(s string) (float64, bool) {
 	return val * mult, true
 }
 
-// buildContainerRows converts the podman-compose "services" map into
-// sorted, display-ready rows.
+// buildContainerRows converts the podman-compose "services" map into sorted, display-ready rows
 func buildContainerRows(services map[string]any) []ContainerRow {
 	rows := make([]ContainerRow, 0, len(services))
 	for name, raw := range services {
@@ -185,10 +177,7 @@ func buildContainerRows(services map[string]any) []ContainerRow {
 	return rows
 }
 
-// renderContainersPage renders the containers list page. mysqlType/webserver
-// aren't referenced by containers.html itself - they're only used earlier
-// to filter dockerData's services - but are kept as parameters so the
-// caller's intent is visible at the call site.
+// renderContainersPage renders the containers list page. mysqlType/webserver aren't referenced by containers.html itself - they were only used earlier to filter dockerData's services - but are kept as parameters so the caller's intent is visible at the call site.
 func renderContainersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, totalCPU, totalRAM int, mysqlType, webserver string, dockerData map[string]any) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Containers")
 	if err != nil {
@@ -219,8 +208,7 @@ var containerFormPage = web.MustLoadPage(
 	"docker/container_form.html",
 )
 
-// prefilledContainerForm holds the edit-form prefill values, read from
-// the existing compose-file service definition.
+// prefilledContainerForm holds the edit-form prefill values, read from the existing compose-file service definition
 type prefilledContainerForm struct {
 	ServiceName string
 	Image       string
@@ -234,10 +222,7 @@ type prefilledContainerForm struct {
 	Healthcheck string
 }
 
-// containerFormView is what the add/edit container handlers pass to
-// renderContainerFormPage: either a fresh form (GET add, neither FormData
-// nor PrefilledForm set), a failed-validation redisplay (FormData set to
-// the submitted form values), or a GET-edit prefill (PrefilledForm set).
+// containerFormView is what the add/edit container handlers pass to renderContainerFormPage: either a fresh form (GET add, neither FormData nor PrefilledForm set), a failed-validation redisplay (FormData set to the submitted values), or a GET-edit prefill (PrefilledForm set)
 type containerFormView struct {
 	Volumes          []string
 	Networks         []string
@@ -282,11 +267,7 @@ func toJSONStrings(v []string) template.JS {
 	return template.JS(b) //nolint:gosec // server-computed list of existing service names, not user input
 }
 
-// renderContainerFormPage renders the add/edit container form, choosing
-// field values by priority: PrefilledForm wins (GET-edit), then FormData
-// as-submitted with no defaulting (POST validation failure - an empty
-// field stays empty rather than falling back to a default), then
-// hardcoded defaults (GET-add).
+// renderContainerFormPage renders the add/edit container form, choosing field values by priority: PrefilledForm wins (GET-edit), then FormData as-submitted with no defaulting (POST validation failure - an empty field stays empty rather than falling back to a default), then hardcoded defaults (GET-add)
 func renderContainerFormPage(a *appctx.App, w http.ResponseWriter, r *http.Request, v containerFormView) {
 	layout, _, err := web.BuildLayoutData(a, w, r, v.Title)
 	if err != nil {
@@ -390,11 +371,7 @@ type ChangeMySQLPageData struct {
 	Available string
 }
 
-// renderChangeMySQLPage renders the MySQL-switch page. Unlike
-// renderChangeWebserverPage below, it never passes a domains value, so the
-// switch form and green highlighting always show with no domain check at
-// all for MySQL switching - matching handleContainersMySQL, which
-// likewise never computes user domains.
+// renderChangeMySQLPage renders the MySQL-switch page. Unlike renderChangeWebserverPage below, it never passes a domains value, so the switch form and green highlighting always show with no domain check for MySQL switching - matching handleContainersMySQL, which likewise never computes user domains.
 func renderChangeMySQLPage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlType, available string) {
 	title := "Switch from " + mysqlType + " to " + available
 	layout, _, err := web.BuildLayoutData(a, w, r, title)
@@ -472,9 +449,7 @@ var changeImagePage = web.MustLoadPage(
 	"docker/change_images.html",
 )
 
-// ChangeImagePageData is change_images.html's template context - either
-// the single-service tag-change form (Service set) or the service picker
-// (Service empty, SelectableServices populated).
+// ChangeImagePageData is change_images.html's template context - either the single-service tag-change form (Service set) or the service picker (Service empty, SelectableServices populated)
 type ChangeImagePageData struct {
 	web.LayoutData
 	Service            string
@@ -495,8 +470,7 @@ func renderChangeImagePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 }
 
-// renderChangeImageSelectPage renders the service picker for changing an
-// image tag when no specific service was requested.
+// renderChangeImageSelectPage renders the service picker for changing an image tag when no specific service was requested
 func renderChangeImageSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, composeData map[string]any) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Change docker image tag")
 	if err != nil {
@@ -545,8 +519,7 @@ type LogsPageData struct {
 	Services []string
 }
 
-// renderLogsPage renders the service picker for logs when no specific
-// container name was requested.
+// renderLogsPage renders the service picker for logs when no specific container name was requested
 func renderLogsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, serviceNames []string) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Logs")
 	if err != nil {
@@ -581,9 +554,7 @@ type TerminalPageData struct {
 	ActiveServices         []string
 }
 
-// renderTerminalPage renders either the terminal itself (containerName
-// set) or the service-picker (containerName empty, activeServiceNames
-// populated).
+// renderTerminalPage renders either the terminal itself (containerName set) or the service-picker (containerName empty, activeServiceNames populated)
 func renderTerminalPage(a *appctx.App, w http.ResponseWriter, r *http.Request, terminalTimeout time.Duration, title, containerName string, activeServiceNames []string) {
 	layout, _, err := web.BuildLayoutData(a, w, r, title)
 	if err != nil {

@@ -6,12 +6,7 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
-// Domain holds the {domain_id, docroot, domain_url, php_version} row shape
-// returned by AllDomainsForUser. It lives here (rather than in
-// internal/modules/domains) because AllDomainsForUser needs it and
-// internal/modules/domains needs to import *App - keeping the type in
-// internal/app avoids the import cycle that would create, the same reason
-// podman-CLI helpers live in internal/modules/docker instead of here.
+// Domain is the row shape returned by AllDomainsForUser. It lives here instead of internal/modules/domains to avoid an import cycle (that package needs to import *App).
 type Domain struct {
 	DomainID   int
 	Docroot    string
@@ -19,24 +14,20 @@ type Domain struct {
 	PHPVersion string
 }
 
-// MainDomain is a top-level domain, as returned by Categorize.
+// MainDomain is a top-level domain returned by Categorize.
 type MainDomain struct {
 	DomainURL string
 	TLD       string
 }
 
-// Subdomain is a domain classified as belonging under another domain in
-// the same list, as returned by Categorize.
+// Subdomain is a domain classified as belonging under another domain in the same list, returned by Categorize.
 type Subdomain struct {
 	DomainURL  string
 	TLD        string
 	MainDomain string
 }
 
-// Categorize splits a user's domains into top-level domains and
-// subdomains, where "subdomain" means "ends with .<another domain in this
-// same list>" - a simple string-suffix heuristic, not a DNS-correctness
-// check.
+// Categorize splits a user's domains into top-level domains and subdomains, using a simple "ends with .<other domain>" string check, not real DNS lookups.
 func Categorize(userDomains []Domain) ([]MainDomain, []Subdomain) {
 	var mains []MainDomain
 	var subs []Subdomain

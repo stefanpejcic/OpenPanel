@@ -42,11 +42,7 @@ var apiWebserverGroups = map[string][]string{
 	"litespeed":     {"apache", "openresty", "nginx", "openlitespeed"},
 }
 
-// apiFilterServices is deliberately a separate, differently-shaped filter
-// than services.FilterServices: that one hides only the exact alternate
-// service name, while this one hides any service whose name merely
-// contains an alternate webserver's substring, plus a MySQL/MariaDB
-// substring exclusion the other filter doesn't have.
+// apiFilterServices is deliberately a separate, differently-shaped filter than services.FilterServices: that one hides only the exact alternate service name, while this one hides any service whose name merely contains an alternate webserver's substring, plus a MySQL/MariaDB substring exclusion the other filter doesn't have
 func apiFilterServices(services map[string]any, webserver, mysqlType string) map[string]any {
 	hidden := apiWebserverGroups[webserver]
 	result := map[string]any{}

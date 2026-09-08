@@ -11,15 +11,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// homeDirOverride lets tests point "/home/<context>/..." paths at a
-// temp directory instead of the real (root-owned) /home. Production code
-// never sets this; it's a test-only seam.
+// homeDirOverride lets tests point "/home/<context>/..." paths at a temp directory instead of the real (root-owned) /home; never set in production
 var homeDirOverride string
 
-// homePath builds /home/<context>/<rel>, the per-user home directory
-// convention used throughout this package. In tests, homeDirOverride
-// stands in for the whole "/home/<context>" directory (tests don't care
-// about multi-user isolation, just a writable temp dir).
+// homePath builds /home/<context>/<rel>, the per-user home directory convention used throughout this package. In tests, homeDirOverride stands in for the whole "/home/<context>" directory.
 func homePath(userContext string, rel ...string) string {
 	if homeDirOverride != "" {
 		return filepath.Join(append([]string{homeDirOverride}, rel...)...)
@@ -28,8 +23,7 @@ func homePath(userContext string, rel ...string) string {
 	return filepath.Join(parts...)
 }
 
-// LoadCompose reads and parses /home/<context>/docker-compose.yml, or
-// returns an empty map if it doesn't exist.
+// LoadCompose reads and parses /home/<context>/docker-compose.yml, or returns an empty map if it doesn't exist
 func LoadCompose(userContext string) (map[string]any, error) {
 	path := homePath(userContext, "docker-compose.yml")
 	data, err := os.ReadFile(path)
@@ -49,10 +43,7 @@ func LoadCompose(userContext string) (map[string]any, error) {
 	return m, nil
 }
 
-// SaveCompose writes data back to /home/<context>/docker-compose.yml.
-// The write is atomic (temp file in the same directory + rename) so a
-// concurrent LoadCompose - e.g. from a /services/ request landing mid-save -
-// never observes a truncated or partially-written file.
+// SaveCompose writes data back to /home/<context>/docker-compose.yml. The write is atomic (temp file in the same directory + rename) so a concurrent LoadCompose never observes a truncated or partially-written file.
 func SaveCompose(userContext string, data map[string]any) error {
 	path := homePath(userContext, "docker-compose.yml")
 	out, err := yaml.Marshal(data)
@@ -80,8 +71,7 @@ func SaveCompose(userContext string, data map[string]any) error {
 	return os.Rename(tmpPath, path)
 }
 
-// servicesOf reads composeData["services"] as a map[string]map[string]any,
-// tolerating a missing or wrong-typed key by returning an empty map.
+// servicesOf reads composeData["services"] as a map[string]map[string]any, tolerating a missing or wrong-typed key by returning an empty map
 func servicesOf(composeData map[string]any) map[string]map[string]any {
 	result := map[string]map[string]any{}
 	raw, _ := composeData["services"].(map[string]any)
@@ -93,14 +83,12 @@ func servicesOf(composeData map[string]any) map[string]map[string]any {
 	return result
 }
 
-// GetAvailableVolumes returns the top-level volume names declared in the
-// compose file.
+// GetAvailableVolumes returns the top-level volume names declared in the compose file
 func GetAvailableVolumes(composeData map[string]any) []string {
 	return mapKeys(composeData, "volumes")
 }
 
-// GetAvailableNetworks returns the top-level network names declared in
-// the compose file.
+// GetAvailableNetworks returns the top-level network names declared in the compose file
 func GetAvailableNetworks(composeData map[string]any) []string {
 	return mapKeys(composeData, "networks")
 }
@@ -114,8 +102,7 @@ func mapKeys(composeData map[string]any, key string) []string {
 	return keys
 }
 
-// LoadEnvFile parses /home/<context>/.env into a key->value map (values
-// with surrounding double quotes stripped).
+// LoadEnvFile parses /home/<context>/.env into a key->value map (values with surrounding double quotes stripped)
 func LoadEnvFile(userContext string) map[string]string {
 	env := map[string]string{}
 	data, err := os.ReadFile(homePath(userContext, ".env"))
@@ -130,10 +117,7 @@ func LoadEnvFile(userContext string) map[string]string {
 	return env
 }
 
-// SaveEnvFile writes key->value pairs back to /home/<context>/.env, one
-// KEY="value" per line. Line order is not guaranteed (Go maps don't
-// preserve insertion order), but callers that read env values look them
-// up by name, not position, so file order doesn't matter functionally.
+// SaveEnvFile writes key->value pairs back to /home/<context>/.env, one KEY="value" per line. Line order isn't guaranteed (Go maps don't preserve insertion order), but callers look values up by name, not position, so it doesn't matter functionally.
 func SaveEnvFile(userContext string, env map[string]string) error {
 	var b strings.Builder
 	for k, v := range env {
@@ -143,9 +127,7 @@ func SaveEnvFile(userContext string, env map[string]string) error {
 	return os.WriteFile(homePath(userContext, ".env"), []byte(b.String()), 0o644)
 }
 
-// GetEnvValue looks up a single KEY=value from /home/<context>/.env. The
-// bool return distinguishes "key not found" from "key present with an
-// empty value" - "" is a valid value.
+// GetEnvValue looks up a single KEY=value from /home/<context>/.env. The bool return distinguishes "key not found" from "key present with an empty value" - "" is a valid value.
 func GetEnvValue(userContext, variableName string) (string, bool) {
 	variableName = strings.ToUpper(variableName)
 	data, err := os.ReadFile(homePath(userContext, ".env"))
@@ -166,10 +148,7 @@ var restrictedEnvKeys = map[string]bool{
 	"TOTAL_CPU": true, "TOTAL_RAM": true, "HOSTNAME": true, "OS": true,
 }
 
-// SetEnvValue updates (or appends) one KEY=value line in
-// /home/<context>/.env, preserving every other line's exact formatting.
-// Returns a non-empty error message for a restricted key, or "" on
-// success.
+// SetEnvValue updates (or appends) one KEY=value line in /home/<context>/.env, preserving every other line's exact formatting. Returns a non-empty error message for a restricted key, or "" on success.
 func SetEnvValue(userContext, variableName, newValue string) string {
 	variableName = strings.ToUpper(variableName)
 	if restrictedEnvKeys[variableName] {
@@ -205,8 +184,7 @@ func SetEnvValue(userContext, variableName, newValue string) string {
 
 var validServiceNameRE = regexp.MustCompile(`^[a-z][a-z0-9]{2,}$`)
 
-// IsValidServiceName reports whether name starts with a-z, contains only
-// a-z0-9, and is at least 3 characters.
+// IsValidServiceName reports whether name starts with a-z, contains only a-z0-9, and is at least 3 characters
 func IsValidServiceName(name string) bool {
 	return validServiceNameRE.MatchString(name)
 }
@@ -219,15 +197,12 @@ func IsValidCPULimit(cpu string) bool {
 	return err == nil && val > 0
 }
 
-// IsValidRAMLimit reports whether ram is a positive number followed by
-// 'M' or 'G'.
+// IsValidRAMLimit reports whether ram is a positive number followed by 'M' or 'G'
 func IsValidRAMLimit(ram string) bool {
 	return ramRE.MatchString(ram)
 }
 
-// IsValidPIDsLimit reports whether pids parses as a positive integer.
-// Unlike CPU/RAM, 0 isn't accepted here - the add/edit container form
-// requires an explicit positive value (see validateServiceForm).
+// IsValidPIDsLimit reports whether pids parses as a positive integer. Unlike CPU/RAM, 0 isn't accepted here - the add/edit container form requires an explicit positive value (see validateServiceForm).
 func IsValidPIDsLimit(pids string) bool {
 	val, err := strconv.Atoi(pids)
 	return err == nil && val > 0
@@ -235,15 +210,12 @@ func IsValidPIDsLimit(pids string) bool {
 
 var envKeyReplacer = strings.NewReplacer("-", "_", ".", "_")
 
-// ServiceKeyPrefix uppercases serviceName and replaces '-' and '.' with
-// '_', producing the env-var prefix used for that service's settings.
+// ServiceKeyPrefix uppercases serviceName and replaces '-' and '.' with '_', producing the env-var prefix used for that service's settings
 func ServiceKeyPrefix(serviceName string) string {
 	return envKeyReplacer.Replace(strings.ToUpper(serviceName))
 }
 
-// ParseEnvVars turns each "key: value" line from the form's freeform
-// environment textarea into both a compose-file `${SERVICE_KEY}`
-// placeholder and a `SERVICE_KEY=value` .env entry.
+// ParseEnvVars turns each "key: value" line from the form's freeform environment textarea into both a compose-file `${SERVICE_KEY}` placeholder and a `SERVICE_KEY=value` .env entry
 func ParseEnvVars(rawLines []string, serviceKeyPrefix string) (environmentVars map[string]string, newEnvVars map[string]string) {
 	environmentVars = map[string]string{}
 	newEnvVars = map[string]string{}
@@ -261,8 +233,7 @@ func ParseEnvVars(rawLines []string, serviceKeyPrefix string) (environmentVars m
 	return environmentVars, newEnvVars
 }
 
-// UpdateEnvFileWithVars merges newEnvVars into the existing .env file, if
-// there's anything to merge.
+// UpdateEnvFileWithVars merges newEnvVars into the existing .env file, if there's anything to merge
 func UpdateEnvFileWithVars(userContext string, newEnvVars map[string]string) {
 	if len(newEnvVars) == 0 {
 		return
@@ -281,8 +252,7 @@ type VolumeEntry struct {
 	ReadOnly bool
 }
 
-// ComposeVolumeString renders a VolumeEntry as a compose-file volume
-// string, e.g. "name:/mount" or "name:/mount:ro".
+// ComposeVolumeString renders a VolumeEntry as a compose-file volume string, e.g. "name:/mount" or "name:/mount:ro"
 func (v VolumeEntry) ComposeVolumeString() string {
 	s := v.Name + ":" + v.Mount
 	if v.ReadOnly {
@@ -291,9 +261,7 @@ func (v VolumeEntry) ComposeVolumeString() string {
 	return s
 }
 
-// ParseVolumeEntries zips the three parallel form-array fields
-// (volume_name[], volume_mount[], volume_readonly[]) into compose-file
-// volume strings, optionally appending the podman-socket bind mount.
+// ParseVolumeEntries zips the three parallel form-array fields (volume_name[], volume_mount[], volume_readonly[]) into compose-file volume strings, optionally appending the podman-socket bind mount
 func ParseVolumeEntries(names, mounts, readonlyFlags []string, addSocket bool) []string {
 	var entries []string
 	for i := 0; i < len(names); i++ {
@@ -327,9 +295,7 @@ func containsString(list []string, s string) bool {
 
 var envPlaceholderRE = regexp.MustCompile(`^\$\{([A-Z0-9_]+)(:-([^}]+))?\}$`)
 
-// ResolveEnvPlaceholder takes a compose-file value like
-// "${SERVICE_CPU:-1}" and resolves it against the .env map, falling back
-// to the placeholder's own default.
+// ResolveEnvPlaceholder takes a compose-file value like "${SERVICE_CPU:-1}" and resolves it against the .env map, falling back to the placeholder's own default
 func ResolveEnvPlaceholder(value string, env map[string]string) string {
 	m := envPlaceholderRE.FindStringSubmatch(value)
 	if m == nil {
@@ -342,8 +308,7 @@ func ResolveEnvPlaceholder(value string, env map[string]string) string {
 	return def
 }
 
-// parseYAMLString parses a small YAML snippet (e.g. a healthcheck block
-// from a form textarea) into a generic value.
+// parseYAMLString parses a small YAML snippet (e.g. a healthcheck block from a form textarea) into a generic value
 func parseYAMLString(s string) (any, error) {
 	var v any
 	if err := yaml.Unmarshal([]byte(s), &v); err != nil {
@@ -352,8 +317,7 @@ func parseYAMLString(s string) (any, error) {
 	return v, nil
 }
 
-// dumpYAML serializes v back to YAML text, used to redisplay a stored
-// healthcheck block in the edit form's textarea.
+// dumpYAML serializes v back to YAML text, used to redisplay a stored healthcheck block in the edit form's textarea
 func dumpYAML(v any) string {
 	out, err := yaml.Marshal(v)
 	if err != nil {
@@ -362,27 +326,10 @@ func dumpYAML(v any) string {
 	return string(out)
 }
 
-// perconaImage is the Percona Server for MySQL image used when a user
-// picks "percona" - drop-in compatible with the "mysql" service, just a
-// different image, not a separate compose service the way mariadb is.
+// perconaImage is the Percona Server for MySQL image used when a user picks "percona" - drop-in compatible with the "mysql" service, just a different image, not a separate compose service the way mariadb is
 const perconaImage = "percona/percona-server:8.0"
 
-// setComposePerconaConfig switches the mysql service between its default
-// (official mysql image, container-root, no socket path override - same
-// as mariadb) and Percona Server. Percona's image bakes in a non-root
-// "USER mysql" (unlike mysql/mariadb, which start as root and drop
-// privileges themselves internally), and mysqld refuses to start as root
-// unless explicitly told to - so switching it on needs two overrides: a
-// "user: root" pinning the container back to root (rootless podman then
-// maps it straight to this account's own real UID, exactly like
-// mysql/mariadb already get - no /etc/subuid lookup or chown needed), and
-// a "command" passing mysqld both --user=root (or it refuses to start:
-// "Please read Security section... run mysqld as root") and the
-// socket/pid-file path back to the shared /var/run/mysqld every other
-// service (php-fpm, phpmyadmin) already expects to find it at (its
-// default without that override is /var/lib/mysql/mysql.sock, invisible
-// to every other container). Confirmed live on a real bind-mounted
-// sockets dir shared with other containers.
+// setComposePerconaConfig switches the mysql service between its default (official mysql image, same as mariadb) and Percona Server. Percona's image bakes in a non-root "USER mysql" and mysqld refuses to start as root unless told to, so switching it on needs a "user: root" override (rootless podman maps that straight to the account's own UID, same as mysql/mariadb) plus a "command" passing --user=root and the socket/pid-file path back to the shared /var/run/mysqld every other service expects.
 func setComposePerconaConfig(userContext string, percona bool) error {
 	composeData, err := LoadCompose(userContext)
 	if err != nil {
@@ -405,21 +352,8 @@ func setComposePerconaConfig(userContext string, percona bool) error {
 	return SaveCompose(userContext, composeData)
 }
 
-// ensureMyCnfClientSocket adds an explicit "socket=" line to my.cnf's
-// [client] section, pointing every CLI tool that reads it (mysql,
-// mysqldump - both invoked without an explicit -h/--socket flag by
-// export.go/importdb.go) at the shared /var/run/mysqld/mysqld.sock this
-// compose file bind-mounts into every mysql-adjacent container.
-//
-// Needed only for Percona: mysql/mariadb's own upstream images are
-// Debian-based, where the client's compiled-in default socket path
-// already happens to be /var/run/mysqld/mysqld.sock, matching the server
-// with no extra config. Percona's image is RPM-based, where the client's
-// compiled-in default is /var/lib/mysql/mysql.sock instead - confirmed
-// live: without this line, `podman exec mysql mysql <db>` (import) and
-// `mysqldump` (export) both fail with "Can't connect to local MySQL
-// server through socket '/var/lib/mysql/mysql.sock'" even though the
-// server itself is up and reachable at the (correct) shared socket path.
+// ensureMyCnfClientSocket adds an explicit "socket=" line to my.cnf's [client] section, pointing CLI tools like mysql/mysqldump at the shared /var/run/mysqld/mysqld.sock this compose file bind-mounts into every mysql-adjacent container.
+// Needed only for Percona: mysql/mariadb's Debian-based images already default to that socket path, but Percona's RPM-based image defaults to /var/lib/mysql/mysql.sock instead, which breaks import/export without this override.
 func ensureMyCnfClientSocket(userContext string) error {
 	path := homePath(userContext, "my.cnf")
 	data, err := os.ReadFile(path)

@@ -1,5 +1,4 @@
-// Package logger writes per-user activity logs used by modules and
-// plugins to record actions like "logged in", "created database x", etc.
+// Package logger writes per-user activity logs, used by modules and plugins to record actions like "logged in" or "created database x"
 package logger
 
 import (
@@ -18,9 +17,7 @@ import (
 
 const activityLogDir = "/etc/openpanel/openpanel/core/users"
 
-// RecordUserAction appends a line to the user's activity.log, then trims it
-// if it has grown past the configured retention, matching
-// record_user_action().
+// RecordUserAction appends a line to the user's activity.log, then trims it if it's grown past the configured retention
 func RecordUserAction(cfg config.Config, username, action, ipAddress string) error {
 	username = strings.TrimPrefix(strings.TrimPrefix(username, "SUSPENDED_"), "suspended_")
 	username = strings.ReplaceAll(username, " ", "")

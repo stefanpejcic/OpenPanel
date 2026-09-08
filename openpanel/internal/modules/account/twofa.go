@@ -21,12 +21,7 @@ func invalidate2FAStatus(a *appctx.App, r *http.Request, userID int) {
 	_ = a.Cache.Delete(r.Context(), "get_2fa_status_for_user:"+strconv.Itoa(userID))
 }
 
-// randomBase32Secret generates a TOTP secret: 20 random bytes (160 bits),
-// stronger than the common 16-char/80-bit default. Some client-side TOTP
-// libraries (e.g. otplib, used by this project's Playwright tests) reject
-// anything under the RFC 4226-recommended 128-bit minimum, so we go with
-// the RFC's own recommended 160 bits - encodes to exactly 32 base32 chars,
-// no padding needed.
+// randomBase32Secret generates a 20-byte (160-bit) TOTP secret - stronger than the common 80-bit default, since some client-side TOTP libraries reject anything under RFC 4226's 128-bit minimum. Encodes to exactly 32 base32 chars, no padding needed.
 func randomBase32Secret() (string, error) {
 	b := make([]byte, 20)
 	if _, err := rand.Read(b); err != nil {
@@ -125,8 +120,7 @@ func handleTwofaSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	renderTwofaPage(a, w, r, twofaEnabled, otpSecret)
 }
 
-// nullableString maps an empty Go string ("no secret") to SQL NULL rather
-// than storing an empty string in the otp_secret column.
+// nullableString maps an empty Go string ("no secret") to SQL NULL instead of storing an empty string in otp_secret
 func nullableString(s string) any {
 	if s == "" {
 		return nil
@@ -134,8 +128,7 @@ func nullableString(s string) any {
 	return s
 }
 
-// RegisterTwofa wires the 2FA settings route onto mux, gated behind the
-// "twofa" feature flag.
+// RegisterTwofa wires the 2FA settings route onto mux, gated behind the "twofa" feature flag
 func RegisterTwofa(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "twofa")(h)

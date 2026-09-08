@@ -14,8 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// handleMCPSettings renders the MCP token management page. The actual /mcp
-// JSON-RPC endpoint (tool registry, tools/list, tools/call) lives in mcp_rpc.go.
+// handleMCPSettings renders the MCP token management page - the actual /mcp JSON-RPC endpoint lives in mcp_rpc.go
 func handleMCPSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	ctx := r.Context()
@@ -115,8 +114,7 @@ func handleMCPRevokeToken(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	http.Redirect(w, r, "/account/mcp", http.StatusFound)
 }
 
-// RegisterMCP wires the /account/mcp* token-management routes onto mux,
-// gated behind the "mcp" feature flag.
+// RegisterMCP wires the /account/mcp* token-management routes onto mux, gated behind the "mcp" feature flag
 func RegisterMCP(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "mcp")(h)

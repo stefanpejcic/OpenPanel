@@ -12,20 +12,14 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 )
 
-// nodeEntryCandidates/pythonEntryCandidates/rubyEntryCandidates are checked
-// in order when package.json has no "main" field (Node) or there's no
-// manifest to read at all (Python, Ruby) - matching the same default
-// filenames buildAppRunCommand() falls back to.
+// nodeEntryCandidates/pythonEntryCandidates/rubyEntryCandidates are checked in order when there's no manifest to read (or package.json has no "main"), matching the default filenames buildAppRunCommand() falls back to
 var (
 	nodeEntryCandidates   = []string{"index.js", "server.js", "app.js", "main.js"}
 	pythonEntryCandidates = []string{"app.py", "main.py", "manage.py", "run.py"}
 	rubyEntryCandidates   = []string{"app.rb", "main.rb", "server.rb", "config.ru"}
 )
 
-// detectStartupFile shallow-clones gitURL into a throwaway temp dir purely
-// to guess the entry point file, then discards the clone - this never
-// touches a user's actual app container or docroot. appType picks which
-// candidate list / manifest format to look for.
+// detectStartupFile shallow-clones gitURL into a throwaway temp dir just to guess the entry point file, then discards it - never touches a user's actual app container or docroot. appType picks the candidate list/manifest format.
 func detectStartupFile(ctx context.Context, gitURL string, appType string) (string, error) {
 	tmpDir, mkErr := os.MkdirTemp("", "opdetect-*")
 	if mkErr != nil {
@@ -80,10 +74,7 @@ func detectStartupFile(ctx context.Context, gitURL string, appType string) (stri
 	}
 }
 
-// HandleDetectGitStartupFile powers the install form's "Git repository
-// URL" field: on blur, it tries to guess the startup file from the repo so
-// the user doesn't have to know it up front, but the field always stays
-// editable - this is a best-effort suggestion, not a requirement.
+// HandleDetectGitStartupFile powers the install form's "Git repository URL" field: on blur, it guesses the startup file from the repo, but the field stays editable - a best-effort suggestion, not a requirement
 func HandleDetectGitStartupFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	gitURL := r.FormValue("git_repo_url")

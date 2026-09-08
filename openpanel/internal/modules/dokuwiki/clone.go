@@ -12,22 +12,11 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 )
 
-// cloneDokuwikiTitleRE matches the $conf['title'] line writeDokuwikiConfig
-// writes - the only place a source-domain-derived value ends up in
-// conf/local.php by default (DokuWiki itself is otherwise request-derived
-// at runtime, like Drupal, not URL-in-config like Flarum).
+// cloneDokuwikiTitleRE matches the $conf['title'] line writeDokuwikiConfig writes, the only place a source domain ends up in conf/local.php
 var cloneDokuwikiTitleRE = regexp.MustCompile(`\$conf\['title'\]\s*=\s*'.*?';`)
 
-// handleDokuwikiClone copies a DokuWiki install's files to a new
-// domain/subdirectory. There's no database to dump/restore. Unlike
-// SofaWiki's clone (which skips config rewriting entirely since a fresh
-// SofaWiki install is deliberately left unconfigured), DokuWiki IS
-// configured at install time here, so conf/local.php's title is rewritten
-// to the destination domain. Any hardcoded links left inside
-// data/pages/*.txt page content are NOT rewritten - the same known,
-// deliberate limitation drupal/clone.go and sofawiki/clone.go document for
-// hardcoded URLs in content, for the same reason (no database to run a
-// generic search-replace against).
+// handleDokuwikiClone copies the files (no db to dump) and rewrites conf/local.php's title to the destination domain, but leaves any hardcoded links inside data/pages/*.txt as-is, same known limitation as drupal/clone.go and sofawiki/clone.go
+
 func handleDokuwikiClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -90,13 +79,7 @@ func handleDokuwikiClone(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	localConfigFile := filepath.Join(dstPath, "conf", "local.php")
 	if content, readErr := os.ReadFile(localConfigFile); readErr == nil {
-		// "$$" in the replacement is a literal "$" - ReplaceAllString
-		// otherwise treats a bare "$conf" in the replacement as a
-		// (nonexistent) submatch reference and silently drops it,
-		// corrupting local.php's PHP syntax. Confirmed live: without the
-		// escape, the written line came out as "['title'] = '...';"
-		// (missing "$conf"), a fatal parse error that blanked the whole
-		// cloned site.
+		// "$$" is a literal "$" here - without the escape ReplaceAllString treats "$conf" as a submatch ref and drops it, breaking local.php's syntax
 		newContent := cloneDokuwikiTitleRE.ReplaceAllString(string(content), "$$conf['title'] = '"+escapePHPSingleQuoted(dstDomainWithSubdir)+"';")
 		_ = os.WriteFile(localConfigFile, []byte(newContent), 0o644)
 	}

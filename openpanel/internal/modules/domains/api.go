@@ -20,13 +20,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dns"
 )
 
-// RegisterAPI wires the domains REST endpoints onto mux. Every sub-resource
-// shares a {domain} prefix with a literal suffix (e.g.
-// /api/domains/{domain}/status) - Go's http.ServeMux requires a "{...}"
-// wildcard to be the final segment, so each verb gets one "{rest...}"
-// catch-all and the dispatch funcs below strip the known suffix by hand to
-// route to the right handler. apiregistry.Add still records each logical
-// route separately for /api/endpoints.
+// RegisterAPI wires the domains REST endpoints onto mux - since Go's ServeMux requires a "{...}" wildcard to be the final segment, each verb gets one "{rest...}" catch-all and the dispatch funcs below strip the known suffix by hand, while apiregistry.Add still records each logical route separately for /api/endpoints
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "domains", "GET /api/domains", func(w http.ResponseWriter, r *http.Request) { apiDomainsList(a, w, r) })
 	apiregistry.Handle(mux, a, "domains", "POST /api/domains", func(w http.ResponseWriter, r *http.Request) { apiDomainsCreate(a, w, r) })
@@ -496,9 +490,7 @@ func apiDomainsGetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeAPIDomainsJSON(w, http.StatusOK, map[string]string{"domain": domain, "redirect_url": getRedirectURL(domain)})
 }
 
-// apiHTTPURLRE requires the whole value to be a scheme plus at least one
-// non-whitespace character - see httpURLRE in redirect.go for why a mere
-// prefix check isn't enough here.
+// apiHTTPURLRE requires the whole value to be a scheme plus at least one non-whitespace char, see httpURLRE in redirect.go for why a mere prefix check isn't enough
 var apiHTTPURLRE = regexp.MustCompile(`^https?://\S+$`)
 
 // apiDomainsSetRedirect sets or replaces a domain's redirect rule.

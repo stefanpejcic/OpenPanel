@@ -1,10 +1,4 @@
-// Package postgresmanager maintains a per-(user, database) connection pool
-// to that user's own PostgreSQL
-// instance, reached over a unix socket at /home/<context>/sockets/postgres
-// using credentials from that user's own env file - a completely separate
-// database from the panel's own (internal/core/db), one pool per
-// (hosting account, database) pair, since unlike MySQL a Postgres
-// connection is bound to a single database for its lifetime.
+// Package postgresmanager maintains a per-(user, database) connection pool over a unix socket, separate from the panel's own DB - unlike MySQL, a Postgres connection is bound to one database for its lifetime.
 package postgresmanager
 
 import (
@@ -31,9 +25,7 @@ var (
 	pools   = map[poolKey]*sql.DB{}
 )
 
-// creds reads POSTGRES_USER (default "postgres") and POSTGRES_PASSWORD
-// from /home/<context>/.env, erroring if the password is missing (there is
-// no sensible default for it).
+// creds reads POSTGRES_USER (default "postgres") and POSTGRES_PASSWORD from /home/<context>/.env, erroring if the password is missing
 func creds(userContext string) (user, password string, err error) {
 	user = webserver.GetEnvFileValue(userContext, "POSTGRES_USER")
 	if user == "" {
@@ -46,8 +38,7 @@ func creds(userContext string) (user, password string, err error) {
 	return user, password, nil
 }
 
-// openPool opens one *sql.DB per (context, database), connecting over the
-// account's own postgres unix socket directory.
+// openPool opens one *sql.DB per (context, database), connecting over the account's own postgres unix socket directory
 func openPool(userContext, database string) (*sql.DB, error) {
 	user, password, err := creds(userContext)
 	if err != nil {
@@ -65,8 +56,7 @@ func openPool(userContext, database string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	// A handful of connections at most, reused across light panel-side
-	// queries against this one account's own database.
+	// a handful of connections at most, reused across light panel-side queries for this account's database
 	db.SetMaxOpenConns(5)
 	db.SetMaxIdleConns(1)
 	db.SetConnMaxLifetime(time.Hour)
@@ -91,8 +81,7 @@ func getPool(userContext, database string) (*sql.DB, error) {
 	return db, nil
 }
 
-// InvalidatePool drops and closes the cached pool(s) for a user - either
-// just one database, or every database for that user when database is "".
+// InvalidatePool drops and closes the cached pool(s) for a user - just one database, or every database for that user when database is ""
 func InvalidatePool(userContext, database string) {
 	poolsMu.Lock()
 	var toClose []*sql.DB
@@ -117,9 +106,7 @@ func InvalidatePool(userContext, database string) {
 	}
 }
 
-// getConnection gets the pool, validates it with SELECT 1, and
-// transparently reopens once if that fails (covers the
-// postgres-container-restarted case without the caller needing to know).
+// getConnection gets the pool, pings it, and transparently reopens once if that fails - covers a restarted postgres container without the caller needing to know
 func getConnection(ctx context.Context, userContext, database string) (*sql.DB, error) {
 	db, err := getPool(userContext, database)
 	if err == nil {
@@ -135,8 +122,7 @@ func getConnection(ctx context.Context, userContext, database string) (*sql.DB, 
 	return getPool(userContext, database)
 }
 
-// Exec runs one statement against the given database (defaulting to
-// "postgres" when unset) and returns every row as a slice of columns.
+// Exec runs one statement against database (defaults to "postgres") and returns every row as a slice of columns
 func Exec(ctx context.Context, userContext, query string, database string, args ...any) ([][]any, error) {
 	if database == "" {
 		database = "postgres"
@@ -172,8 +158,7 @@ func Exec(ctx context.Context, userContext, query string, database string, args 
 	return result, rows.Err()
 }
 
-// ToInt converts one Exec result cell to an int, tolerating the different
-// concrete types the driver may hand back (int64, []byte, etc.).
+// ToInt converts one Exec result cell to an int, tolerating whatever concrete type the driver hands back (int64, []byte, etc.)
 func ToInt(v any) int {
 	switch t := v.(type) {
 	case int64:

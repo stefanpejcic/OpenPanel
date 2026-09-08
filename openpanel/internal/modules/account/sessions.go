@@ -69,11 +69,7 @@ func handleActiveSessions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	renderActiveSessionsPage(a, w, r, sessionsList)
 }
 
-// terminateUserSession deletes the Redis session record, and if it's the
-// caller's own current session,
-// also clears the local session cookie so this request's own session
-// dies immediately rather than lingering until the (now-deleted) Redis
-// record would have naturally expired.
+// terminateUserSession deletes the Redis session record, and if it's the caller's own current session, also clears the local cookie so it dies immediately instead of lingering until the deleted record would've expired
 func terminateUserSession(a *appctx.App, r *http.Request, sess *sessions.Session, sessionToken string, userID int) bool {
 	sessionKey := fmt.Sprintf("session:%d:%s", userID, sessionToken)
 	n, err := a.Cache.Raw().Del(r.Context(), sessionKey).Result()
@@ -120,8 +116,7 @@ func handleTerminateSession(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, "/account/sessions", http.StatusFound)
 }
 
-// RegisterSessions wires the session-management routes onto mux, gated
-// behind the "sessions" feature flag.
+// RegisterSessions wires the session-management routes onto mux, gated behind the "sessions" feature flag
 func RegisterSessions(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "sessions")(h)
