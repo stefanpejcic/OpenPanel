@@ -10,12 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// handleMoodleMaintenance reads (GET) or toggles (POST, action=enable|disable)
-// Moodle's built-in CLI maintenance mode via admin/cli/maintenance.php -
-// the same script update.go already wraps its own update run in. Enabling
-// it writes a $CFG->dataroot/climaintenance.html marker file Moodle's own
-// front controller checks on every request, so status is read back by
-// testing for that file rather than parsing the script's own text output.
+// handleMoodleMaintenance reads (GET) or toggles (POST, action=enable|disable) Moodle's built-in CLI maintenance mode via admin/cli/maintenance.php, the same script update.go already wraps its own update run in - enabling it writes a $CFG->dataroot/climaintenance.html marker file Moodle's own front controller checks on every request, so status is read back by testing for that file rather than parsing the script's own text output
 func handleMoodleMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

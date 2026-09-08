@@ -12,9 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// DatabasesInfoPayload is databases_info()'s JSON shape - the shared
-// database/user/assignment lookup several forms (assign.html, import.html,
-// remove.html) populate their <select> dropdowns from via fetch().
+// DatabasesInfoPayload is databases_info()'s JSON shape - the shared database/user/assignment lookup several forms (assign.html, import.html, remove.html) populate their <select> dropdowns from via fetch()
 type DatabasesInfoPayload struct {
 	Databases         []string              `json:"databases"`
 	Users             []string              `json:"users"`
@@ -61,11 +59,7 @@ func ComputeDatabasesInfo(ctx context.Context, userContext string) (DatabasesInf
 	return payload, nil
 }
 
-// handleDatabasesInfo returns databases, users, and assigned-databases
-// summary info, cached 300s per userContext (never a single cache entry
-// shared across accounts). The MySQL reachability check runs outside the
-// cache (always fresh) rather than letting a stale "MySQL unreachable"
-// redirect get cached for 300s past recovery.
+// handleDatabasesInfo returns databases, users, and assigned-databases summary info, cached 300s per userContext (never a single cache entry shared across accounts) - the MySQL reachability check runs outside the cache (always fresh) rather than letting a stale "MySQL unreachable" redirect get cached for 300s past recovery
 func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)

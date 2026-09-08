@@ -13,15 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// apiMySQLImportDatabase imports an uploaded .sql/.sql.gz dump into a
-// database (multipart field: "file"). This is the API equivalent of
-// POST /mysql/import/{dbname}, reusing the same podman-stdin pipeline
-// (importDatabaseDump, defined in importdb.go) that the web upload form
-// uses. Wired from api.go's apiMySQLDatabasesPostDispatch, so it shares
-// the "mysql" feature gate rather than the web route's separate
-// "mysql_import" gate - see apiMySQLDatabasesPostDispatch's doc comment
-// for why (Go's ServeMux only allows one registration of the
-// "POST /api/mysql/databases/{rest...}" wildcard).
+// apiMySQLImportDatabase imports an uploaded .sql/.sql.gz dump into a database (multipart field: "file") - the API equivalent of POST /mysql/import/{dbname}, reusing the same podman-stdin pipeline (importDatabaseDump, in importdb.go) the web upload form uses - wired from api.go's apiMySQLDatabasesPostDispatch, so it shares the "mysql" feature gate rather than the web route's separate "mysql_import" gate, since Go's ServeMux only allows one registration of the "POST /api/mysql/databases/{rest...}" wildcard
 func apiMySQLImportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

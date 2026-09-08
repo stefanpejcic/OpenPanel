@@ -1,7 +1,4 @@
-// Package mysql implements database/user CRUD, the creation wizard,
-// privilege management, export/import, table optimize/repair, per-service
-// configuration, remote access, and the process list - all built on
-// internal/core/mysqlmanager's per-user connection pool.
+// Package mysql implements database/user CRUD, the creation wizard, privilege management, export/import, table optimize/repair, per-service configuration, remote access, and the process list - all built on internal/core/mysqlmanager's per-user connection pool
 package mysql
 
 import (
@@ -40,9 +37,7 @@ func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, cat
 	http.Redirect(w, r, path, http.StatusFound)
 }
 
-// flashSess adds a flash message without redirecting - several handlers
-// here fall through to the same GET rendering logic below on error rather
-// than redirecting.
+// flashSess adds a flash message without redirecting - several handlers here fall through to the same GET rendering logic below on error rather than redirecting
 func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	flash.Add(sess, category, message)
@@ -55,8 +50,7 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// stripQuotes strips a single layer of matching quotes, used here on raw
-// config values before splitting them into restricted-name lists.
+// stripQuotes strips a single layer of matching quotes, used here on raw config values before splitting them into restricted-name lists
 func stripQuotes(s string) string {
 	s = strings.TrimSpace(s)
 	if len(s) >= 2 {
@@ -68,9 +62,7 @@ func stripQuotes(s string) string {
 	return s
 }
 
-// restrictedNames holds the admin-editable, space-separated lists of
-// usernames/database names that are off-limits to account-level MySQL
-// operations, parsed once from config, not per-request.
+// restrictedNames holds the admin-editable, space-separated lists of usernames/database names that are off-limits to account-level MySQL operations, parsed once from config, not per-request
 type restrictedNames struct {
 	users     []string
 	usersSQL  string
@@ -80,8 +72,7 @@ type restrictedNames struct {
 
 var restricted restrictedNames
 
-// loadRestrictedNames parses the mysql_restricted_usernames/
-// mysql_restricted_databases config values, called once from Register().
+// loadRestrictedNames parses the mysql_restricted_usernames/mysql_restricted_databases config values, called once from Register()
 func loadRestrictedNames(a *appctx.App) {
 	usersRaw := stripQuotes(a.Config.Get("mysql_restricted_usernames",
 		"mysql.sys mysql sys mariadb.sys phpmyadmin mysql.session mysql.infoschema root debian-sys-maint healthcheck percona.telemetry"))
@@ -130,12 +121,10 @@ func isRestrictedDatabase(name string) bool {
 	return false
 }
 
-// mysqlStartupTime is the max SELECT 1 retry attempts when retry=true,
-// read once at Register() time from the mysql_startup_time config value.
+// mysqlStartupTime is the max SELECT 1 retry attempts when retry=true, read once at Register() time from the mysql_startup_time config value
 var mysqlStartupTime = 10
 
-// mysqlImportMaxSizeGB is the max upload size for a database import,
-// read once at Register() time from the mysql_import_max_size_gb config value.
+// mysqlImportMaxSizeGB is the max upload size for a database import, read once at Register() time from the mysql_import_max_size_gb config value
 var mysqlImportMaxSizeGB = "1"
 
 func loadTuningConfig(a *appctx.App) {
@@ -145,17 +134,14 @@ func loadTuningConfig(a *appctx.App) {
 	mysqlImportMaxSizeGB = a.Config.Get("mysql_import_max_size_gb", "1")
 }
 
-// escapeMySQLString applies the minimal escaping needed for a value
-// interpolated into a single-quoted SQL string literal (backslash first,
-// so it doesn't double-escape the quote's own escape).
+// escapeMySQLString applies the minimal escaping needed for a value interpolated into a single-quoted SQL string literal (backslash first, so it doesn't double-escape the quote's own escape)
 func escapeMySQLString(value string) string {
 	value = strings.ReplaceAll(value, `\`, `\\`)
 	value = strings.ReplaceAll(value, `'`, `\'`)
 	return value
 }
 
-// GetMySQLVersion returns the configured MySQL server type (mysql/mariadb),
-// memoized 6h.
+// GetMySQLVersion returns the configured MySQL server type (mysql/mariadb), memoized 6h
 func GetMySQLVersion(ctx context.Context, a *appctx.App, userContext string) string {
 	version, _ := cache.Memoize(ctx, a.Cache, "get_mysql_version:"+userContext, 6*time.Hour, func() (string, error) {
 		return webserver.GetEnvFileValue(userContext, "MYSQL_TYPE"), nil
@@ -163,9 +149,7 @@ func GetMySQLVersion(ctx context.Context, a *appctx.App, userContext string) str
 	return version
 }
 
-// CheckMySQLInsideContainer confirms the per-user mysqld actually answers
-// SELECT 1, optionally retrying once a second for up to mysqlStartupTime
-// attempts (the wp-install-style call site).
+// CheckMySQLInsideContainer confirms the per-user mysqld actually answers SELECT 1, optionally retrying once a second for up to mysqlStartupTime attempts (the wp-install-style call site)
 func CheckMySQLInsideContainer(ctx context.Context, userContext string, retry bool) bool {
 	attempt := 0
 	for {
@@ -181,17 +165,7 @@ func CheckMySQLInsideContainer(ctx context.Context, userContext string, retry bo
 	}
 }
 
-// CheckMySQLNotTemporary is the fallback check once
-// CheckMySQLInsideContainer's own retries are exhausted: it just keeps
-// polling SELECT 1 a bit longer (up to 30s) and uses the database as soon
-// as it answers. Previously this scraped the container's logs for
-// mysqld's "Temporary server stopped" line (printed partway through a
-// crash-recovery/first-boot sequence, before the real server starts) -
-// dropped because a container that's simply been up and healthy for a
-// while never logs that line at all (no bootstrap ever happened), so that
-// check produced a false "not ready" for a database that was actually
-// fine the whole time. mysqlVersion is unused now but kept in the
-// signature to avoid churning every CMS installer's call site.
+// CheckMySQLNotTemporary is the fallback check once CheckMySQLInsideContainer's own retries are exhausted: it just keeps polling SELECT 1 a bit longer (up to 30s) and uses the database as soon as it answers - previously this scraped the container's logs for mysqld's "Temporary server stopped" line, dropped because a container that's simply been up and healthy for a while never logs that line at all, producing a false "not ready" - mysqlVersion is unused now but kept in the signature to avoid churning every CMS installer's call site
 func CheckMySQLNotTemporary(ctx context.Context, userContext, mysqlVersion string) bool {
 	const attempts = 6
 	for i := 0; i < attempts; i++ {
@@ -203,16 +177,7 @@ func CheckMySQLNotTemporary(ctx context.Context, userContext, mysqlVersion strin
 	return false
 }
 
-// resolveContainerHealth wraps docker.GetContainerStatus()'s Health field
-// to patch over one specific staleness window: Podman's HEALTHCHECK
-// only re-runs on its own interval, so a container can already be answering
-// queries fine (e.g. right after this same request just ran a CREATE
-// DATABASE through mysqlmanager) while the cached health status still reads
-// "starting"/"unhealthy" for a few more seconds. Rather than trust that
-// stale field for the "should I even try to query" gate, do one live SELECT
-// 1 and treat that as authoritative - this is the same "check real runtime
-// state instead of a racy signal" pattern already used for the PHP
-// extensions/info start-check and Varnish's enable-action check.
+// resolveContainerHealth wraps docker.GetContainerStatus()'s Health field to patch over one staleness window: Podman's HEALTHCHECK only re-runs on its own interval, so a container can already be answering queries fine while the cached health status still reads "starting"/"unhealthy" for a few more seconds - rather than trust that stale field, do one live SELECT 1 and treat that as authoritative, the same "check real runtime state instead of a racy signal" pattern used for the PHP extensions/info start-check and Varnish's enable-action check
 func resolveContainerHealth(ctx context.Context, userContext string, status docker.ContainerStatus) string {
 	if status.Health == "healthy" || status.State != "running" {
 		return status.Health
@@ -223,10 +188,7 @@ func resolveContainerHealth(ctx context.Context, userContext string, status dock
 	return status.Health
 }
 
-// toStringCell converts one mysqlmanager.Exec result cell to a string. The
-// MySQL driver hands back []byte for VARCHAR/TEXT columns when scanned into
-// `any` (not string), so every textual column read via Exec needs this
-// rather than a bare type assertion.
+// toStringCell converts one mysqlmanager.Exec result cell to a string - the MySQL driver hands back []byte for VARCHAR/TEXT columns when scanned into `any` (not string), so every textual column read via Exec needs this rather than a bare type assertion
 func toStringCell(v any) string {
 	switch t := v.(type) {
 	case nil:
@@ -240,9 +202,7 @@ func toStringCell(v any) string {
 	}
 }
 
-// toFloatCell converts one mysqlmanager.Exec result cell (typically a
-// ROUND(...) aggregate) to a float64, tolerating the driver's []byte
-// encoding the same way mysqlmanager.ToInt does for integers.
+// toFloatCell converts one mysqlmanager.Exec result cell (typically a ROUND(...) aggregate) to a float64, tolerating the driver's []byte encoding the same way mysqlmanager.ToInt does for integers
 func toFloatCell(v any) float64 {
 	switch t := v.(type) {
 	case float64:
@@ -260,13 +220,7 @@ func toFloatCell(v any) float64 {
 	}
 }
 
-// mysqlContainerStatusDetail builds the explanatory text shown in the
-// databases/users table's empty-state row while the service isn't
-// running/healthy - computed once server-side instead of duplicating a
-// 9-branch chain in two templates. Returns "" for the
-// running+healthy case, where the real table rows render instead. Plain
-// (untranslated) English text, matching every flash message in this
-// codebase - translation isn't wired up for either yet.
+// mysqlContainerStatusDetail builds the explanatory text shown in the databases/users table's empty-state row while the service isn't running/healthy - computed once server-side instead of duplicating a 9-branch chain in two templates, returns "" for the running+healthy case where the real table rows render instead - plain untranslated English text, matching every flash message in this codebase since translation isn't wired up for either yet
 func mysqlContainerStatusDetail(containerState, healthStatus string) string {
 	switch containerState {
 	case "not_found":
@@ -299,10 +253,7 @@ func mysqlContainerStatusDetail(containerState, healthStatus string) string {
 	}
 }
 
-// isSystemMySQLDatabase reports whether name is a built-in system database:
-// these get a "System Database" badge instead of import/export/
-// optimize/repair/delete actions, and are excluded from the
-// zero-user-databases health-toast warning.
+// isSystemMySQLDatabase reports whether name is a built-in system database: these get a "System Database" badge instead of import/export/optimize/repair/delete actions, and are excluded from the zero-user-databases health-toast warning
 func isSystemMySQLDatabase(name string) bool {
 	switch name {
 	case "information_schema", "mysql", "phpmyadmin", "performance_schema", "sys", "mariadb.sys":
@@ -312,10 +263,7 @@ func isSystemMySQLDatabase(name string) bool {
 	}
 }
 
-// mysqlWarningFlashMessage builds the shorter, service-name-interpolated
-// flash message shown above the databases/users table - distinct from
-// mysqlContainerStatusDetail()'s longer table-body text, even though both
-// branch on the same two fields.
+// mysqlWarningFlashMessage builds the shorter, service-name-interpolated flash message shown above the databases/users table - distinct from mysqlContainerStatusDetail()'s longer table-body text, even though both branch on the same two fields
 func mysqlWarningFlashMessage(mysqlVersion, containerState, healthStatus string) string {
 	switch {
 	case containerState == "not_found":

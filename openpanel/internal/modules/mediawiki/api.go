@@ -14,11 +14,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// handleMediaWikiVersions backs mediawiki_install.html's version dropdown
-// and mediawiki_app.html's Update tab - there's no GitHub releases API to
-// hit client-side (releases.wikimedia.org sends no CORS headers either, so
-// even a direct scrape can't be fetched from the browser), so this exposes
-// the server-side HTML-scrape result (version.go) as JSON instead.
+// handleMediaWikiVersions backs mediawiki_install.html's version dropdown and mediawiki_app.html's Update tab - there's no GitHub releases API to hit client-side (releases.wikimedia.org sends no CORS headers either), so this exposes the server-side HTML-scrape result (version.go) as JSON instead
 func handleMediaWikiVersions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	versions, err := listMediaWikiVersions(r.Context())
 	if err != nil {
@@ -28,10 +24,7 @@ func handleMediaWikiVersions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	writeAPIJSON(w, http.StatusOK, map[string]any{"versions": versions})
 }
 
-// apiInstallMediaWiki delegates straight to handleInstallPage (which itself
-// calls handleInstallStream on POST): same site-limit check, same NDJSON
-// progress stream written directly to the response - just fed from the
-// API's JSON body instead of a UI form post.
+// apiInstallMediaWiki delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
 func apiInstallMediaWiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID         string `json:"domain_id"`
@@ -64,9 +57,7 @@ func apiInstallMediaWiki(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	handleInstallPage(a, w, withMediaWikiForm(r, form))
 }
 
-// apiRemoveMediaWiki delegates to handleRemoveMediaWiki with the path's
-// {site_id} translated into the "id" form field it expects, and
-// output=json forced so it returns JSON instead of a flash-and-redirect.
+// apiRemoveMediaWiki delegates to handleRemoveMediaWiki with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemoveMediaWiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withMediaWikiForm(r, url.Values{"id": {siteID}})
@@ -76,10 +67,7 @@ func apiRemoveMediaWiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleRemoveMediaWiki(a, w, cloned)
 }
 
-// resolveMediaWikiSiteID looks up the path's {site_id} the same way
-// apiRemoveMediaWiki (via handleRemoveMediaWiki) and manage.go's own "id"
-// lookup do, returning the site's full site_name (domain[/subdirectory])
-// and docroot.
+// resolveMediaWikiSiteID looks up the path's {site_id} the same way apiRemoveMediaWiki (via handleRemoveMediaWiki) and manage.go's own "id" lookup do, returning the site's full site_name (domain[/subdirectory]) and docroot
 func resolveMediaWikiSiteID(a *appctx.App, r *http.Request, siteID string) (siteName, docroot string, ok bool) {
 	row := a.DB.QueryRowContext(r.Context(), `
 		SELECT sites.site_name, domains.docroot
@@ -92,12 +80,7 @@ func resolveMediaWikiSiteID(a *appctx.App, r *http.Request, siteID string) (site
 	return siteName, docroot, true
 }
 
-// apiCloneMediaWiki resolves the path's {site_id} into the source domain/
-// docroot handleMediaWikiClone expects as source_domain/source_folder
-// (same "id" lookup as apiRemoveMediaWiki), derives source_db from
-// LocalSettings.php via extractMediaWikiDatabaseInfoForLogin (the same
-// helper mediawiki_app.html's clone form's server-rendered source_db value
-// comes from), and takes the destination-side fields from the JSON body.
+// apiCloneMediaWiki resolves the path's {site_id} into the source domain/docroot handleMediaWikiClone expects as source_domain/source_folder (same "id" lookup as apiRemoveMediaWiki), derives source_db from LocalSettings.php via extractMediaWikiDatabaseInfoForLogin (the same helper mediawiki_app.html's clone form's server-rendered source_db value comes from), and takes the destination-side fields from the JSON body
 func apiCloneMediaWiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	siteName, docroot, ok := resolveMediaWikiSiteID(a, r, siteID)
@@ -145,11 +128,7 @@ func apiCloneMediaWiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleMediaWikiClone(a, w, withMediaWikiForm(r, form))
 }
 
-// apiUpdateMediaWiki resolves the path's {site_id} the same way
-// apiCloneMediaWiki does, then delegates to handleMediaWikiUpdate with
-// domain/docroot set as URL query params (that handler reads
-// r.URL.Query(), not form values) - the NDJSON progress stream is written
-// directly to the response as-is.
+// apiUpdateMediaWiki resolves the path's {site_id} the same way apiCloneMediaWiki does, then delegates to handleMediaWikiUpdate with domain/docroot set as URL query params (that handler reads r.URL.Query(), not form values) - the NDJSON progress stream is written directly to the response as-is
 func apiUpdateMediaWiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	siteName, docroot, ok := resolveMediaWikiSiteID(a, r, siteID)

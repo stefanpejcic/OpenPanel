@@ -17,10 +17,7 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// apiInstallMoodle delegates straight to handleInstallPage (which itself
-// calls handleInstallStream on POST): same site-limit check, same NDJSON
-// progress stream written directly to the response - just fed from the
-// API's JSON body instead of a UI form post.
+// apiInstallMoodle delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
 func apiInstallMoodle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		DomainID      string `json:"domain_id"`
@@ -54,9 +51,7 @@ func apiInstallMoodle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleInstallPage(a, w, withMoodleForm(r, form))
 }
 
-// apiRemoveMoodle delegates to handleRemoveMoodle with the path's
-// {site_id} translated into the "id" form field it expects, and
-// output=json forced so it returns JSON instead of a flash-and-redirect.
+// apiRemoveMoodle delegates to handleRemoveMoodle with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
 func apiRemoveMoodle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	cloned := withMoodleForm(r, url.Values{"id": {siteID}})
@@ -66,12 +61,7 @@ func apiRemoveMoodle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleRemoveMoodle(a, w, cloned)
 }
 
-// apiResolveMoodleSite resolves {site_id} into the (domain, docroot) pair
-// every handler in this file needs - mirrors drupal/api.go's
-// apiResolveDrupalSite. docroot isn't read by handleMoodleClone (Moodle's
-// docroot is a symlink derived from siteSlug(), not a stored source_folder
-// form field - see clone.go's package doc comment) but is still needed by
-// moodleRequestParams for the cache endpoint.
+// apiResolveMoodleSite resolves {site_id} into the (domain, docroot) pair every handler in this file needs - mirrors drupal/api.go's apiResolveDrupalSite - docroot isn't read by handleMoodleClone (Moodle's docroot is a symlink derived from siteSlug(), not a stored source_folder form field, see clone.go's package doc comment) but is still needed by moodleRequestParams for the cache endpoint
 func apiResolveMoodleSite(ctx context.Context, a *appctx.App, siteID string) (domain, docroot string, ok bool) {
 	var siteName string
 	var rootDocroot sql.NullString
@@ -90,10 +80,7 @@ func apiResolveMoodleSite(ctx context.Context, a *appctx.App, siteID string) (do
 	return siteName, docroot, true
 }
 
-// apiMoodleClone delegates to handleMoodleClone, resolving {site_id} into
-// the source_domain field it expects (no source_folder - see
-// apiResolveMoodleSite's comment) and taking every other clone field from
-// the JSON body - mirrors apiDrupalClone.
+// apiMoodleClone delegates to handleMoodleClone, resolving {site_id} into the source_domain field it expects (no source_folder, see apiResolveMoodleSite's comment) and taking every other clone field from the JSON body - mirrors apiDrupalClone
 func apiMoodleClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	sourceDomain, _, ok := apiResolveMoodleSite(r.Context(), a, siteID)
@@ -130,8 +117,7 @@ func apiMoodleClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleMoodleClone(a, w, withMoodleForm(r, form))
 }
 
-// apiMoodleUpdate resolves {site_id} into the domain query param
-// handleMoodleUpdate reads directly, then delegates to it as-is.
+// apiMoodleUpdate resolves {site_id} into the domain query param handleMoodleUpdate reads directly, then delegates to it as-is
 func apiMoodleUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	domain, docroot, ok := apiResolveMoodleSite(r.Context(), a, siteID)
@@ -146,9 +132,7 @@ func apiMoodleUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	handleMoodleUpdate(a, w, r)
 }
 
-// apiMoodleCache resolves {site_id} into the domain/docroot query params
-// handleMoodleCacheClean reads (via moodleRequestParams), then delegates to
-// it as-is.
+// apiMoodleCache resolves {site_id} into the domain/docroot query params handleMoodleCacheClean reads (via moodleRequestParams), then delegates to it as-is
 func apiMoodleCache(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteID := r.PathValue("site_id")
 	domain, docroot, ok := apiResolveMoodleSite(r.Context(), a, siteID)

@@ -9,11 +9,7 @@ import (
 	"strconv"
 )
 
-// toStringCell converts one mysqlmanager.Exec() result cell to a string.
-// Mirrors every other CMS module's identical helper - see
-// wordpress/backups.go's comment for why every numeric driver type needs
-// its own case (a missing one silently becomes "" rather than a compile
-// error).
+// toStringCell converts one mysqlmanager.Exec() result cell to a string, mirrors every other CMS module's identical helper - see wordpress/backups.go's comment for why every numeric driver type needs its own case (a missing one silently becomes "" rather than a compile error)
 func toStringCell(v any) string {
 	switch t := v.(type) {
 	case nil:
@@ -49,14 +45,7 @@ var (
 	moodleDBPrefixRE = regexp.MustCompile(`CFG->prefix\s*=\s*'([^']*)'`)
 )
 
-// extractMoodleDatabaseInfoForBackup is a local copy of
-// websites.extractMoodleDatabaseInfo (unexported in another package, so
-// duplicated here - same small-helper-duplication pattern every other CMS
-// module already uses rather than sharing across module packages). Reads
-// the approot's config.php directly (docroot is a symlink to
-// <approot>/public, not where config.php lives - see moodle.go's package
-// doc comment), keyed off domain the same way install.go/manage.go derive
-// the approot directory.
+// extractMoodleDatabaseInfoForBackup is a local copy of websites.extractMoodleDatabaseInfo (unexported in another package, so duplicated here, same pattern every other CMS module already uses rather than sharing across module packages) - reads the approot's config.php directly (docroot is a symlink to <approot>/public, not where config.php lives, see moodle.go's package doc comment), keyed off domain the same way install.go/manage.go derive the approot directory
 func extractMoodleDatabaseInfoForBackup(userContext, domain string) map[string]string {
 	approotHostPath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", siteSlug(domain)+"_moodleapp")
 	content, err := os.ReadFile(filepath.Join(approotHostPath, "config.php"))

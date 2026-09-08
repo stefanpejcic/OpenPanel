@@ -25,10 +25,7 @@ func atoiDefault(s string, def int) int {
 	return def
 }
 
-// invalidateDatabasesInfo busts the per-account databases_info cache entry
-// - keyed per userContext, not a single global entry, so invalidating one
-// account's cache never affects another's - see handleDatabasesInfo's doc
-// comment.
+// invalidateDatabasesInfo busts the per-account databases_info cache entry - keyed per userContext, not a single global entry, so invalidating one account's cache never affects another's
 func invalidateDatabasesInfo(ctx context.Context, a *appctx.App, userContext string) {
 	_ = a.Cache.Delete(ctx, "databases_info:"+userContext)
 }
@@ -130,9 +127,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderDatabasesPage(a, w, r, status, mysqlVersion, databaseInfo, unit, showAll, dbToastID, dbToastMessage)
 }
 
-// zeroUserDatabasesToast builds the "these databases have no users assigned"
-// warning toast text, pluralized for 1/2/many databases. Returns ("", "")
-// when there's nothing to warn about.
+// zeroUserDatabasesToast builds the "these databases have no users assigned" warning toast text, pluralized for 1/2/many databases, returns ("", "") when there's nothing to warn about
 func zeroUserDatabasesToast(databases []DatabaseRow) (id, message string) {
 	var zeroUserDBs []string
 	for _, db := range databases {

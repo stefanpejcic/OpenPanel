@@ -1,18 +1,9 @@
 package mediawiki
 
-// openpanelLoginFileName is the login helper's filename inside the
-// MediaWiki docroot - deployed once at install time (install.go) and read
-// by handleMediaWikiLogin (cli.go) to build the link the browser opens.
+// openpanelLoginFileName is the login helper's filename inside the MediaWiki docroot - deployed once at install time (install.go) and read by handleMediaWikiLogin (cli.go) to build the link the browser opens
 const openpanelLoginFileName = "openpanel-login.php"
 
-// openpanelLoginPHP mirrors joomla/login_php.go's technique: MediaWiki core
-// ships no CLI equivalent of Drupal's `drush user:login`, so a one-time
-// login has to happen through an actual HTTP request bootstrapped the same
-// way index.php bootstraps itself (via includes/WebStart.php), then binds
-// a User to the current request's session via User::setCookies() -
-// MediaWiki's own documented session-persistence API (confirmed against
-// the 1.42 source: User::setCookies() pulls the session off
-// $this->getRequest()->getSession() and calls $session->persist()).
+// openpanelLoginPHP mirrors joomla/login_php.go's technique: MediaWiki core ships no CLI equivalent of Drupal's `drush user:login`, so a one-time login has to happen through an actual HTTP request bootstrapped the same way index.php bootstraps itself (via includes/WebStart.php), then binds a User to the current request's session via User::setCookies(), MediaWiki's own documented session-persistence API
 const openpanelLoginPHP = `<?php
 /**
  * OpenPanel one-time admin login handler.

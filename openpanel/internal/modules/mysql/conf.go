@@ -14,8 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// defaultConfKeys is the fallback list of admin-editable my.cnf keys used
-// when no custom keys file is present.
+// defaultConfKeys is the fallback list of admin-editable my.cnf keys used when no custom keys file is present
 var defaultConfKeys = []string{
 	"max_allowed_packet", "max_connect_errors", "max_connections", "open_files_limit",
 	"performance_schema", "sql_mode", "thread_cache_size", "interactive_timeout",
@@ -29,8 +28,7 @@ var defaultConfKeys = []string{
 
 const confKeysFile = "/etc/openpanel/mysql/keys.txt"
 
-// availableConfKeys holds the admin-editable keys file if present, else
-// falls back to defaultConfKeys. It's loaded once at Register() time.
+// availableConfKeys holds the admin-editable keys file if present, else falls back to defaultConfKeys - loaded once at Register() time
 var availableConfKeys = defaultConfKeys
 
 func loadConfKeys() {
@@ -59,8 +57,7 @@ func mysqlConfPath(userContext string) string {
 	return "/home/" + safeContext + "/custom.cnf"
 }
 
-// readMySQLConfigFile returns the contents of a user's custom.cnf, or ""
-// if it doesn't exist.
+// readMySQLConfigFile returns the contents of a user's custom.cnf, or "" if it doesn't exist
 func readMySQLConfigFile(userContext string) string {
 	content, err := os.ReadFile(mysqlConfPath(userContext))
 	if err != nil {
@@ -69,8 +66,7 @@ func readMySQLConfigFile(userContext string) string {
 	return string(content)
 }
 
-// parseMySQLConfigContent parses custom.cnf lines into key/value entries,
-// skipping blanks, comments, section headers, and skip-log-bin.
+// parseMySQLConfigContent parses custom.cnf lines into key/value entries, skipping blanks, comments, section headers, and skip-log-bin
 func parseMySQLConfigContent(content string) []ConfigEntry {
 	var entries []ConfigEntry
 	for _, rawLine := range strings.Split(content, "\n") {
@@ -102,10 +98,7 @@ func configEntriesToMap(entries []ConfigEntry) map[string]string {
 	return m
 }
 
-// updateMySQLConfigFile rewrites
-// existing lines whose key is in newConfig (dropping ones set to an empty
-// value), leave every other line untouched, then append any newConfig keys
-// that weren't already present.
+// updateMySQLConfigFile rewrites existing lines whose key is in newConfig (dropping ones set to an empty value), leaves every other line untouched, then appends any newConfig keys that weren't already present
 func updateMySQLConfigFile(userContext string, newConfig map[string]string, keyOrder []string) {
 	path := mysqlConfPath(userContext)
 	var existingLines []string
@@ -158,9 +151,7 @@ func updateMySQLConfigFile(userContext string, newConfig map[string]string, keyO
 	_ = os.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644)
 }
 
-// handleEditMySQLConfig renders and processes the MySQL configuration
-// editor: on POST, writes the submitted keys to custom.cnf and restarts
-// the database service.
+// handleEditMySQLConfig renders and processes the MySQL configuration editor: on POST, writes the submitted keys to custom.cnf and restarts the database service
 func handleEditMySQLConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

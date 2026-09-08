@@ -20,9 +20,7 @@ var (
 	identifiedByRE         = regexp.MustCompile(`IDENTIFIED BY '[^']*'`)
 )
 
-// cloneMySQLGrants copies a user's grants from one host to another,
-// stripping any embedded credential clause (the new host keeps whatever
-// password it was created with).
+// cloneMySQLGrants copies a user's grants from one host to another, stripping any embedded credential clause (the new host keeps whatever password it was created with)
 func cloneMySQLGrants(ctx context.Context, userContext, dbUser, sourceHost, targetHost string) {
 	rows, err := mysqlmanager.Exec(ctx, userContext, "SHOW GRANTS FOR '"+dbUser+"'@'"+sourceHost+"'", "")
 	if err != nil {

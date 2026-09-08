@@ -14,10 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// moodleRequestParams pulls the domain/docroot query params every handler
-// in this file needs, splits the main domain out of a possible
-// subdirectory suffix, verifies ownership, and resolves the PHP container -
-// mirrors prestashop/cli.go's prestashopRequestParams.
+// moodleRequestParams pulls the domain/docroot query params every handler in this file needs, splits the main domain from any subdirectory suffix, verifies ownership, and resolves the PHP container - mirrors prestashop/cli.go's prestashopRequestParams
 func moodleRequestParams(ctx context.Context, a *appctx.App, r *http.Request, userID int, userContext string) (domain, docroot, phpContainer string, ok bool) {
 	domain = r.URL.Query().Get("domain")
 	docroot = r.URL.Query().Get("docroot")
@@ -42,19 +39,12 @@ func moodleRequestParams(ctx context.Context, a *appctx.App, r *http.Request, us
 	return domain, docroot, phpContainer, true
 }
 
-// moodleApprootContainerPath returns the approot's container-visible path
-// for a given site (domain), derived the same way install.go computed it -
-// docroot itself is a symlink into <approot>/public, but admin/cli/*
-// scripts live one level up, in approot, so cache-clear/logs/cron all need
-// this path instead of docroot.
+// moodleApprootContainerPath returns the approot's container-visible path for a given site (domain), derived the same way install.go computed it - docroot itself is a symlink into <approot>/public, but admin/cli/* scripts live one level up in approot, so cache-clear/logs/cron all need this path instead of docroot
 func moodleApprootContainerPath(domain string) string {
 	return "/var/www/html/" + siteSlug(domain) + "_moodleapp"
 }
 
-// handleMoodleCacheClean purges all Moodle caches via its own bundled CLI
-// script (confirmed present in the release tarball at
-// admin/cli/purge_caches.php - the standard, documented way to do this
-// without a browser).
+// handleMoodleCacheClean purges all Moodle caches via its own bundled CLI script (admin/cli/purge_caches.php - the standard, documented way to do this without a browser)
 func handleMoodleCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -81,11 +71,7 @@ func handleMoodleCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusOK, map[string]string{"message": "Caches purged successfully."})
 }
 
-// handleMoodleLogs tails Moodle's PHP error log if one exists under
-// moodledata (Moodle itself logs most events to its DB, readable only
-// through its own admin UI - there's no simple flat application log file
-// the way Joomla/PrestaShop have, so this surfaces PHP-level errors
-// instead, consistent in spirit with every other module's Logs tab).
+// handleMoodleLogs tails Moodle's PHP error log if one exists under moodledata (Moodle itself logs most events to its DB, readable only through its own admin UI - there's no simple flat application log file the way Joomla/PrestaShop have, so this surfaces PHP-level errors instead, consistent in spirit with every other module's Logs tab)
 func handleMoodleLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)
@@ -117,8 +103,7 @@ func handleMoodleLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(out)
 }
 
-// mappedApproot converts a domain into its host-side approot path - same
-// mapping install.go computes as approotHostPath.
+// mappedApproot converts a domain into its host-side approot path - same mapping install.go computes as approotHostPath
 func mappedApproot(userContext, domain string) string {
 	return filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", siteSlug(domain)+"_moodleapp")
 }

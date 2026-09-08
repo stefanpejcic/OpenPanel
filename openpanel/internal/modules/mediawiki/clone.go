@@ -14,21 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 )
 
-// This file mirrors drupal/clone.go in structure (site-limit check, file
-// copy, DB create+dump-pipe, config rewrite, sites-table insert), sharing
-// everything but the docroot copy and config-rewrite steps with every
-// other CMS's clone.go via internal/core/cmsclone - see that package's doc
-// comment for why those two steps stay local. Two MediaWiki-specific
-// differences from Drupal:
-//
-//  1. LocalSettings.php hardcodes $wgServer/$wgScriptPath to the source
-//     domain (install.go passes --server=/--scriptpath= to
-//     maintenance/install.php) - unlike Drupal, which derives its base URL
-//     at runtime - so both must be rewritten to the clone's own domain or
-//     the clone keeps generating/accepting links only for the source.
-//  2. MediaWiki needs its own per-site cron job (maintenance/runJobs.php)
-//     registered for the clone, mirroring install.go's own crons.AddJob
-//     call - without it the clone's job queue never runs.
+// mirrors drupal/clone.go in structure (site-limit check, file copy, DB create+dump-pipe, config rewrite, sites-table insert) via internal/core/cmsclone, with two MediaWiki-specific differences: LocalSettings.php hardcodes $wgServer/$wgScriptPath to the source domain (unlike Drupal's runtime-derived base URL), so both must be rewritten to the clone's own domain or it keeps generating/accepting links only for the source; and MediaWiki needs its own per-site cron job (maintenance/runJobs.php) registered for the clone, mirroring install.go's own crons.AddJob call, or the clone's job queue never runs
 
 var (
 	cloneMediaWikiDBNameRE     = regexp.MustCompile(`\$wgDBname\s*=\s*"[^"]*"`)
@@ -134,13 +120,7 @@ func handleMediaWikiClone(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		dstScriptPath = "/" + dstFolder
 	}
 	strContent := string(content)
-	// ReplaceAllString (not ReplaceAllStringFunc) would silently swallow
-	// the "$wg..." prefix here: Go's regexp package treats a bare "$name"
-	// in the REPLACEMENT string as a submatch-expansion reference, not
-	// literal text, and since these regexes have no such named group it
-	// expands to "" - confirmed live: this produced ` = "dbname";` (no
-	// variable on the left of "="), a PHP parse error on every request to
-	// the clone. ReplaceAllStringFunc never does submatch expansion.
+	// ReplaceAllString (not ReplaceAllStringFunc) would silently swallow the "$wg..." prefix here - Go's regexp treats a bare "$name" in the replacement string as a submatch-expansion reference, not literal text, and since these regexes have no such named group it expands to "", producing a PHP parse error on every request to the clone; ReplaceAllStringFunc never does submatch expansion
 	strContent = cloneMediaWikiDBNameRE.ReplaceAllStringFunc(strContent, func(string) string { return `$wgDBname = "` + dstDB + `"` })
 	strContent = cloneMediaWikiDBUserRE.ReplaceAllStringFunc(strContent, func(string) string { return `$wgDBuser = "` + dstDBUser + `"` })
 	strContent = cloneMediaWikiDBPasswordRE.ReplaceAllStringFunc(strContent, func(string) string { return `$wgDBpassword = "` + escapedPassword + `"` })

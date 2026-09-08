@@ -19,13 +19,7 @@ type githubTag struct {
 	Name string `json:"name"`
 }
 
-// listMoodleVersions hits the GitHub tags API and returns every stable
-// "vX.Y.Z" tag (confirmed live: prerelease tags carry a "-rcN"/"-beta"
-// suffix and are excluded by the exact-three-part regex), newest first.
-// Unlike prestashop/nextcloud's releases-API approach, Moodle's GitHub tags
-// aren't filtered on release-asset presence, since the real download
-// artifact lives on download.moodle.org instead (see install.go's
-// moodleBranch), not as a GitHub release asset.
+// listMoodleVersions hits the GitHub tags API and returns every stable "vX.Y.Z" tag (prerelease tags carry a "-rcN"/"-beta" suffix and are excluded by the exact-three-part regex), newest first - unlike prestashop/nextcloud's releases-API approach, Moodle's GitHub tags aren't filtered on release-asset presence, since the real download artifact lives on download.moodle.org instead (see install.go's moodleBranch)
 func listMoodleVersions(ctx context.Context) ([]string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/moodle/moodle/tags?per_page=100", nil)
 	if err != nil {
@@ -61,8 +55,7 @@ func listMoodleVersions(ctx context.Context) ([]string, error) {
 	return versions, nil
 }
 
-// latestMoodleVersion returns the highest available version - used
-// server-side when the install form's version field is left blank.
+// latestMoodleVersion returns the highest available version - used server-side when the install form's version field is left blank
 func latestMoodleVersion(ctx context.Context) (string, error) {
 	versions, err := listMoodleVersions(ctx)
 	if err != nil {
@@ -71,8 +64,7 @@ func latestMoodleVersion(ctx context.Context) (string, error) {
 	return versions[0], nil
 }
 
-// compareVersions compares two dotted numeric versions ("5.2.2" vs
-// "4.5.10"); returns >0 if a > b.
+// compareVersions compares two dotted numeric versions ("5.2.2" vs "4.5.10"), returns >0 if a > b
 func compareVersions(a, b string) int {
 	partsA := strings.Split(a, ".")
 	partsB := strings.Split(b, ".")

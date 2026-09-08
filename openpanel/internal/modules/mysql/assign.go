@@ -15,10 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 )
 
-// handleDatabasesAssign grants a user privileges on a database. On success
-// or a mid-transaction failure it falls through to re-rendering the same
-// page (pre-filled with the just-submitted user/database) rather than
-// redirecting - only the early field-validation failures redirect elsewhere.
+// handleDatabasesAssign grants a user privileges on a database - on success or a mid-transaction failure it falls through to re-rendering the same page (pre-filled with the just-submitted user/database) rather than redirecting, only the early field-validation failures redirect elsewhere
 func handleDatabasesAssign(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)

@@ -17,13 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// unpackMoodleUpdateArchive is unpackMoodleArchive's update-time sibling:
-// extracts the new packaged tarball to a scratch dir, then replaces every
-// top-level entry in approotHostPath except config.php - the tarball only
-// ships config-dist.php (a template), never a real config.php, so this
-// would never actually clash on a fresh install, but the update path must
-// not overwrite the live one install.go itself wrote to approot's root
-// (see unpackMoodleArchive's own comment on that layout).
+// unpackMoodleUpdateArchive is unpackMoodleArchive's update-time sibling: extracts the new packaged tarball to a scratch dir, then replaces every top-level entry in approotHostPath except config.php - the tarball only ships config-dist.php (a template), never a real config.php, but the update path must still not overwrite the live one install.go itself wrote to approot's root
 func unpackMoodleUpdateArchive(ctx context.Context, archivePath, approotHostPath string) error {
 	tmpDir := approotHostPath + ".update-tmp"
 	defer os.RemoveAll(tmpDir)
@@ -50,11 +44,7 @@ done
 	return nil
 }
 
-// handleMoodleUpdate updates an existing Moodle install in place:
-// maintenance mode on, download+replace the packaged tarball's code
-// (preserving config.php), then run admin/cli/upgrade.php - Moodle's own
-// documented manual-update procedure. Streams NDJSON progress like install
-// does.
+// handleMoodleUpdate updates an existing Moodle install in place: maintenance mode on, download+replace the packaged tarball's code (preserving config.php), then run admin/cli/upgrade.php - Moodle's own documented manual-update procedure, streaming NDJSON progress like install does
 func handleMoodleUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

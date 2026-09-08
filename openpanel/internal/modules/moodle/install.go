@@ -22,8 +22,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
-// handleInstallPage renders the install form / checks the plan's site
-// limit for a GET, and hands POST off to handleInstallStream.
+// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, _, err := injected(a, r)
@@ -61,9 +60,7 @@ func formOr(r *http.Request, key, def string) string {
 	return def
 }
 
-// ensureContainerRunning starts the container if it isn't already running,
-// polling briefly for it to come up (mirrors every other CMS module's
-// identical helper).
+// ensureContainerRunning starts the container if it isn't already running, polling briefly for it to come up (mirrors every other CMS module's identical helper)
 func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
 	if docker.IsServiceRunning(ctx, userContext, container) {
 		return true
@@ -79,13 +76,7 @@ func ensureContainerRunning(ctx context.Context, userContext, container string) 
 	return false
 }
 
-// unpackMoodleArchive extracts download.moodle.org's packaged tarball
-// (a single top-level "moodle/" directory containing config-dist.php,
-// admin/, lib/, and a public/ subdirectory that is the actual web root -
-// confirmed live against the 5.0.2 stable branch tarball) directly into
-// destDir, stripping that wrapper directory so destDir itself becomes the
-// Moodle "app root" (approot) - config.php ends up at destDir/config.php,
-// the web-served files at destDir/public/.
+// unpackMoodleArchive extracts download.moodle.org's packaged tarball (a single top-level "moodle/" directory containing config-dist.php, admin/, lib/, and a public/ subdirectory that is the actual web root) directly into destDir, stripping that wrapper directory so destDir itself becomes the Moodle "app root" (approot) - config.php ends up at destDir/config.php, the web-served files at destDir/public/
 func unpackMoodleArchive(ctx context.Context, archivePath, destDir string) error {
 	if err := os.MkdirAll(destDir, 0o755); err != nil {
 		return err
@@ -106,10 +97,7 @@ type execError struct {
 func (e *execError) Error() string { return e.msg }
 func (e *execError) Unwrap() error { return e.err }
 
-// moodleBranch converts a "vX.Y.Z"-style GitHub tag into
-// download.moodle.org's packaging branch token ("stableXY0" -
-// e.g. v5.0.2 -> "500", v4.5.3 -> "405" - confirmed live: packaging.moodle.org
-// serves /stable{major}{minor:02d}/moodle-latest-{major}{minor:02d}.tgz).
+// moodleBranch converts a "vX.Y.Z"-style GitHub tag into download.moodle.org's packaging branch token (e.g. v5.0.2 -> "500", v4.5.3 -> "405")
 func moodleBranch(version string) string {
 	v := strings.TrimPrefix(version, "v")
 	parts := strings.SplitN(v, ".", 3)
@@ -124,14 +112,7 @@ func moodleBranch(version string) string {
 	return major + minor
 }
 
-// handleInstallStream drives a Moodle install end to end, streaming NDJSON
-// progress events: download the packaged tarball from download.moodle.org,
-// extract it into a sibling "app root" directory (see moodle.go's package
-// doc comment for why - Moodle 5.x's public/ split), symlink the domain's
-// actual docroot to <approot>/public, create a MySQL database, run
-// Moodle's own `admin/cli/install.php` non-interactively, then register a
-// per-minute admin/cli/cron.php job via crons.AddJob (Moodle does nothing -
-// no mail, no enrolments, no scheduled tasks - without this running).
+// handleInstallStream drives a Moodle install end to end over NDJSON: download the packaged tarball from download.moodle.org, extract it into a sibling "app root" directory (see moodle.go's package doc comment for why - Moodle 5.x's public/ split), symlink the domain's actual docroot to <approot>/public, create a MySQL database, run Moodle's own `admin/cli/install.php` non-interactively, then register a per-minute admin/cli/cron.php job via crons.AddJob (Moodle does nothing - no mail, no enrolments, no scheduled tasks - without this running)
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -288,12 +269,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Host-side chown, not `podman exec ... chown` - the archive was
-	// extracted host-side, so the files are owned by this process's own
-	// (real, unmapped) UID. A rootless container's own "root" is confined
-	// to its user-namespace's UID range and cannot chown files it doesn't
-	// already own outside that mapping (confirmed live while building the
-	// Joomla module).
+	// host-side chown, not `podman exec ... chown` - the archive was extracted host-side, so the files are owned by this process's own real unmapped UID, and a rootless container's "root" is confined to its own user-namespace's UID range
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr != nil {
@@ -308,13 +284,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	emit(map[string]any{"status": "Linking web root to Moodle's public/ directory"})
 	_ = os.Remove(hostOSPath)
-	// The symlink target must be the container-visible path
-	// (/var/www/html/...), not approotHostPath's host filesystem path -
-	// the symlink is created host-side but read by the php-fpm container,
-	// which only sees its own /var/www/html/ bind mount, not the host's
-	// /home/<user>/docker-data/... tree. Confirmed live: a host-path
-	// symlink resolves fine via `ls` on the host but is broken (ENOENT)
-	// from inside the container, causing a 403 on every request.
+	// the symlink target must be the container-visible path (/var/www/html/...), not approotHostPath's host filesystem path - the symlink is created host-side but read by the php-fpm container, which only sees its own /var/www/html/ bind mount, not the host's /home/<user>/docker-data/... tree, so a host-path symlink resolves fine via `ls` but is broken (ENOENT) from inside the container, causing a 403 on every request
 	if symErr := os.Symlink(approotContainerPath+"/public", hostOSPath); symErr != nil {
 		emit(map[string]any{"error": "Error creating web root symlink: " + symErr.Error()})
 		_ = os.RemoveAll(approotHostPath)
@@ -391,17 +361,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Moodle writes cache/session data under dataroot only (config.php and
-	// the approot's PHP source stay read-only at runtime) - but the
-	// php-fpm worker process's UID is not the same UID that just ran the
-	// CLI installer above (that ran as this container's mapped "root" via
-	// podman exec), the same worker-vs-install UID mismatch class of bug
-	// found and fixed for PrestaShop earlier - so dataroot needs to be
-	// writable by whatever UID actually is, which --chmod=0777 above
-	// already asked Moodle's own installer to apply to everything it
-	// creates under dataroot, but the dataroot directory itself (created
-	// by this Go process above, not by the installer) needs the same
-	// treatment explicitly.
+	// Moodle writes cache/session data under dataroot only (config.php and the approot's PHP source stay read-only at runtime), but the php-fpm worker process's UID isn't the same UID that just ran the CLI installer above (that ran as this container's mapped "root" via podman exec, same worker-vs-install UID mismatch class of bug fixed for PrestaShop earlier) - --chmod=0777 above already asked Moodle's own installer to apply this to everything it creates under dataroot, but the dataroot directory itself (created by this Go process, not the installer) needs the same treatment explicitly
 	emit(map[string]any{"status": "Setting permissions on moodledata directory"})
 	_ = exec.Command("chmod", "-R", "777", datarootHostPath).Run()
 
@@ -431,9 +391,7 @@ func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, curr
 	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
 }
 
-// emitCleanupFiles removes a failed install's docroot symlink and its
-// backing approot/dataroot directories - always safe since install.go just
-// created all three.
+// emitCleanupFiles removes a failed install's docroot symlink and its backing approot/dataroot directories - always safe since install.go just created all three
 func emitCleanupFiles(hostOSPath, approotHostPath, datarootHostPath string, emit func(map[string]any)) {
 	_ = os.Remove(hostOSPath)
 	_ = os.RemoveAll(approotHostPath)

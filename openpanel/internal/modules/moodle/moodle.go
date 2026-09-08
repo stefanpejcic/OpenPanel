@@ -1,25 +1,4 @@
-// Package moodle installs and manages a Moodle LMS site (downloaded from
-// download.moodle.org's packaged tarballs + Moodle's own genuine
-// non-interactive `admin/cli/install.php` CLI installer) inside an existing
-// domain's docroot, run in the domain's existing php-fpm container - same
-// shape as internal/modules/prestashop and internal/modules/matomo.
-//
-// Moodle 5.x restructured its tree so the actual web-served files live
-// under a `public/` subdirectory, with config.php, admin/, lib/, etc. one
-// level above it (outside the web root, by design - public/config.php is a
-// tiny shim that does `require __DIR__.'/../config.php'`). This module
-// extracts the full release into a sibling "app root" directory next to the
-// domain's docroot, then replaces the (otherwise-empty) docroot with a
-// symlink to <approot>/public - the docroot the panel/webserver already
-// serves ends up being exactly Moodle's own public/ folder, and the shim's
-// relative `../config.php` resolves straight to the approot's config.php.
-// This is the standard supported deployment shape for Moodle 5.x (not an
-// OpenPanel-specific workaround).
-//
-// Moodle also requires a periodic `admin/cli/cron.php` run (nothing works
-// without it - no emails, no enrolments, no scheduled tasks): install.go
-// registers a per-minute job via internal/modules/crons.AddJob, and
-// manage.go's uninstall handler removes it via crons.RemoveJobByComment.
+// Package moodle installs and manages a Moodle LMS site (downloaded from download.moodle.org's packaged tarballs + Moodle's own genuine non-interactive `admin/cli/install.php` CLI installer) inside an existing domain's docroot, same shape as internal/modules/prestashop and matomo - Moodle 5.x restructured its tree so the actual web-served files live under a `public/` subdirectory, with config.php, admin/, lib/, etc. one level above it outside the web root by design (public/config.php is a tiny shim doing `require __DIR__.'/../config.php'`), so this module extracts the full release into a sibling "app root" directory next to the domain's docroot, then replaces the otherwise-empty docroot with a symlink to <approot>/public - this is the standard supported deployment shape for Moodle 5.x, not an OpenPanel-specific workaround; and since Moodle also requires a periodic `admin/cli/cron.php` run (no emails, enrolments, or scheduled tasks without it), install.go registers a per-minute job via internal/modules/crons.AddJob, and manage.go's uninstall handler removes it via crons.RemoveJobByComment
 package moodle
 
 import (
@@ -78,9 +57,7 @@ func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v m
 
 const randomStringAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// generateRandomString generates a throwaway db name/user/password when
-// needed. Uses crypto/rand since results end up as real credentials (same
-// approach as every other CMS module's identical helper).
+// generateRandomString generates a throwaway db name/user/password when needed, uses crypto/rand since results end up as real credentials (same approach as every other CMS module's identical helper)
 func generateRandomString(length int) string {
 	b := make([]byte, length)
 	for i := range b {
@@ -90,8 +67,7 @@ func generateRandomString(length int) string {
 	return string(b)
 }
 
-// lockFilePath returns the per-user krompir.lock path shared with every
-// other "app install" module to serialize one install operation per user.
+// lockFilePath is the per-user krompir.lock path shared with every other "app install" module to serialize one install operation per user
 func lockFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
 }
@@ -128,9 +104,7 @@ func lookupDomainByID(ctx context.Context, a *appctx.App, domainID string) (doma
 	return d, true, nil
 }
 
-// countUserWebsites counts the user's sites, capped at 1000 - duplicated
-// locally per established convention (every CMS module does this rather
-// than sharing across packages).
+// countUserWebsites counts the user's sites, capped at 1000 - duplicated locally per established convention (every CMS module does this rather than sharing across packages)
 func countUserWebsites(a *appctx.App, userID int) (int, error) {
 	rows, err := a.DB.Query(
 		"SELECT site_name FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000", userID)
@@ -152,19 +126,14 @@ func atoiDefault(s string, def int) int {
 	return def
 }
 
-// siteSlug turns a "domain.com/sub/dir"-style site name into a filesystem-
-// and cron-comment-safe token, used to name the approot/dataroot sibling
-// directories and the cron job's unique comment.
+// siteSlug turns a "domain.com/sub/dir"-style site name into a filesystem- and cron-comment-safe token, used to name the approot/dataroot sibling directories and the cron job's unique comment
 func siteSlug(selectedDomain string) string {
 	slug := strings.ReplaceAll(selectedDomain, "/", "_")
 	slug = strings.ReplaceAll(slug, ".", "_")
 	return slug
 }
 
-// moodleCronComment is the crons.ini comment used both by install.go's
-// crons.AddJob call and manage.go's crons.RemoveJobByComment call - it must
-// be derived identically in both places to actually find/remove the same
-// job later.
+// moodleCronComment is the crons.ini comment used both by install.go's crons.AddJob call and manage.go's crons.RemoveJobByComment call - it must be derived identically in both places to actually find/remove the same job later
 func moodleCronComment(selectedDomain string) string {
 	return "moodle-" + siteSlug(selectedDomain)
 }

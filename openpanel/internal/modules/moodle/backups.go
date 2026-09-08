@@ -18,17 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors wordpress/backups.go's directory layout, naming and
-// restore/run logic (same backups/<domain>/<timestamp>/{database.sql,
-// files.tar.gz} structure under the user's html_data volume). Two
-// differences from every other CMS module's backups.go: the DB name/prefix
-// lookup reads the approot's config.php (see login_support.go), and the
-// "files" backup targets moodledata, not docroot - Moodle's docroot is a
-// symlink to <approot>/public (see moodle.go's package doc comment) and
-// contains nothing but the stock release code, identical across every
-// install of that version; all real site content (uploads, course files,
-// caches) lives in moodledata instead, so that's what's actually worth
-// backing up/restoring here.
+// mirrors wordpress/backups.go's layout and restore/run logic (same backups/<domain>/<timestamp>/{database.sql,files.tar.gz} structure), with two differences from every other CMS module: the DB name/prefix lookup reads the approot's config.php (see login_support.go), and the "files" backup targets moodledata, not docroot - Moodle's docroot is a symlink to <approot>/public and contains nothing but the stock release code, identical across every install of that version, while all real site content lives in moodledata instead
 
 var moodleBackupFolderRE = regexp.MustCompile(`^20\d{2}-`)
 
@@ -38,8 +28,7 @@ type moodleBackupDateInfo struct {
 	HasFilesBackup bool   `json:"hasFilesBackup"`
 }
 
-// handleMoodleGetBackupDates mirrors wordpress/backups.go's
-// handleGetBackupDates.
+// handleMoodleGetBackupDates mirrors wordpress/backups.go's handleGetBackupDates
 func handleMoodleGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
@@ -87,9 +76,7 @@ func handleMoodleGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 var moodleBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// handleMoodleRestoreBackup mirrors wordpress/backups.go's
-// handleRestoreBackup, restoring into moodledata instead of docroot (see
-// this file's top comment).
+// handleMoodleRestoreBackup mirrors wordpress/backups.go's handleRestoreBackup, restoring into moodledata instead of docroot (see this file's top comment)
 func handleMoodleRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")
@@ -189,8 +176,7 @@ func handleMoodleRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Req
 	_, _ = w.Write([]byte("No files to restore, expected files: " + backupDatePathInContainer + "/files.tar.gz " + databaseSQLPathInContainer + "."))
 }
 
-// handleMoodleRunBackup mirrors wordpress/backups.go's handleRunBackup,
-// tar'ing moodledata instead of docroot (see this file's top comment).
+// handleMoodleRunBackup mirrors wordpress/backups.go's handleRunBackup, tar'ing moodledata instead of docroot (see this file's top comment)
 func handleMoodleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")

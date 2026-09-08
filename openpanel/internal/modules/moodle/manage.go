@@ -19,13 +19,7 @@ var (
 	removeDBUserRE = regexp.MustCompile(`CFG->dbuser\s*=\s*'([^']*)'`)
 )
 
-// handleRemoveMoodle fully uninstalls a Moodle site: removes the per-minute
-// admin/cli/cron.php job registered at install time, drops the database and
-// user (parsed out of the approot's config.php), deletes the docroot
-// symlink plus its backing approot/dataroot directories, and removes the
-// sites row. Mirrors prestashop/manage.go's handleRemovePrestashop, with
-// the config.php/approot lookup adjusted for Moodle's public/-split layout
-// (see moodle.go's package doc comment).
+// handleRemoveMoodle fully uninstalls a Moodle site: removes the per-minute admin/cli/cron.php job registered at install time, drops the database and user (parsed out of the approot's config.php), deletes the docroot symlink plus its backing approot/dataroot directories, and removes the sites row - mirrors prestashop/manage.go's handleRemovePrestashop, with the config.php/approot lookup adjusted for Moodle's public/-split layout (see moodle.go's package doc comment)
 func handleRemoveMoodle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

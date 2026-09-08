@@ -46,9 +46,7 @@ var (
 type ServiceStatusData struct {
 	ContainerState string
 	HealthStatus   string
-	// StatusDetail is the longer explanatory text shown in the table's
-	// empty-state row while the service isn't running/healthy ("" when
-	// running+healthy, since the real rows render instead).
+	// StatusDetail is the longer explanatory text shown in the table's empty-state row while the service isn't running/healthy ("" when running+healthy, since the real rows render instead)
 	StatusDetail string
 }
 

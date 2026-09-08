@@ -11,10 +11,7 @@ import (
 
 var initOnce sync.Once
 
-// ensureInit lazily loads the config-derived package state
-// (restricted user/database lists, tuning knobs, available conf keys)
-// exactly once, regardless of which Register* function - or which order
-// they're called in by RegisterAll - triggers it first.
+// ensureInit lazily loads the config-derived package state (restricted user/database lists, tuning knobs, available conf keys) exactly once, regardless of which Register* function - or which order they're called in by RegisterAll - triggers it first
 func ensureInit(a *appctx.App) {
 	initOnce.Do(func() {
 		loadRestrictedNames(a)
@@ -23,9 +20,7 @@ func ensureInit(a *appctx.App) {
 	})
 }
 
-// Register wires the core MySQL database/user management routes onto mux,
-// plus the always-on (login-only, no feature gate) /json/mysql-size route,
-// since it has no registrar of its own to live in.
+// Register wires the core MySQL database/user management routes onto mux, plus the always-on (login-only, no feature gate) /json/mysql-size route, since it has no registrar of its own to live in
 func Register(mux *http.ServeMux, a *appctx.App) {
 	ensureInit(a)
 	requireLogin := func(h http.HandlerFunc) http.Handler {
@@ -102,10 +97,7 @@ func RegisterRootPassword(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /mysql/root-password", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRootPasswordMySQL(a, w, r) }))
 	mux.Handle("POST /mysql/root-password", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRootPasswordMySQL(a, w, r) }))
 
-	// API equivalent, gated by the same "mysql_root_password" feature as the
-	// web route above (unlike the import API route, this path doesn't
-	// collide with any wildcard registered elsewhere, so it can carry its
-	// own feature gate instead of borrowing RegisterAPI's "mysql" one).
+	// API equivalent, gated by the same "mysql_root_password" feature as the web route above - unlike the import API route, this path doesn't collide with any wildcard registered elsewhere, so it can carry its own feature gate instead of borrowing RegisterAPI's "mysql" one
 	apiregistry.Handle(mux, a, "mysql_root_password", "PUT /api/mysql/root-password", func(w http.ResponseWriter, r *http.Request) { apiMySQLSetRootPassword(a, w, r) })
 }
 

@@ -21,8 +21,7 @@ import (
 
 var mysqlImportSecureFilenameRE = regexp.MustCompile(`[^A-Za-z0-9_.-]`)
 
-// secureFilename strips directory components and unsafe characters from a
-// user-supplied upload filename before it's used as a path segment.
+// secureFilename strips directory components and unsafe characters from a user-supplied upload filename before it's used as a path segment
 func secureFilename(name string) string {
 	name = filepath.Base(strings.ReplaceAll(name, "\\", "/"))
 	name = mysqlImportSecureFilenameRE.ReplaceAllString(name, "_")
@@ -32,8 +31,7 @@ func secureFilename(name string) string {
 
 var importDBNameRE = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 
-// handleMySQLImportDB imports an uploaded .sql/.sql.gz dump into a database.
-// urlDBName carries the optional /mysql/import/{dbname} URL segment.
+// handleMySQLImportDB imports an uploaded .sql/.sql.gz dump into a database - urlDBName carries the optional /mysql/import/{dbname} URL segment
 func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
@@ -92,9 +90,7 @@ func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 				return
 			}
 			flashSess(a, w, r, "error", "Import into '"+dbName+"' failed: "+errDetail)
-			// falls through to the shared bottom render below, using the
-			// URL's dbname (not the form's dbName) - the failure page
-			// should reflect what page the admin was already on.
+			// falls through to the shared bottom render below, using the URL's dbname (not the form's dbName) - the failure page should reflect what page the admin was already on
 		} else {
 			flashSess(a, w, r, "error", "No database file uploaded!")
 			renderImportPage(a, w, r, mysqlVersion, urlDBName, http.StatusOK)
@@ -109,10 +105,7 @@ func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	renderImportPage(a, w, r, mysqlVersion, urlDBName, http.StatusOK)
 }
 
-// importDatabaseDump saves the uploaded dump, chowns it to the account's
-// UID, then streams it into the target database via `podman exec -i
-// <mysql> <mysql> <dbname>` (mysql/mariadb CLI reads a plain .sql dump on
-// stdin). Returns (ok, stderr-detail-on-failure).
+// importDatabaseDump saves the uploaded dump, chowns it to the account's UID, then streams it into the target database via `podman exec -i <mysql> <mysql> <dbname>` (mysql/mariadb CLI reads a plain .sql dump on stdin), returns (ok, stderr-detail-on-failure)
 func importDatabaseDump(ctx context.Context, userContext, mysqlVersion, dbName, targetDir, tempFilePath string, uploaded io.Reader) (bool, string) {
 	if mkErr := os.MkdirAll(targetDir, 0o755); mkErr != nil {
 		return false, mkErr.Error()

@@ -18,12 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// unpackMediaWikiUpdateArchive extracts the new release tarball to a
-// scratch dir, then replaces every top-level entry in installPath except
-// LocalSettings.php (the live config maintenance/install.php wrote) and
-// images/ (uploaded files) - MediaWiki's own documented manual-update
-// procedure copies those two forward from the old tree into the new one,
-// which is equivalent to just never touching them in place here.
+// unpackMediaWikiUpdateArchive extracts the new release tarball to a scratch dir, then replaces every top-level entry in installPath except LocalSettings.php (the live config maintenance/install.php wrote) and images/ (uploaded files) - MediaWiki's own documented manual-update procedure copies those two forward from the old tree into the new one, equivalent to just never touching them in place here
 func unpackMediaWikiUpdateArchive(ctx context.Context, archivePath, installPath string) error {
 	tmpDir := installPath + ".update-tmp"
 	defer os.RemoveAll(tmpDir)
@@ -52,11 +47,7 @@ done
 	return nil
 }
 
-// handleMediaWikiUpdate updates an existing MediaWiki install in place:
-// download+replace the release tarball's code (preserving LocalSettings.php
-// and images/), then run maintenance/update.php --quick - MediaWiki's own
-// documented manual-update procedure. Streams NDJSON progress like install
-// does.
+// handleMediaWikiUpdate updates an existing MediaWiki install in place: download+replace the release tarball's code (preserving LocalSettings.php and images/), then run maintenance/update.php --quick - MediaWiki's own documented manual-update procedure, streaming NDJSON progress like install does
 func handleMediaWikiUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

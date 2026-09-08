@@ -10,11 +10,7 @@ import (
 	"strings"
 )
 
-// toStringCell converts one mysqlmanager.Exec() result cell to a string.
-// Mirrors every other CMS module's identical helper - see
-// wordpress/backups.go's comment for why every numeric driver type needs
-// its own case (a missing one silently becomes "" rather than a compile
-// error).
+// toStringCell converts one mysqlmanager.Exec() result cell to a string, mirrors every other CMS module's identical helper - see wordpress/backups.go's comment for why every numeric driver type needs its own case (a missing one silently becomes "" rather than a compile error)
 func toStringCell(v any) string {
 	switch t := v.(type) {
 	case nil:
@@ -51,12 +47,7 @@ var (
 	mediawikiDBPrefixRE = regexp.MustCompile(`\$wgDBprefix\s*=\s*"([^"]*)"`)
 )
 
-// extractMediaWikiDatabaseInfoForLogin is a local copy of
-// websites.extractMediaWikiDatabaseInfo (unexported in another package, so
-// duplicated here - same small-helper-duplication pattern every other CMS
-// module already uses rather than sharing across module packages). Reads
-// LocalSettings.php directly, keyed off the docroot the same way
-// install.go/manage.go derive it.
+// extractMediaWikiDatabaseInfoForLogin is a local copy of websites.extractMediaWikiDatabaseInfo (unexported in another package, so duplicated here, same pattern every other CMS module already uses rather than sharing across module packages) - reads LocalSettings.php directly, keyed off the docroot the same way install.go/manage.go derive it
 func extractMediaWikiDatabaseInfoForLogin(userContext, directory string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
 	if !strings.HasPrefix(directory, wwwPrefix) {

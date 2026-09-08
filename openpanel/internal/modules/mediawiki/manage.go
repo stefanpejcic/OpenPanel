@@ -22,11 +22,7 @@ var (
 	removeDBUserRE = regexp.MustCompile(`\$wgDBuser\s*=\s*"([^"]*)"`)
 )
 
-// handleRemoveMediaWiki fully uninstalls a MediaWiki site: removes the
-// per-minute maintenance/runJobs.php job registered at install time, drops
-// the database and user (parsed out of LocalSettings.php), deletes the
-// whole install directory, and removes the sites row. Mirrors
-// joomla/manage.go's handleRemoveJoomla.
+// handleRemoveMediaWiki fully uninstalls a MediaWiki site: removes the per-minute maintenance/runJobs.php job registered at install time, drops the database and user (parsed out of LocalSettings.php), deletes the install directory, and removes the sites row - mirrors joomla/manage.go's handleRemoveJoomla
 func handleRemoveMediaWiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)

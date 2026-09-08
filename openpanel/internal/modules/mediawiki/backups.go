@@ -18,10 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// This file mirrors joomla/backups.go's directory layout, naming and
-// restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,
-// files.tar.gz} structure under the user's html_data volume) - the DB
-// name/prefix lookup reads LocalSettings.php directly instead.
+// mirrors joomla/backups.go's layout and restore/run logic exactly (same backups/<domain>/<timestamp>/{database.sql,files.tar.gz} structure) - the DB name/prefix lookup reads LocalSettings.php directly instead
 
 var mediawikiBackupFolderRE = regexp.MustCompile(`^20\d{2}-`)
 
@@ -31,8 +28,7 @@ type mediawikiBackupDateInfo struct {
 	HasFilesBackup bool   `json:"hasFilesBackup"`
 }
 
-// handleMediaWikiGetBackupDates mirrors wordpress/backups.go's
-// handleGetBackupDates.
+// handleMediaWikiGetBackupDates mirrors wordpress/backups.go's handleGetBackupDates
 func handleMediaWikiGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
@@ -80,8 +76,7 @@ func handleMediaWikiGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http
 
 var mediawikiBackupDateRE = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// handleMediaWikiRestoreBackup mirrors wordpress/backups.go's
-// handleRestoreBackup.
+// handleMediaWikiRestoreBackup mirrors wordpress/backups.go's handleRestoreBackup
 func handleMediaWikiRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	selectedDomain := r.PathValue("selected_domain")

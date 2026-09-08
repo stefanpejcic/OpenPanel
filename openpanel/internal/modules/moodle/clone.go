@@ -14,25 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 )
 
-// This file mirrors drupal/clone.go's overall shape (site-limit check, DB
-// create+dump-pipe, config rewrite, sites-table insert, cron
-// registration), sharing the site-limit check, DB create+dump-pipe, and
-// sites-table-insert/log/response tail with every other CMS's clone.go via
-// internal/core/cmsclone - see that package's doc comment for why those
-// steps are shared but the file-copy and config-rewrite steps aren't. The
-// file-copy step here is NOT a plain "copy the docroot" like every other
-// module's clone - see install.go's package doc comment and its own
-// approotHostPath/datarootHostPath/symlink construction (read in full
-// before touching this file). Moodle's docroot is a symlink, not a real
-// directory: the actual code lives in a sibling "<slug>_moodleapp/"
-// directory and user data lives in a separate sibling "<slug>_moodledata/"
-// directory, neither of which install.go's own dispatch.go/websites.go
-// plumbing exposes as "source_folder" the way it does for every
-// flat-docroot module - so this clone resolves both sibling directories
-// itself from the source domain name, the same siteSlug() call install.go
-// used to create them. This is also why cmsclone.ValidDocroot is never
-// called here: there's no source_folder/docroot form field to validate the
-// way the other seven modules do.
+// mirrors drupal/clone.go's overall shape (site-limit check, DB create+dump-pipe, config rewrite, sites-table insert, cron registration) via internal/core/cmsclone, but the file-copy step here is NOT a plain "copy the docroot" like every other module's clone (see install.go's package doc comment and its approotHostPath/datarootHostPath/symlink construction) - Moodle's docroot is a symlink, not a real directory: the actual code lives in a sibling "<slug>_moodleapp/" directory and user data lives in a separate sibling "<slug>_moodledata/" directory, so this clone resolves both sibling directories itself from the source domain name using the same siteSlug() call install.go used to create them, and cmsclone.ValidDocroot is never called here since there's no source_folder/docroot form field to validate
 
 var (
 	cloneMoodleDBNameRE     = regexp.MustCompile(`CFG->dbname\s*=\s*'[^']*'`)
@@ -42,8 +24,7 @@ var (
 	cloneMoodleDatarootRE   = regexp.MustCompile(`CFG->dataroot\s*=\s*'[^']*'`)
 )
 
-// handleMoodleClone mirrors drupal/clone.go's handleDrupalClone, adapted
-// for Moodle's approot/dataroot/symlink layout (see install.go).
+// handleMoodleClone mirrors drupal/clone.go's handleDrupalClone, adapted for Moodle's approot/dataroot/symlink layout (see install.go)
 func handleMoodleClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -130,12 +111,7 @@ func handleMoodleClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	cmsclone.ChownRecursive(ctx, userContext, dstApprootHostPath, dstDatarootHostPath)
 	_ = exec.Command("chmod", "-R", "777", dstDatarootHostPath).Run()
 
-	// Docroot destination host path, and the symlink target must be the
-	// container-visible path (/var/www/html/...), not the host filesystem
-	// path - same gotcha install.go's own symlink call documents and was
-	// fixed live for it this session (a host-path symlink resolves fine
-	// via `ls` on the host but is broken from inside the php-fpm
-	// container, which only sees its own /var/www/html/ bind mount).
+	// the symlink target must be the container-visible path (/var/www/html/...), not the host filesystem path - same gotcha install.go's own symlink call documents, since a host-path symlink resolves fine via `ls` on the host but is broken from inside the php-fpm container, which only sees its own /var/www/html/ bind mount
 	const wwwBaseDirectory = "/var/www/html/"
 	dstHostOSPath := strings.Replace(filepath.Clean(docroot), wwwBaseDirectory, htmlVolume, 1)
 	if _, statErr := os.Lstat(dstHostOSPath); statErr == nil {

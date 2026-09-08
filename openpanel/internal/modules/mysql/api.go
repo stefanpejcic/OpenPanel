@@ -21,12 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// RegisterAPI wires the MySQL REST endpoints onto mux. The
-// /databases/{db_name} and /users/{db_user} sub-resources share their
-// prefix with a literal suffix - Go's http.ServeMux requires a "{...}"
-// wildcard to be the final segment, so each verb gets a "{rest...}"
-// catch-all where needed and the dispatch funcs below strip the known
-// suffix by hand to route to the right handler.
+// RegisterAPI wires the MySQL REST endpoints onto mux - the /databases/{db_name} and /users/{db_user} sub-resources share their prefix with a literal suffix, so since Go's ServeMux requires a "{...}" wildcard to be the final segment, each verb gets a "{rest...}" catch-all where needed and the dispatch funcs below strip the known suffix by hand to route to the right handler
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "mysql", "GET /api/mysql/databases", func(w http.ResponseWriter, r *http.Request) { apiMySQLListDatabases(a, w, r) })
 	apiregistry.Handle(mux, a, "mysql", "POST /api/mysql/databases", func(w http.ResponseWriter, r *http.Request) { apiMySQLCreateDatabase(a, w, r) })
@@ -426,11 +421,7 @@ func apiMySQLExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	_, _ = w.Write(dumpOutput)
 }
 
-// apiMySQLDatabasesSize returns per-database disk usage (data_length +
-// index_length, summed across every table) in a configurable unit. This is
-// the API equivalent of GET /json/mysql-size - distinct from
-// GET /api/mysql/databases (names + assigned users, no size) and
-// GET /api/mysql/databases/{db_name}/tables (per-table size for one db).
+// apiMySQLDatabasesSize returns per-database disk usage (data_length + index_length, summed across every table) in a configurable unit - the API equivalent of GET /json/mysql-size, distinct from GET /api/mysql/databases (names + assigned users, no size) and GET /api/mysql/databases/{db_name}/tables (per-table size for one db)
 func apiMySQLDatabasesSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
@@ -746,8 +737,7 @@ func apiMySQLGrant(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "REVOKE ALL PRIVILEGES ON `"+dbName+"`.* FROM '"+dbUser+"'@'"+dbHost+"'", ""); execErr != nil {
-		// MySQL error 1141 ("no grants for user") is swallowed - there's
-		// simply nothing to revoke yet.
+		// MySQL error 1141 ("no grants for user") is swallowed, there's simply nothing to revoke yet
 		if !strings.Contains(execErr.Error(), "1141") {
 			writeAPIMySQLJSON(w, http.StatusInternalServerError, map[string]string{"error": mysqlAPIError(execErr)})
 			return

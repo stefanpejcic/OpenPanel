@@ -8,8 +8,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 )
 
-// handleDatabaseAction: GET returns the table list for one database, POST
-// runs OPTIMIZE/REPAIR TABLE against every table in it.
+// handleDatabaseAction: GET returns the table list for one database, POST runs OPTIMIZE/REPAIR TABLE against every table in it
 func handleDatabaseAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)

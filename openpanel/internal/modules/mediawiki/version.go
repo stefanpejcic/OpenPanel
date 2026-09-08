@@ -24,8 +24,7 @@ func fetchDirListing(ctx context.Context, url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// releases.wikimedia.org returns 403 to Go's default "Go-http-client"
-	// User-Agent - confirmed live, a plain browser/curl-like UA is required.
+	// releases.wikimedia.org returns 403 to Go's default "Go-http-client" User-Agent, a plain browser/curl-like UA is required
 	req.Header.Set("User-Agent", "OpenPanel/1.0 (+https://openpanel.com)")
 	client := &http.Client{Timeout: 15 * time.Second}
 	resp, err := client.Do(req)
@@ -40,10 +39,7 @@ func fetchDirListing(ctx context.Context, url string) (string, error) {
 	return string(body), nil
 }
 
-// listMediaWikiBranches scrapes releases.wikimedia.org/mediawiki/'s
-// top-level listing for branch directories (e.g. "1.42/", "1.43/") -
-// confirmed live: this index lists nothing but branch directories, newest
-// first is not guaranteed so the result is sorted numerically here.
+// listMediaWikiBranches scrapes releases.wikimedia.org/mediawiki/'s top-level listing for branch directories (e.g. "1.42/", "1.43/") - newest first isn't guaranteed so the result is sorted numerically here
 func listMediaWikiBranches(ctx context.Context) ([]string, error) {
 	body, err := fetchDirListing(ctx, "https://releases.wikimedia.org/mediawiki/")
 	if err != nil {
@@ -65,8 +61,7 @@ func listMediaWikiBranches(ctx context.Context) ([]string, error) {
 	return branches, nil
 }
 
-// listMediaWikiVersionsForBranch scrapes one branch directory's listing for
-// patch-level tarballs (e.g. "mediawiki-1.42.7.tar.gz"), newest first.
+// listMediaWikiVersionsForBranch scrapes one branch directory's listing for patch-level tarballs (e.g. "mediawiki-1.42.7.tar.gz"), newest first
 func listMediaWikiVersionsForBranch(ctx context.Context, branch string) ([]string, error) {
 	body, err := fetchDirListing(ctx, "https://releases.wikimedia.org/mediawiki/"+branch+"/")
 	if err != nil {
@@ -84,8 +79,7 @@ func listMediaWikiVersionsForBranch(ctx context.Context, branch string) ([]strin
 	return versions, nil
 }
 
-// listMediaWikiVersions returns every patch-level version across every
-// branch, newest first - used by the install form's version dropdown.
+// listMediaWikiVersions returns every patch-level version across every branch, newest first - used by the install form's version dropdown
 func listMediaWikiVersions(ctx context.Context) ([]string, error) {
 	branches, err := listMediaWikiBranches(ctx)
 	if err != nil {
@@ -106,9 +100,7 @@ func listMediaWikiVersions(ctx context.Context) ([]string, error) {
 	return all, nil
 }
 
-// latestMediaWikiVersion returns the highest available patch version off
-// the highest available branch - used server-side when the install form's
-// version field is left blank.
+// latestMediaWikiVersion returns the highest available patch version off the highest available branch - used server-side when the install form's version field is left blank
 func latestMediaWikiVersion(ctx context.Context) (string, error) {
 	branches, err := listMediaWikiBranches(ctx)
 	if err != nil {
@@ -124,8 +116,7 @@ func latestMediaWikiVersion(ctx context.Context) (string, error) {
 	return "", errors.New("no MediaWiki versions found")
 }
 
-// mediawikiBranchForVersion converts a "X.Y.Z"-style patch version back
-// into its "X.Y" branch directory name.
+// mediawikiBranchForVersion converts a "X.Y.Z"-style patch version back into its "X.Y" branch directory name
 func mediawikiBranchForVersion(version string) string {
 	parts := strings.SplitN(version, ".", 3)
 	if len(parts) < 2 {
@@ -134,17 +125,10 @@ func mediawikiBranchForVersion(version string) string {
 	return parts[0] + "." + parts[1]
 }
 
-// mediawikiComposerPHPRequirementRE pulls the minimum PHP version out of a
-// downloaded release's own composer.json ("php": ">=8.3.0") - read straight
-// from the archive rather than hardcoding a branch->PHP table, since the
-// minimum climbs across branches (1.39 LTS wants 7.4.3+, 1.46 wants 8.3+ -
-// confirmed live by downloading both and reading their composer.json).
+// mediawikiComposerPHPRequirementRE pulls the minimum PHP version out of a downloaded release's own composer.json ("php": ">=8.3.0") - read straight from the archive rather than hardcoding a branch->PHP table, since the minimum climbs across branches (1.39 LTS wants 7.4.3+, 1.46 wants 8.3+)
 var mediawikiComposerPHPRequirementRE = regexp.MustCompile(`"php"\s*:\s*"[^0-9]*(\d+\.\d+(?:\.\d+)?)`)
 
-// minPHPVersionFromComposerJSON reads composer.json's require.php constraint
-// out of an already-extracted MediaWiki tree. Returns "" if it can't be
-// determined (e.g. some future release restructures composer.json) - the
-// caller treats that as "unknown, don't block the install".
+// minPHPVersionFromComposerJSON reads composer.json's require.php constraint out of an already-extracted MediaWiki tree, returns "" if it can't be determined (e.g. some future release restructures composer.json) - the caller treats that as "unknown, don't block the install"
 func minPHPVersionFromComposerJSON(installDir string) string {
 	content, err := os.ReadFile(filepath.Join(installDir, "composer.json"))
 	if err != nil {
@@ -157,8 +141,7 @@ func minPHPVersionFromComposerJSON(installDir string) string {
 	return string(m[1])
 }
 
-// compareVersions compares two dotted numeric versions ("1.42.7" vs
-// "1.9.3"); returns >0 if a > b.
+// compareVersions compares two dotted numeric versions ("1.42.7" vs "1.9.3"), returns >0 if a > b
 func compareVersions(a, b string) int {
 	partsA := strings.Split(a, ".")
 	partsB := strings.Split(b, ".")

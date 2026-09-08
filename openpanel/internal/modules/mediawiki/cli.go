@@ -14,10 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
 
-// mediawikiRequestParams pulls the domain/docroot query params every
-// handler in this file needs, splits the main domain out of a possible
-// subdirectory suffix, verifies ownership, and resolves the PHP container -
-// mirrors joomla/cli.go's joomlaRequestParams.
+// mediawikiRequestParams pulls the domain/docroot query params every handler in this file needs, splits the main domain from any subdirectory suffix, verifies ownership, and resolves the PHP container - mirrors joomla/cli.go's joomlaRequestParams
 func mediawikiRequestParams(ctx context.Context, a *appctx.App, r *http.Request, userID int, userContext string) (domain, docroot, phpContainer string, ok bool) {
 	domain = r.URL.Query().Get("domain")
 	docroot = r.URL.Query().Get("docroot")
@@ -42,10 +39,7 @@ func mediawikiRequestParams(ctx context.Context, a *appctx.App, r *http.Request,
 	return domain, docroot, phpContainer, true
 }
 
-// handleMediaWikiLogs tails the PHP error log for the docroot's php-fpm
-// container, since MediaWiki writes no flat application log file by
-// default (its debug log is off unless explicitly configured) - consistent
-// in spirit with moodle/cli.go's handleMoodleLogs.
+// handleMediaWikiLogs tails the PHP error log for the docroot's php-fpm container, since MediaWiki writes no flat application log file by default (its debug log is off unless explicitly configured) - consistent in spirit with moodle/cli.go's handleMoodleLogs
 func handleMediaWikiLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _, userContext, err := injected(a, r)
@@ -76,13 +70,7 @@ func handleMediaWikiLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	_, _ = w.Write(out)
 }
 
-// handleMediaWikiLogin generates a one-time admin login link. Unlike
-// Drupal's `drush uli`, MediaWiki core ships no CLI command for this, so
-// this mirrors joomla/cli.go's handleJoomlaLogin: a small token table
-// (created here lazily, isolated from MediaWiki's own schema) plus a login
-// helper PHP file deployed into the docroot at install time (see
-// login_php.go) that verifies the token then binds an admin User to the
-// request's session through MediaWiki's own User::setCookies() API.
+// handleMediaWikiLogin generates a one-time admin login link - unlike Drupal's `drush uli`, MediaWiki core ships no CLI command for this, so this mirrors joomla/cli.go's handleJoomlaLogin: a small token table (created here lazily, isolated from MediaWiki's own schema) plus a login helper PHP file deployed into the docroot at install time (see login_php.go) that verifies the token then binds an admin User to the request's session through MediaWiki's own User::setCookies() API
 func handleMediaWikiLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, userContext, err := injected(a, r)
@@ -114,11 +102,7 @@ func handleMediaWikiLogin(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	dbName := dbInfo["database_name"]
 	prefix := dbInfo["database_prefix"]
 
-	// The token table is created and named WITH MediaWiki's own configured
-	// table prefix (e.g. "mw_openpanel_login_tokens") - not because it's a
-	// MediaWiki-managed table, but because login_php.go reads it back
-	// through MediaWiki's own query builder, which auto-prepends
-	// $wgDBprefix to every bare table name it's given.
+	// the token table is created and named with MediaWiki's own configured table prefix (e.g. "mw_openpanel_login_tokens"), not because it's a MediaWiki-managed table but because login_php.go reads it back through MediaWiki's own query builder, which auto-prepends $wgDBprefix to every bare table name
 	_, _ = mysqlmanager.Exec(ctx, userContext,
 		"CREATE TABLE IF NOT EXISTS `"+prefix+"openpanel_login_tokens` ("+
 			"token_hash CHAR(64) PRIMARY KEY, user_id INT UNSIGNED NOT NULL, expires INT UNSIGNED NOT NULL)", dbName)

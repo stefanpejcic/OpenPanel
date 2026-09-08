@@ -14,15 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// apiMySQLSetRootPassword changes the MySQL root user's password (both the
-// given host, defaulting to '%', and 'localhost'), then persists it to
-// my.cnf/.env and restarts the service. This is the API equivalent of
-// POST /mysql/root-password (handleRootPasswordMySQL in rootpassword.go).
-// There's no GET counterpart: the root password isn't readable anywhere
-// (not even by the web page, which is a set-only form), so this is a
-// write-only resource - no strength check is applied, deliberately,
-// matching handleRootPasswordMySQL's own comment that the root password is
-// admin-only.
+// apiMySQLSetRootPassword changes the MySQL root user's password (both the given host, defaulting to '%', and 'localhost'), then persists it to my.cnf/.env and restarts the service - the API equivalent of POST /mysql/root-password (handleRootPasswordMySQL in rootpassword.go) - there's no GET counterpart since the root password isn't readable anywhere, so this is write-only, and deliberately has no strength check, matching handleRootPasswordMySQL's own comment that the root password is admin-only
 func apiMySQLSetRootPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	currentUsername, userContext, err := injected(a, r)
