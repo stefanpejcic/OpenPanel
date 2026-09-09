@@ -43,6 +43,7 @@
          <span id="spanAll" class="hidden md:inline"><i class="bi bi-hand-index"></i> {{.T.Get "Select all"}}</span>
          <i class="md:hidden bi bi-hand-index"></i>
          </button>
+      {{if .Rows}}
       <button class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="restoreAllButton" data-drawer-target="restoreAllDrawer" data-drawer-show="restoreAllDrawer" data-drawer-placement="right" aria-controls="restoreAllDrawer">
       <i class="bi bi-arrow-90deg-left"></i> {{.T.Get "Restore All"}}
       </button>
@@ -55,6 +56,7 @@
       <button class="relative inline-flex items-center justify-center whitespace-nowrap border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400" id="deleteTrashButton" data-drawer-target="deleteTrashDrawer" data-drawer-show="deleteTrashDrawer" data-drawer-placement="right" aria-controls="deleteTrashDrawer" disabled="true">
       <i class="bi bi-trash2"></i> {{.T.Get "Delete"}}
       </button>
+      {{end}}
 
 
         <!-- Dropdown for Column Visibility -->

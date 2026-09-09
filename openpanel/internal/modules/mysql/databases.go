@@ -176,6 +176,10 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			flashAndRedirect(a, w, r, "error", fmt.Sprintf("Name %s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", databaseName), "/mysql/new")
 			return
 		}
+		if len(databaseName) > 64 {
+			flashAndRedirect(a, w, r, "error", "Database name is too long. MySQL identifiers are limited to 64 characters.", "/mysql/new")
+			return
+		}
 
 		docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
 

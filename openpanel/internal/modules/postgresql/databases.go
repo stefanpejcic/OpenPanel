@@ -294,6 +294,12 @@ func handleDatabasesSizeInfo(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": `Invalid unit parameter. Use "bytes", "kb", "mb", or "gb".`})
 		return
 	}
+	status := docker.GetContainerStatus(ctx, userContext, "postgres")
+	if status.State != "running" {
+		writeJSON(w, http.StatusOK, []map[string]any{})
+		return
+	}
+
 	showAll := r.URL.Query().Get("show_all") != ""
 
 	whereClause := ""

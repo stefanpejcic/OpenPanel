@@ -65,7 +65,7 @@ type localeOption struct {
 }
 
 // flagOverrides maps locale codes to a different flag image code, for locales whose ISO code doesn't match the corresponding country flag
-var flagOverrides = map[string]string{"en": "gb", "zh": "cn", "uk": "ua"}
+var flagOverrides = map[string]string{"en": "gb", "zh": "cn", "uk": "ua", "lo": "la"}
 
 func localeOptions(codes []string) []localeOption {
 	opts := make([]localeOption, len(codes))
