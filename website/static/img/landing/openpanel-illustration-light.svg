@@ -82,6 +82,16 @@
 @keyframes cpu38 { 0% { opacity: 0; } 29.6% { opacity: 0; } 30% { opacity: 1; } 37.1% { opacity: 1; } 37.5% { opacity: 0; } 62.1% { opacity: 0; } 62.5% { opacity: 1; } 69.6% { opacity: 1; } 70% { opacity: 0; } 100% { opacity: 0; } }
 @keyframes cpu80 { 0% { opacity: 0; } 37.1% { opacity: 0; } 37.5% { opacity: 1; } 62.5% { opacity: 1; } 62.9% { opacity: 0; } 100% { opacity: 0; } }
 @keyframes cpuBar { 0% { width: 0px; } 7.5% { width: 0.896px; } 15% { width: 1.344px; } 22.5% { width: 3.36px; } 30% { width: 8.512px; } 37.5% { width: 17.92px; } 62.5% { width: 17.92px; } 70% { width: 8.512px; } 77.5% { width: 3.36px; } 85% { width: 1.344px; } 92.5% { width: 0.896px; } 100% { width: 0px; } }
+
+.ob-fade { animation: obFade 9.3s linear 1 forwards; }
+.ob-step1, .ob-tab1 { animation: obStep1 9.3s linear 1 forwards; }
+.ob-step2, .ob-tab2 { animation: obStep2 9.3s linear 1 forwards; }
+.ob-step3, .ob-tab3 { animation: obStep3 9.3s linear 1 forwards; }
+@keyframes obFade { 0% { opacity: 1; } 96.77% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes obStep1 { 0% { opacity: 1; } 32.25% { opacity: 1; } 32.6% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes obStep2 { 0% { opacity: 0; } 32.25% { opacity: 0; } 32.6% { opacity: 1; } 64.5% { opacity: 1; } 64.85% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes obStep3 { 0% { opacity: 0; } 64.5% { opacity: 0; } 64.85% { opacity: 1; } 96.77% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ob-fade, .ob-step1, .ob-step2, .ob-step3, .ob-tab1, .ob-tab2, .ob-tab3 { animation: none; opacity: 0; } }
 </style>
 <rect x="0" y="0" width="1168" height="737" rx="0" fill="#ffffff" stroke="none" stroke-width="1" />
 <rect x="0" y="0" width="208" height="737" rx="0" fill="#f9fafb" stroke="none" stroke-width="1" />
@@ -126,7 +136,7 @@
 <text x="46" y="467" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#1e2939" text-anchor="start">Advanced</text>
 <path d="M178 463 l3 3 l3-3" stroke="#9aa3b2" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="23" y="491" width="9" height="4.5" rx="0.6"/><path d="M25 491 v-2 M27.5 491 v-2 M22 496 c3 2 8 2 12-1"/></g>
-<text x="46" y="497" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#1e2939" text-anchor="start">Docker</text>
+<text x="46" y="497" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#1e2939" text-anchor="start">Containers</text>
 <path d="M178 493 l3 3 l3-3" stroke="#9aa3b2" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="27.5" cy="520.4" r="3.0"/><path d="M22 529 c0-4.8 9.9-4.8 9.9 0"/></g>
 <text x="46" y="527" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#1e2939" text-anchor="start">Account</text>
@@ -142,7 +152,7 @@
 <path d="M228 20 h14 v18 h-14 z M235 20 v18" stroke="#6a7282" stroke-width="1.3" fill="none" stroke-linejoin="round"/>
 <text x="254" y="34" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#1e2939" text-anchor="start">Dashboard</text>
 <g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="1110.0" cy="28.0" r="4.5"/><path d="M1113.3 31.3 l4.2 4.2"/></g>
-<g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1143.5 23 l2.4 4.8 5.1000000000000005 .05 -4.050000000000001 3.5999999999999996 .1 5.25 -4.95-3.0 -4.95 3.0 .1-5.25 -4.050000000000001-3.5999999999999996 5.1000000000000005-.05 z"/></g>
+<g stroke="#6a7282" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1148 20 L1149.80 25.52 L1155.61 25.53 L1150.91 28.94 L1152.70 34.47 L1148 31.06 L1143.30 34.47 L1145.09 28.94 L1140.39 25.53 L1146.20 25.52 Z"/></g>
 <text x="1092" y="88" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#6a7282" text-anchor="end">Icon position:</text>
 <rect x="1100" y="78" width="20" height="16" rx="4" fill="#e8eefe" stroke="#a9c2fd" stroke-width="1" />
 <text x="1110" y="90" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="700" fill="#155dfc" text-anchor="middle">T</text>
@@ -575,4 +585,99 @@
 <rect x="904" y="690.875" width="0" height="5" rx="2.5" fill="#155dfc" stroke="none" stroke-width="1" class="cpu-bar" />
 <text x="904" y="706.875" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="start">0.0 cores</text>
 <text x="1128" y="706.875" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="400" fill="#9aa3b2" text-anchor="end">5.0 cores</text>
+<g id="opOnboarding">
+<rect x="0" y="0" width="1168" height="737" fill="#0d1321" fill-opacity="0.5" class="ob-fade"/>
+<g class="ob-fade">
+<rect x="354" y="203" width="460" height="330" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+<text x="374" y="228" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#1e2939" text-anchor="start">Let's set up your account</text>
+<path d="M786 214 l10 10 M796 214 l-10 10" stroke="#9aa3b2" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+<line x1="354" y1="256" x2="814" y2="256" stroke="#e5e7eb" stroke-width="1"/>
+<rect x="364" y="264" width="142" height="24" rx="4" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+<rect x="512" y="264" width="142" height="24" rx="4" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+<rect x="660" y="264" width="142" height="24" rx="4" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+<text x="435" y="280" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#6a7282" text-anchor="middle">Webserver</text>
+<text x="583" y="280" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#6a7282" text-anchor="middle">PHP</text>
+<text x="731" y="280" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#6a7282" text-anchor="middle">Database</text>
+<line x1="354" y1="292" x2="814" y2="292" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="354" y1="478" x2="814" y2="478" stroke="#e5e7eb" stroke-width="1"/>
+<text x="374" y="503" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#6a7282" text-anchor="start">Skip</text>
+<rect x="714" y="486" width="80" height="28" rx="4" fill="#101828" stroke="none"/>
+</g>
+<g class="ob-tab1"><rect x="364" y="264" width="142" height="24" rx="4" fill="#101828"/><text x="435" y="280" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#ffffff" text-anchor="middle">Webserver</text></g>
+<g class="ob-tab2"><rect x="512" y="264" width="142" height="24" rx="4" fill="#101828"/><text x="583" y="280" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#ffffff" text-anchor="middle">PHP</text></g>
+<g class="ob-tab3"><rect x="660" y="264" width="142" height="24" rx="4" fill="#101828"/><text x="731" y="280" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#ffffff" text-anchor="middle">Database</text></g>
+
+<text x="754" y="503" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#ffffff" text-anchor="middle" class="ob-step1">Continue</text>
+<text x="754" y="503" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#ffffff" text-anchor="middle" class="ob-step2">Continue</text>
+<text x="754" y="503" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#ffffff" text-anchor="middle" class="ob-step3">Finish</text>
+
+<!-- Step 1: Webserver -->
+<g class="ob-step1">
+<text x="374" y="245" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#6a7282" text-anchor="start">Step 1 of 3 — choose your webserver</text>
+<rect x="374" y="332" width="420" height="32" rx="6" fill="#ffffff" stroke="#155dfc" stroke-width="1.5"/>
+<circle cx="390" cy="348" r="5.5" stroke="#155dfc" stroke-width="1.3" fill="none"/><circle cx="390" cy="348" r="2.5" fill="#155dfc"/>
+<rect x="404" y="338" width="20" height="20" rx="5" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1"/>
+<g transform="translate(406,339) scale(0.62) rotate(-45 12 12)" stroke="#D22128" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></g>
+<text x="432" y="346" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#1e2939" text-anchor="start">Apache</text>
+<rect x="750" y="338" width="40" height="13" rx="6" fill="#f3f4f6" stroke="none"/>
+<text x="770" y="347" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8" font-weight="600" fill="#6a7282" text-anchor="middle">Default</text>
+<text x="432" y="358" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="400" fill="#6a7282" text-anchor="start">Great with .htaccess rewrite rules.</text>
+<rect x="374" y="380" width="420" height="32" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="390" cy="396" r="5.5" stroke="#9aa3b2" stroke-width="1.3" fill="none"/>
+<rect x="404" y="386" width="20" height="20" rx="5" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1"/>
+<text x="414" y="400" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="800" fill="#009639" text-anchor="middle">N</text>
+<text x="432" y="394" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#1e2939" text-anchor="start">Nginx</text>
+<text x="432" y="406" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="400" fill="#6a7282" text-anchor="start">Best for Node.js, Python &amp; high traffic.</text>
+<rect x="374" y="428" width="420" height="32" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="390" cy="444" r="5.5" stroke="#9aa3b2" stroke-width="1.3" fill="none"/>
+<rect x="404" y="434" width="20" height="20" rx="5" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1"/>
+<g transform="translate(408,435) scale(0.55)" fill="#0891b2" stroke="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></g>
+<text x="432" y="442" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#1e2939" text-anchor="start">OpenLiteSpeed</text>
+<text x="432" y="454" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="400" fill="#6a7282" text-anchor="start">Great for WordPress, single PHP version.</text>
+</g>
+
+<!-- Step 2: PHP -->
+<g class="ob-step2">
+<text x="374" y="245" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#6a7282" text-anchor="start">Step 2 of 3 — default PHP version</text>
+<rect x="374" y="332" width="420" height="32" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="390" cy="348" r="5.5" stroke="#9aa3b2" stroke-width="1.3" fill="none"/>
+<text x="414" y="346" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#1e2939" text-anchor="start">PHP 8.5</text>
+<text x="414" y="358" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="400" fill="#6a7282" text-anchor="start">Latest, best performance.</text>
+<rect x="374" y="380" width="420" height="32" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="390" cy="396" r="5.5" stroke="#9aa3b2" stroke-width="1.3" fill="none"/>
+<text x="414" y="394" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#1e2939" text-anchor="start">PHP 8.4</text>
+<text x="414" y="406" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="400" fill="#6a7282" text-anchor="start">Newest stable release.</text>
+<rect x="374" y="428" width="420" height="32" rx="6" fill="#ffffff" stroke="#155dfc" stroke-width="1.5"/>
+<circle cx="390" cy="444" r="5.5" stroke="#155dfc" stroke-width="1.3" fill="none"/><circle cx="390" cy="444" r="2.5" fill="#155dfc"/>
+<text x="414" y="442" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#1e2939" text-anchor="start">PHP 8.3</text>
+<rect x="750" y="434" width="40" height="13" rx="6" fill="#f3f4f6" stroke="none"/>
+<text x="770" y="443" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8" font-weight="600" fill="#6a7282" text-anchor="middle">Default</text>
+<text x="414" y="454" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="400" fill="#6a7282" text-anchor="start">Balanced performance and compatibility.</text>
+</g>
+
+<!-- Step 3: Database -->
+<g class="ob-step3">
+<text x="374" y="245" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#6a7282" text-anchor="start">Step 3 of 3 — choose your database</text>
+<rect x="374" y="332" width="420" height="32" rx="6" fill="#ffffff" stroke="#155dfc" stroke-width="1.5"/>
+<circle cx="390" cy="348" r="5.5" stroke="#155dfc" stroke-width="1.3" fill="none"/><circle cx="390" cy="348" r="2.5" fill="#155dfc"/>
+<rect x="404" y="338" width="20" height="20" rx="5" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1"/>
+<g stroke="#00618A" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="414" cy="344" rx="6" ry="2.2"/><path d="M408 344 v8 a6 2.2 0 0 0 12 0 v-8 M408 347.5 a6 2.2 0 0 0 12 0"/></g>
+<text x="432" y="346" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#1e2939" text-anchor="start">MySQL</text>
+<rect x="750" y="338" width="40" height="13" rx="6" fill="#f3f4f6" stroke="none"/>
+<text x="770" y="347" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8" font-weight="600" fill="#6a7282" text-anchor="middle">Default</text>
+<text x="432" y="358" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="400" fill="#6a7282" text-anchor="start">Fine-tuned for any type of application.</text>
+<rect x="374" y="380" width="420" height="32" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="390" cy="396" r="5.5" stroke="#9aa3b2" stroke-width="1.3" fill="none"/>
+<rect x="404" y="386" width="20" height="20" rx="5" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1"/>
+<text x="414" y="400" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="800" fill="#B45309" text-anchor="middle">Ma</text>
+<text x="432" y="394" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#1e2939" text-anchor="start">MariaDB</text>
+<text x="432" y="406" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="400" fill="#6a7282" text-anchor="start">Lighter and faster, great for WordPress.</text>
+<rect x="374" y="428" width="420" height="32" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+<circle cx="390" cy="444" r="5.5" stroke="#9aa3b2" stroke-width="1.3" fill="none"/>
+<rect x="404" y="434" width="20" height="20" rx="5" fill="#f4f6f9" stroke="#e5e7eb" stroke-width="1"/>
+<text x="414" y="448" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="800" fill="#EA580C" text-anchor="middle">P</text>
+<text x="432" y="442" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600" fill="#1e2939" text-anchor="start">Percona</text>
+<text x="432" y="454" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="400" fill="#6a7282" text-anchor="start">Drop-in MySQL with extra performance tools.</text>
+</g>
+</g>
 </svg>
