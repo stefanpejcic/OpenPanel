@@ -8,6 +8,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
 // handleDomainDocroot views or changes a domain's document root.
@@ -54,7 +55,7 @@ func handleDomainDocroot(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-docroot", domainName, "update", docroot).CombinedOutput()
 		if cmdErr == nil {
 			flashAndRedirect(a, w, r, "success", strings.TrimSpace(string(out)), "/domains/docroot?domain_name="+domainName)
-			_ = logger.RecordUserAction(a.Config, currentUsername, "changed docroot for "+domainName+" to "+docroot, "")
+			_ = logger.RecordUserAction(a.Config, currentUsername, "changed docroot for "+domainName+" to "+docroot, reqip.ClientIP(r))
 		} else {
 			flashAndRedirect(a, w, r, "error", strings.TrimSpace(string(out)), "/domains/docroot?domain_name="+domainName)
 		}
