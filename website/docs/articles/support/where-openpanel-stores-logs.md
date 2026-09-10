@@ -29,4 +29,4 @@ Services used by OpenPanel have the following logs:
 |`docker logs openpanel_dns`|DNS service logs|
 
 
-Logs can be viewed from the [OpenAdmin > Services > Log Viewer](/docs/admin/services/log_viewer/) and Administrators can even [add custom log files to OpenAdmin Log Viewer](/docs/admin/services/log_viewer/#how-to-add-more-files-to-openadmin-log-viewer).
+Logs can be viewed from the [OpenAdmin > Services > Log Viewer](/docs/admin/services/logs/) and Administrators can even [add custom log files to OpenAdmin Log Viewer](/docs/admin/services/logs/#how-to-add-more-files-to-openadmin-log-viewer).

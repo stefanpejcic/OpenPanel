@@ -61,3 +61,14 @@ To create a new reseller, click **Create New**, set a username and password, and
 ---
 
 Reseller users have access only to the features and account management tools assigned to them by the root administrator. They cannot exceed the limits defined in their reseller settings (Max Accounts, Max Disk Usage, and the Hosting Plans made available to them).
+
+---
+
+## Reseller Account
+
+When a Reseller logs in, they see a **Reseller Account** page (`/account`) instead of the full Accounts section, where they can:
+
+- **Change Password** – Set a new password for their own login.
+- **Branding** – Set a custom **Logo URL** shown instead of the default OpenPanel logo on every account they own (does not apply to the login page).
+
+Resellers also have their own **Two-Factor Authentication** and **Passkeys** pages under Security, scoped to their own login only.

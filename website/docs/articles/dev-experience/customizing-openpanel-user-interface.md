@@ -55,13 +55,14 @@ To set a custom name visible in the OpenPanel sidebar and on login pages, enter 
 
 ## Customize Templates
 
-You can customize all templates that are displayed to users:
+You can customize all templates that are displayed to users, from [OpenAdmin > Domains > Edit Domain Templates](/docs/admin/domains/file_templates/):
 
-- [Domain VHost Template](/docs/admin/services/nginx/#domain-vhost-template)
-- [Default Landing Page](/docs/admin/services/nginx/#default-landing-page)
-- [Suspended User Template](/docs/admin/services/nginx/#suspended-user-template)
-- [Suspended Domain Template](/docs/admin/services/nginx/#suspended-domain-template)
-- [Error Pages](/docs/admin/services/nginx/#error-pages)
+- [Default Landing Page](/docs/admin/domains/file_templates/#default-page)
+- [Suspended Website Template](/docs/admin/domains/file_templates/#suspended-website)
+- [Suspended User Template](/docs/admin/domains/file_templates/#suspended-user)
+- [Apache VirtualHost Template](/docs/admin/domains/file_templates/#apache-virtualhost)
+- [Nginx VirtualHost Template](/docs/admin/domains/file_templates/#nginx-virtualhost)
+- [OpenResty VirtualHost Template](/docs/admin/domains/file_templates/#openresty-virtualhost)
 
 ## Create OpenPanel Module
 
