@@ -208,6 +208,30 @@ opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --usern
 
 add `--live-transfer` flag to suspend account after the transfer, and forward DNS to the new server.
 
+### Backup User
+
+To create a full account `.tar.gz` backup of a single user (files, databases, mail, and configuration):
+
+```bash
+opencli user-backup --account <USER> [--output <DIR>] [--quiet]
+```
+
+- `--output <DIR>` - custom destination directory for the archive (defaults to the location configured for backups).
+- `--quiet` - only log to file, don't print progress to stdout.
+
+### Restore User
+
+To restore a user account from a `.tar.gz` backup created with `user-backup`:
+
+```bash
+opencli user-restore --file <ARCHIVE> [--force] [--new-username=<NAME>] [--temp-dir=<PATH>] [--quiet]
+```
+
+- `--force` - overwrite the account if a user with the same username already exists.
+- `--new-username=<NAME>` - restore under a different username than the one in the backup.
+- `--temp-dir=<PATH>` - directory to extract the archive into during restore (must be empty). Defaults to `/tmp/`.
+- `--quiet` - only log to file, don't print progress to stdout.
+
 ### Delete User
 
 To delete a user and all his data run the following command:
@@ -456,80 +480,6 @@ Total checks performed: 70
 ```
 </details>
 
-
-
-
-### View disk usage for user
-
-To list real-time disk and inodes usage for a user:
-
-```bash
-opencli user-disk <USERNAME> <summary|detail|path> [--json]
-```
-
-Example usage:
-
-- Disk usage summary for user:
-
-  <details>
-    <summary>Example output</summary>
-  
-    ```bash
-    # opencli user-disk proba summary
-    
-    -------------- disk usage --------------
-    - 564M	/home/proba
-    - 864M	/var/lib/docker/devicemapper/mnt/ac28d2b066f5ffcacf4510b042623f6a3c196bd4f5fb9e842063c5325e4d0184
-    ```
-    
-    ```bash
-    # opencli user-disk proba summary --json
-    
-    {"home_directory_usage": "564564", "docker_container_usage": "883864", "home_path": "/home/proba", "docker_path": "/var/lib/docker/devicemapper/mnt/ac28d2b066f5ffcacf4510b042623f6a3c196bd4f5fb9e842063c5325e4d0184"}
-    ```
-  </details>
-
-
-
-- Detailed disk usage report for user:
-
-  <details>
-    <summary>Example output</summary>
-
-    ```bash
-    # opencli user-disk proba detail
-    ------------- home directory -------------
-    - home directory:        /home/proba
-    - mountpoint:            /home/proba
-    - bytes used:            61440
-    - bytes total:           10375548928
-    - bytes limit:           true
-    - inodes used:           20
-    - inodes total:          1000960
-    ---------------- container ---------------
-    - container directory:   /var/lib/docker/devicemapper/mnt/ac28d2b066f5ffcacf4510b042623f6a3c196bd4f5fb9e842063c5325e4d0184
-    - bytes used:            1025388544
-    - bytes total:           10726932480
-    - inodes used:           20905
-    - inodes total:          5242880
-    - storage driver:        devicemapper
-    ```
-  </details>
-
-- Paths for user:
-  ```bash
-  # opencli user-disk proba path
-  
-  -------------- paths --------------
-  - home_directory=/home/proba
-  - docker_container_path=/var/lib/docker/devicemapper/mnt/ac28d2b066f5ffcacf4510b042623f6a3c196bd4f5fb9e842063c5325e4d0184
-  ```
-  
-  ```bash
-  # opencli user-disk proba path --json
-  
-  {"home_directory": "/home/proba","docker_container_path": "/var/lib/docker/devicemapper/mnt/ac28d2b066f5ffcacf4510b042623f6a3c196bd4f5fb9e842063c5325e4d0184"}
-  ```
 
 
 

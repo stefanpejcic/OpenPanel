@@ -156,3 +156,23 @@ opencli plan-edit --debug id=<ID> name"<TEXT>" description="<TEXT>" emails=<COUN
 # opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G"
 ```
 </details>
+
+## Apply Plan
+
+Editing a plan (above) does not by itself change the limits already applied to users on that plan. To move users to a new plan and (re)apply that plan's limits to them:
+
+```bash
+opencli plan-apply <plan_id> <username1> <username2>... [--all] [--debug]
+```
+
+Use `--all` instead of listing usernames to apply it to every user currently on that plan.
+
+By default all limits (CPU, RAM, disk, bandwidth, email) are applied. Restrict it to specific limits with:
+
+- `--cpu` - apply the CPU limit only.
+- `--ram` - apply the RAM limit only.
+- `--dsk` - apply the disk limit only.
+- `--net` - apply the bandwidth limit only.
+- `--email` - apply the email rate limit only.
+
+These flags can be combined, e.g. `--cpu --ram` applies only CPU and RAM limits.
