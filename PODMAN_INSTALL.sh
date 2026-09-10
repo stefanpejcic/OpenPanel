@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org/)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           07.09.2026
+# Last Modified:           10.09.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -42,7 +42,7 @@ custom_username=""
 custom_password=""
 license_key=""
 
-readonly DEFAULT_PANEL_VERSION="2.0.6"
+readonly DEFAULT_PANEL_VERSION="2.0.7"
 readonly CONTAINER_ENGINE="podman"
 readonly SHARED_STORE="/var/lib/containers/shared-storage"
 readonly ETC_DIR="/etc/openpanel/"
