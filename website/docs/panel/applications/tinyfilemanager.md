@@ -4,7 +4,7 @@ sidebar_position: 17
 
 # TinyFileManager Manager
 
-Install and manage [TinyFileManager](https://github.com/prasathmani/tinyfilemanager) in an existing domain. This installs a standalone, password-protected, web-based file manager as a regular PHP application into a domain's docroot — a separate tool visitors log into at the site's own URL — which is entirely distinct from OpenPanel's own built-in [File Manager](/docs/panel/files/file-manager) used for browsing your hosting account's files from inside the panel. TinyFileManager is a single PHP file with no database, no CLI installer, no versioning, and no update mechanism upstream, so this manager is deliberately minimal: no dedicated sidebar page, no cloning, no scanning for existing installs, no hardening rules, no maintenance mode, no admin auto-login, and no cache to clear.
+Install and manage [TinyFileManager](https://github.com/prasathmani/tinyfilemanager) in an existing domain. This installs a standalone, password-protected, web-based file manager as a regular PHP application into a domain's docroot — a separate tool visitors log into at the site's own URL — which is entirely distinct from OpenPanel's own built-in [File Manager](/docs/panel/files/files) used for browsing your hosting account's files from inside the panel. TinyFileManager is a single PHP file with no database, no CLI installer, no versioning, and no update mechanism upstream, so this manager is deliberately minimal: no dedicated sidebar page, no cloning, no scanning for existing installs, no hardening rules, no maintenance mode, no admin auto-login, and no cache to clear.
 
 ---
 

@@ -38,5 +38,5 @@ For an application to appear on the Autoinstaller page, the corresponding module
 `*` Indicates that the feature is available only in Enterprise editon.
 
 :::note
-Mautic and Custom Docker Application are shown in this list but are not currently implemented in OpenPanel — there is no backend module or install route for either yet.
+Mautic is shown in this list but is not currently implemented in OpenPanel — there is no backend module or install route for it. Custom Docker Application is not a separate installer — it links to the real [Containers](/docs/panel/containers/) page, where you can add any custom Docker Compose service.
 :::

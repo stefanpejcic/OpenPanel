@@ -751,7 +751,7 @@ When disabled:
 The **`inodes`** module allows users to view inode usage per-directory.
 
 When enabled:
-* Users can access the [**Files > Inodes Explorer** page](/docs/panel/files/inodes/).
+* Users can access the [**Files > Inodes Explorer** page](/docs/panel/files/inodes_explorer/).
 
 When disabled:
 * Users do not have access to the *Files > Inodes Explorer* page.
