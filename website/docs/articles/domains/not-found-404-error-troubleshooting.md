@@ -54,7 +54,7 @@ This means the file might appear in File Manager but not be accessible to PHP.
 
 * If you have Docker access:
 
-  1. Go to **Docker > Terminal**.
+  1. Go to **Containers > Terminal**.
   2. Select the PHP service.
      ![screenshot](/img/docs-content/qphbySyB-image.png)
   3. Run:
@@ -67,7 +67,7 @@ This means the file might appear in File Manager but not be accessible to PHP.
 
 * To restart the PHP container:
 
-  * Go to **Docker > Containers**.
+  * Go to **Containers**.
   * Disable the PHP service, wait for the page to reload, then enable it again.
     ![screenshot](/img/docs-content/wx8Dm4XP-image.png)
 

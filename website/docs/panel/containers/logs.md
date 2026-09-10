@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Logs
 
-The **Docker > Logs** page allows you to view container logs (`docker logs`) directly from the OpenPanel interface.
+The **Containers > Logs** page allows you to view container logs (`docker logs`) directly from the OpenPanel interface.
 
 ## Requirements
 
@@ -15,7 +15,7 @@ To access this feature:
 
 ## Accessing Logs
 
-1. In the OpenPanel menu, go to **Docker > Logs**.
+1. In the OpenPanel menu, go to **Containers > Logs**.
 2. Click on **Select Container** to display a list of all available services.
 3. Select the service you want to view logs for.
 4. The log output for the selected container will appear below.

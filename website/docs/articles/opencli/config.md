@@ -184,7 +184,7 @@ session_duration=30
 
 ### terminal_timeout
 
-`terminal_timeout` enables you to set time in seconds to limit command execution from *OpenPanel > Docker > Terminal* and *OpenAdmin > Advanced > Terminal*.
+`terminal_timeout` enables you to set time in seconds to limit command execution from *OpenPanel > Containers > Terminal* and *OpenAdmin > Server > Terminal*.
 
 ```bash
 terminal_timeout=30

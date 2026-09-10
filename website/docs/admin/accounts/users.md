@@ -143,7 +143,7 @@ Statistics is the default tab, displays current usage statistics:
 - Time statistics usage was last update
 - Historical usage
 
-Clicking on 'Load Docker Usage History' will display a table with past resource usage for the user: Date, number of running containers, CPU% and Memory%, Net I/O and Block I/O.
+Clicking on 'View Past Usage' will display a table with past resource usage for the user: Date, number of running containers, CPU% and Memory%, Net I/O and Block I/O.
 
 ![user statistics](/img/admin/user_usage.png)
 

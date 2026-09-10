@@ -17,4 +17,4 @@ To import tables into a database, navigate to **PostgreSQL > Import**:
 3. **Upload**
    Click the **Upload & Import** button and wait for the import process to complete.
 
-If your SQL file is very large, we recommend using the **Docker > Terminal** interface instead for more reliable import handling.
+If your SQL file is very large, we recommend using the **Containers > Terminal** interface instead for more reliable import handling.

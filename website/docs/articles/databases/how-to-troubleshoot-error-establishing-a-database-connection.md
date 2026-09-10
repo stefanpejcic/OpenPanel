@@ -32,7 +32,7 @@ If you get a blank page or an empty table instead it means that the database con
 
 However if data doesn't appear on the page in a couple of minutes there's an issue with the database container.
 
-If the Docker feature is enabled for your plan you can check the database container's logs on OpenPanel > Docker/Logs , you can also stop and start the container on OpenPanel > Docker/Containers .
+If the Docker feature is enabled for your plan you can check the database container's logs on OpenPanel > Containers/Logs , you can also stop and start the container on OpenPanel > Containers .
 
 ![containers.png](/img/docs-content/imgur-GGvHfXb.png)
 

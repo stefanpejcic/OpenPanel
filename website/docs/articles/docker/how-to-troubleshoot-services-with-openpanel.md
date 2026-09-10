@@ -2,11 +2,11 @@
 
 If you've run into issues with a service that is managed by OpenPanel and your account has the Docker feature enabled you can use it to restart the service container and check the logs for further troubleshooting.
 
-Simpy go to Openpanel > Docker > Containers and try stopping/starting the service container:
+Simpy go to Openpanel > Containers and try stopping/starting the service container:
 
 ![containersGUI.png](/img/docs-content/650sKYW3-containersgui.png)
 
-To check logs go to Openpanel > Docker > Logs and select a container from the dropdown menu to view it's logs:
+To check logs go to Openpanel > Containers > Logs and select a container from the dropdown menu to view it's logs:
 
 ![containersLogsGUI.png](/img/docs-content/Fzh4bqF1-containerlogsgui.png)
 

@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # Switch Web Server
 
-The **Docker > Switch Web Server** page allows you to switch your current web server between available options: **Nginx**, **OpenResty**, and **Apache**.
+The **Containers > Switch Web Server** page allows you to switch your current web server between available options: **Nginx**, **OpenResty**, and **Apache**.
 
 The currently active web server is displayed in the top-right corner of the page.
 
@@ -27,7 +27,7 @@ Before switching the web server, please ensure the following:
 
 ### Steps to Switch
 
-1. In the OpenPanel menu, navigate to **Docker > Switch Web Server**.
+1. In the OpenPanel menu, navigate to **Containers > Switch Web Server**.
 2. From the dropdown menu, select the new web server you want to use.
 3. Click the **Switch** button to initiate the process.
 

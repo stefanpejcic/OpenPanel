@@ -4,7 +4,7 @@ sidebar_position: 7
 
 # Switch MySQL Type
 
-The **Docker > Switch MySQL Type** page allows you to switch your current mysql service between available options: **MySQL** and **MariaDB**.
+The **Containers > Switch MySQL Type** page allows you to switch your current mysql service between available options: **MySQL** and **MariaDB**.
 
 The currently active type is displayed in the top-right corner of the page.
 
@@ -29,7 +29,7 @@ Before switching the database type, please ensure the following:
 
 Since only two database types exist, there's nothing to pick from a list — the page shows a single button for the other available type.
 
-1. In the OpenPanel menu, navigate to **Docker > Switch MySQL Type**.
+1. In the OpenPanel menu, navigate to **Containers > Switch MySQL Type**.
 2. Click the **Switch to `<type>`** button (for example, **Switch to mariadb**) to initiate the process.
 
 After confirmation:

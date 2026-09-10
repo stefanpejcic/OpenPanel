@@ -17,7 +17,7 @@ To access the Terminal:
 
 ## Accessing the Terminal
 
-1. In the OpenPanel menu, go to **Docker > Terminal**.
+1. In the OpenPanel menu, go to **Containers > Terminal**.
 2. Click on **Select Service** to display a list of currently running services.
 3. Click on the service you want to access.
 4. The terminal window will open, allowing you to run commands inside the container.

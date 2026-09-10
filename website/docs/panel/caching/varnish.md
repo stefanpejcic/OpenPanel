@@ -36,7 +36,7 @@ Control Varnish caching on a per-domain basis.
 
 ## Container
 
-While the service is running, real-time resource usage (CPU, memory, network and block I/O) is displayed. Click **Edit limits** to adjust the container's resource limits from the Docker/Containers page.
+While the service is running, real-time resource usage (CPU, memory, network and block I/O) is displayed. Click **Edit limits** to adjust the container's resource limits from the Containers page.
 
 ---
 

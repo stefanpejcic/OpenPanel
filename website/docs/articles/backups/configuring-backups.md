@@ -76,7 +76,7 @@ SSH_PASSWORD="NotSoStrongP@ssword"
 To set the backup frequency, go to:
 
 **Path:**
-`OpenAdmin > Advanced > System Cron Jobs`
+`OpenAdmin > Server > Scheduled Actions`
 
 Locate the cron job for the command:
 

@@ -26,7 +26,7 @@ This means that even after you upload your site, the cached default page could s
 
 **Disable Varnish for a specific domain:**
 
-1. Go to **OpenPanel > Cache > Varnish**
+1. Go to **OpenPanel > Caching > Varnish**
 2. Disable Varnish for that domain
 
 ![Disable Varnish cache for domain](/img/docs-content/dwSGj2qk-2025-08-13-12-25.png)

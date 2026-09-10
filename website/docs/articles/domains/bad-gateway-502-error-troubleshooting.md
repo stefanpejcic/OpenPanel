@@ -11,7 +11,7 @@ A 502 Bad Gateway error is common when using Nginx. It means the web server (Ngi
 **Steps to check PHP-FPM:**
 
 1. Verify that the PHP service is running.
-   If Docker feature is enabled, go to **Docker > Containers** and check the status of the PHP container.
+   If Docker feature is enabled, go to **Containers** and check the status of the PHP container.
    If inactive, start it.
    ![screenshot](/img/docs-content/wx8Dm4XP-image.png)
 
@@ -24,7 +24,7 @@ Even if PHP-FPM is running, Nginx may have started before it and failed to conne
 **Fix:** Restart Nginx.
 
 * If using Docker feature:
-  Go to **Docker > Containers**, disable Nginx, then enable it again.
+  Go to **Containers**, disable Nginx, then enable it again.
   ![screenshot](/img/docs-content/jRdPP7fs-image.png)
 
 * If you do not have access to Docker feature, simply add another domain in order to restart Nginx:
