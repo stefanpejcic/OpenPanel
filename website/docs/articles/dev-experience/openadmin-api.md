@@ -30,6 +30,23 @@ This token must be sent in header for all other API endpoints:
 
 💡 Hint: Use `opencli api list` command to view usage examples for all the endpoints available on your OpenPanel version.
 
+### Single Sign-On (SSO) into OpenAdmin
+
+`POST /api/login` exchanges an OpenAdmin username/password for a one-time SSO token instead of a JWT — useful for integrations (like the WHMCS module's "Login to Panel" button) that need to open a real, logged-in OpenAdmin browser session rather than just call the API. Posting the admin's credentials straight to the `/login` page from an auto-submitting form on another site doesn't work, since that request hits OpenAdmin's CSRF protection.
+
+```bash
+curl -X POST "https://OPENADMIN_DOMAIN_OR_IP:2087/api/login" \
+  -H "Content-Type: application/json" -d '{"username":"OPENADMIN_USERNAME","password":"OPENADMIN_PASSWORD"}'
+```
+
+Example response:
+
+```json
+{"token":"5f2c...","login_path":"/login/sso/5f2c...","expires_in":120}
+```
+
+Send whoever needs the session to `login_path` (resolved against the same OpenAdmin domain) in their browser within `expires_in` seconds. Visiting it logs them in and redirects to `/dashboard`. The token is single-use — deleted as soon as it's redeemed (or once it expires), whichever comes first — so a leaked or replayed link never works twice.
+
 :::danger
 Some endpoints below are destructive or high-privilege (rebooting the server, changing the root SSH password, disabling OpenAdmin, migrating a server, WAF/firewall management). They run with the same privilege as the admin panel itself — scope and rotate API tokens accordingly.
 :::

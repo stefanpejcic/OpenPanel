@@ -146,6 +146,57 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/login:
+    post:
+      summary: Log in with username/password and obtain a one-time SSO token, redeemable once at GET
+        /login/sso/{token} (expires after 2 minutes) for a real browser session cookie and a redirect to
+        /dashboard. For integrations (e.g. a WHMCS "Login to Panel" button) that need to open an actual
+        admin session instead of just an API token - avoids posting credentials to the CSRF-protected
+        /login form, which an auto-submitting cross-origin form can't get past.
+      description: '**Access:** No authentication (this is the login/health-check endpoint itself).'
+      operationId: login
+      tags:
+      - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: admin
+                password:
+                  type: string
+                  example: secret
+              example:
+                username: admin
+                password: secret
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: 5f2c...
+                  login_path:
+                    type: string
+                    example: /login/sso/5f2c...
+                  expires_in:
+                    type: integer
+                    example: 120
+                example:
+                  token: 5f2c...
+                  login_path: /login/sso/5f2c...
+                  expires_in: 120
+        default:
+          $ref: '#/components/responses/Error'
+      security: []
   /api/users:
     get:
       summary: Lists user accounts. The underlying listing query depends on a page-scoped 'current user'
