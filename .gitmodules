@@ -46,3 +46,11 @@
 	path = mailserver
 	url = https://github.com/stefanpejcic/OpenMail
 	branch = main
+[submodule "vsftpd"]
+	path = vsftpd
+	url = https://github.com/stefanpejcic/OpenPanel-FTP
+	branch = main
+[submodule "integrations/clientexec"]
+	path = integrations/clientexec
+	url = https://github.com/stefanpejcic/openpanel-clientexec
+	branch = main

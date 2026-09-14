@@ -99,7 +99,7 @@ run_hook() {
 handle_special_commands() {
     local command="$1"; shift
     case "$command" in
-        error) python3 "${SCRIPTS_DIR}/error.py" "$@"; exit 0 ;; #TODO: handle Python to Go port
+        error) python3 "${SCRIPTS_DIR}/error.py" "$@"; exit 0 ;; # todo: handle python to go port
         locale) bash ${debug_flag:+"$debug_flag"} <(curl -4sSL "https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh") "$@"; exit 0 ;;
     esac
 }
