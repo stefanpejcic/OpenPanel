@@ -4,7 +4,7 @@ import { SVGProps } from "react";
 
 type Props = SVGProps<SVGSVGElement> & {
     id?: string;
-    variant: "strapi" | "supabase" | "blesta" | "clientexec";
+    variant: "strapi" | "supabase" | "blesta" | "clientexec" | "wisecp";
     day: number;
 };
 
@@ -40,6 +40,12 @@ export const DayIndicator = ({
                     stopColor: "text-refine-week-blesta-day-indicator-stop",
                 };
 
+            case "wisecp":
+                return {
+                    startColor: "text-refine-week-blesta-day-indicator-start",
+                    stopColor: "text-refine-week-blesta-day-indicator-stop",
+                };
+
             default:
                 return {
                     startColor: "#fff",
@@ -68,7 +74,11 @@ export const DayIndicator = ({
                 <text
                     className={clsx({
                         "text-gray-1000": variant === "supabase",
-                        "text-gray-0": variant === "strapi" || variant === "blesta" || variant === "clientexec",
+                        "text-gray-0":
+                            variant === "strapi" ||
+                            variant === "blesta" ||
+                            variant === "clientexec" ||
+                            variant === "wisecp",
                     })}
                     x="20"
                     fontSize="12px"
@@ -82,7 +92,11 @@ export const DayIndicator = ({
                 <text
                     className={clsx({
                         "text-gray-900": variant === "supabase",
-                        "text-gray-0": variant === "strapi" || variant === "blesta" || variant === "clientexec",
+                        "text-gray-0":
+                            variant === "strapi" ||
+                            variant === "blesta" ||
+                            variant === "clientexec" ||
+                            variant === "wisecp",
                     })}
                     x="28"
                     y="48"

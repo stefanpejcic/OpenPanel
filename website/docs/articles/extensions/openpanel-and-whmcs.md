@@ -1,6 +1,6 @@
 # WHMCS
 
-OpenPanel Enterprise edition has billing integrations with WHMCS, [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling), [Blesta](/docs/articles/extensions/openpanel-and-blesta) and [ClientExec](/docs/articles/extensions/openpanel-and-clientexec).
+OpenPanel Enterprise edition has billing integrations with WHMCS, [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling), [Blesta](/docs/articles/extensions/openpanel-and-blesta), [ClientExec](/docs/articles/extensions/openpanel-and-clientexec) and [WISECP](/docs/articles/extensions/openpanel-and-wisecp).
 
 OpenPanel WHMCS module allows users to integrate billing automations with their OpenPanel server.
 

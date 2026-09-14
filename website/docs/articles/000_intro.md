@@ -13,6 +13,7 @@ sidebar_position: 1
 - [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/)
 - [Blesta](/docs/articles/extensions/openpanel-and-blesta/)
 - [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/)
+- [WISECP](/docs/articles/extensions/openpanel-and-wisecp/)
 
 # Transfers
 - [Import account from cPanel backup](/docs/articles/transfers/import-cpanel-backup-to-openpanel/)

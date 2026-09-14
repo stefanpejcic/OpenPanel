@@ -37,6 +37,7 @@ import { LandingHeroBlestaIcon } from "./icons/landing-hero/blesta";
 import { LandingHeroFossBillingIcon } from "./icons/landing-hero/fossbilling";
 import { LandingHeroPaymenterIcon } from "./icons/landing-hero/paymenter";
 import { LandingHeroClientExecIcon } from "./icons/landing-hero/clientexec";
+import { LandingHeroWisecpIcon } from "./icons/landing-hero/wisecp";
 import { LandingHeroPasskeysIcon } from "./icons/landing-hero/passkeys";
 import { LandingHeroTwoFaIcon } from "./icons/landing-hero/two-fa";
 import { LandingHeroPasswordsIcon } from "./icons/landing-hero/passwords";
@@ -192,6 +193,16 @@ const billingIntegrations: GroupOption = {
             name: "ClientExec",
             icon: (props) => (
                 <LandingHeroClientExecIcon
+                    {...props}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#1479D6",
+        },
+        {
+            name: "WISECP",
+            icon: (props) => (
+                <LandingHeroWisecpIcon
                     {...props}
                     style={{ marginLeft: "1.5em" }}
                 />

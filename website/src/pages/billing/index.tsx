@@ -52,7 +52,7 @@ const Card = ({
 
 const RefineWeek = () => {
     return (
-        <CommonLayout description="OpenPanel integrates with WHMCS, FOSSBilling, Blesta, and ClientExec for automated hosting account provisioning, suspension, and termination.">
+        <CommonLayout description="OpenPanel integrates with WHMCS, FOSSBilling, Blesta, ClientExec, and WISECP for automated hosting account provisioning, suspension, and termination.">
             <div className="not-prose">
                 <Head title="Billing Software Integrations for OpenPanel | OpenPanel">
                     <html data-page="week-of-refine" data-customized="true" />

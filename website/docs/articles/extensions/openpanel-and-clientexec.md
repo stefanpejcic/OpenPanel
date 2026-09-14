@@ -1,6 +1,6 @@
 # ClientExec
 
-OpenPanel Enterprise edition has billing integrations with [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/), [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/), [Blesta](/docs/articles/extensions/openpanel-and-blesta/) and ClientExec.
+OpenPanel Enterprise edition has billing integrations with [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/), [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/), [Blesta](/docs/articles/extensions/openpanel-and-blesta/), ClientExec and [WISECP](/docs/articles/extensions/openpanel-and-wisecp/).
 
 OpenPanel ClientExec plugin allows users to integrate billing automations with their OpenPanel server.
 

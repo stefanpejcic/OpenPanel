@@ -38,6 +38,12 @@ const clientexecShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeUR
     `📚 Setup ClientExec & OpenPanel account provisioning in just 5 minutes.\n\n`,
 )}&hashtags=${hashtags}`;
 
+const wisecpShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+    "https://openpanel.com/wisecp-module/",
+)}&text=${encodeURIComponent(
+    `📚 Setup WISECP & OpenPanel account provisioning in just 5 minutes.\n\n`,
+)}&hashtags=${hashtags}`;
+
 
 export const data = {
     blesta: {
@@ -199,6 +205,69 @@ export const data = {
             },
         ],
         shareTweetUrl: clientexecShareTweetURL,
+    },
+    wisecp: {
+        logo: StrapiWithText,
+        cover: "/img/tutorial-cards/wisecp.png",
+        cover2x: "/img/tutorial-cards/wisecp.png",
+        coverAlt: "WISECP and OpenPanel module integration",
+        title: "wisecp",
+        description:
+            "Setup <strong>WISECP & OpenPanel</strong> account provisioning in just 5 minutes.",
+        date: "September 14 - September 20, 2026",
+        timeline: [
+            {
+                date: "September 14, Monday",
+                title: "Enable API access in OpenAdmin",
+                description: `
+                First make sure that API access is enabled by going to <strong className="font-bold">OpenAdmin > API</strong> or by running <strong className="font-bold">opencli config get api</strong> from the terminal.`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-wisecp/#enable-api",
+                image: "/week-of-refine/supabase-timeline-1.jpg",
+                image2x: "/week-of-refine/supabase-timeline-1-2x.jpg",
+            },
+            {
+                date: "September 15, Tuesday",
+                title: "Whitelist on Firewall",
+                description: `WISECP server needs to be able to connect to OpenAdmin on port 2087, whitelist both servers: <strong className="font-bold">csf -a SERVER_IP</strong>.`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-wisecp/#whitelist-on-openpanel",
+                image: "/week-of-refine/supabase-timeline-2.jpg",
+                image2x: "/week-of-refine/supabase-timeline-2-2x.jpg",
+            },
+            {
+                date: "September 16, Wednesday",
+                title: "Install OpenPanel Module",
+                description: `SSH to your WISECP server and inside the WISECP install directory run this command to clone and copy the module into place: <strong className="font-bold">git clone https://github.com/stefanpejcic/openpanel-wisecp-module.git</strong>.`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-wisecp/#install-openpanel-wisecp-module",
+                image: "/week-of-refine/supabase-timeline-3.jpg",
+                image2x: "/week-of-refine/supabase-timeline-3-2x.jpg",
+            },
+            {
+                date: "September 17, Thursday",
+                title: "Add Server in WISECP",
+                description: `In WISECP admin, go to <strong className="font-bold">Settings > Servers > Add New</strong> and select the <strong className="font-bold">OpenPanel</strong> module, then fill in the OpenAdmin admin username/password, hostname, and port (default 2087).`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-wisecp/#module-setup",
+                image: "/week-of-refine/supabase-timeline-4.jpg",
+                image2x: "/week-of-refine/supabase-timeline-4-2x.jpg",
+                enabledTime: "2026-09-17 12:30",
+            },
+            {
+                date: "September 18, Friday",
+                title: "Create Hosting Plans",
+                description: `On the WISECP server create hosting plans that match the package names created on the OpenPanel server, then assign the <strong className="font-bold">OpenPanel</strong> server to the product.`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-wisecp/#create-hosting-package-1",
+                image: "/week-of-refine/supabase-timeline-5.jpg",
+                image2x: "/week-of-refine/supabase-timeline-5-2x.jpg",
+            },
+            {
+                date: "September 19, Saturday",
+                title: "Test",
+                description: `Create a new order on WISECP to test if the OpenAdmin API account provisioning is functioning properly.`,
+                link: "",
+                image: "/week-of-refine/supabase-timeline-6.jpg",
+                image2x: "/week-of-refine/supabase-timeline-6-2x.jpg",
+            },
+        ],
+        shareTweetUrl: wisecpShareTweetURL,
     },
     supabase: {
         logo: SupabaseWithText,

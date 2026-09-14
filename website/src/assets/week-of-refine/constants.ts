@@ -42,4 +42,14 @@ export const weekOfRefineCards: CardProps[] = [
             "bg-week-of-refine-supabase-card-light dark:bg-week-of-refine-supabase-card",
         link: "/clientexec-module",
     },
+    {
+        title: "WISECP",
+        dateRange: "September 14, 2026",
+        description:
+            "WISECP module for OpenPanel.",
+        logo: SupabaseWithText,
+        bgLinearGradient:
+            "bg-week-of-refine-supabase-card-light dark:bg-week-of-refine-supabase-card",
+        link: "/wisecp-module",
+    },
 ];

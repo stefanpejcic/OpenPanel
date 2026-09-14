@@ -647,6 +647,13 @@ export const integrations: IntegrationsType = {
             status: "enterprise",
         },
         {
+            name: "WISECP",
+            icon: WHMCS,
+            description: "Provision OpenPanel accounts from WISECP.",
+            url: "/docs/articles/extensions/openpanel-and-wisecp/",
+            status: "enterprise",
+        },
+        {
             name: "API",
             icon: API,
             description:
