@@ -32,6 +32,7 @@ jobs:
             ["integrations/cpanel-import"]="https://github.com/stefanpejcic/cPanel-to-OpenPanel"
             ["integrations/cyberpanel-import"]="https://github.com/stefanpejcic/CyberPanel-to-OpenPanel"
             ["integrations/whmcs"]="https://github.com/stefanpejcic/openpanel-whmcs-module"
+            ["integrations/clientexec"]="https://github.com/stefanpejcic/openpanel-clientexec"
             ["integrations/virtualizor"]="https://github.com/stefanpejcic/openpanel-virtualizor"
             ["integrations/paymenter.org"]="https://github.com/stefanpejcic/openpanel-paymenter.org"
             ["integrations/fossbilling"]="https://github.com/stefanpejcic/FOSSBilling-OpenPanel"
@@ -103,6 +104,7 @@ jobs:
           git config -f .gitmodules submodule.integrations/cpanel-import.branch podman
           git config -f .gitmodules submodule.integrations/cyberpanel-import.branch podman
           git config -f .gitmodules submodule.integrations/whmcs.branch main
+          git config -f .gitmodules submodule.integrations/clientexec.branch main
           git config -f .gitmodules submodule.integrations/virtualizor.branch main
           git config -f .gitmodules submodule.integrations/paymenter.org.branch main
           git config -f .gitmodules submodule.integrations/fossbilling.branch main
