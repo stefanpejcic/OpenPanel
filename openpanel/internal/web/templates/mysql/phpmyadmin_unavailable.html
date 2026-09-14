@@ -14,11 +14,7 @@
             <p class="mt-2 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "phpMyAdmin is currently unavailable"}}</p>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{if .ErrorMessage}}{{.ErrorMessage}}{{else}}{{.T.Get "Please contact support."}}{{end}}</p>
             <div class="mt-8 sm:flex sm:items-center sm:justify-center gap-x-3">
-                {{if .UserAllowed.docker}}
-                <a href="/containers?s=phpmyadmin" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-blue-500 dark:bg-blue-500 hover:bg-blue-600 dark:hover:bg-blue-600 disabled:bg-blue-300 disabled:text-white disabled:dark:bg-blue-800 disabled:dark:text-blue-400 w-full sm:w-fit">{{.T.Get "Manage Container"}}</a>
-                {{else}}
                 <span class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-blue-500 dark:bg-blue-500 hover:bg-blue-600 dark:hover:bg-blue-600 disabled:bg-blue-300 disabled:text-white disabled:dark:bg-blue-800 disabled:dark:text-blue-400 w-full sm:w-fit">{{.T.Get "Contact Administrator"}}</span>
-                {{end}}
             </div>
         </div>
     </div>

@@ -61,7 +61,7 @@
         </div>
         <div class="relative flex items-center" id="last-login-info">
         {{if .LastIP}}
-            <a class="font-medium hover:underline mr-1" :href="'{{if .UserAllowed.login_history}}/account/login-history{{else}}#{{end}}'" id="last-ip" x-text="lastIp">{{.LastIP}}</a>
+            <a class="font-medium hover:underline mr-1 truncate" :href="'{{if .UserAllowed.login_history}}/account/login-history{{else}}#{{end}}'" id="last-ip" x-text="lastIp">{{.LastIP}}</a>
             <template x-if="flagSrc">
             <img :src="flagSrc" :alt="country" :title="country" class="w-8 h-6 rounded-sm mr-2" />
             </template>
