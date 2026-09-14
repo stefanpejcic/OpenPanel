@@ -88,7 +88,7 @@ sidebar_position: 1
 - [How to setup email on Thunderbird](/docs/articles/email/how-to-setup-email-on-thunderbird)
 - [How to setup email on Outlook 365 desktop app](/docs/articles/email/how-to-setup-email-on-outlook-365-desktop-app)
 - [How to setup email on Gmail using desktop / browser](/docs/articles/email/how-to-setup-email-in-gmail)
-- [IMAP vs POP3 - which to use?](/docs/articles/email/imap-vs-pop)
+- [IMAP vs POP3 - which to use?](/docs/articles/email/imap-vs-pop3)
 - [How to configure Email server](/docs/articles/user-experience/how-to-setup-email-in-openpanel/)
 - [How to enable and access RSPAMD GUI](/docs/articles/email/rspamd-gui-port-11334/)
 - [Setup DKIM for Mailserver](/docs/articles/email/how-to-setup-dkim-for-mailserver/)

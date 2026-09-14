@@ -130,9 +130,9 @@ PORT="2083"
 ```
 
 
-OpenPanel is a [Flask](https://flask.palletsprojects.com/en/3.0.x/)-based application that uses [MySQL](#MySQL) to store user data and operates on the [Gunicorn](https://gunicorn.org/) web server. This configuration ensures that OpenPanel remains functional even if the web server is down, thereby providing complete isolation between user websites and the admin panel.
+OpenPanel is a [Flask](https://flask.palletsprojects.com/en/3.0.x/)-based application that uses [MySQL](#mysql) to store user data and operates on the [Gunicorn](https://gunicorn.org/) web server. This configuration ensures that OpenPanel remains functional even if the web server is down, thereby providing complete isolation between user websites and the admin panel.
 
-OpenPanel operates in production mode by default, logging only [errors and access logs](/logs.html). For developers needing more detailed logs for troubleshooting or development purposes, it is possible to switch to a more verbose logging mode by enabling dev_mode.
+OpenPanel operates in production mode by default, logging only [errors and access logs](/docs/admin/services/logs/). For developers needing more detailed logs for troubleshooting or development purposes, it is possible to switch to a more verbose logging mode by enabling dev_mode.
 
 
 
@@ -212,7 +212,7 @@ FTP_PORT_RANGE="21000-21010"
 
 OpenPanel Enterprise supports mailserver. [Docker Mailserver](https://docker-mailserver.github.io/docker-mailserver/latest/) is used as a fullstack mail server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.)
 
-OpenPanel provides [terminal commands](/cli/email.html) and [UI](https://openpanel.com/docs/panel/intro/) for users to manage emails.
+OpenPanel provides [terminal commands](/docs/articles/opencli/email/) and [UI](https://openpanel.com/docs/panel/intro/) for users to manage emails.
 
 ## Webmail
 

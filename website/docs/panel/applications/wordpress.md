@@ -17,7 +17,7 @@ Perfect for agencies, developers, and anyone managing several WordPress sites at
 
 On the main WP Manager page you can:
 
-- [View installations](#wp-manage): see the domain, WordPress version, install date, admin email.
+- [View installations](#wp-manager): see the domain, WordPress version, install date, admin email.
 - [Refresh website data](#refresh-website-data): if you’ve changed a domain, updated WordPress manually, or modified the admin email.
 - [Manage themes and plugins sets](#themes-and-plugins-sets): define which themes and plugins are auto-installed on every new site.
 - [Install WordPress](#install-wordpress): set up a fresh WordPress installation in a few clicks.

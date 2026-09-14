@@ -196,7 +196,7 @@ Currently available options for notifications are:
 
 ### View OpenAdmin logs
 
-To multitail [all OpenAdmin logs](/logs.html):
+To multitail [all OpenAdmin logs](/docs/admin/services/logs/):
 
 ```bash
 opencli admin logs

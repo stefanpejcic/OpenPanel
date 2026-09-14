@@ -19,10 +19,10 @@ For Server Administrators (OpenAdmin):
 - [Limiting Connections with CSF](/docs/articles/security/how-to-limit-connections-csf/)
 - [Rate-limiting failed Openpanel logins](/docs/articles/dev-experience/rate_limiting_for_openpanel/)
 - [Change SSH root user password](/docs/admin/advanced/root-password/)
-- [Change SSH port](/docs/admin/advanced/ssh/#basic-ssh-settings/)
-- [Configure SSH Keys](/docs/admin/advanced/ssh/#authorized-ssh-keys)
-- [Disable Terminal in OpenAdmin](docs/articles/dev-experience/disable-openadmin-web-terminal/)
-- [Disable Server Reboot in OpenAdmin](docs/articles/dev-experience/disable-openadmin-server-reboot/)
+- [Change SSH port](/docs/admin/advanced/ssh/#basic-ssh-settings)
+- [Configure SSH Keys](/docs/admin/advanced/ssh/#authorized-keys)
+- [Disable Terminal in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-web-terminal/)
+- [Disable Server Reboot in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-server-reboot/)
 - [Disable OpenAdmin access](/docs/admin/security/disable-admin/)
 
 For Website Administrators (OpenPanel):

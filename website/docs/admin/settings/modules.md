@@ -57,8 +57,8 @@ When disabled:
 * Users can not access the *Accounts > Active Sessions* page.
 
 Customize sessions duration:
-* To **control session duration** edit 'Session duration' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#Statistics).
-* To **control session lifetime** edit 'Session lifetime' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#Statistics).
+* To **control session duration** edit 'Session duration' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#statistics).
+* To **control session lifetime** edit 'Session lifetime' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#statistics).
 
 ## Locale
 
@@ -579,7 +579,7 @@ When disabled:
 * Users can not access the *Account > Login History* page.
 
 Customize options:
-* To **control number of logins stored per user** edit 'Login records to keep per user' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#Statistics).
+* To **control number of logins stored per user** edit 'Login records to keep per user' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#statistics).
 
 
 ## 2FA
@@ -671,7 +671,7 @@ When disabled:
 The **`memcached`** module allows users to enable/disable Memcached service.
 
 When enabled:
-* Users can access the [**Caching > Memcached** page](/docs/panel/caching/memcached/).
+* Users can access the [**Caching > Memcached** page](/docs/panel/caching/Memcached/).
 * Users can enable/disable Memcached service.
 * User can connect to the instance from other containers using: `elasticsearch:11211`
 * Users can view logs for the Memcached service.
@@ -684,7 +684,7 @@ When disabled:
 The **`redis`** module allows users to enable/disable Redis service.
 
 When enabled:
-* Users can access the [**Caching > Redis** page](/docs/panel/caching/redis/).
+* Users can access the [**Caching > Redis** page](/docs/panel/caching/Redis/).
 * Users can enable/disable Redis service.
 * User can connect to the instance from other containers using: `redis:6379`
 * Users can view logs for the Redis service.

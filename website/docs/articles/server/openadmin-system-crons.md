@@ -91,7 +91,7 @@ Command `opencli waf-update` updates the default **OWASP CRS WAF rules**. Logs c
 Command `opencli docker-backup` executes a **backup for all users’ containers** This is disabled by default, as each end-user can then [schedule and manage their own backups from OpenPanel UI](/docs/panel/files/backups/).
 
 - **Default schedule:** `59 23 31 2 *`  
-- **Documentation:** [Configuring OpenPanel Backups: Admin-configured](/docs/articles/backups/comfiguring-backups/#1-admin-configured)
+- **Documentation:** [Configuring OpenPanel Backups: Admin-configured](/docs/articles/backups/configuring-backups/#1-admin-configured)
 
 
 

@@ -85,4 +85,4 @@ To collect container resource usage information (cpu, ram, i/o) for all users:
 opencli docker-collect_stats
 ```
 
-`collect_stats` script will also rotate data according to [`resource_usage_retention` setting](/cli/config.html#resource-usage-retention)
+`collect_stats` script will also rotate data according to [`resource_usage_retention` setting](/docs/articles/opencli/config/#resource_usage_retention)

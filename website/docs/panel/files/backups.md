@@ -19,7 +19,7 @@ OpenPanel supports the following destinations:
 - [**WebDAV**](#webdav) - Remote backups using WebDAV.
 - [**SSH**](#azure) - Remote backups via SSH to another server.
 - [**Azure**](#azure) - Remote backups to Azure Blob Storage.
-- [**Dropbox**](/#dropbox) - Remote backups to Dropbox cloud storage.
+- [**Dropbox**](#dropbox) - Remote backups to Dropbox cloud storage.
 
 User can select destination from **Backups > Destinations** page.
 

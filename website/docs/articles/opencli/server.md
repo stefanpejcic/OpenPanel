@@ -4,7 +4,7 @@ Scripts for managing the server.
 
 ## Logrotate
 
-Reads configuration: [`logrotate_enable`](/cli/config.html#logrotate-enable) [`logrotate_size_limit`](/cli/config.html#logrotate-size-limit) [`logrotate_retention`](/cli/config.html#logrotate-retention) [`logrotate_keep_days`](/cli/config.html#logrotate-keep-days) and configures logrotate for caddy, openpanel, syslog.
+Reads configuration: [`logrotate_enable`](/docs/articles/opencli/config/#logrotate_enable) [`logrotate_size_limit`](/docs/articles/opencli/config/#logrotate_size_limit) [`logrotate_retention`](/docs/articles/opencli/config/#logrotate_retention) [`logrotate_keep_days`](/docs/articles/opencli/config/#logrotate_keep_days) and configures logrotate for caddy, openpanel, syslog.
 
 ```bash
 opencli server-logrotate

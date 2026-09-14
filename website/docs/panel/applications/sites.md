@@ -19,7 +19,7 @@ Each row shows:
 - **Speed** – A link to check the site on Google PageSpeed Insights.
 - **Actions** – Per-row buttons, shown depending on the site type:
   - **Login as Admin** – One-click login to the application's admin area (WordPress sites).
-  - **Manage** (files icon) – Opens the domain's files in [File Manager](/docs/panel/files/files/).
+  - **Manage** (files icon) – Opens the domain's files in [File Manager](/docs/panel/files/).
   - **Manage** (site icon) – Opens the site's management page (the deeper per-site tabs, e.g. the [WordPress Manager](/docs/panel/applications/wordpress/#site-manager) tabs for WordPress sites), or the [Website Builder](/docs/panel/applications/builder/) editor for builder sites.
   - **Clone** – Copies the site's files and database to another domain.
   - **Backups** – Jumps to the site's backup tab.
