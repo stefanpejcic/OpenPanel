@@ -28,6 +28,7 @@ jobs:
             ["configuration"]="https://github.com/stefanpejcic/openpanel-configuration"
             ["openadmin"]="https://github.com/stefanpejcic/openadmin"
             ["mailserver"]="https://github.com/stefanpejcic/OpenMail"
+            ["vsftpd"]="https://github.com/stefanpejcic/OpenPanel-FTP"
             ["integrations/cpanel-import"]="https://github.com/stefanpejcic/cPanel-to-OpenPanel"
             ["integrations/cyberpanel-import"]="https://github.com/stefanpejcic/CyberPanel-to-OpenPanel"
             ["integrations/whmcs"]="https://github.com/stefanpejcic/openpanel-whmcs-module"
@@ -96,7 +97,8 @@ jobs:
           git config -f .gitmodules submodule.tests.branch main
           git config -f .gitmodules submodule.translations.branch main
           git config -f .gitmodules submodule.openadmin.branch main
-          git config -f .gitmodules submodule.mailserver.branch main          
+          git config -f .gitmodules submodule.mailserver.branch main
+          git config -f .gitmodules submodule.vsftpd.branch main
           git config -f .gitmodules submodule.opencli.branch podman
           git config -f .gitmodules submodule.integrations/cpanel-import.branch podman
           git config -f .gitmodules submodule.integrations/cyberpanel-import.branch podman
@@ -131,7 +133,7 @@ jobs:
       - name: Commit and push if changed
         shell: bash
         run: |
-          git add .gitmodules tests translations configuration opencli openadmin mailserver integrations openpanel/opencli
+          git add .gitmodules tests translations configuration opencli openadmin mailserver vsftpd integrations openpanel/opencli
           if ! git diff --cached --quiet; then
             git commit -m "chore: update submodule references to latest upstream"
             git push origin main
