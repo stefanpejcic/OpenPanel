@@ -43,7 +43,7 @@ function sendDataToPreview(event) {
             setTimeout(() => {
                 button.innerHTML = originalHTML;
                 button.disabled = false;
-            }, 3000);
+            }, 5000);
         });
 }
 </script>
@@ -108,7 +108,7 @@ function sendDataToPreview(event) {
       // (or the fetch promise) never fire, loading stays true, and the
       // spinner never resolves. loadImageWithTimeout bounds that wait so
       // the component always settles into a final state either way.
-      loadImageWithTimeout(url, timeoutMs = 2000) {
+      loadImageWithTimeout(url, timeoutMs = 10000) {
         return new Promise((resolve, reject) => {
           const img = new Image();
           const timer = setTimeout(() => {
@@ -145,7 +145,7 @@ function sendDataToPreview(event) {
 
         try {
           const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), 2000);
+          const timer = setTimeout(() => controller.abort(), 5000);
           try {
             await fetch(`/json/screenshot/${this.domain}`, {
               method: 'POST',
