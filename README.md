@@ -58,8 +58,8 @@ The result: VPS-level isolation on shared hosting infrastructure, without the VP
 
 - focus on [security](https://openpanel.com/docs/articles/security/securing-openpanel/)
 - billing integrations: [FOSSBilling](https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/), [WHMCS](https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/), [Blesta](https://openpanel.com/docs/articles/extensions/openpanel-and-blesta/), paymenter.org[^1]
-- dedicated [MySQL, Percona or MariaDB per user](https://openpanel.com/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
-- dedicated [Apache, Nginx, OpenLitespeed, Openresty + Varnish per user](https://openpanel.com/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
+- dedicated [MySQL, Percona or MariaDB per user](https://openpanel.com/docs/articles/containers/how-to-set-mysql-mariadb-per-user-in-openpanel/)
+- dedicated [Apache, Nginx, OpenLitespeed, Openresty + Varnish per user](https://openpanel.com/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 - [detailed activity log](https://openpanel.com/docs/panel/account/account_activity/#recorded-actions) for all user actions.
 - low maintenance: each user manages [their own services](https://openpanel.com/docs/panel/advanced/services/) and [backups](https://openpanel.com/docs/panel/files/backups/)
 - Import accounts from [cPanel](https://openpanel.com/docs/articles/transfers/import-cpanel-backup-to-openpanel/) and [CyberPanel](https://github.com/stefanpejcic/CyberPanel-to-OpenPanel) backups

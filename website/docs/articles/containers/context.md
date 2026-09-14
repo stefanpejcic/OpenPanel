@@ -15,8 +15,8 @@ Each user’s environment is based on:
 
 > ⚠️ Always edit these files via the OpenAdmin interface. The interface validates your changes. Editing directly from the terminal bypasses validation and can break services. Make a backup before any modifications.
 
-* [Volume Management in OpenPanel](/docs/articles/docker/volume-management-openpanel/)
-* [Network Isolation in OpenPanel](/docs/articles/docker/network-isolation-openpanel/)
+* [Volume Management in OpenPanel](/docs/articles/containers/volume-management-openpanel/)
+* [Network Isolation in OpenPanel](/docs/articles/containers/network-isolation-openpanel/)
 
 ---
 
@@ -129,7 +129,7 @@ Domain configuration files are stored in:
 ```
 
 Each domain has its own Caddyfile. Caddy handles SSL certificates and acts as a reverse proxy to the user’s web server.
-For more information, see: [How Web Traffic Flows with User Containers](https://openpanel.com/docs/articles/docker/how-traffic-flows-in-openpanel/)
+For more information, see: [How Web Traffic Flows with User Containers](https://openpanel.com/docs/articles/containers/how-traffic-flows-in-openpanel/)
 
 
 * **BIND9 zone file:**

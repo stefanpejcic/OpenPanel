@@ -10,8 +10,8 @@ From **OpenAdmin > Settings > Edit User Defaults** Administrators can edit value
 
 These files determine services and limits for new users.
 
-> [How to setup Apache, Nginx, OpenResty, OpenLiteSpeed, and Varnish as default webserver](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
-> [How to setup MySQL, MariaDB or Percona for default database type](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
+> [How to setup Apache, Nginx, OpenResty, OpenLiteSpeed, and Varnish as default webserver](/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
+> [How to setup MySQL, MariaDB or Percona for default database type](/docs/articles/containers/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 
 ---
 
@@ -23,4 +23,4 @@ In these files you can configure additional services (docker containers) and cha
 
 Keep in mind that this is intended for advanced users and misconfiguration can cause exposed system ports, user hogging resources or exceeding disk limits.
 
-For more information refer to [How to add custom docker images](/docs/articles/docker/how-to-add-custom-docker-image-for-openpanel-user)
+For more information refer to [How to add custom docker images](/docs/articles/containers/how-to-add-custom-docker-image-for-openpanel-user)

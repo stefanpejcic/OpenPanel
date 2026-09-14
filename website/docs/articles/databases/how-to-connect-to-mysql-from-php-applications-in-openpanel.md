@@ -2,7 +2,7 @@
 
 OpenPanel runs each user service inside its own container and uses local networks to isolate them. This means that applications do not connect to the database via `localhost` or `127.0.0.1`, but instead through container hostnames.
 
-For more information about networks: [Network Isolation in OpenPanel](/docs/articles/docker/network-isolation-openpanel/)
+For more information about networks: [Network Isolation in OpenPanel](/docs/articles/containers/network-isolation-openpanel/)
 
 To connect from your **PHP**, **Node.js**, or **Python** application to a MySQL/MariaDB database, you must use:
 
@@ -99,4 +99,4 @@ print("Connected to:", cursor.fetchone())
 
 * Use `mysql` or `mariadb` as the hostname.
 * Never use `localhost` or `127.0.0.1`.
-* Works across PHP, WordPress, Node.js, Python, and any other app in [the `db` network](/docs/articles/docker/network-isolation-openpanel/).
+* Works across PHP, WordPress, Node.js, Python, and any other app in [the `db` network](/docs/articles/containers/network-isolation-openpanel/).

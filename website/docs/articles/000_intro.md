@@ -31,14 +31,14 @@ sidebar_position: 1
 - [502 Error Troubleshooting Guide](/docs/articles/domains/bad-gateway-502-error-troubleshooting)
 - [504 Error Troubleshooting Guide](/docs/articles/domains/gateway-timeout-504-error-troubleshooting)
 - [WordPress Themes and Plugins Sets](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel)
-- [Configure Apache, Nginx, OpenLitespeed per user](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
+- [Configure Apache, Nginx, OpenLitespeed per user](/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 - [Purging Varnish Cache for a Website](/docs/articles/websites/purge-varnish-cache-from-terminal/)
-- [WordPress HTTPS behind Varnish Cache](/docs/articles/docker/https-wordpress-behind-varnish-proxy/)
+- [WordPress HTTPS behind Varnish Cache](/docs/articles/containers/https-wordpress-behind-varnish-proxy/)
 
 # Databases
-- [Configure MySQL, MariaDB or Percona per user](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
+- [Configure MySQL, MariaDB or Percona per user](/docs/articles/containers/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 - [Set Custom Domain for phpMyAdmin](/docs/articles/databases/phpmyadmin-domain/)
-- [Import MySQL Database](/docs/articles/docker/import-database)
+- [Import MySQL Database](/docs/articles/containers/import-database)
 - [Use `mysql` or `mariadb` as DB_HOST instead of *localhost*](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/)
 - [Troubleshooting: Error establishing a database connection](/docs/articles/databases/how-to-troubleshoot-error-establishing-a-database-connection/)
 
@@ -64,7 +64,7 @@ sidebar_position: 1
 - [How to configure a DNS Cluster](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel)
 - [How to Enable HSTS on a Domain in OpenPanel](/docs/articles/domains/how-to-enable-hsts-on-a-domain-in-openpanel)
 - [Troubleshooting DNS](/docs/articles/domains/troubleshooting-dns)
-- [Troubleshooting Caddy Webserver](/docs/articles/docker/troubleshooting-caddy-webserver)
+- [Troubleshooting Caddy Webserver](/docs/articles/containers/troubleshooting-caddy-webserver)
 
 
 # Files
@@ -105,12 +105,12 @@ sidebar_position: 1
 
 # Advanced
 - [Set Default User Locale](/docs/articles/accounts/default-user-locales/)
-- [Configure unlimited CPU and Memory for user](/docs/articles/docker/how-to-remove-resource-limits-for-user-service-containers/)
+- [Configure unlimited CPU and Memory for user](/docs/articles/containers/how-to-remove-resource-limits-for-user-service-containers/)
 - [Auto-start Services](/docs/articles/dev-experience/autostart-services/)
 - [Restricted Usernames for services](/docs/articles/accounts/forbidden-usernames/)
 - [Create a custom plugin](/docs/articles/dev-experience/custom-plugins/)
-- [Network Isolation in OpenPanel](/docs/articles/docker/network-isolation-openpanel/)
-- [Volume Management in OpenPanel](/docs/articles/docker/volume-management-openpanel/)
+- [Network Isolation in OpenPanel](/docs/articles/containers/network-isolation-openpanel/)
+- [Volume Management in OpenPanel](/docs/articles/containers/volume-management-openpanel/)
 - [Keyboard Shortcuts for OpenAdmin UI](/docs/articles/dev-experience/openadmin-keyboard-shortcuts/)
 - [Uninstall OpenPanel](/docs/articles/support/how-to-unlinstall-openpanel/)
 
