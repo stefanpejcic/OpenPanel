@@ -583,6 +583,24 @@ const tableData = [
                 },
             },
             {
+                description: "Ruby Applications",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Java Applications",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "PHP Selector",
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
@@ -594,6 +612,15 @@ const tableData = [
             {
                 description: "PHP.INI Editor",
                 community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "PHP Extensions",
+                community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -670,6 +697,15 @@ const tableData = [
             },
             {
                 description: "Inodes Explorer",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Trash",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -871,7 +907,25 @@ const tableData = [
                     community: "icon",
                     enterprise: "icon",
                 },
-            },   
+            },
+            {
+                description: "Login History",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Passkeys",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
 
         ],
     },
@@ -934,7 +988,7 @@ const tableData = [
             },
             {
                 description: "Dynamic DNS",
-                community: <CheckIcon />,
+                community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -943,6 +997,42 @@ const tableData = [
             },
             {
                 description: "Domain Redirects",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "IP Blocker",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Suspend Domains",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Capitalize Domains",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Edit VirtualHosts",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -973,8 +1063,53 @@ const tableData = [
                     enterprise: "text",
                 },
             },
+            {
+                description: "Email Deliverability (SPF, DKIM, DMARC)",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Email Filters & Forwarders",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Email Aliases",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Address Importer / Exporter",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Default (Catch-All) Address",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
         ],
-    },   
+    },
     {
         title: "Integrations",
         items: [

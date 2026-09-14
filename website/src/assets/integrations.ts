@@ -149,10 +149,10 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
-            name: "NodeJS and Python",
+            name: "NodeJS, Python, Ruby & Java",
             icon: Python,
             description:
-                "Effortlessly create and manage containerized NodeJS and Python applications. Proxy websites to display content from these applications seamlessly.",
+                "Effortlessly create and manage containerized NodeJS, Python, Ruby and Java applications. Proxy websites to display content from these applications seamlessly.",
             url: "/docs/panel/applications/pm2/",
             status: "enterprise",
         },
@@ -164,6 +164,22 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
+            name: "One-Click App Installer",
+            icon: Download,
+            description:
+                "Install Drupal, Joomla, Moodle, NextCloud, Matomo, OpenCart, PrestaShop, MediaWiki, DokuWiki, phpBB and more with a single click using the Autoinstaller.",
+            url: "/docs/panel/applications/autoinstaller/",
+            status: "stable",
+        },
+        {
+            name: "Disk & Inodes Usage",
+            icon: Usage,
+            description:
+                "Browse current disk and inodes usage per directory to quickly identify what is taking up space on the account.",
+            url: "/docs/panel/files/disk_usage/",
+            status: "enterprise",
+        },
+        {
             name: "MySQL and phpMyAdmin",
             icon: MySQL,
             description:
@@ -172,10 +188,10 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
-            name: "PostgreSQL and pgAdmin",
+            name: "PostgreSQL",
             icon: PostgreSql,
             description:
-                "Create and manage PostgreSQL databases and users easily. Automatically log in to pgAdmin, enable remote access, and adjust configuration settings with desired limits.",
+                "Create and manage PostgreSQL databases and users easily. Enable remote access, and adjust configuration settings with desired limits.",
             url: "",
             status: "enterprise",
         },
@@ -265,6 +281,22 @@ export const integrations: IntegrationsType = {
             description:
                 "Users can change their email address and password, enable 2FA, adjust language preferences, and activate dark mode for a personalized experience.",
             url: "/docs/panel/account/",
+            status: "stable",
+        },
+        {
+            name: "Passkeys",
+            icon: Factor,
+            description:
+                "Users can register passkeys for their account and sign in without a password, using their device's biometrics or security key.",
+            url: "/docs/panel/account/passkeys/",
+            status: "enterprise",
+        },
+        {
+            name: "Login History",
+            icon: UserLogin,
+            description:
+                "Users can view the last 20 IP addresses that logged into their account to spot any suspicious activity.",
+            url: "/docs/panel/account/login_history/",
             status: "stable",
         },
     ],
@@ -536,14 +568,22 @@ export const integrations: IntegrationsType = {
             url: "/docs/panel/account/2fa/",
             status: "stable",
         },
-       // {
-       //     name: "IP blocking DEPRECATED",
-       //     icon: IPblock,
-       //     description:
-       //         "Each user has the capability to configure a domain-specific IP block list, providing a personalized means to restrict access to websites by blocking specific IP addresses.",
-       //     url: "",
-       //    status: "stable",
-       // },
+        {
+            name: "ClamAV Malware Scanner",
+            icon: Services,
+            description:
+                "Scan account files for malware using ClamAV directly from the user panel.",
+            url: "/docs/panel/files/malware-scanner/",
+            status: "enterprise",
+        },
+        {
+            name: "IP Blocker",
+            icon: IPblock,
+            description:
+                "Each user has the capability to block IP addresses from accessing their websites directly from the panel.",
+            url: "/docs/panel/advanced/ip-blocker/",
+            status: "enterprise",
+        },
         {
             name: "Disable admin panel",
             icon: AdminOff,
