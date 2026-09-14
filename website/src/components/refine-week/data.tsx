@@ -32,6 +32,12 @@ const blestaShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURICom
     `📚 Setup Blesta & OpenPanel account provisioning in just 5 minutes.\n\n`,
 )}&hashtags=${hashtags}`;
 
+const clientexecShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+    "https://openpanel.com/clientexec-module/",
+)}&text=${encodeURIComponent(
+    `📚 Setup ClientExec & OpenPanel account provisioning in just 5 minutes.\n\n`,
+)}&hashtags=${hashtags}`;
+
 
 export const data = {
     blesta: {
@@ -131,6 +137,69 @@ export const data = {
             "1618180208414322689",
         ],
     },    
+    clientexec: {
+        logo: StrapiWithText,
+        cover: "/img/tutorial-cards/clientexec.png",
+        cover2x: "/img/tutorial-cards/clientexec.png",
+        coverAlt: "ClientExec and OpenPanel module integration",
+        title: "clientexec",
+        description:
+            "Setup <strong>ClientExec & OpenPanel</strong> account provisioning in just 5 minutes.",
+        date: "September 14 - September 20, 2026",
+        timeline: [
+            {
+                date: "September 14, Monday",
+                title: "Enable API access in OpenAdmin",
+                description: `
+                First make sure that API access is enabled by going to <strong className="font-bold">OpenAdmin > API</strong> or by running <strong className="font-bold">opencli config get api</strong> from the terminal.`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-clientexec/#enable-api",
+                image: "/week-of-refine/supabase-timeline-1.jpg",
+                image2x: "/week-of-refine/supabase-timeline-1-2x.jpg",
+            },
+            {
+                date: "September 15, Tuesday",
+                title: "Whitelist on Firewall",
+                description: `ClientExec server needs to be able to connect to OpenAdmin on port 2087, whitelist both servers: <strong className="font-bold">csf -a SERVER_IP</strong>.`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-clientexec/#whitelist-on-openpanel",
+                image: "/week-of-refine/supabase-timeline-2.jpg",
+                image2x: "/week-of-refine/supabase-timeline-2-2x.jpg",
+            },
+            {
+                date: "September 16, Wednesday",
+                title: "Install OpenPanel Plugin",
+                description: `SSH to your ClientExec server and inside <strong className="font-bold">path_to_clientexec/plugins/server</strong> run this command to download the plugin: <strong className="font-bold">git clone https://github.com/stefanpejcic/openpanel-clientexec.git openpanel</strong>.`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-clientexec/#install-openpanel-clientexec-plugin",
+                image: "/week-of-refine/supabase-timeline-3.jpg",
+                image2x: "/week-of-refine/supabase-timeline-3-2x.jpg",
+            },
+            {
+                date: "September 17, Thursday",
+                title: "Add Server in ClientExec",
+                description: `In ClientExec admin, add a new server and select the <strong className="font-bold">OpenPanel</strong> plugin, then fill in the OpenAdmin admin username/password, hostname, and port (default 2087).`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-clientexec/#plugin-setup",
+                image: "/week-of-refine/supabase-timeline-4.jpg",
+                image2x: "/week-of-refine/supabase-timeline-4-2x.jpg",
+                enabledTime: "2026-09-17 12:30",
+            },
+            {
+                date: "September 18, Friday",
+                title: "Create Hosting Plans",
+                description: `On the ClientExec server create hosting plans that match the package names created on the OpenPanel server, then assign the <strong className="font-bold">OpenPanel</strong> server to the product.`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-clientexec/#create-hosting-package-1",
+                image: "/week-of-refine/supabase-timeline-5.jpg",
+                image2x: "/week-of-refine/supabase-timeline-5-2x.jpg",
+            },
+            {
+                date: "September 19, Saturday",
+                title: "Test",
+                description: `Create a new order on ClientExec to test if the OpenAdmin API account provisioning is functioning properly.`,
+                link: "",
+                image: "/week-of-refine/supabase-timeline-6.jpg",
+                image2x: "/week-of-refine/supabase-timeline-6-2x.jpg",
+            },
+        ],
+        shareTweetUrl: clientexecShareTweetURL,
+    },
     supabase: {
         logo: SupabaseWithText,
         cover: "/img/tutorial-cards/whmcs.jpeg",

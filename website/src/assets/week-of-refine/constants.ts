@@ -32,4 +32,14 @@ export const weekOfRefineCards: CardProps[] = [
             "bg-week-of-refine-strapi-card-light dark:bg-week-of-refine-strapi-card",
         link: "/blesta-module",
     },
+    {
+        title: "ClientExec",
+        dateRange: "September 14, 2026",
+        description:
+            "ClientExec module for OpenPanel.",
+        logo: SupabaseWithText,
+        bgLinearGradient:
+            "bg-week-of-refine-supabase-card-light dark:bg-week-of-refine-supabase-card",
+        link: "/clientexec-module",
+    },
 ];

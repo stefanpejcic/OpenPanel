@@ -5,7 +5,7 @@ import { RefineWeekDesktop } from "./refine-week-desktop";
 import { RefineWeekMobile } from "./refine-week-mobile";
 
 type Props = {
-    variant: "strapi" | "supabase" | "blesta";
+    variant: "strapi" | "supabase" | "blesta" | "clientexec";
 };
 
 export const RefineWeek = ({ variant }: Props) => {
@@ -60,6 +60,11 @@ export const RefineWeek = ({ variant }: Props) => {
                             title: "Blesta",
                             label: "openpanel.com",
                             link: "https://openpanel.com/docs/articles/extensions/openpanel-and-blesta/",
+                        },
+                        {
+                            title: "ClientExec",
+                            label: "openpanel.com",
+                            link: "https://openpanel.com/docs/articles/extensions/openpanel-and-clientexec/",
                         },
                     ].map((item) => (
                         <a

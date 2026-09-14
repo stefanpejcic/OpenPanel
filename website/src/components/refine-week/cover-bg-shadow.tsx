@@ -17,7 +17,8 @@ export const CoverBgShadowMobile = ({ variant }: Props) => {
                     "bg-refine-week-supabase-cover-shadow":
                         variant === "supabase",
                     "bg-refine-week-strapi-cover-shadow": variant === "strapi",
-                    "bg-refine-week-blesta-cover-shadow": variant === "blesta",
+                    "bg-refine-week-blesta-cover-shadow":
+                        variant === "blesta" || variant === "clientexec",
                 },
             )}
         />
@@ -34,7 +35,8 @@ export const CoverBgShadowDesktop = ({ variant }: Props) => {
                     "bg-refine-week-supabase-cover-shadow":
                         variant === "supabase",
                     "bg-refine-week-strapi-cover-shadow": variant === "strapi",
-                    "bg-refine-week-blesta-cover-shadow": variant === "blesta",
+                    "bg-refine-week-blesta-cover-shadow":
+                        variant === "blesta" || variant === "clientexec",
                 },
             )}
         />

@@ -12,6 +12,7 @@ sidebar_position: 1
 - [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/)
 - [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/)
 - [Blesta](/docs/articles/extensions/openpanel-and-blesta/)
+- [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/)
 
 # Transfers
 - [Import account from cPanel backup](/docs/articles/transfers/import-cpanel-backup-to-openpanel/)

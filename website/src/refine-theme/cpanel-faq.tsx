@@ -139,7 +139,7 @@ const faq = [
     },
     {
         question: "Does OpenPanel Enterprise integrate with billing software?",
-        answer: "Yes, OpenPanel Enterprise integrates with WHMCS, Blesta, FOSSBilling, and Paymenter.org for automated provisioning.",
+        answer: "Yes, OpenPanel Enterprise integrates with WHMCS, Blesta, FOSSBilling, ClientExec, and Paymenter.org for automated provisioning.",
     },
     {
         question: "Is there a refund if I'm not satisfied?",

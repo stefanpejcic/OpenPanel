@@ -1134,7 +1134,7 @@ const tableData = [
             {
                 description: "Billing Integrations",
                 community: <CrossIcon />,
-                enterprise: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/">WHMCS</a>, <a href="/docs/articles/extensions/openpanel-and-fossbilling/">FOSSBilling</a>, <a href="/docs/articles/extensions/openpanel-and-blesta/">Blesta</a>, Paymenter.org</TableText>,
+                enterprise: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/">WHMCS</a>, <a href="/docs/articles/extensions/openpanel-and-fossbilling/">FOSSBilling</a>, <a href="/docs/articles/extensions/openpanel-and-blesta/">Blesta</a>, <a href="/docs/articles/extensions/openpanel-and-clientexec/">ClientExec</a>, Paymenter.org</TableText>,
                 valueType: {
                     community: "icon",
                     enterprise: "text",

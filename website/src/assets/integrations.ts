@@ -153,7 +153,7 @@ export const integrations: IntegrationsType = {
             icon: Python,
             description:
                 "Effortlessly create and manage containerized NodeJS, Python, Ruby and Java applications. Proxy websites to display content from these applications seamlessly.",
-            url: "/docs/panel/applications/pm2/",
+            url: "/docs/panel/applications/",
             status: "enterprise",
         },
         {
@@ -638,7 +638,14 @@ export const integrations: IntegrationsType = {
             description: "Provision OpenPanel accounts from FOSSBilling software.",
             url: "https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/",
             status: "enterprise",
-        },        
+        },
+        {
+            name: "ClientExec",
+            icon: WHMCS,
+            description: "Provision OpenPanel accounts from ClientExec.",
+            url: "/docs/articles/extensions/openpanel-and-clientexec/",
+            status: "enterprise",
+        },
         {
             name: "API",
             icon: API,
