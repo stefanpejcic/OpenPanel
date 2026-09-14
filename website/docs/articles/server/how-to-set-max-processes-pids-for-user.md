@@ -4,7 +4,7 @@ Every user's `user-<uid>.slice` cgroup has a **TasksMax** ceiling — the maximu
 
 ## How it's calculated
 
-By default the PID limit is **autocalculated from the user's plan RAM**, at a rate of **500 tasks per 1GB of RAM**, with a floor of **150 tasks** for any plan with less than 1GB assigned. This keeps the limit proportional automatically whenever a plan's RAM value changes.
+By default the PID limit is **autocalculated from the user's plan RAM**, at a rate of **500 tasks per 1GB of RAM**, with a floor of **100 tasks** for any plan with less than 1GB assigned. This keeps the limit proportional automatically whenever a plan's RAM value changes.
 
 For example, a plan with 4GB RAM gets a TasksMax ceiling of 2000. A plan with 0GB (unlimited) RAM gets an unlimited TasksMax as well.
 
