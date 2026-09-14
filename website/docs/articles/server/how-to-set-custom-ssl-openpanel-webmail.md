@@ -21,7 +21,7 @@ mkdir -p /etc/openpanel/caddy/ssl/custom/
 
 Then create directory name same as your domain
 ```bash
-mkdir -p /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/YOUR_DOMAIN_HERE/
+mkdir -p /etc/openpanel/caddy/ssl/custom/YOUR_DOMAIN_HERE/
 ```
 
 Upload your SSL files to this directory and name them:
