@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <input type="text" class="hidden" name="container" value="{{$item.Container}}" required>
                             <input type="text" class="hidden" name="comment" value="{{$item.Comment}}" required>
 
-                            <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap sm:w-fit mt-2md:mt-0"><i class="bi bi-trash3"></i> {{$.T.Get "Delete"}}</button>
+                            <button type="button" onclick="confirmDelete(this);" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap sm:w-fit mt-2md:mt-0"><i class="bi bi-trash3"></i> {{$.T.Get "Delete"}}</button>
                             </form>
 
             <!-- Per-row "View Logs" — filters to this job's comment -->
@@ -487,6 +487,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
 </section>
 
+<script>
+const cronDeleteI18n = {
+    confirm: {{toJSON ($.T.Get "Confirm")}},
+    delete: {{toJSON ($.T.Get "Delete")}}
+};
+
+// click once to arm, click again within 5s to actually delete the cron job
+function confirmDelete(button) {
+    var countdown = 5;
+    var countdownActive = true;
+
+    button.classList.remove('btn-danger');
+    button.classList.add('btn-dark');
+    button.innerHTML = '<i class="bi bi-trash3-fill"></i> ' + cronDeleteI18n.confirm + ' <span class="btn-indicator btn-indicator-mini bg-danger">' + countdown + '</span>';
+
+    var intervalId = setInterval(function () {
+        countdown--;
+        var indicator = button.querySelector('.btn-indicator-mini');
+        if (indicator) indicator.textContent = countdown;
+        button.removeAttribute('onclick');
+        if (countdown === 0) {
+            clearInterval(intervalId);
+            revertButton(button);
+            countdownActive = false;
+        }
+    }, 1000);
+
+    button.addEventListener('click', function () {
+        if (countdownActive) {
+            button.closest('form').submit();
+        }
+    });
+}
+
+function revertButton(button) {
+    button.classList.remove('btn-dark');
+    button.classList.add('btn-danger');
+    button.innerHTML = '<i class="bi bi-trash3"></i> ' + cronDeleteI18n.delete;
+    button.setAttribute('onclick', 'confirmDelete(this);');
+}
+</script>
 
 {{else if eq .View "code"}}
 <!-- crontab editor -->
