@@ -3,7 +3,7 @@ import { OpenPanelLogoIcon } from './icons/small-openpanel-logo';
 import { HeroBadge } from './hero-badge';
 
 export const LandingHeroVersion = () => {
-    const [version, setVersion] = useState('2.0.6');
+    const [version, setVersion] = useState('2.0.8');
 
     useEffect(() => {
         const fetchVersion = async () => {
