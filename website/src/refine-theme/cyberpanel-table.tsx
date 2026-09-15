@@ -968,15 +968,6 @@ const tableData = [
                 },
             },
             {
-                description: "pgAdmin",
-                cyberpanel: <CrossIcon />,
-                openpanel: <CheckIcon />,
-                valueType: {
-                    cyberpanel: "icon",
-                    openpanel: "icon",
-                },
-            },
-            {
                 description: "Import Databases",
                 cyberpanel: <CheckIcon />,
                 openpanel: <CheckIcon />,

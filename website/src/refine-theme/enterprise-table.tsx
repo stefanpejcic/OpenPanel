@@ -764,7 +764,7 @@ const tableData = [
                 },
             },
             {
-                description: "pgAdmin",
+                description: "MongoDB",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {

@@ -38,6 +38,7 @@ import {
     WP,
     MySQL,
     PostgreSql,
+    MongoDB,
     ServerCog,
     CronJobs,
     Cache,
@@ -193,6 +194,14 @@ export const integrations: IntegrationsType = {
             description:
                 "Create and manage PostgreSQL databases and users easily. Enable remote access, and adjust configuration settings with desired limits.",
             url: "",
+            status: "enterprise",
+        },
+        {
+            name: "MongoDB",
+            icon: MongoDB,
+            description:
+                "Create and manage MongoDB databases and users easily. Assign roles per database and import mongodump archives.",
+            url: "/docs/panel/mongodb/databases/",
             status: "enterprise",
         },
         {
