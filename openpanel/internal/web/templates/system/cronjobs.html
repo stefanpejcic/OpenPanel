@@ -365,6 +365,100 @@ document.addEventListener('DOMContentLoaded', function () {
                 <i class="bi bi-journal-text"></i> {{$.T.Get "Logs"}}
             </button>
 
+            <!-- Run now — opens a modal streaming the job's live output over a websocket -->
+            <span x-data="{
+                runOpen: false,
+                runStatus: 'idle',
+                runOutput: '',
+                runExitCode: null,
+                runWs: null,
+
+                runStart() {
+                    this.runOutput = '';
+                    this.runExitCode = null;
+                    this.runStatus = 'connecting';
+
+                    const params = new URLSearchParams({
+                        comment: {{toJSON $item.Comment}},
+                        schedule: {{toJSON $item.Schedule}},
+                        container: {{toJSON $item.Container}},
+                        command: {{toJSON $item.Command}},
+                    });
+                    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+                    this.runWs = new WebSocket(proto + '://' + location.host + '/ws/cronjobs/run?' + params.toString());
+
+                    this.runWs.onopen = () => { this.runStatus = 'running'; };
+                    this.runWs.onmessage = (evt) => {
+                        let msg;
+                        try { msg = JSON.parse(evt.data); } catch { return; }
+                        if (msg.type === 'output') {
+                            this.runOutput += msg.data;
+                            this.$nextTick(() => { if (this.$refs.runOutputBox) this.$refs.runOutputBox.scrollTop = this.$refs.runOutputBox.scrollHeight; });
+                        } else if (msg.type === 'exit') {
+                            this.runExitCode = msg.code;
+                            this.runStatus = 'done';
+                        }
+                    };
+                    this.runWs.onerror = () => { this.runStatus = 'error'; };
+                    this.runWs.onclose = () => { if (this.runStatus !== 'done') this.runStatus = 'error'; };
+                },
+
+                openRun() { this.runOpen = true; this.runStart(); },
+
+                closeRun() {
+                    this.runOpen = false;
+                    if (this.runWs) { try { this.runWs.close(); } catch (_) {} this.runWs = null; }
+                },
+
+                runStatusText() {
+                    if (this.runStatus === 'connecting') return {{toJSON ($.T.Get "Connecting…")}};
+                    if (this.runStatus === 'running') return {{toJSON ($.T.Get "Running…")}};
+                    if (this.runStatus === 'error') return {{toJSON ($.T.Get "Connection error")}};
+                    if (this.runExitCode === 0) return {{toJSON ($.T.Get "Finished successfully")}};
+                    return {{toJSON ($.T.Get "Finished with exit code")}} + ' ' + this.runExitCode;
+                }
+            }">
+                <button type="button" @click="openRun()" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 gap-x-0.5 whitespace-nowrap sm:w-fit mt-2 md:mt-0">
+                    <i class="bi bi-play-fill"></i> {{$.T.Get "Run"}}
+                </button>
+
+                <template x-teleport="body">
+                    <div x-show="runOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.5);" @keydown.escape.window="closeRun()">
+                        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl w-full h-full max-w-2xl mx-4 flex flex-col" style="max-height: 80vh;" @click.outside="closeRun()">
+
+                            <!-- Header -->
+                            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+                                <div>
+                                    <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Run Cron Job"}}</h2>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{$item.Comment}} — {{$item.Container}}</p>
+                                </div>
+                                <button @click="closeRun()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 10.586l4.95-4.95 1.414 1.414L13.414 12l4.95 4.95-1.414 1.414L12 13.414l-4.95 4.95-1.414-1.414L10.586 12 5.636 7.05l1.414-1.414L12 10.586z"/></svg>
+                                </button>
+                            </div>
+
+                            <!-- Status bar -->
+                            <div class="flex items-center gap-2 px-5 py-2 text-xs border-b border-gray-200 dark:border-gray-800">
+                                <span class="inline-block w-2 h-2 rounded-full"
+                                      :class="{ 'bg-yellow-400': runStatus === 'connecting', 'bg-blue-400 animate-pulse': runStatus === 'running', 'bg-green-500': runStatus === 'done' && runExitCode === 0, 'bg-red-500': runStatus === 'error' || (runStatus === 'done' && runExitCode !== 0) }"></span>
+                                <span class="text-gray-500 dark:text-gray-400" x-text="runStatusText()"></span>
+                            </div>
+
+                            <!-- Output -->
+                            <div class="overflow-y-auto flex-1 px-5 py-3 bg-gray-950">
+                                <pre x-ref="runOutputBox" class="text-xs font-mono text-gray-100 whitespace-pre-wrap break-all min-h-full" x-text="runOutput || {{toJSON ($.T.Get "Waiting for output…")}}"></pre>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="flex items-center justify-end gap-2 px-5 py-4 border-t border-gray-200 dark:border-gray-700">
+                                <button @click="closeRun()" class="relative inline-flex items-center justify-center rounded border px-3 py-1.5 text-sm font-medium border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">{{$.T.Get "Close"}}</button>
+                                <button @click="runStart()" :disabled="runStatus === 'connecting' || runStatus === 'running'" class="relative inline-flex items-center justify-center rounded border px-3 py-1.5 text-sm font-medium border-black bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">{{$.T.Get "Run Again"}}</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </span>
+
 </div>
 
                 </td>
