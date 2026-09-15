@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/emails"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/mongodb"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/postgresql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/services"
@@ -25,6 +26,7 @@ import (
 var enterpriseSearchTypes = map[string]bool{
 	"mysql_databases": true, "mysql_users": true,
 	"postgresql_databases": true, "postgresql_users": true,
+	"mongodb_databases": true, "mongodb_users": true,
 	"domains": true, "emails": true, "ftp": true, "containers": true,
 	"services": true, "websites": true, "crons": true,
 }
@@ -39,6 +41,8 @@ func gateFor(what string) (required []string, ok bool) {
 		"mysql_users":          {"mysql"},
 		"postgresql_databases": {"postgresql"},
 		"postgresql_users":     {"postgresql"},
+		"mongodb_databases":    {"mongodb"},
+		"mongodb_users":        {"mongodb"},
 		"domains":              {"domains"},
 		"emails":               {"emails"},
 		"ftp":                  {"ftp"},
@@ -129,6 +133,10 @@ func HandleSearch(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		searchPostgresDatabases(a, w, r, userContext)
 	case "postgresql_users":
 		searchPostgresUsers(a, w, r, userContext)
+	case "mongodb_databases":
+		searchMongoDatabases(a, w, r, userContext)
+	case "mongodb_users":
+		searchMongoUsers(a, w, r, userContext)
 	case "domains":
 		searchDomains(a, w, r, userID)
 	case "emails":
@@ -232,6 +240,33 @@ func searchPostgresUsers(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	items := make([]item, 0, len(users))
 	for _, name := range users {
 		items = append(items, item{Name: name, Link: "/postgresql/users"})
+	}
+	writeJSON(w, http.StatusOK, limitItems(items, 50))
+}
+
+// MONGODB DATABASES / USERS
+func searchMongoDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext string) {
+	databases, _, err := mongodb.ComputeDatabaseAndUserNames(r.Context(), userContext)
+	if err != nil {
+		writeJSON(w, http.StatusOK, []item{})
+		return
+	}
+	items := make([]item, 0, len(databases))
+	for _, name := range databases {
+		items = append(items, item{Name: name, Link: "/mongodb"})
+	}
+	writeJSON(w, http.StatusOK, limitItems(items, 50))
+}
+
+func searchMongoUsers(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext string) {
+	_, users, err := mongodb.ComputeDatabaseAndUserNames(r.Context(), userContext)
+	if err != nil {
+		writeJSON(w, http.StatusOK, []item{})
+		return
+	}
+	items := make([]item, 0, len(users))
+	for _, name := range users {
+		items = append(items, item{Name: name, Link: "/mongodb/users"})
 	}
 	writeJSON(w, http.StatusOK, limitItems(items, 50))
 }

@@ -172,6 +172,26 @@ func BuildSidebarNav(allowed map[string]bool, path string) []NavGroup {
 		groups = append(groups, NavGroup{"PostgreSQL", postgresqlIcon, "postgresql-menu", links, open, open})
 	}
 
+	// MongoDB group
+	if has("mongodb") {
+		links := []NavLink{
+			{"/mongodb", "Databases", path == "/mongodb", ""},
+			{"/mongodb/users", "Users", path == "/mongodb/users", ""},
+		}
+		links = append(links,
+			NavLink{"/mongodb/wizard", "Database Wizard", path == "/mongodb/wizard", ""},
+			NavLink{"/mongodb/new", "Create Database", path == "/mongodb/new", ""},
+			NavLink{"/mongodb/user", "Create User", path == "/mongodb/user", ""},
+			NavLink{"/mongodb/assign", "Assign User to DB", path == "/mongodb/assign", ""},
+			NavLink{"/mongodb/remove", "Remove User from DB", path == "/mongodb/remove", ""},
+		)
+		if allowed["mongodb_import"] {
+			links = append(links, NavLink{"/mongodb/import", "Import Database", strings.HasPrefix(path, "/mongodb/import"), ""})
+		}
+		open := hasAnyPrefix(path, "/mongodb", "/database")
+		groups = append(groups, NavGroup{"MongoDB", mongodbIcon, "mongodb-menu", links, open, open})
+	}
+
 	// Domains group
 	if allowed["domains"] {
 		links := []NavLink{

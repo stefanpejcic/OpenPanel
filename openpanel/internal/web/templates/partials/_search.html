@@ -51,6 +51,10 @@ function searchComponent() {
         entityTypes.push({ type: 'postgresql_databases', icon: 'bi-database', label: "{{.T.Get "PostgreSQL Database"}}" });
         entityTypes.push({ type: 'postgresql_users', icon: 'bi-person-fill', label: "{{.T.Get "PostgreSQL User"}}" });
         {{end}}
+        {{if .UserAllowed.mongodb}}
+        entityTypes.push({ type: 'mongodb_databases', icon: 'bi-database', label: "{{.T.Get "MongoDB Database"}}" });
+        entityTypes.push({ type: 'mongodb_users', icon: 'bi-person-fill', label: "{{.T.Get "MongoDB User"}}" });
+        {{end}}
         {{if .UserAllowed.domains}}
         entityTypes.push({ type: 'domains', icon: 'bi-globe', label: "{{.T.Get "Domain"}}" });
         {{end}}

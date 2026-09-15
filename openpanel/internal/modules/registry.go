@@ -35,6 +35,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/malwarescan"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/matomo"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mediawiki"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/mongodb"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/moodle"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/nextcloud"
@@ -188,6 +189,8 @@ var configured = map[string]Registrar{
 	"mysql_processlist":   mysql.RegisterProcesslist,
 	"mysql_root_password": mysql.RegisterRootPassword,
 	"remote_mysql":        mysql.RegisterRemote,
+	"mongodb":             mongodb.Register,
+	"mongodb_import":      mongodb.RegisterImport,
 	"emails": func(mux *http.ServeMux, a *appctx.App) {
 		emails.RegisterAccounts(mux, a)
 		emails.RegisterEmailsAPI(mux, a)
@@ -226,7 +229,11 @@ var configured = map[string]Registrar{
 		webserverconf.Register(mux, a)
 		webserverconf.RegisterAPI(mux, a)
 	},
-	"waf": func(mux *http.ServeMux, a *appctx.App) { waf.Register(mux, a); waf.RegisterAPI(mux, a); waf.RegisterAccountAPI(mux, a) },
+	"waf": func(mux *http.ServeMux, a *appctx.App) {
+		waf.Register(mux, a)
+		waf.RegisterAPI(mux, a)
+		waf.RegisterAccountAPI(mux, a)
+	},
 	"account": func(mux *http.ServeMux, a *appctx.App) {
 		account.RegisterSettings(mux, a)
 		account.RegisterAccountAPI(mux, a)

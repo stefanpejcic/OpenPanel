@@ -16,7 +16,7 @@ import (
 // UndeletableServices are the built-in services that can never be removed through the delete-container flow
 var UndeletableServices = map[string]bool{
 	"elasticsearch": true, "redis": true, "valkey": true, "postgres": true,
-	"mysql": true, "mariadb": true, "phpmyadmin": true,
+	"mysql": true, "mariadb": true, "phpmyadmin": true, "mongodb": true,
 	"opensearch": true, "memcached": true, "openresty": true, "nginx": true,
 	"apache": true, "openlitespeed": true, "litespeed": true, "varnish": true,
 	"cron": true, "backup": true, "tor": true,

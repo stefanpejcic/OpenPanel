@@ -32,7 +32,7 @@ var containersPage = web.MustLoadPage(
 // coreServices mirrors containers.html's core_services set: services that never show Edit/Delete (built-in, not user-added)
 var coreServices = map[string]bool{
 	"elasticsearch": true, "redis": true, "valkey": true, "postgres": true,
-	"mysql": true, "mariadb": true, "phpmyadmin": true,
+	"mysql": true, "mariadb": true, "phpmyadmin": true, "mongodb": true,
 	"opensearch": true, "memcached": true, "openresty": true, "nginx": true,
 	"apache": true, "openlitespeed": true, "litespeed": true, "varnish": true,
 	"cron": true, "backup": true, "tor": true, "docker-proxy": true,
@@ -47,10 +47,10 @@ var imageTrustKeywords = []string{
 
 // ContainerRow is one containers.html table row, pre-resolved from the (already env-substituted, via `podman-compose config`) service details
 type ContainerRow struct {
-	Service      string
-	DisplayName  string
-	Image        string
-	ImageTrusted bool
+	Service       string
+	DisplayName   string
+	Image         string
+	ImageTrusted  bool
 	CPUUnlimited  bool
 	CPUValue      string
 	RAMUnlimited  bool

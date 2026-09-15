@@ -247,12 +247,60 @@
     },
     {
       "description": "Allow remote access to all PostgreSQL databases.",
-      "link": "/postgresql/remote-postgresql", 
-      "module": "remote_postgresql", 
+      "link": "/postgresql/remote-postgresql",
+      "module": "remote_postgresql",
       "name": "Remote PostgreSQL"
-    }, 
+    },
     {
-      "description": "Manage your domain names.", 
+      "description": "Create and manage MongoDB databases.",
+      "link": "/mongodb",
+      "module": "mongodb",
+      "name": "MongoDB Databases"
+    },
+    {
+      "description": "Create and manage MongoDB Users.",
+      "link": "/mongodb/users",
+      "module": "mongodb",
+      "name": "MongoDB Users"
+    },
+    {
+      "description": "Create MongoDB database, new user and grant a role.",
+      "link": "/mongodb/wizard",
+      "module": "mongodb",
+      "name": "MongoDB Database Wizard"
+    },
+    {
+      "description": "Create a new MongoDB Database.",
+      "link": "/mongodb/new",
+      "module": "mongodb",
+      "name": "Create MongoDB Database"
+    },
+    {
+      "description": "Create a new MongoDB database user.",
+      "link": "/mongodb/user",
+      "module": "mongodb",
+      "name": "Create MongoDB user"
+    },
+    {
+      "description": "Assign a MongoDB User to Database.",
+      "link": "/mongodb/assign",
+      "module": "mongodb",
+      "name": "Assign MongoDB User to Database"
+    },
+    {
+      "description": "Remove a MongoDB User from Database.",
+      "link": "/mongodb/remove",
+      "module": "mongodb",
+      "name": "Remove MongoDB User from Database"
+    },
+    {
+      "description": "Import a dump into a MongoDB database.",
+      "link": "/mongodb/import",
+      "module": "mongodb_import",
+      "name": "Import MongoDB Database"
+    },
+    {
+      "description": "Manage your domain names.",
       "link": "/domains", 
       "module": "domains", 
       "name": "Domain Names"

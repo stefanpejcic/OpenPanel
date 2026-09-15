@@ -67,6 +67,12 @@ func buildDashboardSections(allowed map[string]bool) []Section {
 			{"remote_postgresql", "/postgresql/remote-postgresql", "bi-diagram-3", "Remote Access", ""},
 			{"postgresql_conf", "/postgresql/configuration", "bi-database-lock", "PostgreSQL Configuration", ""},
 		}},
+		{Key: "mongodb", Title: "MongoDB", Items: []SectionItem{
+			{"mongodb", "/mongodb", "bi-database", "Databases", ""},
+			{"mongodb", "/mongodb/users", "bi-people", "Users", ""},
+			{"mongodb", "/mongodb/wizard", "bi-database-add", "Database Wizard", ""},
+			{"mongodb_import", "/mongodb/import", "bi-database-fill-add", "Import Database", ""},
+		}},
 		// mautic/flarum omitted: legacy code slated for removal entirely, not ported here (per user decision)
 		{Key: "websites", Title: "Websites", Items: []SectionItem{
 			{"websites", "/sites", "bi-app-indicator", "Site Manager", ""},
