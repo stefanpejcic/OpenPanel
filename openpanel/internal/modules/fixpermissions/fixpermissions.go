@@ -51,7 +51,8 @@ func handleFixPermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			}
 			relativePath := strings.TrimPrefix(strings.TrimPrefix(fixDirectory, baseDirectory), "/")
 			if relativePath != "" && relativePath != "." {
-				args = append(args, filepath.Join(volume, relativePath))
+				// script does its own /var/www/html -> volume translation, so pass the relative path, not a resolved one
+				args = append(args, relativePath)
 			}
 		}
 

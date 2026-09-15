@@ -60,8 +60,6 @@ func apiFixPermissionsRun(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 	username, _ := injected["current_username"].(string)
-	userContext, _ := injected["context"].(string)
-	volume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
 
 	var body struct {
 		Directory string `json:"directory"`
@@ -83,7 +81,8 @@ func apiFixPermissionsRun(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 		relativePath := strings.TrimPrefix(strings.TrimPrefix(fixDirectory, baseDirectory), "/")
 		if relativePath != "" && relativePath != "." {
-			args = append(args, filepath.Join(volume, relativePath))
+			// script does its own /var/www/html -> volume translation, so pass the relative path, not a resolved one
+			args = append(args, relativePath)
 		}
 	}
 
