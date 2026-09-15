@@ -64,9 +64,15 @@ When you're done click on the 'Save' button to update the crontab file with your
 
 ## Delete
 
-To delete a cronjob, click on the 'Delete' button next to it. The cron job is removed immediately, with no confirmation step, so make sure you selected the right job before clicking.
+To delete a cronjob, click on the 'Delete' button next to it. The button then switches to a 'Confirm' state with a 5 second countdown - click it again within that window to actually remove the job. If you don't click again, it reverts back to 'Delete' and nothing is removed.
 
 ![cronjobs_delete.gif](/img/panel/v2/cron_delete.gif)
+
+## Run Now
+
+To test a cron job without waiting for its schedule, click the 'Run' button next to it. This opens a modal that executes the job's command inside its configured container right away and streams the output live as it runs, followed by the exit code once it finishes.
+
+This is useful for quickly checking that a job is configured correctly before relying on its schedule. Closing the modal disconnects the stream and stops the command if it's still running.
 
 ## Logs
 
