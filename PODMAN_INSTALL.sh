@@ -208,14 +208,11 @@ detect_os_and_package_manager() {
         *) die 1 "Unsupported OS: $OS_ID" ;;
     esac
     if [[ "$OS_ID" == "rocky" ]]; then
-    
         if [[ "$SKIP_FIREWALL" !== true ]]; then
-            echo "ERROR: Rocky Linux 10 requires the --skip-firewall flag."
-            echo "The Sentinel firewall is not supported on Rocky Linux 10."
-            echo "Please restart the installer with --skip-firewall."
-            exit 1
+            die 1 "ERROR: Rocky Linux 10 does not support installing iptables, which is required by CSF. You can rerun the installation with the '--skip-firewall' flag to skip CSF installation."
+        else
+            warn "Without CSF or another firewall, all server ports will be exposed. Make sure you install and configure an alternative firewall before using this server in production."
         fi
-    
         sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
         setenforce 0
     fi
