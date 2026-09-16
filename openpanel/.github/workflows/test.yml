@@ -1,0 +1,67 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-changed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.0"
+
+      - name: Find changed packages
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+
+          if ! git cat-file -e "$base" 2>/dev/null; then
+            base=$(git rev-list --max-parents=0 HEAD)
+          fi
+
+          files=$(git diff --name-only "$base" "${{ github.sha }}" -- '*.go')
+          if [ -z "$files" ]; then
+            echo "packages=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          pkgs=$(echo "$files" | xargs -n1 dirname | sort -u | sed 's#^#./#' | tr '\n' ' ')
+          echo "packages=$pkgs" >> "$GITHUB_OUTPUT"
+
+      - name: Run tests for changed packages
+        if: steps.changed.outputs.packages != ''
+        run: go test -v ${{ steps.changed.outputs.packages }}
+
+      - name: No Go files changed
+        if: steps.changed.outputs.packages == ''
+        run: echo "No Go files changed, skipping tests."
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.0"
+
+      - name: Build
+        run: go build ./...

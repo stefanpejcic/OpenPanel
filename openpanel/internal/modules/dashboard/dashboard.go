@@ -24,6 +24,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/emails"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/pluginpage"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -64,6 +65,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}))
 	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
+			if pluginpage.TryServe(a, w, r) {
+				return
+			}
 			http.NotFound(w, r)
 			return
 		}

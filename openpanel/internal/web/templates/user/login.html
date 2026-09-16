@@ -32,7 +32,20 @@
             </div>
 {{end}}
 
-<!-- CAPTCHA: deferred until the plugin system (modules/plugins/captcha) is ported -->
+{{if and .CaptchaProvider (not .TwofaEnabled)}}
+<div class="flex justify-center">
+{{if eq .CaptchaProvider "google"}}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<div class="g-recaptcha" data-sitekey="{{.CaptchaSiteKey}}"></div>
+{{else if eq .CaptchaProvider "turnstile"}}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<div class="cf-turnstile" data-sitekey="{{.CaptchaSiteKey}}"></div>
+{{else}}
+<!-- "custom" provider: add your own widget markup/script here, populating an input named "{{.CaptchaFieldName}}" with the response token before submit -->
+<input type="hidden" name="{{.CaptchaFieldName}}" data-custom-captcha-response>
+{{end}}
+</div>
+{{end}}
 
             <button type="submit" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 border-transparent text-white bg-[#090E1A] hover:bg-black disabled:text-white mt-4 w-full">{{.T.Get "Sign In"}}</button>
         </form>

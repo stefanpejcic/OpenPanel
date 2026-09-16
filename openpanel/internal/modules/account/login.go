@@ -24,6 +24,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	corePlugins "gist.github.com/stefanpejcic/openpanel/internal/core/plugins"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
@@ -100,18 +101,26 @@ type loginPageData struct {
 	FirstFlash        *flash.Message
 	T                 i18n.Translator
 
+	CaptchaProvider  string
+	CaptchaFieldName string
+	CaptchaSiteKey   string
+
 	// Email/PasswordStrength are only used by the reset_password pages (forgotpassword.go), which reuse this struct instead of defining their own
 	Email            string
 	PasswordStrength int
 }
 
 func basePageData(a *appctx.App, r *http.Request, t i18n.Translator) loginPageData {
+	widget := corePlugins.GetCaptchaWidget(r.Context(), corePlugins.BaseDir)
 	return loginPageData{
-		Title:         "Login",
-		BrandName:     a.Config.Get("brand_name", ""),
-		Logo:          a.Config.Get("logo", ""),
-		PasswordReset: a.Config.Get("password_reset", "yes"),
-		IsEnterprise:  strings.HasPrefix(a.LicenseKey, "enterprise"),
+		Title:            "Login",
+		BrandName:        a.Config.Get("brand_name", ""),
+		Logo:             a.Config.Get("logo", ""),
+		PasswordReset:    a.Config.Get("password_reset", "yes"),
+		IsEnterprise:     strings.HasPrefix(a.LicenseKey, "enterprise"),
+		CaptchaProvider:  widget.Provider,
+		CaptchaFieldName: widget.FieldName,
+		CaptchaSiteKey:   widget.SiteKey,
 		CSRFToken:     csrf.Token(r),
 		T:             t,
 	}
@@ -162,6 +171,15 @@ func handleLoginPassword(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		data.ErrorMessage = t.Get("Username and password are required.")
 		renderLogin(w, http.StatusOK, data)
 		return
+	}
+
+	if data.CaptchaProvider != "" {
+		token := r.Form.Get(data.CaptchaFieldName)
+		if !corePlugins.VerifyCaptcha(r.Context(), corePlugins.BaseDir, token, reqip.ClientIP(r)) {
+			data.ErrorMessage = t.Get("Captcha verification failed. Please try again.")
+			renderLogin(w, http.StatusOK, data)
+			return
+		}
 	}
 
 	result, errMsg := verifyPassword(a, r.Context(), username, password, t)
