@@ -43,7 +43,6 @@ type LayoutData struct {
 	PanelDir      string
 	FoundABugLink string
 	PanelVersion  string
-	CustomPlugins bool
 	CustomCSS     bool
 	CustomJS      bool
 

@@ -160,7 +160,7 @@ var baselineFeatures = []string{
 	"screenshots", "favicons", "logout", "errors", "search", "app",
 }
 
-// LoadUserFeatures returns a user's feature list (features.txt, else the plan's set, else default.txt) plus the baseline and any enabled plugins, cached 24h
+// LoadUserFeatures returns a user's feature list (features.txt, else the plan's set, else default.txt) plus the baseline, cached 24h
 func (a *App) LoadUserFeatures(ctx context.Context, username, userContext string) ([]string, error) {
 	if userContext == "" {
 		var err error
@@ -187,9 +187,6 @@ func (a *App) LoadUserFeatures(ctx context.Context, username, userContext string
 
 		result := append([]string{}, features...)
 		result = append(result, baselineFeatures...)
-		for name := range a.PluginNames {
-			result = append(result, name)
-		}
 		return result, nil
 	})
 }
@@ -240,11 +237,6 @@ func (a *App) InjectData(ctx context.Context, userID int) (map[string]any, error
 	for _, m := range a.EnabledModules {
 		if featureSet[m] {
 			allowed[m] = true
-		}
-	}
-	for name := range a.PluginNames {
-		if featureSet[name] {
-			allowed[name] = true
 		}
 	}
 	userAllowed := make([]string, 0, len(allowed))

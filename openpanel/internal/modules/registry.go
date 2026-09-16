@@ -45,7 +45,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/phpapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/phpbb"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/plugins"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/postgresql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/prestashop"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/processmanager"
@@ -88,8 +87,6 @@ var alwaysOn = []Registrar{
 	search.RegisterAPI,                // API twin of search.Register, gated internally via apiregistry.Handle
 	websites.Register,                 // part of mainModules = ["dashboard", "websites"] (see internal/app)
 	websites.RegisterSitesAPI,         // gated internally via apiregistry.Handle
-	plugins.Register,                  // only registers a route if plugin_names is non-empty, gated internally
-	plugins.RegisterAPI,               // same guard, API twin
 }
 
 // configured maps openpanel.config's enabled_modules entries to their Go package's Register function - every module that exists at all is already compiled in, so this is just a name-to-function lookup.

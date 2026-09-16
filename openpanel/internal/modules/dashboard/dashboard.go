@@ -24,7 +24,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/emails"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/pluginpage"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -65,9 +64,6 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}))
 	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
-			if pluginpage.TryServe(a, w, r) {
-				return
-			}
 			http.NotFound(w, r)
 			return
 		}
@@ -146,7 +142,6 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		PanelDir:          panelDir,
 		FoundABugLink:     a.Config.Get("found_a_bug_link", ""),
 		PanelVersion:      panelVersion,
-		CustomPlugins:     len(a.PluginNames) > 0,
 		CustomCSS:         a.CustomCSS,
 		CustomJS:          true, // matches base.html's always-true url_for() guard - not tied to a.CustomJS on purpose
 		NavGroups:         web.BuildSidebarNav(userAllowed, web.NavPath(r)),

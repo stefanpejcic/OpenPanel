@@ -5,7 +5,6 @@ import (
 	"context"
 	"database/sql"
 	"log"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -16,7 +15,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/config"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/db"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/plugins"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/secret"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
@@ -42,8 +40,6 @@ type App struct {
 
 	EnabledModules   []string
 	enabledModuleSet map[string]bool
-	// PluginNames is the set of plugin folders found under plugins.BaseDir at startup, fixed for the process lifetime
-	PluginNames map[string]bool
 
 	LicenseKey   string
 	LicenseValid bool
@@ -106,16 +102,6 @@ func New() (*App, error) {
 	sessionDuration := time.Duration(atoiDefault(cfg.Get("session_duration", ""), 10)) * time.Minute
 	maxSessionLifetime := time.Duration(atoiDefault(cfg.Get("session_lifetime", ""), 300)) * time.Minute
 
-	pluginNames := plugins.Names(plugins.BaseDir)
-	if len(pluginNames) > 0 {
-		names := make([]string, 0, len(pluginNames))
-		for name := range pluginNames {
-			names = append(names, name)
-		}
-		sort.Strings(names)
-		log.Printf("BOOTSTRAP - found %d custom plugin(s): %s", len(names), strings.Join(names, ", "))
-	}
-
 	a := &App{
 		Config:                  cfg,
 		SecretKey:               secretKey,
@@ -125,7 +111,6 @@ func New() (*App, error) {
 		DB:                      pool,
 		EnabledModules:          enabledModules,
 		enabledModuleSet:        enabledSet,
-		PluginNames:             pluginNames,
 		LicenseKey:              cfg.Get("key", ""),
 		ForceDomain:             sysinfo.GetOpenPanelDomain(context.Background(), c),
 		ForcePort:               sysinfo.GetOpenPanelPort(context.Background(), c),

@@ -27,7 +27,6 @@ Manually editing these files can break the panel or be overwritten during update
 | `/etc/openpanel/openpanel/custom_code/custom.css`, `custom.js`, `in_header.html`, `in_footer.html` | OpenPanel, OpenAdmin | CSS/JS/HTML | User-editable custom code injected into the panel UI |
 | `/etc/openpanel/openpanel/service/pagespeed.api` | OpenPanel, OpenAdmin | text | PageSpeed Insights API key |
 | `/etc/openpanel/openpanel/service/service.config.py` | (system) | Python config | systemd/service config, fetched during updates |
-| `/etc/openpanel/modules/` | OpenPanel, OpenAdmin | dir | Third-party/custom plugin modules (`<plugin>/readme.txt` metadata) |
 | `/etc/openpanel/skeleton/` | opencli | dir | Template files copied into every new user's account directory |
 | `/etc/openpanel/no_port` | opencli | flag file | Marker file |
 | `/etc/openpanel/upgrade/skip_versions` | opencli | text list | Versions to skip during `opencli update` |

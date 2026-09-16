@@ -54,7 +54,3 @@
 	path = integrations/clientexec
 	url = https://github.com/stefanpejcic/openpanel-clientexec
 	branch = main
-[submodule "plugins/captcha"]
-	path = plugins/captcha
-	url = https://github.com/stefanpejcic/captcha
-	branch = main

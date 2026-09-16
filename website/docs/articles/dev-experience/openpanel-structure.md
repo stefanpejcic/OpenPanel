@@ -109,7 +109,6 @@ Files that are used for new services/domains that users add.
 - `/etc/openpanel/ftp/start_vsftpd.sh` - Entrypoint for FTP service (creates accounts on startup).
 - `/etc/openpanel/ftp/vsftpd.conf` - Vsftpd main configuration file.
 - `/etc/openpanel/goaccess/goaccess.conf` - GoAccess main configuration file.
-- `/etc/openpanel/modules/` - Custom plugins for OpenPanel UI.
 - `/etc/openpanel/mysql/initialize/1.1/plans.sql` - Initializes database on OpenPanel installation.
 - `/etc/openpanel/mysql/host_mysql.cnf` - Stores mysql logins for the OpenPanel installation.
 - `/etc/openpanel/mysql/keys.txt` - List of configuration keys editable from 'OpenPanel > MySQL > Configuration' page.

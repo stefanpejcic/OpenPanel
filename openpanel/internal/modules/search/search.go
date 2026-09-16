@@ -10,7 +10,6 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
-	corePlugins "gist.github.com/stefanpejcic/openpanel/internal/core/plugins"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/searchdata"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
@@ -173,19 +172,6 @@ func searchFeatures(w http.ResponseWriter, userAllowed map[string]bool) {
 				break
 			}
 		}
-	}
-
-	// installed plugins opt into search via readme.txt's show_in_search=1 - every plugin name is auto-granted to every user (see app.LoadUserFeatures), so the userAllowed check here only ever excludes a plugin an admin has explicitly gated behind a feature the user lacks
-	for _, p := range corePlugins.List(corePlugins.BaseDir) {
-		if p["show_in_search"] != "1" || !userAllowed[p["folder"]] {
-			continue
-		}
-		filtered = append(filtered, map[string]string{
-			"module":      p["folder"],
-			"name":        p["title"],
-			"link":        p["link"],
-			"description": p["description"],
-		})
 	}
 
 	writeJSON(w, http.StatusOK, filtered)

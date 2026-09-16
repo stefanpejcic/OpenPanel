@@ -24,7 +24,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
-	corePlugins "gist.github.com/stefanpejcic/openpanel/internal/core/plugins"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/captcha"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
@@ -111,7 +111,7 @@ type loginPageData struct {
 }
 
 func basePageData(a *appctx.App, r *http.Request, t i18n.Translator) loginPageData {
-	widget := corePlugins.GetCaptchaWidget(r.Context(), corePlugins.BaseDir)
+	widget := captcha.GetWidget(a.Config)
 	return loginPageData{
 		Title:            "Login",
 		BrandName:        a.Config.Get("brand_name", ""),
@@ -175,7 +175,7 @@ func handleLoginPassword(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 
 	if data.CaptchaProvider != "" {
 		token := r.Form.Get(data.CaptchaFieldName)
-		if !corePlugins.VerifyCaptcha(r.Context(), corePlugins.BaseDir, token, reqip.ClientIP(r)) {
+		if !captcha.Verify(r.Context(), a.Config, token, reqip.ClientIP(r)) {
 			data.ErrorMessage = t.Get("Captcha verification failed. Please try again.")
 			renderLogin(w, http.StatusOK, data)
 			return

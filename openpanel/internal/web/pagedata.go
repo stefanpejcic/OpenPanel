@@ -79,7 +79,6 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		PanelDir:          panelDir,
 		FoundABugLink:     a.Config.Get("found_a_bug_link", ""),
 		PanelVersion:      panelVersion,
-		CustomPlugins:     len(a.PluginNames) > 0,
 		CustomCSS:         a.CustomCSS,
 		CustomJS:          true, // the custom-JS <script> tag is always emitted, whether or not custom.js has real content (see base.html)
 		NavGroups:         BuildSidebarNav(userAllowed, NavPath(r)),

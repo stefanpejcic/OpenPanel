@@ -137,7 +137,7 @@ jobs:
       - name: Commit and push if changed
         shell: bash
         run: |
-          git add .gitmodules tests translations configuration opencli openadmin mailserver vsftpd integrations plugins openpanel/opencli
+          git add .gitmodules tests translations configuration opencli openadmin mailserver vsftpd integrations openpanel/opencli
           if ! git diff --cached --quiet; then
             git commit -m "chore: update submodule references to latest upstream"
             git push origin main

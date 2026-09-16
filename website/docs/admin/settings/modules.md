@@ -9,7 +9,6 @@ Modules extend the OpenPanel UI by adding new features and pages. To make a feat
 ![openadmin_modules_settings](/img/admin/2.0/openadmin_modules_settings.png)
 
 - Modules are **core features** that are already available on installation and are developed by OpenPanel.
-- Plugins are custom features that need to be installed and are developed by third-party developers.
 
 Available Modules:
 
@@ -625,7 +624,6 @@ Customize options:
 * To **edit activity log from terminal** open file: `/etc/openpanel/openpanel/core/users/{username}/activity.log`.
 * To **set total number of lines per user** edit `activity_lines_retention` setting.
 * To **set total size of log per user** edit `activity_max_size_bytes` setting.
-* To **log actions from 3rd-party plugin** refer to: [*How to log actions from Custom Plugins in user Activity Log*](https://community.openpanel.org/d/218-how-to-log-actions-from-custom-plugins-in-user-activity-log)
 
 
 ## Backups
