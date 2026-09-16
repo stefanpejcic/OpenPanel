@@ -111,6 +111,24 @@
             document.cookie = 'dashboard_icon_view=' + v + '; path=/; max-age=31536000; SameSite=Lax';
         }
     </script>
+    <script>
+        // Global store for the filemanager's button style ("classic" vs
+        // "modern") - initialized from the server-resolved value (see
+        // web.ReadFilemanagerView) so the account menu's style toggle (only
+        // shown on /files, see _footer.html) can highlight the active
+        // choice. Switching style needs a full reload since classic/modern
+        // render entirely different button partials server-side, so the
+        // setter also navigates instead of just flipping the store value.
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('filemanagerView', { value: {{toJSON .FilemanagerView}} });
+        });
+        function setFilemanagerView(v) {
+            document.cookie = 'filemanager_view=' + v + '; path=/; max-age=31536000; SameSite=Lax';
+            const url = new URL(window.location.href);
+            url.searchParams.set('view', v);
+            window.location.href = url.toString();
+        }
+    </script>
     <script defer src="{{static "js/showtoasts.min.js"}}"></script>
     <script defer src="{{static "js/health-toast.min.js"}}"></script>
     <script defer src="{{static "js/relative-date.js"}}"></script>

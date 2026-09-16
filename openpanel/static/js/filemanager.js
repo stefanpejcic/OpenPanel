@@ -348,6 +348,7 @@ function initTableSelection() {
             !t.closest('#filemanager_table') &&
             !t.closest('#mainButtons') &&
             !t.closest('#selectedOptions') &&
+            !t.closest('#fmContextMenu') &&
             !t.closest('.modal.fade') &&
             !t.closest('.btn-group') &&
             !t.closest('.fmdrawer') &&
@@ -364,6 +365,80 @@ function initTableSelection() {
         }
         wasSelecting = false;
     });
+}
+
+// RIGHT-CLICK MENU (classic view only, mainButtons only exists in that view)
+
+function initContextMenu() {
+    const menu = document.getElementById('fmContextMenu');
+    const mainButtons = document.getElementById('mainButtons');
+    if (!menu || !mainButtons) return;
+
+    const actionIds = ['copyButton', 'moveButton', 'renameButton', 'downloadButton', 'viewButton', 'editButton', 'permButton', 'compressButton', 'extractButton', 'deleteButton'];
+
+    menu.innerHTML = actionIds.map(id => {
+        const btn = document.getElementById(id);
+        if (!btn) return '';
+        const icon = btn.querySelector('i')?.className || '';
+        const label = btn.querySelector('span')?.textContent.trim() || '';
+        const danger = id === 'deleteButton' ? ' text-red-600 dark:text-red-500' : '';
+        return `<li data-target="${id}" class="flex items-center gap-x-2 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800${danger}"><i class="${icon}"></i>${label}</li>`;
+    }).join('');
+
+    const table = document.getElementById('filemanager_table');
+
+    table.addEventListener('contextmenu', event => {
+        const row = event.target.closest('tr.clickable-row');
+        if (!row) return;
+        event.preventDefault();
+
+        if (!row.classList.contains('selected-row')) {
+            table.querySelectorAll('tbody tr.selected-row').forEach(r =>
+                r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900')
+            );
+            row.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+            selectedRows = [row.dataset.rowIndex];
+            sveselect = 0;
+            setSelectAllLabel(false);
+        }
+
+        enableDisableButtons();
+        updateSelectedOptionsDisplay();
+
+        menu.querySelectorAll('li[data-target]').forEach(li => {
+            const btn = document.getElementById(li.dataset.target);
+            li.classList.toggle('hidden', !btn || btn.disabled);
+        });
+
+        showContextMenu(event.pageX, event.pageY);
+    });
+
+    menu.addEventListener('click', event => {
+        const li = event.target.closest('li[data-target]');
+        if (!li || li.classList.contains('hidden')) return;
+        hideContextMenu();
+        document.getElementById(li.dataset.target)?.click();
+    });
+
+    document.addEventListener('click', () => hideContextMenu());
+    document.addEventListener('scroll', () => hideContextMenu(), true);
+    window.addEventListener('resize', () => hideContextMenu());
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') hideContextMenu();
+    });
+}
+
+function showContextMenu(x, y) {
+    const menu = document.getElementById('fmContextMenu');
+    menu.classList.remove('hidden');
+    const maxX = window.scrollX + document.documentElement.clientWidth - menu.offsetWidth - 8;
+    const maxY = window.scrollY + document.documentElement.clientHeight - menu.offsetHeight - 8;
+    menu.style.left = Math.max(window.scrollX, Math.min(x, maxX)) + 'px';
+    menu.style.top  = Math.max(window.scrollY, Math.min(y, maxY)) + 'px';
+}
+
+function hideContextMenu() {
+    document.getElementById('fmContextMenu')?.classList.add('hidden');
 }
 
 // SELECT ALL BUTTON
@@ -727,4 +802,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initSelectAll();
     initDirectorySizeCalculate();
     initActionButtons();
+    initContextMenu();
 });

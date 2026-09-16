@@ -8,6 +8,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // FolderInfo describes one folder returned by the folder picker.
@@ -158,10 +159,7 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 		return
 	}
 
-	view := r.URL.Query().Get("view")
-	if view != "classic" && view != "modern" {
-		view = a.Config.Get("filemanager_buttons_style", "classic")
-	}
+	view := web.ReadFilemanagerView(a, r)
 
 	startLineNumber := 0
 	if totalFiles > 0 {

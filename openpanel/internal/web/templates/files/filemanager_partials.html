@@ -301,6 +301,9 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
     </div>
 </div>
+
+<!-- right-click menu, classic view only -->
+<ul id="fmContextMenu" class="hidden absolute z-50 min-w-44 rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-800 dark:bg-gray-950"></ul>
 <!-- END templates/files/filemanager/actions_buttons.html -->
 {{end}}
 
@@ -524,7 +527,7 @@ const FM = {
     }
 };
 </script>
-<script src="/static/js/filemanager.js?ver=1.0.1"></script>
+<script src="/static/js/filemanager.js?ver=1.0.3"></script>
 <!-- END templates/files/filemanager/inline_js.html -->
 {{end}}
 

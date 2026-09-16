@@ -25,6 +25,20 @@ func ReadDashboardIconView(r *http.Request) string {
 	return "icon"
 }
 
+// FilemanagerViewCookie is the browser cookie storing the user's chosen filemanager button style ("classic" or "modern"), set client-side by the account menu's style toggle (only shown on /files) and read server-side by ReadFilemanagerView so /files renders the saved style on first paint with no flicker.
+const FilemanagerViewCookie = "filemanager_view"
+
+// ReadFilemanagerView resolves the filemanager button style: an explicit ?view= query param wins (it's how the choice propagates across breadcrumb/pagination links), then the filemanager_view cookie, then the admin-configured filemanager_buttons_style default.
+func ReadFilemanagerView(a *appctx.App, r *http.Request) string {
+	if v := r.URL.Query().Get("view"); v == "classic" || v == "modern" {
+		return v
+	}
+	if c, err := r.Cookie(FilemanagerViewCookie); err == nil && (c.Value == "classic" || c.Value == "modern") {
+		return c.Value
+	}
+	return a.Config.Get("filemanager_buttons_style", "classic")
+}
+
 // BuildLayoutData assembles the shared app-shell data every authenticated page needs (nav, flashes, branding, translator, ...), factored out so each module doesn't reimplement it - also returns the injected user-context map since callers need fields like current_username/context/hosting_plan for their own page-specific data.
 func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, title string) (LayoutData, map[string]any, error) {
 	ctx := r.Context()
@@ -95,6 +109,7 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		AdminPort:         adminPort,
 		PasswordStrength:  validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50),
 		DashboardIconView: ReadDashboardIconView(r),
+		FilemanagerView:   ReadFilemanagerView(a, r),
 		T:                 t,
 	}
 
