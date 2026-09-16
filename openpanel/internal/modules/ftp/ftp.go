@@ -275,6 +275,10 @@ func handleDeleteFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 	_ = r.ParseForm()
 	usernameToDelete := r.Form.Get("username")
+	if !isValidUsername(usernameToDelete) {
+		flashAndRedirectToAccounts(a, w, r, "error", "Invalid FTP username.")
+		return
+	}
 
 	if !requireFTPRunning(a, w, r) {
 		return
@@ -292,6 +296,11 @@ func handleDeleteFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 // handleChangeFTPPassword handles both the change-password form page and its submission for one FTP account
 func handleChangeFTPPassword(a *appctx.App, w http.ResponseWriter, r *http.Request, username string) {
+	if !isValidUsername(username) {
+		flashAndRedirectToAccounts(a, w, r, "error", "Invalid FTP username.")
+		return
+	}
+
 	if !requireFTPRunning(a, w, r) {
 		return
 	}
@@ -343,6 +352,10 @@ func handleChangeFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		_ = r.ParseForm()
 		usernameToModify := r.Form.Get("username")
 		newPath := r.Form.Get("new_path")
+		if !isValidUsername(usernameToModify) {
+			flashAndRedirectToAccounts(a, w, r, "error", "Invalid FTP username.")
+			return
+		}
 		const allowedPath = "/var/www/html/"
 		if !strings.HasPrefix(newPath, allowedPath) {
 			newPath = allowedPath + strings.TrimLeft(newPath, "/")

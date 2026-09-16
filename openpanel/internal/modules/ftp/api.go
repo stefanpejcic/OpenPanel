@@ -189,6 +189,10 @@ func apiFTPDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	username := r.PathValue("username")
+	if !isValidUsername(username) {
+		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid FTP username"})
+		return
+	}
 
 	out, _ := exec.CommandContext(r.Context(), "opencli", "ftp-delete", username, currentUsername).CombinedOutput()
 	if !strings.Contains(string(out), "Success") {
@@ -212,6 +216,10 @@ func apiFTPPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	username := r.PathValue("username")
+	if !isValidUsername(username) {
+		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid FTP username"})
+		return
+	}
 
 	var body struct {
 		Password string `json:"password"`
@@ -251,6 +259,10 @@ func apiFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	username := r.PathValue("username")
+	if !isValidUsername(username) {
+		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid FTP username"})
+		return
+	}
 
 	var body struct {
 		Path string `json:"path"`
