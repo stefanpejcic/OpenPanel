@@ -152,6 +152,16 @@ parse_args() {
         esac
         shift
     done
+    if [[ "$OS_ID" == "rocky" ]]; then
+        if [[ "$SKIP_FIREWALL" != true ]]; then
+            die 1 "ERROR: Rocky Linux 10 does not support installing iptables, which is required by CSF. You can rerun the installation with the '--skip-firewall' flag to skip CSF installation."
+        else
+            warn "Without CSF or another firewall, all server ports will be exposed. Make sure you install and configure an alternative firewall before using this server in production."
+        fi
+
+        sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+        setenforce 0
+    fi
 }
 
 check_requirements() {
@@ -207,15 +217,6 @@ detect_os_and_package_manager() {
         centos)                      PACKAGE_MANAGER="yum" ;;
         *) die 1 "Unsupported OS: $OS_ID" ;;
     esac
-    if [[ "$OS_ID" == "rocky" ]]; then
-        if [[ "$SKIP_FIREWALL" !== true ]]; then
-            die 1 "ERROR: Rocky Linux 10 does not support installing iptables, which is required by CSF. You can rerun the installation with the '--skip-firewall' flag to skip CSF installation."
-        else
-            warn "Without CSF or another firewall, all server ports will be exposed. Make sure you install and configure an alternative firewall before using this server in production."
-        fi
-        sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
-        setenforce 0
-    fi
     case "$(uname -m)" in
         x86_64|amd64)  architecture="x86_64" ;;
         aarch64|arm64) architecture="aarch64" ;;
