@@ -433,6 +433,17 @@ Customize options:
 * To **edit the mysql.cnf file for all new users** edit file: [`/etc/openpanel/mysql/user.cnf`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/mysql/user.cnf).
 
 
+## MongoDB
+
+> **NOTE:** This module is tagged *BETA*.
+
+The **`mongodb`** module allows users to create and manage MongoDB databases.
+
+When enabled:
+* Users can access the [**MongoDB** section](/docs/panel/mongodb/databases/) to manage databases and users.
+
+When disabled:
+* Users do not have access to the *MongoDB* section.
 
 
 ## PostgreSQL
