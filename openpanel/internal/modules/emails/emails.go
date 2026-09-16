@@ -149,7 +149,7 @@ func GetEmailList(ctx context.Context, a *appctx.App, userID int, username strin
 		info, statErr := os.Stat(path)
 		if statErr != nil || info.Size() == 0 {
 			domains, _ := a.AllDomainsForUser(ctx, userID)
-			ImportUserEmails(username, domainSet(domains))
+			ImportUserEmails(ctx, username, domainSet(domains))
 		}
 		return readEmailsFile(username, userDomains), nil
 	})
@@ -173,18 +173,20 @@ func GetEmailCount(ctx context.Context, a *appctx.App, userID int, username stri
 func InvalidateEmailCache(ctx context.Context, a *appctx.App, userID int, username string) {
 	_ = a.Cache.Delete(ctx, emailsCacheKey(username))
 	domains, _ := a.AllDomainsForUser(ctx, userID)
-	ImportUserEmails(username, domainSet(domains))
+	ImportUserEmails(ctx, username, domainSet(domains))
 }
 
 // ImportUserEmails mirrors import_user_emails(): (re)writes the per-user on-disk email cache file from `opencli email-setup email list`
-func ImportUserEmails(currentUsername string, userDomains map[string]bool) {
+func ImportUserEmails(ctx context.Context, currentUsername string, userDomains map[string]bool) {
 	path := cachedEmailsFile(currentUsername)
 	if _, err := os.Stat(path); err != nil {
 		_ = os.MkdirAll(strings.TrimSuffix(path, "/emails.yml"), 0o755)
 		_ = os.WriteFile(path, nil, 0o644)
 	}
 
-	out, err := exec.Command("opencli", "email-setup", "email", "list").Output()
+	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "opencli", "email-setup", "email", "list").Output()
 	if err != nil {
 		return
 	}

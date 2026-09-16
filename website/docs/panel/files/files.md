@@ -43,6 +43,12 @@ The File Manager allows you to upload multiple files at once. You can upload fil
 Upload size limits are configurable by the Administrator.
 
 
+## Button Style: Classic vs Modern
+
+The File Manager's action buttons (Copy, Move, Delete, etc.) can be displayed in two styles: **Classic**, a toolbar fixed above the file list, or **Modern**, a floating pill bar that appears at the bottom of the screen once you select something.
+
+To switch between them, open the account menu in the bottom left of the sidebar (only shown while you're on the Files page) and pick **Classic** or **Modern** next to "Buttons style".
+
 ## Select all
 
 Use your mouse cursor to select multiple files and folders. Click and drag, then click again to release the selection.
@@ -50,6 +56,14 @@ Use your mouse cursor to select multiple files and folders. Click and drag, then
 To select multiple files, one by one, click and hold `Ctrl` key while clicking on the rows.
 
 To select all files in the directory at once, click on the 'Select All' button. To deselect all files, click on the 'Deselect' button.
+
+## Right-click Menu
+
+When using the **Classic** button style, right-clicking a file or folder opens a context menu with the same actions as the toolbar (Copy, Move, Rename, Download, View, Edit, Permissions, Compress, Extract, Delete). Only the actions that apply to the selected item(s) are shown - for example, Extract only appears for archives, and View/Edit only appear for files that support them.
+
+Right-clicking an item that isn't already selected selects just that item; right-clicking within an existing multi-selection keeps the whole selection, so you can act on multiple files or folders at once.
+
+The right-click menu is only available in the Classic button style.
 
 
 ## Delete

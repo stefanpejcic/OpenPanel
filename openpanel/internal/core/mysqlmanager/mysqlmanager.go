@@ -23,7 +23,23 @@ const (
 var (
 	poolsMu sync.Mutex
 	pools   = map[string]*sql.DB{}
+
+	// openLocks serializes pool creation per userContext instead of one global lock, so one user's mysqld
+	// socket taking up to socketWaitTimeout to appear doesn't stall every other user's queries behind it.
+	openLocksMu sync.Mutex
+	openLocks   = map[string]*sync.Mutex{}
 )
+
+func openLockFor(userContext string) *sync.Mutex {
+	openLocksMu.Lock()
+	defer openLocksMu.Unlock()
+	m, ok := openLocks[userContext]
+	if !ok {
+		m = &sync.Mutex{}
+		openLocks[userContext] = m
+	}
+	return m
+}
 
 // mycnfCredentials reads the [client] section of /home/<context>/my.cnf, same ini format as /etc/my.cnf but a distinct per-user file
 func mycnfCredentials(userContext string) (user, password string, err error) {
@@ -102,9 +118,21 @@ func openPool(userContext string) (*sql.DB, error) {
 
 func getPool(userContext string) (*sql.DB, error) {
 	poolsMu.Lock()
-	defer poolsMu.Unlock()
+	db, ok := pools[userContext]
+	poolsMu.Unlock()
+	if ok {
+		return db, nil
+	}
 
-	if db, ok := pools[userContext]; ok {
+	// only serializes opens for this one userContext, other users' lookups above aren't blocked by this wait
+	lock := openLockFor(userContext)
+	lock.Lock()
+	defer lock.Unlock()
+
+	poolsMu.Lock()
+	db, ok = pools[userContext]
+	poolsMu.Unlock()
+	if ok {
 		return db, nil
 	}
 
@@ -112,7 +140,10 @@ func getPool(userContext string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	poolsMu.Lock()
 	pools[userContext] = db
+	poolsMu.Unlock()
 	return db, nil
 }
 
