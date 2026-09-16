@@ -45,9 +45,10 @@ var cmsRemoveTypes = map[string]bool{
 // cmsBackupTypes covers every type with a working GET /<type>/backup/run route - same set as cmsRemoveTypes, all 11 modules have backups.go.
 var cmsBackupTypes = cmsRemoveTypes
 
-// cmsUpdateTypes covers only the types with a real one-click "Update now" CLI flow (POST /<type>/update?domain=&docroot=) - WordPress/Joomla/OpenCart/PrestaShop are browser-link-only by design, and PM2 apps (nodejs/python/ruby) require a version/requirements form, not a simple bulk update.
+// cmsUpdateTypes covers every type with a real one-click "Update now" CLI flow - Joomla/OpenCart/PrestaShop are browser-link-only by design, and PM2 apps (nodejs/python/ruby) require a version/requirements form, not a simple bulk update.
+// Every type here except wordpress uses the generic POST /<type>/update?domain=&docroot= route; wordpress instead has its own GET /wordpress/wp-cli/update_now?website=&docroot=, handled as a special case in dispatchBulk.
 var cmsUpdateTypes = map[string]bool{
-	"drupal": true, "nextcloud": true, "matomo": true, "moodle": true, "mediawiki": true, "flarum": true, "dokuwiki": true, "ojs": true,
+	"wordpress": true, "drupal": true, "nextcloud": true, "matomo": true, "moodle": true, "mediawiki": true, "flarum": true, "dokuwiki": true, "ojs": true,
 }
 
 func isPM2Type(typeLower string) bool {
@@ -111,6 +112,10 @@ func dispatchBulkItem(a *appctx.App, mux *http.ServeMux, r *http.Request, action
 	case "update":
 		if !cmsUpdateTypes[typeLower] {
 			return bulkResult{SiteName: item.SiteName, OK: false, Message: "One-click update is not available for this site type."}
+		}
+		if typeLower == "wordpress" {
+			q := url.Values{"website": {item.SiteName}, "docroot": {item.Docroot}}
+			return internalDispatch(mux, r, item.SiteName, "GET", "/wordpress/wp-cli/update_now", nil, q)
 		}
 		q := url.Values{"domain": {item.SiteName}, "docroot": {item.Docroot}}
 		return internalDispatch(mux, r, item.SiteName, "POST", "/"+typeLower+"/update", nil, q)

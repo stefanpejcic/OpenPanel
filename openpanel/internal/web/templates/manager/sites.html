@@ -68,7 +68,7 @@
         // sites (e.g. Ruby/SofaWiki for Update) are excluded before the
         // request is even sent, instead of coming back as a per-item
         // not-supported result every time.
-        if (action === 'update') return ['drupal', 'nextcloud', 'matomo', 'moodle', 'mediawiki', 'flarum', 'dokuwiki', 'ojs'];
+        if (action === 'update') return ['wordpress', 'drupal', 'nextcloud', 'matomo', 'moodle', 'mediawiki', 'flarum', 'dokuwiki', 'ojs'];
         if (action === 'backup') return ['wordpress', 'joomla', 'opencart', 'nextcloud', 'prestashop', 'drupal', 'matomo', 'moodle', 'mediawiki', 'flarum', 'sofawiki', 'dokuwiki', 'phpbb', 'tinyphotogallery', 'tinyfilemanager', 'ojs'];
         return null; // detach/delete: no type restriction
     },
