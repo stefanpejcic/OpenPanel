@@ -683,15 +683,6 @@ func postSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, emai
 func deleteSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, userID int, currentUsername string) {
 	ctx := r.Context()
 
-	var body struct {
-		Email string `json:"email"`
-	}
-	if r.Header.Get("Content-Type") == "application/json" {
-		if err := json.NewDecoder(r.Body).Decode(&body); err == nil && body.Email != "" {
-			email = body.Email
-		}
-	}
-
 	out, err := exec.CommandContext(ctx, "opencli", "email-setup", "email", "del", email).CombinedOutput()
 	if err == nil {
 		ipAddress := reqip.ClientIP(r)

@@ -632,10 +632,14 @@ func handleWordPressSecure(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	// POST
 	domain := strings.Split(providedDomain, "/")[0]
+	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+		http.Error(w, "You do not own this domain.", http.StatusForbidden)
+		return
+	}
 	_ = r.ParseForm()
 	var validRules []string
 	for key := range r.PostForm {
-		if strings.HasPrefix(key, "wp_manager_") {
+		if apiWPManagerRuleFullRE.MatchString(key) {
 			validRules = append(validRules, key)
 		}
 	}

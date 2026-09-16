@@ -49,6 +49,22 @@ func splitDomainAndFolder(param string) (domain, folder string) {
 	return param, ""
 }
 
+// isSafeWebsiteSubpath reports whether folder is free of path-traversal segments and unsafe characters - used to gate the optional "/subpath" suffix on a website param before it's forwarded to opencli, since the domain part alone being owned by the caller doesn't make an attacker-appended "../../etc" suffix safe
+func isSafeWebsiteSubpath(folder string) bool {
+	if folder == "" {
+		return true
+	}
+	if !websiteParamRE.MatchString(folder) {
+		return false
+	}
+	for _, segment := range strings.Split(folder, "/") {
+		if segment == ".." {
+			return false
+		}
+	}
+	return true
+}
+
 // ---------------------- FAVICON ---------------------- //
 
 // handleFavicon redirects to a domain's favicon, either through a configured favicon service or Google's fallback.
@@ -77,6 +93,8 @@ func handleFavicon(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 }
 
 // ---------------------- DATABASE SIZE ---------------------- //
+
+var dbNameSafeRE = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 
 // handleDatabaseSize reports either a WordPress install's on-disk size (via `wp db size`) or a raw database's size, depending on which query parameter was supplied.
 func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -128,6 +146,10 @@ func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"size": columns[1]})
 
 	case database != "":
+		if !dbNameSafeRE.MatchString(database) {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid database name."})
+			return
+		}
 		rows, execErr := mysqlmanager.Exec(ctx, userContext,
 			"SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) FROM information_schema.TABLES WHERE table_schema = \""+database+"\"", "")
 		if execErr != nil {
@@ -284,10 +306,14 @@ func handleWPVulnerability(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 	websiteParam := r.PathValue("domain")
-	domain, _ := splitDomainAndFolder(websiteParam)
+	domain, folder := splitDomainAndFolder(websiteParam)
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
+		return
+	}
+	if !isSafeWebsiteSubpath(folder) {
+		http.Error(w, "Invalid path.", http.StatusBadRequest)
 		return
 	}
 

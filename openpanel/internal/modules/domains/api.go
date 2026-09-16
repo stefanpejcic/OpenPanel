@@ -270,6 +270,10 @@ func apiDomainsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": "Domain name is required."})
 		return
 	}
+	if !domainCharsRE.MatchString(domainURL) {
+		writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid domain name."})
+		return
+	}
 
 	resolved, ok := resolveUnderVarWWWHTML(docroot)
 	if !ok {
@@ -911,6 +915,12 @@ func apiDomainsAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	if name == "" || recordType == "" || record == "" {
 		writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": "name, type, and value are required."})
 		return
+	}
+	for _, v := range []string{name, ttl, recordType, record, priority} {
+		if strings.ContainsAny(v, "\n\r") {
+			writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid characters in submitted data."})
+			return
+		}
 	}
 
 	zonePath := apiZoneFilePath(domain)

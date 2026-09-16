@@ -286,10 +286,14 @@ func apiWPVulnerabilityGet(a *appctx.App, w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
 	domain := r.PathValue("domain")
-	domainRoot, _ := splitDomainAndFolder(domain)
+	domainRoot, folder := splitDomainAndFolder(domain)
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
 		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		return
+	}
+	if !isSafeWebsiteSubpath(folder) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid path"})
 		return
 	}
 
@@ -321,10 +325,14 @@ func apiWPVulnerabilityScan(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		return
 	}
 	domain := r.PathValue("domain")
-	domainRoot, _ := splitDomainAndFolder(domain)
+	domainRoot, folder := splitDomainAndFolder(domain)
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
 		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		return
+	}
+	if !isSafeWebsiteSubpath(folder) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid path"})
 		return
 	}
 

@@ -20,6 +20,9 @@ import (
 
 var domainCharsRE = regexp.MustCompile(`^[a-zA-Z0-9.-]+$`)
 
+// pathCharsRE matches the safe charset for a filesystem path segment - excludes quotes, backticks, semicolons etc, since these paths get interpolated into opencli SQL/shell commands downstream
+var pathCharsRE = regexp.MustCompile(`^[a-zA-Z0-9._/-]+$`)
+
 func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	flash.Add(sess, category, message)
@@ -43,6 +46,9 @@ func resolveUnderVarWWWHTML(raw string) (resolved string, ok bool) {
 	}
 	cleaned := filepath.Clean(abs)
 	if cleaned != strings.TrimSuffix(base, "/") && !strings.HasPrefix(cleaned+"/", base) {
+		return cleaned, false
+	}
+	if !pathCharsRE.MatchString(cleaned) {
 		return cleaned, false
 	}
 	return cleaned, true
