@@ -27,7 +27,7 @@ func TestRenderDashboardPage(t *testing.T) {
 			CSRFToken:       "test-csrf-token",
 			PanelDir:        "ltr",
 			PanelVersion:    "1.0.0",
-			NavGroups:       web.BuildSidebarNav(userAllowed, "/dashboard"),
+			NavGroups:       web.BuildSidebarNav(userAllowed, nil, "/dashboard"),
 			UserAllowed:     userAllowed,
 			UserAllowedJSON: web.UserAllowedList(userAllowed),
 			IsEnterprise:    true,
@@ -38,7 +38,7 @@ func TestRenderDashboardPage(t *testing.T) {
 			AdminPort:       "2087",
 			T:               mgr.Translator("en"),
 		},
-		Sections:           buildDashboardSections(userAllowed),
+		Sections:           buildDashboardSections(userAllowed, nil),
 		TourShow:           true,
 		TwofaEnabled:       false,
 		TwofaNag:           "yes",
@@ -83,6 +83,50 @@ func TestRenderDashboardPage(t *testing.T) {
 	}
 }
 
+// covers a plan with an upsell target: features the plan doesn't grant but the upsell plan does should render greyed-out (sidebar link + dashboard icon) with an upgrade prompt, instead of being omitted like a plain non-upsell-eligible feature
+func TestRenderDashboardPageUpsellEligible(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	userAllowed := map[string]bool{"dashboard": true, "websites": true}
+	upsellAllowed := map[string]bool{"wordpress": true, "docker": true}
+
+	data := DashboardPageData{
+		LayoutData: web.LayoutData{
+			Title:           "Dashboard",
+			CSRFToken:       "tok",
+			PanelDir:        "ltr",
+			NavGroups:       web.BuildSidebarNav(userAllowed, upsellAllowed, "/dashboard"),
+			UserAllowed:     userAllowed,
+			UserAllowedJSON: web.UserAllowedList(userAllowed),
+			UpsellAllowed:   upsellAllowed,
+			UpsellPlanName:  "Business",
+			UpsellURL:       "https://example.com/upgrade",
+			CurrentUsername: "upselluser",
+			RequestPath:     "/dashboard",
+			AdminPort:       "2087",
+			T:               mgr.Translator("en"),
+		},
+		Sections: buildDashboardSections(userAllowed, upsellAllowed),
+	}
+
+	w := httptest.NewRecorder()
+	if err := dashboardPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+
+	body := w.Body.String()
+	for _, want := range []string{
+		"Upgrade to",
+		"Business",
+		"https://example.com/upgrade",
+		"cursor-not-allowed",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("rendered dashboard missing %q for an upsell-eligible feature", want)
+		}
+	}
+}
+
 // covers the opposite end: a user with almost no features enabled, so most conditional sections render empty - the branch most likely to hit a nil map / missing key panic that a feature-rich test run wouldn't exercise
 func TestRenderDashboardPageMinimalUser(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
@@ -93,7 +137,7 @@ func TestRenderDashboardPageMinimalUser(t *testing.T) {
 			Title:           "Dashboard",
 			CSRFToken:       "tok",
 			PanelDir:        "ltr",
-			NavGroups:       web.BuildSidebarNav(userAllowed, "/dashboard"),
+			NavGroups:       web.BuildSidebarNav(userAllowed, nil, "/dashboard"),
 			UserAllowed:     userAllowed,
 			UserAllowedJSON: web.UserAllowedList(userAllowed),
 			CurrentUsername: "minimal",
@@ -101,7 +145,7 @@ func TestRenderDashboardPageMinimalUser(t *testing.T) {
 			AdminPort:       "2087",
 			T:               mgr.Translator("en"),
 		},
-		Sections: buildDashboardSections(userAllowed),
+		Sections: buildDashboardSections(userAllowed, nil),
 	}
 
 	w := httptest.NewRecorder()
@@ -123,7 +167,7 @@ func TestRenderDashboardPageWithFlashAndImpersonation(t *testing.T) {
 			Title:           "Dashboard",
 			CSRFToken:       "tok",
 			PanelDir:        "ltr",
-			NavGroups:       web.BuildSidebarNav(userAllowed, "/dashboard"),
+			NavGroups:       web.BuildSidebarNav(userAllowed, nil, "/dashboard"),
 			UserAllowed:     userAllowed,
 			UserAllowedJSON: web.UserAllowedList(userAllowed),
 			CurrentUsername: "impersonated-user",
@@ -135,7 +179,7 @@ func TestRenderDashboardPageWithFlashAndImpersonation(t *testing.T) {
 			},
 			T: mgr.Translator("en"),
 		},
-		Sections: buildDashboardSections(userAllowed),
+		Sections: buildDashboardSections(userAllowed, nil),
 	}
 
 	w := httptest.NewRecorder()

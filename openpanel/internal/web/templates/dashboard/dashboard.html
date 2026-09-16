@@ -39,7 +39,21 @@
             x-collapse
           >
             {{$iconView := .IconView}}
+            {{$upsellPlanName := .UpsellPlanName}}
+            {{$upsellURL := .UpsellURL}}
             {{range .Section.Items}}
+              {{if .Disabled}}
+                <a title="{{if $upsellPlanName}}{{$.T.Get "Upgrade to"}} {{$upsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
+                   {{if $upsellURL}}href="{{$upsellURL}}" target="_blank" rel="noopener"{{else}}href="#" onclick="return false;"{{end}}
+                   class="block w-1/2 py-1 text-center lg:w-1/4 opacity-50 grayscale cursor-not-allowed">
+                  <div :class="$store.dashboardIconView.value === 'icon' ? 'py-2 text-center' : 'p-2 px-4 flex gap-2'" class="{{if eq $iconView "icon"}}py-2 text-center{{else}}p-2 px-4 flex gap-2{{end}}">
+                    <button type="button" tabindex="-1" class="size-9 items-center justify-center rounded-xl bg-slate-700 text-white ring-4 ring-slate-400/50 dark:ring-slate-600/50 cursor-not-allowed">
+                      <i class="bi {{.Icon}}"></i>
+                    </button>
+                    <p class="pt-2 text-sm font-medium font-body md:text-base md:pt-2 text-slate-500 dark:text-slate-400">{{.Label}}</p>
+                  </div>
+                </a>
+              {{else}}
                 <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" class="block w-1/2 py-1 text-center lg:w-1/4 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                   <div :class="$store.dashboardIconView.value === 'icon' ? 'py-2 text-center' : 'p-2 px-4 flex gap-2'" class="{{if eq $iconView "icon"}}py-2 text-center{{else}}p-2 px-4 flex gap-2{{end}}">
                     <button type="button" class="size-9 items-center justify-center rounded-xl bg-slate-700 text-white hover:bg-slate-600 active:bg-slate-700 ring-4 ring-slate-400/50 dark:ring-slate-600/50 cursor-pointer">
@@ -48,6 +62,7 @@
                     <p class="pt-2 text-sm font-medium font-body md:text-base md:pt-2 text-slate-500 dark:text-slate-400">{{.Label}}</p>
                   </div>
                 </a>
+              {{end}}
             {{end}}
           </div>
         </div>
@@ -72,7 +87,7 @@
           {{if eq $root.CustomSectionPosition (printf "before_%s" .Key)}}
             {{template "customsection" $root}}
           {{end}}
-          {{template "icon_section" (dict "Section" . "UserAllowedJSON" $root.UserAllowedJSON "IconView" $root.DashboardIconView "T" $root.T)}}
+          {{template "icon_section" (dict "Section" . "UserAllowedJSON" $root.UserAllowedJSON "IconView" $root.DashboardIconView "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
         </div>
       {{end}}
     </div>

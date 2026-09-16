@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -146,6 +147,29 @@ type PlanDetails struct {
 	UpsellPlanID   string
 	UpsellPlanName string
 	UpsellURL      string
+
+	// the upsell plan's own limits, used to check it's actually an improvement before offering it - see HasHigherLimit
+	UpsellDomainsLimit  string
+	UpsellWebsitesLimit string
+	UpsellDBLimit       string
+	UpsellEmailLimit    string
+	UpsellFTPLimit      string
+}
+
+// HasHigherLimit reports whether the upsell plan actually raises the given resource's limit over current, so callers don't offer an "upgrade" that wouldn't change anything; limit strings follow the plans table convention where "0" or non-numeric means unlimited
+func (p PlanDetails) HasHigherLimit(current, upsell string) bool {
+	if !p.HasUpsell() {
+		return false
+	}
+	c, cErr := strconv.Atoi(strings.TrimSpace(current))
+	if cErr != nil || c == 0 {
+		return false // current is already unlimited (or unset), nothing to improve
+	}
+	u, uErr := strconv.Atoi(strings.TrimSpace(upsell))
+	if uErr != nil || u == 0 {
+		return true // upsell is unlimited
+	}
+	return u > c
 }
 
 // HasUpsell reports whether this plan has an upgrade target to offer when the user hits a limit
@@ -172,19 +196,25 @@ func (a *App) QueryPlanDetailsByID(ctx context.Context, planID int) (PlanDetails
 			cpu, ram, emailLimit, ftpLimit, diskLimit         sql.NullString
 			inodesLimit, bandwidth, maxEmailQuota             sql.NullString
 			upsellPlanID, upsellPlanName, upsellURL           sql.NullString
+			upsellDomainsLimit, upsellWebsitesLimit           sql.NullString
+			upsellDBLimit, upsellEmailLimit, upsellFTPLimit   sql.NullString
 		)
 		row := a.DB.QueryRowContext(ctx, `
 			SELECT plans.description, plans.domains_limit, plans.websites_limit, plans.db_limit,
 			       plans.cpu, plans.ram, plans.email_limit, plans.ftp_limit, plans.disk_limit,
 			       plans.inodes_limit, plans.bandwidth, plans.max_email_quota,
-			       plans.upsell_plan_id, upsell.name, plans.upsell_url
+			       plans.upsell_plan_id, upsell.name, plans.upsell_url,
+			       upsell.domains_limit, upsell.websites_limit, upsell.db_limit,
+			       upsell.email_limit, upsell.ftp_limit
 			FROM plans
 			LEFT JOIN plans AS upsell ON upsell.id = plans.upsell_plan_id
 			WHERE plans.id = ?`, planID)
 		err := row.Scan(&description, &domainsLimit, &websitesLimit, &dbLimit,
 			&cpu, &ram, &emailLimit, &ftpLimit, &diskLimit,
 			&inodesLimit, &bandwidth, &maxEmailQuota,
-			&upsellPlanID, &upsellPlanName, &upsellURL)
+			&upsellPlanID, &upsellPlanName, &upsellURL,
+			&upsellDomainsLimit, &upsellWebsitesLimit, &upsellDBLimit,
+			&upsellEmailLimit, &upsellFTPLimit)
 		if err != nil {
 			// upsell_plan_id/upsell_url are added by openadmin's migration - fall back to the old column set if that hasn't run yet, rather than losing every plan limit
 			row := a.DB.QueryRowContext(ctx, `
@@ -210,6 +240,11 @@ func (a *App) QueryPlanDetailsByID(ctx context.Context, planID int) (PlanDetails
 			plan.UpsellPlanID = upsellPlanID.String
 			plan.UpsellPlanName = upsellPlanName.String
 			plan.UpsellURL = upsellURL.String
+			plan.UpsellDomainsLimit = upsellDomainsLimit.String
+			plan.UpsellWebsitesLimit = upsellWebsitesLimit.String
+			plan.UpsellDBLimit = upsellDBLimit.String
+			plan.UpsellEmailLimit = upsellEmailLimit.String
+			plan.UpsellFTPLimit = upsellFTPLimit.String
 		}
 		return plan, nil
 	})

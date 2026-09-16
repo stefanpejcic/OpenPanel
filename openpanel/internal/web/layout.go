@@ -51,6 +51,11 @@ type LayoutData struct {
 	UserAllowedJSON template.JS
 	IsEnterprise    bool
 
+	// UpsellAllowed lists modules the current plan doesn't grant but the configured upsell plan does - the sidebar/dashboard show these greyed-out with an upgrade prompt instead of hiding them. UpsellPlanName/UpsellURL are blank when no upsell plan is configured.
+	UpsellAllowed  map[string]bool
+	UpsellPlanName string
+	UpsellURL      string
+
 	CurrentUsername string
 	HostingPlanName string
 	AvatarType      string

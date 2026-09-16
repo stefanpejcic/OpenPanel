@@ -114,6 +114,14 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		userAllowed[m] = true
 	}
 
+	upsellAllowedSlice, _ := injected["user_upsell_allowed"].([]string)
+	upsellAllowed := make(map[string]bool, len(upsellAllowedSlice))
+	for _, m := range upsellAllowedSlice {
+		upsellAllowed[m] = true
+	}
+	upsellPlanName, _ := injected["upsell_plan_name"].(string)
+	upsellURL, _ := injected["upsell_url"].(string)
+
 	currentUsername, _ := injected["current_username"].(string)
 	sessionLocale, _ := sess.Values["locale"].(string)
 	userLocale := i18nUserLocale(injected)
@@ -144,9 +152,12 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		PanelVersion:      panelVersion,
 		CustomCSS:         a.CustomCSS,
 		CustomJS:          true, // matches base.html's always-true url_for() guard - not tied to a.CustomJS on purpose
-		NavGroups:         web.BuildSidebarNav(userAllowed, web.NavPath(r)),
+		NavGroups:         web.BuildSidebarNav(userAllowed, upsellAllowed, web.NavPath(r)),
 		UserAllowed:       userAllowed,
 		UserAllowedJSON:   web.UserAllowedList(userAllowed),
+		UpsellAllowed:     upsellAllowed,
+		UpsellPlanName:    upsellPlanName,
+		UpsellURL:         upsellURL,
 		IsEnterprise:      isEnterprise,
 		CurrentUsername:   currentUsername,
 		HostingPlanName:   hostingPlanName,
@@ -160,9 +171,16 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		T:                 t,
 	}
 
+	limitReached := anyPlanLimitReached(d)
+	var upgradePlanName, upgradeURL string
+	if limitReached && upsellImprovesReachedLimit(d) {
+		upgradePlanName = d.Plan.UpsellPlanName
+		upgradeURL = d.Plan.UpsellURL
+	}
+
 	return DashboardPageData{
 		LayoutData:            layout,
-		Sections:              buildDashboardSections(userAllowed),
+		Sections:              buildDashboardSections(userAllowed, upsellAllowed),
 		TourShow:              d.TourShow,
 		OnboardingShow:        d.OnboardingShow,
 		CustomMessage:         template.HTML(d.CustomMessage), //nolint:gosec // matches Jinja's `custom_message|safe`: admin-authored HTML from a local file, not user input
@@ -192,9 +210,9 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		DBLimit:               atoiDefault(d.Plan.DBLimit, 0),
 		EmailLimit:            atoiDefault(d.Plan.EmailLimit, 0),
 		FTPLimit:              atoiDefault(d.Plan.FTPLimit, 0),
-		LimitReached:          anyPlanLimitReached(d),
-		UpgradePlanName:       d.Plan.UpsellPlanName,
-		UpgradeURL:            d.Plan.UpsellURL,
+		LimitReached:          limitReached,
+		UpgradePlanName:       upgradePlanName,
+		UpgradeURL:            upgradeURL,
 	}
 }
 
@@ -209,6 +227,19 @@ func anyPlanLimitReached(d DashboardData) bool {
 		atOrOver(d.DBUsage, d.Plan.DBLimit) ||
 		atOrOver(d.EmailCount, d.Plan.EmailLimit) ||
 		atOrOver(d.FTPCount, d.Plan.FTPLimit)
+}
+
+// upsellImprovesReachedLimit reports whether the upsell plan actually raises the limit on at least one resource the user has hit, so the dashboard doesn't push an "upgrade" that wouldn't fix anything
+func upsellImprovesReachedLimit(d DashboardData) bool {
+	reachedAndImproved := func(usage int, current, upsell string) bool {
+		l := atoiDefault(current, 0)
+		return l != 0 && usage >= l && d.Plan.HasHigherLimit(current, upsell)
+	}
+	return reachedAndImproved(len(d.UserWebsites), d.Plan.WebsitesLimit, d.Plan.UpsellWebsitesLimit) ||
+		reachedAndImproved(len(d.MainDomains), d.Plan.DomainsLimit, d.Plan.UpsellDomainsLimit) ||
+		reachedAndImproved(d.DBUsage, d.Plan.DBLimit, d.Plan.UpsellDBLimit) ||
+		reachedAndImproved(d.EmailCount, d.Plan.EmailLimit, d.Plan.UpsellEmailLimit) ||
+		reachedAndImproved(d.FTPCount, d.Plan.FTPLimit, d.Plan.UpsellFTPLimit)
 }
 
 // i18nUserLocale mirrors get_locale()'s per-account locale-file tier, reading /home/<context>/locale via i18n.UserLocale

@@ -244,6 +244,9 @@ func (a *App) InjectData(ctx context.Context, userID int) (map[string]any, error
 		userAllowed = append(userAllowed, m)
 	}
 
+	plan, _ := a.QueryPlanDetailsByID(ctx, details.PlanID)
+	upsellAllowed := a.upsellAllowedModules(ctx, plan, allowed)
+
 	return map[string]any{
 		"user_id":           userID,
 		"current_username":  details.Username,
@@ -253,10 +256,39 @@ func (a *App) InjectData(ctx context.Context, userID int) (map[string]any, error
 		"hosting_plan_name": details.PlanName,
 		"panel_version":     sysinfo.GetOpenPanelVersion(ctx, a.Cache),
 		// "dir" is the config key for UI text direction (ltr/rtl), not a filesystem path
-		"panel_dir":          a.Config.Get("dir", "ltr"),
-		"avatar_type":        a.AvatarType,
-		"gravatar_image_url": gravatarURL(a.AvatarType, details.Email),
-		"user_allowed":       userAllowed,
-		"is_enterprise":      strings.HasPrefix(a.LicenseKey, "enterprise"),
+		"panel_dir":           a.Config.Get("dir", "ltr"),
+		"avatar_type":         a.AvatarType,
+		"gravatar_image_url":  gravatarURL(a.AvatarType, details.Email),
+		"user_allowed":        userAllowed,
+		"user_upsell_allowed": upsellAllowed,
+		"upsell_plan_name":    plan.UpsellPlanName,
+		"upsell_url":          plan.UpsellURL,
+		"is_enterprise":       strings.HasPrefix(a.LicenseKey, "enterprise"),
 	}, nil
+}
+
+// upsellAllowedModules returns the enabled modules that the current plan doesn't grant but the upsell plan does, so the GUI can show them greyed-out with an upgrade prompt instead of hiding them outright
+func (a *App) upsellAllowedModules(ctx context.Context, plan PlanDetails, allowed map[string]bool) []string {
+	if !plan.HasUpsell() {
+		return nil
+	}
+	upsellPlanID, err := strconv.Atoi(plan.UpsellPlanID)
+	if err != nil {
+		return nil
+	}
+	upsellFeatures, err := a.LoadFeaturesForPlanID(ctx, upsellPlanID)
+	if err != nil {
+		return nil
+	}
+	upsellFeatureSet := make(map[string]bool, len(upsellFeatures))
+	for _, f := range upsellFeatures {
+		upsellFeatureSet[f] = true
+	}
+	var result []string
+	for _, m := range a.EnabledModules {
+		if !allowed[m] && upsellFeatureSet[m] {
+			result = append(result, m)
+		}
+	}
+	return result
 }

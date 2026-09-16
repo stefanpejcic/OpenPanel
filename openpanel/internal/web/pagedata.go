@@ -57,6 +57,14 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		userAllowed[m] = true
 	}
 
+	upsellAllowedSlice, _ := injected["user_upsell_allowed"].([]string)
+	upsellAllowed := make(map[string]bool, len(upsellAllowedSlice))
+	for _, m := range upsellAllowedSlice {
+		upsellAllowed[m] = true
+	}
+	upsellPlanName, _ := injected["upsell_plan_name"].(string)
+	upsellURL, _ := injected["upsell_url"].(string)
+
 	currentUsername, _ := injected["current_username"].(string)
 	sessionLocale, _ := sess.Values["locale"].(string)
 	userContext, _ := injected["context"].(string)
@@ -95,9 +103,12 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		PanelVersion:      panelVersion,
 		CustomCSS:         a.CustomCSS,
 		CustomJS:          true, // the custom-JS <script> tag is always emitted, whether or not custom.js has real content (see base.html)
-		NavGroups:         BuildSidebarNav(userAllowed, NavPath(r)),
+		NavGroups:         BuildSidebarNav(userAllowed, upsellAllowed, NavPath(r)),
 		UserAllowed:       userAllowed,
 		UserAllowedJSON:   UserAllowedList(userAllowed),
+		UpsellAllowed:     upsellAllowed,
+		UpsellPlanName:    upsellPlanName,
+		UpsellURL:         upsellURL,
 		IsEnterprise:      isEnterprise,
 		CurrentUsername:   currentUsername,
 		HostingPlanName:   hostingPlanName,

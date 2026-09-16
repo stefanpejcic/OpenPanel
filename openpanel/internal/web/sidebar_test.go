@@ -22,7 +22,7 @@ func TestNavPathAndUploadDownloadActiveState(t *testing.T) {
 
 	t.Run("upload (no method param)", func(t *testing.T) {
 		r := httptest.NewRequest("GET", "/file-manager/upload", nil)
-		groups := BuildSidebarNav(allowed, NavPath(r))
+		groups := BuildSidebarNav(allowed, nil, NavPath(r))
 		if !linkActive(groups, "/file-manager/upload?method=upload") {
 			t.Error("expected Upload from device to be active")
 		}
@@ -33,7 +33,7 @@ func TestNavPathAndUploadDownloadActiveState(t *testing.T) {
 
 	t.Run("upload (method=upload)", func(t *testing.T) {
 		r := httptest.NewRequest("GET", "/file-manager/upload?method=upload", nil)
-		groups := BuildSidebarNav(allowed, NavPath(r))
+		groups := BuildSidebarNav(allowed, nil, NavPath(r))
 		if !linkActive(groups, "/file-manager/upload?method=upload") {
 			t.Error("expected Upload from device to be active")
 		}
@@ -44,7 +44,7 @@ func TestNavPathAndUploadDownloadActiveState(t *testing.T) {
 
 	t.Run("download (method=download)", func(t *testing.T) {
 		r := httptest.NewRequest("GET", "/file-manager/upload?method=download", nil)
-		groups := BuildSidebarNav(allowed, NavPath(r))
+		groups := BuildSidebarNav(allowed, nil, NavPath(r))
 		if linkActive(groups, "/file-manager/upload?method=upload") {
 			t.Error("expected Upload from device to be inactive")
 		}
@@ -55,7 +55,7 @@ func TestNavPathAndUploadDownloadActiveState(t *testing.T) {
 }
 
 func TestBuildSidebarNavEmpty(t *testing.T) {
-	groups := BuildSidebarNav(map[string]bool{}, "/dashboard")
+	groups := BuildSidebarNav(map[string]bool{}, nil, "/dashboard")
 	if len(groups) != 0 {
 		t.Errorf("expected no groups for an empty allowed set, got %d: %+v", len(groups), groups)
 	}
@@ -63,7 +63,7 @@ func TestBuildSidebarNavEmpty(t *testing.T) {
 
 func TestBuildSidebarNavFilesGroup(t *testing.T) {
 	allowed := map[string]bool{"filemanager": true, "ftp": true}
-	groups := BuildSidebarNav(allowed, "/files")
+	groups := BuildSidebarNav(allowed, nil, "/files")
 
 	if len(groups) != 1 || groups[0].Label != "Files" {
 		t.Fatalf("expected exactly one Files group, got %+v", groups)
@@ -95,8 +95,8 @@ func TestBuildSidebarNavFilesGroup(t *testing.T) {
 }
 
 func TestBuildSidebarNavMySQLGroupPhpMyAdminGated(t *testing.T) {
-	withPMA := BuildSidebarNav(map[string]bool{"mysql": true, "phpmyadmin": true}, "/mysql")
-	withoutPMA := BuildSidebarNav(map[string]bool{"mysql": true}, "/mysql")
+	withPMA := BuildSidebarNav(map[string]bool{"mysql": true, "phpmyadmin": true}, nil, "/mysql")
+	withoutPMA := BuildSidebarNav(map[string]bool{"mysql": true}, nil, "/mysql")
 
 	hasPMA := func(groups []NavGroup) bool {
 		for _, l := range groups[0].Links {
@@ -116,7 +116,7 @@ func TestBuildSidebarNavMySQLGroupPhpMyAdminGated(t *testing.T) {
 }
 
 func TestBuildSidebarNavDockerGroupSimplePath(t *testing.T) {
-	groups := BuildSidebarNav(map[string]bool{"docker": true}, "/containers/terminal")
+	groups := BuildSidebarNav(map[string]bool{"docker": true}, nil, "/containers/terminal")
 	if len(groups) != 1 || groups[0].Label != "Containers" {
 		t.Fatalf("expected a Containers group, got %+v", groups)
 	}

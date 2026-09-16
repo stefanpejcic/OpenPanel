@@ -91,25 +91,14 @@ func loadUpsellData(ctx context.Context, a *appctx.App, userID int) upsellData {
 	if err != nil {
 		return upsellData{Allowed: map[string]bool{}}
 	}
-	planID, _ := injected["hosting_plan"].(int)
-	plan, err := a.QueryPlanDetailsByID(ctx, planID)
-	if err != nil || !plan.HasUpsell() {
-		return upsellData{Allowed: map[string]bool{}}
+	planName, _ := injected["upsell_plan_name"].(string)
+	url, _ := injected["upsell_url"].(string)
+	allowedSlice, _ := injected["user_upsell_allowed"].([]string)
+	allowed := make(map[string]bool, len(allowedSlice))
+	for _, m := range allowedSlice {
+		allowed[m] = true
 	}
-
-	upsellPlanID, err := strconv.Atoi(plan.UpsellPlanID)
-	if err != nil {
-		return upsellData{Allowed: map[string]bool{}}
-	}
-	upsellFeatures, err := a.LoadFeaturesForPlanID(ctx, upsellPlanID)
-	if err != nil {
-		return upsellData{PlanName: plan.UpsellPlanName, URL: plan.UpsellURL, Allowed: map[string]bool{}}
-	}
-	allowed := make(map[string]bool, len(upsellFeatures))
-	for _, f := range upsellFeatures {
-		allowed[f] = true
-	}
-	return upsellData{PlanName: plan.UpsellPlanName, URL: plan.UpsellURL, Allowed: allowed}
+	return upsellData{PlanName: planName, URL: url, Allowed: allowed}
 }
 
 func autoinstallerCacheKey(userID int) string {

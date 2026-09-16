@@ -480,11 +480,20 @@ document.addEventListener('submit', (e) => {
                 <div class="absolute inset-y-0 left-4 w-px bg-gray-300 dark:bg-gray-800"></div>
                 {{range .Links}}
                 <li class="relative">
+                    {{if .Disabled}}
+                    <a data-active="false" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
+                       class="relative flex items-center gap-1.5 rounded py-1.5 pl-9 pr-3 text-base transition sm:text-sm text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                       {{if $.UpsellURL}}href="{{$.UpsellURL}}" target="_blank" rel="noopener"{{else}}href="#" onclick="return false;"{{end}}>
+                        {{$.T.Get .Label}}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" class="shrink-0"><path d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm6-9h-1V6a5 5 0 0 0-10 0v2H6a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9a1 1 0 0 0-1-1ZM9 6a3 3 0 0 1 6 0v2H9V6Z"></path></svg>
+                    </a>
+                    {{else}}
                     <a data-active="{{if .Active}}true{{else}}false{{end}}"
                        class="relative flex gap-2 rounded py-1.5 pl-9 pr-3 text-base transition sm:text-sm text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 data-[active=true]:rounded data-[active=true]:bg-white data-[active=true]:text-blue-600 data-[active=true]:shadow data-[active=true]:ring-1 data-[active=true]:ring-gray-200 data-[active=true]:dark:bg-gray-900 data-[active=true]:dark:text-blue-500 data-[active=true]:dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500"
                        href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}}>
                         {{$.T.Get .Label}}
                     </a>
+                    {{end}}
                 </li>
                 {{end}}
             </ul>

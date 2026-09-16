@@ -18,7 +18,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 		CSRFToken:       "test-csrf-token",
 		PanelDir:        "ltr",
 		PanelVersion:    "1.0.0",
-		NavGroups:       web.BuildSidebarNav(userAllowed, path),
+		NavGroups:       web.BuildSidebarNav(userAllowed, nil, path),
 		UserAllowed:     userAllowed,
 		UserAllowedJSON: web.UserAllowedList(userAllowed),
 		CurrentUsername: "testuser",
