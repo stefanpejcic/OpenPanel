@@ -121,6 +121,8 @@ To create an archive of files, first, select the desired files or folders, and t
 
 To change permissions for files or folders, select the desired items and click on the **Permissions** button. In the modal, enter the octal permission value (e.g. `755`) and click **Confirm** to apply it to all selected items.
 
+If at least one selected item is a folder, an **Apply recursively to subdirectories** checkbox appears in the modal. Check it to apply the permission value to the folder and everything inside it, instead of just the folder itself.
+
 ## Empty Folder
 
 If a folder is empty, you will see the 'No items found.' message and the menu with file options will be hidden. Only the options to create a new file, folder, or upload files will be available.

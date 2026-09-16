@@ -206,12 +206,27 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 var permissionsRE = regexp.MustCompile(`^[0-7]{3,4}$`)
 
-// handleChangePermissions applies an octal permissions string to one or more selected files
+// chmodPath applies mode to path, and to everything under it when recursive is set and path is a directory
+func chmodPath(path string, mode os.FileMode, recursive bool) error {
+	if !recursive {
+		return os.Chmod(path, mode)
+	}
+	return filepath.WalkDir(path, func(itemPath string, _ os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		return os.Chmod(itemPath, mode)
+	})
+}
+
+// handleChangePermissions applies an octal permissions string to one or more selected files, recursing into
+// selected directories when the "recursive" checkbox is set
 func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	filenames := r.Form["filename"]
 	permissions := r.Form.Get("permissions")
 	pathParam := r.Form.Get("path_param")
+	recursive := r.Form.Get("recursive") == "on"
 
 	if !permissionsRE.MatchString(permissions) {
 		flashAndRedirect(a, w, r, "error", "Invalid permissions format.", filesRedirectPath(pathParam))
@@ -236,11 +251,20 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			errored = append(errored, filename)
 			continue
 		}
-		if chmodErr := os.Chmod(filePath, os.FileMode(mode)); chmodErr != nil {
+		info, statErr := os.Lstat(filePath)
+		if statErr != nil {
 			errored = append(errored, filename)
 			continue
 		}
-		_ = logger.RecordUserAction(a.Config, user.Username, "changed permissions to "+permissions+" for "+filePath+" using File Manager", reqip.ClientIP(r))
+		if chmodErr := chmodPath(filePath, os.FileMode(mode), recursive && info.IsDir()); chmodErr != nil {
+			errored = append(errored, filename)
+			continue
+		}
+		action := "changed permissions to " + permissions
+		if recursive && info.IsDir() {
+			action += " recursively"
+		}
+		_ = logger.RecordUserAction(a.Config, user.Username, action+" for "+filePath+" using File Manager", reqip.ClientIP(r))
 		changed++
 	}
 

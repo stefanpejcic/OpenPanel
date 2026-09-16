@@ -658,6 +658,12 @@ function initActionButtons() {
             document.getElementById('c-oct').value = '';
             listEl.innerHTML = items.map(({ fileName }) => `<li>${fileName}</li>`).join('');
         }
+
+        const recursiveWrapper = document.getElementById('recursivePermWrapper');
+        const recursiveCheckbox = document.getElementById('recursivePermCheckbox');
+        const hasDirectory = items.some(({ itemType }) => itemType === 'directory');
+        recursiveWrapper.classList.toggle('hidden', !hasDirectory);
+        if (!hasDirectory) recursiveCheckbox.checked = false;
     });
 
     // COMPRESS

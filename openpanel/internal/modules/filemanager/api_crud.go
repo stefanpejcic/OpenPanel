@@ -165,12 +165,14 @@ func apiChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		Path        string   `json:"path"`
 		Filenames   []string `json:"filenames"`
 		Permissions string   `json:"permissions"`
+		Recursive   bool     `json:"recursive"`
 	}
 	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
 		_ = r.ParseForm()
 		body.Path = r.Form.Get("path_param")
 		body.Filenames = r.Form["filename"]
 		body.Permissions = r.Form.Get("permissions")
+		body.Recursive = r.Form.Get("recursive") == "on"
 	}
 
 	if !permissionsRE.MatchString(body.Permissions) {
@@ -196,11 +198,20 @@ func apiChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			errored = append(errored, filename)
 			continue
 		}
-		if chmodErr := os.Chmod(filePath, os.FileMode(mode)); chmodErr != nil {
+		info, statErr := os.Lstat(filePath)
+		if statErr != nil {
 			errored = append(errored, filename)
 			continue
 		}
-		_ = logger.RecordUserAction(a.Config, user.Username, "changed permissions to "+body.Permissions+" for "+filePath+" using File Manager API", reqip.ClientIP(r))
+		if chmodErr := chmodPath(filePath, os.FileMode(mode), body.Recursive && info.IsDir()); chmodErr != nil {
+			errored = append(errored, filename)
+			continue
+		}
+		action := "changed permissions to " + body.Permissions
+		if body.Recursive && info.IsDir() {
+			action += " recursively"
+		}
+		_ = logger.RecordUserAction(a.Config, user.Username, action+" for "+filePath+" using File Manager API", reqip.ClientIP(r))
 		changed = append(changed, filename)
 	}
 
