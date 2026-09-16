@@ -435,8 +435,6 @@ Customize options:
 
 ## MongoDB
 
-> **NOTE:** This module is tagged *BETA*.
-
 The **`mongodb`** module allows users to create and manage MongoDB databases.
 
 When enabled:

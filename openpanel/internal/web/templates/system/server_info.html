@@ -67,6 +67,20 @@
 									<span class="text-gray-500 truncate dark:text-gray-500">{{.T.Get "Remote PostgreSQL port"}}</span>
 								</p>
 							</li>
+							<li class="relative flex w-full items-center space-x-3 rounded bg-gray-100/60 p-1 hover:bg-gray-100 dark:bg-gray-800/60 hover:dark:bg-gray-800">
+								<span class="inline-flex w-20 justify-center rounded bg-sky-500 py-1.5 text-sm font-semibold text-white dark:bg-sky-500 dark:text-white">5432</span>
+								<p class="flex w-full items-center justify-between space-x-4 truncate text-sm font-medium">
+									<span class="text-gray-500 truncate dark:text-gray-500">{{.T.Get "Local PostgreSQL port"}}</span>
+								</p>
+							</li>
+							{{if index .UserAllowed "mongodb"}}
+							<li class="relative flex w-full items-center space-x-3 rounded bg-gray-100/60 p-1 hover:bg-gray-100 dark:bg-gray-800/60 hover:dark:bg-gray-800">
+								<span class="inline-flex w-20 justify-center rounded bg-sky-500 py-1.5 text-sm font-semibold text-white dark:bg-sky-500 dark:text-white">27017</span>
+								<p class="flex w-full items-center justify-between space-x-4 truncate text-sm font-medium">
+									<span class="text-gray-500 truncate dark:text-gray-500">{{.T.Get "Local MongoDB port"}}</span>
+								</p>
+							</li>
+							{{end}}
 						</ul>
 					</td>
 				</tr>
