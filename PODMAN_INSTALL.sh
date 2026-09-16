@@ -207,12 +207,19 @@ detect_os_and_package_manager() {
         centos)                      PACKAGE_MANAGER="yum" ;;
         *) die 1 "Unsupported OS: $OS_ID" ;;
     esac
+    if [[ "$OS_ID" == "rocky" ]]; then
+        sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+        setenforce 0
+    fi
     case "$(uname -m)" in
         x86_64|amd64)  architecture="x86_64" ;;
         aarch64|arm64) architecture="aarch64" ;;
         *)             architecture="$(uname -m)" ;;
     esac
 }
+
+
+
 
 get_server_ipv4() {
     local ip
