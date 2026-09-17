@@ -14,4 +14,4 @@ To request a refund for an eligible new license, please [submit a request](https
 
 **Important**: If your license auto-renewed or is canceled after the 72-hour refund window (Only applies to new license purchases), it will not qualify for a refund.
 
-In such cases, you can follow the steps to cancel the license using this article: [How do I cancel my OpenPanel license?](/docs/articles/license/hot_to_cancel_openpanel_license)
+In such cases, you can follow the steps to cancel the license using this article: [How do I cancel my OpenPanel license?](/docs/articles/license/how_to_cancel_openpanel_license)
