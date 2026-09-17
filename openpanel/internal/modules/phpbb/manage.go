@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/installmanifest"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -69,7 +70,12 @@ func handleRemovePhpbb(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	_ = podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)).Run()
+	// remove exactly what the install recorded creating, not the domain's docroot itself - fall back to the old whole-directory removal only for installs made before this manifest existed
+	if entries := installmanifest.EntriesViaContainer(ctx, userContext, phpContainer, installPath); entries != nil {
+		_ = installmanifest.RemoveViaContainer(ctx, userContext, phpContainer, installPath, entries)
+	} else {
+		_ = podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)).Run()
+	}
 
 	if _, delErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE id = ?", id); delErr != nil {
 		flashSess(a, w, r, "error", "An error occurred during phpBB uninstall.")

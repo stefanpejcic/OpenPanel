@@ -188,6 +188,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "Extracting files to " + installPath})
 	if runErr := exec.CommandContext(ctx, "tar", "-xzf", archivePath, "--strip-components=1", "-C", hostOSPath).Run(); runErr != nil {
 		emit(map[string]any{"error": "Error extracting WordPress archive: " + runErr.Error()})
+		emitCleanupFiles(hostOSPath, emit)
 		return
 	}
 
@@ -195,6 +196,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	htaccessContent, htErr := loadHtaccess(webServer)
 	if htErr != nil {
 		emit(map[string]any{"error": htErr.Error()})
+		emitCleanupFiles(hostOSPath, emit)
 		return
 	}
 	_ = os.WriteFile(filepath.Join(hostOSPath, ".htaccess"), []byte(htaccessContent), 0o644)
@@ -204,6 +206,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	wpConfigSampleFile := filepath.Join(hostOSPath, "wp-config-sample.php")
 	if copyErr := copyFile(wpConfigSampleFile, wpConfigFile); copyErr != nil {
 		emit(map[string]any{"error": "Error creating wp-config.php: " + copyErr.Error()})
+		emitCleanupFiles(hostOSPath, emit)
 		return
 	}
 

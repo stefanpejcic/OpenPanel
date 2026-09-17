@@ -66,6 +66,42 @@
 <!-- END form -->
 
 
+    <!-- Radar Spinner (Initially hidden) -->
+    <div id="scan-radar" class="m-4 flex justify-center" style="display: none;">
+        <svg aria-hidden="true" height="48" role="presentation" viewBox="0 0 48 48" width="48">
+          <defs>
+            <radialGradient id="radarGlow" cx="0.5" cy="0.5" r="0.5">
+              <stop offset="0" stop-color="#5A8A6E" stop-opacity="0.45"></stop>
+              <stop offset="1" stop-color="#5A8A6E" stop-opacity="0"></stop>
+            </radialGradient>
+          </defs>
+
+          <style>
+            .radarSpinner {
+              transform-origin: 24px 24px;
+              animation: radarSpin 2s linear infinite;
+            }
+            @keyframes radarSpin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+          </style>
+
+          <circle cx="24" cy="24" fill="#FFFFFF" r="19" stroke="#e9f0ea" stroke-width="1.5"></circle>
+          <circle cx="24" cy="24" fill="none" r="12.54" stroke="#e9f0ea" stroke-width="1"></circle>
+          <circle cx="24" cy="24" fill="none" r="6.27" stroke="#e9f0ea" stroke-width="1"></circle>
+          <line stroke="#e9f0ea" stroke-width="1" x1="6" x2="42" y1="24" y2="24"></line>
+          <line stroke="#e9f0ea" stroke-width="1" x1="24" x2="24" y1="6" y2="42"></line>
+
+          <g class="radarSpinner">
+            <path d="M 24 24 L 24 6 A 19 19 0 0 1 40.45448267190433 14.499999999999998 Z" fill="url(#radarGlow)"></path>
+            <line stroke="#5A8A6E" stroke-linecap="round" stroke-width="2" x1="24" x2="24" y1="24" y2="6"></line>
+          </g>
+
+          <circle cx="24" cy="24" fill="#5A8A6E" r="2.6"></circle>
+        </svg>
+    </div>
+
     <!-- Scan Progress (Initially hidden) -->
     <div id="scan-progress" class="m-4" style="display: none;">
         <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -83,12 +119,8 @@
             <h6 class="card-title">{{.T.Get "Scan Results"}}</h6>
         </div>
         <div class="card-body">
-            <div class="row row-cols-auto gy-3 gx-5">
-                <div class="col-auto">
-                    <!-- Scan Results -->
-                    <label class="fs-xs mb-1"><div id="scan-results"></div></label>
-                </div>
-            </div>
+            <!-- plain text + fixed height so the browser never has to lay out/reflow an ever-growing HTML tree on scans with tens of thousands of hits -->
+            <pre id="scan-results" class="fs-xs m-0 p-2 border rounded dark:border-gray-800" style="max-height: 24rem; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
         </div>
     </div>
 
@@ -108,16 +140,20 @@
         scanLineBuffer = '';
         scannedCount = 0;
         malwareCount = 0;
-        document.getElementById('scan-results').innerHTML = '';
+        document.getElementById('scan-results').textContent = '';
         document.getElementById('scan-progress-count').textContent = '0';
         document.getElementById('scan-progress-current').textContent = '';
+        document.getElementById('scan-radar').style.display = 'flex';
         document.getElementById('scan-progress').style.display = 'block';
         document.getElementById('scan-complete-message').style.display = 'none';
     }
 
+    // appendChild a text node instead of `innerHTML +=`, which reparsed the whole accumulated string as HTML on every call and blew up tab memory on big scans
     function appendScanResult(line) {
-        const scanResultsDiv = document.getElementById('scan-results');
-        scanResultsDiv.innerHTML += (scanResultsDiv.innerHTML ? '<br>' : '') + line;
+        const scanResultsPre = document.getElementById('scan-results');
+        const text = (scanResultsPre.childNodes.length ? '\n' : '') + line;
+        scanResultsPre.appendChild(document.createTextNode(text));
+        scanResultsPre.scrollTop = scanResultsPre.scrollHeight;
     }
 
     // The backend emits two lines per file: "Scanning: X" (progress only,
@@ -146,13 +182,14 @@
     }
 
     function showScanCompleteMessage() {
+        document.getElementById('scan-radar').style.display = 'none';
         document.getElementById('scan-progress').style.display = 'none';
         const msg = document.getElementById('scan-complete-message');
         const summary = `${i18n.scanComplete} ${scannedCount} ${i18n.filesScanned}`;
         msg.textContent = summary;
         msg.style.display = 'block';
 
-        if (scannedCount > 0 && document.getElementById('scan-results').innerHTML === '') {
+        if (scannedCount > 0 && document.getElementById('scan-results').textContent === '') {
             appendScanResult(i18n.noMalwareFound);
         }
 
@@ -193,6 +230,7 @@
             })
             .catch(error => {
                 console.error('Scan failed:', error);
+                document.getElementById('scan-radar').style.display = 'none';
                 appendScanResult(i18n.scanFailed + error.message);
                 if (typeof showToast === 'function') {
                     showToast(i18n.scanFailed + error.message, 'error');

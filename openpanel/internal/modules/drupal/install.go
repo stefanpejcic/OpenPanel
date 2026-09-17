@@ -10,14 +10,15 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/installmanifest"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 )
 
 // handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
@@ -188,6 +189,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	out, runErr := podmanmanager.Command(ctx, userContext, composerArgv).CombinedOutput()
 	if runErr != nil {
 		emit(map[string]any{"error": "composer create-project failed: " + strings.TrimSpace(string(out))})
+		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 
@@ -289,6 +291,9 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		version = "latest"
 	}
 
+	// record exactly what this install created so a later uninstall can remove precisely that, not the whole docroot
+	_ = installmanifest.Record(hostOSPath)
+
 	emit(map[string]any{"status": "Saving website information to Site Manager"})
 	if _, insertErr := a.DB.ExecContext(ctx,
 		"INSERT INTO sites (site_name, domain_id, admin_email, version, type) VALUES (?, ?, ?, ?, ?)",
@@ -308,14 +313,13 @@ func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, curr
 	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
 }
 
-// emitCleanupFiles removes a failed install's partially-created directory - unlike WordPress's itemized cleanup, Drupal's install target is always a fresh dir composer create-project just made, so deleting the whole thing is safe and simpler
+// emitCleanupFiles clears installPath's contents but leaves installPath itself - it's the domain's docroot, not ours to delete, and removing it would force a manual recreate before reinstalling
 func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
-	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "rm", "-rf", installPath)
-	if err := podmanmanager.Command(ctx, userContext, argv).Run(); err != nil {
-		emit(map[string]any{"status": "Cleanup: failed to remove " + installPath + ": " + err.Error()})
+	if err := installmanifest.ClearContentsViaContainer(ctx, userContext, phpContainer, installPath); err != nil {
+		emit(map[string]any{"status": "Cleanup: failed to remove files from " + installPath + ": " + err.Error()})
 		return
 	}
-	emit(map[string]any{"status": "Cleanup: removed " + installPath})
+	emit(map[string]any{"status": "Cleanup: removed files from " + installPath})
 }
 
 func emitCleanupDatabase(ctx context.Context, userContext, dbName, dbUser, dbHost string, emit func(map[string]any)) {

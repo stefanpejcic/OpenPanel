@@ -11,6 +11,7 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/installmanifest"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -322,6 +323,9 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emit(map[string]any{"status": "Warning: MediaWiki installed, but the cron job could not be registered automatically: " + cronErr.Error() + " - add it manually from Cron Jobs: schedule '0 * * * * *', container '" + phpContainer + "', command '" + cronCommand + "'."})
 	}
 
+	// record exactly what this install created so a later uninstall can remove precisely that, not the whole docroot
+	_ = installmanifest.Record(hostOSPath)
+
 	emit(map[string]any{"status": "Saving website information to Site Manager"})
 	if _, insertErr := a.DB.ExecContext(ctx,
 		"INSERT INTO sites (site_name, domain_id, admin_email, version, type) VALUES (?, ?, ?, ?, ?)",
@@ -341,16 +345,16 @@ func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, curr
 	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
 }
 
-// emitCleanupFiles removes a failed install's partially-created directory - always safe to blow away entirely since it's always a directory install.go just created - host-side removal, not `podman exec ... rm`, since once the archive is extracted host-side (owned by this process's own real UID) a rootless container's "root" can't write into a directory it doesn't own outside its user-namespace mapping, so `podman exec rm -rf` would silently fail
+// emitCleanupFiles clears the failed install's files but leaves installPath itself - it's the domain's docroot, not ours to delete. Host-side removal, not `podman exec ... rm`, since once the archive is extracted host-side (owned by this process's own real UID) a rootless container's "root" can't write into a directory it doesn't own outside its user-namespace mapping, so `podman exec rm -rf` would silently fail
 func emitCleanupFiles(_ context.Context, userContext, _, installPath string, emit func(map[string]any)) {
 	htmlVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
 	docrootWithoutWWW := strings.TrimPrefix(strings.TrimPrefix(installPath, "/var/www/html/"), "/")
 	hostOSPath := filepath.Join(htmlVolume, docrootWithoutWWW)
-	if err := os.RemoveAll(hostOSPath); err != nil {
-		emit(map[string]any{"status": "Cleanup: failed to remove " + installPath + ": " + err.Error()})
+	if err := installmanifest.ClearContents(hostOSPath); err != nil {
+		emit(map[string]any{"status": "Cleanup: failed to remove files from " + installPath + ": " + err.Error()})
 		return
 	}
-	emit(map[string]any{"status": "Cleanup: removed " + installPath})
+	emit(map[string]any{"status": "Cleanup: removed files from " + installPath})
 }
 
 func emitCleanupDatabase(ctx context.Context, userContext, dbName, dbUser, dbHost string, emit func(map[string]any)) {
