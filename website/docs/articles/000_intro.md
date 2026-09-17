@@ -56,7 +56,7 @@ sidebar_position: 1
 - [Upgrading license](/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/)
 - [Downgrading license](/docs/articles/license/how_to_downgrade_openpanel_license/)
 - [How license expiration affects OpenPanel](/docs/articles/license/what_happens_when_openpanel_enterprise_license_expires/)
-- [How to cancel a license](/docs/articles/license/hot_to_cancel_openpanel_license/)
+- [How to cancel a license](/docs/articles/license/how_to_cancel_openpanel_license/)
 - [Refund Policy](/docs/articles/license/openpanel-refund-policy/)
 - [Licenses for educational or non-profit organizations](/docs/articles/license/openpanel_enterprise_for_nonprofits/)
 
