@@ -37,7 +37,6 @@ export const menuItems = [
             {
                 label: "Resource Calculator",
                 href: "/calculator/",
-                icon: <NewBadgeIcon />,
             },
             {
                 label: "Install Command",
@@ -59,7 +58,12 @@ export const menuItems = [
             {
                 label: "Features",
                 href: "/features",
-            },            
+            },
+            {
+                label: "Mobile App",
+                href: "/mobile",
+                icon: <NewBadgeIcon />,
+            },
             {
                 label: "Live Preview",
                 href: "/demo",
