@@ -293,6 +293,10 @@ const siteConfig = {
                             to: "/demo",
                         },
                         {
+                            label: "Mobile App",
+                            to: "/mobile",
+                        },
+                        {
                             label: "Roadmap",
                             to: "/roadmap",
                         },
