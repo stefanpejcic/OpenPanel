@@ -28,6 +28,9 @@ const Enterprise: React.FC = () => {
                 <html data-active-page="index" />
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
             </Head>
             <SoftwareApplicationSchema
                 name="OpenPanel Enterprise"
@@ -39,7 +42,10 @@ const Enterprise: React.FC = () => {
                     priceUnit: "per server per month",
                 }}
             />
-            <CommonLayout description="OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.">
+            <CommonLayout
+                description="OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price."
+                image="/img/og/enterprise.png"
+            >
                 <div className={clsx()}>
                     <CommonHeader />
                     <div

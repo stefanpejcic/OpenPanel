@@ -1,30 +1,18 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; } function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }var _fsextra = require('fs-extra'); var _fsextra2 = _interopRequireDefault(_fsextra);
-var _path = require('path'); var _path2 = _interopRequireDefault(_path);
-var _crypto = require('crypto'); var _crypto2 = _interopRequireDefault(_crypto);
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 
-var _satori = require('satori'); var _satori2 = _interopRequireDefault(_satori);
-var _resvgjs = require('@resvg/resvg-js');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+const fs = require("fs-extra");
+const path = require("path");
+const crypto = require("crypto");
+const satori = require("satori").default;
+const { Resvg } = require("@resvg/resvg-js");
 
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
 const BACKGROUND_COLOR = "#0B0F17";
 const ACCENT_COLOR = "#1890FF";
 const MUTED_COLOR = "#9AA4B2";
+const SITE_URL = "https://openpanel.com";
 
 // static/icons/openpanel_logo.svg, viewBox "0 0 213 215"
 const LOGO_PATH =
@@ -34,6 +22,31 @@ const LOGO_PATH =
 function permalinkToOgImagePath(permalink) {
     const clean = permalink.replace(/\/+$/, "") || "/index";
     return `/img/og${clean}.png`;
+}
+
+// Non-docs site pages (src/pages/**) don't expose title/description to the
+// plugin at content-load time, so they're listed here explicitly. Keep each
+// entry in sync with the title/description set in that page's own <Head>.
+const SITE_PAGES = [
+    {
+        permalink: "/enterprise/",
+        title: "OpenPanel Enterprise | Next Generation Hosting Panel",
+        description:
+            "OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.",
+    },
+];
+
+// Background screenshot for docs pages, keyed by permalink section. Sections
+// not listed here (changelog, articles, the docs root, ...) keep the plain
+// background, unchanged.
+function docBackgroundFilename(permalink) {
+    if (/\/panel\//.test(permalink)) {
+        return "openpanel_screenshot.png";
+    }
+    if (/\/admin\//.test(permalink)) {
+        return "openadmin_screenshot.png";
+    }
+    return undefined;
 }
 
 // Strip emoji/symbol glyphs the Inter font can't render (would show as tofu boxes).
@@ -48,24 +61,17 @@ function truncate(rawText, maxLength) {
     return `${text.slice(0, maxLength).trimEnd()}…`;
 }
 
-
-
-
-
-
-
-
 let fontsPromise = null;
 
 function loadFonts() {
     if (!fontsPromise) {
         fontsPromise = Promise.all([
-            _fsextra2.default.readFile(
+            fs.readFile(
                 require.resolve(
                     "@fontsource/inter/files/inter-latin-400-normal.woff",
                 ),
             ),
-            _fsextra2.default.readFile(
+            fs.readFile(
                 require.resolve(
                     "@fontsource/inter/files/inter-latin-700-normal.woff",
                 ),
@@ -78,17 +84,30 @@ function loadFonts() {
     return fontsPromise;
 }
 
-async function renderOgImage(
-    title,
-    description,
-) {
-    const fonts = await loadFonts();
+const screenshotPromises = {};
 
-    const svg = await _satori2.default.call(void 0, 
+// static/img/<filename>, base64-encoded once per filename and reused across
+// every OG image that shares that background screenshot.
+function loadScreenshotDataUri(siteDir, filename) {
+    if (!screenshotPromises[filename]) {
+        screenshotPromises[filename] = fs
+            .readFile(path.join(siteDir, "static", "img", filename))
+            .then((buf) => `data:image/png;base64,${buf.toString("base64")}`);
+    }
+    return screenshotPromises[filename];
+}
+
+async function renderOgImage(title, description, permalink, backgroundImageDataUri) {
+    const fonts = await loadFonts();
+    const logoFill = backgroundImageDataUri ? "#FFFFFF" : ACCENT_COLOR;
+    const pageUrl = `${SITE_URL}${permalink}`;
+
+    const svg = await satori(
         {
             type: "div",
             props: {
                 style: {
+                    position: "relative",
                     height: "100%",
                     width: "100%",
                     display: "flex",
@@ -99,6 +118,27 @@ async function renderOgImage(
                     fontFamily: "Inter",
                 },
                 children: [
+                    ...(backgroundImageDataUri
+                        ? [
+                              {
+                                  type: "img",
+                                  props: {
+                                      src: backgroundImageDataUri,
+                                      width: OG_WIDTH,
+                                      height: OG_HEIGHT,
+                                      style: {
+                                          position: "absolute",
+                                          top: 0,
+                                          left: 0,
+                                          width: OG_WIDTH,
+                                          height: OG_HEIGHT,
+                                          objectFit: "cover",
+                                          opacity: 0.16,
+                                      },
+                                  },
+                              },
+                          ]
+                        : []),
                     {
                         type: "div",
                         props: {
@@ -120,7 +160,7 @@ async function renderOgImage(
                                                 d: LOGO_PATH,
                                                 transform:
                                                     "translate(0,215) scale(0.1,-0.1)",
-                                                fill: ACCENT_COLOR,
+                                                fill: logoFill,
                                             },
                                         },
                                     },
@@ -144,24 +184,34 @@ async function renderOgImage(
                         props: {
                             style: { display: "flex", flexDirection: "column" },
                             children: [
-                                {
-                                    type: "div",
-                                    props: {
-                                        style: {
-                                            display: "-webkit-box",
-                                            WebkitBoxOrient: "vertical",
-                                            WebkitLineClamp: 2,
-                                            textOverflow: "ellipsis",
-                                            overflow: "hidden",
-                                            fontSize: 58,
-                                            fontWeight: 700,
-                                            lineHeight: 1.15,
-                                            color: "#FFFFFF",
-                                            maxWidth: 1000,
+                                // A "|" in the title (e.g. "OpenPanel Enterprise |
+                                // Next Generation Hosting Panel") breaks onto its
+                                // own line instead of rendering the pipe glyph.
+                                ...title
+                                    .split("|")
+                                    .map((line) => line.trim())
+                                    .filter(Boolean)
+                                    .map((line, index) => ({
+                                        type: "div",
+                                        props: {
+                                            style: {
+                                                display: "-webkit-box",
+                                                WebkitBoxOrient: "vertical",
+                                                WebkitLineClamp: 2,
+                                                textOverflow: "ellipsis",
+                                                overflow: "hidden",
+                                                fontSize: 58,
+                                                fontWeight: 700,
+                                                lineHeight: 1.15,
+                                                color: "#FFFFFF",
+                                                maxWidth: 1000,
+                                                ...(index > 0
+                                                    ? { marginTop: 4 }
+                                                    : {}),
+                                            },
+                                            children: line,
                                         },
-                                        children: title,
-                                    },
-                                },
+                                    })),
                                 ...(description
                                     ? [
                                           {
@@ -196,7 +246,7 @@ async function renderOgImage(
                                 fontSize: 22,
                                 color: ACCENT_COLOR,
                             },
-                            children: "openpanel.com",
+                            children: pageUrl,
                         },
                     },
                 ],
@@ -205,39 +255,33 @@ async function renderOgImage(
         { width: OG_WIDTH, height: OG_HEIGHT, fonts },
     );
 
-    const resvg = new (0, _resvgjs.Resvg)(svg, { fitTo: { mode: "width", value: OG_WIDTH } });
+    const resvg = new Resvg(svg, { fitTo: { mode: "width", value: OG_WIDTH } });
     return resvg.render().asPng();
 }
 
-
-
 async function readCache(cacheFile) {
     try {
-        return await _fsextra2.default.readJson(cacheFile);
+        return await fs.readJson(cacheFile);
     } catch (e) {
         return {};
     }
 }
 
- function pluginOgImages(context
-
-) {
+function pluginOgImages(context) {
     return {
         name: "openpanel-plugin-og-images",
         async allContentLoaded({ allContent }) {
-            const docsContent = allContent[
-                "docusaurus-plugin-content-docs"
-            ] ;
+            const docsContent = allContent["docusaurus-plugin-content-docs"];
 
-            const currentVersion = _optionalChain([docsContent, 'optionalAccess', _ => _.default, 'access', _2 => _2.loadedVersions, 'access', _3 => _3.find, 'call', _4 => _4(
+            const currentVersion = docsContent?.default.loadedVersions.find(
                 (version) => version.versionName === "current",
-            )]);
+            );
 
             if (!currentVersion) {
                 return;
             }
 
-            const cacheFile = _path2.default.join(
+            const cacheFile = path.join(
                 context.siteDir,
                 "node_modules",
                 ".cache",
@@ -248,40 +292,92 @@ async function readCache(cacheFile) {
             const nextCache = {};
 
             for (const doc of currentVersion.docs) {
-                if (_optionalChain([doc, 'access', _5 => _5.frontMatter, 'optionalAccess', _6 => _6.image])) {
+                if (doc.frontMatter?.image) {
                     // Respect a manually set image, don't generate one.
                     continue;
                 }
 
                 const title = truncate(doc.title || "OpenPanel Docs", 80);
-                const description = truncate(_nullishCoalesce(doc.description, () => ( "")), 160);
+                const description = truncate(doc.description ?? "", 160);
                 const imagePath = permalinkToOgImagePath(doc.permalink);
-                const outputFile = _path2.default.join(
+                const outputFile = path.join(
                     context.siteDir,
                     "static",
                     imagePath,
                 );
-                const hash = _crypto2.default
+                const backgroundFilename = docBackgroundFilename(doc.permalink);
+                const hash = crypto
                     .createHash("sha1")
-                    .update(`${title} ${description}`)
+                    .update(`${title} ${description} ${backgroundFilename ?? ""}`)
                     .digest("hex");
 
                 nextCache[imagePath] = hash;
 
                 if (
                     cache[imagePath] === hash &&
-                    (await _fsextra2.default.pathExists(outputFile))
+                    (await fs.pathExists(outputFile))
                 ) {
                     continue;
                 }
 
-                const png = await renderOgImage(title, description);
-                await _fsextra2.default.ensureDir(_path2.default.dirname(outputFile));
-                await _fsextra2.default.writeFile(outputFile, png);
+                const backgroundDataUri = backgroundFilename
+                    ? await loadScreenshotDataUri(
+                          context.siteDir,
+                          backgroundFilename,
+                      )
+                    : undefined;
+
+                const png = await renderOgImage(
+                    title,
+                    description,
+                    doc.permalink,
+                    backgroundDataUri,
+                );
+                await fs.ensureDir(path.dirname(outputFile));
+                await fs.writeFile(outputFile, png);
             }
 
-            await _fsextra2.default.ensureDir(_path2.default.dirname(cacheFile));
-            await _fsextra2.default.writeJson(cacheFile, nextCache);
+            for (const page of SITE_PAGES) {
+                const title = truncate(page.title, 80);
+                const description = truncate(page.description, 160);
+                const imagePath = permalinkToOgImagePath(page.permalink);
+                const outputFile = path.join(
+                    context.siteDir,
+                    "static",
+                    imagePath,
+                );
+                const hash = crypto
+                    .createHash("sha1")
+                    .update(`${title} ${description} screenshot-bg`)
+                    .digest("hex");
+
+                nextCache[imagePath] = hash;
+
+                if (
+                    cache[imagePath] === hash &&
+                    (await fs.pathExists(outputFile))
+                ) {
+                    continue;
+                }
+
+                const screenshotDataUri = await loadScreenshotDataUri(
+                    context.siteDir,
+                    "openpanel_screenshot.png",
+                );
+                const png = await renderOgImage(
+                    title,
+                    description,
+                    page.permalink,
+                    screenshotDataUri,
+                );
+                await fs.ensureDir(path.dirname(outputFile));
+                await fs.writeFile(outputFile, png);
+            }
+
+            await fs.ensureDir(path.dirname(cacheFile));
+            await fs.writeJson(cacheFile, nextCache);
         },
     };
-} exports.default = pluginOgImages;
+}
+
+exports.default = pluginOgImages;

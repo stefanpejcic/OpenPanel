@@ -510,7 +510,7 @@ const tableData = [
         items: [
             {
                 description: "Support Channels",
-                community: <TableText>Community Forums & Discord</TableText>,
+                community: <TableText>GitHub Discussions & Discord</TableText>,
                 enterprise: <TableText>Ticketing & Hands-on support</TableText>,
                 valueType: {
                     community: "text",

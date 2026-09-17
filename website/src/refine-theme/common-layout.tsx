@@ -9,11 +9,11 @@ import clsx from "clsx";
 import { VideoModal15K } from "../components/video-modal-15k";
 
 export const CommonLayout = (props: any) => {
-    const { children, title, description } = props;
+    const { children, title, description, image } = props;
 
     return (
         <LayoutProvider>
-            <PageMetadata title={title} description={description} />
+            <PageMetadata title={title} description={description} image={image} />
             <SkipToContent />
             <div
                 className={clsx(
