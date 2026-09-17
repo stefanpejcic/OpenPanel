@@ -180,7 +180,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 	return DashboardPageData{
 		LayoutData:            layout,
-		Sections:              buildDashboardSections(userAllowed, upsellAllowed),
+		Sections:              buildDashboardSections(t, userAllowed, upsellAllowed),
 		TourShow:              d.TourShow,
 		OnboardingShow:        d.OnboardingShow,
 		CustomMessage:         template.HTML(d.CustomMessage), //nolint:gosec // matches Jinja's `custom_message|safe`: admin-authored HTML from a local file, not user input

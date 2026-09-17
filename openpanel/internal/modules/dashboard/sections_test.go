@@ -1,16 +1,24 @@
 package dashboard
 
-import "testing"
+import (
+	"testing"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
+)
+
+func testTranslator(t *testing.T) i18n.Translator {
+	return i18n.NewManager(t.TempDir(), nil).Translator("en")
+}
 
 func TestBuildDashboardSectionsEmpty(t *testing.T) {
-	sections := buildDashboardSections(map[string]bool{}, nil)
+	sections := buildDashboardSections(testTranslator(t), map[string]bool{}, nil)
 	if len(sections) != 0 {
 		t.Errorf("expected no sections for an empty allowed set, got %d: %+v", len(sections), sections)
 	}
 }
 
 func TestBuildDashboardSectionsFilesOnly(t *testing.T) {
-	sections := buildDashboardSections(map[string]bool{"filemanager": true}, nil)
+	sections := buildDashboardSections(testTranslator(t), map[string]bool{"filemanager": true}, nil)
 	if len(sections) != 1 || sections[0].Key != "files" {
 		t.Fatalf("expected exactly one 'files' section, got %+v", sections)
 	}
@@ -27,7 +35,7 @@ func TestBuildDashboardSectionsFilesOnly(t *testing.T) {
 
 func TestBuildDashboardSectionsPreservesOrder(t *testing.T) {
 	allowed := map[string]bool{"docker": true, "filemanager": true, "account": true}
-	sections := buildDashboardSections(allowed, nil)
+	sections := buildDashboardSections(testTranslator(t), allowed, nil)
 
 	var keys []string
 	for _, s := range sections {
@@ -45,7 +53,7 @@ func TestBuildDashboardSectionsPreservesOrder(t *testing.T) {
 }
 
 func TestBuildDashboardSectionsTargetBlank(t *testing.T) {
-	sections := buildDashboardSections(map[string]bool{"phpmyadmin": true}, nil)
+	sections := buildDashboardSections(testTranslator(t), map[string]bool{"phpmyadmin": true}, nil)
 	if len(sections) != 1 {
 		t.Fatalf("expected one section, got %+v", sections)
 	}

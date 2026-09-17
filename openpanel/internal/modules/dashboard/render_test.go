@@ -38,7 +38,7 @@ func TestRenderDashboardPage(t *testing.T) {
 			AdminPort:       "2087",
 			T:               mgr.Translator("en"),
 		},
-		Sections:           buildDashboardSections(userAllowed, nil),
+		Sections:           buildDashboardSections(mgr.Translator("en"), userAllowed, nil),
 		TourShow:           true,
 		TwofaEnabled:       false,
 		TwofaNag:           "yes",
@@ -106,7 +106,7 @@ func TestRenderDashboardPageUpsellEligible(t *testing.T) {
 			AdminPort:       "2087",
 			T:               mgr.Translator("en"),
 		},
-		Sections: buildDashboardSections(userAllowed, upsellAllowed),
+		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, upsellAllowed),
 	}
 
 	w := httptest.NewRecorder()
@@ -145,7 +145,7 @@ func TestRenderDashboardPageMinimalUser(t *testing.T) {
 			AdminPort:       "2087",
 			T:               mgr.Translator("en"),
 		},
-		Sections: buildDashboardSections(userAllowed, nil),
+		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil),
 	}
 
 	w := httptest.NewRecorder()
@@ -179,7 +179,7 @@ func TestRenderDashboardPageWithFlashAndImpersonation(t *testing.T) {
 			},
 			T: mgr.Translator("en"),
 		},
-		Sections: buildDashboardSections(userAllowed, nil),
+		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil),
 	}
 
 	w := httptest.NewRecorder()

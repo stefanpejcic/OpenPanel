@@ -1,5 +1,7 @@
 package dashboard
 
+import "gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
+
 // SectionItem mirrors one icon-link dict in dashboard.html's `sections` Jinja literal (e.g. {"key": "filemanager", "href": "/files", ...})
 type SectionItem struct {
 	Key    string
@@ -19,8 +21,8 @@ type Section struct {
 	Items []SectionItem
 }
 
-// buildDashboardSections builds the dashboard's section/item list, keeping only items whose key is in allowed (or in upsellAllowed, marked Disabled), for dashboard.html's {{range .Sections}}. Section order matches this slice's literal order.
-func buildDashboardSections(allowed, upsellAllowed map[string]bool) []Section {
+// buildDashboardSections builds the dashboard's section/item list, keeping only items whose key is in allowed (or in upsellAllowed, marked Disabled), for dashboard.html's {{range .Sections}}. Section order matches this slice's literal order. Titles/Labels are run through t.Get so the icon grid picks up the same catalog as the sidebar, instead of staying hardcoded English.
+func buildDashboardSections(t i18n.Translator, allowed, upsellAllowed map[string]bool) []Section {
 	all := []Section{
 		{Key: "files", Title: "Files", Items: []SectionItem{
 			{"filemanager", "/files", "bi-folder-fill", "File Manager", "", false},
@@ -145,6 +147,7 @@ func buildDashboardSections(allowed, upsellAllowed map[string]bool) []Section {
 	for _, s := range all {
 		var items []SectionItem
 		for _, item := range s.Items {
+			item.Label = t.Get(item.Label)
 			if allowed[item.Key] {
 				items = append(items, item)
 			} else if upsellAllowed[item.Key] {
@@ -153,7 +156,7 @@ func buildDashboardSections(allowed, upsellAllowed map[string]bool) []Section {
 			}
 		}
 		if len(items) > 0 {
-			result = append(result, Section{Key: s.Key, Title: s.Title, Items: items})
+			result = append(result, Section{Key: s.Key, Title: t.Get(s.Title), Items: items})
 		}
 	}
 	return result

@@ -66,12 +66,12 @@ type DashboardPageData struct {
 	UpgradeURL      string
 }
 
-// twofaStatusMessage builds the "2FA is <b>{status}</b> for your account." message; status itself ("enabled"/"disabled") is plain English and never translated
+// twofaStatusMessage builds the "2FA is <b>{status}</b> for your account." message, translating status through the same "enabled"/"disabled" catalog keys twofa_settings.html already uses
 func twofaStatusMessage(t i18n.Translator, enabled bool) template.HTML {
-	status := "disabled"
+	status := t.Get("disabled")
 	if enabled {
-		status = "enabled"
+		status = t.Get("enabled")
 	}
 	msg := t.Get("2FA is <b>{status}</b> for your account.")
-	return template.HTML(strings.Replace(msg, "{status}", status, 1)) //nolint:gosec // msg is a translation-catalog string plus a fixed English word, not user input
+	return template.HTML(strings.Replace(msg, "{status}", status, 1)) //nolint:gosec // msg is a translation-catalog string plus a translated status word, not user input
 }
