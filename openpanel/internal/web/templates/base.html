@@ -533,7 +533,7 @@ document.addEventListener('submit', (e) => {
 
 <div id="alert-stack" class="relative">
     {{range .Flashes}}
-    <div id="alert-{{.Index}}" class="top-0 left-0 right-0 flex items-center p-4 bg-gray-800 {{.ZClass}}" role="alert">
+    <div id="alert-{{.Index}}" class="absolute top-0 left-0 right-0 flex items-center p-4 bg-gray-800 {{.ZClass}}" role="alert">
         <svg class="shrink-0 w-4 h-4 text-gray-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/></svg>
         <span class="sr-only">{{$.T.Get "Notification"}}</span>
         <div class="ms-3 text-sm font-medium text-white">{{.Text}}</div>
@@ -546,12 +546,25 @@ document.addEventListener('submit', (e) => {
 </div>
 
 <script>
-document.querySelectorAll('#alert-stack [data-dismiss-target]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-        const target = document.querySelector(btn.getAttribute('data-dismiss-target'));
-        if (target) target.remove();
+(function () {
+    const stack = document.getElementById('alert-stack');
+    if (!stack) return;
+    // absolute children collapse the stack's height to 0, so set it to the tallest alert manually
+    const setStackHeight = function () {
+        const alerts = stack.querySelectorAll('[role="alert"]');
+        let max = 0;
+        alerts.forEach(function (el) { max = Math.max(max, el.offsetHeight); });
+        stack.style.height = max + 'px';
+    };
+    setStackHeight();
+    document.querySelectorAll('#alert-stack [data-dismiss-target]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const target = document.querySelector(btn.getAttribute('data-dismiss-target'));
+            if (target) target.remove();
+            setStackHeight();
+        });
     });
-});
+})();
 </script>
 
 {{end}}
