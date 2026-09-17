@@ -275,6 +275,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	ensureContainerTmpOnSameFilesystem(ctx, userContext, phpContainer)
 
 	mysqlVersion := mysql.GetMySQLVersion(ctx, a, userContext)
+	if !docker.IsServiceRunning(ctx, userContext, mysqlVersion) {
+		emit(map[string]any{"status": "Starting " + mysqlVersion + " container.."})
+		docker.StartOrStopContainer(ctx, userContext, mysqlVersion, "activate", "detached")
+	}
 	emit(map[string]any{"status": "Testing database connection.."})
 	if !mysql.CheckMySQLInsideContainer(ctx, userContext, true) {
 		emit(map[string]any{"status": "Checking " + mysqlVersion + " container status.."})
