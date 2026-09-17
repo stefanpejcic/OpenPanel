@@ -21,8 +21,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /joomla/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaLogs(a, w, r) }))
 	mux.Handle("/joomla/maintenance", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaMaintenance(a, w, r) }))
 	mux.Handle("GET /joomla/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaGetBackupDates(a, w, r) }))
-	mux.Handle("GET /joomla/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaRestoreBackup(a, w, r) }))
-	mux.Handle("GET /joomla/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaRunBackup(a, w, r) }))
+	mux.Handle("POST /joomla/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaRestoreBackup(a, w, r) }))
+	mux.Handle("POST /joomla/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaRunBackup(a, w, r) }))
 	mux.Handle("POST /joomla/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJoomlaClone(a, w, r) }))
 }
 

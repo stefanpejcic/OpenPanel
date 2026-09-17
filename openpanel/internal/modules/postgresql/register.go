@@ -33,7 +33,6 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /postgresql/user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesUser(a, w, r) }))
 	mux.Handle("POST /postgresql/user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesUser(a, w, r) }))
 	mux.Handle("GET /postgresql/password/{db_user}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesPassword(a, w, r) }))
-	mux.Handle("GET /delete_postgres_user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeletePostgresUser(a, w, r) }))
 	mux.Handle("POST /delete_postgres_user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeletePostgresUser(a, w, r) }))
 	mux.Handle("POST /postgresql/change_user_password", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleChangePostgresUserPassword(a, w, r) }))
 

@@ -18,8 +18,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /dokuwiki/remove", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemoveDokuwiki(a, w, r) }))
 	mux.Handle("POST /dokuwiki/update", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDokuwikiUpdate(a, w, r) }))
 	mux.Handle("GET /dokuwiki/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDokuwikiGetBackupDates(a, w, r) }))
-	mux.Handle("GET /dokuwiki/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDokuwikiRestoreBackup(a, w, r) }))
-	mux.Handle("GET /dokuwiki/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDokuwikiRunBackup(a, w, r) }))
+	mux.Handle("POST /dokuwiki/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDokuwikiRestoreBackup(a, w, r) }))
+	mux.Handle("POST /dokuwiki/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDokuwikiRunBackup(a, w, r) }))
 	mux.Handle("POST /dokuwiki/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDokuwikiClone(a, w, r) }))
 }
 

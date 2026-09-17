@@ -17,8 +17,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/tinyfilemanager/install", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleInstallPage(a, w, r) }))
 	mux.Handle("POST /tinyfilemanager/remove", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemoveTinyFileManager(a, w, r) }))
 	mux.Handle("GET /tinyfilemanager/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTinyFileManagerGetBackupDates(a, w, r) }))
-	mux.Handle("GET /tinyfilemanager/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTinyFileManagerRestoreBackup(a, w, r) }))
-	mux.Handle("GET /tinyfilemanager/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTinyFileManagerRunBackup(a, w, r) }))
+	mux.Handle("POST /tinyfilemanager/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTinyFileManagerRestoreBackup(a, w, r) }))
+	mux.Handle("POST /tinyfilemanager/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTinyFileManagerRunBackup(a, w, r) }))
 }
 
 // withTinyFileManagerForm clones r as a POST carrying the given values as both Form and PostForm, so a UI handler that reads r.FormValue(...) sees exactly the fields the API's JSON body supplied

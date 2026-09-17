@@ -14,7 +14,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /sites", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleListSites(a, w, r)
 	})))
-	mux.Handle("GET /sites/scan", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("POST /sites/scan", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleSitesScan(a, w, r)
 	})))
 	mux.Handle("POST /sites/detach", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

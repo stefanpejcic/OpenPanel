@@ -361,8 +361,8 @@
 
         try {
           const response = await fetch(`/wordpress/scan?action=scan`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': csrf_token },
           });
 
           const resultText = await response.text();
@@ -390,7 +390,7 @@
         showToast("{{.T.Get "Data refresh in progress... Please wait."}}", 'success');
 
         try {
-          const response = await fetch(`/wordpress/reload_data`, { method: 'GET' });
+          const response = await fetch(`/wordpress/reload_data`, { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } });
           const resultText = await response.text();
           if (resultText.startsWith("Scan completed. Found installations:")) {
               showToast("{{.T.Get "Refresh completed."}}", 'success');

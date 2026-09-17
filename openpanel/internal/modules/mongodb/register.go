@@ -22,7 +22,6 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /mongodb/user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesUser(a, w, r) }))
 	mux.Handle("POST /mongodb/user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesUser(a, w, r) }))
 	mux.Handle("GET /mongodb/password/{db_user}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesPassword(a, w, r) }))
-	mux.Handle("GET /delete_mongodb_user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeleteMongoUser(a, w, r) }))
 	mux.Handle("POST /delete_mongodb_user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeleteMongoUser(a, w, r) }))
 	mux.Handle("POST /mongodb/change_user_password", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleChangeMongoUserPassword(a, w, r) }))
 

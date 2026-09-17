@@ -20,8 +20,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /moodle/cache", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleCacheClean(a, w, r) }))
 	mux.Handle("GET /moodle/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleLogs(a, w, r) }))
 	mux.Handle("GET /moodle/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleGetBackupDates(a, w, r) }))
-	mux.Handle("GET /moodle/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleRestoreBackup(a, w, r) }))
-	mux.Handle("GET /moodle/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleRunBackup(a, w, r) }))
+	mux.Handle("POST /moodle/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleRestoreBackup(a, w, r) }))
+	mux.Handle("POST /moodle/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleRunBackup(a, w, r) }))
 	mux.Handle("POST /moodle/update", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleUpdate(a, w, r) }))
 	mux.Handle("/moodle/maintenance", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMoodleMaintenance(a, w, r) }))
 }

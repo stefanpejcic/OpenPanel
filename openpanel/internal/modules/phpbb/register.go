@@ -17,8 +17,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/phpbb/install", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleInstallPage(a, w, r) }))
 	mux.Handle("POST /phpbb/remove", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemovePhpbb(a, w, r) }))
 	mux.Handle("GET /phpbb/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePhpbbGetBackupDates(a, w, r) }))
-	mux.Handle("GET /phpbb/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePhpbbRestoreBackup(a, w, r) }))
-	mux.Handle("GET /phpbb/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePhpbbRunBackup(a, w, r) }))
+	mux.Handle("POST /phpbb/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePhpbbRestoreBackup(a, w, r) }))
+	mux.Handle("POST /phpbb/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePhpbbRunBackup(a, w, r) }))
 	mux.Handle("POST /phpbb/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePhpbbClone(a, w, r) }))
 }
 

@@ -174,7 +174,7 @@
                 confirmButton.textContent = {{toJSON (.T.Get "Scanning...")}};
                 showToast({{toJSON (.T.Get "Scanning started... this may take a while.")}}, 'loading');
 
-                fetch("/sites/scan", { headers: { 'X-CSRF-Token': csrf_token } })
+                fetch("/sites/scan", { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } })
                     .then(response => response.text())
                     .then(resultText => {
                         if (resultText.trim() === "Scan completed. Found installations:") {

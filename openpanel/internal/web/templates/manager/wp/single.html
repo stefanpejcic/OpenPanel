@@ -1982,7 +1982,7 @@ function attachupdatebtnlistener() {
 
                     GetWPSiteInfo();
 
-                    await fetch(`/wordpress/reload_data`, { method: 'GET' });
+                    await fetch(`/wordpress/reload_data`, { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } });
                     checkWordPressVersionStatus();
                 }
             } catch (error) {
@@ -2084,7 +2084,7 @@ if (confirmRestoreButton) {
             const selectedDate = restoreBackupDateSelect.value;
             showToast({{toJSON (.T.Get "Restoring backup... Please wait.")}}, 'warning');
 
-            fetch(`/wordpress/backup/restore/${restoreDomain}?docroot=${docroot}&backup_date=${selectedDate}`)
+            fetch(`/wordpress/backup/restore/${restoreDomain}?docroot=${docroot}&backup_date=${selectedDate}`, { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } })
                 .then(response => {
                     if (response.ok) {
                         return response.text();
@@ -2148,7 +2148,7 @@ if (runBackupButton) {
 
         showToast({{toJSON (.T.Get "Generating website backup.. Please wait.")}}, 'loading');
 
-        fetch(`/wordpress/backup/run/${restoreDomain}?docroot=${docroot}&backup_database=${backupDatabase}&backup_files=${backupFiles}`)
+        fetch(`/wordpress/backup/run/${restoreDomain}?docroot=${docroot}&backup_database=${backupDatabase}&backup_files=${backupFiles}`, { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } })
             .then(response => {
                 if (response.ok) {
                     return response.text();

@@ -884,7 +884,7 @@
                             }
                             const selectedDate = restoreBackupDateSelect.value;
                             showToast({{toJSON (.T.Get "Restoring backup... Please wait.")}}, 'warning');
-                            fetch(`/matomo/backup/restore/${restoreDomain}?docroot=${docroot}&backup_date=${selectedDate}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                            fetch(`/matomo/backup/restore/${restoreDomain}?docroot=${docroot}&backup_date=${selectedDate}`, { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } })
                                 .then(response => {
                                     if (response.ok) return response.text();
                                     throw new Error({{toJSON (.T.Get "Restore request failed.")}});
@@ -921,7 +921,7 @@
                             const originalButtonText = runBackupButton.innerHTML;
                             runBackupButton.innerHTML = `<i class="bi bi-arrow-repeat animate-spin mr-2"></i> {{.T.Get "Generating Backup..."}}`;
                             showToast({{toJSON (.T.Get "Generating website backup.. Please wait.")}}, 'loading');
-                            fetch(`/matomo/backup/run/${restoreDomain}?docroot=${docroot}&backup_database=${backupDatabase}&backup_files=${backupFiles}`, { headers: { 'X-CSRF-Token': csrf_token } })
+                            fetch(`/matomo/backup/run/${restoreDomain}?docroot=${docroot}&backup_database=${backupDatabase}&backup_files=${backupFiles}`, { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } })
                                 .then(response => {
                                     if (response.ok) return response.text();
                                     throw new Error({{toJSON (.T.Get "Backup request failed.")}});

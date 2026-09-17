@@ -36,7 +36,6 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /mysql/user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesUser(a, w, r) }))
 	mux.Handle("POST /mysql/user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesUser(a, w, r) }))
 	mux.Handle("GET /mysql/password/{db_user}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesPassword(a, w, r) }))
-	mux.Handle("GET /delete_db_user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeleteDBUser(a, w, r) }))
 	mux.Handle("POST /delete_db_user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeleteDBUser(a, w, r) }))
 	mux.Handle("POST /mysql/change_user_password", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleChangeMySQLUserPassword(a, w, r) }))
 

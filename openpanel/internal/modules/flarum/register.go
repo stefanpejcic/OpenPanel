@@ -19,8 +19,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /flarum/cache", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFlarumCacheClear(a, w, r) }))
 	mux.Handle("GET /flarum/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFlarumLogs(a, w, r) }))
 	mux.Handle("GET /flarum/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFlarumGetBackupDates(a, w, r) }))
-	mux.Handle("GET /flarum/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFlarumRestoreBackup(a, w, r) }))
-	mux.Handle("GET /flarum/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFlarumRunBackup(a, w, r) }))
+	mux.Handle("POST /flarum/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFlarumRestoreBackup(a, w, r) }))
+	mux.Handle("POST /flarum/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFlarumRunBackup(a, w, r) }))
 	mux.Handle("POST /flarum/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFlarumClone(a, w, r) }))
 	mux.Handle("POST /flarum/update", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFlarumUpdate(a, w, r) }))
 }

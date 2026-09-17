@@ -21,8 +21,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /mediawiki/login", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiLogin(a, w, r) }))
 	mux.Handle("GET /mediawiki/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiLogs(a, w, r) }))
 	mux.Handle("GET /mediawiki/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiGetBackupDates(a, w, r) }))
-	mux.Handle("GET /mediawiki/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiRestoreBackup(a, w, r) }))
-	mux.Handle("GET /mediawiki/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiRunBackup(a, w, r) }))
+	mux.Handle("POST /mediawiki/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiRestoreBackup(a, w, r) }))
+	mux.Handle("POST /mediawiki/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiRunBackup(a, w, r) }))
 	mux.Handle("POST /mediawiki/update", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMediaWikiUpdate(a, w, r) }))
 }
 

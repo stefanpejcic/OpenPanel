@@ -22,8 +22,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /prestashop/versions", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePrestashopVersions(a, w, r) }))
 	mux.Handle("/prestashop/maintenance", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePrestashopMaintenance(a, w, r) }))
 	mux.Handle("GET /prestashop/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePrestashopGetBackupDates(a, w, r) }))
-	mux.Handle("GET /prestashop/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePrestashopRestoreBackup(a, w, r) }))
-	mux.Handle("GET /prestashop/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePrestashopRunBackup(a, w, r) }))
+	mux.Handle("POST /prestashop/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePrestashopRestoreBackup(a, w, r) }))
+	mux.Handle("POST /prestashop/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePrestashopRunBackup(a, w, r) }))
 	mux.Handle("POST /prestashop/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePrestashopClone(a, w, r) }))
 }
 

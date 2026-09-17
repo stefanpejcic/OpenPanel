@@ -20,8 +20,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /ojs/cache", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOJSCacheClean(a, w, r) }))
 	mux.Handle("GET /ojs/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOJSLogs(a, w, r) }))
 	mux.Handle("GET /ojs/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOJSGetBackupDates(a, w, r) }))
-	mux.Handle("GET /ojs/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOJSRestoreBackup(a, w, r) }))
-	mux.Handle("GET /ojs/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOJSRunBackup(a, w, r) }))
+	mux.Handle("POST /ojs/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOJSRestoreBackup(a, w, r) }))
+	mux.Handle("POST /ojs/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOJSRunBackup(a, w, r) }))
 	mux.Handle("POST /ojs/update", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOJSUpdate(a, w, r) }))
 	mux.Handle("POST /ojs/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleOJSClone(a, w, r) }))
 }

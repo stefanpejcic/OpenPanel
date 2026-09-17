@@ -17,8 +17,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/sofawiki/install", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleInstallPage(a, w, r) }))
 	mux.Handle("POST /sofawiki/remove", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemoveSofawiki(a, w, r) }))
 	mux.Handle("GET /sofawiki/backup/get_dates/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSofawikiGetBackupDates(a, w, r) }))
-	mux.Handle("GET /sofawiki/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSofawikiRestoreBackup(a, w, r) }))
-	mux.Handle("GET /sofawiki/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSofawikiRunBackup(a, w, r) }))
+	mux.Handle("POST /sofawiki/backup/restore/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSofawikiRestoreBackup(a, w, r) }))
+	mux.Handle("POST /sofawiki/backup/run/{selected_domain...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSofawikiRunBackup(a, w, r) }))
 	mux.Handle("POST /sofawiki/clone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSofawikiClone(a, w, r) }))
 }
 
