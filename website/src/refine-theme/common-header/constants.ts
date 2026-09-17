@@ -38,37 +38,37 @@ export const MENU_ITEMS: MenuItemType[] = [
     items: [
       {
         label: "Documentation",
-        description: "Everything you need to get started.",
+        description: "Setup, configuration, and API reference.",
         link: "/docs/",
         icon: DocumentsIcon,
       },
       {
         label: "How-to Guides",
-        description: "How to customize OpenPanel.",
+        description: "Step-by-step guides for common tasks.",
         link: "/docs/articles/intro/",
         icon: TutorialIcon,
       },
       {
         label: "Features",
-        description: "Discover OpenPanel features.",
+        description: "See what's included, feature by feature.",
         link: "/features/",
         icon: AwesomeIcon,
       },
       {
         label: "Changelog",
-        description: "New features and bug fixes.",
+        description: "Every release, documented as it ships.",
         link: "/docs/changelog/intro/",
         icon: IntegrationsIcon,
       },
       {
         label: "Discussions",
-        description: "Join our growing community!",
+        description: "Share ideas, upvote features.",
         link: "https://github.com/stefanpejcic/OpenPanel/discussions",
         icon: ContributeIcon,
       },
       {
         label: "Blog",
-        description: "Articles about Linux and server stuff.",
+        description: "Tips and guides on Linux hosting.",
         link: "/blog",
         icon: BlogIcon,
       },
