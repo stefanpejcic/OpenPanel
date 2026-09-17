@@ -7,7 +7,15 @@ import { FaqSchema } from "./faq-schema";
 export const EnterpriseFaq = ({ className }: { className?: string }) => {
     return (
         <div className={clsx("flex flex-col", "not-prose", className)}>
-            <FaqSchema faq={faq} />
+            <FaqSchema
+                faq={faq.map((item) => ({
+                    question: item.question,
+                    answer:
+                        typeof item.answer === "string"
+                            ? item.answer
+                            : item.schemaAnswer,
+                }))}
+            />
             <div
                 className={clsx(
                     "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
@@ -143,6 +151,49 @@ const faq = [
     {
         question: "Does OpenPanel Enterprise integrate with billing software?",
         answer: "Yes, OpenPanel Enterprise integrates with WHMCS, Blesta, FOSSBilling, ClientExec, WISECP, and Paymenter.org for automated provisioning.",
+    },
+    {
+        question: "What IP is required to purchase a license?",
+        answer: (
+            <>
+                As OpenPanel does not provide web hosting services,
+                purchasing a monthly OpenPanel Enterprise license requires
+                the public-facing static IPv4 address of the server. The
+                server must also meet the minimum requirements listed in the{" "}
+                <a href="/docs/admin/intro/#requirements">
+                    System Requirements documentation
+                </a>
+                .
+            </>
+        ),
+        schemaAnswer:
+            "As OpenPanel does not provide web hosting services, purchasing a monthly OpenPanel Enterprise license requires the public-facing static IPv4 address of the server. The server must also meet the minimum requirements listed in the System Requirements documentation.",
+    },
+    {
+        question: "What payment methods does OpenPanel accept?",
+        answer: "The OpenPanel store accepts Credit Card and Stripe payment methods. You can add and manage payment methods by logging into your store account and going to Account Settings, then Payment Methods.",
+    },
+    {
+        question: "When does my OpenPanel license renew?",
+        answer: (
+            <>
+                All OpenPanel licenses renew automatically on the same day of
+                the month (or year, for annual licenses) on which the
+                service was originally purchased. At renewal, the primary
+                payment method on your account is charged for your licenses.
+                To prevent a license from renewing, cancel it before the
+                renewal date — see{" "}
+                <a href="/docs/articles/license/hot_to_cancel_openpanel_license/">
+                    How do I cancel my OpenPanel Enterprise license?
+                </a>
+            </>
+        ),
+        schemaAnswer:
+            "All OpenPanel licenses renew automatically on the same day of the month (or year, for annual licenses) on which the service was originally purchased. At renewal, the primary payment method on your account is charged for your licenses. To prevent a license from renewing, cancel it before the renewal date - see How do I cancel my OpenPanel Enterprise license?",
+    },
+    {
+        question: "Do additional IP addresses need to be licensed?",
+        answer: "No, additional IP addresses do not need to be licensed - only the server's main, public IPv4 address is required to be licensed. Additional IP addresses can be used for other purposes, such as being dedicated to an account, used for certain services, or reserved for later use.",
     },
     {
         question: "Is there a refund if I'm not satisfied?",

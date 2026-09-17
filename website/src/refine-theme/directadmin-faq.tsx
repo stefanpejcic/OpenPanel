@@ -7,7 +7,15 @@ import { FaqSchema } from "./faq-schema";
 export const EnterpriseFaq = ({ className }: { className?: string }) => {
     return (
         <div className={clsx("flex flex-col", "not-prose", className)}>
-            <FaqSchema faq={faq} />
+            <FaqSchema
+                faq={faq.map((item) => ({
+                    question: item.question,
+                    answer:
+                        typeof item.answer === "string"
+                            ? item.answer
+                            : item.schemaAnswer,
+                }))}
+            />
             <div
                 className={clsx(
                     "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
@@ -119,7 +127,13 @@ const faq = [
     },
     {
         question: "Do you offer trial license for the Enterprise edition?",
-        answer: "Yes, we offer a 30 days trial on request.",
+        answer: (
+            <>
+                Yes, we offer a{" "}
+                <a href="/trial">30 days trial</a> on request.
+            </>
+        ),
+        schemaAnswer: "Yes, we offer a 30 days trial on request.",
     },
     {
         question: "How often does Enterprise edition receive updates?",

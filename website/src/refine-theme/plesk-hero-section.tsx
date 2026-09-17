@@ -51,7 +51,7 @@ export const EnterpriseHeroSection = ({
                     "dark:text-gray-400 text-gray-600",
                 )}
             >
-                Built on Podman for true per-user isolation, with no extension license fees or per-domain add-ons, and a fixed price that never changes.{" "}
+                Built around containers for true per-user isolation, with no extension license fees or per-domain add-ons, and a fixed price that never changes.{" "}
             </p>
             <div
                 className={clsx(
