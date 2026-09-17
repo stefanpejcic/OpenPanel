@@ -22,6 +22,7 @@ import { LandingHeroMariaDBIcon } from "./icons/landing-hero/mariadb";
 import { LandingHeroPostgreSQLIcon } from "./icons/landing-hero/postgresql";
 import { LandingHeroMySQLIcon } from "./icons/landing-hero/mysql";
 import { LandingHeroPerconaIcon } from "./icons/landing-hero/percona";
+import { LandingHeroMongoDBIcon } from "./icons/landing-hero/mongodb";
 import { LandingHeroLlmsTxtIcon } from "./icons/landing-hero/llms-txt";
 import { LandingHeroTailwindCSSIcon } from "./icons/landing-hero/tailwindcss";
 import { LandingHeroAlpineJSIcon } from "./icons/landing-hero/alpinejs";
@@ -423,6 +424,13 @@ const databases: GroupOption = {
                 <LandingHeroPerconaIcon {...props} style={{ marginLeft: "1.5em" }} />
             ),
             color: "#FF6D01",
+        },
+        {
+            name: "MongoDB",
+            icon: (props) => (
+                <LandingHeroMongoDBIcon {...props} style={{ marginLeft: "1.5em" }} />
+            ),
+            color: "#47A248",
         },
     ],
 };
