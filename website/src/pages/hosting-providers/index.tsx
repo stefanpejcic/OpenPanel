@@ -65,7 +65,15 @@ const providers = [
 const HostingProvidersPage: React.FC = () => {
   return (
     <>
-      <Head title="Control Panel for Hosting Providers | OpenPanel Enterprise">
+      <Head>
+        <title>Control Panel for Hosting Providers | OpenPanel Enterprise</title>
+        <meta
+          property="og:title"
+          content="Control Panel for Hosting Providers | OpenPanel Enterprise"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
         <html data-page="partners-table" />
       </Head>
 
@@ -172,7 +180,10 @@ const HostingProvidersPage: React.FC = () => {
 
 export default function ProvidersTable() {
   return (
-    <CommonLayout description="Hosting providers offering OpenPanel on VPS and dedicated servers - compare locations, services, and managed support options.">
+    <CommonLayout
+      description="Hosting providers offering OpenPanel on VPS and dedicated servers - compare locations, services, and managed support options."
+      image="/img/og/hosting-providers.png"
+    >
       <HostingProvidersPage />
     </CommonLayout>
   );

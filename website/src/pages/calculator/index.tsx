@@ -505,8 +505,16 @@ const Calculator: React.FC = () => {
     ];
 
     return (
-        <CommonLayout description="Estimate the CPU, RAM, and disk you need to host a given number of users on OpenPanel, based on real benchmarks, plus your OpenPanel license cost.">
-            <Head title="Resource Calculator | OpenPanel">
+        <CommonLayout
+            description="Estimate the CPU, RAM, and disk you need to host a given number of users on OpenPanel, based on real benchmarks, plus your OpenPanel license cost."
+            image="/img/og/calculator.png"
+        >
+            <Head>
+                <title>Resource Calculator | OpenPanel</title>
+                <meta property="og:title" content="Resource Calculator | OpenPanel" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="calculator" data-customized="true" />
             </Head>
             <div className="refine-prose">

@@ -62,8 +62,19 @@ const Install: React.FC = () => {
     };
 
     return (
-        <CommonLayout description="Generate a custom OpenPanel install command with your choice of domain, ports, firewall, DNS, and security options.">
-            <Head title="Install command generator | OpenPanel">
+        <CommonLayout
+            description="Generate a custom OpenPanel install command with your choice of domain, ports, firewall, DNS, and security options."
+            image="/img/og/install.png"
+        >
+            <Head>
+                <title>Install command generator | OpenPanel</title>
+                <meta
+                    property="og:title"
+                    content="Install command generator | OpenPanel"
+                />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="install" data-customized="true" />
             </Head>
             <div className="refine-prose">

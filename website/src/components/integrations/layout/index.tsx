@@ -7,8 +7,16 @@ import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 
 const IntegrationsLayout = ({ children }: React.PropsWithChildren<{}>) => {
     return (
-        <CommonLayout description="See every feature built into OpenPanel: multiple PHP versions, per-user isolation, Nginx/OpenLiteSpeed, Podman, backups, and built-in security.">
-            <Head title="Features | OpenPanel">
+        <CommonLayout
+            description="See every feature built into OpenPanel: multiple PHP versions, per-user isolation, Nginx/OpenLiteSpeed, Podman, backups, and built-in security."
+            image="/img/og/features.png"
+        >
+            <Head>
+                <title>Features | OpenPanel</title>
+                <meta property="og:title" content="Features | OpenPanel" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="integrations" data-customized="true" />
             </Head>
             <div className={clsx("refine-prose, pb-16")}>

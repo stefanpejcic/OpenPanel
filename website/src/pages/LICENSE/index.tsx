@@ -6,8 +6,16 @@ import { CommonLayout } from "@site/src/refine-theme/common-layout";
 
 const License: React.FC = () => {
     return (
-        <CommonLayout description="The OpenPanel End User License Agreement (EULA) covering license grant, restrictions, ownership, and purchase terms.">
-            <Head title="LICENSE | OpenPanel">
+        <CommonLayout
+            description="The OpenPanel End User License Agreement (EULA) covering license grant, restrictions, ownership, and purchase terms."
+            image="/img/og/LICENSE.png"
+        >
+            <Head>
+                <title>LICENSE | OpenPanel</title>
+                <meta property="og:title" content="LICENSE | OpenPanel" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="license" data-customized="true" />
             </Head>
             <div className="refine-prose">

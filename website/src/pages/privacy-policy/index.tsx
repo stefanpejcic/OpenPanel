@@ -11,8 +11,16 @@ import PrivacyContent from '@site/src/pages/privacy-policy/privacy.md';
 
 const PrivacyPolicy: React.FC = () => {
     return (
-        <CommonLayout description="Read the OpenPanel privacy policy to learn what data we collect, how it's used, and how we protect it.">
-            <Head title="Privacy Policy | OpenPanel">
+        <CommonLayout
+            description="Read the OpenPanel privacy policy to learn what data we collect, how it's used, and how we protect it."
+            image="/img/og/privacy-policy.png"
+        >
+            <Head>
+                <title>Privacy Policy | OpenPanel</title>
+                <meta property="og:title" content="Privacy Policy | OpenPanel" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="privacy_policy" data-customized="true" />
             </Head>
             <div className="refine-prose">

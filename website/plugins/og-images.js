@@ -29,10 +29,184 @@ function permalinkToOgImagePath(permalink) {
 // entry in sync with the title/description set in that page's own <Head>.
 const SITE_PAGES = [
     {
+        permalink: "/",
+        title: "OpenPanel | Next Generation Web Hosting Panel",
+        description:
+            "A highly customizable web hosting control panel built around containers.",
+    },
+    {
         permalink: "/enterprise/",
         title: "OpenPanel Enterprise | Next Generation Hosting Panel",
         description:
             "OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.",
+    },
+    {
+        permalink: "/community/",
+        title: "OpenPanel Community Edition | Free Web Hosting Panel",
+        description:
+            "OpenPanel Community edition is a free web hosting control panel, suitable for VPS and private use.",
+    },
+    {
+        permalink: "/cpanel-alternative/",
+        title: "OpenPanel vs cPanel/WHM: Alternative Hosting Panel Compared",
+        description:
+            "Compare OpenPanel vs cPanel/WHM: Podman-based per-user isolation, native ARM support, and a fixed €14.95/month price per server - no per-account fees or hikes.",
+    },
+    {
+        permalink: "/cyberpanel-alternative/",
+        title: "OpenPanel vs CyberPanel: Alternative Hosting Panel Compared",
+        description:
+            "Compare OpenPanel vs CyberPanel: real per-user isolation without CloudLinux, granular permissions, and enterprise support from €14.95/month per server.",
+    },
+    {
+        permalink: "/directadmin-alternative/",
+        title: "OpenPanel vs DirectAdmin: Alternative Hosting Panel Compared",
+        description:
+            "Compare OpenPanel vs DirectAdmin: Podman-based per-user isolation, a full REST API and MCP server for AI agents, priced per server, not per account.",
+    },
+    {
+        permalink: "/plesk-alternative/",
+        title: "OpenPanel vs Plesk: Alternative Hosting Panel Compared",
+        description:
+            "Compare OpenPanel vs Plesk: true per-user Podman isolation, native ARM support, and one fixed €14.95/month price per server - no per-account licensing fees.",
+    },
+    {
+        permalink: "/about/",
+        title: "About | OpenPanel Project",
+        description:
+            "OpenPanel is built by hosting operators, for hosting operators - Podman-native isolation, built-in security, and no per-seat pricing.",
+    },
+    {
+        permalink: "/assets/",
+        title: "Brand Assets | OpenPanel",
+        description:
+            "Download official OpenPanel brand assets and logo icons in SVG format, with customizable colors for press and partner use.",
+    },
+    {
+        permalink: "/billing/",
+        title: "Billing Software Integrations for OpenPanel | OpenPanel",
+        description:
+            "OpenPanel integrates with WHMCS, FOSSBilling, Blesta, ClientExec, and WISECP for automated hosting account provisioning, suspension, and termination.",
+    },
+    {
+        permalink: "/blesta-module/",
+        title: "Blesta module for OpenPanel | OpenPanel",
+        description:
+            "Automate hosting account provisioning between Blesta and OpenPanel - install, configure, and provision in about 5 minutes.",
+    },
+    {
+        permalink: "/calculator/",
+        title: "Resource Calculator | OpenPanel",
+        description:
+            "Estimate the CPU, RAM, and disk you need to host a given number of users on OpenPanel, based on real benchmarks, plus your OpenPanel license cost.",
+    },
+    {
+        permalink: "/calculator/benchmark/",
+        title: "Benchmark Methodology | OpenPanel",
+        description:
+            "How we benchmarked OpenPanel 2.0 (Podman) resource usage: test setup, the account-creation script used, and the raw opencli docker-collect_stats results.",
+    },
+    {
+        permalink: "/clientexec-module/",
+        title: "ClientExec module for OpenPanel | OpenPanel",
+        description:
+            "Automate hosting account provisioning between ClientExec and OpenPanel - install, configure, and provision in about 5 minutes.",
+    },
+    {
+        permalink: "/demo/",
+        title: "Live Demo | OpenPanel",
+        description:
+            "Try a live demo of OpenPanel and OpenAdmin online - explore the dashboard and admin panel before you install anything.",
+    },
+    {
+        permalink: "/docs/",
+        title: "Documentation | OpenPanel",
+        description:
+            "Browse the OpenPanel and OpenAdmin documentation: installation, API reference, terminal commands, and how-to guides for running OpenPanel hosting infrastructure.",
+    },
+    {
+        permalink: "/features/",
+        title: "Features | OpenPanel",
+        description:
+            "See every feature built into OpenPanel: multiple PHP versions, per-user isolation, Nginx/OpenLiteSpeed, Podman, backups, and built-in security.",
+    },
+    {
+        permalink: "/fossbilling-module/",
+        title: "FOSSBilling module for OpenPanel | OpenPanel",
+        description:
+            "Automate hosting account provisioning between FOSSBilling and OpenPanel - install, configure, and provision in about 5 minutes.",
+    },
+    {
+        permalink: "/hosting-providers/",
+        title: "Control Panel for Hosting Providers | OpenPanel Enterprise",
+        description:
+            "Hosting providers offering OpenPanel on VPS and dedicated servers - compare locations, services, and managed support options.",
+    },
+    {
+        permalink: "/install/",
+        title: "Install command generator | OpenPanel",
+        description:
+            "Generate a custom OpenPanel install command with your choice of domain, ports, firewall, DNS, and security options.",
+    },
+    {
+        permalink: "/LICENSE/",
+        title: "LICENSE | OpenPanel",
+        description:
+            "The OpenPanel End User License Agreement (EULA) covering license grant, restrictions, ownership, and purchase terms.",
+    },
+    {
+        permalink: "/licenses-for-partners/",
+        title: "NOC Partners Pricing | OpenPanel Enterprise",
+        description:
+            "OpenPanel Enterprise pricing for NOC partners with their own IP ranges, priced by network prefix length.",
+    },
+    {
+        permalink: "/patches/",
+        title: "OpenPanel Patches | OpenPanel",
+        description:
+            "Official OpenPanel patches for reported bugs - apply a fix immediately with one command instead of waiting for the next release.",
+    },
+    {
+        permalink: "/privacy-policy/",
+        title: "Privacy Policy | OpenPanel",
+        description:
+            "Read the OpenPanel privacy policy to learn what data we collect, how it's used, and how we protect it.",
+    },
+    {
+        permalink: "/refund-policy/",
+        title: "Refund Policy | OpenPanel",
+        description:
+            "OpenPanel Enterprise refund policy - licenses can be refunded within 7 days of purchase if not yet activated.",
+    },
+    {
+        permalink: "/roadmap/",
+        title: "Roadmap | OpenPanel",
+        description:
+            "See what OpenPanel is building next - features in active development and what's planned, updated manually by our team.",
+    },
+    {
+        permalink: "/statistics/",
+        title: "Usage Statistics | OpenPanel",
+        description:
+            "Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community.",
+    },
+    {
+        permalink: "/support/",
+        title: "Support | OpenPanel",
+        description:
+            "Get help with OpenPanel and OpenAdmin - search the docs, ask the community, open an Enterprise support ticket, or report a bug.",
+    },
+    {
+        permalink: "/whmcs-module/",
+        title: "WHMCS module for OpenPanel | OpenPanel",
+        description:
+            "Automate hosting account provisioning between WHMCS and OpenPanel - install, configure, and provision in about 5 minutes.",
+    },
+    {
+        permalink: "/wisecp-module/",
+        title: "WISECP module for OpenPanel | OpenPanel",
+        description:
+            "Automate hosting account provisioning between WISECP and OpenPanel - install, configure, and provision in about 5 minutes.",
     },
 ];
 

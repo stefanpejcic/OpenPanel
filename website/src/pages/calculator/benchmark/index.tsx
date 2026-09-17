@@ -8,8 +8,19 @@ import BenchmarkContent from "@site/src/pages/calculator/benchmark/benchmark.md"
 
 const CalculatorBenchmark: React.FC = () => {
     return (
-        <CommonLayout description="How we benchmarked OpenPanel 2.0 (Podman) resource usage: test setup, the account-creation script used, and the raw opencli docker-collect_stats results.">
-            <Head title="Benchmark Methodology | OpenPanel">
+        <CommonLayout
+            description="How we benchmarked OpenPanel 2.0 (Podman) resource usage: test setup, the account-creation script used, and the raw opencli docker-collect_stats results."
+            image="/img/og/calculator/benchmark.png"
+        >
+            <Head>
+                <title>Benchmark Methodology | OpenPanel</title>
+                <meta
+                    property="og:title"
+                    content="Benchmark Methodology | OpenPanel"
+                />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="calculator-benchmark" data-customized="true" />
             </Head>
             <div className="refine-prose">

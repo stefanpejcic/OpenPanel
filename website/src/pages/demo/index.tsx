@@ -8,8 +8,16 @@ import { LandingTryItSection } from "@site/src/refine-theme/demo-section";
 
 const Demo: React.FC = () => {
     return (
-        <CommonLayout description="Try a live demo of OpenPanel and OpenAdmin online - explore the dashboard and admin panel before you install anything.">
-            <Head title="Live Demo | OpenPanel">
+        <CommonLayout
+            description="Try a live demo of OpenPanel and OpenAdmin online - explore the dashboard and admin panel before you install anything."
+            image="/img/og/demo.png"
+        >
+            <Head>
+                <title>Live Demo | OpenPanel</title>
+                <meta property="og:title" content="Live Demo | OpenPanel" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="demo" data-customized="true" />
             </Head>
             <div className="refine-prose">

@@ -44,8 +44,16 @@ const Assets: React.FC = () => {
     };
 
     return (
-        <CommonLayout description="Download official OpenPanel brand assets and logo icons in SVG format, with customizable colors for press and partner use.">
-            <Head title="Brand Assets | OpenPanel">
+        <CommonLayout
+            description="Download official OpenPanel brand assets and logo icons in SVG format, with customizable colors for press and partner use."
+            image="/img/og/assets.png"
+        >
+            <Head>
+                <title>Brand Assets | OpenPanel</title>
+                <meta property="og:title" content="Brand Assets | OpenPanel" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="brand-assets" data-customized="true" />
             </Head>
             <div className="refine-prose">

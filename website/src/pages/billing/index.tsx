@@ -52,9 +52,20 @@ const Card = ({
 
 const RefineWeek = () => {
     return (
-        <CommonLayout description="OpenPanel integrates with WHMCS, FOSSBilling, Blesta, ClientExec, and WISECP for automated hosting account provisioning, suspension, and termination.">
+        <CommonLayout
+            description="OpenPanel integrates with WHMCS, FOSSBilling, Blesta, ClientExec, and WISECP for automated hosting account provisioning, suspension, and termination."
+            image="/img/og/billing.png"
+        >
             <div className="not-prose">
-                <Head title="Billing Software Integrations for OpenPanel | OpenPanel">
+                <Head>
+                    <title>Billing Software Integrations for OpenPanel | OpenPanel</title>
+                    <meta
+                        property="og:title"
+                        content="Billing Software Integrations for OpenPanel | OpenPanel"
+                    />
+                    <meta property="og:image:width" content="1200" />
+                    <meta property="og:image:height" content="630" />
+                    <meta property="og:image:type" content="image/png" />
                     <html data-page="week-of-refine" data-customized="true" />
                 </Head>
 

@@ -10,8 +10,16 @@ import { inProgress, plannedFeatures } from "@site/src/assets/roadmap";
 
 const Roadmap: React.FC = () => {
     return (
-        <CommonLayout description="See what OpenPanel is building next - features in active development and what's planned, updated manually by our team.">
-            <Head title="Roadmap | OpenPanel">
+        <CommonLayout
+            description="See what OpenPanel is building next - features in active development and what's planned, updated manually by our team."
+            image="/img/og/roadmap.png"
+        >
+            <Head>
+                <title>Roadmap | OpenPanel</title>
+                <meta property="og:title" content="Roadmap | OpenPanel" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="roadmap" data-customized="true" />
             </Head>
             <div className="refine-prose">

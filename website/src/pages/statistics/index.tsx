@@ -42,7 +42,18 @@ const Stats: React.FC = () => {
 
   if (loading) {
     return (
-      <CommonLayout description="Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community.">
+      <CommonLayout
+        description="Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community."
+        image="/img/og/statistics.png"
+      >
+        <Head>
+          <title>Usage Statistics | OpenPanel</title>
+          <meta property="og:title" content="Usage Statistics | OpenPanel" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:type" content="image/png" />
+          <html data-page="statistics" data-customized="true" />
+        </Head>
         <CommonHeader hasSticky={true} />
         <div className="text-center py-20 text-xl">Loading stats...</div>
         <BlogFooter />
@@ -52,7 +63,18 @@ const Stats: React.FC = () => {
 
   if (!data) {
     return (
-      <CommonLayout description="Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community.">
+      <CommonLayout
+        description="Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community."
+        image="/img/og/statistics.png"
+      >
+        <Head>
+          <title>Usage Statistics | OpenPanel</title>
+          <meta property="og:title" content="Usage Statistics | OpenPanel" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:type" content="image/png" />
+          <html data-page="statistics" data-customized="true" />
+        </Head>
         <CommonHeader hasSticky={true} />
         <div className="text-center py-20 text-xl text-red-500">
           Failed to load stats.
@@ -63,8 +85,16 @@ const Stats: React.FC = () => {
   }
 
   return (
-    <CommonLayout description="Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community.">
-      <Head title="Usage Statistics | OpenPanel">
+    <CommonLayout
+      description="Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community."
+      image="/img/og/statistics.png"
+    >
+      <Head>
+        <title>Usage Statistics | OpenPanel</title>
+        <meta property="og:title" content="Usage Statistics | OpenPanel" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
         <html data-page="statistics" data-customized="true" />
       </Head>
 

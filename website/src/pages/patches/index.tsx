@@ -57,8 +57,16 @@ const Patches: React.FC = () => {
     }, []);
 
     return (
-        <CommonLayout description="Official OpenPanel patches for reported bugs - apply a fix immediately with one command instead of waiting for the next release.">
-            <Head title="OpenPanel Patches | OpenPanel">
+        <CommonLayout
+            description="Official OpenPanel patches for reported bugs - apply a fix immediately with one command instead of waiting for the next release."
+            image="/img/og/patches.png"
+        >
+            <Head>
+                <title>OpenPanel Patches | OpenPanel</title>
+                <meta property="og:title" content="OpenPanel Patches | OpenPanel" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="patches" data-customized="true" />
             </Head>
 

@@ -22,6 +22,9 @@ const Enterprise: React.FC = () => {
                 <html data-active-page="index" />
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
             </Head>
             <SoftwareApplicationSchema
                 name="OpenPanel"
@@ -33,7 +36,10 @@ const Enterprise: React.FC = () => {
                     priceUnit: "per server per month",
                 }}
             />
-            <CommonLayout description="Compare OpenPanel vs cPanel/WHM: Podman-based per-user isolation, native ARM support, and a fixed €14.95/month price per server - no per-account fees or hikes.">
+            <CommonLayout
+                description="Compare OpenPanel vs cPanel/WHM: Podman-based per-user isolation, native ARM support, and a fixed €14.95/month price per server - no per-account fees or hikes."
+                image="/img/og/cpanel-alternative.png"
+            >
                 <div className={clsx()}>
                     <CommonHeader />
                     <div

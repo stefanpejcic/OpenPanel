@@ -23,13 +23,19 @@ function Home() {
                 <html data-active-page="index" />
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
             </Head>
             <SoftwareApplicationSchema
                 name="OpenPanel"
                 description="A highly customizable web hosting control panel built around containers."
                 url="https://openpanel.com"
             />
-            <CommonLayout description="A highly customizable web hosting control panel built around containers.">
+            <CommonLayout
+                description="A highly customizable web hosting control panel built around containers."
+                image="/img/og/index.png"
+            >
                 <div className={clsx()}>
                     <CommonHeader />
                     <div

@@ -221,8 +221,16 @@ const cardShell = clsx(
 
 const About: React.FC = () => {
     return (
-        <CommonLayout description="OpenPanel is built by hosting operators, for hosting operators - Podman-native isolation, built-in security, and no per-seat pricing.">
-            <Head title="About | OpenPanel Project">
+        <CommonLayout
+            description="OpenPanel is built by hosting operators, for hosting operators - Podman-native isolation, built-in security, and no per-seat pricing."
+            image="/img/og/about.png"
+        >
+            <Head>
+                <title>About | OpenPanel Project</title>
+                <meta property="og:title" content="About | OpenPanel Project" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="about" data-customized="true" />
             </Head>
             <div className="refine-prose">

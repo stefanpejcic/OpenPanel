@@ -11,8 +11,16 @@ import RefundContent from '@site/src/pages/refund-policy/refund.md';
 
 const RefundPolicy: React.FC = () => {
     return (
-        <CommonLayout description="OpenPanel Enterprise refund policy - licenses can be refunded within 7 days of purchase if not yet activated.">
-            <Head title="Refund Policy | OpenPanel">
+        <CommonLayout
+            description="OpenPanel Enterprise refund policy - licenses can be refunded within 7 days of purchase if not yet activated."
+            image="/img/og/refund-policy.png"
+        >
+            <Head>
+                <title>Refund Policy | OpenPanel</title>
+                <meta property="og:title" content="Refund Policy | OpenPanel" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="refund_policy" data-customized="true" />
             </Head>
             <div className="refine-prose">

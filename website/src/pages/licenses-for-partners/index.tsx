@@ -8,7 +8,15 @@ import clsx from "clsx";
 const NetworkTablePage: React.FC = () => {
   return (
     <>
-      <Head title="NOC Partners Pricing | OpenPanel Enterprise">
+      <Head>
+        <title>NOC Partners Pricing | OpenPanel Enterprise</title>
+        <meta
+          property="og:title"
+          content="NOC Partners Pricing | OpenPanel Enterprise"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
         <html data-page="network-table" />
       </Head>
 
@@ -104,7 +112,10 @@ const NetworkTablePage: React.FC = () => {
 
 export default function NetworkTable() {
   return (
-    <CommonLayout description="OpenPanel Enterprise pricing for NOC partners with their own IP ranges, priced by network prefix length.">
+    <CommonLayout
+      description="OpenPanel Enterprise pricing for NOC partners with their own IP ranges, priced by network prefix length."
+      image="/img/og/licenses-for-partners.png"
+    >
       <NetworkTablePage />
     </CommonLayout>
   );

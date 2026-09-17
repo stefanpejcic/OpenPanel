@@ -7,8 +7,16 @@ import clsx from "clsx";
 
 const PrivacyPolicy: React.FC = () => {
     return (
-        <CommonLayout description="Get help with OpenPanel and OpenAdmin - search the docs, ask the community, open an Enterprise support ticket, or report a bug.">
-            <Head title="Support | OpenPanel">
+        <CommonLayout
+            description="Get help with OpenPanel and OpenAdmin - search the docs, ask the community, open an Enterprise support ticket, or report a bug."
+            image="/img/og/support.png"
+        >
+            <Head>
+                <title>Support | OpenPanel</title>
+                <meta property="og:title" content="Support | OpenPanel" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
+                <meta property="og:image:type" content="image/png" />
                 <html data-page="support" data-customized="true" />
             </Head>
             <div className="refine-prose">
