@@ -1,19 +1,23 @@
 # Changelog
 
 ### Upcoming version
-| Version| Release date |
-|---|---|
-| __[2.0.10](/docs/changelog/2.0.10)__| September 30, 2026 |
 
-### Latest
 | Version| Release date | 
 |---|---|
 |__[2.0.9](/docs/changelog/2.0.9)__| September 17, 2026 |
+|__[2.0.10](/docs/changelog/2.0.10)__| September 30, 2026 |
+|__[1.7.67](/docs/changelog/1.7.67)__|  |
 
-### Previous versions
+### Latest
+
 | Version| Release date | 
 |---|---|
 |__[2.0.8](/docs/changelog/2.0.8)__| September 15, 2026 |
+
+### Previous versions
+
+| Version| Release date | 
+|---|---|
 |__[2.0.7](/docs/changelog/2.0.7)__| September 14, 2026 |
 |__[2.0.6](/docs/changelog/2.0.6)__| September 09, 2026 |
 |__[2.0.5](/docs/changelog/2.0.5)__| September 06, 2026 |
