@@ -45,11 +45,8 @@ Additional display settings include:
 
 - **Avatar Type:** Choose between Gravatar, Letter, or Icon for user avatars.
 - **Charts Mode for Resource Usage:** Select to show 1 chart, 2 charts, or no charts on the Resource Usage page.
-- **Minimum Password Strength:** A value between 1-100 setting the minimum password strength required for all password input fields in OpenPanel (account, FTP, Emails, Databases, etc).
-- **Check Passwords Against Weakpass.com:** When enabled, user passwords during account creation and reset are verified against Weakpass.com’s list of compromised passwords.
 - **Enable Password Reset:** Allow users to reset passwords via the login form (not recommended for security reasons).
 - **Display 2FA Widget:** Show a message on users' dashboards encouraging them to enable Two-Factor Authentication for enhanced security.
-- **Enforce 2FA:** On login redirects users to 2FA setup page and prevents them from accessing other pages until 2FA is configured.
 - **Display How-to Guides Widget:** Display helpful how-to articles on users’ dashboard pages.
 - **Display Link to Report Bugs:** Show a “Found a bug? Let us know” link at the bottom of all user pages for easy bug reporting.
 - **Display Country Flag Icons:** Show country flags next to the last login IP in the OpenPanel dashboard.
@@ -96,16 +93,21 @@ Settings for user's databases:
 - **Restricted MySQL (system) Users:** List of MySQL usernames that users are not allowed to access/manage.
 - **Restricted MySQL (system) Databases:** List of MySQL databases that users are not allowed to access/manage.
 
-## Captcha
+## Security
 
-Protect login and signup forms with a captcha provider:
+Captcha, 2FA, and password protections for login and signup forms:
 
 - **Captcha Provider:** Choose between Disabled, Google reCAPTCHA, Cloudflare Turnstile, or Custom.
 - Depending on the provider selected, enter the corresponding **site key** and **secret key** (or custom site key for the Custom provider).
 
 :::info
-This requires the [captcha plugin](https://github.com/stefanpejcic/captcha/) to be installed — these settings have no effect until it is installed.
+Captcha requires the [captcha plugin](https://github.com/stefanpejcic/captcha/) to be installed — these settings have no effect until it is installed.
 :::
+
+- **Minimum Password Strength:** A value between 1-100 setting the minimum password strength required for all password input fields in OpenPanel (account, FTP, Emails, Databases, etc).
+- **Check Passwords Against Weakpass.com:** When enabled, user passwords during account creation and reset are verified against Weakpass.com’s list of compromised passwords.
+- **Enforce 2FA:** On login redirects users to 2FA setup page and prevents them from accessing other pages until 2FA is configured.
+- **Validate IP Address on Session Cookie:** When enabled, a session cookie is rejected if the request's IP address doesn't match the IP it was issued to.
 
 ## Statistics
 
