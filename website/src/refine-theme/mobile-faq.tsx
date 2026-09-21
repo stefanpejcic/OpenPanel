@@ -118,6 +118,10 @@ const faq = [
         answer: "None. No data whatsoever is recorded by us - your server details and credentials are stored only on your own device. The app's code is publicly available on GitHub, so anyone can review it.",
     },
     {
+        question: "Can I back up my saved servers, or move them to another device?",
+        answer: "Yes - tap the backup icon on the server list to export your saved servers and their logins to a file, which you can keep as a backup or transfer to another device and import there to restore them.",
+    },
+    {
         question: "Is there an iOS version?",
         answer: "No. The app is Android-only, and there's no iOS version planned.",
     },
