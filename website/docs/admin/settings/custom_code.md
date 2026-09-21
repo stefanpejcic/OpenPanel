@@ -7,7 +7,11 @@ sidebar_position: 10
 The Custom Code section, accessible via OpenAdmin > Settings > Custom Code, allows you to inject and manage custom code that extends or modifies the behavior and appearance of the OpenPanel UI.
 
 :::info
-Custom CSS, Custom JS, Code in Header, Code in Footer, How-to Articles, and Custom Section below require an active **Enterprise** license (and a non-reseller account) to edit. The remaining options on this page (PageSpeed API Key, WordPress Plugins/Themes Sets, Forbidden Usernames, Restricted Domains, After Update, Before Startup) are available on all license types.
+Custom CSS, Custom JS, Code in Header, Code in Footer, and Custom Section below require an active **Enterprise** license (and a non-reseller account) to edit. The remaining options on this page (WordPress Plugins/Themes Sets, After Update, Before Startup) are available on all license types.
+:::
+
+:::info
+How-to Articles, PageSpeed API Key, Forbidden Usernames, and Restricted Domains moved to [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel).
 :::
 
 ## Custom CSS
@@ -29,24 +33,6 @@ Stored in `/etc/openpanel/openpanel/custom_code/in_header.html` file.
 Insert custom code directly into the footer section of all pages. This is commonly used for tracking scripts, analytics, or deferred JavaScript.
 
 Stored in `/etc/openpanel/openpanel/custom_code/in_footer.html` file.
-
-## How-to Articles
-Edit Knowledge Base articles displayed in *OpenPanel > Dashboard* page.
-
-Default:
-```json
-{
-    "how_to_topics": [
-        {"title": "How to install WordPress", "link": "https://openpanel.com/docs/panel/applications/wordpress#install-wordpress"},
-        {"title": "How to enable REDIS Caching", "link": "https://openpanel.com/docs/panel/caching/Redis/#connect-to-redis"},
-        {"title": "How to create DNS records", "link": "https://openpanel.com/docs/panel/domains/dns/#create-record"},
-        {"title": "How to create a new MySQL database", "link": "https://openpanel.com/docs/panel/databases/#create-a-mysql-database"},
-        {"title": "How to add a Cron Job", "link": "https://openpanel.com/docs/panel/advanced/cronjobs#add-a-cronjob"},
-        {"title": "How to add a custom SSL Certificate", "link": "https://openpanel.com/docs/panel/domains/ssl/#custom-ssl"}
-    ],
-    "knowledge_base_link": "https://openpanel.com/docs/panel/intro/?source=openpanel_server"
-}
-```
 
 ## Custom Section
 
@@ -146,11 +132,6 @@ Example:
 
 ```
 
-## PageSpeed API Key
-
-If set, this API key will be used to fetch data from Google PageSpeed Insights.
----
-
 ## WordPress Plugins Set
 
 List the WordPress plugins you want to automatically install on all new WordPress sites.
@@ -166,26 +147,6 @@ Enter one item per row. Supported formats:
 
 * **wp\_org\_slug** — the theme slug from the WordPress.org themes page
 * **URL** — a direct link to a `.zip` theme file hosted online
-
-## Forbidden Usernames
-
-List of usernames that can not be used.
-
-## Restricted Domains
-
-Administrators can restrict the usage of specific domains by adding one domain per line.
-
-Example:
-
-```bash
-facebook.com
-openpanel.com
-pejcic.rs
-openpanel.org
-demo.openpanel.org
-```
-
-Stored in `/etc/openpanel/openpanel/conf/domain_restriction.txt` file.
 
 ## After Update
 Define custom bash commands that will automatically run after each OpenPanel update. Ideal for restoring customizations or triggering automation scripts.

@@ -38,6 +38,8 @@ Settings for OpenPanel user accounts:
 
 - **Allow Users to Change Username:** If allowed, users can change their username from the *Account > Settings* page.
 - **Allow Subdomain Sharing:** If allowed, users can add subdomains for domains that another user owns.
+- **Forbidden Usernames:** List of usernames that can not be used, one per line.
+- **Restricted Domains:** List of domains that can not be used, one per line.
 
 ## Display
 
@@ -47,7 +49,7 @@ Additional display settings include:
 - **Charts Mode for Resource Usage:** Select to show 1 chart, 2 charts, or no charts on the Resource Usage page.
 - **Enable Password Reset:** Allow users to reset passwords via the login form (not recommended for security reasons).
 - **Display 2FA Widget:** Show a message on users' dashboards encouraging them to enable Two-Factor Authentication for enhanced security.
-- **Display How-to Guides Widget:** Display helpful how-to articles on users’ dashboard pages.
+- **Display How-to Guides Widget:** Display helpful how-to articles on users’ dashboard pages. When enabled, a **How-to Articles** field appears below to edit the Knowledge Base articles shown (requires an active Enterprise license and a non-reseller account to edit).
 - **Display Link to Report Bugs:** Show a “Found a bug? Let us know” link at the bottom of all user pages for easy bug reporting.
 - **Display Country Flag Icons:** Show country flags next to the last login IP in the OpenPanel dashboard.
 
@@ -124,3 +126,4 @@ Configure the following settings related to user login attempts, session managem
 - **Resource Usage Items to Log per User:** Number of resource usage entries recorded and stored per user for historical analysis.
 - **Domains per Page:** Number of domain entries displayed per page in domain management lists.
 - **Terminal Commands Timeout (in Seconds):** Maximum number of seconds a Docker Terminal command can run before being timed out.
+- **PageSpeed API Key:** If set, this API key is used to fetch data from Google PageSpeed Insights.
