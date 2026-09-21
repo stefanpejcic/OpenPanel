@@ -11,6 +11,10 @@ As a result, administrators have fewer tasks to manage, and users gain greater c
 
 ![backups.png](/img/panel/v2/backups.png)
 
+:::info Admin Configured mode
+If your administrator runs backups centrally for all users (**Admin Configured** mode, see [User Backups](/docs/admin/backups/user/)), the **Destinations** and **Settings** pages below aren't available to you - the destination and its credentials are managed by the administrator. You can still use **List Backups** and **Restore Logs** to browse and restore your own backups.
+:::
+
 ## Destinations
 
 OpenPanel supports the following destinations:

@@ -27,6 +27,12 @@
 </section>
 
 <!-- form -->
+{{if .AdminManaged}}
+<div class="mx-4 mt-8 rounded-lg bg-gray-50 p-4 dark:bg-gray-900">
+    <p class="font-medium leading-5 text-gray-900 dark:text-gray-50">{{.T.Get "Backups are managed by your administrator"}}</p>
+    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "The backup destination and settings for this account are configured by your administrator. You can still list and restore backups."}}</p>
+</div>
+{{else}}
 <ul id="backups-steps" role="list" class="px-4 mt-8 space-y-8">
     {{if .Target}}
     <li class="relative pb-8">
@@ -178,6 +184,7 @@
     {{end}}
 
 </ul>
+{{end}}
 <!-- END form -->
 
 

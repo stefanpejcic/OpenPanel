@@ -58,6 +58,10 @@ func handleBackupSettings(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	if AdminManagedBackups(userContext) {
+		respondBackupsAdminManaged(a, w, r)
+		return
+	}
 	path := envFilePath(userContext)
 
 	if r.Method == http.MethodPost {
@@ -229,6 +233,10 @@ func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	if AdminManagedBackups(userContext) {
+		respondBackupsAdminManaged(a, w, r)
+		return
+	}
 	path := envFilePath(userContext)
 
 	if r.Method == http.MethodPost {
@@ -333,6 +341,7 @@ func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	adminManaged := AdminManagedBackups(userContext)
 	path := envFilePath(userContext)
 
 	if _, statErr := os.Stat(path); statErr != nil {
@@ -356,6 +365,11 @@ func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("output") == "json" {
+		// admin-managed accounts don't get destination/settings details (which include stored credentials) here - just enough to know a backup target exists and whether the service is running
+		if adminManaged {
+			writeJSON(w, http.StatusOK, map[string]any{"admin_managed": true, "configured": target != "", "service_active": serviceActive})
+			return
+		}
 		var errMsg string
 		switch len(grouped.MatchedSections) {
 		case 0:
@@ -370,7 +384,7 @@ func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderBackupsPage(a, w, r, target, hasAnyCredentialMarker(values), serviceActive)
+	renderBackupsPage(a, w, r, target, hasAnyCredentialMarker(values), serviceActive, adminManaged)
 }
 
 // hasAnyCredentialMarker reports whether any well-known per-destination credential key has a value, used to decide whether the settings form should show as "configured"

@@ -9,7 +9,7 @@ sidebar_position: 2
 There are two mutually exclusive modes, controlled entirely by the schedule of the `opencli docker-backup` [System Cron Job](/docs/admin/advanced/crons/):
 
 - **User Configured** (default) — each user manages their own backup from their own account, when the Backups module is enabled for them. Nothing runs centrally; the cron entry is set to a disabled placeholder schedule.
-- **Admin Configured** — the Administrator runs backups for *every* user centrally, on one schedule, via `opencli docker-backup`.
+- **Admin Configured** — the Administrator runs backups for *every* user centrally, on one schedule, via `opencli docker-backup`. Users can no longer view or change their own backup destination or settings in the panel — they can still list existing backups and restore from them, but where and how backups are stored is entirely up to the Administrator.
 
 See the [Configuring OpenPanel Backups](/docs/articles/backups/configuring-backups/) article for the fuller comparison between the two approaches.
 
@@ -21,6 +21,16 @@ A single dropdown decides the mode:
 - **Daily** / **Weekly** / **Monthly** — admin configured, all running at 03:00 server time. Fine-tune the exact time afterward from [Scheduled Actions](/docs/admin/advanced/crons/).
 
 Saving updates the `opencli docker-backup` cron entry's schedule accordingly.
+
+Saving to Daily/Weekly/Monthly also drops an empty `admin.backups` marker file into `/etc/openpanel/skeleton/`, so every account created *from then on* is provisioned admin-configured (its Backups > Destinations and Backups > Settings pages are locked, per-account, from the moment it's created). Switching back to Disabled removes the marker from the skeleton, so accounts created afterward go back to fully user-configured.
+
+This only affects **new** accounts — it doesn't touch any account that already exists. To lock down an existing account's backup destination/settings after the fact, create an empty `admin.backups` file yourself in that account's own config directory:
+
+```bash
+touch /etc/openpanel/openpanel/core/users/<username>/admin.backups
+```
+
+Removing that file returns the account to user-configured (assuming the Backups module itself is still enabled for it).
 
 ### Configuration
 

@@ -33,15 +33,16 @@ type BackupsPageData struct {
 	Target         string
 	HasCredentials bool
 	ServiceActive  bool
+	AdminManaged   bool
 }
 
-func renderBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, target string, hasCredentials, serviceActive bool) {
+func renderBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, target string, hasCredentials, serviceActive, adminManaged bool) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Backups")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := BackupsPageData{LayoutData: layout, Target: target, HasCredentials: hasCredentials, ServiceActive: serviceActive}
+	data := BackupsPageData{LayoutData: layout, Target: target, HasCredentials: hasCredentials, ServiceActive: serviceActive, AdminManaged: adminManaged}
 	if err := backupsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("BACKUPS - backups template render error: %v", err)
 	}

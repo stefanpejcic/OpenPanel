@@ -8,29 +8,29 @@ Backups can be configured either by the system administrator (admin-configured) 
 
 ## Configuration Options
 
-| Feature                    | Admin-Configured Backups       | User-Configured Backups               |
-| -------------------------- | ------------------------------ | ------------------------------------- |
-| Backup configuration       | Admin edits `backups.env`      | Users configure via Backups page      |
-| Backup module status       | Must be disabled for users     | Must be enabled for users             |
-| Who sets backup schedule   | Admin                          | User                                  |
-| Backup destination control | Admin                          | User                                  |
-| Restore performed by       | Admin                          | User                                  |
-| Admin access to backups    | Full                           | None                                  |
+| Feature                    | Admin-Configured Backups                              | User-Configured Backups               |
+| -------------------------- | ------------------------------------------------------ | ------------------------------------- |
+| Backup configuration       | Admin edits `backup.env`                               | Users configure via Backups page      |
+| Backup module status       | Enabled - Destinations/Settings pages locked for users | Enabled, fully self-service           |
+| Who sets backup schedule   | Admin                                                   | User                                  |
+| Backup destination control | Admin                                                   | User                                  |
+| Who lists/restores backups | User (from their own panel)                             | User                                  |
+| Admin access to backups    | Full                                                    | None                                  |
 
 
 ### 1. Admin-Configured
 
-In this mode, the **admin has full control** over backup scheduling, retention, and destination settings. End users are **not allowed** to modify any backup configurations.
+In this mode, the **admin has full control** over backup scheduling, retention, and destination settings. End users can still browse and restore their own backups from the panel, but they **can't view or change** the destination or its credentials.
 
 ---
 
-#### 1: Disable Backups Module
-
-To prevent users from changing backup settings, disable the **Backups** module from the admin interface.
+#### 1: Set the Central Schedule
 
 **Path:**
-`OpenAdmin > Settings > Modules`
-**Action:** Deactivate the **Backups** module.
+`OpenAdmin > Backups > Users > Settings`
+**Action:** Set the schedule dropdown to **Daily**, **Weekly**, or **Monthly** and save.
+
+This does two things: it schedules `opencli docker-backup` to run centrally for every user, and it locks the Backups **Destinations** and **Settings** pages in the panel for accounts created from then on (via an `admin.backups` marker - see [User Backups](/docs/admin/backups/user/) for details, including how to apply it to an existing account). Their **List Backups** and **Restore Logs** pages stay available, so users can still restore from the backups the admin is taking.
 
 ---
 
@@ -117,8 +117,8 @@ In this mode, the **Backups module is enabled** to allow users to configure thei
 
 ### Restore in Admin-Configured Backup Mode
 
-* The admin performs restores manually, either via terminal commands or through the OpenPanel UI terminal.
-* Common restore steps include:
+* Users restore their own backups the same way as in User-Configured mode: **Backups > List Backups** in the panel, which stays available even though Destinations/Settings are locked - see [Restore & Download](/docs/panel/files/backups/#restore--download).
+* The admin can also restore on a user's behalf manually, either via terminal commands or through the OpenPanel UI terminal:
 
   * For databases: dropping the relevant tables and importing the database dump from backup files.
   * For files: using FileManager or command line to delete corrupted files and re-upload backup copies.
