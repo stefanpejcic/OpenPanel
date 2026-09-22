@@ -47,6 +47,18 @@ Updated load to 10
 
 ---
 
+## Pause Notifications
+
+Temporarily silence email and webhook alerts without changing any of the settings below — useful during planned maintenance so a batch of expected service restarts doesn't flood your inbox.
+
+The control lives on the **Notifications** page itself (next to the search box), not here — click the bell icon to pick a duration: 10 minutes, 30 minutes, 1 hour, 6 hours, or 1 day. While paused, the bell shows "Paused until \<time\>" and doubles as a button to resume immediately.
+
+Pausing only skips the email/webhook sends — notifications still get logged and show up on the Notifications page as usual, and the pause always expires on its own even if you never click resume.
+
+Under the hood this writes a timestamp to a flag file (`/tmp/openpanel_notifications_paused`) that `opencli sentinel` checks before sending any alert. See [`GET/POST /api/notifications/pause`](/docs/admin/settings/api) and [`POST /api/notifications/resume`](/docs/admin/settings/api) to control it via the API.
+
+---
+
 ## Email
 
 Configure email address to be used for receiving system notifications and alerts.

@@ -148,11 +148,11 @@ paths:
       - bearerAuth: []
   /api/login:
     post:
-      summary: Log in with username/password and obtain a one-time SSO token, redeemable once at GET
-        /login/sso/{token} (expires after 2 minutes) for a real browser session cookie and a redirect to
-        /dashboard. For integrations (e.g. a WHMCS "Login to Panel" button) that need to open an actual
-        admin session instead of just an API token - avoids posting credentials to the CSRF-protected
-        /login form, which an auto-submitting cross-origin form can't get past.
+      summary: Log in with username/password and obtain a one-time SSO token, redeemable once at GET /login/sso/{token}
+        (expires after 2 minutes) for a real browser session cookie and a redirect to /dashboard. For
+        integrations (e.g. a WHMCS "Login to Panel" button) that need to open an actual admin session
+        instead of just an API token - avoids posting credentials to the CSRF-protected /login form, which
+        an auto-submitting cross-origin form can't get past.
       description: '**Access:** No authentication (this is the login/health-check endpoint itself).'
       operationId: login
       tags:
@@ -3807,6 +3807,104 @@ paths:
         required: false
         schema:
           type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                example:
+                  success: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/notifications/pause:
+    get:
+      summary: Returns whether email/webhook notifications are currently paused and, if so, the unix timestamp
+        they resume at. Paused state is a flag file at /tmp/openpanel_notifications_paused that opencli
+        sentinel.sh checks before sending an alert, and cleans up itself once expired.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: get_notifications_pause
+      tags:
+      - Notifications
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paused:
+                    type: boolean
+                    example: true
+                  until:
+                    type: integer
+                    example: 1789999382
+                example:
+                  paused: true
+                  until: 1789999382
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    post:
+      summary: Pauses email/webhook notifications for the given duration; the notification log itself
+        keeps recording events as usual, only the email/webhook sends are skipped while paused.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: post_notifications_pause
+      tags:
+      - Notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                duration:
+                  type: string
+                  example: 10m
+              example:
+                duration: 10m
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  paused:
+                    type: boolean
+                    example: true
+                  until:
+                    type: integer
+                    example: 1789999382
+                example:
+                  success: true
+                  paused: true
+                  until: 1789999382
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/notifications/resume:
+    post:
+      summary: Resumes email/webhook notifications immediately by removing the pause flag file.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: notifications_resume
+      tags:
+      - Notifications
       responses:
         '200':
           description: Success.
