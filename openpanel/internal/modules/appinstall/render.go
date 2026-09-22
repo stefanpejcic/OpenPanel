@@ -28,6 +28,8 @@ func displayFor(kind Kind) kindDisplay {
 		return rubyDisplay
 	case Java.AppType:
 		return javaDisplay
+	case N8N.AppType:
+		return n8nDisplay
 	default:
 		return pythonDisplay
 	}

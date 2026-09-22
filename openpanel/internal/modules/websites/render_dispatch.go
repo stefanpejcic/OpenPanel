@@ -632,3 +632,57 @@ func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		log.Printf("WEBSITES - python_node_apps template render error: %v", err)
 	}
 }
+
+var n8nAppPage = loadPage("manager/n8n_app.html")
+
+// N8nAppPageData is manager/n8n_app.html's template context - a much smaller counterpart of PythonNodeAppsPageData since n8n has no startup file/package manager/git deploy concept (see appinstall.Kind.Simple).
+type N8nAppPageData struct {
+	pageData
+	Container      ContainerInfo
+	Service        string // container.container.split('_')[0] verbatim, the pm2/docker process id used throughout the page's JS
+	PM2Data        map[string]string
+	PM2Status      string // pm2_data.status stringified ("true"/"false"/"unknown")
+	CPU, RAM, PIDs string
+	CurrentVersion string
+	EnvVars        string // the service's current `environment:` list from docker-compose.yml, one "KEY=VALUE" per line, for the Env Vars tab's textarea
+}
+
+func renderN8nAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data N8nAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+
+	prefix := data.PM2Data["prefix"]
+	pm2val := func(key string) string {
+		return strings.Trim(data.PM2Data[prefix+key], `"`)
+	}
+
+	switch data.PM2Data["status"] {
+	case "true":
+		data.PM2Status = "true"
+	case "false":
+		data.PM2Status = "false"
+	default:
+		data.PM2Status = "unknown"
+	}
+	data.CPU = pm2val("CPU")
+	data.RAM = strings.TrimSuffix(strings.TrimSuffix(pm2val("RAM"), "g"), "G")
+	data.PIDs = pm2val("PIDS")
+	if data.PIDs == "" {
+		data.PIDs = "100"
+	}
+	data.CurrentVersion = pm2val("TAG")
+
+	if idx := strings.Index(data.Container.Container, "_"); idx != -1 {
+		data.Service = data.Container.Container[:idx]
+	} else {
+		data.Service = data.Container.Container
+	}
+
+	if err := n8nAppPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - n8n_app template render error: %v", err)
+	}
+}

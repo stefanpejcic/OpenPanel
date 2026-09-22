@@ -73,13 +73,13 @@ func BuildSidebarNav(allowed, upsellAllowed map[string]bool, path string) []NavG
 	if has("wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "website_builder", "nodejs", "python") {
 		var links []NavLink
 		links = add(links, "autoinstaller", "/auto-installer", "Auto Installer",
-			hasAnyPrefix(path, "/auto-installer", "/pm2", "/nodejs", "/python", "/website-builder/install",
+			hasAnyPrefix(path, "/auto-installer", "/pm2", "/nodejs", "/python", "/ruby", "/java", "/n8n", "/website-builder/install",
 				"/drupal/install", "/joomla/install", "/opencart/install", "/nextcloud/install",
 				"/prestashop/install", "/matomo/install", "/moodle/install", "/mediawiki/install"), "")
 		links = append(links, NavLink{Href: "/sites", Label: "Site Manager",
 			Active: hasAnyPrefix(path, "/sites") || (strings.HasPrefix(path, "/website") && !strings.HasPrefix(path, "/website-builder"))})
 		links = add(links, "wordpress", "/wordpress", "WordPress Manager", strings.HasPrefix(path, "/wordpress"), "")
-		open := hasAnyPrefix(path, "/auto-installer", "/sites", "/website", "/wordpress", "/drupal", "/joomla", "/opencart", "/nextcloud", "/prestashop", "/matomo", "/moodle", "/mediawiki", "/pm2", "/nodejs", "/python")
+		open := hasAnyPrefix(path, "/auto-installer", "/sites", "/website", "/wordpress", "/drupal", "/joomla", "/opencart", "/nextcloud", "/prestashop", "/matomo", "/moodle", "/mediawiki", "/pm2", "/nodejs", "/python", "/ruby", "/java", "/n8n")
 		groups = append(groups, NavGroup{"Websites", websitesIcon, "websites-menu", links, open, open})
 	}
 

@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var startupFileInput = document.querySelector("#startup_file");
 
+    if (startupFileInput) {
     startupFileInput.addEventListener('input', function() {
         var fileValue = this.value;
         var fileExtension = "." + fileValue.split('.').pop().toLowerCase();
@@ -61,8 +62,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("Error:", data);
             });
     });
+    }
 
     var gitUrlInput = document.querySelector("#git_repo_url");
+    if (gitUrlInput) {
     gitUrlInput.addEventListener('blur', function() {
         var url = this.value.trim();
         var resultDiv = document.querySelector("#git-detect-result");
@@ -97,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("Error:", data);
             });
     });
+    }
 });
 </script>
 
@@ -135,7 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </span>
                 </label>
                 <input type="number" name="port" id="port" min="1000" max="65535"
-                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    {{if eq .Kind.AppType "n8n"}}value="5678" readonly{{end}}
+                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700{{if eq .Kind.AppType "n8n"}} cursor-not-allowed opacity-75{{end}}">
             </div>
         </div>
 
@@ -149,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
   <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
 </svg>
-                    <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-lg bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">{{.T.Get "Select version of Python/NodeJS to use for this application."}}</div>
+                    <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-lg bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">{{.T.Get "Select version to use for this application."}}</div>
                 </span>
             </label>
             <select name="version" id="version"
@@ -290,6 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </script>
     </div>
 
+    {{if ne .Kind.AppType "n8n"}}
     <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4" x-data="{ showCustomCommand: false, showGitRepo: false }">
         <div class="flex items-center gap-2.5 mb-2">
             <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">3</div>
@@ -401,6 +407,58 @@ document.addEventListener('DOMContentLoaded', function() {
             </span>
         </div>
     </div>
+    {{else}}
+    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+        <div class="flex items-center gap-2.5 mb-2">
+            <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">3</div>
+            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Owner account"}}</span>
+        </div>
+        <p class="mb-3 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Creates n8n's first (owner) account automatically, so you land straight on the login screen instead of n8n's own setup wizard."}}</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="owner_first_name">{{.T.Get "First name"}}<span class="text-red-500">*</span></label>
+                <input type="text" name="owner_first_name" id="owner_first_name" required value="Admin"
+                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+            </div>
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="owner_last_name">{{.T.Get "Last name"}}<span class="text-red-500">*</span></label>
+                <input type="text" name="owner_last_name" id="owner_last_name" required value="User"
+                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="owner_email">{{.T.Get "Email"}}<span class="text-red-500">*</span></label>
+            <input type="email" name="owner_email" id="owner_email" required placeholder="admin@example.com"
+                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+        </div>
+
+        <div>
+            <label class="flex justify-between mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="owner_password">
+                <span>{{.T.Get "Password"}}<span class="text-red-500">*</span></span>
+                <span id="generateN8nPassword" class="cursor-pointer text-xs text-blue-600 hover:underline">{{.T.Get "Generate"}}</span>
+            </label>
+            <div class="relative">
+                <input type="text" name="owner_password" id="owner_password" required minlength="8" maxlength="64"
+                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 font-mono">
+            </div>
+            <p class="mt-1.5 text-xs text-gray-400 dark:text-gray-500">{{.T.Get "8-64 characters. You'll use this to log into n8n after install."}}</p>
+        </div>
+        <script>
+            function generateN8nPassword() {
+                const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*-_=+";
+                let pw = "";
+                const arr = new Uint32Array(16);
+                crypto.getRandomValues(arr);
+                for (let i = 0; i < 16; i++) pw += charset[arr[i] % charset.length];
+                document.getElementById("owner_password").value = pw;
+            }
+            document.getElementById("generateN8nPassword").addEventListener("click", generateN8nPassword);
+            generateN8nPassword();
+        </script>
+    </div>
+    {{end}}
 
     <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4" x-data="{ showAdvanced: false }">
         <div class="flex items-center justify-between mb-2">
@@ -590,7 +648,7 @@ const ICON_ERROR = `<svg class="size-5 shrink-0 text-red-500" viewBox="0 0 24 24
 const INSTALL_STEPS = [
   { id: 'step-preflight', triggers: ['Checking if existing installation', 'Validating provided data'] },
   { id: 'step-compose',   triggers: ['Generating docker-compose entry', 'Starting the actual install', "Added '", 'Service added successfully'] },
-  { id: 'step-container', triggers: ['Starting docker container', 'Checking if container started', 'is running successfully'] },
+  { id: 'step-container', triggers: ['Starting docker container', 'Checking if container started', 'is running successfully', 'n8n owner account'] },
   { id: 'step-proxy',     triggers: ['Detecting installed webserver', 'Editing Apache configuration', 'Editing Nginx configuration', 'Editing Litespeed configuration', 'Editing OpenResty configuration', 'Unknown webserver'] },
   { id: 'step-restart',   triggers: ['Restarting'] },
   { id: 'step-done',      triggers: ['Installation finished', 'application setup completed'] },

@@ -68,7 +68,7 @@ func editLswsConfig(userContext, domainURL, subdirectory, serviceName string, po
 }
 
 // editApacheConfig inserts a ProxyPass/ProxyPassReverse pair before every occurrence of a marker line (</VirtualHost>, or the DirectoryIndex line for a root install). Unlike editLswsConfig, failures are just logged and swallowed - the install flow continues regardless.
-func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, port int) {
+func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, port int, wsUpgrade bool) {
 	confPath := vhostConfPath(userContext, domainURL)
 	content, err := os.ReadFile(confPath)
 	if err != nil {
@@ -81,12 +81,17 @@ func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, 
 	if port != 0 {
 		target += ":" + strconv.Itoa(port)
 	}
+	// "upgrade=websocket" hands off any Upgrade-requested connection on this ProxyPass to mod_proxy_wstunnel automatically - needed by apps like n8n whose UI depends on a WebSocket connection back through the proxy (its real-time push channel), not needed by the plain HTTP API apps (nodejs/python/ruby/java) this function otherwise serves. Requires mod_proxy_wstunnel loaded in httpd.conf.
+	proxyPassSuffix := ""
+	if wsUpgrade {
+		proxyPassSuffix = " upgrade=websocket"
+	}
 	if subdirectory != "" {
 		marker = "</VirtualHost>"
-		configLines = "\tProxyPass /" + subdirectory + "/ " + target + "/\n\tProxyPassReverse /" + subdirectory + "/ " + target + "/"
+		configLines = "\tProxyPass /" + subdirectory + "/ " + target + "/" + proxyPassSuffix + "\n\tProxyPassReverse /" + subdirectory + "/ " + target + "/"
 	} else {
 		marker = "DirectoryIndex index.php index.html default_page.html"
-		configLines = "\tProxyPass / " + target + "/\n\tProxyPassReverse / " + target + "/"
+		configLines = "\tProxyPass / " + target + "/" + proxyPassSuffix + "\n\tProxyPassReverse / " + target + "/"
 	}
 
 	backupPath := confPath + ".bak"
@@ -127,7 +132,7 @@ func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, 
 }
 
 // editNginxConfig inserts a location/proxy_pass block into every "server {" block's "location / {" section. Like editApacheConfig, every failure path here just logs and reports nothing back.
-func editNginxConfig(userContext, domainURL, subdirectory, serviceName string, port int) {
+func editNginxConfig(userContext, domainURL, subdirectory, serviceName string, port int, wsUpgrade bool) {
 	confPath := vhostConfPath(userContext, domainURL)
 	content, err := os.ReadFile(confPath)
 	if err != nil {
@@ -145,6 +150,10 @@ func editNginxConfig(userContext, domainURL, subdirectory, serviceName string, p
 		return
 	}
 	proxyHeaders := string(proxyHeadersRaw)
+	// no LoadModule needed for nginx (unlike Apache's mod_proxy_wstunnel) - ngx_http_proxy_module handles the Upgrade handshake natively once these headers are forwarded and HTTP/1.1 is used towards the upstream. Needed by apps like n8n whose UI depends on a WebSocket connection back through the proxy (its real-time push channel).
+	if wsUpgrade {
+		proxyHeaders += "\n            proxy_http_version 1.1;\n            proxy_set_header Upgrade $http_upgrade;\n            proxy_set_header Connection \"upgrade\";"
+	}
 
 	proxyURL := "http://" + serviceName
 	if port != 0 {

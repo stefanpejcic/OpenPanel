@@ -146,7 +146,8 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	switch action {
 	case "stop":
-		argv := podmanmanager.PodmanComposeArgv("down", siteName)
+		// -f composeFile is required - podman-compose has no default search path here (the openpanel process's cwd is "/", not the user's home), so without it this silently no-ops against a nonexistent /docker-compose.yml instead of touching the user's actual stack. Pre-existing bug found via manual testing: this affected Start/Stop for every app type (nodejs/python/ruby/java), not just n8n - "restart" a few lines down already passed -f correctly, which is what exposed the inconsistency.
+		argv := podmanmanager.PodmanComposeArgv("-f", composeFile, "down", siteName)
 		if runErr := podmanmanager.Command(ctx, userContext, argv).Run(); runErr != nil {
 			flashAndRedirectApp(a, w, r, "error", "Failed to stop container '"+siteName+"': "+runErr.Error(), "/website?domain="+nameForManager)
 			return
@@ -156,7 +157,7 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 
 	case "start":
-		argv := podmanmanager.PodmanComposeArgv("up", "-d", siteName)
+		argv := podmanmanager.PodmanComposeArgv("-f", composeFile, "up", "-d", siteName)
 		if runErr := podmanmanager.Command(ctx, userContext, argv).Run(); runErr != nil {
 			flashAndRedirectApp(a, w, r, "error", "Failed to start container '"+siteName+"': "+runErr.Error(), "/website?domain="+nameForManager)
 			return
@@ -342,12 +343,93 @@ func applyPM2Settings(a *appctx.App, ctx context.Context, userContext, container
 	return nil
 }
 
+// validatePM2SettingsSimple is the reduced Update-tab validation for Simple kinds (currently only n8n) - no startup file, custom command, workdir, or git URL to check.
+func validatePM2SettingsSimple(s pm2Settings) []string {
+	var errs []string
+	if !isValidVersion(s.Version) {
+		errs = append(errs, "Invalid version format (check tags from hub.docker.com)")
+	}
+	if !isPositiveNumber(s.CPU) {
+		errs = append(errs, "CPU core limit provided is not a positive integer.")
+	}
+	if !isPositiveNumber(s.RAM) {
+		errs = append(errs, "Memory limit provided is not a positive integer.")
+	}
+	if !docker.IsValidPIDsLimit(s.PIDs) {
+		errs = append(errs, "PIDs limit must be a positive whole number.")
+	}
+	return errs
+}
+
+// applyPM2SettingsSimple is applyPM2Settings' counterpart for Simple kinds - it deliberately never touches the compose service's `command:` field (unlike applyPM2Settings, which always rewrites it from kind's install/run tokens), since a Simple kind's compose template has no such placeholder and overwriting it would break the container's own entrypoint.
+func applyPM2SettingsSimple(a *appctx.App, ctx context.Context, userContext, containerName string, kind Kind, s pm2Settings) error {
+	prefix := strings.ToUpper(containerName) + "_" + kind.PyOrNode + "_"
+	envFile := "/home/" + userContext + "/.env"
+	if !fileExists(envFile) {
+		return errors.New("environment file not found")
+	}
+
+	ramValue := s.RAM
+	if !strings.HasSuffix(strings.ToUpper(ramValue), "G") {
+		ramValue += "G"
+	}
+
+	docker.SetEnvValue(userContext, prefix+"TAG", s.Version)
+	if _, execErr := a.DB.ExecContext(ctx, "UPDATE sites SET version = ? WHERE container = ?", s.Version, containerName); execErr != nil {
+		return execErr
+	}
+	docker.SetEnvValue(userContext, prefix+"CPU", s.CPU)
+	docker.SetEnvValue(userContext, prefix+"RAM", ramValue)
+	docker.SetEnvValue(userContext, prefix+"PIDS", s.PIDs)
+
+	composeData, loadErr := docker.LoadCompose(userContext)
+	if loadErr == nil {
+		if services, ok := composeData["services"].(map[string]any); ok {
+			if svc, svcOK := services[containerName].(map[string]any); svcOK {
+				if deploy, ok := svc["deploy"].(map[string]any); ok {
+					if resources, ok := deploy["resources"].(map[string]any); ok {
+						if limits, ok := resources["limits"].(map[string]any); ok {
+							limits["pids"] = "${" + prefix + "PIDS:-100}"
+						}
+					}
+				}
+				_ = docker.SaveCompose(userContext, composeData)
+			}
+		}
+	}
+	return nil
+}
+
 func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, containerName string, kind Kind, nameForManager string) {
 	_ = r.ParseForm()
 	redirectPath := "/website?domain=" + nameForManager
 
 	siteNameUp := strings.ToUpper(containerName)
 	envFile := "/home/" + userContext + "/.env"
+
+	if kind.Simple {
+		settings := pm2Settings{
+			Version: strings.TrimSpace(r.FormValue("version")),
+			CPU:     strings.TrimSpace(r.FormValue("cpu")),
+			RAM:     strings.TrimSpace(r.FormValue("ram")),
+			PIDs:    strings.TrimSpace(r.FormValue("pids")),
+		}
+		if errs := validatePM2SettingsSimple(settings); len(errs) > 0 {
+			flashAndRedirectApp(a, w, r, "error", "Error saving: "+errs[0], redirectPath)
+			return
+		}
+		if !fileExists(envFile) {
+			flashAndRedirectApp(a, w, r, "error", "Environment file not found.", redirectPath)
+			return
+		}
+		if applyErr := applyPM2SettingsSimple(a, r.Context(), userContext, containerName, kind, settings); applyErr != nil {
+			flashAndRedirectApp(a, w, r, "error", "Error saving: "+applyErr.Error(), redirectPath)
+			return
+		}
+		flashAndRedirectApp(a, w, r, "success", "Changes saved, make sure to restart the application for changes to take effect.", redirectPath)
+		_ = logger.RecordUserAction(a.Config, currentUsername, "edited container for application "+siteNameUp, reqip.ClientIP(r))
+		return
+	}
 
 	settings := pm2Settings{
 		Version:      strings.TrimSpace(r.FormValue("version")),
@@ -416,7 +498,8 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	switch {
 	case webServerType == "apache", webServerType == "openresty", webServerType == "nginx",
 		webServerType == "openlitespeed", strings.Contains(strings.ToLower(webServerType), "litespeed"):
-		revertWebserverConfig(userContext, subdirectory, webServerType, selectedDomain, serviceName)
+		// lowercased - editApacheConfig/editNginxConfig/editLswsConfig wrote the proxy block using the lowercase install-time service name, but `serviceName` here is sites.container, which is always stored uppercase (see install.go's serviceNameUp), so passing it through as-is never matched and left the proxy block orphaned on every delete, for every app type, not just n8n
+		revertWebserverConfig(userContext, subdirectory, webServerType, selectedDomain, strings.ToLower(serviceName))
 		restartArgv := podmanmanager.PodmanArgv(userContext, "restart", webServerType)
 		_ = podmanmanager.Command(ctx, userContext, restartArgv).Run()
 	default:
@@ -430,7 +513,17 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if services, ok := composeData["services"].(map[string]any); ok {
 			if _, exists := services[serviceKey]; exists {
 				delete(services, serviceKey)
+				if kind.DataVolume {
+					if volumes, ok := composeData["volumes"].(map[string]any); ok {
+						delete(volumes, serviceKey+"_data")
+					}
+				}
 				_ = docker.SaveCompose(userContext, composeData)
+				if kind.DataVolume {
+					// podman-compose prefixes every named volume it creates with the compose project name (== userContext here, e.g. "testinguser_myn8n_data") - the bare "{service}_data" name used in the compose file's volumes: section doesn't exist as an actual podman volume
+					rmVolArgv := podmanmanager.PodmanArgv(userContext, "volume", "rm", "-f", userContext+"_"+serviceKey+"_data")
+					_ = podmanmanager.Command(ctx, userContext, rmVolArgv).Run()
+				}
 				flashSess(a, w, r, "success", "Application '"+siteName+"' removed successfully")
 			} else {
 				flashSess(a, w, r, "warning", "Service '"+serviceKey+"' not found in compose file")

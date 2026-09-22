@@ -19,6 +19,13 @@ type Kind struct {
 	InstallToken       string // e.g. "npm install", "pip install -r requirements.txt", "bundle install"
 	RunToken           string // e.g. "node", "python", "ruby"
 	DefaultStartupFile string // e.g. "index.js", "app.py", "app.rb"
+
+	// Simple marks a Kind with no startup-file/package-manager/git-deploy concept at all (currently only n8n) - it runs its own fixed entrypoint. install.go skips buildAppRunCommand's command substitution for it (the vendored template has no nested-command placeholder to replace), and pm2.go's Update tab uses the reduced validatePM2SettingsSimple/applyPM2SettingsSimple path instead of rewriting the compose service's command.
+	Simple bool
+	// DataVolume marks a Kind that needs its own dedicated named volume (currently only n8n, for its ~/.n8n data dir) instead of sharing the account's html_data volume - install.go declares "{service}_data" under the compose file's top-level volumes: section, and pm2.go's delete flow removes it again.
+	DataVolume bool
+	// NeedsWebSocket marks a Kind whose app depends on a WebSocket connection back through the reverse proxy (currently only n8n, for its real-time editor push channel) - editApacheConfig/editNginxConfig add the extra upgrade directives this needs. Plain HTTP API apps (nodejs/python/ruby/java) don't need this.
+	NeedsWebSocket bool
 }
 
 // kindsByAppType resolves a sites.type value (lowercase) to its Kind, replacing what used to be a repeated switch statement at every PM2 call site
@@ -27,6 +34,7 @@ var kindsByAppType = map[string]Kind{
 	Python.AppType: Python,
 	Ruby.AppType:   Ruby,
 	Java.AppType:   Java,
+	N8N.AppType:    N8N,
 }
 
 // kindByAppType looks up a Kind by its lowercase sites.type value.

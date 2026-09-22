@@ -16,7 +16,7 @@ import (
 // technologies is every site type counted for the autoinstaller hub - only some have a card in the template, the rest are counted but never displayed
 var technologies = []string{
 	"wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "sitebuilder", "node", "python", "php",
-	"java", "ruby", "bun", "mautic", "flarum", "fossbilling", "tinyphotogallery", "tinyfilemanager", "ojs",
+	"java", "ruby", "bun", "mautic", "flarum", "fossbilling", "tinyphotogallery", "tinyfilemanager", "ojs", "n8n",
 }
 
 // getAutoinstallerData returns every domain the user owns, plus a per-technology count of sites whose type contains that technology's name (case-insensitively)

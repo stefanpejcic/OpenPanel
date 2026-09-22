@@ -38,6 +38,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mongodb"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/moodle"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/n8n"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/nextcloud"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/nodejs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/ojs"
@@ -278,6 +279,7 @@ var configured = map[string]Registrar{
 	"nodejs":            func(mux *http.ServeMux, a *appctx.App) { nodejs.Register(mux, a); nodejs.RegisterAPI(mux, a) },
 	"ruby":              func(mux *http.ServeMux, a *appctx.App) { ruby.Register(mux, a); ruby.RegisterAPI(mux, a) },
 	"java":              func(mux *http.ServeMux, a *appctx.App) { java.Register(mux, a); java.RegisterAPI(mux, a) },
+	"n8n":               func(mux *http.ServeMux, a *appctx.App) { n8n.Register(mux, a); n8n.RegisterAPI(mux, a) },
 	"autoinstaller": func(mux *http.ServeMux, a *appctx.App) {
 		autoinstaller.Register(mux, a)
 		autoinstaller.RegisterAPI(mux, a)

@@ -193,6 +193,15 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			Domains:   domains,
 		})
 
+	case "n8n":
+		pm2Data := getPM2ForApplication(a, r, userContext, container.Container, "N8N")
+		renderN8nAppPage(a, w, r, N8nAppPageData{
+			pageData:  basePageData,
+			Container: container,
+			PM2Data:   pm2Data,
+			EnvVars:   getCurrentEnvVars(userContext, container.Container),
+		})
+
 	case "php":
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		settings := getPHPAppSettings(userContext, websiteParam)

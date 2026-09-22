@@ -36,18 +36,21 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 // HandleDockerTags proxies endoflife.date's release feed for the "version" dropdown on the nodejs/python install forms (cached 24h). For ruby it queries Docker Hub's own tag list directly instead, reshaped into the same [{"latest": "X.Y.Z"}, ...] shape so the frontend doesn't need a ruby-specific branch.
 func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	appType := r.PathValue("type")
-	if appType != "nodejs" && appType != "python" && appType != "ruby" && appType != "java" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid type. Use 'nodejs', 'python', 'ruby', or 'java'."})
+	if appType != "nodejs" && appType != "python" && appType != "ruby" && appType != "java" && appType != "n8n" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid type. Use 'nodejs', 'python', 'ruby', 'java', or 'n8n'."})
 		return
 	}
 
 	ctx := r.Context()
 
-	// ruby and java both come straight from Docker Hub's tag list. Java has no plain "X.Y.Z" tags at all (eclipse-temurin only ships suffixed tags like "21-jdk-jammy"), so it gets its own cache key and filter, reshaped into the same [{"latest": "X"}, ...] shape - no java-specific branch needed in the frontend.
-	if appType == "ruby" || appType == "java" {
+	// ruby, java, and n8n all come straight from Docker Hub's tag list. Java has no plain "X.Y.Z" tags at all (eclipse-temurin only ships suffixed tags like "21-jdk-jammy"), so it gets its own cache key and filter, reshaped into the same [{"latest": "X"}, ...] shape - no java-specific branch needed in the frontend.
+	if appType == "ruby" || appType == "java" || appType == "n8n" {
 		cacheKey, fetch := "docker_tags_for_ruby", fetchRubyDockerHubVersions
-		if appType == "java" {
+		switch appType {
+		case "java":
 			cacheKey, fetch = "docker_tags_for_java", fetchJavaDockerHubVersions
+		case "n8n":
+			cacheKey, fetch = "docker_tags_for_n8n", fetchN8NDockerHubVersions
 		}
 		versions, err := cache.Memoize(ctx, a.Cache, cacheKey, 24*time.Hour, func() ([]string, error) {
 			return fetch(ctx)
@@ -191,6 +194,54 @@ func fetchJavaDockerHubVersions(ctx context.Context) ([]string, error) {
 
 	sort.Slice(versions, func(i, j int) bool {
 		return compareJavaVersions(versions[i], versions[j]) > 0
+	})
+	return versions, nil
+}
+
+var n8nCleanTagRE = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
+
+// fetchN8NDockerHubVersions queries Docker Hub's registry API for the official n8nio/n8n image's tags, keeping only plain "X.Y.Z" ones, same approach as fetchRubyDockerHubVersions (n8n's Docker Hub org is "n8nio", not "library", since it's not an official Docker Library image).
+func fetchN8NDockerHubVersions(ctx context.Context) ([]string, error) {
+	client := &http.Client{Timeout: 8 * time.Second}
+	seen := make(map[string]bool)
+	var versions []string
+
+	url := "https://hub.docker.com/v2/repositories/n8nio/n8n/tags?page_size=100"
+	for page := 0; page < 25 && url != ""; page++ {
+		req, reqErr := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if reqErr != nil {
+			return nil, reqErr
+		}
+		resp, getErr := client.Do(req)
+		if getErr != nil {
+			return nil, getErr
+		}
+		var payload struct {
+			Next    string `json:"next"`
+			Results []struct {
+				Name string `json:"name"`
+			} `json:"results"`
+		}
+		decodeErr := json.NewDecoder(resp.Body).Decode(&payload)
+		resp.Body.Close()
+		if decodeErr != nil {
+			return nil, decodeErr
+		}
+		for _, r := range payload.Results {
+			if n8nCleanTagRE.MatchString(r.Name) && !seen[r.Name] {
+				seen[r.Name] = true
+				versions = append(versions, r.Name)
+			}
+		}
+		url = payload.Next
+	}
+	if len(versions) == 0 {
+		return nil, errors.New("no n8n versions found on Docker Hub")
+	}
+
+	// compareRubyVersions is a plain "X.Y.Z" numeric comparator with no ruby-specific logic, safe to reuse here despite the name
+	sort.Slice(versions, func(i, j int) bool {
+		return compareRubyVersions(versions[i], versions[j]) > 0
 	})
 	return versions, nil
 }

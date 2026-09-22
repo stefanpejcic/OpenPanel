@@ -236,6 +236,7 @@
                             {{else if contains $group.Type "python"}}Python Containers
                             {{else if contains $group.Type "ruby"}}Ruby Applications
                             {{else if contains $group.Type "java"}}Java Applications
+                            {{else if contains $group.Type "n8n"}}n8n
                             {{else if contains $group.Type "mautic"}}Mautic
                             {{else if contains $group.Type "fossbilling"}}FOSSBilling
                             {{else if eq $group.Type "php"}}PHP Applications
@@ -365,6 +366,10 @@ c6.183-2.355,12.954,0.883,15.31,7.066c7.066,19.138,10.6,39.453,10.6,60.063C653.7
 <a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 14c.83 .642 2.077 1.017 3.5 1c1.423 .017 2.67 -.358 3.5 -1c.83 -.642 2.077 -1.017 3.5 -1c1.423 -.017 2.67 .358 3.5 1" /><path d="M8 3a2.4 2.4 0 0 0 -1 2a2.4 2.4 0 0 0 1 2" /><path d="M12 3a2.4 2.4 0 0 0 -1 2a2.4 2.4 0 0 0 1 2" /><path d="M3 10h14v5a6 6 0 0 1 -6 6h-2a6 6 0 0 1 -6 -6v-5z" /><path d="M16.746 16.726a3 3 0 1 0 -.732 -5.696" /></svg>
 </a>
+                            {{else if contains $typeLower "n8n"}}
+<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="5" r="2" /><circle cx="5" cy="19" r="2" /><circle cx="19" cy="19" r="2" /><path d="M12 7v3.5a3.5 3.5 0 0 1 -3.5 3.5h-1.5M12 10.5a3.5 3.5 0 0 0 3.5 3.5h1.5" /><path d="M5 17v-1.5M19 17v-1.5" /></svg>
+</a>
                             {{else if eq $typeLower "websitebuilder"}}
 <a href="/website-builder/edit?domain={{$site.SiteName}}" title="{{$.T.Get "Open Website Builder"}}" target="_blank">
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-brush-fill" viewBox="0 0 16 16">
@@ -406,9 +411,10 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
                             {{/* tinyphotogallery/tinyfilemanager support Backup/Delete but not Clone (no source_domain/source_folder concept to clone from) - kept separate from $isCMS so $hasClone below doesn't pick them up too. */}}
                             {{$hasBackupOnly := or (eq $typeLower "tinyphotogallery") (eq $typeLower "tinyfilemanager")}}
                             {{$hasAutologin := or (eq $typeLower "wordpress") (eq $typeLower "joomla") (eq $typeLower "opencart") (eq $typeLower "nextcloud") (eq $typeLower "prestashop") (eq $typeLower "drupal") (eq $typeLower "matomo") (eq $typeLower "mediawiki") (eq $typeLower "ojs")}}
+                            {{$isN8N := eq $typeLower "n8n"}}
                             {{$hasClone := or $isCMS $isPM2}}
                             {{$hasBackup := or $isCMS $isPM2 $hasBackupOnly}}
-                            {{$hasDelete := or $isCMS $isPM2 $hasBackupOnly}}
+                            {{$hasDelete := or $isCMS $isPM2 $hasBackupOnly $isN8N}}
                             <div class="flex items-center justify-end gap-1.5">
                                 {{if $hasAutologin}}
                                 <button type="button" class="autologin-btn inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white"
