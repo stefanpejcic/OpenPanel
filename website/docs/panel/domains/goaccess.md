@@ -10,6 +10,6 @@ The **GoAccess** feature is available in your OpenPanel dashboard only if the **
 
 Each domain has its own individual report. To view the report for a specific domain, simply choose it from the dropdown menu on the GoAccess page. You'll be taken directly to that domain's analytics report; use your browser's back button to return to OpenPanel.
 
-![goaccess-bright](/img/docs-content/gh-08daa724-c726-4633-9be6-0063e7cd051d.png)
+![GoAccess report for a domain with request totals, unique visitors and a chart of daily visitors](/img/openpanel-screenshots/domains/goaccess-report.png)
 
 Reports are generated daily by default, but this frequency can be customized by the server administrator. You can check the last refresh time in the top-right corner of the report page.

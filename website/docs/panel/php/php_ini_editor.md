@@ -10,7 +10,7 @@ The PHP.INI Editor allows you to view and modify the configuration file for each
 
 You can increase limits, enable new defaults, or adjust settings as needed. Changes will restart the corresponding PHP service.
 
-![openpanel_php_ini_editor](/img/panel/v2/openpanel_php_ini_editor.gif)
+![PHP 8.5 INI Editor showing the php.ini file with the Save Changes button](/img/openpanel-screenshots/php/php_ini_editor-editor.png)
 
 ---
 

@@ -2,7 +2,7 @@
 sidebar_position: 13
 ---
 
-# SofaWiki Manager
+# SofaWiki
 
 Install and manage [SofaWiki](https://github.com/bellenuit/sofawiki) sites in an existing domain — considerably simpler than the WordPress Manager: no database at all, no admin account created by OpenPanel, no CLI installer to drive, no dedicated SofaWiki Manager sidebar page, no scanning for existing installs, no hardening rules, no maintenance mode, no admin auto-login, and no cache to clear. Install, a read-only overview, cloning, a files-only backup system, and uninstall.
 
@@ -11,6 +11,8 @@ Install and manage [SofaWiki](https://github.com/bellenuit/sofawiki) sites in an
 ## Install SofaWiki
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install SofaWiki**.
+
+![Install SofaWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/sofawiki-form.png)
 
 On the install page, configure:
 

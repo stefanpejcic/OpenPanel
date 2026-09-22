@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # WordPress Manager
 
-![wp_manager_grid.png](/img/panel/v2/wpmanager.png)
+![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list.png)
 
 The WordPress Manager is your all-in-one tool inside OpenPanel for installing and managing WordPress websites — without ever needing to log in to wp-admin. It makes handling multiple sites fast, simple, and efficient.
 
@@ -32,7 +32,7 @@ Installing WordPress is quick and automatic. OpenPanel takes care of everything 
 2. Open **Site Manager** from the sidebar and click **+ New Website**.
 3. Choose I**nstall WordPress**.
 
-![new_site_popup.png](/img/panel/v2/wpinstall.png)
+![Auto Installer page with cards for WordPress, Joomla, Drupal, Website Builder, PrestaShop, OpenCart and other applications](/img/openpanel-screenshots/applications/autoinstaller-page.png)
 
 Then fill in the form:
 
@@ -46,7 +46,7 @@ Then fill in the form:
 
 Click **Start Installation** and you’re done.
 
-![wp_install.png](/img/panel/v2/wpinstall2.png)
+![Install WordPress form with site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/wp_install-form.png)
 
 📘 Read the full guide: [How to Install WordPress® With OpenPanel](/docs/articles/websites/how-to-install-wordpress-with-openpanel/#install-wordpress-via-wp-manager)
 
@@ -55,12 +55,16 @@ Click **Start Installation** and you’re done.
 If you already have WordPress installed manually, you can import it into the WP Manager.
 The system scans your hosting files for `wp-config.php` and automatically adds the found websites.
 
+![Scan for Existing Installations button next to New Installation on the WordPress Manager page](/img/openpanel-screenshots/applications/wp_manager-scan.png)
+
 📘 Read the full guide: [How to Migrate a WordPress® Installation to OpenPanel](/docs/articles/websites/how-to-upload-wordpress-website-to-openpanel/)
 
 ### Themes and Plugins Sets
 
 Tired of installing the same setup every time?
 Create **Theme Set** and **Plugin Set** that automatically apply to new WordPress installs.
+
+![Themes and Plugins buttons for managing the sets that are installed on every new WordPress site](/img/openpanel-screenshots/applications/wp_manager-sets.png)
 
 For example, you might set up a default combo like:
 
@@ -76,23 +80,27 @@ Every time you install a new site — boom, it’s ready with your preferred set
 
 If you’ve made manual changes to your site (like updating WordPress core or changing the admin email), click **Refresh Data** to sync everything with WP Manager.
 
+![Refresh Data button on the WordPress Manager page](/img/openpanel-screenshots/applications/wp_manager-refresh.png)
+
 ### Grid vs. Table View
 
 You can view your sites in a **grid with screenshots** or a **simple table** view.
 Switch views anytime using a button.
 
+![Switch to Table view button on the WordPress Manager page](/img/openpanel-screenshots/applications/wp_manager-view.png)
+
 ---
 
 ## Site Manager
 
-![wp_manager_site.png](/img/panel/v2/wpmanage.png)
+![WordPress site manager with the screenshot, versions, files and database details](/img/openpanel-screenshots/applications/wordpress-site.png)
 
 
 ### Auto Login to wp-admin
 
 Use **Login as Admin** for one-click secure access to your WordPress dashboard — no password needed.
 
-![wp_manager_autologin](/img/panel/v2/wpautolog.png)
+![Site header with the Live Preview and Login as Admin buttons](/img/openpanel-screenshots/applications/wordpress-header.png)
 
 ### Temporary Link
 
@@ -101,7 +109,6 @@ Temporary links last 15 minutes.
 
 Click **Live Preview** to generate one:
 
-![website_temporary_url_openpanel.gif](/img/panel/v2/wppreview.png)
 
 ### Screenshot
 
@@ -115,7 +122,7 @@ Need it sooner? Click the refresh icon over the screenshot.
 * **MySQL/MariaDB Version** – Displays whether the site uses MySQL or MariaDB, along with the version number obtained directly from the terminal.
 * **Created** – Indicates the date and time when the website was first added to WP Manager.
 
-![general](/img/panel/v2/general.png)
+![WordPress, PHP and MariaDB version cards and the creation date](/img/openpanel-screenshots/applications/wordpress-versions.png)
 
 ### Speed
 
@@ -123,27 +130,31 @@ Website performance is monitored daily using **Google PageSpeed Insights**. For 
 
 You can also [add your own PageSpeed Insights API key](/docs/articles/websites/google-pagespeed-insights-api-key/#adding-the-api-key-in-openpanel) to customize the data collection.
 
-![speed](/img/panel/v2/speed.png)
+![Speed card with desktop and mobile PageSpeed scores and First Contentful Paint, Speed Index and Time to Interactive](/img/openpanel-screenshots/applications/wordpress-speed.png)
 
 ### Safe Browsing
 
 Checks your domain against the **Google Safe Browsing** API for malware, social engineering, unwanted software, and other flagged threats. Results are cached for 12 hours.
 
+![Google Safe Browsing section of the Security tab with the result of the check against the Google Safe Browsing list](/img/openpanel-screenshots/applications/wordpress-safe-browsing.png)
+
 ### Vulnerability Scan
 
 Scans the site's WordPress core, plugin, and theme versions for known vulnerabilities. A fresh scan runs automatically if no cached report exists yet, or can be triggered manually.
+
+![WP Vulnerabilities section of the Security tab with the number of detected vulnerabilities, the last check time and the Scan for vulnerabilities button](/img/openpanel-screenshots/applications/wordpress-vulnerabilities.png)
 
 ### Cache
 
 Cache widget displays the current [wp cache type](https://developer.wordpress.org/cli/commands/cache/type/) on your website and an option to purge the cache.
 
-![wp_cache](/img/panel/v2/wp_cache.png)
+![Cache card with the cache type and the Clear Cache button](/img/openpanel-screenshots/applications/wordpress-cache.png)
 
 ### Firewall
 
 If CorazaWAF is enabled on the server, and your account has access to the WAF feature, you will see a *Firewall* widget displaying current status for the domain, an option to change it and number of denied/challenged requests in the last hour.
 
-![wp_waf](/img/panel/v2/wp_waf.png)
+![Firewall card showing the firewall as active with denied and challenged request counts](/img/openpanel-screenshots/applications/wordpress-firewall.png)
 
 
 ### Overview
@@ -152,7 +163,7 @@ Under *Overview* tab you can view:
 - Files: Folder path and Folder Size
 - Database: Size, Host, Name, Table Prefix, User, Password and link to open phpMyAdmin
 
-![overview](/img/panel/v2/overview.png)
+![Files and Database cards of the Overview tab with the folder path and size, disk usage, and the database name, user, host, size and phpMyAdmin link](/img/openpanel-screenshots/applications/wordpress-files-database.png)
 
 ### Options
 
@@ -169,14 +180,14 @@ Available options:
 - Enable SEO Visibility
 - Enable Pingbacks
 
-![options](/img/panel/v2/options.png)
+![Options tab with the site URL, site name, email, registration, SEO visibility and pingback settings](/img/openpanel-screenshots/applications/wordpress-options.png)
 
 ### Maintenance mode
 
 Enable or disable maintenance mode directly from WP Manager.
 You can even edit the maintenance.php file right from the panel.
 
-![wp_manager_maintenance](/img/panel/v2/wpmaint.png)
+![Maintenance tab with the maintenance mode toggle](/img/openpanel-screenshots/applications/wordpress-maintenance.png)
 
 ### Security
 
@@ -187,14 +198,14 @@ From here, you can:
 - Check core file integrity
 - Reinstall WordPress core if needed
 
-![wp_manager_security.png](/img/panel/v2/wpsec.png)
+![Security tab with vulnerability report, Safe Browsing, salts, integrity check, malware scan and reinstall](/img/openpanel-screenshots/applications/wordpress-security.png)
 
 ### Updates
 
 Control how WordPress handles updates for the core, plugins, and themes.
 By default, only minor core updates are auto-enabled.
 
-![wp_manager_site_edit_2.png](/img/panel/v2/wpupdate.png)
+![Updates tab listing core, plugin and theme update status](/img/openpanel-screenshots/applications/wordpress-updates.png)
 
 If a newer WordPress core version is available, you will see 'Click to update WordPress core' button which when clicked will perform WordPress update to the newest version available.
 
@@ -205,7 +216,7 @@ Toggle WordPress’s built-in debugging tools (WP_DEBUG, WP_DEBUG_LOG, etc.) dir
 These are great for testing or development sites — not recommended for production.
 For details, check [Debugging in WordPress](https://wordpress.org/documentation/article/debugging-in-wordpress/) for more information on these options.
 
-![wp_manager_site_edit_3.png](/img/panel/v2/wpdebug.png)
+![Debugging tab with toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES](/img/openpanel-screenshots/applications/wordpress-debugging.png)
 
 ### Backups
 
@@ -215,7 +226,7 @@ Create a Backup:
 - Choose what to back up (files, database, or both).
 - Click **Generate Backup**.
 
-![wp_manager_site_backup_1.png](/img/panel/v2/wpbackup.png)
+![Backups tab with the Create a Backup and Restore from Backups sections](/img/openpanel-screenshots/applications/wordpress-backups.png)
 
 Restore a Backup:
 To restore, click Restore, pick a backup date, and confirm.
@@ -228,7 +239,7 @@ Create a clone:
 - Under 'Target' select the desired domain and optionally 'Database' to be used.
 - Click **Clone Website**.
 
-![wp_manager_site_clone.png](/img/panel/v2/wp_clone.png)
+![Clone tab with the destination location and database for the copy](/img/openpanel-screenshots/applications/wordpress-clone.png)
 
 ### Remove
 
@@ -236,8 +247,7 @@ Want to stop managing a site in WP Manager (without deleting it)?
 
 Use **Detach** — your files and database remain untouched.
 
-![detach](/img/panel/v2/detach.png)
 
 To completely remove a website — files, database, and all — click **Uninstall**, then confirm.
 
-![uninstall](/img/panel/v2/uninstall.png)
+![Remove tab with the Detach and Uninstall options](/img/openpanel-screenshots/applications/wordpress-remove.png)

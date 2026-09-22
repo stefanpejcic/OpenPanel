@@ -2,7 +2,7 @@
 sidebar_position: 15
 ---
 
-# Nextcloud Manager
+# Nextcloud
 
 Install and manage [Nextcloud](https://nextcloud.com/) sites in an existing domain, via Nextcloud's own `occ maintenance:install` CLI installer — deliberately simpler than the WordPress Manager: no dedicated Nextcloud Manager sidebar page, no cloning, no filesystem scan for existing installs, no hardening rules, and no dedicated backup system. Install, a read-only overview with live status, cache clearing, one-time admin login, error logs, and uninstall.
 
@@ -11,6 +11,8 @@ Install and manage [Nextcloud](https://nextcloud.com/) sites in an existing doma
 ## Install Nextcloud
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install Nextcloud**.
+
+![Install Nextcloud form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/nextcloud-form.png)
 
 On the install page, configure:
 

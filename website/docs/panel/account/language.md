@@ -6,7 +6,7 @@ sidebar_position: 2
 
 You can customize your experience by selecting your preferred language.  
 
-![openpanel chaneg language](/img/panel/v2/openpanel_change_language.gif)
+![Change Language page with the language dropdown showing the current locale](/img/openpanel-screenshots/account/language-page.png)
 
 ## Changing Your Language  
 1. Navigate to **Account > Change Language**.

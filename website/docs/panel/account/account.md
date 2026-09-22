@@ -9,7 +9,7 @@ OpenPanel offers a unique feature that allows you to change your username, unlik
 Username changes must be enabled by the Administrator (`permit_username_change_by_user`, disabled by default). If the username field is not shown on this page, ask your hosting provider to enable it.
 :::
 
-![account.png](/img/panel/v2/account.png)
+![Email & Password page with the email address, new password and confirm password fields](/img/openpanel-screenshots/account/account-form.png)
 
 On this page, you can:  
 - Change your login password and username.  

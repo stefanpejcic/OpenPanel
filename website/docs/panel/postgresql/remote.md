@@ -4,6 +4,8 @@ sidebar_position: 10
 
 # Remote PostgreSQL
 
+![Remote PostgreSQL Access page showing remote access as Disabled with the Enable Remote PostgreSQL Access button](/img/openpanel-screenshots/postgresql/remote-page.png)
+
 Remote PostgreSQL access gives you the ability to connect to a PostgreSQL database on this server from another (remote) device or location over the internet.
 
 Allowing remote PostgreSQL access opens your database to connections from the entire internet, which may pose a security risk. Please consider the following:
@@ -27,6 +29,8 @@ Once enabled, the page will show two sets of connection details:
 
 - **Remote** - the server IP and port to use when connecting **from a remote server** over the internet.
 - **Local** - the internal hostname (`postgres`) and default port (`5432`) to use when connecting **from a local server** inside the same account.
+
+![Remote and Local PostgreSQL connection details with the server address and port for each](/img/openpanel-screenshots/postgresql/remote-connection.png)
 
 :::info
 The remote port is unique to your PostgreSQL instance. Avoid using the standard port `5432` for remote access, as it will not function.
@@ -80,3 +84,5 @@ pg_close($conn);
 ## Disable remote PostgreSQL access
 
 If you wish to disable access, simply click on the "Disable Remote PostgreSQL Access" button, and it will immediately deactivate remote access in your PostgreSQL configuration. Please be aware that this action will also necessitate a PostgreSQL service restart to apply the new setting.
+
+![Remote access Status row showing Disabled with the Click to Enable button](/img/openpanel-screenshots/postgresql/remote-status.png)

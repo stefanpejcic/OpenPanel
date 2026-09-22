@@ -18,6 +18,8 @@ The wizard opens automatically on your first login, before you've added a domain
 
 The wizard only asks about what's actually available on your plan — each step below only appears if the matching feature is enabled for your account. Nothing here can be revisited from the wizard once you move past it, but every setting it touches can also be changed later from its regular page in the sidebar.
 
+![Onboarding wizard on its first step, choosing the webserver: Apache, Nginx, OpenLiteSpeed or OpenResty](/img/openpanel-screenshots/dashboard/onboarding-wizard.png)
+
 | Step | Shown when... | What you can do |
 | --- | --- | --- |
 | **Webserver** | You're allowed to change your webserver container | Choose Apache, Nginx, OpenLiteSpeed, or OpenResty as the webserver for new domains. |

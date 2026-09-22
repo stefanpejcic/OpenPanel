@@ -6,6 +6,8 @@ sidebar_position: 3
 
 The **Download from URL** feature allows you to fetch files directly from the internet into your selected directory.
 
+![Download from URL page with the URL field and the Download button](/img/openpanel-screenshots/files/wget-form.png)
+
 To use:
 
 1. Navigate to the desired directory.

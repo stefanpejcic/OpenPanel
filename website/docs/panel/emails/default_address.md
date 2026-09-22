@@ -15,6 +15,8 @@ When a catch-all is configured, mail sent to `anything@yourdomain.com` that does
 3. Enter the **Destination address**: any valid email address, local or external.
 4. Click **Save**.
 
+![Default Email Address page with the current catch-all configuration and the destination address field](/img/openpanel-screenshots/emails/default-form.png)
+
 ## Removing a Catch-all
 
 If a catch-all is already set, a **Remove Catch-all** button appears in the danger zone. Clicking it deletes the rule and unmatched emails for that domain will be rejected.

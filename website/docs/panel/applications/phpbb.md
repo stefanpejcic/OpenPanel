@@ -2,7 +2,7 @@
 sidebar_position: 9
 ---
 
-# phpBB Manager
+# phpBB
 
 Install and manage [phpBB](https://www.phpbb.com/) forums in an existing domain, via phpBB's own dedicated CLI installer — deliberately simpler than the WordPress Manager: no dedicated phpBB Manager sidebar page, no scanning the filesystem for existing installs, no hardening rules, and no one-click self-update. Install, a read-only overview with live status, cloning, a full backup/restore system, and uninstall — updates are pointed at phpBB's own Admin Control Panel rather than automated.
 
@@ -11,6 +11,8 @@ Install and manage [phpBB](https://www.phpbb.com/) forums in an existing domain,
 ## Install phpBB
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install phpBB**.
+
+![Install phpBB form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/phpbb-form.png)
 
 On the install page, configure:
 

@@ -17,6 +17,8 @@ Navigate to **OpenPanel > MySQL > Create Database**:
 3. **Click 'Create Database'**  
    Once the name is entered or generated, click the **Create Database** button to initialize your new MySQL database.
 
+![Create Database form with the database name field and the Create Database button](/img/openpanel-screenshots/mysql/new_db-form.png)
+
 ---
 
 ## Best Practices

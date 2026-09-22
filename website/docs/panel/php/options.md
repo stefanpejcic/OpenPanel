@@ -6,7 +6,7 @@ sidebar_position: 3
 
 The PHP Options page allows you to modify PHP settings stored in the `php.ini` file.
 
-![php options page](/img/panel/v2/php_options.png)
+![PHP 8.5 Options page with editable values such as memory_limit, max_execution_time and upload limits](/img/openpanel-screenshots/php/options-page.png)
 
 For more advanced users, the [**PHP.INI Editor**](/docs/panel/php/php_ini_editor/) can be used - if available.
 

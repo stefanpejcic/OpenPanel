@@ -10,6 +10,8 @@ Passkeys are a modern, phishing-resistant alternative to passwords. Instead of t
 
 To add a passkey to your account, click the 'Add a passkey' button.
 
+![Passkeys page with the Add a passkey button and the list of registered passkeys](/img/openpanel-screenshots/account/passkeys-page.png)
+
 Your browser will prompt you to authenticate using your device's built-in method — such as Touch ID, Face ID, Windows Hello, or a hardware security key. Once confirmed, the passkey is registered to your account.
 
 ## Using a Passkey to Log In

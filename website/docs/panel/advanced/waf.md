@@ -6,32 +6,30 @@ sidebar_position: 9
 
 The Web Application Firewall (WAF) interface allows OpenPanel users to toggle Coraza WAF on or off for each domain individually.
 
-![waf.png](/img/panel/v2/waf.png)
+![WAF page listing domains with a toggle to enable the firewall and Manage Rules and View Logs buttons](/img/openpanel-screenshots/advanced/waf-list.png)
 
 ## Manage domain
 
 Clicking the **Manage Rules** button next to a domain opens the rule management page where you can disable individual rules for that domain.
 
-![waf.png](/img/panel/v2/waf_rules.png)
+![WAF settings for a domain with the status toggle and fields for disabled rule IDs and tags](/img/openpanel-screenshots/advanced/waf_domain-page.png)
 
 Rules can be disabled by ID, in the **Disabled IDs** field (`SecRuleRemoveById`):
 
-![waf.png](/img/panel/v2/waf_rulesID.png)
+![Disabled IDs field of the WAF settings with rule IDs 942100 and 920350](/img/openpanel-screenshots/advanced/waf_domain-ids.png)
 
 Or by tag name, in the **Disabled Tags** field (`SecRuleRemoveByTag`):
 
-![waf.png](/img/panel/v2/waf_rulesTag.png)
+![Disabled Tags field of the WAF settings with the attack-sqli tag](/img/openpanel-screenshots/advanced/waf_domain-tags.png)
 
 The OWASP Core Rule Set is enabled by default for all newly added domains.
-
-![waf.png](/img/panel/v2/waf_logs.png)
 
 
 ## WAF Logs
 
 WAF logs can be viewed by clicking the **View Logs** button for domain.
 
-![waf.png](/img/panel/v2/waf_logs.png)
+![WAF Logs page with the dropdown to choose the domain whose firewall log to view](/img/openpanel-screenshots/advanced/waf_logs-page.png)
 
 ### Reading the Logs
 

@@ -1,0 +1,12 @@
+{
+  "name": "panel-screenshots",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "login": "node login.mjs",
+    "shoot": "node shoot.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.63.0"
+  }
+}

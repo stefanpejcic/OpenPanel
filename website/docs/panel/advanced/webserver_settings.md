@@ -6,6 +6,8 @@ sidebar_position: 3
 
 The **WebServer Settings** interface enables OpenPanel users to edit the primary webserver configuration file directly using a text editor.
 
+![Web server configuration editor with the Restore Default and Save Changes buttons](/img/openpanel-screenshots/advanced/webserver_settings-editor.png)
+
 These settings are **global** and apply to **all domains** (i.e., affect the virtual hosts configuration).
 
 > ⚠️ **Important:** Always create a backup of the configuration file before making any changes.

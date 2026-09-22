@@ -34,6 +34,8 @@ Dynamic DNS lets you point a subdomain (e.g. `home.yourdomain.com`) to a device 
 
 4. Click **Create**. Your entry will appear in the table with its update URL.
 
+![Add Entry form for a new Dynamic DNS record with the domain, subdomain and initial IP fields](/img/openpanel-screenshots/domains/dynamic-dns_create-form.png)
+
 ## Updating Your IP
 
 Make a plain HTTP GET request to your update URL:
@@ -60,6 +62,8 @@ Example response:
 ```
 
 ## Managing Entries
+
+![Dynamic DNS page listing entries with their subdomain, record type, IP, TTL and update URL](/img/openpanel-screenshots/domains/dynamic-dns-list.png)
 
 From the Dynamic DNS page you can:
 

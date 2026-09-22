@@ -6,6 +6,8 @@ sidebar_position: 10
 
 The MySQL Configuration page lets you edit low-level `my.cnf` settings for your database service, without needing terminal access.
 
+![MySQL Configuration page with a table of settings, editable values and the Save Changes button](/img/openpanel-screenshots/mysql/configuration-page.png)
+
 ## How to Change Configuration
 
 1. Open **OpenPanel** and navigate to **MySQL > Configuration**.

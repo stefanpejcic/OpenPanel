@@ -2,7 +2,7 @@
 sidebar_position: 22
 ---
 
-# Python Applications
+# Python
 
 Containerized [Python](https://python.org/) applications can be created and managed in **OpenPanel Enterprise Edition**.
 
@@ -12,7 +12,7 @@ Containerized [Python](https://python.org/) applications can be created and mana
 
 To create a new Python application, navigate to **OpenPanel > AutoInstaller** and click **Setup Python Application**.
 
-![screenshot](/img/docs-content/HmZh5ZMJ-new-tab.png)
+![Auto Installer page with cards for WordPress, Joomla, Drupal, Website Builder, PrestaShop, OpenCart and other applications](/img/openpanel-screenshots/applications/autoinstaller-page.png)
 
 On the next page, you can configure the following settings:
 
@@ -27,7 +27,7 @@ On the next page, you can configure the following settings:
 * **CPU Cores** – Number of CPU cores allocated to the application.
 * **Memory** – Amount of memory (in GB) allocated to the application.
 
-![screenshot](/img/docs-content/x0PBW9qB-new-app.png)
+![Install Python Application form with the application details, domain, startup file and advanced options](/img/openpanel-screenshots/applications/python_install-form.png)
 
 After completing the form, click **Start Installation**.
 The installation process will be displayed below the form. Once complete, you’ll be redirected to the management page where you can view all your applications.
@@ -37,7 +37,6 @@ The installation process will be displayed below the form. Once complete, you’
 An example Python (Flask) application that is running on http://python.openpanel.org/
 
 Example settings:
-![example](/img/docs-content/D2Z3DNdW-example-python-settings.png)
 
 Example `app.py` file:
 
@@ -66,11 +65,11 @@ Flask==2.3.3
 
 Once your application is created, you can manage it from **OpenPanel > Site Manager**.
 
-![screenshot](/img/docs-content/vYbbVP6T-manage-apps.png)
+![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list.png)
 
 Click **Manage** next to the application name to open its management page.
 
-![screenshot](/img/docs-content/bzMFXdpg-single-app.png)
+![Python application page with its status, runtime version, CPU and memory limits, and Stop and Restart actions](/img/openpanel-screenshots/applications/python-site.png)
 
 On this page, you can view important details such as:
 

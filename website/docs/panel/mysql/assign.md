@@ -22,3 +22,5 @@ To assign an existing user to a database, navigate to **OpenPanel > MySQL > Assi
 
 4. **Click 'Make Changes'**  
    After selecting the user, database, and privileges, click the **Make Changes** button. The selected privileges replace any privileges the user previously had on that database.
+
+![Assign User to Database form with user and database dropdowns and a grid of privilege checkboxes](/img/openpanel-screenshots/mysql/assign-form.png)

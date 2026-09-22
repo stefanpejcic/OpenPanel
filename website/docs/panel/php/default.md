@@ -7,6 +7,8 @@ sidebar_position: 2
 Configure the default PHP version for new domains.
 
 
-![change default](/img/panel/v2/openpanel_cahnge_default_php_version.gif)
+![Default PHP version page with the version dropdown and the current default version](/img/openpanel-screenshots/php/default-form.png)
 
-NOTE: If you are using OpenLitespeed or Litespeed as webserver, only PHP 8.5, 8.4, 8.3, or 8.2 can be set as the default version, and changing it restarts the Litespeed service for all domains.
+:::info
+If you are using OpenLitespeed or Litespeed as webserver, only PHP 8.5, 8.4, 8.3, or 8.2 can be set as the default version, and changing it restarts the Litespeed service for all domains.
+:::

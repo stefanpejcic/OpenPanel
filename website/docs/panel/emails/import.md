@@ -11,6 +11,8 @@ The **Address Importer** page allows you to create multiple email accounts at on
 1. Navigate to **OpenPanel > Emails > Address Importer**.
 2. Select the `.xls`, `.xlsx` or `.csv` file from your device and click **Upload**.
 
+![Import Emails form with the file picker for a CSV, XLSX or XLS file and the Upload button](/img/openpanel-screenshots/emails/import-form.png)
+
 ### File Format Requirements
 
 * Supported delimiters: `,` (comma) or `;` (semicolon)

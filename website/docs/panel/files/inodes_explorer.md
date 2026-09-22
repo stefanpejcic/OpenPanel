@@ -10,6 +10,8 @@ Inode usage is a critical aspect of managing your hosting environment. Inodes ar
 
 The Inode Usage Chart provides a visual representation of inode usage across directories. It enables you to identify areas with high inode consumption and take action as needed.
 
+![Inodes Explorer page with a table of inode counts per folder and a bar chart](/img/openpanel-screenshots/files/inodes-page.png)
+
 ## Browsing Inodes
 
 The "Browse Directories" section presents a table listing inodes, their associated files and directories, and their inode counts. This table allows you to navigate through inodes and assess their usage.

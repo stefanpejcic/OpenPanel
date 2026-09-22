@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-# Joomla Manager
+# Joomla
 
 Install and manage [Joomla](https://www.joomla.org/) sites in an existing domain, via Joomla's own CLI installer — deliberately simpler than the WordPress Manager: no dedicated Joomla Manager sidebar page, no cloning, no filesystem scan for existing installs, no hardening rules, and no dedicated backup system. Install, a read-only overview with live status, cache clearing, one-time admin login, error logs, and uninstall.
 
@@ -11,6 +11,8 @@ Install and manage [Joomla](https://www.joomla.org/) sites in an existing domain
 ## Install Joomla
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install Joomla**.
+
+![Install Joomla form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/joomla-form.png)
 
 On the install page, configure:
 

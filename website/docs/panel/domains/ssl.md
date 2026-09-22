@@ -18,7 +18,7 @@ To use your own SSL certificate:
 
 Once configured, your custom certificate details will appear on the same page, and the SSL status will change to **Custom SSL**.
 
-![screenshot of domain with custom ssl](/img/panel/v2/openpanel_customssl.png)
+![Configure custom SSL form with fields for the certificate and the private key](/img/openpanel-screenshots/domains/ssl-custom.png)
 
 
 ## AutoSSL
@@ -35,7 +35,7 @@ To switch **from a custom certificate back to AutoSSL**:
 
 This switches the domain back to AutoSSL and immediately attempts to generate the certificate. Once issued, it will be displayed on the same page.
 
-![screenshot of domain with autossl](/img/panel/v2/openpanel_autossl.png)
+![SSL Status row showing Auto SSL with the Generate now button](/img/openpanel-screenshots/domains/ssl-status.png)
 
 
 ### Requirements
@@ -54,4 +54,4 @@ If:
 
 Then the SSL section will show **“No Certificate!”**
 
-![screenshot of domain with autossl but no ssl yet](/img/panel/v2/openpanel_autossl_no_ssl.png)
+![SSL page for a domain with the AutoSSL status, the Generate now button, and the certificate details and files](/img/openpanel-screenshots/domains/ssl-page.png)

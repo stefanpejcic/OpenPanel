@@ -2,7 +2,7 @@
 sidebar_position: 2.5
 ---
 
-# Site Manager
+# Sites
 
 The **Site Manager** (`/sites`) lists every website on your account in one place — static sites, WordPress installs, Node.js/Python/Ruby/Java applications, and sites created via other installers (Drupal, Joomla, OpenCart, etc.) — grouped by type.
 
@@ -25,18 +25,25 @@ Each row shows:
   - **Backups** – Jumps to the site's backup tab.
   - **Delete** – Removes the site.
 
+![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list.png)
+
 Use the **Table/Grid** toggle and column sort headers (Type, Site Name, Created, Version) to organize the list.
 
 ## Scanning for Existing Installations
 
 If an application was installed manually (outside Site Manager), click **Scan** to detect it. The scan looks for installation files across every supported application type on disk, repairs the database host in the detected config if it still points to `localhost` instead of the actual database container, verifies the database connection, and imports any installation it finds as a new Site Manager entry.
 
+![Scan button in Site Manager and the confirmation box that explains the scan, with Start Scan and Cancel buttons](/img/openpanel-screenshots/applications/sites-scan.png)
+
 ## Bulk Actions
 
 Select multiple sites using the checkboxes to:
 
 - **Update** – Update the selected sites to the latest available version (where supported).
+- **Backup** – Create a backup of each selected site.
 - **Detach** – Remove the sites from Site Manager only. Files and databases are left untouched.
 - **Delete** – Permanently remove the selected sites, including their files and databases.
 
 Each bulk action asks for confirmation before running.
+
+![Site Manager with one site selected and the bulk action bar with Update, Backup, Detach and Delete buttons](/img/openpanel-screenshots/applications/sites-bulk.png)

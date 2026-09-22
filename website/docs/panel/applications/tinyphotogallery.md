@@ -2,7 +2,7 @@
 sidebar_position: 16
 ---
 
-# TinyPhotoGallery Manager
+# TinyPhotoGallery
 
 Install and manage [TinyPhotoGallery](https://github.com/stefanpejcic/tinyphotogallery) in an existing domain — the simplest of OpenPanel's app managers. TinyPhotoGallery is a single PHP file plus an empty `photos/` folder: no database, no admin account, no CLI installer, no versioning, and no update mechanism upstream. There is no dedicated TinyPhotoGallery Manager sidebar page, no cloning, no scanning for existing installs, no hardening rules, no maintenance mode, no admin auto-login, and no cache to clear.
 
@@ -11,6 +11,8 @@ Install and manage [TinyPhotoGallery](https://github.com/stefanpejcic/tinyphotog
 ## Install TinyPhotoGallery
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install TinyPhotoGallery**.
+
+![Install TinyPhotoGallery form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyphotogallery-form.png)
 
 On the install page, configure:
 

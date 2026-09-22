@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # Remote MySQL
 
-![databases_remote_mysql.png](/img/panel/v2/databases_remotedis.png)
+![Remote Access page showing remote access as Disabled with the Enable Remote Database Access button](/img/openpanel-screenshots/mysql/remote-page.png)
 
 Remote MySQL access gives you the ability to connect to a MySQL database on this server from an another (remote) device or location over the internet.
 
@@ -30,7 +30,7 @@ Once enabled, the page shows two sets of connection details:
 - **Remote** - the server IP and port to use when connecting **from a remote server** over the internet.
 - **Local** - the internal hostname and default port (`3306`) to use when connecting **from a local server** inside the same account.
 
-![databases_remote_mysql_enabled.png](/img/panel/v2/databases_remoten.png)
+![Remote and Local connection details with the server address and port for each](/img/openpanel-screenshots/mysql/remote-connection.png)
 
 :::info
 The remote port is unique to your MySQL instance. Avoid using the standard port `3306` for remote access, as it will not function.
@@ -116,4 +116,4 @@ System usernames (e.g. `root`, `mysql`, `phpmyadmin`) cannot be added, edited, o
 
 If you wish to disable access, simply click on the "Disable Remote Database Access" button, and it will immediately deactivate remote access in your MySQL configuration. Please be aware that this action will also necessitate a MySQL service restart to apply the new setting.
 
-![databases_remote_mysql_disabled.png](/img/panel/v2/databases_remotedis.png)
+![Remote access Status row showing Disabled with the Click to Enable button](/img/openpanel-screenshots/mysql/remote-status.png)

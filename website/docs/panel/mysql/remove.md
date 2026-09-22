@@ -19,3 +19,5 @@ To remove user access from a database, navigate to **OpenPanel > MySQL > Remove 
 3. **Click 'Remove User from Database'**  
    After selecting both the user and the database, click the **Remove User from Database** button.  
    The user will immediately lose **all privileges** on the selected database.
+
+![Remove User from Database form with user and database dropdowns](/img/openpanel-screenshots/mysql/remove-form.png)

@@ -17,4 +17,6 @@ To import tables into a database, navigate to **PostgreSQL > Import**:
 3. **Upload**
    Click the **Upload & Import** button and wait for the import process to complete.
 
+![Import into PostgreSQL Database form with a database dropdown and a file picker](/img/openpanel-screenshots/postgresql/import-form.png)
+
 If your SQL file is very large, we recommend using the **Containers > Terminal** interface instead for more reliable import handling.

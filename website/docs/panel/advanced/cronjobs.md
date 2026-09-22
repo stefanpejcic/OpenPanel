@@ -6,7 +6,7 @@ sidebar_position: 1
 
 A cron job is a Linux command used to schedule tasks for future execution. It allows you to automate repetitive tasks, such as sending notifications or running scripts at specific intervals.
 
-![cronjobs.png](/img/panel/v2/cronjobsmain.png)
+![Cron Jobs page listing scheduled jobs with their schedule, container, command and comment](/img/openpanel-screenshots/advanced/cronjobs-list.png)
 
 On the CronJobs page you can view currently scheduled tasks, create new, edit or delete them.
 
@@ -15,11 +15,11 @@ On the CronJobs page you can view currently scheduled tasks, create new, edit or
 
 To create a new cronjob click on the 'Create New' button and in the new form set the script to be executed, choose a container to execute the script and the desired schedule.
 
-![cronjobs_new.png](/img/panel/v2/cronjobs.png)
+![Create Cron Job form with the container, schedule, common schedules, command and comment fields](/img/openpanel-screenshots/advanced/cronjobs_new-form.png)
 
 The first field allows you to choose the container which is going to be running the script.
 
-![cronjobs_container.png](/img/panel/v2/cronjobs_container.png)
+![Select Container dropdown of the Create Cron Job form](/img/openpanel-screenshots/advanced/cronjobs_new-container.png)
 
 The second field allows you to set a predefined (common) schedule:
 
@@ -33,7 +33,7 @@ The second field allows you to set a predefined (common) schedule:
 - Monthly
 - Yearly
 
-![cronjobs_new_predefined.png](/img/panel/v2/cronjobs_common.png)
+![Common schedules dropdown set to Hourly, which fills in @hourly as the schedule](/img/openpanel-screenshots/advanced/cronjobs_new-common.png)
 
 you can also set a standard cron expression representing set of times, using **6** space-separated fields:
 
@@ -56,7 +56,7 @@ For more information, check [CRON_Expression_Format](https://pkg.go.dev/github.c
 
 To edit an existing cronjob, click on the 'Edit' button next to it. This action will allow you to edit that specific cron job.
 
-![cronjobs_edit.gif](/img/panel/v2/cron_edit_v2.gif)
+![A cron job row in edit mode with editable schedule, container, command and comment fields](/img/openpanel-screenshots/advanced/cronjobs-edit.png)
 
 To modify the schedule for when the script is executed you can use a tool such as https://crontab.guru/.
 
@@ -66,11 +66,13 @@ When you're done click on the 'Save' button to update the crontab file with your
 
 To delete a cronjob, click on the 'Delete' button next to it. The button then switches to a 'Confirm' state with a 5 second countdown - click it again within that window to actually remove the job. If you don't click again, it reverts back to 'Delete' and nothing is removed.
 
-![cronjobs_delete.gif](/img/panel/v2/cron_delete.gif)
+![Delete button of a cron job turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/advanced/cronjobs-delete.png)
 
 ## Run Now
 
 To test a cron job without waiting for its schedule, click the 'Run' button next to it. This opens a modal that executes the job's command inside its configured container right away and streams the output live as it runs, followed by the exit code once it finishes.
+
+![Run now dialog of a cron job showing the command output and Finished successfully](/img/openpanel-screenshots/advanced/cronjobs-run.png)
 
 This is useful for quickly checking that a job is configured correctly before relying on its schedule. Closing the modal disconnects the stream and stops the command if it's still running.
 
@@ -120,4 +122,4 @@ You can also set `no-overlap` for a cronjob, to avoid running the job multiple t
 Cronjobs can be bulk-edited through a file, making it easy to edit multiple jobs at once or transfer them between servers.
 Simply click the *“Switch to File Editor”* button to open the editor.
 
-![file editor](/img/docs-content/zXx0LDMm-slika.png)
+![Cron jobs File Editor showing the jobs in crons.ini format](/img/openpanel-screenshots/advanced/cronjobs_editor-editor.png)

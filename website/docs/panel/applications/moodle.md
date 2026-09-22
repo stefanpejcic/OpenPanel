@@ -2,7 +2,7 @@
 sidebar_position: 18
 ---
 
-# Moodle Manager
+# Moodle
 
 Install and manage [Moodle](https://moodle.org/) — an open-source learning management system (LMS) — in an existing domain, via Moodle's own CLI installer. Install, a read-only overview with live status, cache clearing, error logs, maintenance mode, a dedicated backup/restore system, cloning, self-update, and uninstall.
 
@@ -11,6 +11,8 @@ Install and manage [Moodle](https://moodle.org/) — an open-source learning man
 ## Install Moodle
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install Moodle**.
+
+![Install Moodle form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/moodle-form.png)
 
 On the install page, configure:
 

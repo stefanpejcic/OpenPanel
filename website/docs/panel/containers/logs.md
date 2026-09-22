@@ -20,6 +20,8 @@ To access this feature:
 3. Select the service you want to view logs for.
 4. The log output for the selected container will appear below.
 
+![Container Logs page showing the last lines of the mariadb container log](/img/openpanel-screenshots/containers/logs-page.png)
+
 You can optionally adjust the number of log lines shown using the dropdown menu in the top-right corner of the logs panel.
 
 > 💡 Logs are fetched using `docker logs` and show the real-time output of the container’s stdout and stderr streams.

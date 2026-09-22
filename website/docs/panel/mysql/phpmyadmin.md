@@ -10,6 +10,8 @@ phpMyAdmin is an advanced MySQL database management tool and is recommended only
 
 To access phpMyAdmin, go to **MySQL > phpMyAdmin** in the sidebar, or from the **Databases** page click on the phpMyAdmin icon next to the database name (this opens phpMyAdmin directly on that database).
 
+![phpMyAdmin button with its tooltip in the actions of a database row](/img/openpanel-screenshots/mysql/phpmyadmin-button.png)
+
 
 :::danger
 Editing or manipulating tables directly in phpMyAdmin can break your site if done incorrectly. If you are unsure, consult a developer before making changes.

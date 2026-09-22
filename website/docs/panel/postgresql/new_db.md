@@ -17,6 +17,8 @@ Navigate to **PostgreSQL > Create Database**:
 3. **Click 'Create Database'**
    Once the name is entered or generated, click the **Create Database** button to initialize your new PostgreSQL database.
 
+![Create PostgreSQL Database form with the database name field](/img/openpanel-screenshots/postgresql/new_db-form.png)
+
 ---
 
 ## Best Practices

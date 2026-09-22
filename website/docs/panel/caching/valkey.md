@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Valkey
 
-![Valkey_disabled.png](/img/panel/v2/redismain.png)
+![Valkey page with the service status, TCP server and port](/img/openpanel-screenshots/caching/valkey-page.png)
 
 Valkey is a high-performance, open-source in-memory key–value store designed as a community-driven fork of Redis for fast caching and data structure operations.
 
@@ -16,15 +16,13 @@ You have the option to enable or disable the Valkey service container as necessa
 
 Enabling the Valkey service container will initiate the Valkey container service on the default port, which is _6379_.
 
-![redis_enabled.png](/img/panel/v2/redisenabled.png)
+![Valkey Status row with the Click to Enable or Click to Disable button](/img/openpanel-screenshots/caching/valkey-status.png)
 
 ## Set Memory Limits
 
 Upon initialization the Valkey container has default memory limits set, it is advisable to set memory limits appropriate to your use case and needs.
 
 While the service is running, real-time resource usage (CPU, memory, network and block I/O) is displayed on this page. Click **Edit limits** to set new limits on the /containers interface, which is accessible through the user panel navigation under **Containers**.
-
-![redis_limits.png](/img/panel/v2/redislimits.png)
 
 :::info
 Modifying the memory limit will require the Valkey container to be restarted to apply the new restrictions, resulting in the removal of all existing data from the cache.
@@ -70,5 +68,3 @@ To incorporate Valkey caching into your WordPress website, a WordPress plugin is
 ## View Logs
 
 You have the option to view the Valkey service logs. By doing so, you can identify any service errors or, for instance, determine whether memory limits have been reached.
-
-![redis_log.png](/img/panel/v2/redislogs.png)

@@ -23,4 +23,6 @@ To change a document root for a domain in OpenPanel:
 4. Enter the new path starting with the `/var/www/html/`.
 5. Click **Change docroot** to save your changes.
 
+![Change docroot form with the document root folder field](/img/openpanel-screenshots/domains/docroot-form.png)
+
 OpenPanel will automatically update your web server configuration to reflect the new docroot.

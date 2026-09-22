@@ -2,7 +2,7 @@
 sidebar_position: 25
 ---
 
-# PHP Applications
+# PHP
 
 Deploy a [Composer](https://getcomposer.org/)-based PHP application into an existing domain. Unlike the containerized [Node.js](/docs/panel/applications/nodejs), Python, Ruby, and Java application installers, a PHP application never gets a dedicated container: it never creates a new container, edits `docker-compose.yml`, or configures a reverse proxy. The domain's existing vhost already routes to its PHP-FPM (or LiteSpeed) container, so installing a PHP application is really just deploying Composer-managed code into that domain's docroot and, optionally, running Composer against it.
 
@@ -11,6 +11,8 @@ Deploy a [Composer](https://getcomposer.org/)-based PHP application into an exis
 ## Install a PHP Application
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install PHP Application**.
+
+![Install PHP Application form with the domain and folder, and an optional Composer project to create](/img/openpanel-screenshots/applications/php_install-form.png)
 
 On the install page, configure:
 
@@ -27,12 +29,30 @@ Behind the scenes, this starts the domain's `php-fpm-<version>` container if it 
 
 ## Manage a PHP Application
 
-Every PHP application shows up on the general **Site Manager** page (`/sites`) alongside your other websites, listed by site name. There's no dedicated overview/status page the way there is for the containerized app types — there's no container to report status, resource usage, or a version for — so management is limited to a few focused actions, run against the domain's *current* PHP-FPM container (following whatever version PHP Selector currently has set):
+Every PHP application shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click it to open its manage page, which has four tabs. All actions run against the domain's *current* PHP-FPM container, following whatever version PHP Selector currently has set.
 
-* **Composer Install** – Re-runs `composer install --no-interaction` against the app's working directory.
-* **Composer Update** – Runs `composer update --no-interaction` (optionally with `--optimize-autoloader`).
-* **Logs** – Shows the accumulated output of every past Composer install/update run for the site, each entry timestamped, or "No Composer runs recorded yet." if none have run.
-* **Remove** – Removes the site from Site Manager and clears its stored `.env` settings. Docroot files and any database are left untouched — the same "all website data remains" behavior the Node.js/Python installers use on delete — since there's no dedicated container to tear down.
+### Overview
+
+Basic information about the application: its docroot, the PHP version in use (with a **Change** link to PHP Selector), and the initial project it was created from.
+
+### Composer
+
+Re-run Composer against the project's `composer.json` at any time, without reinstalling the project:
+
+* **Composer install** – Runs `composer install --no-interaction` against the app's working directory, installing dependencies as currently declared in `composer.json`/`composer.lock`.
+* **Composer update** – Runs `composer update --no-interaction`, updating dependencies to their latest allowed versions.
+* **Optimize autoloader** – Adds `--optimize-autoloader` to the next run.
+* **Edit composer.json** – Opens `composer.json` directly in the File Manager's editor.
+
+Output from the current run is shown live in an output pane below the buttons.
+
+### Logs
+
+The full history of every Composer install/update run for the application, each entry timestamped with its command output, or "No Composer runs recorded yet." if none have run.
+
+### Remove
+
+**Delete Application** removes the application from Site Manager and clears its stored `.env` settings. Docroot files and any database are left untouched (the same "all website data remains" behavior the Node.js/Python installers use), so you can still access them manually or add the app again later. Click **Confirm delete** to proceed.
 
 ---
 
@@ -43,4 +63,4 @@ Because a PHP application isn't containerized the way Node.js/Python/Ruby/Java a
 - A dedicated container — so also no Start/Stop/Restart actions, no CPU/Memory/PIDs limits, and no per-app Docker image/version picker
 - A custom port, or a startup file/command — the domain's existing vhost and PHP-FPM already handle routing and execution
 - Changing the PHP version from the app itself — it always follows whatever version the domain has set in PHP Selector
-- Screenshot/status overview cards on a dedicated management page — a PHP application is managed inline from Site Manager instead
+- Screenshot, status and resource-usage cards on the manage page, since there's no container to report on

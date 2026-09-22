@@ -6,6 +6,8 @@ sidebar_position: 4
 
 OpenPanel uses [Sieve](http://sieve.info/) (via Dovecot) to filter incoming email messages for your accounts.
 
+![Email Filters page with no filters yet and the Create first filter button](/img/openpanel-screenshots/emails/filters-page.png)
+
 Each email address can have its own set of filters. Filters are applied in order, top to bottom, and can match on headers, body content, spam status, and more.
 
 ## Creating a Filter
@@ -16,6 +18,8 @@ Each email address can have its own set of filters. Filters are applied in order
 4. Configure one or more **conditions** — the fields and values that must match.
 5. Add one or more **actions** to perform when conditions are met.
 6. Click **Save filters**.
+
+![An email filter that moves messages whose subject contains newsletter into the Newsletters folder](/img/openpanel-screenshots/emails/filters-rule.png)
 
 ### Conditions
 

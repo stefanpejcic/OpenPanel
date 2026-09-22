@@ -2,7 +2,7 @@
 sidebar_position: 11
 ---
 
-# MediaWiki Manager
+# MediaWiki
 
 Install and manage [MediaWiki](https://www.mediawiki.org/) wikis in an existing domain, via MediaWiki's own non-interactive CLI installer — deliberately simpler than the WordPress Manager: no dedicated MediaWiki Manager sidebar page, no scanning the filesystem for existing installs, and no hardening rules. Install, a read-only overview with live status, error logs, one-time admin login, cloning, a full backup/restore system, and self-update.
 
@@ -11,6 +11,8 @@ Install and manage [MediaWiki](https://www.mediawiki.org/) wikis in an existing 
 ## Install MediaWiki
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install MediaWiki**.
+
+![Install MediaWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/mediawiki-form.png)
 
 On the install page, configure:
 

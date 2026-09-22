@@ -2,7 +2,7 @@
 sidebar_position: 8
 ---
 
-# OpenCart Manager
+# OpenCart
 
 Install and manage [OpenCart](https://www.opencart.com/) sites in an existing domain, via OpenCart's own CLI installer — deliberately simpler than the WordPress Manager: no dedicated OpenCart Manager sidebar page, no cloning, no filesystem scan for existing installs, no hardening rules, and no dedicated backup system. Install, a read-only overview with live status, cache clearing, one-time admin login, error logs, and uninstall.
 
@@ -11,6 +11,8 @@ Install and manage [OpenCart](https://www.opencart.com/) sites in an existing do
 ## Install OpenCart
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install OpenCart**.
+
+![Install OpenCart form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/opencart-form.png)
 
 On the install page, configure:
 

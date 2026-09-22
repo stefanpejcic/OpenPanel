@@ -2,7 +2,7 @@
 sidebar_position: 7
 ---
 
-# PrestaShop Manager
+# PrestaShop
 
 Install and manage [PrestaShop](https://www.prestashop.com/) sites in an existing domain, via PrestaShop's own `install/index_cli.php` CLI installer — deliberately simpler than the WordPress Manager: no dedicated PrestaShop Manager sidebar page, no cloning, no filesystem scan for existing installs, no hardening rules, and no dedicated backup system. Install, a read-only overview with live status, cache clearing, one-time admin login, error logs, and uninstall.
 
@@ -11,6 +11,8 @@ Install and manage [PrestaShop](https://www.prestashop.com/) sites in an existin
 ## Install PrestaShop
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install PrestaShop**.
+
+![Install PrestaShop form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/prestashop-form.png)
 
 On the install page, configure:
 

@@ -2,7 +2,7 @@
 sidebar_position: 14
 ---
 
-# Matomo Manager
+# Matomo
 
 Install and manage [Matomo](https://matomo.org/) — self-hosted, privacy-focused web analytics software, not a website CMS — in an existing domain or subfolder, the same install pattern as OpenPanel's other app managers even though Matomo serves an analytics dashboard rather than a public site. Simpler than the WordPress Manager in a few ways: no dedicated Matomo Manager sidebar page, no scanning the filesystem for existing installs, no hardening rules, and no maintenance-mode toggle (Matomo has no offline-mode primitive to switch). It does get its own backup/restore system, cloning, in-place updates, one-click admin login, cache clearing, and a log viewer.
 
@@ -11,6 +11,8 @@ Install and manage [Matomo](https://matomo.org/) — self-hosted, privacy-focuse
 ## Install Matomo
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install Matomo**.
+
+![Install Matomo form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/matomo-form.png)
 
 On the install page, configure:
 

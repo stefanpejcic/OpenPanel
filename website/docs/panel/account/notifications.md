@@ -6,7 +6,7 @@ sidebar_position: 3
 
 Users can set actions for which to receive email notifications:
 
-![notifications.png](/img/panel/v2/notifications.png)
+![Email Notifications page with a checkbox for each event and the Save Preferences button](/img/openpanel-screenshots/account/notifications-form.png)
 
 :::info
 If you do not see the Notifications page, ask your provider to enable the [notifications module](/docs/admin/settings/modules/#notifications).

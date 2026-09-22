@@ -2,7 +2,7 @@
 sidebar_position: 12
 ---
 
-# DokuWiki Manager
+# DokuWiki
 
 Install and manage [DokuWiki](https://www.dokuwiki.org/) wikis in an existing domain. DokuWiki stores everything as flat files — no database — so this module is simpler than most: no dedicated DokuWiki Manager sidebar page, no scanning the filesystem for existing installs, no hardening rules, and no admin login helper (there's no database-backed session table to issue tokens against, and the install form already sets the admin password directly). Install, a read-only overview with live status, cloning, a files-only backup/restore system, and self-update.
 
@@ -11,6 +11,8 @@ Install and manage [DokuWiki](https://www.dokuwiki.org/) wikis in an existing do
 ## Install DokuWiki
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install DokuWiki**.
+
+![Install DokuWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/dokuwiki-form.png)
 
 On the install page, configure:
 

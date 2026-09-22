@@ -2,7 +2,7 @@
 sidebar_position: 23
 ---
 
-# Ruby Applications
+# Ruby
 
 Containerized [Ruby](https://www.ruby-lang.org/) applications can be created and managed in **OpenPanel Enterprise Edition**.
 
@@ -11,6 +11,8 @@ Containerized [Ruby](https://www.ruby-lang.org/) applications can be created and
 ## Create an Application
 
 To create a new Ruby application, navigate to **OpenPanel > AutoInstaller** and click **Setup Ruby Application**.
+
+![Install Ruby Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/ruby_install-form.png)
 
 On the next page, you can configure the following settings:
 

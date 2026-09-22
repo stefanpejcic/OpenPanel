@@ -15,13 +15,15 @@ To log in:
 1. Open the link provided by your hosting provider.
 2. Enter your assigned **username** and **password**.
 
+![OpenPanel login form with username and password fields, the Forgot password link and passkey sign-in](/img/openpanel-screenshots/intro/login-form.png)
+
 ## Password Reset
 
 If you forget your password, follow these steps:
 
 1. Click the **Forgot password?** link on the login page.  
 
-   ![password reset link](/img/docs-content/rpCvZ1VP-2025-08-14-13-47.png)
+   ![OpenPanel login form with username and password fields, the Forgot password link and passkey sign-in](/img/openpanel-screenshots/intro/login-form.png)
 
 
    > **NOTE:** If the **Forgot Password?** link does not appear on the login form, email-based password reset is disabled by your hosting provider. In this case, you must either:
@@ -31,7 +33,7 @@ If you forget your password, follow these steps:
 
 2. Enter your **email address** and click **Send Reset Link**.  
 
-   ![password reset form](/img/docs-content/rV9kfkzw-2025-08-14-13-48.png)
+   ![Password reset form asking for the account email address](/img/openpanel-screenshots/intro/reset-form.png)
 
 3. If your email is associated with an account, you will receive a password reset email (link valid for 15 minutes).  
 

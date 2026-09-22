@@ -12,3 +12,5 @@ To unsuspend a domain:
 
 1. Open the **Actions** menu for the suspended domain on the **Domains** page and click **Unsuspend**.
 2. Click **Confirm Unsuspend**.
+
+![Unsuspend domain confirmation with the Confirm Unsuspend button](/img/openpanel-screenshots/domains/unsuspend-form.png)

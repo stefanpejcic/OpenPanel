@@ -2,7 +2,7 @@
 sidebar_position: 19
 ---
 
-# OJS Manager
+# OJS
 
 Install and manage [Open Journal Systems (OJS)](https://pkp.sfu.ca/software/ojs/) sites — open-source journal and scholarly publishing management software from the Public Knowledge Project — in an existing domain, via OJS's own CLI installer. Install, a read-only overview with live status, cache clearing, one-time admin login, error logs, a dedicated backup/restore system, cloning, self-update, and uninstall.
 
@@ -11,6 +11,8 @@ Install and manage [Open Journal Systems (OJS)](https://pkp.sfu.ca/software/ojs/
 ## Install OJS
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install OJS**.
+
+![Install OJS form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/ojs-form.png)
 
 On the install page, configure:
 

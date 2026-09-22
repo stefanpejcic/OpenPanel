@@ -6,6 +6,6 @@ sidebar_position: 99
 
 On **Account > API Reference** page in the UI, you can view all available API endpoints and examples:
 
-![api reference page screenshot](/img/panel/v2/api_reference.png)
+![API Reference page with the interactive OpenPanel API documentation and the Download spec button](/img/openpanel-screenshots/account/api-page.png)
 
 [OpenPanel API documentation](/docs/panel/api/)

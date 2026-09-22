@@ -13,6 +13,8 @@ To start or stop services, use the Docker feature (if available) or contact your
 
 To manage a service, select it's name from the select options.
 
+![Choose Service page with the service dropdown](/img/openpanel-screenshots/advanced/services_list-page.png)
+
 On the single service page you can view:
 
 - current service status
@@ -20,3 +22,5 @@ On the single service page you can view:
 - container name (to be used to connect to service from other containers)
 - manage options: enable/disable
 - container logs
+
+![Service page for redis with its status, container resource usage and logs](/img/openpanel-screenshots/advanced/services-page.png)

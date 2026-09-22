@@ -6,6 +6,8 @@ sidebar_position: 5
 
 An alias forwards mail from a non-existing address to one or more destinations. Recipients can be local or external.
 
+![Aliases page listing alias addresses and the addresses they deliver to](/img/openpanel-screenshots/emails/aliases-list.png)
+
 Aliases are managed via Postfix. Each alias has one source address and one or more destination addresses. Mail sent to the alias is forwarded to all configured destinations: the alias itself does not store any mail.
 
 ## Creating an Alias
@@ -22,6 +24,8 @@ Aliases are managed via Postfix. Each alias has one source address and one or mo
 
 4. Click **Create Alias**.
 
+![Create an Alias form with the domain, alias address and destination address fields](/img/openpanel-screenshots/emails/aliases_new-form.png)
+
 The destination can be any valid email address, either on this server or external.
 
 ## Managing an Alias
@@ -31,3 +35,5 @@ Click **Manage** next to any alias to open its detail page. From there you can:
 - **Add a destination**: enter an email address and click **Add Destination**. A single alias can forward to multiple addresses simultaneously.
 - **Remove a destination**: click **Remove** next to any destination. If all destinations are removed the alias stops delivering mail.
 - **Delete the alias**: permanently removes the alias address and all its destinations. This cannot be undone.
+
+![Manage alias page listing its destination addresses with Remove buttons and a field to add a destination](/img/openpanel-screenshots/emails/aliases_manage-page.png)

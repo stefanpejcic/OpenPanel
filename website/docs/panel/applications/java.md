@@ -2,7 +2,7 @@
 sidebar_position: 24
 ---
 
-# Java Applications
+# Java
 
 Containerized [Java](https://www.java.com/) applications can be created and managed in **OpenPanel Enterprise Edition**.
 
@@ -11,6 +11,8 @@ Containerized [Java](https://www.java.com/) applications can be created and mana
 ## Create an Application
 
 To create a new Java application, navigate to **OpenPanel > AutoInstaller** and click **Setup Java Application**.
+
+![Install Java Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/java_install-form.png)
 
 On the next page, you can configure the following settings:
 

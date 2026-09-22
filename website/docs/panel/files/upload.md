@@ -6,6 +6,8 @@ sidebar_position: 2
 
 The **Upload from Device** page allows you to easily upload files from your local device to a selected directory on the server.
 
+![File Upload page with the drag and drop area and the Upload button](/img/openpanel-screenshots/files/upload-form.png)
+
 To upload:
 
 1. Navigate to the desired directory.

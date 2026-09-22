@@ -2,7 +2,7 @@
 sidebar_position: 10
 ---
 
-# Flarum Manager
+# Flarum
 
 Install and manage [Flarum](https://flarum.org/) forums in an existing domain, via a Composer project and Flarum's own console installer — deliberately simpler than the WordPress Manager: no dedicated Flarum Manager sidebar page, no scanning the filesystem for existing installs, no hardening rules, and no one-click admin login (Flarum's console has no login/session command to reach for). Install, a read-only overview with live status, cache clearing, error logs, cloning, a full backup/restore system, one-click self-update, and uninstall.
 
@@ -11,6 +11,8 @@ Install and manage [Flarum](https://flarum.org/) forums in an existing domain, v
 ## Install Flarum
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install Flarum**.
+
+![Install Flarum form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/flarum-form.png)
 
 On the install page, configure:
 

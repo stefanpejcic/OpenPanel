@@ -19,6 +19,8 @@ View current server specification and system usage.
 - Processor
 - Nameservers
 
+![Server Information page with hostname, load, uptime, IP address, ports and operating system](/img/openpanel-screenshots/advanced/server_info-page.png)
+
 ## Hosting Plan
 
 - Plan Name
@@ -37,7 +39,11 @@ View current server specification and system usage.
 - MySQL Server
 - Web Server
 
+![Hosting Plan section of the Server Information page with the plan name and its limits for CPU, memory, disk, domains, websites, databases, email and FTP](/img/openpanel-screenshots/advanced/server_info-plan.png)
+
 ## OpenPanel Information
 
-- OpenPanel Version
+- Panel Version
 - Enabled Features
+
+![Panel Information section with the panel version and the list of features enabled for the account](/img/openpanel-screenshots/advanced/server_info-panel.png)

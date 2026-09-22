@@ -8,6 +8,6 @@ This interface displays all currently active MySQL queries (connections).
 
 Checking the currently running queries is useful for identifying slow queries that slow down the website loading speed.
 
-![databases_show_processes.png](/img/panel/v2/databases_processes.png)
+![MySQL Processes table with the Refresh Processes button and the currently running queries](/img/openpanel-screenshots/mysql/processlist-list.png)
 
 Click **Refresh Processes** to reload the table with the current list of active processes.

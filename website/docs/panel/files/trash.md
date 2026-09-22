@@ -7,6 +7,8 @@ sidebar_position: 9
 When deleting files you can select to permanently delete them, or to place them in the Trash (default option).
 The **Trash** page allows you to manage deleted.
 
+![Trash page listing deleted files with Restore and Delete actions](/img/openpanel-screenshots/files/trash-list.png)
+
 In the table, you can see the following information:
 
 * **Name**

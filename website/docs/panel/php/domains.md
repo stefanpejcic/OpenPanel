@@ -10,6 +10,8 @@ For each version, the current development status is displayed, highlighting doma
 
 Ensure you check your site's requirements before selecting the appropriate PHP version.
 
-![change version for domains](/img/panel/v2/openpanel_change_default_php.gif)
+![PHP version for domains page listing each domain with its current PHP version and a dropdown to change it](/img/openpanel-screenshots/php/domains-list.png)
 
-NOTE: If you are using OpenLitespeed or Litespeed as webserver, PHP version can not be set per-domain — only a single PHP version is used for all domains. Use the [**Default PHP Version**](/docs/panel/php/default/) page instead to change it for all domains at once.
+:::info
+If you are using OpenLitespeed or Litespeed as webserver, PHP version can not be set per-domain — only a single PHP version is used for all domains. Use the [**Default PHP Version**](/docs/panel/php/default/) page instead to change it for all domains at once.
+:::

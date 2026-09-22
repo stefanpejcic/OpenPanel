@@ -34,6 +34,8 @@ Processes are listed sorted by PID by default, and every column (including CPU %
 3. Click **"View full command"** to expand long-running command strings.
 4. Click the **Terminate** button to immediately kill the process.
 
+![Process Manager listing processes per container with their user, PID, CPU, time and command](/img/openpanel-screenshots/advanced/process_manager-list.png)
+
 ## Interface Details
 
 Each row in the table provides:
