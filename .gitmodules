@@ -54,3 +54,7 @@
 	path = integrations/clientexec
 	url = https://github.com/stefanpejcic/openpanel-clientexec
 	branch = main
+[submodule "integrations/wisecp"]
+	path = integrations/wisecp
+	url = https://github.com/stefanpejcic/openpanel-wisecp-module
+	branch = main
