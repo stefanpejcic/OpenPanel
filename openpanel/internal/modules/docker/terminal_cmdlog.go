@@ -102,6 +102,7 @@ type commandRecorder struct {
 	lineStart int64
 	esc       escState
 	csiParams []byte
+	prevDone  chan struct{}
 }
 
 func newCommandRecorder(output *terminalOutput, record func(line string, edited bool)) *commandRecorder {
@@ -182,8 +183,15 @@ func (c *commandRecorder) finishLine() {
 	if text == "" && !edited {
 		return
 	}
+	// each check waits for the previous one so pasted lines land in the log in order
+	prev, done := c.prevDone, make(chan struct{})
+	c.prevDone = done
 	// wait for the echo, anything typed without echo (password prompts) never gets logged
 	time.AfterFunc(echoWaitDelay, func() {
+		defer close(done)
+		if prev != nil {
+			<-prev
+		}
 		if text != "" && !bytes.Contains(visibleText(c.output.Since(start)), []byte(text)) {
 			return
 		}

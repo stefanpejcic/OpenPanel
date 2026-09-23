@@ -1,5 +1,21 @@
 {{define "alpine_plugins"}}{{end}}
 
+{{define "activity_kind_icon"}}
+{{- if eq .Kind "danger"}}
+<span class="activity-kind activity-kind--danger" title="{{.T.Get "Destructive"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l16 0"/><path d="M10 11l0 6"/><path d="M14 11l0 6"/><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg></span>
+{{- else if eq .Kind "create"}}
+<span class="activity-kind activity-kind--create" title="{{.T.Get "Created"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5l0 14"/><path d="M5 12l14 0"/></svg></span>
+{{- else if eq .Kind "edit"}}
+<span class="activity-kind activity-kind--edit" title="{{.T.Get "Changed"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></svg></span>
+{{- else if eq .Kind "security"}}
+<span class="activity-kind activity-kind--security" title="{{.T.Get "Security"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/><path d="M12 11m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 12l0 2.5"/></svg></span>
+{{- else if eq .Kind "command"}}
+<span class="activity-kind activity-kind--command" title="{{.T.Get "Command"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7l5 5l-5 5"/><path d="M12 19l7 0"/></svg></span>
+{{- else}}
+<span class="activity-kind activity-kind--info" title="{{.T.Get "Info"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></svg></span>
+{{- end}}
+{{end}}
+
 {{define "content"}}
 <!-- START templates/user/activity.html -->
 
@@ -20,6 +36,9 @@
         <div class="mt-2 gap-2 sm:mt-0 sm:flex">
             <div class="relative w-full sm:w-64">
                  <form id="activitySearchForm" action="/account/activity" method="get">
+                    {{if .Filter.Kind}}<input type="hidden" name="type" value="{{.Filter.Kind}}">{{end}}
+                    {{if .Filter.From}}<input type="hidden" name="from" value="{{.Filter.From}}">{{end}}
+                    {{if .Filter.To}}<input type="hidden" name="to" value="{{.Filter.To}}">{{end}}
                     <input
                         x-model="searchActivityQuery"
                         @keydown.enter.prevent="document.getElementById('activitySearchForm').submit()"
@@ -39,12 +58,84 @@
             </div>
         </div>
 
+<div class="activity-toolbar flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+    <nav class="flex flex-wrap items-center gap-2" aria-label="{{.T.Get "Filter by type"}}">
+        <a href="{{.AllURL}}" class="activity-chip{{if not .Filter.Kind}} is-active{{end}}"{{if not .Filter.Kind}} aria-current="true"{{end}}>
+            {{.T.Get "All"}} <span class="activity-chip-count">{{.AllCount}}</span>
+        </a>
+        {{range .KindTabs}}
+        <a href="{{.URL}}" class="activity-chip activity-chip--{{.Kind}}{{if .Active}} is-active{{end}}"{{if .Active}} aria-current="true"{{end}}>
+            <span class="activity-chip-dot" aria-hidden="true"></span>{{$.T.Get .Label}} <span class="activity-chip-count">{{.Count}}</span>
+        </a>
+        {{end}}
+    </nav>
+    <div class="dr" x-data="activityDateRange({{toJSON .Filter.From}}, {{toJSON .Filter.To}}, {{toJSON .T.Locale}})" @keydown.escape.window="close()" @click.outside="close()">
+        <div class="dr-quick" role="group" aria-label="{{.T.Get "Quick date range"}}">
+            <template x-for="p in quickPresets" :key="p.key">
+                <button type="button" class="dr-quick-btn" :class="{ 'is-active': isCurrent(p) }" :aria-pressed="isCurrent(p)" :title="rangeLabel(p.from, p.to)" @click="go(p.from, p.to)" x-text="p.short"></button>
+            </template>
+        </div>
+
+        <div class="dr-anchor">
+            <button type="button" class="dr-trigger" :class="{ 'is-set': from }" @click="toggle()" aria-haspopup="dialog" :aria-expanded="open">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/></svg>
+                <span class="dr-trigger-label">{{.T.Get "Date"}}</span>
+                <span class="dr-trigger-sep" x-show="from" x-cloak aria-hidden="true"></span>
+                <span class="dr-trigger-value" x-show="from" x-cloak x-text="rangeLabel(from, to)"></span>
+            </button>
+            <button type="button" class="dr-clear" x-show="from" x-cloak @click="go('', '')" aria-label="{{.T.Get "Clear date range"}}" title="{{.T.Get "Clear date range"}}"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button>
+
+            <div class="dr-pop" :style="popShift ? { left: -popShift + 'px' } : {}" x-ref="pop" x-show="open" x-cloak x-transition.opacity.duration.100ms role="dialog" aria-label="{{.T.Get "Select date range"}}">
+                <div class="dr-pop-body">
+                    <ul class="dr-presets">
+                        <template x-for="p in presets" :key="p.key">
+                            <li><button type="button" class="dr-preset" :class="{ 'is-active': draftFrom === p.from && draftTo === p.to }" @click="pickPreset(p)" x-text="p.label"></button></li>
+                        </template>
+                    </ul>
+                    <div class="dr-cal">
+                        <div class="dr-cal-nav">
+                            <button type="button" class="dr-nav-btn" @click="shift(-1)" aria-label="{{.T.Get "Previous month"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6l6 6"/></svg></button>
+                            <button type="button" class="dr-nav-btn" @click="shift(1)" :disabled="!canGoNext()" aria-label="{{.T.Get "Next month"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></button>
+                        </div>
+                        <div class="dr-months">
+                            <template x-for="(m, mi) in months()" :key="m.key">
+                                <div class="dr-month" :class="{ 'dr-month--second': mi === 1 }">
+                                    <div class="dr-month-title" x-text="m.title"></div>
+                                    <div class="dr-grid" role="grid">
+                                        <template x-for="w in weekdays" :key="w"><div class="dr-weekday" x-text="w"></div></template>
+                                        <template x-for="c in m.cells" :key="c.key">
+                                            <div class="dr-cell" :class="cellClass(c)">
+                                                <button type="button" class="dr-day" x-show="c.date" :disabled="c.date > today" @click="pickDay(c.date)" @mouseenter="hover = c.date" @mouseleave="hover = ''" :aria-label="c.date && longLabel(c.date)" :aria-pressed="c.date === draftFrom || c.date === draftTo" x-text="c.day"></button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div class="dr-pop-foot">
+                    <span class="dr-pop-summary" x-text="draftFrom ? rangeLabel(draftFrom, draftTo || draftFrom) : {{toJSON (.T.Get "Any time")}}"></span>
+                    <div class="dr-pop-actions">
+                        <button type="button" class="dr-btn" @click="close()">{{.T.Get "Cancel"}}</button>
+                        <button type="button" class="dr-btn dr-btn--primary" @click="apply()">{{.T.Get "Apply"}}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{if or .Filter.Kind .Filter.From .Filter.To .Filter.Search}}
+        <a href="/account/activity" class="activity-clear">{{.T.Get "Clear filters"}}</a>
+        {{end}}
+    </div>
+</div>
+
 <div class="">
-    <div class="w-full whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+    <div class="activity-table-wrap w-full whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
         <table id="activity-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
             <thead>
                 <tr class="bg-gray-50 dark:bg-gray-900 sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                    <th scope="col" class="hidden whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
                         <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
                             <span>{{.T.Get "User"}}</span>
                             <div class="-space-y-2">
@@ -53,7 +144,7 @@
                             </div>
                         </div>
                     </th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                    <th scope="col" class="whitespace-nowrap border-b px-4 sm:pl-6 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
                         <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
                             <span>{{.T.Get "Action"}}</span>
                             <div class="-space-y-2">
@@ -86,7 +177,7 @@
 
             {{if not .Rows}}
                     <tr>
-                        <td colspan="4" class="p-6 text-center">{{.T.Get "No logs yet."}}</td>
+                        <td colspan="3" class="p-6 text-center">{{if or .Filter.Kind .Filter.From .Filter.To .Filter.Search}}{{.T.Get "No actions match these filters."}}{{else}}{{.T.Get "No logs yet."}}{{end}}</td>
                     </tr>
 
             {{else}}
@@ -105,13 +196,18 @@
         || timestamp.toLowerCase().includes(searchActivityQuery.toLowerCase())'
     class="hover:bg-gray-100 dark:hover:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6"
 >
-              <td class="px-4 py-3 flex items-center space-x-3" data-sort-col="user" data-sort-value="{{.User}}">
+              <td class="hidden px-4 py-3 items-center space-x-3" data-sort-col="user" data-sort-value="{{.User}}">
                     {{if $.GravatarURL}}
                     <img class="rounded-full shadow-lg w-8 h-8" src="{{$.GravatarURL}}" alt="Gravatar profile image"/>
                     {{end}}
                 <span>{{.User}}</span>
               </td>
-              <td class="px-4 py-3 max-w-xl truncate" title="{{.Action}}" data-sort-col="action">{{.Action}}</td>
+              <td class="activity-action-cell px-4 sm:pl-6 py-3" title="{{.Action}}" data-sort-col="action" data-sort-value="{{.Action}}">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  {{template "activity_kind_icon" (dict "Kind" .Kind "T" $.T)}}
+                  <span class="truncate">{{.Action}}</span>
+                </div>
+              </td>
               <td class="px-4 py-3" data-sort-col="ip">{{.IP}}</td>
               <td class="px-4 py-3" data-sort-col="timestamp">{{.Timestamp}}</td>
             </tr>
@@ -121,7 +217,7 @@
         </table>
 
         <div class="mt-6 flex justify-between items-center mb-4">
-            <h5 class="section-title mb-0 text-sm">
+            <h5 class="section-title mb-0 text-sm pl-4">
                 {{if .ShowAll}}
                     {{.T.Get "Showing"}} 1 - {{.TotalLines}} {{.T.Get "of"}} {{.TotalLines}} {{.T.Get "items"}}
                 {{else}}
@@ -142,7 +238,7 @@
 
                     {{if gt .Page 1}}
                         <li>
-                            <a href="/account/activity?page={{sub .Page 1}}{{if .SearchTerm}}&search={{.SearchTerm}}{{end}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Previous"}}</a>
+                            <a href="{{.PageURL (sub .Page 1)}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Previous"}}</a>
                         </li>
                     {{end}}
                 {{range .PageEntries}}
@@ -155,14 +251,14 @@
                         {{if eq .Number $.Page}}
                         <span class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 bg-gray-200 dark:bg-gray-700">{{.Number}}</span>
                         {{else}}
-                        <a class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700" href="/account/activity?page={{.Number}}{{if $.SearchTerm}}&search={{$.SearchTerm}}{{end}}">{{.Number}}</a>
+                        <a class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700" href="{{$.PageURL .Number}}">{{.Number}}</a>
                         {{end}}
                     </li>
                 {{end}}
                 {{end}}
                     {{if lt .Page .TotalPages}}
                         <li>
-                            <a href="/account/activity?page={{add .Page 1}}{{if .SearchTerm}}&search={{.SearchTerm}}{{end}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Next"}}</a>
+                            <a href="{{.PageURL (add .Page 1)}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Next"}}</a>
                         </li>
                     {{end}}
                 </ul>
@@ -202,6 +298,261 @@ document.addEventListener('DOMContentLoaded', function () {
         reportHealthIssues('account-activity', [issue], 24);
     }
 });
+</script>
+<style>
+.activity-table-wrap { overflow-x: auto; }
+#activity-table { min-width: 40rem; }
+/* action column soaks up the spare width and truncates instead of pushing the table wider */
+.activity-action-cell { width: 100%; max-width: 0; }
+.activity-kind { display: inline-flex; width: 1.75rem; height: 1.75rem; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 9999px; }
+.activity-kind--danger { background: #fef2f2; color: #dc2626; }
+.activity-kind--create { background: #ecfdf5; color: #059669; }
+.activity-kind--edit { background: #fffbeb; color: #d97706; }
+.activity-kind--security { background: #f5f3ff; color: #7c3aed; }
+.activity-kind--command { background: #f0f9ff; color: #0284c7; }
+.activity-kind--info { background: #f3f4f6; color: #6b7280; }
+.dark .activity-kind--danger { background: rgb(239 68 68 / 0.12); color: #f87171; }
+.dark .activity-kind--create { background: rgb(16 185 129 / 0.12); color: #34d399; }
+.dark .activity-kind--edit { background: rgb(245 158 11 / 0.12); color: #fbbf24; }
+.dark .activity-kind--security { background: rgb(139 92 246 / 0.14); color: #a78bfa; }
+.dark .activity-kind--command { background: rgb(14 165 233 / 0.12); color: #38bdf8; }
+.dark .activity-kind--info { background: rgb(107 114 128 / 0.18); color: #9ca3af; }
+.activity-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.7rem; border-radius: 9999px; border: 1px solid #e5e7eb; font-size: 0.8125rem; color: #374151; background: #fff; text-decoration: none; transition: background-color .15s, border-color .15s; }
+.activity-chip:hover { background: #f9fafb; border-color: #d1d5db; }
+.activity-chip.is-active { background: #111827; border-color: #111827; color: #fff; }
+.activity-chip-count { font-variant-numeric: tabular-nums; color: #6b7280; font-size: 0.75rem; }
+.activity-chip.is-active .activity-chip-count { color: #d1d5db; }
+.activity-chip-dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: currentColor; }
+.activity-chip--danger .activity-chip-dot { color: #dc2626; }
+.activity-chip--create .activity-chip-dot { color: #059669; }
+.activity-chip--edit .activity-chip-dot { color: #d97706; }
+.activity-chip--security .activity-chip-dot { color: #7c3aed; }
+.activity-chip--command .activity-chip-dot { color: #0284c7; }
+.activity-chip--info .activity-chip-dot { color: #9ca3af; }
+.activity-clear { color: #6b7280; text-decoration: underline; text-underline-offset: 2px; }
+.activity-clear:hover { color: #111827; }
+.dark .activity-chip { border-color: #1f2937; color: #d1d5db; background: #030712; }
+.dark .activity-chip:hover { background: #111827; border-color: #374151; }
+.dark .activity-chip.is-active { background: #f9fafb; border-color: #f9fafb; color: #111827; }
+.dark .activity-chip-count { color: #9ca3af; }
+.dark .activity-chip.is-active .activity-chip-count { color: #4b5563; }
+.dark .activity-chip--danger .activity-chip-dot { color: #f87171; }
+.dark .activity-chip--create .activity-chip-dot { color: #34d399; }
+.dark .activity-chip--edit .activity-chip-dot { color: #fbbf24; }
+.dark .activity-chip--security .activity-chip-dot { color: #a78bfa; }
+.dark .activity-chip--command .activity-chip-dot { color: #38bdf8; }
+.dark .activity-clear { color: #9ca3af; }
+.dark .activity-clear:hover { color: #f9fafb; }
+
+.dr { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.875rem; --dr-border: #e5e7eb; --dr-bg: #fff; --dr-bg-hover: #f9fafb; --dr-text: #111827; --dr-muted: #6b7280; --dr-accent: #2563eb; --dr-accent-text: #fff; --dr-range: #eff6ff; --dr-range-text: #1d4ed8; --dr-shadow: 0 1px 2px rgb(0 0 0 / 0.05); --dr-pop-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.25), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+.dark .dr { --dr-border: #1f2937; --dr-bg: #030712; --dr-bg-hover: #111827; --dr-text: #f9fafb; --dr-muted: #9ca3af; --dr-accent: #3b82f6; --dr-accent-text: #fff; --dr-range: rgb(59 130 246 / 0.15); --dr-range-text: #93c5fd; --dr-shadow: none; --dr-pop-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.8); }
+.dr button { font: inherit; cursor: pointer; }
+.dr button:focus-visible { outline: 2px solid var(--dr-accent); outline-offset: 2px; }
+.dr-quick { display: inline-flex; border-radius: 0.375rem; box-shadow: var(--dr-shadow); }
+.dr-quick-btn { padding: 0.375rem 0.75rem; border: 1px solid var(--dr-border); background: var(--dr-bg); color: var(--dr-text); font-weight: 500; font-variant-numeric: tabular-nums; }
+.dr-quick-btn + .dr-quick-btn { margin-left: -1px; }
+.dr-quick-btn:first-child { border-radius: 0.375rem 0 0 0.375rem; }
+.dr-quick-btn:last-child { border-radius: 0 0.375rem 0.375rem 0; }
+.dr-quick-btn:hover { background: var(--dr-bg-hover); }
+.dr-quick-btn.is-active { background: var(--dr-bg-hover); color: var(--dr-accent); position: relative; z-index: 1; border-color: var(--dr-accent); }
+.dr-anchor { position: relative; display: inline-flex; align-items: center; }
+.dr-trigger { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; border: 1px dashed var(--dr-border); border-radius: 0.375rem; background: var(--dr-bg); color: var(--dr-muted); white-space: nowrap; }
+.dr-trigger:hover { background: var(--dr-bg-hover); color: var(--dr-text); }
+.dr-trigger.is-set { border-style: solid; color: var(--dr-text); box-shadow: var(--dr-shadow); padding-right: 2rem; }
+.dr-trigger-label { font-weight: 500; }
+.dr-trigger-sep { width: 1px; height: 1rem; background: var(--dr-border); }
+.dr-trigger-value { color: var(--dr-accent); font-weight: 500; font-variant-numeric: tabular-nums; }
+.dr-clear { position: absolute; right: 0.375rem; display: inline-flex; padding: 0.2rem; border: 0; border-radius: 0.25rem; background: transparent; color: var(--dr-muted); }
+.dr-clear:hover { background: var(--dr-border); color: var(--dr-text); }
+.dr-pop { position: absolute; top: calc(100% + 0.5rem); left: 0; right: auto; z-index: 40; width: max-content; max-width: calc(100vw - 2rem); border: 1px solid var(--dr-border); border-radius: 0.5rem; background: var(--dr-bg); color: var(--dr-text); box-shadow: var(--dr-pop-shadow); }
+.dr-pop-body { display: flex; }
+.dr-presets { list-style: none; margin: 0; padding: 0.5rem; border-right: 1px solid var(--dr-border); min-width: 9.5rem; }
+.dr-preset { display: block; width: 100%; padding: 0.4rem 0.625rem; border: 0; border-radius: 0.375rem; background: transparent; color: var(--dr-text); text-align: left; white-space: nowrap; }
+.dr-preset:hover { background: var(--dr-bg-hover); }
+.dr-preset.is-active { background: var(--dr-range); color: var(--dr-range-text); font-weight: 500; }
+.dr-cal { position: relative; padding: 0.75rem 1rem 0.5rem; }
+.dr-cal-nav { position: absolute; top: 0.625rem; left: 0.75rem; right: 0.75rem; display: flex; justify-content: space-between; pointer-events: none; }
+.dr-nav-btn { pointer-events: auto; display: inline-flex; padding: 0.3rem; border: 1px solid var(--dr-border); border-radius: 0.375rem; background: var(--dr-bg); color: var(--dr-text); }
+.dr-nav-btn:hover:not(:disabled) { background: var(--dr-bg-hover); }
+.dr-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.dr-months { display: flex; gap: 1.5rem; }
+.dr-month-title { text-align: center; font-weight: 600; line-height: 1.75rem; margin-bottom: 0.5rem; text-transform: capitalize; }
+.dr-grid { display: grid; grid-template-columns: repeat(7, 2.25rem); row-gap: 2px; }
+.dr-weekday { height: 2rem; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--dr-muted); text-transform: capitalize; }
+.dr-cell { height: 2.25rem; display: flex; align-items: center; justify-content: center; }
+.dr-cell.is-in-range { background: var(--dr-range); }
+.dr-cell.is-start:not(.is-single) { background: linear-gradient(to right, transparent 50%, var(--dr-range) 50%); }
+.dr-cell.is-end:not(.is-single) { background: linear-gradient(to left, transparent 50%, var(--dr-range) 50%); }
+.dr-day { width: 2.25rem; height: 2.25rem; border: 0; border-radius: 0.375rem; background: transparent; color: var(--dr-text); font-variant-numeric: tabular-nums; }
+.dr-day:hover:not(:disabled) { background: var(--dr-bg-hover); outline: 1px solid var(--dr-border); }
+.dr-day:disabled { color: var(--dr-muted); opacity: 0.4; cursor: not-allowed; }
+.dr-cell.is-in-range .dr-day { color: var(--dr-range-text); }
+.dr-cell.is-start .dr-day, .dr-cell.is-end .dr-day { background: var(--dr-accent); color: var(--dr-accent-text); font-weight: 600; outline: none; }
+.dr-cell.is-today:not(.is-start):not(.is-end) .dr-day { font-weight: 700; color: var(--dr-accent); }
+.dr-pop-foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 1rem; border-top: 1px solid var(--dr-border); }
+.dr-pop-summary { color: var(--dr-muted); font-variant-numeric: tabular-nums; }
+.dr-pop-actions { display: flex; gap: 0.5rem; }
+.dr-btn { padding: 0.375rem 0.875rem; border: 1px solid var(--dr-border); border-radius: 0.375rem; background: var(--dr-bg); color: var(--dr-text); font-weight: 500; box-shadow: var(--dr-shadow); }
+.dr-btn:hover { background: var(--dr-bg-hover); }
+.dr-btn--primary { background: var(--dr-accent); border-color: var(--dr-accent); color: var(--dr-accent-text); }
+.dr-btn--primary:hover { background: var(--dr-accent); filter: brightness(1.08); }
+@media (max-width: 767px) {
+    .dr-month--second { display: none; }
+    .dr-pop { position: fixed; top: auto; bottom: 1rem; left: 1rem; right: 1rem; width: auto; max-width: none; }
+    .dr-pop-body { flex-direction: column; }
+    .dr-presets { display: flex; gap: 0.25rem; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--dr-border); min-width: 0; }
+    .dr-cal { display: flex; justify-content: center; }
+    .dr-grid { grid-template-columns: repeat(7, minmax(2.25rem, 1fr)); }
+}
+</style>
+<script>
+function activityDateRange(from, to, locale) {
+    const pad = n => String(n).padStart(2, '0');
+    const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+    const lang = (locale || 'en').replace('_', '-');
+    let fmt, monthFmt, dayFmt, longFmt;
+    try {
+        fmt = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short', year: 'numeric' });
+        monthFmt = new Intl.DateTimeFormat(lang, { month: 'long', year: 'numeric' });
+        dayFmt = new Intl.DateTimeFormat(lang, { weekday: 'short' });
+        longFmt = new Intl.DateTimeFormat(lang, { dateStyle: 'full' });
+    } catch (e) {
+        fmt = new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric' });
+        monthFmt = new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' });
+        dayFmt = new Intl.DateTimeFormat('en', { weekday: 'short' });
+        longFmt = new Intl.DateTimeFormat('en', { dateStyle: 'full' });
+    }
+
+    const now = new Date();
+    const today = iso(now);
+    const daysAgo = n => { const d = new Date(now); d.setDate(d.getDate() - n); return iso(d); };
+    const monthsAgo = n => { const d = new Date(now); d.setMonth(d.getMonth() - n); d.setDate(d.getDate() + 1); return iso(d); };
+    const L = {{toJSON .DateLabels}};
+    const presets = [
+        { key: 'today', short: L.todayShort, label: L.today, from: today, to: today },
+        { key: '7d', short: '7D', label: L.last7, from: daysAgo(6), to: today },
+        { key: '30d', short: '30D', label: L.last30, from: daysAgo(29), to: today },
+        { key: '3m', short: '3M', label: L.last3m, from: monthsAgo(3), to: today },
+        { key: '6m', short: '6M', label: L.last6m, from: monthsAgo(6), to: today },
+        { key: 'ytd', short: 'YTD', label: L.ytd, from: now.getFullYear() + '-01-01', to: today },
+    ];
+    // week starts on monday, 2024-01-01 was a monday
+    const weekdays = Array.from({ length: 7 }, (_, i) => dayFmt.format(new Date(2024, 0, 1 + i)));
+
+    return {
+        open: false,
+        popShift: 0,
+        from: from || '',
+        to: to || from || '',
+        draftFrom: '',
+        draftTo: '',
+        hover: '',
+        view: null,
+        today,
+        weekdays,
+        presets,
+        quickPresets: presets.slice(0, 5),
+
+        init() { this.resetDraft(); },
+        resetDraft() {
+            this.draftFrom = this.from;
+            this.draftTo = this.to;
+            this.hover = '';
+            // right calendar shows the range end (or this month), left one the month before
+            const end = this.to ? parse(this.to) : new Date(now);
+            this.view = new Date(end.getFullYear(), end.getMonth() - 1, 1);
+        },
+        toggle() {
+            if (this.open) return this.close();
+            this.resetDraft();
+            this.popShift = 0;
+            this.open = true;
+            // slide it left just enough to fit, phones get a fixed bottom sheet instead
+            this.$nextTick(() => {
+                if (window.innerWidth < 768) return;
+                const r = this.$refs.pop.getBoundingClientRect();
+                this.popShift = Math.max(0, Math.min(r.right - (window.innerWidth - 16), r.left - 16));
+            });
+        },
+        close() { this.open = false; },
+
+        rangeLabel(a, b) {
+            if (!a) return '';
+            if (!b || a === b) return fmt.format(parse(a));
+            return fmt.format(parse(a)) + ' – ' + fmt.format(parse(b));
+        },
+        longLabel(d) { return longFmt.format(parse(d)); },
+        isCurrent(p) { return this.from === p.from && this.to === p.to; },
+
+        months() {
+            return [0, 1].map(offset => {
+                const first = new Date(this.view.getFullYear(), this.view.getMonth() + offset, 1);
+                const lead = (first.getDay() + 6) % 7;
+                const count = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+                const cells = [];
+                for (let i = 0; i < lead; i++) cells.push({ key: 'b' + i, date: '', day: '' });
+                for (let d = 1; d <= count; d++) {
+                    const date = iso(new Date(first.getFullYear(), first.getMonth(), d));
+                    cells.push({ key: date, date, day: d });
+                }
+                return { key: iso(first), title: monthFmt.format(first), cells };
+            });
+        },
+        canGoNext() {
+            const nextRight = new Date(this.view.getFullYear(), this.view.getMonth() + 2, 1);
+            return iso(nextRight) <= today;
+        },
+        shift(n) {
+            if (n > 0 && !this.canGoNext()) return;
+            this.view = new Date(this.view.getFullYear(), this.view.getMonth() + n, 1);
+        },
+
+        pickDay(d) {
+            if (!this.draftFrom || this.draftTo) {
+                this.draftFrom = d;
+                this.draftTo = '';
+            } else if (d < this.draftFrom) {
+                this.draftTo = this.draftFrom;
+                this.draftFrom = d;
+            } else {
+                this.draftTo = d;
+            }
+        },
+        pickPreset(p) {
+            this.draftFrom = p.from;
+            this.draftTo = p.to;
+            const end = parse(p.to);
+            this.view = new Date(end.getFullYear(), end.getMonth() - 1, 1);
+        },
+        cellClass(c) {
+            if (!c.date) return '';
+            // while picking the end, preview the range up to the hovered day
+            let a = this.draftFrom, b = this.draftTo || (this.draftFrom && this.hover) || this.draftFrom;
+            if (a && b && b < a) [a, b] = [b, a];
+            return {
+                'is-start': c.date === a,
+                'is-end': c.date === b,
+                'is-in-range': a && b && c.date > a && c.date < b,
+                'is-today': c.date === today,
+                'is-single': a && c.date === a && a === b,
+            };
+        },
+
+        apply() {
+            if (!this.draftFrom) return this.go('', '');
+            this.go(this.draftFrom, this.draftTo || this.draftFrom);
+        },
+        go(a, b) {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('page');
+            a ? params.set('from', a) : params.delete('from');
+            b ? params.set('to', b) : params.delete('to');
+            const qs = params.toString();
+            window.location.href = window.location.pathname + (qs ? '?' + qs : '');
+        },
+    };
+}
 </script>
 <script src="/static/js/table-sort.js"></script>
 

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/config"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -334,7 +335,8 @@ func TestRenderActivityPage(t *testing.T) {
 	t.Run("with rows and pagination", func(t *testing.T) {
 		result := ActivityPageResult{
 			Rows: []ActivityLogRow{
-				{Timestamp: "2026-08-03 10:00:00", IP: "1.2.3.4", User: "bob", Action: "changed password"},
+				{Timestamp: "2026-08-03 10:00:00", IP: "1.2.3.4", User: "bob", Action: "changed password", Kind: ActivityKindSecurity},
+				{Timestamp: "2026-08-03 10:01:00", IP: "1.2.3.4", User: "bob", Action: "deleted domain example.com", Kind: ActivityKindDanger},
 			},
 			Page: 1, ItemsPerPage: 100, TotalPages: 3, TotalLines: 250,
 			PageEntries: buildPageEntries(1, 3),
@@ -350,6 +352,30 @@ func TestRenderActivityPage(t *testing.T) {
 		}
 		if !strings.Contains(body, "Next") {
 			t.Error("expected a Next link when not on the last page")
+		}
+		if !strings.Contains(body, "activity-kind--security") || !strings.Contains(body, "activity-kind--danger") {
+			t.Error("expected kind icons for each row")
+		}
+	})
+
+	t.Run("filters are kept in links", func(t *testing.T) {
+		lines := []string{"2026-08-03 10:00:00  1.2.3.4 User bob deleted domain a.com"}
+		a := &appctx.App{Config: config.Config{"activity_items_per_page": "1"}}
+		result := paginateActivityLog(a, append(lines, lines...), ActivityFilter{Kind: ActivityKindDanger, From: "2026-08-01"}, 1)
+		data := ActivityPageData{LayoutData: baseLayout(mgr, "/account/activity"), ActivityPageResult: result}
+		w := httptest.NewRecorder()
+		if err := activityPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/account/activity?from=2026-08-01&amp;page=2&amp;type=danger"`) {
+			t.Error("expected pagination link to keep filters")
+		}
+		if !strings.Contains(body, `activityDateRange(&#34;2026-08-01&#34;`) && !strings.Contains(body, `activityDateRange("2026-08-01"`) {
+			t.Error("expected date picker prefilled with the from date")
+		}
+		if !strings.Contains(body, "Clear filters") || !strings.Contains(body, "Last 7 days") {
+			t.Error("expected clear link and translated presets")
 		}
 	})
 

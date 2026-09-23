@@ -442,8 +442,25 @@ export const pages = {
     shots: [
       {
         name: 'list',
-        alt: 'Activity Log table listing recent account actions with the user, action and IP address',
+        alt: 'Activity Log with type filter buttons, quick date ranges and a table of actions, each with a colored icon for its type',
         crop: { from: 'main section > div:first-child', to: 'main table tbody tr:nth-of-type(8)' },
+      },
+      {
+        name: 'type-filter',
+        url: '/account/activity?type=danger',
+        alt: 'Activity Log filtered to Destructive actions, showing only deletions, removals and resets with a red trash icon',
+        crop: { from: '.activity-toolbar', to: 'main table tbody tr:nth-of-type(6)' },
+      },
+      {
+        name: 'date-range',
+        url: '/account/activity?from=2026-09-01&to=2026-09-23',
+        alt: 'Date range picker open with presets on the left, a two month calendar with the selected range highlighted, and Cancel and Apply buttons',
+        prepare: async page => {
+          await page.click('.dr-trigger');
+          await page.locator('.dr-pop').waitFor();
+          await page.waitForTimeout(250);
+        },
+        crop: { from: '.activity-toolbar', to: '.dr-pop', pad: 12 },
       },
     ],
   },

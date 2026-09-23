@@ -178,6 +178,19 @@ type ActivityPageData struct {
 	ActivityPageResult
 }
 
+// DateLabels are the translated preset names the date range picker needs in JS
+func (d ActivityPageData) DateLabels() map[string]string {
+	return map[string]string{
+		"todayShort": d.T.Get("Today"),
+		"today":      d.T.Get("Today"),
+		"last7":      d.T.Get("Last 7 days"),
+		"last30":     d.T.Get("Last 30 days"),
+		"last3m":     d.T.Get("Last 3 months"),
+		"last6m":     d.T.Get("Last 6 months"),
+		"ytd":        d.T.Get("Year to date"),
+	}
+}
+
 func renderActivityPage(a *appctx.App, w http.ResponseWriter, r *http.Request, result ActivityPageResult) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Activity")
 	if err != nil {

@@ -19,15 +19,14 @@ func apiActivity(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	username, _ := data["current_username"].(string)
 
-	searchTerm := r.URL.Query().Get("search")
-	showAll := r.URL.Query().Get("show_all") == "true"
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	if page < 1 {
 		page = 1
 	}
 
 	logContent := readActivityLog(username)
-	result := paginateActivityLog(a, logContent, searchTerm, showAll, page)
+	filter := parseActivityFilter(r.URL.Query())
+	result := paginateActivityLog(a, logContent, filter, page)
 
 	writeAPIJSON(w, http.StatusOK, map[string]any{
 		"rows":        result.Rows,
@@ -37,6 +36,9 @@ func apiActivity(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		"total_lines": result.TotalLines,
 		"show_all":    result.ShowAll,
 		"search":      result.SearchTerm,
+		"type":        filter.Kind,
+		"from":        filter.From,
+		"to":          filter.To,
 	})
 }
 

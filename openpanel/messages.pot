@@ -13583,3 +13583,75 @@ msgstr ""
 msgid "Passwords do not match."
 msgstr ""
 
+
+#: templates/user/activity.html
+msgid "Destructive"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Changed"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Filter by type"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Clear filters"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "No actions match these filters."
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Quick date range"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Clear date range"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Select date range"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Previous month"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Next month"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Any time"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Apply"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Today"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Last 7 days"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Last 30 days"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Last 3 months"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Last 6 months"
+msgstr ""
+
+#: templates/user/activity.html
+msgid "Year to date"
+msgstr ""

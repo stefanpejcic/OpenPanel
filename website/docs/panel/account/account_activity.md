@@ -6,9 +6,51 @@ sidebar_position: 7
 
 The Account Activity page provides a log record of all your actions performed on the OpenPanel, along with the timestamp and IP address from which the action was executed. The primary objective of this page is to offer insights into who carried out specific actions, such as deleting a file, adding domains, resetting WordPress admin passwords, and more.
 
-![Activity Log table listing recent account actions with the user, action and IP address](/img/openpanel-screenshots/account/activity-list.png#gh-light-mode-only)
-![Activity Log table listing recent account actions with the user, action and IP address](/img/openpanel-screenshots/account/activity-list_dark.png#gh-dark-mode-only)
+![Activity Log with type filter buttons, quick date ranges and a table of actions, each with a colored icon for its type](/img/openpanel-screenshots/account/activity-list.png#gh-light-mode-only)
+![Activity Log with type filter buttons, quick date ranges and a table of actions, each with a colored icon for its type](/img/openpanel-screenshots/account/activity-list_dark.png#gh-dark-mode-only)
 
+## Action types
+
+Every action in the log has a colored icon that shows what kind of action it was, so destructive changes stand out when you scan the list:
+
+| Icon | Type | Examples |
+|------|------|----------|
+| Red trash can | **Destructive** | deleted a domain, removed an email alias, uninstalled WordPress, reset a DNS zone, emptied Trash |
+| Green plus | **Created** | added a domain, created a database, installed an application, generated a backup |
+| Amber pencil | **Changed** | edited a file, changed the PHP version, enabled Varnish, restored from a backup |
+| Violet shield | **Security** | logged in, changed a password, enabled 2FA, updated WAF rules, malware scan results |
+| Blue terminal | **Command** | commands run in the web terminal, `wp-cli` and `composer` commands, terminated processes |
+| Gray info | **Info** | opened phpMyAdmin, exported a DNS zone, downloaded a backup |
+
+To show only one type, click its button above the table. Each button shows how many actions of that type match the current date range and search. Click **All** to show every type again.
+
+![Activity Log filtered to Destructive actions, showing only deletions, removals and resets with a red trash icon](/img/openpanel-screenshots/account/activity-type-filter.png#gh-light-mode-only)
+![Activity Log filtered to Destructive actions, showing only deletions, removals and resets with a red trash icon](/img/openpanel-screenshots/account/activity-type-filter_dark.png#gh-dark-mode-only)
+
+## Date range
+
+Use the quick range buttons (**Today**, **7D**, **30D**, **3M**, **6M**) to show only recent actions, or click **Date** to pick a range yourself.
+
+![Date range picker open with presets on the left, a two month calendar with the selected range highlighted, and Cancel and Apply buttons](/img/openpanel-screenshots/account/activity-date-range.png#gh-light-mode-only)
+![Date range picker open with presets on the left, a two month calendar with the selected range highlighted, and Cancel and Apply buttons](/img/openpanel-screenshots/account/activity-date-range_dark.png#gh-dark-mode-only)
+
+In the picker, choose a preset on the left (including **Year to date**), or click a start day and an end day in the calendar, then click **Apply**. Both days are included in the range. To remove the range, click the **×** next to the selected dates, or **Clear filters** to reset the type, date and search at once.
+
+## Search and pages
+
+You can search for actions by IP, username, date, or specific action. Searching for a term automatically shows every matching entry in the log, not just the current page. Search works together with the type and date filters.
+
+By default only 100 actions will be shown per page, you can navigate pages using the pagination links. The selected type and date range are kept when you move between pages.
+
+## Sharing a filtered view
+
+The type, date range, search term and page are all saved in the page address, for example:
+
+```
+/account/activity?type=danger&from=2026-09-01&to=2026-09-23
+```
+
+Bookmark the address or send it to someone with access to the account, and the page opens with the same filters applied.
 
 ## Recorded actions:
 
@@ -180,7 +222,3 @@ The OpenPanel interface records the following account activities:
 * Changed backup config
 * Switched backup destination
 * Restored full backup, database, or files from a backup
-
-You can search for these actions by IP, username, date, or specific action. Searching for a term automatically shows every matching entry in the log, not just the current page.
-
-By default only 100 actions will be shown per page, you can navigate pages using the pagination links.
