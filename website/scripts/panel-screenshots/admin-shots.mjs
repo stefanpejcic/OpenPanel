@@ -12,6 +12,7 @@ import { rename, all, click, fill, fillVisible, selectFirst, maskIPs, hideNotice
 const DEMO_NAMES = {
   // second test server used for pages the demo can't show
   '185.7.32.112': '203.0.113.10',
+  'stefan.openpanel.org': 'server.example.com',
   'asdadsadsadasdas@': 'info@',
   'asdadsadsdasdas@': 'info@',
   'assaasas@': 'sales@',

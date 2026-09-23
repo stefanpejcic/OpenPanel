@@ -62,7 +62,12 @@ term that gets through.
 - Readable fake data: `rename()` demo names (`wp.tests.openpanel.org` → `blog.example.com`,
   random DB names → `wp_blog`), `maskIPs()` for addresses, never show tokens or passwords.
   Fake output (e.g. a cron run) must match what the real command would print.
-- Light theme, 1100px wide at 2x (a shot can set `viewportWidth`/`viewportHeight`).
+- Every screenshot has a light and a dark version, 1100px wide at 2x (a shot can set
+  `viewportWidth`/`viewportHeight`). Shoot light as usual, then the same keys with `--dark`
+  (saved with a `_dark` suffix). In the markdown each image appears twice:
+  `![alt](/img/.../x.png#gh-light-mode-only)` and `![alt](/img/.../x_dark.png#gh-dark-mode-only)`;
+  `src/css/custom.css` hides the one that doesn't match the theme and adds the border.
+  Shots that are dark on purpose (the dark-mode pages) use a single `#screenshot` image.
 - Alt text describes what the image shows, not the file name.
 - Fix doc text that doesn't match the UI when you see it (button names, missing
   options), and say so in the reply. Use `:::info` blocks, not "NOTE:" lines.
