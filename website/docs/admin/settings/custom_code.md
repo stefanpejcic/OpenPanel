@@ -17,26 +17,36 @@ How-to Articles, PageSpeed API Key, Forbidden Usernames, and Restricted Domains 
 ## Custom CSS
 Inject your own CSS styles that will be applied across all pages of the OpenPanel UI. 
 
+![Custom CSS editor with the Insert Example button](/img/openadmin-screenshots/settings/custom_code-css.png)
+
 Stored in `/etc/openpanel/openpanel/custom_code/custom.css` file.
 
 ## Custom JS
 Add custom JavaScript to all pages. This is ideal for extending UI functionality, adding widgets, or integrating third-party tools.
+
+![Custom JS editor](/img/openadmin-screenshots/settings/custom_code-js.png)
 
 Stored in `/etc/openpanel/openpanel/custom_code/custom.js` file.
 
 ## Code in Header
 Insert custom code directly into the head tag of every page. Useful for meta tags, analytics scripts, and global settings.
 
+![Code in Header editor for the head tag of every OpenPanel page](/img/openadmin-screenshots/settings/custom_code-header.png)
+
 Stored in `/etc/openpanel/openpanel/custom_code/in_header.html` file.
 
 ## Code in Footer
 Insert custom code directly into the footer section of all pages. This is commonly used for tracking scripts, analytics, or deferred JavaScript.
+
+![Code in Footer editor](/img/openadmin-screenshots/settings/custom_code-footer.png)
 
 Stored in `/etc/openpanel/openpanel/custom_code/in_footer.html` file.
 
 ## Custom Section
 
 You can add a **custom section** with icon-based items to the *Dashboard* in **OpenPanel**.
+
+![Custom Section editor for the OpenPanel dashboard](/img/openadmin-screenshots/settings/custom_code-section.png)
 
 custom section supports the following fields:
 
@@ -140,6 +150,8 @@ Enter one item per row. Supported formats:
 * **wp\_org\_slug** — the plugin slug from the WordPress.org plugin page
 * **URL** — a direct link to a `.zip` plugin file hosted online
 
+![WordPress Plugins Set editor](/img/openadmin-screenshots/settings/custom_code-plugins.png)
+
 ## WordPress Themes Set
 
 List the WordPress themes to automatically install for all new WordPress sites.
@@ -148,10 +160,12 @@ Enter one item per row. Supported formats:
 * **wp\_org\_slug** — the theme slug from the WordPress.org themes page
 * **URL** — a direct link to a `.zip` theme file hosted online
 
+![WordPress Themes Set editor](/img/openadmin-screenshots/settings/custom_code-themes.png)
+
 ## After Update
 Define custom bash commands that will automatically run after each OpenPanel update. Ideal for restoring customizations or triggering automation scripts.
 
-![openadmin custom code](/img/admin/custom_code.png)
+![After update script editor](/img/openadmin-screenshots/settings/custom_code-after.png)
 
 This powerful customization layer helps ensure OpenPanel fits seamlessly into your environment.
 
@@ -166,6 +180,8 @@ Stored in `/root/openpanel_run_after_update` file.
 ## Before Startup
 
 Add custom bash code to be executed before starting OpenPanel.
+
+![Before startup script editor](/img/openadmin-screenshots/settings/custom_code-before.png)
 
 Stored in `/root/openpanel_run_on_startup` file.
 

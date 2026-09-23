@@ -14,8 +14,6 @@ Hosting plans set limits for users.
 
 To list existing plans navigate to **OpenAdmin > Hosting Plans > User Packages**:
 
-![openadmin plans](/img/admin/tremor/plans_list.png)
-
 
 | Field              | Description                                                               |
 | ------------------ | ------------------------------------------------------------------------- |
@@ -35,6 +33,8 @@ To list existing plans navigate to **OpenAdmin > Hosting Plans > User Packages**
 | **FTP accounts** | Total number of ftp accounts that user can create on the plan.             |
 | **Feature Set** | [Feature Sets](/docs/admin/plans/feature-manager) determine which pages users can access from the OpenPanel interface.               |
 | **Used by** | Number of users currently on this plan. Click the number to view those users. |
+
+![User Packages page listing hosting plans with their memory, CPU, disk, inodes, port speed and other limits](/img/openadmin-screenshots/plans/hosting_plans-list.png)
 
 
 
@@ -75,8 +75,6 @@ opencli plan-list --json
 
 To create a new hosting package, click the **'Create New'** button and configure the desired limits:
 
-![openadmin plans create](/img/admin/tremor/plans_create.png)
-
 
 * **Name** – Plan name.
 * **Description** – Optional plan description. It is visible to users on their Server Information page, not just to admins.
@@ -93,6 +91,8 @@ To create a new hosting package, click the **'Create New'** button and configure
 * **Max hourly emails** – Max number of emails that all addresses under this account can send within one hour. Use `0` for unlimited.
 * **FTP Accounts** – Max number of FTP accounts the user can create and manage on this plan. Use `0` for unlimited.
 * **Feature set** – Feature set that determines which features users on this plan have access to.
+
+![New Package form with name, description, disk, inodes, CPU, memory, port speed, domains, websites, databases, email, FTP and feature set fields](/img/openadmin-screenshots/plans/hosting_plans-new.png)
 
 </TabItem>
 <TabItem value="CLI-plan-new" label="With OpenCLI">
@@ -116,9 +116,9 @@ opencli plan-create name="New Plan" description="This is a new plan" emails=100 
 
 To change plan limits, go to **OpenAdmin > Hosting Plans > User Packages**, click the **...** (kebab) menu at the end of the plan's row, choose **Edit**, and set the new limits.
 
-![openadmin plans edit](/img/admin/tremor/plans_edit_1.png)
+![Row menu of a hosting plan that is in use, with the Edit option](/img/openadmin-screenshots/plans/hosting_plans-menu.png)
 
-![openadmin plans edit limits](/img/admin/tremor/plans_edit_2.png)
+![Edit plan page with the limits of an existing hosting package](/img/openadmin-screenshots/plans/hosting_plans-edit.png)
 
 
 The new limits will be applied immediately to all accounts using the package.
@@ -130,9 +130,8 @@ The new limits will be applied immediately to all accounts using the package.
 
 To view all users that are currently using a hosting package, click the number shown in the **Used by** column for that plan on the User Packages page - this opens the Users list already filtered to that package. Alternatively, on the Users page, sort the table by the **Package** column, or type the package name in the search field.
 
-![openadmin plans usage](/img/admin/tremor/plans_usage_1.png)
 
-![openadmin plans usage](/img/admin/tremor/plans_usage_2.png)
+![Users page filtered to the users on one hosting plan](/img/openadmin-screenshots/plans/hosting_plans-usage.png)
 
   </TabItem>
   <TabItem value="CLI-plan-usage" label="With OpenCLI">
@@ -169,7 +168,7 @@ opencli plan-usage --json
     
 To delete a hosting package, click the **...** (kebab) menu at the end of the package's row and choose **Delete**. The **Delete** option only appears in the menu when the package has no users assigned to it.
 
-![openadmin plans delete](/img/admin/tremor/plans_delete.png)
+![Row menu of a hosting plan that is in use, with the Edit option](/img/openadmin-screenshots/plans/hosting_plans-menu.png)
 
 
   </TabItem>

@@ -10,6 +10,8 @@ The API Access page is only available with an **Enterprise** license. It is also
 
 Use the API Access page to test API calls, view request/response examples, monitor API logs, and experiment with endpoints in a simple interface.
 
+![API Access page showing API access as disabled with the Enable API access button](/img/openadmin-screenshots/settings/api-page.png)
+
 To begin:
 
 1. **Enable API Access**

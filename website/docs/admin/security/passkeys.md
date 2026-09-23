@@ -16,6 +16,8 @@ Use **OpenAdmin > Security > Passkeys** to manage them.
 
 You can register multiple passkeys for the same account, and remove any of them from this page at any time.
 
+![Passkeys page with the registered passkeys and the Add a passkey form](/img/openadmin-screenshots/security/passkeys-page.png)
+
 :::info
 This page manages passkeys for your **own** login. To disable passkeys for a Reseller or Administrator, use the **Disable Passkeys** action on their row in [Accounts](/docs/admin/accounts/administrators/) or [Resellers](/docs/admin/accounts/resellers/).
 :::

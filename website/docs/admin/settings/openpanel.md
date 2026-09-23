@@ -13,6 +13,8 @@ Configure nameservers, branding, and UI display settings for the OpenPanel inter
 Customize the appearance of OpenPanel to match your brand:
 
 - **Brand Name**  
+
+![Branding section with the brand name, logo, favicon and logout URL](/img/openadmin-screenshots/settings/openpanel-branding.png)
   Set a custom name to appear in the OpenPanel sidebar and on login pages by entering it in the **"Brand name"** field.
 
 - **Logo**  
@@ -30,6 +32,8 @@ Customize the appearance of OpenPanel to match your brand:
 - ns3
 - ns4
 
+![Nameservers section with the ns1 to ns4 fields](/img/openadmin-screenshots/settings/openpanel-nameservers.png)
+
 [Guide on how to properly configure nameservers](/docs/articles/domains/how-to-configure-nameservers-in-openpanel)
 
 ## Users
@@ -40,6 +44,8 @@ Settings for OpenPanel user accounts:
 - **Allow Subdomain Sharing:** If allowed, users can add subdomains for domains that another user owns.
 - **Forbidden Usernames:** List of usernames that can not be used, one per line.
 - **Restricted Domains:** List of domains that can not be used, one per line.
+
+![Users section with toggles for what OpenPanel users can change](/img/openadmin-screenshots/settings/openpanel-users.png)
 
 ## Display
 
@@ -52,6 +58,8 @@ Additional display settings include:
 - **Display How-to Guides Widget:** Display helpful how-to articles on users’ dashboard pages. When enabled, a **How-to Articles** field appears below to edit the Knowledge Base articles shown (requires an active Enterprise license and a non-reseller account to edit).
 - **Display Link to Report Bugs:** Show a “Found a bug? Let us know” link at the bottom of all user pages for easy bug reporting.
 - **Display Country Flag Icons:** Show country flags next to the last login IP in the OpenPanel dashboard.
+
+![Display section with the OpenPanel interface options](/img/openadmin-screenshots/settings/openpanel-display.png)
 
 ## Onboarding
 
@@ -86,6 +94,8 @@ Configure the following settings for the File Manager:
 - **Enable View Option for (base64 image) Extensions:** Specify image file extensions that can be displayed using base64 encoding in the Viewer.
 - **Enable Extract and Archive Options for (archives) Extensions:** Specify archive file extensions that can be extracted using the File Manager.
 
+![File Manager section with the file manager options](/img/openadmin-screenshots/settings/openpanel-filemanager.png)
+
 ## Databases
 
 Settings for user's databases:
@@ -95,12 +105,16 @@ Settings for user's databases:
 - **Restricted MySQL (system) Users:** List of MySQL usernames that users are not allowed to access/manage.
 - **Restricted MySQL (system) Databases:** List of MySQL databases that users are not allowed to access/manage.
 
+![Databases section with the database options](/img/openadmin-screenshots/settings/openpanel-databases.png)
+
 ## Security
 
 Captcha, 2FA, and password protections for login and signup forms:
 
 - **Captcha Provider:** Choose between Disabled, Google reCAPTCHA, Cloudflare Turnstile, or Custom.
 - Depending on the provider selected, enter the corresponding **site key** and **secret key** (or custom site key for the Custom provider).
+
+![Security section with the OpenPanel login and session options](/img/openadmin-screenshots/settings/openpanel-security.png)
 
 :::info
 Captcha requires the [captcha plugin](https://github.com/stefanpejcic/captcha/) to be installed — these settings have no effect until it is installed.
@@ -127,3 +141,5 @@ Configure the following settings related to user login attempts, session managem
 - **Domains per Page:** Number of domain entries displayed per page in domain management lists.
 - **Terminal Commands Timeout (in Seconds):** Maximum number of seconds a Docker Terminal command can run before being timed out.
 - **PageSpeed API Key:** If set, this API key is used to fetch data from Google PageSpeed Insights.
+
+![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics.png)

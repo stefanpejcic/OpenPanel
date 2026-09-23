@@ -30,6 +30,8 @@ OpenAdmin automatically attempts to start the ImunifyAV service the first time y
 opencli imunify start
 ```
 
+![ImunifyAV page telling that the GUI is not running yet, with the command to start it](/img/openadmin-screenshots/security/imunify-not-running.png)
+
 ## Login
 
 Access the ImunifyAV GUI from **OpenAdmin > Security > ImunifyAV**. OpenAdmin automatically logs you in using a generated token; if token generation fails, a warning is shown and you'll need to log in manually using the server's SSH username and password.

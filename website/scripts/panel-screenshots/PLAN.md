@@ -197,3 +197,20 @@ All sections are shot and placed. Pages the read-only demo can't show, left as t
 
 Re-run everything with `node login.mjs && node shoot.mjs` (about 15 minutes). The session expires after a while, so
 if shots start failing with "session expired", log in again and re-run just the failed pages.
+
+# OpenAdmin (docs/admin)
+
+Same tooling with `--admin`: `node login.mjs --admin`, `node shoot.mjs --admin <page-key>`.
+Demo: `https://demo.openpanel.com:2087` (credentials prefilled, headless login works).
+Manifest: `admin-shots.mjs`, output: `static/img/openadmin-screenshots/<section>/`.
+Source: `../openadmin/internal/webtemplates/*.html`. Many pages use Alpine `activeTab`
+tabs that open from the URL hash (e.g. `/users/<name>#edit`).
+
+Status (2026-09-23): 47 pages done, 135 screenshots.
+
+Not done, because the demo can't show them:
+- emails/* (4 pages): the mail server isn't running on the demo, every email page shows "Not Running".
+- security/blacklist-useragents, security/disable-admin, advanced/root-password, advanced/terminal:
+  403 for the demo login (it is an Admin, not the Super Admin).
+- SSH "Authorized Keys" tab: only shown when public key authentication is enabled.
+- settings/notifications daily report example: it's an email, kept as is.

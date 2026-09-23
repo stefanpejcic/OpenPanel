@@ -8,7 +8,7 @@ sidebar_position: 3
 
 ### Basic SSH Settings
 
-![screenshot](/img/admin/ssh_access.png)
+![SSH Access page on the Basic tab with the SSH port, root login, password and public key authentication settings](/img/openadmin-screenshots/advanced/ssh-basic.png)
 
 This tab displays:
 
@@ -26,3 +26,5 @@ This tab is only shown when **Public Key Authentication** is enabled. Here you c
 ### Advanced
 
 Here you can edit the raw SSH configuration file: `/etc/ssh/sshd_config`
+
+![SSH Access Advanced tab with the sshd configuration editor](/img/openadmin-screenshots/advanced/ssh-advanced.png)

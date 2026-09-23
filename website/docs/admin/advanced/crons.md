@@ -6,7 +6,7 @@ sidebar_position: 4
 
 **OpenAdmin > Server > Scheduled Actions** lets Administrators view the scheduled cron tasks used by OpenPanel, modify their schedules, or enable/disable logging to the file `/var/log/openpanel-cron.log`.
 
-![screenshot](/img/admin/openadmin_cronjobs.png)
+![Scheduler page listing OpenPanel system jobs with their cron schedule fields and command](/img/openadmin-screenshots/advanced/crons-page.png)
 
 
 Changing schedules may cause some OpenPanel features to stop working correctly. Only adjust these settings if:

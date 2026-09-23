@@ -6,7 +6,7 @@ sidebar_position: 3
 
 The *OpenAdmin > Services > View Log Files* feature enables Administrators to access and monitor logs for both OpenPanel and system services.
 
-![log viewer page](/img/admin/openadmin_services_logs.png)
+![Log Viewer with a log file selected, its content, and the Delete and Download buttons](/img/openadmin-screenshots/services/logs-page.png)
 
 ## How to View Log Files
 

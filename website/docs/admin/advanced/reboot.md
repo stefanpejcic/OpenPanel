@@ -9,6 +9,8 @@ Initiate a reboot of the server. Depending on the situation, you can perform eit
 - **Graceful Server Reboot** attempts to safely stop running processes and allow the operating system to cleanly shut down services before restarting.
 - **Forceful Server Reboot** immediately restarts the system at the kernel level and should only be used if the server is unresponsive.
 
+![Server Reboot page explaining graceful and forceful reboots, with the reboot type dropdown and the Reboot Server button](/img/openadmin-screenshots/advanced/reboot-page.png)
+
 ## Graceful
 
 A graceful reboot tells the operating system to restart normally. Services and user processes are given a chance to shut down cleanly.

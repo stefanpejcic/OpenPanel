@@ -21,6 +21,8 @@ Resellers are managed from **Accounts > Resellers**. Reseller logins do not see 
 The interface displays a table of existing reseller users with the following columns:
 
 - **Username**  
+
+![Resellers page with the reseller table columns and the Enable Resellers button](/img/openadmin-screenshots/accounts/resellers-list.png)
   The unique identifier of the reseller user.
 
 - **Status**  

@@ -15,7 +15,7 @@ Domains page displays all domains currently hosted on server.
 
 To list all current domains navigate to Domains page. 
 
-![openadmin domains page](/img/admin/2.0/openadmin_domains_table.png)
+![Domains page listing all domains with their status, PHP version, webserver, SSL, WAF and owner](/img/openadmin-screenshots/domains/domains-list.png)
 
 The table shows these columns by default:
 
@@ -64,7 +64,7 @@ my.openpanel.com
 
   Click on 'Add Domain' button, insert the domain and select the user to add it, then click on 'Add Domain'.
 
-![openadmin domains add](/img/admin/2.0/openadmin_domains_add.png)
+![Add Domain form with the domain name and the user to add it to](/img/openadmin-screenshots/domains/domains-add.png)
 
 
   </TabItem>
@@ -107,14 +107,15 @@ Domain pejcci.rs added successfully
 
 Each row in the Domains table has an actions menu (the `⋮` button) with the following options:
 
-![openadmin domains actions](/img/admin/2.0/openadmin_domains_actions.png)
-
 - **Edit DNS Zone** — opens the [DNS Zone Editor](/docs/admin/domains/dns) for this domain. Only shown if the **dns** module is enabled.
 - **Suspend domain** / **Unsuspend domain** — toggles the domain's status.
 - **Manage SSL** — opens the SSL page for the domain. Not shown for suspended domains.
-- **Edit VHosts** — opens the VirtualHost config editor for the domain.
+- **Edit Virtual Host** — opens the VirtualHost config editor for the domain.
+- **Edit Apache Config** — opens the webserver configuration file of the domain owner (the label follows the owner's webserver).
 - **Edit Caddyfile** — opens the Caddy config editor for the domain.
 - **Delete domain** — permanently deletes the domain, see [Delete domain](#delete-domain) below.
+
+![Actions menu of a domain with Edit DNS Zone, Manage SSL, Edit Virtual Host, Edit Apache Config, Edit Caddyfile, Suspend domain and Delete domain](/img/openadmin-screenshots/domains/domains-actions.png)
 
 ## Move domain
 
@@ -127,5 +128,7 @@ Domains can be deleted directly from OpenAdmin:
 1. Open the domain's actions menu (`⋮`) in the Domains table and click **Delete domain**.
 2. A confirmation dialog lists what will be removed: VHost configuration files, Caddyfile entries, SSL certificates, and email accounts & redirects. Website files and the docroot directory are **not** deleted.
 3. Type the domain name to confirm, then click **Delete Permanently**.
+
+![Delete domain confirmation asking to type the domain name before deleting it permanently](/img/openadmin-screenshots/domains/domains-delete.png)
 
 > Domains with attached websites cannot be deleted — remove all websites from Site Manager first. If the domain is added again later, default configurations are recreated.

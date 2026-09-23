@@ -1,6 +1,6 @@
 ---
 name: panel-screenshots
-description: Generate or update OpenPanel UI screenshots for the docs/panel/ pages with Playwright against the demo panel, then place them in the markdown. Use when asked to add, replace or fix screenshots on a docs/panel page, or to screenshot a section, button, dialog or tab of the OpenPanel user panel.
+description: Generate or update OpenPanel and OpenAdmin UI screenshots for the docs/panel/ and docs/admin/ pages with Playwright against the demo panel, then place them in the markdown. Use when asked to add, replace or fix screenshots on a docs/panel page, or to screenshot a section, button, dialog or tab of the OpenPanel user panel.
 ---
 
 # OpenPanel docs screenshots
@@ -15,6 +15,13 @@ Screenshots for `docs/panel/**` are generated, never hand-made. Everything lives
 - `login.mjs` – saves the session to `.auth/state.json` (gitignored).
 - `PLAN.md` – page → route → shots map and conventions.
 
+**Admin panel (docs/admin/)**: add `--admin` to every command (`node login.mjs --admin`,
+`node shoot.mjs --admin <key>`). It uses `admin-shots.mjs`, the demo at
+`https://demo.openpanel.com:2087` (user `administrator`, prefilled), the session file
+`.auth/admin_state.json`, output `static/img/openadmin-screenshots/`, and the source in
+`../openadmin/internal/webtemplates/`. Admin pages often keep tabs in Alpine `activeTab`
+that open from the URL hash (`/users/<name>#edit`).
+
 Output goes to `static/img/openpanel-screenshots/<section>/<page>-<shot>.png` and is
 referenced as `/img/openpanel-screenshots/...`. Do not touch `/img/panel/v2/*`, the
 versioned 1.X docs still use it.
@@ -22,12 +29,12 @@ versioned 1.X docs still use it.
 ## Login: try the demo first, ask only if it fails
 
 1. `cd scripts/panel-screenshots && npm i` if `node_modules` is missing.
-2. Run `node login.mjs`. It uses the credentials prefilled on
-   `https://demo.openpanel.com:2083/login` (user `testinguser`).
+2. Run `node login.mjs` (or `--admin`). It uses the credentials prefilled on
+   `https://demo.openpanel.com:2083/login` (user `testinguser`) or `:2087` (user `administrator`).
 3. Only if that fails, ask the user. Say exactly what failed and offer:
    - disable the Cloudflare Turnstile on the demo login (login.mjs then works headless), or
    - solve the captcha in the browser window login.mjs opens, or
-   - give a different panel URL (`PANEL_URL=https://host:2083 node login.mjs`) and credentials.
+   - give a different URL (`PANEL_URL=https://host:2083` or `ADMIN_URL=https://host:2087`) and credentials.
 4. The session expires during long runs. When shots fail with "session expired",
    rerun `node login.mjs` and then only the failed page keys.
 
@@ -40,6 +47,8 @@ term that gets through.
 
 ## What the user wants
 
+- Docs pages may wrap sections in `<Tabs>`/`<TabItem>` (OpenAdmin / OpenCLI / API): images
+  go in the OpenAdmin tab, keeping its indentation.
 - One screenshot per docs section that describes something on screen, placed under
   that section's heading or after its first paragraph – never between a sentence
   ending in `:` and its list/table, and never inside a numbered list.

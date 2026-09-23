@@ -17,9 +17,11 @@ OpenPanel has a single user role named **User** that can only manage their docke
   
   The Users page displays a table with user information and buttons to manage it.
   
-  ![openadmin users page](/img/admin/openadmin_users_list.gif)
+  ![Users page listing OpenPanel accounts with their status, plan, limits, usage and the Impersonate button](/img/openadmin-screenshots/accounts/users-list.png)
   
   Additional columns can be displayed using the 'Show Columns' button.
+
+  ![Show Columns menu of the Users table with a toggle for each column](/img/openadmin-screenshots/accounts/users-columns.png)
 
   Suspended users are highlighted in red.
 
@@ -73,7 +75,7 @@ To create a new user, click on the **Create New** button on the Users page. A fo
 
 You can also choose the webserver for the account (and optionally enable Varnish Cache), the database type (MySQL or MariaDB), assign a reseller as the account's owner (Enterprise license only, and only when creating the user as a Super Admin/Admin), and select a hosting plan to assign to the user.
 
-![add new user openadmin](/img/admin/2025-06-09_08-20.png)
+![Create New user form with username, email, password, webserver, database type and hosting plan](/img/openadmin-screenshots/accounts/users-new.png)
 
   </TabItem>
   <TabItem value="CLI-users-new" label="OpenCLI">
@@ -125,12 +127,12 @@ Example response:
 
 ## Single User
 
-To view detailed information about a user, and edit their settings, click on their username in the users table. The user page is organized into tabs: Statistics, Services, Storage, Overview, Permissions, Activity, Login Log, Edit, Transfer (Enterprise license only), Suspend (replaced by a single Unsuspend action if the account is already suspended), and Delete.
+To view detailed information about a user, and edit their settings, click on their username in the users table. The user page has a menu on the left with these tabs: Overview, Services, Storage, Edit, Permissions, Export, Suspend (replaced by a single Unsuspend action if the account is already suspended), Delete, Activity Log and Login Log.
 
 
 ### Statistics 
 
-Statistics is the default tab, displays current usage statistics:
+Overview is the default tab. Its top part displays current usage statistics:
 
 - Storage used
 - Inodes used
@@ -143,9 +145,11 @@ Statistics is the default tab, displays current usage statistics:
 - Time statistics usage was last update
 - Historical usage
 
-Clicking on 'View Past Usage' will display a table with past resource usage for the user: Date, number of running containers, CPU% and Memory%, Net I/O and Block I/O.
+![Overview tab of a user with gauges for storage, inodes, CPU and memory usage and the View Past Usage button](/img/openadmin-screenshots/accounts/users-stats.png)
 
-![user statistics](/img/admin/user_usage.png)
+Clicking on 'View Past Usage' will display a table with past resource usage for the user: Date, CPU %, CPU usage, Memory %, Memory usage and Tasks.
+
+![Past resource usage table of a user with the date, CPU and memory usage and the number of tasks](/img/openadmin-screenshots/accounts/users-history.png)
 
 
 ### Services
@@ -162,7 +166,7 @@ Services tab displays all user services (docker containers). Columns can be togg
 
 An 'Edit Services' button also lets Administrators edit the raw service configuration.
 
-![docker services](/img/admin/docker_services.png)
+![Services tab listing the user containers with their CPU and memory usage, PIDs and actions](/img/openadmin-screenshots/accounts/users-services.png)
 
 ### Storage
 
@@ -172,11 +176,13 @@ Storage tab displays data from the [docker system df](https://docs.docker.com/re
 - Containers
 - Images
 
+![Storage tab with the user volumes, containers and images from docker system df](/img/openadmin-screenshots/accounts/users-storage.png)
+
 ### Overview
 
-Overview page displays detailed user information and allows Administrator to set a custom message specifically for this user.
+Below the usage statistics, the Overview tab displays detailed user information.
 
-![user overview](/img/admin/2025-06-09_08-34.png)
+![User details on the Overview tab: username, email, plan, locale, 2FA status, IP address, location, server, docker context and setup time](/img/openadmin-screenshots/accounts/users-info.png)
 
 Displayed information:
 
@@ -190,12 +196,13 @@ Displayed information:
 - 2FA status
 - Reseller (if the user is owned by a reseller)
 - Setup Time
-- Custom Message for user
 
 
 ### Permissions
 
 The Permissions tab lets Administrators view and, for individual users, override which OpenPanel features/pages are enabled. By default a user's permissions follow their hosting plan's defaults; switching to **Custom** mode allows enabling or disabling individual features for that user only, independent of the plan. Plan-wide feature defaults are managed separately in Feature Manager.
+
+![Permissions tab where the enabled OpenPanel features follow the plan or are set per user](/img/openadmin-screenshots/accounts/users-permissions.png)
 
 ### Activity
 
@@ -205,7 +212,7 @@ Displays [users activity log](/docs/panel/account/account_activity/).
 - Action performed
 - IP Address
 
-![user activity](/img/admin/login_log.png)
+![Activity Log tab with the date and the action performed](/img/openadmin-screenshots/accounts/users-activity.png)
 
 ### Login Log
 
@@ -214,6 +221,8 @@ Displays a log of successful logins for the user, separate from the general Acti
 - Date
 - Country
 - IP Address
+
+![Login Log tab with the date, country and IP address of each login](/img/openadmin-screenshots/accounts/users-logins.png)
 
 ### Edit
 From the Edit tab, Administrators can edit user information:
@@ -227,15 +236,21 @@ From the Edit tab, Administrators can edit user information:
 
 Click **Save** to apply the changes.
 
-![user edit](/img/admin/edit_user.png)
+![Edit tab with the username, email, password, IP address, reseller and hosting package fields](/img/openadmin-screenshots/accounts/users-edit.png)
 
-### Transfer
+Below the form, the Edit tab also lets Administrators set a custom message that is shown to this user in OpenPanel.
 
-:::info
-Transfer is an Enterprise-only feature.
-:::
+### Export
 
-The Transfer tab lets Administrators migrate the user account, along with all its containers and data, to another OpenPanel server over SSH. You provide the remote server's address/port and root SSH credentials, and can optionally enable "Live Transfer" so that once the migration completes, the account is automatically suspended on the current server and its domains' DNS is updated to point to the new server.
+The Export tab has two options:
+
+- **Generate full account backup** – Creates a compressed archive of the account's home directory, databases, domains, websites, email, FTP, DNS zones, SSL certificates, cronjobs and containers/images. Previously generated backups are listed below, where they can be downloaded or deleted.
+
+![Export tab with the Generate full account backup option and the list of existing backups](/img/openadmin-screenshots/accounts/users-export.png)
+
+- **Transfer to another server** (Enterprise license only) – Migrates the user account, along with all its containers and data, to another OpenPanel server over SSH. You provide the remote server's address/port and root SSH credentials, and can optionally enable "Live Transfer" so that once the migration completes, the account is automatically suspended on the current server and its domains' DNS is updated to point to the new server.
+
+![Transfer to another server form on the Export tab with the remote server, SSH credentials and the Live Transfer option](/img/openadmin-screenshots/accounts/users-transfer.png)
 
 ### Suspend
 
@@ -246,7 +261,7 @@ Suspending an account will immediately disable the user's access to the OpenPane
 
 To suspend a user, open the "Suspend" tab on that user's page and type the username to confirm, then click the **Suspend account** button.
 
-![suspend user](/img/admin/openadmin_suspend_user.gif)
+![Suspend tab asking to type the username before suspending the account](/img/openadmin-screenshots/accounts/users-suspend.png)
 
   </TabItem>
   <TabItem value="CLI-user-suspend" label="With OpenCLI">
@@ -298,7 +313,7 @@ opencli user-unsuspend filip
 
 To reset password for a user, click on the "Edit" tab and set the new password in the Password field (leave it empty to keep the current password) then click **Save**.
 
-![add new user openadmin](/img/admin/reset_password.png)
+![Edit tab with the password field and the Generate button](/img/openadmin-screenshots/accounts/users-edit.png)
 
 
   </TabItem>
@@ -416,6 +431,8 @@ To auto-login to a user's OpenPanel account, click on the **Impersonate** button
   <TabItem value="openadmin-user-delete" label="With OpenAdmin" default>
 
 To delete a user, open the "Delete" tab for that user, type the username to confirm, then click **Delete account permanently**.
+
+![Delete tab asking to type the username before deleting the account permanently](/img/openadmin-screenshots/accounts/users-delete.png)
 
 
   </TabItem>

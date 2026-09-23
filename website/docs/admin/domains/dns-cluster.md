@@ -22,6 +22,8 @@ Only **IPv4** slave server addresses are currently supported.
 
 Click **Enable DNS Clustering** to activate the feature.
 
+![DNS Cluster Management page with the Enable DNS Clustering button](/img/openadmin-screenshots/domains/dns-cluster-page.png)
+
 ---
 
 ### Add Slave Servers

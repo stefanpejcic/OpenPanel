@@ -18,14 +18,20 @@ Lists every archive in the configured destination directory, with:
 
 **Run Backup Now** creates a new backup immediately (in the background, with a progress toast).
 
+![System Backups page on the Backups tab with the Run Backup Now button](/img/openadmin-screenshots/backups/system-backups.png)
+
 ### Runs
 
 History of every backup/restore/delete action taken from this page — timestamp, action, success/failure, archive name, duration, and detail.
+
+![Runs tab of System Backups with the log of past backup runs](/img/openadmin-screenshots/backups/system-runs.png)
 
 ### Settings
 
 - **Destination** — directory where backup archives are stored. Created automatically if it doesn't exist.
 - **Retention (days)** — backups older than this are pruned after each new run. `-1` keeps every backup indefinitely.
+
+![Settings tab of System Backups with the destination directory and retention in days](/img/openadmin-screenshots/backups/system-settings.png)
 
 Automatic scheduling isn't built into this page — schedule `opencli backup` to run on its own (e.g. weekly) as a [System Cron Job](/docs/admin/advanced/crons/).
 

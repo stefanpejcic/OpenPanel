@@ -2,7 +2,8 @@
 // if a captcha widget is present it falls back to a visible browser so you can solve it by hand
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
-import { BASE_URL, STATE_PATH } from './shots.mjs';
+// --admin logs in to the OpenAdmin demo (port 2087) instead
+const { BASE_URL, STATE_PATH } = await import(process.argv.includes('--admin') ? './admin-shots.mjs' : './shots.mjs');
 
 async function login(headless) {
   const browser = await chromium.launch({ headless });

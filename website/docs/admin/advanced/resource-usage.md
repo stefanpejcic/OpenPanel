@@ -16,6 +16,10 @@ Use **OpenAdmin > Server > Resource Usage** to view it.
 - **Disk** – Disk space usage per mounted volume.
 - **Network** – Network I/O.
 
+![Resource Usage page with the Load, RAM, CPU, Disk and Network tabs and a live chart of the average load](/img/openadmin-screenshots/advanced/resource-usage-page.png)
+
 ## History
 
 Click **View Usage History** to open the historical resource usage page, which charts CPU and memory usage over a selectable time range and lists every recorded snapshot in a table below the charts.
+
+![Resource usage history with charts and a table of past snapshots](/img/openadmin-screenshots/advanced/resource-usage-history.png)

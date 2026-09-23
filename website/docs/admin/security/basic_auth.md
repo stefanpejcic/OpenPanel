@@ -6,7 +6,7 @@ sidebar_position: 1
 
 Enable [Basic Access Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) as an additional security layer for the OpenAdmin interface.
 
-![basic_auth settings openadmin](/img/admin/basic_auth.png)
+![Basic Authentication page with the Enable dropdown and the username and password fields](/img/openadmin-screenshots/security/basic_auth-page.png)
 
 ## Enable
 

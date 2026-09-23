@@ -152,3 +152,19 @@ export const markSection = title => async page => {
     if (row) row.setAttribute('data-shot', 'section');
   }, title);
 };
+
+// tag the grid row around the h2 with this id (or text), for pages whose headings carry badges or links
+export const markSectionId = id => async page => {
+  await page.evaluate(id => {
+    document.querySelectorAll('[data-shot=section]').forEach(e => e.removeAttribute('data-shot'));
+    const h = document.getElementById(id) || [...document.querySelectorAll('main h2')].find(e => e.textContent.trim().startsWith(id));
+    const row = h && (h.closest('.grid') || h.parentElement.parentElement);
+    if (row) row.setAttribute('data-shot', 'section');
+  }, id);
+};
+
+// click the element whose Alpine @click sets a value, e.g. clickAlpine("tab = 'images'")
+export const clickAlpine = (expr, wait = 1200) => async page => {
+  await page.evaluate(expr => [...document.querySelectorAll('[\\@click]')].find(e => e.getAttribute('@click').startsWith(expr)).click(), expr);
+  await page.waitForTimeout(wait);
+};

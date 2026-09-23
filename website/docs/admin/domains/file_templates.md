@@ -19,6 +19,8 @@ This interface allows you to edit the VirtualHosts templates and default landing
 
 This is the HTML page shown on new domains that do **not** have `index.html` or `index.php` in their document root.
 
+![Default Page template editor with a live preview of the page shown on new domains](/img/openadmin-screenshots/domains/file_templates-default.png)
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -50,6 +52,8 @@ To revert to the original template:
 ## Suspended Website
 
 This is the HTML page shown on all domains that users suspend **manually**.
+
+![Suspended Website template editor with a live preview](/img/openadmin-screenshots/domains/file_templates-suspended-website.png)
 
 ```html
 <!DOCTYPE html>
@@ -85,6 +89,8 @@ To revert to the original template:
 
 This is the HTML page shown on all domains owned by the user when their account is suspended **by the Administrator**.
 
+![Suspended User template editor with a live preview](/img/openadmin-screenshots/domains/file_templates-suspended-user.png)
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -117,6 +123,8 @@ To revert to the original template:
 ## Apache VirtualHost
 
 This is the template used for creating VirtualHosts of domains added by users **when using the Apache webserver**.
+
+![Apache VirtualHost template editor](/img/openadmin-screenshots/domains/file_templates-apache.png)
 
 ```bash
 <VirtualHost *:80>
@@ -193,6 +201,8 @@ To revert to the original Apache template:
 ## Nginx VirtualHost
 
 This is the template used for creating VirtualHosts of domains added by users **when using the Nginx webserver**.
+
+![Nginx VirtualHost template editor](/img/openadmin-screenshots/domains/file_templates-nginx.png)
 
 ```bash
 # content
@@ -315,6 +325,8 @@ To revert to the original Nginx template:
 ## OpenResty VirtualHost
 
 This is the template used for creating VirtualHosts of domains added by users **when using the OpenResty webserver**.
+
+![OpenResty VirtualHost template editor](/img/openadmin-screenshots/domains/file_templates-openresty.png)
 
 ```bash
 # content
@@ -448,6 +460,8 @@ To revert to the original OpenResty template:
 ## Varnish Template
 
 This is the template used for creating `default.vcl` file for users **when using the Varnish Caching**.
+
+![Varnish template editor](/img/openadmin-screenshots/domains/file_templates-varnish.png)
 
 The placeholder `VARNISH_BACKEND_HOST` is automatically replaced with the user's actual web server - Nginx, Apache, or OpenResty. 
 

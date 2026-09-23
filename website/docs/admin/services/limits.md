@@ -6,6 +6,8 @@ sidebar_position: 4
 
 The **Service Limits** section allows Administrators to view and adjust the allocated CPU and Memory resources for system services.
 
+![Service Limits page with CPU and memory limits for each system service](/img/openadmin-screenshots/services/limits-page.png)
+
 ---
 
 To update limits, enter new values in the fields for the appropriate service.  

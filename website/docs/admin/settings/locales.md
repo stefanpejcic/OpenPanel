@@ -6,7 +6,7 @@ sidebar_position: 9
 
 Manage the languages available to OpenPanel users.
 
-![openadmin admin panel locales](/img/admin/locales.png)
+![Languages page listing locales with their provider, install status, default and Set as Default buttons](/img/openadmin-screenshots/settings/locales-list.png)
 
 ## Install Locale
 

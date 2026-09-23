@@ -11,7 +11,7 @@ Configure OpenAdmin notifications and Email alerts settings.
 
   To view or edit current notification settings, go to **OpenAdmin > Settings > Notifications** or click the 'Edit Settings' button on the Notification page.
   
-  ![openadmin notifications settings](/img/admin/openadmin_notifications_settings.png)
+  ![Email section with the address for notifications and daily usage reports](/img/openadmin-screenshots/settings/notifications-email.png)
 
   </TabItem>
   <TabItem value="CLI-notifications-view" label="With OpenCLI">
@@ -76,11 +76,15 @@ If email address is set, daily usage report will be sent to the address, schedul
 
 Send notifications to a webhook URL (discord or any other).
 
+![Webhook section with the webhook URL field](/img/openadmin-screenshots/settings/notifications-webhook.png)
+
 ---
 
 ## Services
 
 Receive notifications when services are down or unresponsive. Services are checked every 5 minutes.
+
+![Services section with a toggle per monitored service](/img/openadmin-screenshots/settings/notifications-services.png)
 
 - **OpenPanel:** Notification if OpenPanel UI fails.
 - **OpenAdmin:** Notification if OpenAdmin UI fails.
@@ -102,6 +106,8 @@ Get alerts when resource usage exceeds thresholds (checked every 5 minutes):
 * Disk Usage %
 * SWAP %
 
+![Resource Usage section with the load, CPU, memory, disk and swap thresholds](/img/openadmin-screenshots/settings/notifications-thresholds.png)
+
 ---
 
 ## Server actions
@@ -116,11 +122,15 @@ Receive notifications when specific server-level actions are detected:
 * **SSH login from new IP:** Triggered when root SSH access is detected from an unknown IP address. The IP can be whitelisted in the SSH Allowlist section below.
 * **New update available:** Triggered when a new version of OpenPanel is available for update.
 
+![Server actions section with toggles for reboot, OOM, DNS and other server events](/img/openadmin-screenshots/settings/notifications-server.png)
+
 ---
 
 ## User Actions
 
 Get notified whenever an action occurs in the admin or user panels.
+
+![User actions section with toggles for account and domain change notifications](/img/openadmin-screenshots/settings/notifications-users.png)
 
 - OpenAdmin enabled/disabled
 - API access enabled/disabled
@@ -154,11 +164,15 @@ Get notified whenever an action occurs in the admin or user panels.
 
 Specify IP addresses (or CIDRs) that will be exempt from SSH login checks.
 
+![SSH Allowlist section with the allowed IP addresses](/img/openadmin-screenshots/settings/notifications-ssh.png)
+
 ---
 
 ## SMTP Settings
 
 No SMTP server is configured by default — email notifications will **not** be sent until you set one up here.
+
+![SMTP section with the mail server settings and the Test SMTP connection button](/img/openadmin-screenshots/settings/notifications-smtp.png)
 
 To configure an SMTP server for email delivery, configure the following:
 

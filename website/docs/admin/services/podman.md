@@ -10,6 +10,8 @@ sidebar_position: 5
 
 Raw output of `podman info`, exactly as it would appear on the terminal.
 
+![Podman page on the Info tab with the output of podman info](/img/openadmin-screenshots/services/podman-info.png)
+
 ### Images
 
 Lists every image in the shared image store — the same store every hosting user's rootless Podman instance reads from, so an image only needs to be pulled once to be available to all users. The table shows:
@@ -18,6 +20,8 @@ Lists every image in the shared image store — the same store every hosting use
 - **Containers** — how many containers currently use the image, split into **N system** (root's own containers, e.g. the mail server) and **N user** (summed across every hosting user's own containers). An image with neither shows **Unused**.
 - **Update** — **Check** compares the local image's digest against the registry's current one (no download, just a manifest fetch). If a newer digest is available it shows **Update available** with an **Update** button to re-pull; otherwise **Up to date** with a **Recheck** option. Pulling an update does **not** affect already-running containers — they keep using the content they started with until stopped/recreated.
 - **Delete** — only offered for images with 0 system and 0 user containers using them.
+
+![Podman Images tab listing container images with their tag, size and actions](/img/openadmin-screenshots/services/podman-images.png)
 
 The table also cross-references the compose stack used to provision new users (`/etc/openpanel/docker/compose/1.0/docker-compose.yml`). Any image that stack references but that isn't in the shared store yet shows as **Not downloaded**, with a one-click **Pull**.
 
@@ -33,9 +37,13 @@ All of these (per-image and bulk) run in the background with a progress toast, s
 
 Read-only listings of `podman volume ls` / `podman network ls` for the local context.
 
+![Podman Volumes tab listing volumes](/img/openadmin-screenshots/services/podman-volumes.png)
+
 ### Disk Usage
 
 `podman system df` output — Images reflects the whole shared store (every hosting user's images), while Containers and Volumes are root's own local Podman only, not aggregated across hosting users.
+
+![Podman Disk Usage tab with the space used by images, containers and volumes](/img/openadmin-screenshots/services/podman-diskusage.png)
 
 ### Sorting and search
 

@@ -1,15 +1,18 @@
-// usage: node shoot.mjs [page-key ...]   e.g. node shoot.mjs mysql/databases
+// usage: node shoot.mjs [--admin] [page-key ...]   e.g. node shoot.mjs mysql/databases
 import { chromium } from 'playwright';
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { BASE_URL, STATE_PATH, OUT_DIR, VIEWPORT_WIDTH, pages, globalPrepare } from './shots.mjs';
+// --admin switches to the OpenAdmin demo (port 2087) and its own manifest
+const admin = process.argv.includes('--admin');
+const { BASE_URL, STATE_PATH, OUT_DIR, VIEWPORT_WIDTH, pages, globalPrepare } = await import(admin ? './admin-shots.mjs' : './shots.mjs');
 
 if (!existsSync(STATE_PATH)) {
-  console.error('No session found, run `node login.mjs` first.');
+  console.error(`No session found, run \`node login.mjs${admin ? ' --admin' : ''}\` first.`);
   process.exit(1);
 }
 
-const keys = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(pages);
+const args = process.argv.slice(2).filter(a => a !== '--admin');
+const keys = args.length ? args : Object.keys(pages);
 const browser = await chromium.launch();
 const contextOptions = {
   // narrow enough that the content column is close to the docs column width, so UI text isn't shrunk much
@@ -61,7 +64,7 @@ async function cropBox(page, crop) {
     boxes.push(box);
   }
   // pages outside the panel layout (login, password reset) have no main, so fall back to the whole page
-  const main = (await page.locator('main').count()) ? await page.locator('main').boundingBox() : { x: 0, y: 0, width: VIEWPORT_WIDTH, height: 1e5 };
+  const main = (await page.locator('main').first().count()) ? await page.locator('main').first().boundingBox() : { x: 0, y: 0, width: VIEWPORT_WIDTH, height: 1e5 };
   // fromTop: start at the top of main, and only the `to` element sets the bottom
   if (fromTop) boxes.splice(0, 1, { x: main.x, y: main.y, width: main.width, height: 0 });
   // clamp: false for content drawn outside main, like the GoAccess report
@@ -93,7 +96,7 @@ for (const key of keys) {
       });
       if (def.init) await page.addInitScript(def.init);
       await page.goto(BASE_URL + (shot.url || def.url), { waitUntil: 'domcontentloaded' });
-      if (!def.anonymous && new URL(page.url()).pathname.startsWith('/login')) throw new Error('session expired, run `node login.mjs` again');
+      if (!def.anonymous && new URL(page.url()).pathname.startsWith('/login')) throw new Error(`session expired, run \`node login.mjs${admin ? ' --admin' : ''}\` again`);
       await page.waitForLoadState('load');
       await page.waitForTimeout(800);
       // the page must be tall enough that crops below the fold still render

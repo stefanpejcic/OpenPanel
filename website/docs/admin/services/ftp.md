@@ -10,6 +10,8 @@ FTP management in OpenAdmin is only available on [OpenPanel Enterprise edition](
 
 The *Services > FTP* page lets you review the FTP sub-accounts associated with OpenPanel users, and edit the FTP server configuration. It has two tabs: **Accounts** (`/services/ftp`) and **Configuration** (`/services/ftp/settings`).
 
+![FTP page on the Accounts tab with the FTP service status and the table of FTP accounts](/img/openadmin-screenshots/services/ftp-accounts.png)
+
 The FTP service must be running for the accounts list to be available.
 
 The **Accounts** tab table includes the following details:
@@ -20,3 +22,5 @@ The **Accounts** tab table includes the following details:
 This list is read-only in OpenAdmin — accounts are created/removed from the OpenPanel user interface, not from here. The data shown is populated by the `opencli ftp-users` command; if no accounts are shown yet, click **Click to refresh data** to run it manually, or wait for its periodic cronjob run.
 
 The **Configuration** tab exposes the raw FTP server configuration file in an editable text area. Edit the file contents and click **Save Configuration** to apply changes.
+
+![FTP Configuration tab with the FTP server settings](/img/openadmin-screenshots/services/ftp-configuration.png)

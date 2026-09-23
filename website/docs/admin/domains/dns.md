@@ -16,9 +16,9 @@ The DNS Zone Editor in OpenAdmin is only shown in the **Domains** sidebar group 
 
 1. Navigate to **OpenAdmin > Domains > DNS Zone Editor**.
 2. Select the domain whose zone you want to edit.
-   ![openadmin dns select domain](/img/admin/2.0/openadmin_dns_select_domain.png)
+   ![DNS Zone Editor with the domain dropdown](/img/openadmin-screenshots/domains/dns-select.png)
 3. Make your changes in the editor and click **Save** when done.
-   ![openadmin dns select domain](/img/admin/2.0/openadmin_dns_edit_domain.png)
+   ![DNS Zone Editor showing the zone file of a domain with the Save button](/img/openadmin-screenshots/domains/dns-edit.png)
 
 Before overwriting the zone file, OpenAdmin automatically creates a temporary backup of the previous version. The new content is validated (`named-checkzone`) before it is applied:
 

@@ -6,7 +6,7 @@ sidebar_position: 2
 
 Notifications are accessible via the 'Notifications' menu item in OpenAdmin.
 
-![notifications center](/img/admin/notifications_center.png)
+![Notifications page listing recorded system alerts with the time, notification and details, and the Edit Settings, Pause notifications, Acknowledge All and Delete All buttons](/img/openadmin-screenshots/002_notifications-list.png)
 
 OpenPanel tracks and notifies you of these events, grouped into categories:
 

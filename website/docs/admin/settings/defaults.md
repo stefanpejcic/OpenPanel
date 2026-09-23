@@ -6,7 +6,7 @@ sidebar_position: 3
 
 From **OpenAdmin > Settings > Edit User Defaults** Administrators can edit values for the `docker-compose.yml` and `.env` files used for new users.
 
-![defaults basic](/img/docs-content/KFRzLrGY-admin-defaults.png)
+![Edit Defaults page with the default webserver, database, Varnish cache, PHP version and autostart services for new users](/img/openadmin-screenshots/settings/defaults-page.png)
 
 These files determine services and limits for new users.
 
@@ -17,7 +17,7 @@ These files determine services and limits for new users.
 
 Using the 'Advanced' option you can directly edit the files.
 
-![defaults advanced](/img/docs-content/74BhfQyc-admin-defaults-advanced.png)
+![Service limits on the Edit Defaults page for new user accounts](/img/openadmin-screenshots/settings/defaults-services.png)
 
 In these files you can configure additional services (docker containers) and change defaults for existing services.
 
