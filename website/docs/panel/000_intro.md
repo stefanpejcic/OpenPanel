@@ -15,8 +15,7 @@ To log in:
 1. Open the link provided by your hosting provider.
 2. Enter your assigned **username** and **password**.
 
-![OpenPanel login form with username and password fields, the Forgot password link and passkey sign-in](/img/openpanel-screenshots/intro/login-form.png#gh-light-mode-only)
-![OpenPanel login form with username and password fields, the Forgot password link and passkey sign-in](/img/openpanel-screenshots/intro/login-form_dark.png#gh-dark-mode-only)
+![OpenPanel login form with username and password fields, the Forgot password link and passkey sign-in](/img/openpanel-screenshots/intro/login-form.png#screenshot)
 
 ## Password Reset
 
@@ -24,8 +23,7 @@ If you forget your password, follow these steps:
 
 1. Click the **Forgot password?** link on the login page.  
 
-   ![OpenPanel login form with username and password fields, the Forgot password link and passkey sign-in](/img/openpanel-screenshots/intro/login-form.png#gh-light-mode-only)
-   ![OpenPanel login form with username and password fields, the Forgot password link and passkey sign-in](/img/openpanel-screenshots/intro/login-form_dark.png#gh-dark-mode-only)
+   ![OpenPanel login form with username and password fields, the Forgot password link and passkey sign-in](/img/openpanel-screenshots/intro/login-form.png#screenshot)
 
 
    > **NOTE:** If the **Forgot Password?** link does not appear on the login form, email-based password reset is disabled by your hosting provider. In this case, you must either:
@@ -35,8 +33,7 @@ If you forget your password, follow these steps:
 
 2. Enter your **email address** and click **Send Reset Link**.  
 
-   ![Password reset form asking for the account email address](/img/openpanel-screenshots/intro/reset-form.png#gh-light-mode-only)
-   ![Password reset form asking for the account email address](/img/openpanel-screenshots/intro/reset-form_dark.png#gh-dark-mode-only)
+   ![Password reset form asking for the account email address](/img/openpanel-screenshots/intro/reset-form.png#screenshot)
 
 3. If your email is associated with an account, you will receive a password reset email (link valid for 15 minutes).  
 

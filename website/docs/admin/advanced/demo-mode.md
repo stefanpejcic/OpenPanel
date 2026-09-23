@@ -14,7 +14,8 @@ To disable it, run the following command in your terminal:
 opencli config update demo_mode off
 ```
 
-![Demo Mode page with the option to lock OpenPanel and OpenAdmin in read-only mode and the Enable Demo Mode button](/img/openadmin-screenshots/advanced/demo-mode_server-page.png)
+![Demo Mode page with the option to lock OpenPanel and OpenAdmin in read-only mode and the Enable Demo Mode button](/img/openadmin-screenshots/advanced/demo-mode_server-page.png#gh-light-mode-only)
+![Demo Mode page with the option to lock OpenPanel and OpenAdmin in read-only mode and the Enable Demo Mode button](/img/openadmin-screenshots/advanced/demo-mode_server-page_dark.png#gh-dark-mode-only)
 
 Make sure to configure your demo content and secure the server before enabling this mode. 📘 [Learn more](https://dev.openpanel.com/cli/config.html#demo-mode)
 

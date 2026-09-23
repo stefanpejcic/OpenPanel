@@ -16,7 +16,8 @@ When enabled, CorazaWAF inspects incoming requests in real time and blocks suspi
 - **Enabled**: Executes the command `opencli waf enable`, activating [the WAF module](/docs/admin/settings/modules/#waf). This makes WAF manageable by users and automatically enables it for any new domains.
 - **Disabled**: Executes the command `opencli waf disable -y`, deactivating [the WAF module](/docs/admin/settings/modules/#waf). This disables WAF management for users and turns off WAF for all existing and new domains.
 
-![WAF page with the CorazaWAF Enable dropdown and the number of active rule sets](/img/openadmin-screenshots/security/waf-page.png)
+![WAF page with the CorazaWAF Enable dropdown and the number of active rule sets](/img/openadmin-screenshots/security/waf-page.png#gh-light-mode-only)
+![WAF page with the CorazaWAF Enable dropdown and the number of active rule sets](/img/openadmin-screenshots/security/waf-page_dark.png#gh-dark-mode-only)
 
 ## Rule Sets
 Manage the rule sets that CorazaWAF uses to protect your applications.
@@ -35,7 +36,8 @@ The rule set table includes the following columns:
 
 - **Actions** – **View** to inspect the rule set's contents, and a toggle button whose label switches between **Enable** and **Disable** depending on the rule set's current status.
 
-![WAF rule sets page listing each rule set with its number of rules, status and the View and Disable actions](/img/openadmin-screenshots/security/waf-rules.png)
+![WAF rule sets page listing each rule set with its number of rules, status and the View and Disable actions](/img/openadmin-screenshots/security/waf-rules.png#gh-light-mode-only)
+![WAF rule sets page listing each rule set with its number of rules, status and the View and Disable actions](/img/openadmin-screenshots/security/waf-rules_dark.png#gh-dark-mode-only)
 
 Properly configuring WAF rules helps maintain a balance between strong protection and minimizing false positives.
 

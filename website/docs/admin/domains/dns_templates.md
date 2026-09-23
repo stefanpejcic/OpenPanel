@@ -11,7 +11,8 @@ It is useful if you require custom DNS configurations.
 Edit Zone Templates is only shown in the **Domains** sidebar group when the **dns** module is enabled on the server.
 :::
 
-![Edit Zone Templates page with the IPv4 and IPv6 zone templates and the Restore Default and Save Files buttons](/img/openadmin-screenshots/domains/dns_templates-page.png)
+![Edit Zone Templates page with the IPv4 and IPv6 zone templates and the Restore Default and Save Files buttons](/img/openadmin-screenshots/domains/dns_templates-page.png#gh-light-mode-only)
+![Edit Zone Templates page with the IPv4 and IPv6 zone templates and the Restore Default and Save Files buttons](/img/openadmin-screenshots/domains/dns_templates-page_dark.png#gh-dark-mode-only)
 
 - **IPv4 Template** – Used for new domains assigned IPv4 addresses.
 - **IPv6 Template** – Used for new domains assigned IPv6 addresses.

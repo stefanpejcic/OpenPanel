@@ -10,7 +10,8 @@ From this page Administrators can configure the domain to access both OpenPanel 
 
 Both OpenAdmin and OpenPanel are accessed through the same single **Hostname** field: enter either a domain name or the server's IP address there, and both interfaces become reachable at `https://HOSTNAME:PORT/`.
 
-![Domain section of General Settings with the hostname field](/img/openadmin-screenshots/settings/general-domain.png)
+![Domain section of General Settings with the hostname field](/img/openadmin-screenshots/settings/general-domain.png#gh-light-mode-only)
+![Domain section of General Settings with the hostname field](/img/openadmin-screenshots/settings/general-domain_dark.png#gh-dark-mode-only)
 
 To enable access to both OpenAdmin and OpenPanel through a domain name, such as srv.your-domain.com:2083, follow these three steps:
 
@@ -32,7 +33,8 @@ You can also [set a separate domain just for OpenPanel UI](/docs/articles/dev-ex
 
 The **SSL** row below the hostname shows the current SSL status of the panel domain; **Manage SSL** opens its certificate page.
 
-![SSL section of General Settings with the current SSL status and the Manage SSL button](/img/openadmin-screenshots/settings/general-ssl.png)
+![SSL section of General Settings with the current SSL status and the Manage SSL button](/img/openadmin-screenshots/settings/general-ssl.png#gh-light-mode-only)
+![SSL section of General Settings with the current SSL status and the Manage SSL button](/img/openadmin-screenshots/settings/general-ssl_dark.png#gh-dark-mode-only)
 
 ## Set IP address for OpenPanel
 
@@ -42,7 +44,8 @@ To access OpenPanel and OpenAdmin via the server's public IP address, enter the 
 
 Port configurations for OpenAdmin and OpenPanel interfaces can be modified from their default settings (`2087` for OpenAdmin and `2083` for OpenPanel). 
 
-![Ports section of General Settings with the OpenAdmin and OpenPanel ports](/img/openadmin-screenshots/settings/general-ports.png)
+![Ports section of General Settings with the OpenAdmin and OpenPanel ports](/img/openadmin-screenshots/settings/general-ports.png#gh-light-mode-only)
+![Ports section of General Settings with the OpenAdmin and OpenPanel ports](/img/openadmin-screenshots/settings/general-ports_dark.png#gh-dark-mode-only)
 
 - To change the port for the OpenPanel from the default `2083` to another value, set the desired port in the "OpenPanel port" field.
 - To change the port for the OpenAdmin from the default `2087` to another value, set the desired port in the "OpenAdmin port" field.
@@ -51,7 +54,8 @@ Port configurations for OpenAdmin and OpenPanel interfaces can be modified from 
 
 By default, when users add a domain, the addition of "/openpanel" to the domain URL will redirect them to the OpenPanel interface. However, you have the flexibility to customize this, such as changing it to "/awesome," allowing users to access their OpenPanel via "their-domain.com/awesome".
 
-![Redirect section of General Settings with the /openpanel redirect name](/img/openadmin-screenshots/settings/general-redirect.png)
+![Redirect section of General Settings with the /openpanel redirect name](/img/openadmin-screenshots/settings/general-redirect.png#gh-light-mode-only)
+![Redirect section of General Settings with the /openpanel redirect name](/img/openadmin-screenshots/settings/general-redirect_dark.png#gh-dark-mode-only)
 
 To change the "/openpanel" to something else, simply set the value in the "/openpanel" field and click on save. Changes take effect instantly without service interruption.
 
@@ -59,7 +63,8 @@ To change the "/openpanel" to something else, simply set the value in the "/open
 
 Toggle **Dev mode** to enable verbose/detailed logging for OpenPanel and OpenAdmin, useful for error diagnostics. Logs can be viewed under *OpenAdmin > Services > View Log Files*.
 
-![Debugging (Dev Mode) section of General Settings with the Dev mode toggle](/img/openadmin-screenshots/settings/general-debug.png)
+![Debugging (Dev Mode) section of General Settings with the Dev mode toggle](/img/openadmin-screenshots/settings/general-debug.png#gh-light-mode-only)
+![Debugging (Dev Mode) section of General Settings with the Dev mode toggle](/img/openadmin-screenshots/settings/general-debug_dark.png#gh-dark-mode-only)
 
 :::info
 After saving, an OpenAdmin restart is needed for the new value to take effect.

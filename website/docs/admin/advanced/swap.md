@@ -10,7 +10,8 @@ sidebar_position: 4
 
 Shows total/used/free swap (as reported by `free -m`) and a table of every active swap device (name, type, size, used, priority, from `swapon --show`). The alert threshold shown here is the same `swap=` value used by Sentinel's own swap check.
 
-![Swap page with the current swap usage, the swap size field with Apply, and the Drop Swap button](/img/openadmin-screenshots/advanced/swap-page.png)
+![Swap page with the current swap usage, the swap size field with Apply, and the Drop Swap button](/img/openadmin-screenshots/advanced/swap-page.png#gh-light-mode-only)
+![Swap page with the current swap usage, the swap size field with Apply, and the Drop Swap button](/img/openadmin-screenshots/advanced/swap-page_dark.png#gh-dark-mode-only)
 
 ### Change allocation
 

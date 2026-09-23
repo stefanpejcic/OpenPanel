@@ -22,7 +22,8 @@ The interface displays a table of existing reseller users with the following col
 
 - **Username**  
 
-![Resellers page with the reseller table columns and the Enable Resellers button](/img/openadmin-screenshots/accounts/resellers-list.png)
+![Resellers page with the reseller table columns and the Enable Resellers button](/img/openadmin-screenshots/accounts/resellers-list.png#gh-light-mode-only)
+![Resellers page with the reseller table columns and the Enable Resellers button](/img/openadmin-screenshots/accounts/resellers-list_dark.png#gh-dark-mode-only)
   The unique identifier of the reseller user.
 
 - **Status**  

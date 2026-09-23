@@ -30,7 +30,8 @@ OpenAdmin automatically attempts to start the ImunifyAV service the first time y
 opencli imunify start
 ```
 
-![ImunifyAV page telling that the GUI is not running yet, with the command to start it](/img/openadmin-screenshots/security/imunify-not-running.png)
+![ImunifyAV page telling that the GUI is not running yet, with the command to start it](/img/openadmin-screenshots/security/imunify-not-running.png#gh-light-mode-only)
+![ImunifyAV page telling that the GUI is not running yet, with the command to start it](/img/openadmin-screenshots/security/imunify-not-running_dark.png#gh-dark-mode-only)
 
 ## Login
 

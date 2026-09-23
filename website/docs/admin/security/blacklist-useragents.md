@@ -8,7 +8,8 @@ Block visitors whose HTTP `User-Agent` header matches an entry on a blacklist â€
 
 Use **OpenAdmin > Security > Blacklist UA** to manage it.
 
-![Blacklist user agents page with the Enable dropdown and the list of blocked user agents](/img/openadmin-screenshots/security/blacklist-useragents-page.png)
+![Blacklist user agents page with the Enable dropdown and the list of blocked user agents](/img/openadmin-screenshots/security/blacklist-useragents-page.png#gh-light-mode-only)
+![Blacklist user agents page with the Enable dropdown and the list of blocked user agents](/img/openadmin-screenshots/security/blacklist-useragents-page_dark.png#gh-dark-mode-only)
 
 ## Enable
 

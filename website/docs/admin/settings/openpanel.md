@@ -14,7 +14,8 @@ Customize the appearance of OpenPanel to match your brand:
 
 - **Brand Name**  
 
-![Branding section with the brand name, logo, favicon and logout URL](/img/openadmin-screenshots/settings/openpanel-branding.png)
+![Branding section with the brand name, logo, favicon and logout URL](/img/openadmin-screenshots/settings/openpanel-branding.png#gh-light-mode-only)
+![Branding section with the brand name, logo, favicon and logout URL](/img/openadmin-screenshots/settings/openpanel-branding_dark.png#gh-dark-mode-only)
   Set a custom name to appear in the OpenPanel sidebar and on login pages by entering it in the **"Brand name"** field.
 
 - **Logo**  
@@ -32,7 +33,8 @@ Customize the appearance of OpenPanel to match your brand:
 - ns3
 - ns4
 
-![Nameservers section with the ns1 to ns4 fields](/img/openadmin-screenshots/settings/openpanel-nameservers.png)
+![Nameservers section with the ns1 to ns4 fields](/img/openadmin-screenshots/settings/openpanel-nameservers.png#gh-light-mode-only)
+![Nameservers section with the ns1 to ns4 fields](/img/openadmin-screenshots/settings/openpanel-nameservers_dark.png#gh-dark-mode-only)
 
 [Guide on how to properly configure nameservers](/docs/articles/domains/how-to-configure-nameservers-in-openpanel)
 
@@ -45,7 +47,8 @@ Settings for OpenPanel user accounts:
 - **Forbidden Usernames:** List of usernames that can not be used, one per line.
 - **Restricted Domains:** List of domains that can not be used, one per line.
 
-![Users section with toggles for what OpenPanel users can change](/img/openadmin-screenshots/settings/openpanel-users.png)
+![Users section with toggles for what OpenPanel users can change](/img/openadmin-screenshots/settings/openpanel-users.png#gh-light-mode-only)
+![Users section with toggles for what OpenPanel users can change](/img/openadmin-screenshots/settings/openpanel-users_dark.png#gh-dark-mode-only)
 
 ## Display
 
@@ -59,7 +62,8 @@ Additional display settings include:
 - **Display Link to Report Bugs:** Show a “Found a bug? Let us know” link at the bottom of all user pages for easy bug reporting.
 - **Display Country Flag Icons:** Show country flags next to the last login IP in the OpenPanel dashboard.
 
-![Display section with the OpenPanel interface options](/img/openadmin-screenshots/settings/openpanel-display.png)
+![Display section with the OpenPanel interface options](/img/openadmin-screenshots/settings/openpanel-display.png#gh-light-mode-only)
+![Display section with the OpenPanel interface options](/img/openadmin-screenshots/settings/openpanel-display_dark.png#gh-dark-mode-only)
 
 ## Onboarding
 
@@ -94,7 +98,8 @@ Configure the following settings for the File Manager:
 - **Enable View Option for (base64 image) Extensions:** Specify image file extensions that can be displayed using base64 encoding in the Viewer.
 - **Enable Extract and Archive Options for (archives) Extensions:** Specify archive file extensions that can be extracted using the File Manager.
 
-![File Manager section with the file manager options](/img/openadmin-screenshots/settings/openpanel-filemanager.png)
+![File Manager section with the file manager options](/img/openadmin-screenshots/settings/openpanel-filemanager.png#gh-light-mode-only)
+![File Manager section with the file manager options](/img/openadmin-screenshots/settings/openpanel-filemanager_dark.png#gh-dark-mode-only)
 
 ## Databases
 
@@ -105,7 +110,8 @@ Settings for user's databases:
 - **Restricted MySQL (system) Users:** List of MySQL usernames that users are not allowed to access/manage.
 - **Restricted MySQL (system) Databases:** List of MySQL databases that users are not allowed to access/manage.
 
-![Databases section with the database options](/img/openadmin-screenshots/settings/openpanel-databases.png)
+![Databases section with the database options](/img/openadmin-screenshots/settings/openpanel-databases.png#gh-light-mode-only)
+![Databases section with the database options](/img/openadmin-screenshots/settings/openpanel-databases_dark.png#gh-dark-mode-only)
 
 ## Security
 
@@ -114,7 +120,8 @@ Captcha, 2FA, and password protections for login and signup forms:
 - **Captcha Provider:** Choose between Disabled, Google reCAPTCHA, Cloudflare Turnstile, or Custom.
 - Depending on the provider selected, enter the corresponding **site key** and **secret key** (or custom site key for the Custom provider).
 
-![Security section with the OpenPanel login and session options](/img/openadmin-screenshots/settings/openpanel-security.png)
+![Security section with the OpenPanel login and session options](/img/openadmin-screenshots/settings/openpanel-security.png#gh-light-mode-only)
+![Security section with the OpenPanel login and session options](/img/openadmin-screenshots/settings/openpanel-security_dark.png#gh-dark-mode-only)
 
 :::info
 Captcha requires the [captcha plugin](https://github.com/stefanpejcic/captcha/) to be installed — these settings have no effect until it is installed.
@@ -142,4 +149,5 @@ Configure the following settings related to user login attempts, session managem
 - **Terminal Commands Timeout (in Seconds):** Maximum number of seconds a Docker Terminal command can run before being timed out.
 - **PageSpeed API Key:** If set, this API key is used to fetch data from Google PageSpeed Insights.
 
-![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics.png)
+![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics.png#gh-light-mode-only)
+![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics_dark.png#gh-dark-mode-only)

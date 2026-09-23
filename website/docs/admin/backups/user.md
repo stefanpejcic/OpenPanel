@@ -22,7 +22,8 @@ A single dropdown decides the mode:
 
 Saving updates the `opencli docker-backup` cron entry's schedule accordingly.
 
-![User Backups Settings tab with the backup schedule dropdown](/img/openadmin-screenshots/backups/user-settings.png)
+![User Backups Settings tab with the backup schedule dropdown](/img/openadmin-screenshots/backups/user-settings.png#gh-light-mode-only)
+![User Backups Settings tab with the backup schedule dropdown](/img/openadmin-screenshots/backups/user-settings_dark.png#gh-dark-mode-only)
 
 Saving to Daily/Weekly/Monthly also drops an empty `admin.backups` marker file into `/etc/openpanel/skeleton/`, so every account created *from then on* is provisioned admin-configured (its Backups > Destinations and Backups > Settings pages are locked, per-account, from the moment it's created). Switching back to Disabled removes the marker from the skeleton, so accounts created afterward go back to fully user-configured.
 
@@ -40,12 +41,14 @@ Edits `/etc/openpanel/backups/backup.env` — the default `docker-volume-backup`
 
 A **Restore Default** button fetches OpenPanel's shipped default `backup.env` from GitHub into the field (client-side, no server round trip) — click **Save** afterward to actually apply it.
 
-![User Backups Configuration tab with the default backup.env editor and the Restore Default button](/img/openadmin-screenshots/backups/user-configuration.png)
+![User Backups Configuration tab with the default backup.env editor and the Restore Default button](/img/openadmin-screenshots/backups/user-configuration.png#gh-light-mode-only)
+![User Backups Configuration tab with the default backup.env editor and the Restore Default button](/img/openadmin-screenshots/backups/user-configuration_dark.png#gh-dark-mode-only)
 
 ### Runs
 
 Raw log of every `opencli docker-backup` run (`/var/log/openpanel/admin/docker-backup.log`).
 
-![User Backups Runs tab with the log of past backup runs](/img/openadmin-screenshots/backups/user-runs.png)
+![User Backups Runs tab with the log of past backup runs](/img/openadmin-screenshots/backups/user-runs.png#gh-light-mode-only)
+![User Backups Runs tab with the log of past backup runs](/img/openadmin-screenshots/backups/user-runs_dark.png#gh-dark-mode-only)
 
 **Run Backup Now** triggers `opencli docker-backup` immediately for every user. It's only available in **Admin Configured** mode — in Disabled mode there's no central schedule for it to act on, since each user's own settings apply instead.

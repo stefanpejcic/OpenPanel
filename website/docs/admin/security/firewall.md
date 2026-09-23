@@ -12,7 +12,8 @@ Firewall (CSF) UI is displayed on **OpenAdmin > Security > Firewall**.
 
 For instructions on how to use the CSF UI, please refer to [Sentinel Firewall official documentation](https://sentinelfirewall.org/docs/usage/introduction/).
 
-![Sentinel Security and Firewall (CSF) page with the firewall status and server information actions](/img/openadmin-screenshots/security/firewall-csf.png)
+![Sentinel Security and Firewall (CSF) page with the firewall status and server information actions](/img/openadmin-screenshots/security/firewall-csf.png#gh-light-mode-only)
+![Sentinel Security and Firewall (CSF) page with the firewall status and server information actions](/img/openadmin-screenshots/security/firewall-csf_dark.png#gh-dark-mode-only)
 
 
 ## External Firewall

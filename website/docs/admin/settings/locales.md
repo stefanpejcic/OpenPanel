@@ -6,7 +6,8 @@ sidebar_position: 9
 
 Manage the languages available to OpenPanel users.
 
-![Languages page listing locales with their provider, install status, default and Set as Default buttons](/img/openadmin-screenshots/settings/locales-list.png)
+![Languages page listing locales with their provider, install status, default and Set as Default buttons](/img/openadmin-screenshots/settings/locales-list.png#gh-light-mode-only)
+![Languages page listing locales with their provider, install status, default and Set as Default buttons](/img/openadmin-screenshots/settings/locales-list_dark.png#gh-dark-mode-only)
 
 ## Install Locale
 

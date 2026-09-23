@@ -8,7 +8,8 @@ sidebar_position: 3
 
 ### Basic SSH Settings
 
-![SSH Access page on the Basic tab with the SSH port, root login, password and public key authentication settings](/img/openadmin-screenshots/advanced/ssh-basic.png)
+![SSH Access page on the Basic tab with the SSH port, root login, password and public key authentication settings](/img/openadmin-screenshots/advanced/ssh-basic.png#gh-light-mode-only)
+![SSH Access page on the Basic tab with the SSH port, root login, password and public key authentication settings](/img/openadmin-screenshots/advanced/ssh-basic_dark.png#gh-dark-mode-only)
 
 This tab displays:
 
@@ -23,10 +24,12 @@ You can change any value and click on the save button to apply.
 
 This tab is only shown when **Public Key Authentication** is enabled. Here you can view current authorized ssh keys, remove them, or add a new key.
 
-![SSH Access Authorized Keys tab listing an authorized public key with its Remove button and the field to add a new key](/img/openadmin-screenshots/advanced/ssh_server-keys.png)
+![SSH Access Authorized Keys tab listing an authorized public key with its Remove button and the field to add a new key](/img/openadmin-screenshots/advanced/ssh_server-keys.png#gh-light-mode-only)
+![SSH Access Authorized Keys tab listing an authorized public key with its Remove button and the field to add a new key](/img/openadmin-screenshots/advanced/ssh_server-keys_dark.png#gh-dark-mode-only)
 
 ### Advanced
 
 Here you can edit the raw SSH configuration file: `/etc/ssh/sshd_config`
 
-![SSH Access Advanced tab with the sshd configuration editor](/img/openadmin-screenshots/advanced/ssh-advanced.png)
+![SSH Access Advanced tab with the sshd configuration editor](/img/openadmin-screenshots/advanced/ssh-advanced.png#gh-light-mode-only)
+![SSH Access Advanced tab with the sshd configuration editor](/img/openadmin-screenshots/advanced/ssh-advanced_dark.png#gh-dark-mode-only)

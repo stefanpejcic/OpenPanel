@@ -15,6 +15,7 @@ The process table includes the following details:
 - **Memory** – Percentage of Memory usage.
 - **Command** – The command or service that launched the process.
 
-![Process Manager listing system processes with their PID, owner, priority, CPU and memory usage, command, and Trace and Kill links](/img/openadmin-screenshots/advanced/processes-list.png)
+![Process Manager listing system processes with their PID, owner, priority, CPU and memory usage, command, and Trace and Kill links](/img/openadmin-screenshots/advanced/processes-list.png#gh-light-mode-only)
+![Process Manager listing system processes with their PID, owner, priority, CPU and memory usage, command, and Trace and Kill links](/img/openadmin-screenshots/advanced/processes-list_dark.png#gh-dark-mode-only)
 
 Use this tool to identify resource-heavy or suspicious processes, manage system load, or terminate unresponsive services.

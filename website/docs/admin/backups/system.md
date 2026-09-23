@@ -18,20 +18,23 @@ Lists every archive in the configured destination directory, with:
 
 **Run Backup Now** creates a new backup immediately (in the background, with a progress toast).
 
-![System Backups page on the Backups tab with the Run Backup Now button](/img/openadmin-screenshots/backups/system-backups.png)
+![System Backups page on the Backups tab with the Run Backup Now button](/img/openadmin-screenshots/backups/system-backups.png#gh-light-mode-only)
+![System Backups page on the Backups tab with the Run Backup Now button](/img/openadmin-screenshots/backups/system-backups_dark.png#gh-dark-mode-only)
 
 ### Runs
 
 History of every backup/restore/delete action taken from this page — timestamp, action, success/failure, archive name, duration, and detail.
 
-![Runs tab of System Backups with the log of past backup runs](/img/openadmin-screenshots/backups/system-runs.png)
+![Runs tab of System Backups with the log of past backup runs](/img/openadmin-screenshots/backups/system-runs.png#gh-light-mode-only)
+![Runs tab of System Backups with the log of past backup runs](/img/openadmin-screenshots/backups/system-runs_dark.png#gh-dark-mode-only)
 
 ### Settings
 
 - **Destination** — directory where backup archives are stored. Created automatically if it doesn't exist.
 - **Retention (days)** — backups older than this are pruned after each new run. `-1` keeps every backup indefinitely.
 
-![Settings tab of System Backups with the destination directory and retention in days](/img/openadmin-screenshots/backups/system-settings.png)
+![Settings tab of System Backups with the destination directory and retention in days](/img/openadmin-screenshots/backups/system-settings.png#gh-light-mode-only)
+![Settings tab of System Backups with the destination directory and retention in days](/img/openadmin-screenshots/backups/system-settings_dark.png#gh-dark-mode-only)
 
 Automatic scheduling isn't built into this page — schedule `opencli backup` to run on its own (e.g. weekly) as a [System Cron Job](/docs/admin/advanced/crons/).
 

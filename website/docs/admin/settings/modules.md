@@ -6,7 +6,8 @@ sidebar_position: 4
 
 Modules extend the OpenPanel UI by adding new features and pages. To make a feature available to a user or plan, it must first be activated as a module.
 
-![Modules page with a card per module showing its path, type, description and Activate toggle](/img/openadmin-screenshots/settings/modules-page.png)
+![Modules page with a card per module showing its path, type, description and Activate toggle](/img/openadmin-screenshots/settings/modules-page.png#gh-light-mode-only)
+![Modules page with a card per module showing its path, type, description and Activate toggle](/img/openadmin-screenshots/settings/modules-page_dark.png#gh-dark-mode-only)
 
 - Modules are **core features** that are already available on installation and are developed by OpenPanel.
 

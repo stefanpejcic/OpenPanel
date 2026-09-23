@@ -15,7 +15,8 @@ Go to **OpenAdmin > Hosting Plans > Feature Manager**. The index page has two se
 * **Create** - type a name and click **Create** to create a new, empty feature set.
 * **Manage** - pick an existing feature set from the **Manage feature set** dropdown to open and edit it.
 
-![Feature Manager page with the Create and Manage sections](/img/openadmin-screenshots/plans/feature-manager-index.png)
+![Feature Manager page with the Create and Manage sections](/img/openadmin-screenshots/plans/feature-manager-index.png#gh-light-mode-only)
+![Feature Manager page with the Create and Manage sections](/img/openadmin-screenshots/plans/feature-manager-index_dark.png#gh-dark-mode-only)
 
 Selecting or creating a feature set opens its edit page, where every available feature is listed in a table:
 
@@ -29,7 +30,8 @@ Selecting or creating a feature set opens its edit page, where every available f
 
 Use the search box to filter features by name or description, and **Enable All** / **Disable All** to toggle every feature at once. Click **Save** to apply your changes - they take effect for users on plans assigned to this feature set right away. The **default** feature set cannot be deleted, and a feature set that is currently assigned to a hosting plan cannot be deleted either.
 
-![Feature set edit page listing features with a toggle, name, description and type, and the Enable All, Disable All and Save buttons](/img/openadmin-screenshots/plans/feature-manager-edit.png)
+![Feature set edit page listing features with a toggle, name, description and type, and the Enable All, Disable All and Save buttons](/img/openadmin-screenshots/plans/feature-manager-edit.png#gh-light-mode-only)
+![Feature set edit page listing features with a toggle, name, description and type, and the Enable All, Disable All and Save buttons](/img/openadmin-screenshots/plans/feature-manager-edit_dark.png#gh-dark-mode-only)
 
 ---
 

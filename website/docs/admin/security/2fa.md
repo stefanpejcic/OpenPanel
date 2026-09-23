@@ -14,7 +14,8 @@ Use **OpenAdmin > Security > Two-Factor Authentication** to set it up.
 2. Scan the displayed QR code with an authenticator app (e.g. Google Authenticator), or manually enter the shown secret key.
 3. Enter the generated code to confirm and enable 2FA.
 
-![Two-Factor Authentication page with the QR code to scan, the secret key and the field for the authentication code](/img/openadmin-screenshots/security/2fa-page.png)
+![Two-Factor Authentication page with the QR code to scan, the secret key and the field for the authentication code](/img/openadmin-screenshots/security/2fa-page.png#gh-light-mode-only)
+![Two-Factor Authentication page with the QR code to scan, the secret key and the field for the authentication code](/img/openadmin-screenshots/security/2fa-page_dark.png#gh-dark-mode-only)
 
 ## Disable 2FA
 

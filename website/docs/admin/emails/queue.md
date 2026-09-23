@@ -12,7 +12,8 @@ Use **OpenAdmin > Emails > Queue** to access it.
 
 Each row shows one queued message, including its queue ID, sender, recipient(s), size, and the reason delivery is being retried.
 
-![Email Queue page with the queued messages table and the Refresh button](/img/openadmin-screenshots/emails/queue-page.png)
+![Email Queue page with the queued messages table and the Refresh button](/img/openadmin-screenshots/emails/queue-page.png#gh-light-mode-only)
+![Email Queue page with the queued messages table and the Refresh button](/img/openadmin-screenshots/emails/queue-page_dark.png#gh-dark-mode-only)
 
 ## Actions
 

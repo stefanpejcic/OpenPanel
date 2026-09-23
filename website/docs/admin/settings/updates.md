@@ -10,7 +10,8 @@ The Update Preferences page in OpenPanel allows you to manage and control how up
 ## Current Version
 This section displays information about the version of OpenPanel currently installed on your system, as well as the latest available version.
 
-![Current version section with the installed and latest version and the changelog link](/img/openadmin-screenshots/settings/updates-current.png)
+![Current version section with the installed and latest version and the changelog link](/img/openadmin-screenshots/settings/updates-current.png#gh-light-mode-only)
+![Current version section with the installed and latest version and the changelog link](/img/openadmin-screenshots/settings/updates-current_dark.png#gh-dark-mode-only)
 
 - **Installed Version:** Shows the version of OpenPanel currently running.
 
@@ -30,19 +31,22 @@ You can select the update policy that best fits your needs:
 
 - **Never:** Disable automatic updates. You will need to manually check for and install all updates.
 
-![Auto Updates section with the update preference dropdown](/img/openadmin-screenshots/settings/updates-auto.png)
+![Auto Updates section with the update preference dropdown](/img/openadmin-screenshots/settings/updates-auto.png#gh-light-mode-only)
+![Auto Updates section with the update preference dropdown](/img/openadmin-screenshots/settings/updates-auto_dark.png#gh-dark-mode-only)
 
 Choosing the appropriate auto-update setting ensures that OpenPanel remains as stable, secure, and feature-rich as you need it to be.
 
 ## Update Logs
 The Update Logs section provides a record of all updates that have been applied to OpenPanel.
 
-![Update Logs section listing the update log files](/img/openadmin-screenshots/settings/updates-logs.png)
+![Update Logs section listing the update log files](/img/openadmin-screenshots/settings/updates-logs.png#gh-light-mode-only)
+![Update Logs section listing the update log files](/img/openadmin-screenshots/settings/updates-logs_dark.png#gh-dark-mode-only)
 
 ## Rollback
 The Rollback section lets you revert the OpenPanel UI to an earlier version by selecting it from the list of available versions. Be sure to also disable automatic updates when rolling back, otherwise OpenPanel may automatically update again.
 
-![Rollback section for returning to a previous version](/img/openadmin-screenshots/settings/updates-rollback.png)
+![Rollback section for returning to a previous version](/img/openadmin-screenshots/settings/updates-rollback.png#gh-light-mode-only)
+![Rollback section for returning to a previous version](/img/openadmin-screenshots/settings/updates-rollback_dark.png#gh-dark-mode-only)
 
 ## Control Updates
 For more information about updates, check:

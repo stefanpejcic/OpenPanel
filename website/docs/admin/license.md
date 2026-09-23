@@ -15,7 +15,8 @@ Enter your [OpenPanel Enterprise edition](https://my.openpanel.com/clientarea.ph
 * API access
 * Billing integrations with WHMCS, FOSSBilling, and more
 
-![License key section with the key field, the Save key, Re-Verify and Downgrade buttons and the license details](/img/openadmin-screenshots/license-key.png)
+![License key section with the key field, the Save key, Re-Verify and Downgrade buttons and the license details](/img/openadmin-screenshots/license-key.png#gh-light-mode-only)
+![License key section with the key field, the Save key, Re-Verify and Downgrade buttons and the license details](/img/openadmin-screenshots/license-key_dark.png#gh-dark-mode-only)
 
 For a step-by-step activation process, see the [Upgrading to OpenPanel Enterprise and activating License guide](/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/).
 
@@ -23,4 +24,5 @@ For a step-by-step activation process, see the [Upgrading to OpenPanel Enterpris
 
 When reaching out to support, generate a system report to provide detailed information about your setup.
 
-![Contact Support section with the Generate report button](/img/openadmin-screenshots/license-support.png)
+![Contact Support section with the Generate report button](/img/openadmin-screenshots/license-support.png#gh-light-mode-only)
+![Contact Support section with the Generate report button](/img/openadmin-screenshots/license-support_dark.png#gh-dark-mode-only)

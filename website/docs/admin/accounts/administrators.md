@@ -30,7 +30,8 @@ The admin panel has three user roles:
 
   Reseller users are not listed on this page - they are managed separately under **Accounts > Resellers**.
 
-![Administrators page listing OpenAdmin users with their status, role, 2FA, passkeys and last login](/img/openadmin-screenshots/accounts/administrators-list.png)
+![Administrators page listing OpenAdmin users with their status, role, 2FA, passkeys and last login](/img/openadmin-screenshots/accounts/administrators-list.png#gh-light-mode-only)
+![Administrators page listing OpenAdmin users with their status, role, 2FA, passkeys and last login](/img/openadmin-screenshots/accounts/administrators-list_dark.png#gh-dark-mode-only)
 
   </TabItem>
 
@@ -53,9 +54,11 @@ opencli admin list
 
 To reset an admin's password, open the Edit menu for that user on the **Accounts > Administrators** page, select **Change Password**, then set the new password and click **Change Password**.
 
-![Edit menu of an administrator with the Rename and Change Password options](/img/openadmin-screenshots/accounts/administrators-menu.png)
+![Edit menu of an administrator with the Rename and Change Password options](/img/openadmin-screenshots/accounts/administrators-menu.png#gh-light-mode-only)
+![Edit menu of an administrator with the Rename and Change Password options](/img/openadmin-screenshots/accounts/administrators-menu_dark.png#gh-dark-mode-only)
 
-![Change Password form for an administrator](/img/openadmin-screenshots/accounts/administrators-password.png)
+![Change Password form for an administrator](/img/openadmin-screenshots/accounts/administrators-password.png#gh-light-mode-only)
+![Change Password form for an administrator](/img/openadmin-screenshots/accounts/administrators-password_dark.png#gh-dark-mode-only)
 
   </TabItem>
   <TabItem value="cli-reset" label="With OpenCLI">
@@ -82,7 +85,8 @@ opencli admin password admin Pyl7_L2M1
 
 To create a new admin user, click on the **Create New** button on the **Accounts > Administrators** page, set the username and password and click on **Create**.
 
-![Create New administrator form with the username and password fields](/img/openadmin-screenshots/accounts/administrators-new.png)
+![Create New administrator form with the username and password fields](/img/openadmin-screenshots/accounts/administrators-new.png#gh-light-mode-only)
+![Create New administrator form with the username and password fields](/img/openadmin-screenshots/accounts/administrators-new_dark.png#gh-dark-mode-only)
 
 :::info
 Creating additional Administrator accounts requires an Enterprise license - Community edition supports only a single Administrator (the Super Admin) and does not display the **Create New** button. New admin users created this way are always assigned the **Admin** role; the **Super Admin** role can only be assigned during OpenPanel installation.
@@ -116,7 +120,8 @@ opencli admin new filip Pyl7_L2M1
 
 To rename an Admin user, open the Edit menu for that user on the **Accounts > Administrators** page, select **Rename**, set the new username and click **Change Username**.
 
-![Rename administrator form with the new username field and the Change Username button](/img/openadmin-screenshots/accounts/administrators-rename.png)
+![Rename administrator form with the new username field and the Change Username button](/img/openadmin-screenshots/accounts/administrators-rename.png#gh-light-mode-only)
+![Rename administrator form with the new username field and the Change Username button](/img/openadmin-screenshots/accounts/administrators-rename_dark.png#gh-dark-mode-only)
 
 
   </TabItem>

@@ -6,7 +6,8 @@ sidebar_position: 1
 
 The Service Status section allows you to view and control the status of system services and containers running on your server.
 
-![Services page listing system services with their status, version, real name, type, port, monitoring and actions](/img/openadmin-screenshots/services/status-list.png)
+![Services page listing system services with their status, version, real name, type, port, monitoring and actions](/img/openadmin-screenshots/services/status-list.png#gh-light-mode-only)
+![Services page listing system services with their status, version, real name, type, port, monitoring and actions](/img/openadmin-screenshots/services/status-list_dark.png#gh-dark-mode-only)
 
 This table provides key details for each service:
 
@@ -23,7 +24,8 @@ This table provides key details for each service:
 
 You can customize which services appear and are manageable from this section by clicking the **Edit Services** button.
 
-![Edit Services page for changing which services are shown and monitored](/img/openadmin-screenshots/services/status-edit.png)
+![Edit Services page for changing which services are shown and monitored](/img/openadmin-screenshots/services/status-edit.png#gh-light-mode-only)
+![Edit Services page for changing which services are shown and monitored](/img/openadmin-screenshots/services/status-edit_dark.png#gh-dark-mode-only)
 
 Services are configured in JSON format:
 

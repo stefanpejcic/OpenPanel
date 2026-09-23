@@ -96,4 +96,4 @@ Recommended steps after installing OpenPanel:
 
 OpenAdmin is available on port `2087` of your server (for example `https://server.example.com:2087`):
 
-![OpenAdmin login form with the username and password fields, Remember me, passkey sign-in and the Switch to OpenPanel button](/img/openadmin-screenshots/000_intro-login.png)
+![OpenAdmin login form with the username and password fields, Remember me, passkey sign-in and the Switch to OpenPanel button](/img/openadmin-screenshots/000_intro-login.png#screenshot)

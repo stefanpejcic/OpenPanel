@@ -11,7 +11,8 @@ Configure OpenAdmin notifications and Email alerts settings.
 
   To view or edit current notification settings, go to **OpenAdmin > Settings > Notifications** or click the 'Edit Settings' button on the Notification page.
   
-  ![Email section with the address for notifications and daily usage reports](/img/openadmin-screenshots/settings/notifications-email.png)
+  ![Email section with the address for notifications and daily usage reports](/img/openadmin-screenshots/settings/notifications-email.png#gh-light-mode-only)
+  ![Email section with the address for notifications and daily usage reports](/img/openadmin-screenshots/settings/notifications-email_dark.png#gh-dark-mode-only)
 
   </TabItem>
   <TabItem value="CLI-notifications-view" label="With OpenCLI">
@@ -76,7 +77,8 @@ If email address is set, daily usage report will be sent to the address, schedul
 
 Send notifications to a webhook URL (discord or any other).
 
-![Webhook section with the webhook URL field](/img/openadmin-screenshots/settings/notifications-webhook.png)
+![Webhook section with the webhook URL field](/img/openadmin-screenshots/settings/notifications-webhook.png#gh-light-mode-only)
+![Webhook section with the webhook URL field](/img/openadmin-screenshots/settings/notifications-webhook_dark.png#gh-dark-mode-only)
 
 ---
 
@@ -84,7 +86,8 @@ Send notifications to a webhook URL (discord or any other).
 
 Receive notifications when services are down or unresponsive. Services are checked every 5 minutes.
 
-![Services section with a toggle per monitored service](/img/openadmin-screenshots/settings/notifications-services.png)
+![Services section with a toggle per monitored service](/img/openadmin-screenshots/settings/notifications-services.png#gh-light-mode-only)
+![Services section with a toggle per monitored service](/img/openadmin-screenshots/settings/notifications-services_dark.png#gh-dark-mode-only)
 
 - **OpenPanel:** Notification if OpenPanel UI fails.
 - **OpenAdmin:** Notification if OpenAdmin UI fails.
@@ -106,7 +109,8 @@ Get alerts when resource usage exceeds thresholds (checked every 5 minutes):
 * Disk Usage %
 * SWAP %
 
-![Resource Usage section with the load, CPU, memory, disk and swap thresholds](/img/openadmin-screenshots/settings/notifications-thresholds.png)
+![Resource Usage section with the load, CPU, memory, disk and swap thresholds](/img/openadmin-screenshots/settings/notifications-thresholds.png#gh-light-mode-only)
+![Resource Usage section with the load, CPU, memory, disk and swap thresholds](/img/openadmin-screenshots/settings/notifications-thresholds_dark.png#gh-dark-mode-only)
 
 ---
 
@@ -122,7 +126,8 @@ Receive notifications when specific server-level actions are detected:
 * **SSH login from new IP:** Triggered when root SSH access is detected from an unknown IP address. The IP can be whitelisted in the SSH Allowlist section below.
 * **New update available:** Triggered when a new version of OpenPanel is available for update.
 
-![Server actions section with toggles for reboot, OOM, DNS and other server events](/img/openadmin-screenshots/settings/notifications-server.png)
+![Server actions section with toggles for reboot, OOM, DNS and other server events](/img/openadmin-screenshots/settings/notifications-server.png#gh-light-mode-only)
+![Server actions section with toggles for reboot, OOM, DNS and other server events](/img/openadmin-screenshots/settings/notifications-server_dark.png#gh-dark-mode-only)
 
 ---
 
@@ -130,7 +135,8 @@ Receive notifications when specific server-level actions are detected:
 
 Get notified whenever an action occurs in the admin or user panels.
 
-![User actions section with toggles for account and domain change notifications](/img/openadmin-screenshots/settings/notifications-users.png)
+![User actions section with toggles for account and domain change notifications](/img/openadmin-screenshots/settings/notifications-users.png#gh-light-mode-only)
+![User actions section with toggles for account and domain change notifications](/img/openadmin-screenshots/settings/notifications-users_dark.png#gh-dark-mode-only)
 
 - OpenAdmin enabled/disabled
 - API access enabled/disabled
@@ -164,7 +170,8 @@ Get notified whenever an action occurs in the admin or user panels.
 
 Specify IP addresses (or CIDRs) that will be exempt from SSH login checks.
 
-![SSH Allowlist section with the allowed IP addresses](/img/openadmin-screenshots/settings/notifications-ssh.png)
+![SSH Allowlist section with the allowed IP addresses](/img/openadmin-screenshots/settings/notifications-ssh.png#gh-light-mode-only)
+![SSH Allowlist section with the allowed IP addresses](/img/openadmin-screenshots/settings/notifications-ssh_dark.png#gh-dark-mode-only)
 
 ---
 
@@ -172,7 +179,8 @@ Specify IP addresses (or CIDRs) that will be exempt from SSH login checks.
 
 No SMTP server is configured by default — email notifications will **not** be sent until you set one up here.
 
-![SMTP section with the mail server settings and the Test SMTP connection button](/img/openadmin-screenshots/settings/notifications-smtp.png)
+![SMTP section with the mail server settings and the Test SMTP connection button](/img/openadmin-screenshots/settings/notifications-smtp.png#gh-light-mode-only)
+![SMTP section with the mail server settings and the Test SMTP connection button](/img/openadmin-screenshots/settings/notifications-smtp_dark.png#gh-dark-mode-only)
 
 To configure an SMTP server for email delivery, configure the following:
 
