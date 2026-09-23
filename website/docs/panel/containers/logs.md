@@ -26,3 +26,8 @@ To access this feature:
 You can optionally adjust the number of log lines shown using the dropdown menu in the top-right corner of the logs panel.
 
 > 💡 Logs are fetched using `docker logs` and show the real-time output of the container’s stdout and stderr streams.
+
+
+:::tip
+Pages that manage a single service, like **MySQL**, **Redis** or **Web Server Config**, also have **Terminal** and **Logs** tabs that open that service's logs directly, without leaving the page's section.
+:::

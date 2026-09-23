@@ -6,7 +6,7 @@ sidebar_position: 5
 
 Easily create a new MongoDB user in just a few clicks. Users are used for interacting with databases or the MongoDB server.
 
-Navigate to **MongoDB > Create User**:
+Navigate to **MongoDB > Users > Create User**:
 
 ![Create MongoDB User form with the username and password fields](/img/openpanel-screenshots/mongodb/new_user-form.png#gh-light-mode-only)
 ![Create MongoDB User form with the username and password fields](/img/openpanel-screenshots/mongodb/new_user-form_dark.png#gh-dark-mode-only)

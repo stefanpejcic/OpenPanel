@@ -1,0 +1,23 @@
+---
+sidebar_position: 9
+---
+
+# Import
+
+Import tables into a PostgreSQL database using a `.sql` export file. This feature is useful for restoring backups, migrating data, or setting up initial database structures.
+
+To import tables into a database, navigate to **PostgreSQL > Import**:
+
+1. **Select a Database**
+   Choose the target database into which you want to import the tables.
+
+2. **Select a File**
+   Click the **Select** button to choose a `.sql` export file from your device.
+
+3. **Upload**
+   Click the **Upload & Import** button and wait for the import process to complete.
+
+![Import into PostgreSQL Database form with a database dropdown and a file picker](/img/openpanel-screenshots/postgresql/import-form.png#gh-light-mode-only)
+![Import into PostgreSQL Database form with a database dropdown and a file picker](/img/openpanel-screenshots/postgresql/import-form_dark.png#gh-dark-mode-only)
+
+If your SQL file is very large, we recommend using the **Containers > Terminal** interface instead for more reliable import handling.

@@ -11,7 +11,7 @@ The 'filemanager' and 'wordpress' features need to be enabled for your account i
 
 To create a Theme Set:
 
-1. Go to **OpenPanel > WP Manager** and click on **Themes**.
+1. Go to **OpenPanel > Websites > WordPress** and click on **Themes**.
 2. A new page will open with a file editor, allowing you to configure the themes you want installed automatically.
 
 **Instructions:**
@@ -49,7 +49,7 @@ You can add as many themes as you like. Once done, **click the 'Save' button**.
 
 To create a Plugin Set:
 
-1. Go to **OpenPanel > WP Manager** and click on **Plugins**.
+1. Go to **OpenPanel > Websites > WordPress** and click on **Plugins**.
 2. A new page will open with a file editor, allowing you to configure the plugins you want installed automatically.
 
 **Instructions:**

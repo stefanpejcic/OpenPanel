@@ -1,5 +1,5 @@
 ---
-sidebar_position: 11
+sidebar_position: 12
 ---
 
 # MediaWiki
@@ -10,7 +10,7 @@ Install and manage [MediaWiki](https://www.mediawiki.org/) wikis in an existing 
 
 ## Install MediaWiki
 
-Navigate to **OpenPanel > AutoInstaller** and click **Install MediaWiki**.
+Navigate to **OpenPanel > Websites > Install App** and click **Install MediaWiki**.
 
 ![Install MediaWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/mediawiki-form.png#gh-light-mode-only)
 ![Install MediaWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/mediawiki-form_dark.png#gh-dark-mode-only)

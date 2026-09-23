@@ -1,0 +1,79 @@
+---
+sidebar_position: 3
+---
+
+# Memcached
+
+![Memcached page with the service status, TCP server and port, container resource usage and logs](/img/openpanel-screenshots/caching/memcached-page.png#gh-light-mode-only)
+![Memcached page with the service status, TCP server and port, container resource usage and logs](/img/openpanel-screenshots/caching/memcached-page_dark.png#gh-dark-mode-only)
+
+Memcached is a high-performance, distributed memory caching system. It is often used to speed up dynamic database-driven websites and applications by caching data in memory.
+
+It is commonly used to reduce the load on a database server and improve the responsiveness of websites by caching frequently accessed data, such as database query results or API responses.
+
+## Enable / Disable
+
+You have the options to enable or disable the Memcached service as needed. Disabling it will promptly clear all existing Memcached data from memory.
+
+Enabling the Memcached service will start the service using the default Memcached port, which is _11211_.
+
+![Memcached Status row with the Click to Enable or Click to Disable button](/img/openpanel-screenshots/caching/memcached-status.png#gh-light-mode-only)
+![Memcached Status row with the Click to Enable or Click to Disable button](/img/openpanel-screenshots/caching/memcached-status_dark.png#gh-dark-mode-only)
+
+## Set Memory Limits
+
+Upon initialization the Memcached container has default memory limits set, it is advisable to set memory limits appropriate to your use case and needs.
+
+While the service is running, real-time resource usage (CPU, memory, network and block I/O) is displayed on this page. Click **Edit limits** to set new limits on the /containers interface, which is accessible through the user panel navigation under **Containers**.
+
+:::info
+Changing the memory limit will necessitate the service to restart to apply the new restrictions, resulting in the removal of all existing cache data.
+:::
+
+![Containers page opened from Edit limits, with the CPU and memory limits of the Memcached container](/img/openpanel-screenshots/caching/memcached-limits.png#gh-light-mode-only)
+![Containers page opened from Edit limits, with the CPU and memory limits of the Memcached container](/img/openpanel-screenshots/caching/memcached-limits_dark.png#gh-dark-mode-only)
+
+## Connect to Memcached
+
+To establish a connection to your Memcached instance, use the following details:
+
+- Server address: **memcached** (not 127.0.0.1)
+- Port: **11211** (the default Memcached port)
+
+For testing the connection to the Memcached server, you can use the following tools or scripts.
+
+### Test Connection with PHP
+
+1. Navigate to your website directory using a File Manager.
+2. Create a new file named _memcached-test.php_.
+3. Add the following PHP code to the newly created file and save it:
+
+```php
+<?php 
+   // Connect to Memcached server on localhost 
+   $memcached = new Memcached(); 
+   $memcached->addServer('memcached', 11211); 
+   echo "Connection to server successful"; 
+   // Check whether the server is running or not 
+   echo "Server is running: ".$memcached->getVersion(); 
+?>
+```
+
+Access your website in a browser and append /memcached-test.php. For example, if your website is example.com, you should open example.com/memcached-test.php
+
+You should see the "Server is running.." message, indicating that the Memcached service is active, and the connection is established.
+
+
+### WordPress Plugins
+
+To implement Memcached caching for your WordPress website, you'll need a dedicated plugin. Here are some WordPress plugins we've tested for Memcached caching:
+
+- [Memcached Object Cache](https://wordpress.org/plugins/memcached/)
+
+## View Logs
+
+You have the option to access the Memcached service logs. By doing so, you can identify any service errors or check for memory usage and limits.
+
+![Logs section of the Memcached page with the View container log button](/img/openpanel-screenshots/caching/memcached-log-button.png#gh-light-mode-only)
+![Logs section of the Memcached page with the View container log button](/img/openpanel-screenshots/caching/memcached-log-button_dark.png#gh-dark-mode-only)
+

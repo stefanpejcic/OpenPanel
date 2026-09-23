@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 7
 ---
 
 # Elasticsearch
@@ -13,7 +13,7 @@ sidebar_position: 4
 ![ElasticSearch page with the service status, TCP server and port](/img/openpanel-screenshots/caching/elasticsearch-page.png#gh-light-mode-only)
 ![ElasticSearch page with the service status, TCP server and port](/img/openpanel-screenshots/caching/elasticsearch-page_dark.png#gh-dark-mode-only)
 
-Use **OpenPanel > Caching > Elasticsearch** to manage the Elasticsearch service, enabling fast and scalable search functionality across your applications and systems.
+Use **OpenPanel > Cache & Search > Elasticsearch** to manage the Elasticsearch service, enabling fast and scalable search functionality across your applications and systems.
 
 ---
 

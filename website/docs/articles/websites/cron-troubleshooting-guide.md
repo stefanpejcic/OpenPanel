@@ -46,7 +46,7 @@ Only continue with cron troubleshooting **after this works manually.**
 
 Each user must have their own cron service active.
 
-Check in OpenPanel: https://openpanel.com/docs/panel/advanced/services/
+Check in OpenPanel: https://openpanel.com/docs/panel/processes/services/
 
 You should see a **cron service running for the user**.
 
@@ -108,7 +108,7 @@ container = openlitespeed
 
 OpenPanel provides per-job execution logs.
 
-Cron job logs: https://openpanel.com/docs/panel/advanced/cronjobs/#logs
+Cron job logs: https://openpanel.com/docs/panel/cronjobs/#logs
 
 Look for: - Job started - Job failed - PHP errors - Permission denied -
 "Container not found"

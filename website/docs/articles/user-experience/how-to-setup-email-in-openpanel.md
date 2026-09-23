@@ -70,7 +70,7 @@ To restart:
 
 ## Done
 
-Email is now enabled for all hosting plans that include the **emails** feature. Affected users can access Webmail an Email accounts form access it under **OpenPanel > Emails**.
+Email is now enabled for all hosting plans that include the **emails** feature. Affected users can access Webmail an Email accounts form access it under **OpenPanel > Email**.
 
 [![2025-07-09-17-19.png](/img/docs-content/44QPNySY-2025-07-09-17-19.png)](/img/docs-content/44QPNySY-2025-07-09-17-19.png)
 

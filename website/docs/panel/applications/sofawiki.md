@@ -1,5 +1,5 @@
 ---
-sidebar_position: 13
+sidebar_position: 14
 ---
 
 # SofaWiki
@@ -10,7 +10,7 @@ Install and manage [SofaWiki](https://github.com/bellenuit/sofawiki) sites in an
 
 ## Install SofaWiki
 
-Navigate to **OpenPanel > AutoInstaller** and click **Install SofaWiki**.
+Navigate to **OpenPanel > Websites > Install App** and click **Install SofaWiki**.
 
 ![Install SofaWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/sofawiki-form.png#gh-light-mode-only)
 ![Install SofaWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/sofawiki-form_dark.png#gh-dark-mode-only)

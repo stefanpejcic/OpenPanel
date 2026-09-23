@@ -67,7 +67,7 @@ SSH_PASSWORD="NotSoStrongP@ssword"
 # SSH_IDENTITY_PASSPHRASE=""
 ```
 
-> 🔗 For more destination types and examples, see [Backups Documentation](/docs/panel/files/backups/#destinations)
+> 🔗 For more destination types and examples, see [Backups Documentation](/docs/panel/backups/#destinations)
 
 ---
 
@@ -103,7 +103,7 @@ In this mode, the **Backups module is enabled** to allow users to configure thei
   * What data to back up (files, databases, or both)
   * Resource limits (e.g., bandwidth or CPU used during backup)
 
-> 🔗 For end-user configuration, see [Backups Documentation](/docs/panel/files/backups/)
+> 🔗 For end-user configuration, see [Backups Documentation](/docs/panel/backups/)
 
 **Notes:**
 
@@ -117,7 +117,7 @@ In this mode, the **Backups module is enabled** to allow users to configure thei
 
 ### Restore in Admin-Configured Backup Mode
 
-* Users restore their own backups the same way as in User-Configured mode: **Backups > List Backups** in the panel, which stays available even though Destinations/Settings are locked - see [Restore & Download](/docs/panel/files/backups/#restore--download).
+* Users restore their own backups the same way as in User-Configured mode: **Backups > Restore** in the panel, which stays available even though Destinations/Settings are locked - see [Restore & Download](/docs/panel/backups/#restore--download).
 * The admin can also restore on a user's behalf manually, either via terminal commands or through the OpenPanel UI terminal:
 
   * For databases: dropping the relevant tables and importing the database dump from backup files.

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 3
 ---
 
 # WordPress Manager
@@ -30,7 +30,7 @@ On the main WP Manager page you can:
 Installing WordPress is quick and automatic. OpenPanel takes care of everything — downloading WordPress from WordPress.org, creating the database, linking it to your domain, and configuring your new site.
 
 1. Add your **domain name** first.
-2. Open **Site Manager** from the sidebar and click **+ New Website**.
+2. Open **Websites** from the sidebar and click **+ New Website**.
 3. Choose I**nstall WordPress**.
 
 ![Auto Installer page with cards for WordPress, Joomla, Drupal, Website Builder, PrestaShop, OpenCart and other applications](/img/openpanel-screenshots/applications/autoinstaller-page.png#gh-light-mode-only)

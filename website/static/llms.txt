@@ -24,8 +24,6 @@ The core control panel: a Docker-isolated environment per hosting user, managed 
 
 - [OpenPanel](https://openpanel.com/): A highly customizable web hosting control panel built around Docker containers.
 - [Integrations & Features](https://openpanel.com/features/): Browse OpenPanel's integrations and features - billing, DNS, mail, backups, and more.
-- [Install command generator](https://openpanel.com/install/): Generate a custom OpenPanel install command with your choice of domain, ports, firewall, DNS, and security options.
-- [Live Demo](https://openpanel.com/demo/): Try a live demo of OpenPanel and OpenAdmin online - explore the dashboard and admin panel before you install anything.
 
 ---
 
@@ -35,12 +33,6 @@ OpenPanel ships as a free Community edition and a paid Enterprise edition, price
 
 - [OpenPanel Community Edition](https://openpanel.com/community/): OpenPanel Community edition is a free web hosting control panel, suitable for VPS and private use.
 - [OpenPanel Enterprise](https://openpanel.com/enterprise/): OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.
-- [NOC Partners Pricing](https://openpanel.com/licenses-for-partners/): OpenPanel Enterprise pricing for NOC partners with their own IP ranges, priced by network prefix length.
-- [Billing Software Integrations for OpenPanel](https://openpanel.com/billing/): OpenPanel integrates with WHMCS, FOSSBilling, and Blesta for automated hosting account provisioning, suspension, and termination.
-- [Blesta module for OpenPanel](https://openpanel.com/blesta-module/): Automate hosting account provisioning between Blesta and OpenPanel - install, configure, and provision in about 5 minutes.
-- [FOSSBilling module for OpenPanel](https://openpanel.com/fossbilling-module/): Automate hosting account provisioning between FOSSBilling and OpenPanel - install, configure, and provision in about 5 minutes.
-- [WHMCS module for OpenPanel](https://openpanel.com/whmcs-module/): Automate hosting account provisioning between WHMCS and OpenPanel - install, configure, and provision in about 5 minutes.
-- [Refund Policy](https://openpanel.com/refund-policy/): OpenPanel Enterprise refund policy - licenses can be refunded within 7 days of purchase if not yet activated.
 
 ---
 
@@ -55,27 +47,11 @@ How OpenPanel's Docker-per-user model differs from CloudLinux-based and traditio
 
 ---
 
-## Company
-
-Background on the project, its roadmap, live usage data, and hosting providers running OpenPanel for their customers.
-
-- [About](https://openpanel.com/about/): OpenPanel is built by hosting operators, for hosting operators - Podman-native isolation, built-in security, and no per-seat pricing.
-- [Roadmap](https://openpanel.com/roadmap/): See what OpenPanel is building next - features in active development and what's planned, updated manually by our team.
-- [Usage Statistics](https://openpanel.com/statistics/): Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community.
-- [Brand Assets](https://openpanel.com/assets/): Download official OpenPanel brand assets and logo icons in SVG format, with customizable colors for press and partner use.
-- [Control Panel for Hosting Providers](https://openpanel.com/hosting-providers/): Hosting providers offering OpenPanel on VPS and dedicated servers - compare locations, services, and managed support options.
-
----
-
 ## Support & Legal
 
 Where to get help, report bugs, or apply a patch, plus the license terms OpenPanel is distributed under.
 
-- [Support](https://openpanel.com/support/): Get help with OpenPanel and OpenAdmin - search the docs, ask the community, open an Enterprise support ticket, or report a bug.
 - [Documentation](https://openpanel.com/docs/): OpenPanel and OpenAdmin documentation - installation, opencli commands, and server management.
-- [OpenPanel Patches](https://openpanel.com/patches/): Official OpenPanel patches for reported bugs - apply a fix immediately with one command instead of waiting for the next release.
-- [Privacy Policy](https://openpanel.com/privacy-policy/): Read the OpenPanel privacy policy to learn what data we collect, how it's used, and how we protect it.
-- [LICENSE](https://openpanel.com/LICENSE/): The OpenPanel End User License Agreement (EULA) covering license grant, restrictions, ownership, and purchase terms.
 
 ---
 

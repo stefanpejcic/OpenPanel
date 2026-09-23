@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 3
 ---
 
 # Aliases
@@ -13,7 +13,7 @@ Aliases are managed via Postfix. Each alias has one source address and one or mo
 
 ## Creating an Alias
 
-1. Go to **OpenPanel > Emails > Aliases**.
+1. Go to **OpenPanel > Email > Aliases**.
 2. Click **New Alias**.
 3. Fill in the form:
 

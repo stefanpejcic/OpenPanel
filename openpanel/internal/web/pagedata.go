@@ -116,16 +116,18 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 
 	menuStyle := ReadMenuStyle(a, r)
 	var (
-		navItems  []NavItem
-		navGroups []NavGroup
-		pageTabs  []NavLink
-		navTrail  []NavLink
+		navItems    []NavItem
+		navGroups   []NavGroup
+		pageTabs    []NavLink
+		navTrail    []NavLink
+		serviceTool string
 	)
 	if menuStyle == "modern" {
 		navPath, tabCtx := ResolveNav(r, func(key string) string { return webserver.GetEnvFileValue(userContext, key) })
 		if strings.HasPrefix(navPath, "/backup") {
 			tabCtx.BackupsAdminManaged = BackupsAdminManaged(userContext)
 		}
+		serviceTool = tabCtx.ActiveTool
 		pageTabs = BuildPageTabs(userAllowed, upsellAllowed, navPath, tabCtx)
 		if strings.HasPrefix(navPath, "/dashboard") {
 			pageTabs = DashboardTabs(navPath, upsellPlanName != "" && upsellURL != "")
@@ -157,6 +159,7 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		NavGroups:         navGroups,
 		PageTabs:          pageTabs,
 		NavTrail:          navTrail,
+		ServiceTool:       serviceTool,
 		UserAllowed:       userAllowed,
 		UserAllowedJSON:   UserAllowedList(userAllowed),
 		UpsellAllowed:     upsellAllowed,

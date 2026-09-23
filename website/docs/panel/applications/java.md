@@ -10,7 +10,7 @@ Containerized [Java](https://www.java.com/) applications can be created and mana
 
 ## Create an Application
 
-To create a new Java application, navigate to **OpenPanel > AutoInstaller** and click **Setup Java Application**.
+To create a new Java application, navigate to **OpenPanel > Websites > Install App** and click **Setup Java Application**.
 
 ![Install Java Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/java_install-form.png#gh-light-mode-only)
 ![Install Java Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/java_install-form_dark.png#gh-dark-mode-only)
@@ -65,7 +65,7 @@ No **Run Install** step is needed for this example — leave it disabled and set
 
 ## Manage Applications
 
-Once your application is created, you can manage it from **OpenPanel > Site Manager**.
+Once your application is created, you can manage it from **OpenPanel > Websites > Sites**.
 
 Click **Manage** next to the application name to open its management page.
 

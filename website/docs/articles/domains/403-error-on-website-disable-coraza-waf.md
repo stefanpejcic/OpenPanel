@@ -8,7 +8,7 @@ This guide covers the most common causes of **403 Forbidden** errors on a websit
 
 One of the most common causes is the **Coraza WAF** blocking access according to **ModSecurity CoreRuleSet** rules.
 
-1. Navigate to **Advanced > WAF** in your hosting control panel.
+1. Navigate to **Security > Web Firewall** in your hosting control panel.
    ![WAF disable](/img/docs-content/fZw2Skqv-waf-status.png)
 
 2. Check if WAF is enabled for the domain. Temporarily disable it, then test the website to confirm if WAF is the cause.

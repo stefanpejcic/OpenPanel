@@ -1,10 +1,10 @@
 ---
-sidebar_position: 5
+sidebar_position: 8
 ---
 
 # Delete Accounts
 
-Navigate to **OpenPanel > Emails > Delete Accounts** to delete an email account.
+Navigate to **OpenPanel > Email > Delete Accounts** to delete an email account.
 
 1. Select the email address to delete.
 2. Click on **Confirm Delete**.

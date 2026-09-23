@@ -1,0 +1,15 @@
+---
+sidebar_position: 8
+---
+
+# Login History
+
+By default, OpenPanel records your IP address when you log in and displays the last login IP address on the Dashboard page.
+
+The Login History page displays a list of up to the last 20 logins in a table format. It includes the IP address, the time of the successful login, a two-letter country code representing the country of the IP address, and a flag icon to visualize the country.
+
+![Login History table with the country flag, IP address and login time of each successful login](/img/openpanel-screenshots/account/login-history-list.png#gh-light-mode-only)
+![Login History table with the country flag, IP address and login time of each successful login](/img/openpanel-screenshots/account/login-history-list_dark.png#gh-dark-mode-only)
+
+
+The purpose of this page is to help you determine if your account has been compromised. If you notice an IP address that you do not recognize, check the [Activity logs](/docs/panel/security/account_activity) for that IP to review the actions it performed on your account. If you notice any suspicious activity, immediately [change your account password](/docs/panel/account/#changing-password) and contact your hosting provider.

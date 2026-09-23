@@ -6,7 +6,7 @@ Using `.user.ini` files, you can set different PHP limits for each website or fo
 
 For example, to set custom PHP limits only for a specific website, such as `example.net`:
 
-1. Open **OpenPanel > File Manager** and navigate to the domain's document root (the main folder for that site).
+1. Open **OpenPanel > Files > File Manager** and navigate to the domain's document root (the main folder for that site).
 2. Click **New File**, enter `.user.ini` as the name, check **Open in File Editor after creation**, and then click **Create**.
 3. In the editor, add the PHP configuration options you want to change. For example:
 

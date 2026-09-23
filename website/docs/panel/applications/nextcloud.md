@@ -1,5 +1,5 @@
 ---
-sidebar_position: 15
+sidebar_position: 16
 ---
 
 # Nextcloud
@@ -10,7 +10,7 @@ Install and manage [Nextcloud](https://nextcloud.com/) sites in an existing doma
 
 ## Install Nextcloud
 
-Navigate to **OpenPanel > AutoInstaller** and click **Install Nextcloud**.
+Navigate to **OpenPanel > Websites > Install App** and click **Install Nextcloud**.
 
 ![Install Nextcloud form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/nextcloud-form.png#gh-light-mode-only)
 ![Install Nextcloud form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/nextcloud-form_dark.png#gh-dark-mode-only)
@@ -59,5 +59,5 @@ To keep this feature simple, the following are **not** part of Nextcloud support
 - Scanning the filesystem for untracked installations
 - Security hardening rules
 - App/plugin installation (install additional Nextcloud apps from its own Apps page after setup)
-- A dedicated backup/restore system (use the account-level [Backups](/docs/panel/files/backups) feature instead)
+- A dedicated backup/restore system (use the account-level [Backups](/docs/panel/backups/) feature instead)
 - Only MySQL/MariaDB databases are supported

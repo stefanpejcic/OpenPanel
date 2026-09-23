@@ -1,5 +1,5 @@
 ---
-sidebar_position: 7
+sidebar_position: 8
 ---
 
 # PrestaShop
@@ -10,7 +10,7 @@ Install and manage [PrestaShop](https://www.prestashop.com/) sites in an existin
 
 ## Install PrestaShop
 
-Navigate to **OpenPanel > AutoInstaller** and click **Install PrestaShop**.
+Navigate to **OpenPanel > Websites > Install App** and click **Install PrestaShop**.
 
 ![Install PrestaShop form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/prestashop-form.png#gh-light-mode-only)
 ![Install PrestaShop form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/prestashop-form_dark.png#gh-dark-mode-only)
@@ -59,5 +59,5 @@ To keep this feature simple, the following are **not** part of PrestaShop suppor
 - Scanning the filesystem for untracked installations
 - Security hardening rules
 - Module/theme installation (install additional PrestaShop modules from its own back office after setup)
-- A dedicated backup/restore system (use the account-level [Backups](/docs/panel/files/backups) feature instead)
+- A dedicated backup/restore system (use the account-level [Backups](/docs/panel/backups/) feature instead)
 - Only MySQL/MariaDB databases are supported

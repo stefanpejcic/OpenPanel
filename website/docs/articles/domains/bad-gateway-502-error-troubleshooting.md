@@ -39,7 +39,7 @@ Sometimes a 502 error is cached by Varnish, even if the backend issue is resolve
 
 **Steps:**
 
-1. Go to **Caching > Varnish** and disable it for the affected domain.
+1. Go to **Cache & Search > Varnish** and disable it for the affected domain.
    ![screenshot](/img/docs-content/0krVf4Jy-image.png)
 2. Reload the website in your browser.
 

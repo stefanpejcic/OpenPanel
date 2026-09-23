@@ -10,7 +10,7 @@ Containerized [Ruby](https://www.ruby-lang.org/) applications can be created and
 
 ## Create an Application
 
-To create a new Ruby application, navigate to **OpenPanel > AutoInstaller** and click **Setup Ruby Application**.
+To create a new Ruby application, navigate to **OpenPanel > Websites > Install App** and click **Setup Ruby Application**.
 
 ![Install Ruby Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/ruby_install-form.png#gh-light-mode-only)
 ![Install Ruby Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/ruby_install-form_dark.png#gh-dark-mode-only)
@@ -62,7 +62,7 @@ Enable **Run Install** so `bundle install` runs before the app starts.
 
 ## Manage Applications
 
-Once your application is created, you can manage it from **OpenPanel > Site Manager**.
+Once your application is created, you can manage it from **OpenPanel > Websites > Sites**.
 
 Click **Manage** next to the application name to open its management page.
 

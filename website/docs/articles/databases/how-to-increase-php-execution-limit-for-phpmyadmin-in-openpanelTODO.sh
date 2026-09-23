@@ -1,6 +1,6 @@
 # How to change PHP execution limit for phpMyAdmin in OpenPanel
 
-phpMyAdmin runs on [PHP version that user sets as default php version](/docs/panel/advanced/server_settings/#set-default-php-version) in OpenPanel. 
+phpMyAdmin runs on [PHP version that user sets as default php version](/docs/panel/php/default/) in OpenPanel. 
 
 But due to [phpmyadmin minimum requirements](https://docs.phpmyadmin.net/en/latest/require.html#php), if PHP version is less than 8.0 then [the default php version defined by the administrator](/docs/admin/settings/openpanel/#other-settings) will be used instead.
 

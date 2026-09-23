@@ -1,7 +1,8 @@
 {
-  "label": "Emails",
+  "label": "Email",
   "position": 4,
   "link": {
-    "type": "generated-index"
+    "type": "generated-index",
+    "slug": "/category/panel-email"
   }
 }

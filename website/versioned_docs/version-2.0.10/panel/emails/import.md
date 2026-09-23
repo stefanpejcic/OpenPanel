@@ -1,0 +1,52 @@
+---
+sidebar_position: 3
+---
+
+# Address Importer
+
+The **Address Importer** page allows you to create multiple email accounts at once by uploading an `.xls`/`xlsx` or `.csv` file.
+
+### How to Import Email Addresses
+
+1. Navigate to **OpenPanel > Emails > Address Importer**.
+2. Select the `.xls`, `.xlsx` or `.csv` file from your device and click **Upload**.
+
+![Import Emails form with the file picker for a CSV, XLSX or XLS file and the Upload button](/img/openpanel-screenshots/emails/import-form.png#gh-light-mode-only)
+![Import Emails form with the file picker for a CSV, XLSX or XLS file and the Upload button](/img/openpanel-screenshots/emails/import-form_dark.png#gh-dark-mode-only)
+
+### File Format Requirements
+
+* Supported delimiters: `,` (comma) or `;` (semicolon)
+* Required columns: `email` (the full address, e.g. `alice@example.com`), `password`
+* Optional column: `quota`
+
+  * If included, the quota should specify a unit: `B`, `K`, `M`, `G`, or `T`.
+  * If no unit is specified, the default is **MB**.
+
+### Example File
+
+```csv
+email,password,quota
+alice@example.com,pass123,500M
+bob@mydomain.com,s3cr3t,1G
+charlie@other.com,charliepwd,
+diana@example.com,d1@n@pwd,0
+eve@unauthorized.com,evepass,100T
+new@example.com,ssaaasa2,10M
+```
+
+### Review & Confirmation
+
+After uploading the file:
+
+* You’ll see a preview of the email accounts to be created, along with their passwords and quota (if provided).
+* The system will flag entries if they will be skipped during the import:
+
+  * Email addresses that already exist
+  * Domains that are not associated with your account
+
+### Final Step
+
+Click **Start Import** to begin the import process. A log will appear below the table to show the progress and status of the operation.
+
+Once completed, all valid email accounts will be successfully imported.

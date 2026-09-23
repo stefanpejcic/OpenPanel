@@ -15,7 +15,7 @@ The default PHP version used for new user accounts is not set on this page — i
 
 ### Available Options
 
-These options determine which PHP settings users can modify from their **OpenPanel > PHP Options** page.
+These options determine which PHP settings users can modify from their **OpenPanel > PHP > Options** page.
 
 ![Available Options section with the PHP options users can edit](/img/openadmin-screenshots/settings/php-options.png#gh-light-mode-only)
 ![Available Options section with the PHP options users can edit](/img/openadmin-screenshots/settings/php-options_dark.png#gh-dark-mode-only)

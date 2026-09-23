@@ -51,6 +51,7 @@ type LayoutData struct {
 	NavGroups       []NavGroup // classic sidebar
 	PageTabs        []NavLink  // tab bar rendered above the page content, nil when the page's area has no siblings
 	NavTrail        []NavLink  // header trail, the last one is the current page and has no Href
+	ServiceTool     string     // "terminal" or "logs" when that page was opened from a service's own tabs (?ctx=service), so it can drop its own service picker
 	UserAllowed     map[string]bool
 	UserAllowedJSON template.JS
 	IsEnterprise    bool

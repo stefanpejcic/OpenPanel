@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 6
 ---
 
 # OpenSearch
@@ -13,7 +13,7 @@ sidebar_position: 5
 ![OpenSearch page with the service status, TCP server and port](/img/openpanel-screenshots/caching/opensearch-page.png#gh-light-mode-only)
 ![OpenSearch page with the service status, TCP server and port](/img/openpanel-screenshots/caching/opensearch-page_dark.png#gh-dark-mode-only)
 
-You can manage the OpenSearch service through **OpenPanel > Caching > OpenSearch**, enabling fast, scalable search capabilities for your applications and systems.
+You can manage the OpenSearch service through **OpenPanel > Cache & Search > OpenSearch**, enabling fast, scalable search capabilities for your applications and systems.
 
 ---
 

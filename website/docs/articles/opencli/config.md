@@ -738,6 +738,25 @@ Set 'modern':
 opencli config update filemanager_buttons_style modern
 ```
 
+### `menu_style`
+
+Set the default OpenPanel menu style - Available 'classic' 'modern'. Users can still pick their own style from their profile menu, see [Menu Style](/docs/panel/dashboard/menu-style/). A missing or unknown value falls back to 'classic'.
+
+**Check current value**:
+```bash
+opencli config get menu_style
+```
+
+Set 'classic':
+```bash
+opencli config update menu_style classic
+```
+
+Set 'modern':
+```bash
+opencli config update menu_style modern
+```
+
 ### `filemanager_edit_size`
 Maximum file size (in MB) allowed for editing files using the File Manager.
 

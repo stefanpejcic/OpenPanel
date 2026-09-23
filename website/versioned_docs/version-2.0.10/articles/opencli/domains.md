@@ -1,0 +1,457 @@
+# Domains
+
+
+## All
+
+Lists all domain names currently hosted on the server:
+
+```bash
+opencli domains-all
+```
+
+## User
+
+Lists all domain names currently owned by a specific user.
+
+```bash
+opencli domains-user <USERNAME> [--docroot|--php_version]
+```
+
+## Add
+
+Add a domain name for a user:
+
+```bash
+opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
+```
+
+### Custom Docroot
+
+To add a domain name with custom docroot:
+
+```bash
+opencli domains-add <DOMAIN_NAME> <USERNAME> --docroot DOCUMENT_ROOT
+```
+
+### Custom PHP version
+
+To add a domain name with custom PHP version:
+
+```bash
+opencli domains-add <DOMAIN_NAME> <USERNAME> --php_version N.N
+```
+
+
+### Skip Flags
+
+> **Warning:** These flags are intended primarily for automation and debugging purposes and should generally **not be used manually in the terminal**.
+> Most skip flags are used by automation scripts when adding multiple domains at once, allowing services to be started only after all domains have been provisioned. The `--skip_dns`, `--skip_vhost`, and `--skip_caddy` options are also useful for troubleshooting and retry operations.
+
+* **Skip DNS** – Add a domain without creating a DNS zone:
+
+  ```bash
+  opencli domains-add <DOMAIN_NAME> <USERNAME> --skip_dns
+  ```
+
+* **Skip Vhosts** – Add a domain without creating virtual host configurations or starting the user's PHP and web server containers:
+
+  ```bash
+  opencli domains-add <DOMAIN_NAME> <USERNAME> --skip_vhost
+  ```
+
+* **Skip Containers** – Add a domain without starting the user's PHP and web server containers:
+
+  ```bash
+  opencli domains-add <DOMAIN_NAME> <USERNAME> --skip_containers
+  ```
+
+* **Skip Caddy** – Add a domain without creating a Caddy virtual host configuration:
+
+  ```bash
+  opencli domains-add <DOMAIN_NAME> <USERNAME> --skip_caddy
+  ```
+
+**Note:** These options are primarily intended for bulk provisioning workflows (like [cpanel account importer](/docs/articles/transfers/import-cpanel-backup-to-openpanel/) or [user transfer](/docs/articles/transfers/transfer-openpanel-account-to-another-server/)) and advanced troubleshooting scenarios.
+
+## Suspend
+
+Suspend a domain name:
+
+```bash
+opencli domains-suspend <DOMAIN_NAME>
+```
+
+## Unsuspend
+
+Unsuspend a domain name:
+
+```bash
+opencli domains-unsuspend <DOMAIN_NAME>
+```
+
+## Delete
+
+Delete a domain name:
+
+```bash
+opencli domains-delete <DOMAIN_NAME> [--debug]
+```
+
+## SSL
+
+Check SSL for domain, add custom certificate, view files.
+
+```bash
+opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|custom] [path/to/fullchain.pem path/to/key.pem]
+```
+
+### Examples
+
+Display command examples for a specific domain:
+```bash
+opencli domains-ssl <DOMAIN_NAME>
+```
+
+### Status
+
+Display current SSL status for a domain:
+```bash
+opencli domains-ssl <DOMAIN_NAME> status
+```
+
+### Info
+
+View ceritificate files a domain:
+```bash
+opencli domains-ssl <DOMAIN_NAME> info
+```
+
+### Logs
+
+View caddy SSL-related logs for a domain:
+```bash
+opencli domains-ssl <DOMAIN_NAME> logs
+```
+
+### Custom
+
+Setup a custom SSL for a domain:
+```bash
+opencli domains-ssl <DOMAIN_NAME> custom <CERT_PATH> <KEY_PATH>
+```
+
+### Auto
+
+Switch to autoSSL for a domain (default):
+```bash
+opencli domains-ssl <DOMAIN_NAME> auto
+```
+
+## Docroot
+
+View and change docroot for a domain.
+
+```bash
+opencli domains-docroot <DOMAIN_NAME> [update </var/www/html/>] --debug
+```
+
+### View
+
+To view the current docroot for a domain:
+```bash
+opencli domains-docroot <DOMAIN_NAME>
+```
+
+### Update
+
+To update a docroot for a domain:
+```bash
+opencli domains-docroot <DOMAIN_NAME> update <docroot> [--debug]
+```
+
+## DNS
+
+Manage DNS service and domain zones.
+
+
+### Reconfig
+
+To load new DNS zones into the Bind server:
+
+```bash
+opencli domains-dns reconfig
+````
+
+### Check
+
+To check and validate a DNS zone for a domain:
+
+```bash
+opencli domains-dns check <DOMAIN_NAME>
+```
+
+### Reload
+
+To reload a DNS zone for a single domain:
+
+```bash
+opencli domains-dns reload <DOMAIN_NAME>
+```
+
+### Show
+
+To display the DNS zone for a single domain:
+
+```bash
+opencli domains-dns show <DOMAIN_NAME>
+```
+
+### List
+
+To list all domains with DNS zones on the server:
+
+```bash
+opencli domains-dns list
+```
+
+### Create
+
+To create a DNS zone for a domain:
+
+```bash
+opencli domains-dns create <DOMAIN_NAME>
+```
+
+### Delete
+
+To delete a DNS zone for a domain:
+
+```bash
+opencli domains-dns delete <DOMAIN_NAME>
+```
+
+### Default
+
+To restore the default DNS zone for a domain:
+
+```bash
+opencli domains-dns default <DOMAIN_NAME>
+```
+
+### Count
+
+To display the total number of DNS zones present on the server:
+
+```bash
+opencli domains-dns count
+```
+
+### Config
+
+To check the main Bind configuration file for syntax errors:
+
+```bash
+opencli domains-dns config
+```
+
+### Start
+
+To start the DNS server:
+
+```bash
+opencli domains-dns start
+```
+
+### Restart
+
+To perform a soft restart of the Bind9 Docker container:
+
+```bash
+opencli domains-dns restart
+```
+
+### Hard Restart
+
+To perform a hard restart by terminating the container and starting it again:
+
+```bash
+opencli domains-dns hard-restart
+```
+
+### Stop
+
+To stop the DNS server:
+
+```bash
+opencli domains-dns stop
+```
+
+
+## DNSSEC
+
+Enable [DNSSEC](https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions) for a domain and re-sign after changes the zone.
+
+```bash
+opencli domains-dnssec <DOMAIN_NAME> [--update | --check]
+```
+
+### Check
+
+Check if domain has DNSSEC enabled:
+```bash
+opencli domains-dnssec <DOMAIN_NAME> --check
+```
+
+### Update
+
+Configure/update DNSSEC for a domain:
+```bash
+opencli domains-dnssec <DOMAIN_NAME> --update
+```
+
+
+## HSTS
+
+Manage [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) for a domain.
+
+```bash
+opencli domains-hsts <DOMAIN_NAME> [on|off]
+```
+
+### Status
+Check HSTS status for a domain:
+```bash
+opencli domains-hsts <DOMAIN_NAME> [on|off]
+```
+
+### Enable
+Enable HSTS for a domain:
+```bash
+opencli domains-hsts <DOMAIN_NAME> on
+```
+
+### Disable
+Disable HSTS for a domain:
+```bash
+opencli domains-hsts <DOMAIN_NAME> off
+```
+
+
+## Edit
+
+Edit VirtualHosts file for a domain or enter its docroot.
+
+```
+opencli domains-edit <DOMAIN_NAME> [--ws]
+```
+
+### Docroot
+
+`cd` into the domain docroot:
+```
+opencli domains-edit <DOMAIN_NAME>
+```
+
+### VHost
+
+Open the VirtualHost file for a domain using `nano` edit, and upon saving restart user webserver:
+```
+opencli domains-edit <DOMAIN_NAME> --ws
+```
+
+## Stats
+
+Parse caddy access logs for users domains and generate static html.
+
+```bash
+opencli domains-stats <USERNAME> --debug
+```
+
+Generate stats for all domains:
+```bash
+opencli domains-stats [--debug]
+```
+
+Generate stats for domains owned by a specific user:
+```bash
+opencli domains-stats <USERNAME> [--debug]
+```
+
+
+
+## Update NS
+
+Change nameservers for a single or all dns zones.
+
+```bash
+opencli domains-update_ns <DOMAIN_NAME>|--all
+```
+
+Update the zone file for a specific domain:
+```bash
+opencli domains-update_ns <DOMAIN_NAME>
+```
+
+Update all zone files:
+```bash
+opencli domains-update_ns --all [-y]
+```
+
+
+
+
+
+## Varnish
+
+Check Varnish status for domain, enable/disable Varnish caching.
+
+```bash
+opencli domains-varnish <DOMAIN_NAME> <on|off> <--short>
+```
+
+### Status
+
+Display Varnish Cache status for domain:
+ 
+```bash
+opencli domains-varnish <DOMAIN_NAME>
+```
+
+### Enable
+
+Enable Varnish Cache for a domain :
+ 
+```bash
+opencli domains-varnish <DOMAIN_NAME> on [--short]
+```
+
+### Disable
+
+Disable Varnish Cache for a domain:
+ 
+```bash
+opencli domains-varnish <DOMAIN_NAME> off [--short]
+```
+
+## Whoowns
+
+Check which username owns a certain domain name.
+
+To check owner for a domain:
+
+```bash
+opencli domains-whoowns <DOMAIN_NAME>
+```
+
+To check owner and docker context for a domain:
+
+```bash
+opencli domains-whoowns <DOMAIN_NAME> --context
+```
+
+To check owner and docroot for a domain:
+
+```bash
+opencli domains-whoowns <DOMAIN_NAME> --docroot
+```
+

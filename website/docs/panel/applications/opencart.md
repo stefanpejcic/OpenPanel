@@ -1,5 +1,5 @@
 ---
-sidebar_position: 8
+sidebar_position: 9
 ---
 
 # OpenCart
@@ -10,7 +10,7 @@ Install and manage [OpenCart](https://www.opencart.com/) sites in an existing do
 
 ## Install OpenCart
 
-Navigate to **OpenPanel > AutoInstaller** and click **Install OpenCart**.
+Navigate to **OpenPanel > Websites > Install App** and click **Install OpenCart**.
 
 ![Install OpenCart form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/opencart-form.png#gh-light-mode-only)
 ![Install OpenCart form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/opencart-form_dark.png#gh-dark-mode-only)
@@ -59,5 +59,5 @@ To keep this feature simple, the following are **not** part of OpenCart support 
 - Scanning the filesystem for untracked installations
 - Security hardening rules
 - Sample/demo data (OpenCart's CLI installer sets up an empty catalog)
-- A dedicated backup/restore system (use the account-level [Backups](/docs/panel/files/backups) feature instead)
+- A dedicated backup/restore system (use the account-level [Backups](/docs/panel/backups/) feature instead)
 - Only MySQL/MariaDB databases are supported

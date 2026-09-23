@@ -8,7 +8,7 @@ Revoke a role previously granted to a MongoDB user on a database, to prevent the
 
 This step is essential for managing access control and ensuring that only authorized users can interact with sensitive or production data.
 
-To remove user access from a database, navigate to **MongoDB > Remove User from DB**:
+To remove user access from a database, navigate to **MongoDB > Users > Remove User**:
 
 ![Remove User access from Database form with the user, database and role dropdowns](/img/openpanel-screenshots/mongodb/remove-form.png#gh-light-mode-only)
 ![Remove User access from Database form with the user, database and role dropdowns](/img/openpanel-screenshots/mongodb/remove-form_dark.png#gh-dark-mode-only)

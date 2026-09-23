@@ -66,7 +66,7 @@ func TestBuildDashboardSectionsTargetBlank(t *testing.T) {
 	}
 }
 
-// the dashboard mirrors the sidebar, so with every feature on both list the same areas in the same order
+// the dashboard mirrors the sidebar: with every feature on, its sections appear in sidebar order, only single-page areas are folded into a neighbouring section
 func TestBuildDashboardSectionsMatchSidebarOrder(t *testing.T) {
 	allowed := map[string]bool{}
 	for _, s := range allSections() {
@@ -80,9 +80,17 @@ func TestBuildDashboardSectionsMatchSidebarOrder(t *testing.T) {
 		titles = append(titles, s.Title)
 	}
 	for _, item := range web.BuildSidebarNav(allowed, nil, "/dashboard") {
-		labels = append(labels, item.Label)
+		if item.Label != "Cron Jobs" && item.Label != "Server Info" {
+			labels = append(labels, item.Label)
+		}
 	}
 	if strings.Join(titles, ",") != strings.Join(labels, ",") {
 		t.Errorf("dashboard sections %v don't match the sidebar %v", titles, labels)
+	}
+
+	for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, "modern") {
+		if len(s.Items) < 2 {
+			t.Errorf("section %q has a single icon, it should join a neighbouring section", s.Title)
+		}
 	}
 }

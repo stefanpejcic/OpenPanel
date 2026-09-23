@@ -215,7 +215,7 @@ The Permissions tab lets Administrators view and, for individual users, override
 
 ### Activity
 
-Displays [users activity log](/docs/panel/account/account_activity/).
+Displays [users activity log](/docs/panel/security/account_activity/).
 
 - Date
 - Action performed

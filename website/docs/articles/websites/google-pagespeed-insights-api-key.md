@@ -21,7 +21,7 @@ To prevent this, OpenPanel users can generate a **free Google PageSpeed Insights
 
 ## Adding the API Key in OpenPanel
 
-1. Go to **OpenPanel > Site Manager > [Select a website]**.
+1. Go to **OpenPanel > Websites > Sites > [Select a website]**.
 2. Click on **"Click to add PageSpeed Insights API key"** below the PageSpeed data section.
    ![add api key](/img/panel/v2/add_api_key.png)
 3. Paste the API key you copied and click **Save**.

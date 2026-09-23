@@ -8,7 +8,7 @@ Grant a MongoDB user a role scoped to an existing database, so they can execute 
 
 This is a critical step after creating a database and user - without it, the user won't be able to interact with the database.
 
-To assign an existing user to a database, navigate to **MongoDB > Assign User to DB**:
+To assign an existing user to a database, navigate to **MongoDB > Users > Assign User**:
 
 ![Assign User to Database form with the user, database and role dropdowns](/img/openpanel-screenshots/mongodb/assign-form.png#gh-light-mode-only)
 ![Assign User to Database form with the user, database and role dropdowns](/img/openpanel-screenshots/mongodb/assign-form_dark.png#gh-dark-mode-only)

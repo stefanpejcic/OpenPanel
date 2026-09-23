@@ -15,7 +15,7 @@ For more advanced users, the [**PHP.INI Editor**](/docs/panel/php/php_ini_editor
 
 ## How to Change PHP Options
 
-1. Open **OpenPanel** and navigate to **PHP > PHP Options**.
+1. Open **OpenPanel** and navigate to **PHP > Options**.
 2. Select the desired **PHP version** from the dropdown.
 3. Modify the options you want to change.
 4. Click **Save** to apply changes.

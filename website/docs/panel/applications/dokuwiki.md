@@ -1,5 +1,5 @@
 ---
-sidebar_position: 12
+sidebar_position: 13
 ---
 
 # DokuWiki
@@ -10,7 +10,7 @@ Install and manage [DokuWiki](https://www.dokuwiki.org/) wikis in an existing do
 
 ## Install DokuWiki
 
-Navigate to **OpenPanel > AutoInstaller** and click **Install DokuWiki**.
+Navigate to **OpenPanel > Websites > Install App** and click **Install DokuWiki**.
 
 ![Install DokuWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/dokuwiki-form.png#gh-light-mode-only)
 ![Install DokuWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/dokuwiki-form_dark.png#gh-dark-mode-only)

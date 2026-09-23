@@ -10,7 +10,7 @@ You can customize your experience by selecting your preferred language.
 ![Change Language page with the language dropdown showing the current locale](/img/openpanel-screenshots/account/language-page_dark.png#gh-dark-mode-only)
 
 ## Changing Your Language  
-1. Navigate to **Account > Change Language**.
+1. Navigate to **Account > Language**.
 1. Select your desired language from the dropdown menu.  
 2. The interface will **immediately update** to reflect your selection.  
 

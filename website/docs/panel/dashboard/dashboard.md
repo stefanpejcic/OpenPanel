@@ -11,12 +11,14 @@ The OpenPanel dashboard interface is divided in two sections:
 - Features: listing all available options
 - Widgets: 2FA, Information, Usage and How-to guides
 
+When your hosting provider offers an upgrade plan, the dashboard also has an [**Upgrade now**](/docs/panel/dashboard/upgrade/) tab that compares your plan with the upgrade plan.
+
 ![OpenPanel dashboard with the sidebar, feature shortcuts grouped by section, and the 2FA, Information and Usage widgets](/img/openpanel-screenshots/dashboard/dashboard-window.png#gh-light-mode-only)
 ![OpenPanel dashboard with the sidebar, feature shortcuts grouped by section, and the 2FA, Information and Usage widgets](/img/openpanel-screenshots/dashboard/dashboard-window_dark.png#gh-dark-mode-only)
 
 ## Two-Factor Authentication
 
-This widget shows whether [Two-Factor Authentication](/docs/panel/account/2fa/) is enabled for your account. If it isn't, click **Click to Enable** to set it up.
+This widget shows whether [Two-Factor Authentication](/docs/panel/security/2fa/) is enabled for your account. If it isn't, click **Click to Enable** to set it up.
 
 ![Two-Factor Authentication widget showing 2FA as disabled with the Click to Enable button](/img/openpanel-screenshots/dashboard/dashboard-twofa.png#gh-light-mode-only)
 ![Two-Factor Authentication widget showing 2FA as disabled with the Click to Enable button](/img/openpanel-screenshots/dashboard/dashboard-twofa_dark.png#gh-dark-mode-only)

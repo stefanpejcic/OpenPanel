@@ -13,7 +13,7 @@ Depending on which modules are enabled, users can manage PHP settings using one 
 
 The default PHP version used for new domains can be configured via:
 
-**OpenPanel > PHP > Default version**
+**OpenPanel > PHP > Default Version**
 
 1. Select your desired PHP version.
 2. Click 'Change' to apply.

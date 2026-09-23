@@ -1,12 +1,12 @@
 ---
-sidebar_position: 999
+sidebar_position: 6
 ---
 
 # MCP
 
 OpenPanel exposes an [MCP](https://modelcontextprotocol.io) server at `/mcp`. Once connected, Claude (or any other MCP client) can manage your account directly: list and create databases, manage domains, DNS records, cron jobs, email accounts, and everything else available under `/api/`.
 
-On **Account > MCP** page in the UI, you can generate and manage tokens to be used with Claude (MCP).
+On **Account > AI Assistant (MCP)** page in the UI, you can generate and manage tokens to be used with Claude (MCP).
 
 ![MCP page with the token generator and connection snippets for Claude Code and Claude Desktop](/img/openpanel-screenshots/account/mcp-page.png#gh-light-mode-only)
 ![MCP page with the token generator and connection snippets for Claude Code and Claude Desktop](/img/openpanel-screenshots/account/mcp-page_dark.png#gh-dark-mode-only)

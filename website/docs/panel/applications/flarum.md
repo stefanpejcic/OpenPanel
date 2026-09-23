@@ -1,5 +1,5 @@
 ---
-sidebar_position: 10
+sidebar_position: 11
 ---
 
 # Flarum
@@ -10,7 +10,7 @@ Install and manage [Flarum](https://flarum.org/) forums in an existing domain, v
 
 ## Install Flarum
 
-Navigate to **OpenPanel > AutoInstaller** and click **Install Flarum**.
+Navigate to **OpenPanel > Websites > Install App** and click **Install Flarum**.
 
 ![Install Flarum form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/flarum-form.png#gh-light-mode-only)
 ![Install Flarum form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/flarum-form_dark.png#gh-dark-mode-only)

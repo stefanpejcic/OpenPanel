@@ -8,7 +8,7 @@ The PHP Extensions page lets you install, enable, and disable PHP extensions for
 
 ## How to Manage Extensions
 
-1. Open **OpenPanel** and navigate to **PHP > PHP Extensions**.
+1. Open **OpenPanel** and navigate to **PHP > Extensions**.
 2. Select the **PHP version** you want to manage.
 3. On the extensions table, toggle an extension **on** or **off**.
 

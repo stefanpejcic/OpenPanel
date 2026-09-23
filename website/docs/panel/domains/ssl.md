@@ -6,7 +6,7 @@ sidebar_position: 5
 
 OpenPanel automatically generates and renews SSL certificates for all domains using **Let's Encrypt**.
 
-You can also configure a **custom SSL certificate** for any domain via **OpenPanel > Domains > SSL**.
+You can also configure a **custom SSL certificate** for any domain via **OpenPanel > Domains > SSL Certificates**.
 
 ## Custom SSL
 

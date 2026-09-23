@@ -1,12 +1,12 @@
 ---
-sidebar_position: 6
+sidebar_position: 5
 ---
 
 # Create User
 
 Easily create a new PostgreSQL user in just a few clicks. Users are used for interacting with databases or the PostgreSQL server.
 
-Navigate to **PostgreSQL > Create User**:
+Navigate to **PostgreSQL > Users > Create User**:
 
 1. **Enter a Username**
    Type your desired username into the input field. Only letters, numbers, and underscores are allowed, and the username must be between 1 and 31 characters long.

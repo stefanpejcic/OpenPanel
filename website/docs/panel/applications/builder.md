@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 5
 ---
 
 # Website Builder
@@ -10,7 +10,7 @@ sidebar_position: 3
 
 ## Create a Website
 
-To create a new website using [GrapeJS](https://grapesjs.com/) access the **Auto Installer** page and under **Website Builder** click on the "Create website" button.
+To create a new website using [GrapeJS](https://grapesjs.com/) open **Websites > Install App** and under **Website Builder** click on the "Create website" button.
 
 ![Website Builder page with the domain and folder to create the website in](/img/openpanel-screenshots/applications/builder-form.png#gh-light-mode-only)
 ![Website Builder page with the domain and folder to create the website in](/img/openpanel-screenshots/applications/builder-form_dark.png#gh-dark-mode-only)

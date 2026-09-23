@@ -10,7 +10,7 @@ Deploy a [Composer](https://getcomposer.org/)-based PHP application into an exis
 
 ## Install a PHP Application
 
-Navigate to **OpenPanel > AutoInstaller** and click **Install PHP Application**.
+Navigate to **OpenPanel > Websites > Install App** and click **Install PHP Application**.
 
 ![Install PHP Application form with the domain and folder, and an optional Composer project to create](/img/openpanel-screenshots/applications/php_install-form.png#gh-light-mode-only)
 ![Install PHP Application form with the domain and folder, and an optional Composer project to create](/img/openpanel-screenshots/applications/php_install-form_dark.png#gh-dark-mode-only)

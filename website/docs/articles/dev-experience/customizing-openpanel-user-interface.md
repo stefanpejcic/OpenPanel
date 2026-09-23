@@ -101,10 +101,10 @@ Edit the file `/etc/openpanel/openpanel/conf/knowledge_base_articles.json` and i
     "how_to_topics": [
         {"title": "How to install WordPress", "link": "https://openpanel.com/docs/panel/applications/wordpress#install-wordpress"},
         {"title": "Publishing a Python Application", "link": "https://openpanel.com/docs/panel/applications/python#create-an-application"},
-        {"title": "How to edit Nginx / Apache configuration", "link": "https://openpanel.com/docs/panel/advanced/server_settings#nginx--apache-settings"},
-        {"title": "How to create a new MySQL database", "link": "https://openpanel.com/docs/panel/databases/#create-a-mysql-database"},
-        {"title": "How to add a Cronjob", "link": "https://openpanel.com/docs/panel/advanced/cronjobs#add-a-cronjob"},
-        {"title": "How to change server TimeZone", "link": "https://openpanel.com/docs/panel/advanced/server_settings#server-time"}
+        {"title": "How to edit Nginx / Apache configuration", "link": "https://openpanel.com/docs/panel/webserver/webserver_settings"},
+        {"title": "How to create a new MySQL database", "link": "https://openpanel.com/docs/panel/mysql/new_db"},
+        {"title": "How to add a Cronjob", "link": "https://openpanel.com/docs/panel/cronjobs#add-a-cronjob"},
+        {"title": "How to enable Redis caching", "link": "https://openpanel.com/docs/panel/caching/Redis"}
     ],
     "knowledge_base_link": "https://openpanel.com/docs/panel/intro/?source=openpanel_server"
 }

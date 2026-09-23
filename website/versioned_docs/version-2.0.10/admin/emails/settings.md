@@ -1,0 +1,119 @@
+---
+sidebar_position: 3
+---
+
+# Email Settings
+
+The Email Settings section allows you to configure various parameters for the MailServer stack to ensure efficient and secure email management. 
+
+
+:::info
+Emails are only available on [OpenPanel Enterprise edition](/enterprise)
+:::
+
+
+## MailServer Status
+
+The status of the Mail Server service is displayed at the top of the page, where administrators can start, stop, or restart the service as needed.
+
+![MailServer Status section with the running status and the Start, Restart and Stop buttons](/img/openadmin-screenshots/emails/settings-status.png#gh-light-mode-only)
+![MailServer Status section with the running status and the Start, Restart and Stop buttons](/img/openadmin-screenshots/emails/settings-status_dark.png#gh-dark-mode-only)
+
+
+## Accounts
+
+Displays the total number of email accounts currently active on the server. This includes all accounts across all domains configured on the system.
+
+![Accounts section with the total number of email accounts on the server](/img/openadmin-screenshots/emails/settings-accounts.png#gh-light-mode-only)
+![Accounts section with the total number of email accounts on the server](/img/openadmin-screenshots/emails/settings-accounts_dark.png#gh-dark-mode-only)
+
+## Webmail
+
+- Status - displays current webmail service status
+- Current Software - displays current selected client
+- Select Webmail Client - Choose the webmail client your users will interact with. The service will be restarted to apply any changes made.
+- Set Webmail domain - Configure domain to be used for webmail service. Webmail will be available on this domain and /webmail on every user domain will redirect to this domain.
+
+![Webmail section with the webmail status, client dropdown and webmail domain](/img/openadmin-screenshots/emails/settings-webmail.png#gh-light-mode-only)
+![Webmail section with the webmail status, client dropdown and webmail domain](/img/openadmin-screenshots/emails/settings-webmail_dark.png#gh-dark-mode-only)
+
+## Storage
+
+Configure where email data (mailboxes) is stored on disk.
+
+- **Email storage location** – Choose between:
+  - **docker volume (legacy)** – emails are stored in each user's home directory, e.g. `/home/<username>/docket-data/volumes/<username>_mail_data/_data/<domain>/<email>/`. This is **not recommended**, since adding or removing a domain will require the mail server to restart.
+  - **custom path** – store all mailboxes under a single custom path on the host, e.g. `/var/mail/`.
+- **Custom path** – Only shown when *custom path* is selected. Example values: `/var/mail/`, `/email`, `/storage`.
+
+The storage location is locked (cannot be changed) once email accounts already exist. Click **Save Storage** to apply the change.
+
+![Storage section with the email storage location](/img/openadmin-screenshots/emails/settings-storage.png#gh-light-mode-only)
+![Storage section with the email storage location](/img/openadmin-screenshots/emails/settings-storage_dark.png#gh-dark-mode-only)
+
+## Enable Services
+
+Administrators can set and configure different services based on their needs.
+
+![Enable Services section with toggles for the mail server services](/img/openadmin-screenshots/emails/settings-services.png#gh-light-mode-only)
+![Enable Services section with toggles for the mail server services](/img/openadmin-screenshots/emails/settings-services_dark.png#gh-dark-mode-only)
+
+Configure services for the MailServer stack:
+
+| Service                                | Description                                                                 |
+|----------------------------------------|-----------------------------------------------------------------------------|
+| **Postfwd**                             | Postfwd policy weight daemon used for Postfix policy/rate checks.            |
+| **Amavis**                             | Amavis content filter (used for ClamAV & SpamAssassin).                      |
+| **DNS block lists**                    | Enables DNS block lists in Postscreen.                                       |
+| **Rspamd**                              | Enable or disable Rspamd.                                                    |
+| **SpamAssassin**                        | Analyzes incoming mail and assigns a spam score.                            |
+| **MTA-STS**                            | Enables MTA-STS support for outbound mail.                                  |
+| **OpenDKIM service**                   | Enables the OpenDKIM service for email signing.                             |
+| **OpenDMARC service**                  | Enables the OpenDMARC service for email domain-based message authentication. |
+| **POP3**                               | Enables the POP3 service for email retrieval.                               |
+| **IMAP**                               | Enables the IMAP service for email retrieval.                               |
+| **ClamAV**                             | Enables the ClamAV antivirus service.                                       |
+| **fail2ban**                           | Enables the fail2ban service to ban IPs based on suspicious activity.       |
+| **Only SMTP**                          | If enabled, only the Postfix service is started, and users cannot receive incoming email. |
+| **Sender Rewriting Scheme**            | Enables the Sender Rewriting Scheme, needed for email forwarding (see [postsrsd](https://github.com/roehling/postsrsd/blob/main/README.rst) for explanation). |
+
+
+Changes to this service will interrupt current email traffic and restart the mailserver.
+
+## Relay Hosts
+
+The **Relay Hosts** feature allows you to configure an SMTP relay service (also known as a relay host or smarthost) for relaying (forwarding) outbound email on behalf of third parties. This service does not manage mail domains but helps in routing emails through an external SMTP server.
+
+![Relay Hosts section for sending mail through an external relay](/img/openadmin-screenshots/emails/settings-relay.png#gh-light-mode-only)
+![Relay Hosts section for sending mail through an external relay](/img/openadmin-screenshots/emails/settings-relay_dark.png#gh-dark-mode-only)
+
+This feature is useful for organizations that need to route their outgoing email traffic through a trusted third-party service or SMTP server for better deliverability and security.
+
+The following parameters are used to configure the relay host settings:
+
+- **DEFAULT_RELAY_HOST**  
+  Default relay host for outgoing emails. This should match the **RELAY_HOST**.
+  - Example: `mail.example.com`
+
+- **RELAY_HOST**  
+  The SMTP relay host that all outbound emails will be routed through.
+  - Example: `mail.example.com`
+
+- **RELAY_PORT**  
+  The port to be used for connecting to the SMTP relay host.
+  - Example: `25`
+
+- **RELAY_USER (optional)**  
+  The username for authenticating with the relay host. If this is set, secure connections will be required for outbound mail traffic.
+  - Example: `relay_user`
+
+- **RELAY_PASSWORD**  
+  The password for authenticating with the relay host, used alongside the **RELAY_USER**.
+  - Example: `relay_password`
+
+When both **RELAY_USER** and **RELAY_PASSWORD** are configured, all outbound mail traffic will require a secure connection and the credentials will be mandatory.
+
+Once configured, click the **Save Relay** button to apply the settings and begin routing outbound emails through the specified relay host.
+
+
+

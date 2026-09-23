@@ -1,0 +1,35 @@
+---
+sidebar_position: 1
+---
+
+# Account
+OpenPanel offers a unique feature that allows you to change your username, unlike standard control panels that require hosting support for such modifications.  
+
+:::info
+Username changes must be enabled by the Administrator (`permit_username_change_by_user`, disabled by default). If the username field is not shown on this page, ask your hosting provider to enable it.
+:::
+
+![Email & Password page with the email address, new password and confirm password fields](/img/openpanel-screenshots/account/account-form.png#gh-light-mode-only)
+![Email & Password page with the email address, new password and confirm password fields](/img/openpanel-screenshots/account/account-form_dark.png#gh-dark-mode-only)
+
+On this page, you can:  
+- Change your login password and username.  
+- Update your email address to receive notifications at a new address.  
+
+### Changing Email Address  
+To update your email address:  
+1. Enter your new email in the email field.  
+2. Click **Update** to save the changes.  
+
+### Changing Username  
+To change your username:  
+1. Enter your desired username in the username field. It must be 3-20 characters long and contain only letters and numbers (no spaces, hyphens, or underscores).
+2. Click **Update** to apply the changes.  
+
+### Changing Password  
+To change your password:  
+1. Enter your new password in the **Password** field.  
+2. Confirm it by entering the same password in the **Confirm Password** field.  
+3. Click **Update** to save the new password.  
+
+Note: Once you update your password, you will be **immediately logged out**. All existing sessions will be **terminated**, and you will need to log in again with your new credentials.

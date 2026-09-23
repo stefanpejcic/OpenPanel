@@ -1,5 +1,5 @@
 ---
-sidebar_position: 10
+sidebar_position: 6
 ---
 
 # Email Deliverability
@@ -8,7 +8,7 @@ Checks the live DNS records for your domains against the SPF, DKIM, and DMARC re
 
 ## Overview
 
-Go to **OpenPanel > Emails > Email Deliverability** to see a table of all your domains with a status badge for each record:
+Go to **OpenPanel > Email > Deliverability** to see a table of all your domains with a status badge for each record:
 
 | Column | Description |
 |---|---|

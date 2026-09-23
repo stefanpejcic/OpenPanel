@@ -47,7 +47,7 @@ func buildDashboardSections(t i18n.Translator, allowed, upsellAllowed map[string
 	return result
 }
 
-// allSections is the modern (menu_style=modern) dashboard: sections and icons follow the sidebar's areas and tab order, keys stay the old ones where a section survived so saved orders and custom_dashboard_section.json's before_<key> keep working
+// allSections is the modern (menu_style=modern) dashboard: sections and icons follow the sidebar's areas and tab order, single-page areas (Cron Jobs, Server Info) join a neighbouring section instead of standing alone, keys stay the old ones where a section survived so saved orders and custom_dashboard_section.json's before_<key> keep working
 func allSections() []Section {
 	return []Section{
 		{Key: "domains", Title: "Domains", Items: []SectionItem{
@@ -124,9 +124,6 @@ func allSections() []Section {
 			{"php_extensions", "/php/extensions", "bi-puzzle", "Extensions", "", false},
 			{"php_ini", "/php/php_ini_editor", "bi-filetype-php", "php.ini Editor", "", false},
 		}},
-		{Key: "crons", Title: "Cron Jobs", Items: []SectionItem{
-			{"crons", "/cronjobs", "bi-calendar2-week", "Cron Jobs", "", false},
-		}},
 		{Key: "cache", Title: "Cache & Search", Items: []SectionItem{
 			{"redis", "/cache/redis", "bi-database-fill-lock", "Redis", "", false},
 			{"valkey", "/cache/valkey", "bi-database-fill-lock", "Valkey", "", false},
@@ -145,6 +142,7 @@ func allSections() []Section {
 			{"terminal", "/containers/terminal", "bi-terminal", "Terminal", "", false},
 			{"docker", "/containers/logs", "bi-file-binary", "Logs", "", false},
 			{"change_image", "/containers/image/change", "bi-textarea-t", "Software Versions", "", false},
+			{"crons", "/cronjobs", "bi-calendar2-week", "Cron Jobs", "", false},
 			{"timezone", "/server/timezone", "bi-clock", "Change TimeZone", "", false},
 		}},
 		{Key: "account", Title: "Account", Items: []SectionItem{
@@ -163,6 +161,7 @@ func allSections() []Section {
 			{"inodes", "/inodes-explorer", "bi-folder-x", "Inode Usage", "", false},
 			{"goaccess", "/domains/stats", "bi-graph-up", "Visitor Statistics", "", false},
 			{"domain_logs", "/domains/log", "bi-file-text", "Access Logs", "", false},
+			{"info", "/server/info", "bi-info-square", "Server Info", "", false},
 		}},
 		{Key: "processes", Title: "Processes & Services", Items: []SectionItem{
 			{"services", "/services", "bi-hdd-stack", "Services", "", false},
@@ -178,9 +177,6 @@ func allSections() []Section {
 			{"sessions", "/account/sessions", "bi-people", "Active Sessions", "", false},
 			{"activity", "/account/activity", "bi-activity", "Activity Log", "", false},
 			{"login_history", "/account/login-history", "bi-person-exclamation", "Login History", "", false},
-		}},
-		{Key: "info", Title: "Server Info", Items: []SectionItem{
-			{"info", "/server/info", "bi-info-square", "Server Info", "", false},
 		}},
 	}
 }

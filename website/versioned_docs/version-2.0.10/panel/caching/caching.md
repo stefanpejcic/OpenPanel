@@ -1,0 +1,54 @@
+---
+sidebar_position: 1
+---
+
+# Caching
+
+Utilizing the array of out-of-the-box features provided by OpenPanel can significantly enhance your website's performance and security. Features such as PHP-FPM, Redis, Memcached, and Opcache have the potential to dramatically boost your website's speed and efficiency.
+
+## REDIS
+
+Redis serves as a persistent object cache backend cache server, primarily accelerating database and website-related calls and queries by storing them in RAM memory. RAM is known for its high-speed performance, surpassing even NVMe and UFS, making Redis caching a powerful tool to optimize your website's performance. Leveraging Redis cache can significantly benefit your website.
+
+[REDIS settings and usage](/docs/panel/caching/Redis)
+
+
+## Valkey
+
+Valkey is an open-source, high-performance key/value datastore forked from Redis and maintained by the Linux Foundation. It is a drop-in replacement for Redis, supporting the same protocol and commands, so existing Redis clients and object cache plugins work without modification. Use it as an alternative to Redis for persistent object caching.
+
+[Valkey settings and usage](/docs/panel/caching/valkey)
+
+
+## Memcached
+
+This in-memory (RAM) object cache is designed specifically to reduce the database load, making it ideal for dynamic websites. It caches only the queries related to the database.
+
+We don't recommend using it in conjunction with other caches like Redis. However, it can be effectively used alongside PHP OPcache for improved website performance.
+
+[Memcached configuration and usage](/docs/panel/caching/Memcached)
+
+## Elasticsearch
+
+Enhance your website's search capabilities and overall performance with Elasticsearch. OpenPanel provides seamless integration with Elasticsearch, a powerful search engine that allows for efficient and quick retrieval of information.
+
+Configure and optimize Elasticsearch settings to tailor it to your website's needs. Learn about the various features and functionalities offered by Elasticsearch to make the most out of this robust search engine.
+
+[Elasticsearch settings and usage](/docs/panel/caching/elasticsearch)
+
+## OpenSearch
+
+OpenSearch is an open-source, distributed search and analytics suite for large volumes of data, fully compatible with Elasticsearch. It's ideal for full-text search, log analytics and real-time data exploration.
+
+[OpenSearch settings and usage](/docs/panel/caching/opensearch)
+
+## Varnish
+
+Varnish is a reverse caching proxy used as an HTTP accelerator for content-heavy dynamic websites and APIs. It can be enabled globally and toggled per domain.
+
+[Varnish settings and usage](/docs/panel/caching/varnish)
+
+## Opcache
+OPcache is a valuable tool for enhancing PHP performance. It works by storing precompiled script code in shared memory, eliminating the need for PHP to reload and analyze scripts with each request. In simpler terms, OPcache caches previously executed PHP code, reducing CPU load and improving website performance.
+
+**This feature is enabled by default when using PHP and requires no additional settings.**

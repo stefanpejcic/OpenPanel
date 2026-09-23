@@ -3,6 +3,110 @@
     {
       "from": "/beta",
       "to": "/enterprise"
+    },
+    {
+      "from": "/docs/panel/domains/goaccess",
+      "to": "/docs/panel/statistics/goaccess/"
+    },
+    {
+      "from": "/docs/panel/domains/logs",
+      "to": "/docs/panel/statistics/logs/"
+    },
+    {
+      "from": "/docs/panel/domains/vhosts",
+      "to": "/docs/panel/webserver/vhosts/"
+    },
+    {
+      "from": "/docs/panel/files/backups",
+      "to": "/docs/panel/backups/"
+    },
+    {
+      "from": "/docs/panel/files/backup-wizard",
+      "to": "/docs/panel/backups/backup-wizard/"
+    },
+    {
+      "from": "/docs/panel/files/disk_usage",
+      "to": "/docs/panel/statistics/disk_usage/"
+    },
+    {
+      "from": "/docs/panel/files/inodes_explorer",
+      "to": "/docs/panel/statistics/inodes_explorer/"
+    },
+    {
+      "from": "/docs/panel/files/malware-scanner",
+      "to": "/docs/panel/security/malware-scanner/"
+    },
+    {
+      "from": "/docs/panel/containers/mysql",
+      "to": "/docs/panel/mysql/server_type/"
+    },
+    {
+      "from": "/docs/panel/containers/webserver",
+      "to": "/docs/panel/webserver/webserver_type/"
+    },
+    {
+      "from": "/docs/panel/advanced/cronjobs",
+      "to": "/docs/panel/cronjobs/"
+    },
+    {
+      "from": "/docs/panel/advanced/ip-blocker",
+      "to": "/docs/panel/security/ip-blocker/"
+    },
+    {
+      "from": "/docs/panel/advanced/process_manager",
+      "to": "/docs/panel/processes/process_manager/"
+    },
+    {
+      "from": "/docs/panel/advanced/services",
+      "to": "/docs/panel/processes/services/"
+    },
+    {
+      "from": "/docs/panel/advanced/resource_usage",
+      "to": "/docs/panel/statistics/resource_usage/"
+    },
+    {
+      "from": "/docs/panel/advanced/server_info",
+      "to": "/docs/panel/server_info/"
+    },
+    {
+      "from": "/docs/panel/advanced/waf",
+      "to": "/docs/panel/security/waf/"
+    },
+    {
+      "from": "/docs/panel/advanced/webserver_settings",
+      "to": "/docs/panel/webserver/webserver_settings/"
+    },
+    {
+      "from": "/docs/panel/account/2fa",
+      "to": "/docs/panel/security/2fa/"
+    },
+    {
+      "from": "/docs/panel/account/passkeys",
+      "to": "/docs/panel/security/passkeys/"
+    },
+    {
+      "from": "/docs/panel/account/active_sessions",
+      "to": "/docs/panel/security/active_sessions/"
+    },
+    {
+      "from": "/docs/panel/account/account_activity",
+      "to": "/docs/panel/security/account_activity/"
+    },
+    {
+      "from": "/docs/panel/account/login_history",
+      "to": "/docs/panel/security/login_history/"
+    },
+    {
+      "from": "/docs/panel/advanced",
+      "to": "/docs/panel/intro/"
+    },
+    {
+      "from": "/docs/category/advanced",
+      "to": "/docs/panel/intro/"
+    },
+    {
+      "from": "/docs/category/caching",
+      "to": "/docs/category/cache-search/"
     }
   ]
 }

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 14
+sidebar_position: 15
 ---
 
 # Matomo
@@ -10,7 +10,7 @@ Install and manage [Matomo](https://matomo.org/) — self-hosted, privacy-focuse
 
 ## Install Matomo
 
-Navigate to **OpenPanel > AutoInstaller** and click **Install Matomo**.
+Navigate to **OpenPanel > Websites > Install App** and click **Install Matomo**.
 
 ![Install Matomo form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/matomo-form.png#gh-light-mode-only)
 ![Install Matomo form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/matomo-form_dark.png#gh-dark-mode-only)

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 9
+sidebar_position: 10
 ---
 
 # phpBB
@@ -10,7 +10,7 @@ Install and manage [phpBB](https://www.phpbb.com/) forums in an existing domain,
 
 ## Install phpBB
 
-Navigate to **OpenPanel > AutoInstaller** and click **Install phpBB**.
+Navigate to **OpenPanel > Websites > Install App** and click **Install phpBB**.
 
 ![Install phpBB form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/phpbb-form.png#gh-light-mode-only)
 ![Install phpBB form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/phpbb-form_dark.png#gh-dark-mode-only)

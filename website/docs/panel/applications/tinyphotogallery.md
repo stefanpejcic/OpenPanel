@@ -1,5 +1,5 @@
 ---
-sidebar_position: 16
+sidebar_position: 17
 ---
 
 # TinyPhotoGallery
@@ -10,7 +10,7 @@ Install and manage [TinyPhotoGallery](https://github.com/stefanpejcic/tinyphotog
 
 ## Install TinyPhotoGallery
 
-Navigate to **OpenPanel > AutoInstaller** and click **Install TinyPhotoGallery**.
+Navigate to **OpenPanel > Websites > Install App** and click **Install TinyPhotoGallery**.
 
 ![Install TinyPhotoGallery form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyphotogallery-form.png#gh-light-mode-only)
 ![Install TinyPhotoGallery form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyphotogallery-form_dark.png#gh-dark-mode-only)

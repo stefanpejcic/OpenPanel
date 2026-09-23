@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # Email Filters
@@ -13,7 +13,7 @@ Each email address can have its own set of filters. Filters are applied in order
 
 ## Creating a Filter
 
-1. Go to **OpenPanel > Emails > Filters**.
+1. Go to **OpenPanel > Email > Filters**.
 2. Select the email address you want to manage filters for.
 3. Click **Add filter** and give the filter a name.
 4. Configure one or more **conditions** — the fields and values that must match.

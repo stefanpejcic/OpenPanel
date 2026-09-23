@@ -10,7 +10,7 @@ Containerized [Python](https://python.org/) applications can be created and mana
 
 ## Create an Application
 
-To create a new Python application, navigate to **OpenPanel > AutoInstaller** and click **Setup Python Application**.
+To create a new Python application, navigate to **OpenPanel > Websites > Install App** and click **Setup Python Application**.
 
 ![Auto Installer page with cards for WordPress, Joomla, Drupal, Website Builder, PrestaShop, OpenCart and other applications](/img/openpanel-screenshots/applications/autoinstaller-page.png#gh-light-mode-only)
 ![Auto Installer page with cards for WordPress, Joomla, Drupal, Website Builder, PrestaShop, OpenCart and other applications](/img/openpanel-screenshots/applications/autoinstaller-page_dark.png#gh-dark-mode-only)
@@ -65,7 +65,7 @@ Flask==2.3.3
 
 ## Manage Applications
 
-Once your application is created, you can manage it from **OpenPanel > Site Manager**.
+Once your application is created, you can manage it from **OpenPanel > Websites > Sites**.
 
 ![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list.png#gh-light-mode-only)
 ![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list_dark.png#gh-dark-mode-only)

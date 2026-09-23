@@ -22,6 +22,10 @@ To access the Terminal:
 3. Click on the service you want to access.
 4. The terminal window will open, allowing you to run commands inside the container.
 
+:::tip
+Pages that manage a single service, like **MySQL**, **Redis** or **Web Server Config**, also have **Terminal** and **Logs** tabs that open that service's terminal directly, without leaving the page's section.
+:::
+
 ![Terminal page with the service dropdown opened, listing the running containers to connect to](/img/openpanel-screenshots/containers/terminal_server-select.png#gh-light-mode-only)
 ![Terminal page with the service dropdown opened, listing the running containers to connect to](/img/openpanel-screenshots/containers/terminal_server-select_dark.png#gh-dark-mode-only)
 

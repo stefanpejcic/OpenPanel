@@ -70,7 +70,7 @@ New users are shown the [onboarding wizard](/docs/panel/dashboard/onboarding/) o
 
 ### Set for an Existing User
 
-Existing users switch their database engine from **Containers > MySQL**. That page currently only offers a single-click toggle between MySQL and MariaDB; to move an existing account to Percona (or back), submit the switch request directly:
+Existing users switch their database engine from **MySQL > Server Type**. That page currently only offers a single-click toggle between MySQL and MariaDB; to move an existing account to Percona (or back), submit the switch request directly:
 
 ```
 POST /containers/mysql?output=json

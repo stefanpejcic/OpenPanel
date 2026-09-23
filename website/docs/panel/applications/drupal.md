@@ -1,5 +1,5 @@
 ---
-sidebar_position: 6
+sidebar_position: 7
 ---
 
 # Drupal
@@ -10,7 +10,7 @@ Install and manage [Drupal](https://www.drupal.org/) sites in an existing domain
 
 ## Install Drupal
 
-Navigate to **OpenPanel > AutoInstaller** and click **Install Drupal**.
+Navigate to **OpenPanel > Websites > Install App** and click **Install Drupal**.
 
 ![Install Drupal form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/drupal-form.png#gh-light-mode-only)
 ![Install Drupal form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/drupal-form_dark.png#gh-dark-mode-only)
@@ -48,5 +48,5 @@ To keep this feature simple, the following are **not** part of Drupal support (u
 - Scanning the filesystem for untracked installations
 - Security hardening rules
 - A Drush command passthrough console
-- A dedicated backup/restore system (use the account-level [Backups](/docs/panel/files/backups) feature instead)
+- A dedicated backup/restore system (use the account-level [Backups](/docs/panel/backups/) feature instead)
 - Only MySQL/MariaDB databases are supported (not PostgreSQL)

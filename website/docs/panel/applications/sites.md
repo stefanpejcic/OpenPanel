@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2.5
+sidebar_position: 2
 ---
 
 # Sites
