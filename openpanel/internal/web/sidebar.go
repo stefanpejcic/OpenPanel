@@ -17,14 +17,18 @@ type NavLink struct {
 	Disabled bool
 }
 
-// NavGroup is one collapsible section of the sidebar navigation: a labeled group of NavLinks, shown only when the user has access to at least one feature in that group.
-type NavGroup struct {
-	Label  string
-	Icon   template.HTML
-	MenuID string
-	Links  []NavLink
-	Open   bool
-	Active bool
+// NavItem is one sidebar entry: a single link to a feature area, whose pages are tabbed via BuildPageTabs.
+type NavItem struct {
+	Label    string
+	Icon     template.HTML
+	MenuID   string
+	Href     string
+	Target   string
+	Active   bool
+	Disabled bool // plan doesn't grant any page of the area but the upsell plan does
+
+	// Section is the heading rendered above this item, set only on the first item of a new sidebar section
+	Section string
 }
 
 // NavPath derives BuildSidebarNav's path argument from a request: r.URL.Path, with "?method=download" appended for the file-manager upload page's download-from-URL variant - the one nav item whose active state depends on a query param rather than the path alone.
@@ -45,272 +49,567 @@ func hasAnyPrefix(path string, prefixes ...string) bool {
 	return false
 }
 
-// BuildSidebarNav builds the sidebar's feature-conditional menu groups from user_allowed/user_upsell_allowed and the current request path, one group per feature area, each included only when the user has access to (or could upsell into) at least one feature in it.
-func BuildSidebarNav(allowed, upsellAllowed map[string]bool, path string) []NavGroup {
-	var groups []NavGroup
+// navGate holds the plan/upsell feature maps and hands out links gated on them
+type navGate struct {
+	allowed, upsellAllowed map[string]bool
+}
 
-	has := func(keys ...string) bool {
-		for _, k := range keys {
-			if allowed[k] || upsellAllowed[k] {
-				return true
+func (g navGate) has(keys ...string) bool {
+	for _, k := range keys {
+		if g.allowed[k] || g.upsellAllowed[k] {
+			return true
+		}
+	}
+	return false
+}
+
+// add appends a link gated by a single feature key: shown active when the plan grants it, greyed-out (Disabled) when only the upsell plan would, omitted otherwise.
+func (g navGate) add(links []NavLink, key, href, label string, active bool, target string) []NavLink {
+	if g.allowed[key] {
+		return append(links, NavLink{Href: href, Label: label, Active: active, Target: target})
+	}
+	if g.upsellAllowed[key] {
+		return append(links, NavLink{Href: href, Label: label, Target: target, Disabled: true})
+	}
+	return links
+}
+
+// Page-area path matchers, each area's matcher excludes paths owned by a more specific area so a page belongs to exactly one
+func isDomainsPath(path string) bool {
+	return strings.HasPrefix(path, "/domain") && !isWebServerConfPath(path) && !isStatsPath(path)
+}
+
+func isEmailPath(path string) bool {
+	return strings.HasPrefix(path, "/email")
+}
+
+func isFileManagerPath(path string) bool {
+	return hasAnyPrefix(path, "/files", "/file-manager")
+}
+
+func isFilesPath(path string) bool {
+	return isFileManagerPath(path) || hasAnyPrefix(path, "/ftp", "/fix-permissions")
+}
+
+func isSitesPath(path string) bool {
+	return hasAnyPrefix(path, "/sites", "/wordpress") || (strings.HasPrefix(path, "/website") && !strings.HasPrefix(path, "/website-builder/install"))
+}
+
+func isAppInstallPath(path string) bool {
+	return hasAnyPrefix(path, "/auto-installer", "/pm2", "/nodejs", "/python", "/ruby", "/java", "/n8n", "/website-builder/install",
+		"/drupal/install", "/joomla/install", "/opencart/install", "/nextcloud/install",
+		"/prestashop/install", "/matomo/install", "/moodle/install", "/mediawiki/install")
+}
+
+func isWebsitesPath(path string) bool {
+	return isSitesPath(path) || isAppInstallPath(path) || hasAnyPrefix(path, "/drupal", "/joomla", "/opencart", "/nextcloud", "/prestashop", "/matomo", "/moodle", "/mediawiki")
+}
+
+func isMySQLPath(path string) bool {
+	return strings.HasPrefix(path, "/mysql") || path == "/containers/mysql"
+}
+
+func isBackupsPath(path string) bool {
+	return strings.HasPrefix(path, "/backup")
+}
+
+func isWebServerConfPath(path string) bool {
+	return path == "/server/webserver_conf" || path == "/containers/webserver" || strings.HasPrefix(path, "/domains/vhosts")
+}
+
+func isContainersPath(path string) bool {
+	return strings.HasPrefix(path, "/containers") && !isMySQLPath(path) && !isWebServerConfPath(path)
+}
+
+func isStatsPath(path string) bool {
+	return hasAnyPrefix(path, "/server/usage", "/disk-usage", "/inodes-explorer", "/domains/stats", "/domains/log")
+}
+
+func isProcessesPath(path string) bool {
+	return hasAnyPrefix(path, "/services", "/process-manager")
+}
+
+func isSecurityPath(path string) bool {
+	return hasAnyPrefix(path, "/server/waf", "/security/ip-blocker", "/malware-scanner") || isAccountSecurityPath(path) || isAccountActivityPath(path)
+}
+
+func isAccountPath(path string) bool {
+	return path == "/account" || hasAnyPrefix(path, "/account/language", "/account/notifications", "/account/favorites", "/account/api", "/account/mcp")
+}
+
+func isAccountSecurityPath(path string) bool {
+	return hasAnyPrefix(path, "/account/2fa", "/account/passkeys", "/account/sessions")
+}
+
+func isAccountActivityPath(path string) bool {
+	return hasAnyPrefix(path, "/account/activity", "/account/login-history")
+}
+
+// TabContext is the per-account state BuildPageTabs needs beyond feature flags.
+type TabContext struct {
+	Service             string // compose service the page manages (see ServiceForPath), adds Terminal/Logs tabs for it
+	BackupsAdminManaged bool   // backup destination/settings are locked by the admin, so those tabs are hidden
+	ActiveTool          string // "terminal" or "logs" when that page was opened from a service's own tabs
+}
+
+// BackupsAdminManaged is set by the backups module, which owns the admin-managed marker but can't be imported here.
+var BackupsAdminManaged = func(userContext string) bool { return false }
+
+// navArea is one feature area: a sidebar link plus the tabs across its pages. The link goes to the area's first reachable tab.
+type navArea struct {
+	label   string
+	icon    template.HTML
+	menuID  string
+	section string   // sidebar heading that starts before this area
+	parent  string   // extra crumb before the area in the header trail, linking to the first reachable area with the same parent
+	keys    []string // area shows only when one of these is granted/upsellable, nil means "when it has any tab"
+	match   func(path string) bool
+	tabs    func(g navGate, path string, ctx TabContext) []NavLink
+}
+
+func mysqlTabs(g navGate, path string) []NavLink {
+	var tabs []NavLink
+	tabs = g.add(tabs, "mysql", "/mysql", "Databases", path == "/mysql" || path == "/mysql/new" || path == "/mysql/wizard", "")
+	tabs = g.add(tabs, "mysql", "/mysql/users", "Users", path == "/mysql/users" || hasAnyPrefix(path, "/mysql/user", "/mysql/assign", "/mysql/remove", "/mysql/password"), "")
+	tabs = g.add(tabs, "mysql_import", "/mysql/import", "Import", strings.HasPrefix(path, "/mysql/import"), "")
+	tabs = g.add(tabs, "phpmyadmin", "/mysql/phpmyadmin", "phpMyAdmin", path == "/mysql/phpmyadmin", "_blank")
+	tabs = g.add(tabs, "remote_mysql", "/mysql/remote-mysql", "Remote Access", path == "/mysql/remote-mysql", "")
+	tabs = g.add(tabs, "mysql_processlist", "/mysql/processlist", "Running Queries", path == "/mysql/processlist", "")
+	tabs = g.add(tabs, "mysql_root_password", "/mysql/root-password", "Root Password", path == "/mysql/root-password", "")
+	tabs = g.add(tabs, "mysql_conf", "/mysql/configuration", "Configuration", path == "/mysql/configuration", "")
+	tabs = g.add(tabs, "change_db", "/containers/mysql", "Server Type", path == "/containers/mysql", "")
+	return tabs
+}
+
+func postgresqlTabs(g navGate, path string) []NavLink {
+	var tabs []NavLink
+	tabs = g.add(tabs, "postgresql", "/postgresql", "Databases", path == "/postgresql" || path == "/postgresql/new" || path == "/postgresql/wizard", "")
+	tabs = g.add(tabs, "postgresql", "/postgresql/users", "Users", path == "/postgresql/users" || hasAnyPrefix(path, "/postgresql/user", "/postgresql/assign", "/postgresql/remove", "/postgresql/password"), "")
+	tabs = g.add(tabs, "postgresql_import", "/postgresql/import", "Import", strings.HasPrefix(path, "/postgresql/import"), "")
+	tabs = g.add(tabs, "remote_postgresql", "/postgresql/remote-postgresql", "Remote Access", path == "/postgresql/remote-postgresql", "")
+	tabs = g.add(tabs, "postgresql", "/postgresql/processlist", "Running Queries", path == "/postgresql/processlist", "")
+	tabs = g.add(tabs, "postgresql_conf", "/postgresql/configuration", "Configuration", path == "/postgresql/configuration", "")
+	return tabs
+}
+
+func mongodbTabs(g navGate, path string) []NavLink {
+	var tabs []NavLink
+	tabs = g.add(tabs, "mongodb", "/mongodb", "Databases", path == "/mongodb" || path == "/mongodb/new" || path == "/mongodb/wizard", "")
+	tabs = g.add(tabs, "mongodb", "/mongodb/users", "Users", path == "/mongodb/users" || hasAnyPrefix(path, "/mongodb/user", "/mongodb/assign", "/mongodb/remove", "/mongodb/password"), "")
+	tabs = g.add(tabs, "mongodb_import", "/mongodb/import", "Import", strings.HasPrefix(path, "/mongodb/import"), "")
+	return tabs
+}
+
+// sidebarAreas is the sidebar in display order
+var sidebarAreas = []navArea{
+	{label: "Domains", icon: domainsIcon, menuID: "domains-menu", keys: []string{"domains"}, match: isDomainsPath,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			if !g.allowed["domains"] {
+				// sub-features are moot without domains itself
+				return g.add(nil, "domains", "/domains", "Domains", false, "")
+			}
+			tabs := []NavLink{{Href: "/domains", Label: "Domains", Active: isDomainsPath(path) && !hasAnyPrefix(path, "/domains/edit-dns-zone", "/domains/dynamic-dns", "/domains/ssl", "/domains/redirect")}}
+			tabs = g.add(tabs, "dns", "/domains/edit-dns-zone", "DNS Zone Editor", strings.HasPrefix(path, "/domains/edit-dns-zone"), "")
+			tabs = g.add(tabs, "dynamic_dns", "/domains/dynamic-dns", "Dynamic DNS", strings.HasPrefix(path, "/domains/dynamic-dns"), "")
+			tabs = g.add(tabs, "ssl", "/domains/ssl", "SSL Certificates", strings.HasPrefix(path, "/domains/ssl"), "")
+			tabs = g.add(tabs, "redirects", "/domains/redirect", "Redirects", strings.HasPrefix(path, "/domains/redirect"), "")
+			return tabs
+		}},
+
+	// mautic/flarum are excluded, legacy code slated for removal entirely, not ported here per user decision
+	{label: "Websites", icon: websitesIcon, menuID: "websites-menu", match: isWebsitesPath,
+		keys: []string{"wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "website_builder", "nodejs", "python"},
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			tabs := []NavLink{{Href: "/sites", Label: "Sites", Active: isWebsitesPath(path) && !strings.HasPrefix(path, "/wordpress") && !isAppInstallPath(path)}}
+			tabs = g.add(tabs, "wordpress", "/wordpress", "WordPress", strings.HasPrefix(path, "/wordpress"), "")
+			tabs = g.add(tabs, "autoinstaller", "/auto-installer", "Install App", isAppInstallPath(path), "")
+			return tabs
+		}},
+
+	{label: "Email", icon: emailIcon, menuID: "emails-menu", match: isEmailPath,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			var tabs []NavLink
+			tabs = g.add(tabs, "emails", "/emails", "Accounts", isEmailPath(path) && !hasAnyPrefix(path, "/emails/aliases", "/emails/default", "/emails/filter", "/emails/deliverability", "/emails/import", "/emails/delete"), "")
+			tabs = g.add(tabs, "email_aliases", "/emails/aliases", "Aliases", strings.HasPrefix(path, "/emails/aliases"), "")
+			tabs = g.add(tabs, "email_default", "/emails/default", "Catch-all Address", strings.HasPrefix(path, "/emails/default"), "")
+			tabs = g.add(tabs, "email_filters", "/emails/filter", "Filters", strings.HasPrefix(path, "/emails/filter"), "")
+			tabs = g.add(tabs, "email_deliverability", "/emails/deliverability", "Deliverability", strings.HasPrefix(path, "/emails/deliverability"), "")
+			tabs = g.add(tabs, "email_import", "/emails/import", "Import", strings.HasPrefix(path, "/emails/import"), "")
+			tabs = g.add(tabs, "emails", "/emails/delete", "Delete Accounts", strings.HasPrefix(path, "/emails/delete"), "")
+			tabs = g.add(tabs, "webmail", "/webmail/", "Webmail", false, "_blank")
+			return tabs
+		}},
+
+	{label: "Files", icon: filesIcon, menuID: "files-menu", match: isFilesPath,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			var tabs []NavLink
+			tabs = g.add(tabs, "filemanager", "/files", "File Manager", strings.HasPrefix(path, "/files") && !strings.HasPrefix(path, "/files.trash") || hasAnyPrefix(path, "/file-manager/view-file", "/file-manager/edit-file"), "")
+			tabs = g.add(tabs, "filemanager", "/file-manager/upload?method=upload", "Upload", strings.HasPrefix(path, "/file-manager/upload") && !strings.HasSuffix(path, "?method=download"), "")
+			tabs = g.add(tabs, "filemanager", "/file-manager/upload?method=download", "Download from URL", strings.HasPrefix(path, "/file-manager/upload") && strings.HasSuffix(path, "?method=download"), "")
+			tabs = g.add(tabs, "trash", "/files.trash", "Trash", strings.HasPrefix(path, "/files.trash"), "")
+			tabs = g.add(tabs, "ftp", "/ftp", "FTP Accounts", strings.HasPrefix(path, "/ftp"), "")
+			tabs = g.add(tabs, "fix_permissions", "/fix-permissions", "Fix Permissions", strings.HasPrefix(path, "/fix-permissions"), "")
+			return tabs
+		}},
+
+	{label: "Backups", icon: backupsIcon, menuID: "backups-menu", match: isBackupsPath,
+		tabs: func(g navGate, path string, ctx TabContext) []NavLink {
+			var tabs []NavLink
+			tabs = g.add(tabs, "backups", "/backups", "Overview", path == "/backups", "")
+			tabs = g.add(tabs, "backups", "/backups/list", "Restore", strings.HasPrefix(path, "/backups/list"), "")
+			if !ctx.BackupsAdminManaged {
+				tabs = g.add(tabs, "backups", "/backups/settings", "Configuration", strings.HasPrefix(path, "/backups/settings"), "")
+				tabs = g.add(tabs, "backups", "/backups/destination", "Destination", strings.HasPrefix(path, "/backups/destination"), "")
+			}
+			tabs = g.add(tabs, "backup_wizard", "/backup-wizard", "Backup Wizard", strings.HasPrefix(path, "/backup-wizard"), "")
+			return tabs
+		}},
+
+	{label: "MySQL", icon: dbIcon, menuID: "mysql-menu", section: "Databases", parent: "Databases", match: isMySQLPath,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink { return mysqlTabs(g, path) }},
+
+	{label: "PostgreSQL", icon: postgresqlIcon, menuID: "postgresql-menu", parent: "Databases", match: func(path string) bool { return strings.HasPrefix(path, "/postgresql") },
+		tabs: func(g navGate, path string, _ TabContext) []NavLink { return postgresqlTabs(g, path) }},
+
+	{label: "MongoDB", icon: mongodbIcon, menuID: "mongodb-menu", parent: "Databases", match: func(path string) bool { return strings.HasPrefix(path, "/mongodb") },
+		tabs: func(g navGate, path string, _ TabContext) []NavLink { return mongodbTabs(g, path) }},
+
+	{label: "PHP", icon: phpIcon, menuID: "php-menu", section: "Configure", match: func(path string) bool { return strings.HasPrefix(path, "/php") },
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			var tabs []NavLink
+			tabs = g.add(tabs, "php", "/php/domains", "Version per Domain", path == "/php/domains", "")
+			tabs = g.add(tabs, "php", "/php/default", "Default Version", path == "/php/default", "")
+			tabs = g.add(tabs, "php_options", "/php/options", "Options", strings.Contains(path, "/options"), "")
+			tabs = g.add(tabs, "php_extensions", "/php/extensions", "Extensions", strings.Contains(path, "/extensions"), "")
+			tabs = g.add(tabs, "php_ini", "/php/php_ini_editor", "php.ini Editor", strings.Contains(path, "/php_ini_editor"), "")
+			return tabs
+		}},
+
+	{label: "Cron Jobs", icon: cronIcon, menuID: "crons-menu", match: func(path string) bool { return strings.HasPrefix(path, "/cronjobs") },
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			return g.add(nil, "crons", "/cronjobs", "Cron Jobs", strings.HasPrefix(path, "/cronjobs"), "")
+		}},
+
+	{label: "Cache & Search", icon: cacheIcon, menuID: "cache-menu", match: func(path string) bool { return strings.HasPrefix(path, "/cache") },
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			var tabs []NavLink
+			for _, c := range [][2]string{{"redis", "Redis"}, {"valkey", "Valkey"}, {"memcached", "Memcached"}, {"varnish", "Varnish"}, {"opensearch", "OpenSearch"}, {"elasticsearch", "Elasticsearch"}} {
+				tabs = g.add(tabs, c[0], "/cache/"+c[0], c[1], path == "/cache/"+c[0], "")
+			}
+			return tabs
+		}},
+
+	{label: "Web Server Config", icon: webserverIcon, menuID: "webserver-menu", match: isWebServerConfPath,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			var tabs []NavLink
+			tabs = g.add(tabs, "webserver_conf", "/server/webserver_conf", "Server Settings", path == "/server/webserver_conf", "")
+			tabs = g.add(tabs, "edit_vhost", "/domains/vhosts", "Domain VHosts", strings.HasPrefix(path, "/domains/vhosts"), "")
+			tabs = g.add(tabs, "change_ws", "/containers/webserver", "Web Server Type", path == "/containers/webserver", "")
+			return tabs
+		}},
+
+	{label: "Containers", icon: dockerIcon, menuID: "docker-menu", match: isContainersPath,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			var tabs []NavLink
+			tabs = g.add(tabs, "docker", "/containers", "Containers", path == "/containers" || path == "/containers/new" || hasAnyPrefix(path, "/containers/edit", "/containers/delete"), "")
+			tabs = g.add(tabs, "terminal", "/containers/terminal", "Terminal", strings.HasPrefix(path, "/containers/terminal"), "")
+			tabs = g.add(tabs, "docker", "/containers/logs", "Logs", strings.HasPrefix(path, "/containers/logs"), "")
+			tabs = g.add(tabs, "change_image", "/containers/image/change", "Software Versions", strings.HasPrefix(path, "/containers/image"), "")
+			return tabs
+		}},
+
+	{label: "Account", icon: accountIcon, menuID: "account-menu", match: isAccountPath,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			var tabs []NavLink
+			tabs = g.add(tabs, "account", "/account", "Login Details", path == "/account", "")
+			tabs = g.add(tabs, "locale", "/account/language", "Language", strings.HasPrefix(path, "/account/language"), "")
+			tabs = g.add(tabs, "notifications", "/account/notifications", "Notifications", strings.HasPrefix(path, "/account/notifications"), "")
+			tabs = g.add(tabs, "favorites", "/account/favorites", "Favorites", strings.HasPrefix(path, "/account/favorites"), "")
+			tabs = g.add(tabs, "api", "/account/api", "API", strings.HasPrefix(path, "/account/api"), "")
+			tabs = g.add(tabs, "mcp", "/account/mcp", "AI Assistant (MCP)", strings.HasPrefix(path, "/account/mcp"), "")
+			return tabs
+		}},
+
+	{label: "Statistics", icon: statsIcon, menuID: "stats-menu", section: "Monitor & Secure", match: isStatsPath,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			var tabs []NavLink
+			tabs = g.add(tabs, "usage", "/server/usage", "Resource Usage", strings.HasPrefix(path, "/server/usage"), "")
+			tabs = g.add(tabs, "disk_usage", "/disk-usage/", "Disk Usage", strings.HasPrefix(path, "/disk-usage"), "")
+			tabs = g.add(tabs, "inodes", "/inodes-explorer/", "Inode Usage", strings.HasPrefix(path, "/inodes-explorer"), "")
+			tabs = g.add(tabs, "goaccess", "/domains/stats", "Visitor Statistics", strings.HasPrefix(path, "/domains/stats"), "")
+			tabs = g.add(tabs, "domain_logs", "/domains/log", "Access Logs", strings.HasPrefix(path, "/domains/log"), "")
+			return tabs
+		}},
+
+	{label: "Processes & Services", icon: processIcon, menuID: "processes-menu", match: isProcessesPath,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			var tabs []NavLink
+			tabs = g.add(tabs, "services", "/services", "Services", strings.HasPrefix(path, "/services"), "")
+			tabs = g.add(tabs, "process_manager", "/process-manager", "Processes", strings.HasPrefix(path, "/process-manager"), "")
+			return tabs
+		}},
+
+	{label: "Security", icon: securityIcon, menuID: "security-menu", match: isSecurityPath,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			var tabs []NavLink
+			tabs = g.add(tabs, "waf", "/server/waf", "Web Firewall", strings.HasPrefix(path, "/server/waf"), "")
+			tabs = g.add(tabs, "ip_blocker", "/security/ip-blocker", "IP Blocker", strings.HasPrefix(path, "/security/ip-blocker"), "")
+			tabs = g.add(tabs, "malware_scan", "/malware-scanner", "Malware Scanner", strings.HasPrefix(path, "/malware-scanner"), "")
+			tabs = g.add(tabs, "twofa", "/account/2fa", "Two-Factor Auth", strings.HasPrefix(path, "/account/2fa"), "")
+			tabs = g.add(tabs, "passkeys", "/account/passkeys", "Passkeys", strings.HasPrefix(path, "/account/passkeys"), "")
+			tabs = g.add(tabs, "sessions", "/account/sessions", "Active Sessions", strings.HasPrefix(path, "/account/sessions"), "")
+			tabs = g.add(tabs, "activity", "/account/activity", "Activity Log", strings.HasPrefix(path, "/account/activity"), "")
+			tabs = g.add(tabs, "login_history", "/account/login-history", "Login History", strings.HasPrefix(path, "/account/login-history"), "")
+			return tabs
+		}},
+
+	{label: "Server Info", icon: infoIcon, menuID: "info-menu", match: func(path string) bool { return path == "/server/info" },
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			return g.add(nil, "info", "/server/info", "Server Info", path == "/server/info", "")
+		}},
+}
+
+// areaEntry picks the link an area's sidebar entry points at: its first reachable same-window tab, else a greyed-out upsell entry, ok=false when the area has nothing to show
+func areaEntry(g navGate, a navArea, path string) (NavLink, bool) {
+	if a.keys != nil && !g.has(a.keys...) {
+		return NavLink{}, false
+	}
+	candidates := a.tabs(g, path, TabContext{})
+	for _, t := range candidates {
+		if !t.Disabled && t.Target == "" {
+			return NavLink{Href: t.Href, Label: a.label, Active: a.match(path)}, true
+		}
+	}
+	for _, t := range candidates {
+		if t.Target == "" {
+			return NavLink{Href: t.Href, Label: a.label, Disabled: true}, true
+		}
+	}
+	return NavLink{}, false
+}
+
+// BuildSidebarNav builds the sidebar from user_allowed/user_upsell_allowed and the current request path, one link per feature area shown when the user has access to (or could upsell into) any page in it.
+func BuildSidebarNav(allowed, upsellAllowed map[string]bool, path string) []NavItem {
+	g := navGate{allowed, upsellAllowed}
+	var items []NavItem
+	pendingSection := ""
+	for _, a := range sidebarAreas {
+		if a.section != "" {
+			pendingSection = a.section
+		}
+		entry, ok := areaEntry(g, a, path)
+		if !ok {
+			continue
+		}
+		items = append(items, NavItem{Label: a.label, Icon: a.icon, MenuID: a.menuID, Href: entry.Href,
+			Active: entry.Active, Disabled: entry.Disabled, Section: pendingSection})
+		pendingSection = ""
+	}
+	return items
+}
+
+// ServiceForPath returns the compose service a page manages, for its Terminal/Logs tabs, or "" when the page isn't about one service. env reads the user's .env, called only for areas whose service name is configurable.
+func ServiceForPath(path string, env func(key string) string) string {
+	switch {
+	case isMySQLPath(path):
+		if t := env("MYSQL_TYPE"); t != "" {
+			return t
+		}
+		return "mysql"
+	case strings.HasPrefix(path, "/postgresql"):
+		return "postgres"
+	case strings.HasPrefix(path, "/mongodb"):
+		return "mongodb"
+	case strings.HasPrefix(path, "/cache/"):
+		return strings.Trim(strings.TrimPrefix(path, "/cache/"), "/")
+	case isWebServerConfPath(path):
+		return env("WEB_SERVER")
+	case strings.HasPrefix(path, "/php"):
+		if v := env("DEFAULT_PHP_VERSION"); v != "" {
+			return "php-fpm-" + v
+		}
+	}
+	return ""
+}
+
+// BuildPageTabs returns the tab bar across the current page's area, plus Terminal/Logs tabs when the page manages a single service, or nil when there are fewer than two tabs.
+func BuildPageTabs(allowed, upsellAllowed map[string]bool, path string, ctx TabContext) []NavLink {
+	g := navGate{allowed, upsellAllowed}
+	var tabs []NavLink
+	for _, a := range sidebarAreas {
+		if a.match(path) {
+			tabs = a.tabs(g, path, ctx)
+			break
+		}
+	}
+
+	if ctx.Service != "" && g.has("terminal", "docker") {
+		// the service's own terminal/logs page is showing, so none of the area's page tabs are current
+		if ctx.ActiveTool != "" {
+			for i := range tabs {
+				tabs[i].Active = false
 			}
 		}
-		return false
+		// ctx=service keeps those pages inside this area instead of jumping to Containers
+		tabs = g.add(tabs, "terminal", "/containers/terminal/"+ctx.Service+"?ctx=service", "Terminal", ctx.ActiveTool == "terminal", "")
+		tabs = g.add(tabs, "docker", "/containers/logs?container="+ctx.Service+"&lines=20&ctx=service", "Logs", ctx.ActiveTool == "logs", "")
 	}
 
-	// add appends a link gated by a single feature key: shown active when the plan grants it, greyed-out (Disabled) when only the upsell plan would, omitted otherwise.
-	add := func(links []NavLink, key, href, label string, active bool, target string) []NavLink {
-		if allowed[key] {
-			return append(links, NavLink{Href: href, Label: label, Active: active, Target: target})
+	if len(tabs) < 2 {
+		return nil
+	}
+	return tabs
+}
+
+var cacheServices = map[string]bool{"redis": true, "valkey": true, "memcached": true, "varnish": true, "opensearch": true, "elasticsearch": true}
+
+// AreaPathForService maps a compose service to the page of the area that manages it, "" for services no area owns
+func AreaPathForService(service string, env func(key string) string) string {
+	switch {
+	case service == "mysql" || service == "mariadb":
+		return "/mysql"
+	case service == "postgres":
+		return "/postgresql"
+	case service == "mongodb":
+		return "/mongodb"
+	case cacheServices[service]:
+		return "/cache/" + service
+	case strings.HasPrefix(service, "php-fpm-"):
+		return "/php/domains"
+	case service != "" && service == env("WEB_SERVER"):
+		return "/server/webserver_conf"
+	}
+	return ""
+}
+
+// ResolveNav returns the path the navigation should treat this request as, plus its tab context. A terminal/logs page opened from a service's tabs (?ctx=service) is treated as a page of that service's area.
+func ResolveNav(r *http.Request, env func(key string) string) (string, TabContext) {
+	if r.URL.Query().Get("ctx") == "service" {
+		var service, tool string
+		switch {
+		case strings.HasPrefix(r.URL.Path, "/containers/terminal/"):
+			service, tool = strings.Trim(strings.TrimPrefix(r.URL.Path, "/containers/terminal/"), "/"), "terminal"
+		case r.URL.Path == "/containers/logs":
+			service, tool = r.URL.Query().Get("container"), "logs"
 		}
-		if upsellAllowed[key] {
-			return append(links, NavLink{Href: href, Label: label, Target: target, Disabled: true})
+		if area := AreaPathForService(service, env); area != "" {
+			return area, TabContext{Service: service, ActiveTool: tool}
 		}
-		return links
 	}
+	return NavPath(r), TabContext{Service: ServiceForPath(r.URL.Path, env)}
+}
 
-	// Websites group - mautic/flarum are excluded, legacy code slated for removal entirely, not ported here per user decision
-	if has("wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "website_builder", "nodejs", "python") {
-		var links []NavLink
-		links = add(links, "autoinstaller", "/auto-installer", "Auto Installer",
-			hasAnyPrefix(path, "/auto-installer", "/pm2", "/nodejs", "/python", "/ruby", "/java", "/n8n", "/website-builder/install",
-				"/drupal/install", "/joomla/install", "/opencart/install", "/nextcloud/install",
-				"/prestashop/install", "/matomo/install", "/moodle/install", "/mediawiki/install"), "")
-		links = append(links, NavLink{Href: "/sites", Label: "Site Manager",
-			Active: hasAnyPrefix(path, "/sites") || (strings.HasPrefix(path, "/website") && !strings.HasPrefix(path, "/website-builder"))})
-		links = add(links, "wordpress", "/wordpress", "WordPress Manager", strings.HasPrefix(path, "/wordpress"), "")
-		open := hasAnyPrefix(path, "/auto-installer", "/sites", "/website", "/wordpress", "/drupal", "/joomla", "/opencart", "/nextcloud", "/prestashop", "/matomo", "/moodle", "/mediawiki", "/pm2", "/nodejs", "/python", "/ruby", "/java", "/n8n")
-		groups = append(groups, NavGroup{"Websites", websitesIcon, "websites-menu", links, open, open})
+func stripQuery(href string) string {
+	if i := strings.IndexByte(href, '?'); i >= 0 {
+		return href[:i]
 	}
+	return href
+}
 
-	// Files group
-	if has("filemanager", "trash", "ftp", "disk_usage", "backups", "backup_wizard", "inodes", "malware_scan", "fix_permissions") {
-		var links []NavLink
-		if allowed["filemanager"] {
-			links = append(links,
-				NavLink{Href: "/files", Label: "File Manager", Active: (strings.HasPrefix(path, "/files") && !strings.HasPrefix(path, "/files.trash")) || strings.HasPrefix(path, "/file-manager/view-file")},
-				NavLink{Href: "/file-manager/upload?method=upload", Label: "Upload from device", Active: strings.HasPrefix(path, "/file-manager/upload") && !strings.HasSuffix(path, "?method=download")},
-				NavLink{Href: "/file-manager/upload?method=download", Label: "Download from URL", Active: strings.HasPrefix(path, "/file-manager/upload") && strings.HasSuffix(path, "?method=download")},
-			)
-		} else if upsellAllowed["filemanager"] {
-			links = append(links,
-				NavLink{Href: "/files", Label: "File Manager", Disabled: true},
-				NavLink{Href: "/file-manager/upload?method=upload", Label: "Upload from device", Disabled: true},
-				NavLink{Href: "/file-manager/upload?method=download", Label: "Download from URL", Disabled: true},
-			)
-		}
-		links = add(links, "ftp", "/ftp", "FTP Accounts", strings.HasPrefix(path, "/ftp"), "")
-		links = add(links, "backups", "/backups", "Backups", strings.HasPrefix(path, "/backups"), "")
-		links = add(links, "backup_wizard", "/backup-wizard", "Backup Wizard", strings.HasPrefix(path, "/backup-wizard"), "")
-		links = add(links, "malware_scan", "/malware-scanner", "ClamAV Scanner", strings.HasPrefix(path, "/malware-scanner"), "")
-		links = add(links, "disk_usage", "/disk-usage/", "Disk Usage", strings.HasPrefix(path, "/disk-usage"), "")
-		links = add(links, "inodes", "/inodes-explorer/", "Inodes Explorer", strings.HasPrefix(path, "/inodes-explorer"), "")
-		links = add(links, "fix_permissions", "/fix-permissions", "Fix Permissions", strings.HasPrefix(path, "/fix-permissions"), "")
-		links = add(links, "trash", "/files.trash", "Trash", strings.HasPrefix(path, "/files.trash"), "")
-		open := hasAnyPrefix(path, "/files", "/file-manager/edit-file", "/file-manager/view-file", "/backups",
-			"/backup-wizard", "/disk-usage", "/inodes-explorer", "/malware-scanner", "/ftp", "/fix-permissions", "/file-manager/upload")
-		groups = append(groups, NavGroup{"Files", filesIcon, "files-menu", links, open, open})
-	}
-
-	// MySQL group
-	if has("mysql_conf", "remote_mysql", "mysql", "mysql_root_password", "mysql_processlist") {
-		links := []NavLink{
-			{Href: "/mysql", Label: "Databases", Active: path == "/mysql"},
-			{Href: "/mysql/users", Label: "Users", Active: path == "/mysql/users"},
-		}
-		links = add(links, "phpmyadmin", "/mysql/phpmyadmin", "phpMyAdmin", path == "/mysql/phpmyadmin", "_blank")
-		links = append(links,
-			NavLink{Href: "/mysql/wizard", Label: "Database Wizard", Active: path == "/mysql/wizard"},
-			NavLink{Href: "/mysql/new", Label: "Create Database", Active: path == "/mysql/new"},
-			NavLink{Href: "/mysql/user", Label: "Create User", Active: path == "/mysql/user"},
-			NavLink{Href: "/mysql/assign", Label: "Assign User to DB", Active: path == "/mysql/assign"},
-			NavLink{Href: "/mysql/remove", Label: "Remove User from DB", Active: path == "/mysql/remove"},
-		)
-		links = add(links, "mysql_import", "/mysql/import", "Import Database", strings.HasPrefix(path, "/mysql/import"), "")
-		links = append(links, NavLink{Href: "/mysql/remote-mysql", Label: "Remote Access", Active: path == "/mysql/remote-mysql"})
-		links = add(links, "mysql_root_password", "/mysql/root-password", "Change root password", path == "/mysql/root-password", "")
-		links = add(links, "mysql_processlist", "/mysql/processlist", "Show Processes", path == "/mysql/processlist", "")
-		links = add(links, "mysql_conf", "/mysql/configuration", "Configuration", path == "/mysql/configuration", "")
-		open := hasAnyPrefix(path, "/mysql", "/database")
-		groups = append(groups, NavGroup{"MySQL", dbIcon, "mysql-menu", links, open, open})
-	}
-
-	// PostgreSQL group
-	if has("postgresql_conf", "remote_postgresql", "postgresql") {
-		links := []NavLink{
-			{Href: "/postgresql", Label: "Databases", Active: path == "/postgresql"},
-			{Href: "/postgresql/users", Label: "Users", Active: path == "/postgresql/users"},
-		}
-		links = append(links,
-			NavLink{Href: "/postgresql/wizard", Label: "Database Wizard", Active: path == "/postgresql/wizard"},
-			NavLink{Href: "/postgresql/new", Label: "Create Database", Active: path == "/postgresql/new"},
-			NavLink{Href: "/postgresql/user", Label: "Create User", Active: path == "/postgresql/user"},
-			NavLink{Href: "/postgresql/assign", Label: "Assign User to DB", Active: path == "/postgresql/assign"},
-			NavLink{Href: "/postgresql/remove", Label: "Remove User from DB", Active: path == "/postgresql/remove"},
-		)
-		links = add(links, "import_postgresql", "/postgresql/import", "Import Database", strings.HasPrefix(path, "/postgresql/import"), "")
-		links = append(links,
-			NavLink{Href: "/postgresql/remote-postgresql", Label: "Remote Access", Active: path == "/postgresql/remote-postgresql"},
-			NavLink{Href: "/postgresql/processlist", Label: "Show Processes", Active: path == "/postgresql/processlist"},
-		)
-		links = add(links, "postgresql_conf", "/postgresql/configuration", "Configuration", path == "/postgresql/configuration", "")
-		open := hasAnyPrefix(path, "/postgresql", "/database")
-		groups = append(groups, NavGroup{"PostgreSQL", postgresqlIcon, "postgresql-menu", links, open, open})
-	}
-
-	// MongoDB group
-	if has("mongodb") {
-		links := []NavLink{
-			{Href: "/mongodb", Label: "Databases", Active: path == "/mongodb"},
-			{Href: "/mongodb/users", Label: "Users", Active: path == "/mongodb/users"},
-		}
-		links = append(links,
-			NavLink{Href: "/mongodb/wizard", Label: "Database Wizard", Active: path == "/mongodb/wizard"},
-			NavLink{Href: "/mongodb/new", Label: "Create Database", Active: path == "/mongodb/new"},
-			NavLink{Href: "/mongodb/user", Label: "Create User", Active: path == "/mongodb/user"},
-			NavLink{Href: "/mongodb/assign", Label: "Assign User to DB", Active: path == "/mongodb/assign"},
-			NavLink{Href: "/mongodb/remove", Label: "Remove User from DB", Active: path == "/mongodb/remove"},
-		)
-		links = add(links, "mongodb_import", "/mongodb/import", "Import Database", strings.HasPrefix(path, "/mongodb/import"), "")
-		open := hasAnyPrefix(path, "/mongodb", "/database")
-		groups = append(groups, NavGroup{"MongoDB", mongodbIcon, "mongodb-menu", links, open, open})
-	}
-
-	// Domains group
-	if allowed["domains"] || upsellAllowed["domains"] {
-		var links []NavLink
-		if allowed["domains"] {
-			links = append(links,
-				NavLink{Href: "/domains", Label: "Domain Names", Active: path == "/domains"},
-				NavLink{Href: "/domains/new", Label: "Add New Domain", Active: path == "/domains/new"},
-			)
-			links = add(links, "redirects", "/domains/redirect", "Redirects", path == "/domains/redirect", "")
-			links = add(links, "dns", "/domains/edit-dns-zone", "DNS Zone Editor", strings.HasPrefix(path, "/domains/edit-dns-zone"), "")
-			links = add(links, "dynamic_dns", "/domains/dynamic-dns", "Dynamic DNS", strings.HasPrefix(path, "/domains/dynamic-dns"), "")
-			links = add(links, "ssl", "/domains/ssl", "SSL", path == "/domains/ssl", "")
-			links = add(links, "edit_vhost", "/domains/vhosts", "VHosts File Editor", path == "/domains/vhosts", "")
-			if allowed["domain_suspend"] {
-				links = append(links,
-					NavLink{Href: "/domains/suspend", Label: "Suspend a Domain", Active: path == "/domains/suspend"},
-					NavLink{Href: "/domains/unsuspend", Label: "Unsuspend a Domain", Active: path == "/domains/unsuspend"},
-				)
-			} else if upsellAllowed["domain_suspend"] {
-				links = append(links,
-					NavLink{Href: "/domains/suspend", Label: "Suspend a Domain", Disabled: true},
-					NavLink{Href: "/domains/unsuspend", Label: "Unsuspend a Domain", Disabled: true},
-				)
+// BuildNavTrail returns the header trail [parent] > area > tab > sub-page, the last crumb has no Href. navPath is ResolveNav's path, requestPath the real one, title the page's own title.
+func BuildNavTrail(allowed, upsellAllowed map[string]bool, navPath, requestPath, title string, tabs []NavLink) []NavLink {
+	g := navGate{allowed, upsellAllowed}
+	var crumbs []NavLink
+	// a label already in the trail isn't repeated, e.g. the Databases tab under Databases > MySQL
+	add := func(href, label string) {
+		for _, c := range crumbs {
+			if strings.EqualFold(c.Label, label) {
+				return
 			}
-			links = add(links, "docroot", "/domains/docroot", "Change docroot", path == "/domains/docroot", "")
-			links = add(links, "domain_logs", "/domains/log", "Raw Access Logs", strings.HasPrefix(path, "/domains/log"), "")
-			links = add(links, "goaccess", "/domains/stats", "GoAccess", path == "/domains/stats", "")
-		} else {
-			// domains itself is only upsell-eligible - sub-features are moot without it, so just offer the two base links greyed out
-			links = append(links,
-				NavLink{Href: "/domains", Label: "Domain Names", Disabled: true},
-				NavLink{Href: "/domains/new", Label: "Add New Domain", Disabled: true},
-			)
 		}
-		open := strings.HasPrefix(path, "/domains")
-		groups = append(groups, NavGroup{"Domains", domainsIcon, "domains-menu", links, open, open})
+		crumbs = append(crumbs, NavLink{Href: href, Label: label})
 	}
 
-	// Emails group
-	if has("emails", "email_filters", "email_aliases", "email_default", "email_import", "email_deliverability", "webmail") {
-		var links []NavLink
-		if allowed["emails"] {
-			links = append(links,
-				NavLink{Href: "/emails", Label: "Email Accounts", Active: path == "/emails"},
-				NavLink{Href: "/emails/new", Label: "Create New Account", Active: strings.HasPrefix(path, "/emails/new")},
-			)
-		} else if upsellAllowed["emails"] {
-			links = append(links,
-				NavLink{Href: "/emails", Label: "Email Accounts", Disabled: true},
-				NavLink{Href: "/emails/new", Label: "Create New Account", Disabled: true},
-			)
+	current := ""
+	if strings.HasPrefix(navPath, "/dashboard/") {
+		add("/dashboard", "Dashboard")
+	}
+	for _, a := range sidebarAreas {
+		if !a.match(navPath) {
+			continue
 		}
-		links = add(links, "webmail", "/webmail/", "Webmail", false, "_blank")
-		links = add(links, "email_filters", "/emails/filter", "Filters", strings.HasPrefix(path, "/emails/filter"), "")
-		links = add(links, "email_aliases", "/emails/aliases", "Aliases", strings.HasPrefix(path, "/emails/aliases"), "")
-		links = add(links, "email_default", "/emails/default", "Default Address", strings.HasPrefix(path, "/emails/default"), "")
-		links = add(links, "email_import", "/emails/import", "Address Importer", strings.HasPrefix(path, "/emails/import"), "")
-		links = add(links, "email_deliverability", "/emails/deliverability", "Email Deliverability", strings.HasPrefix(path, "/emails/deliverability"), "")
-		links = add(links, "emails", "/emails/delete", "Delete Accounts", strings.HasPrefix(path, "/emails/delete"), "")
-		open := strings.HasPrefix(path, "/email")
-		groups = append(groups, NavGroup{"Emails", emailIcon, "emails-menu", links, open, open})
-	}
-
-	// Caching group
-	if has("redis", "valkey", "memcached", "varnish", "elasticsearch", "opensearch") {
-		var links []NavLink
-		links = add(links, "redis", "/cache/redis", "Redis", path == "/cache/redis", "")
-		links = add(links, "valkey", "/cache/valkey", "Valkey", path == "/cache/valkey", "")
-		links = add(links, "memcached", "/cache/memcached", "Memcached", path == "/cache/memcached", "")
-		links = add(links, "opensearch", "/cache/opensearch", "Opensearch", path == "/cache/opensearch", "")
-		links = add(links, "elasticsearch", "/cache/elasticsearch", "Elasticsearch", path == "/cache/elasticsearch", "")
-		links = add(links, "varnish", "/cache/varnish", "Varnish", path == "/cache/varnish", "")
-		open := strings.HasPrefix(path, "/cache")
-		groups = append(groups, NavGroup{"Caching", cacheIcon, "cache-menu", links, open, open})
-	}
-
-	// PHP group
-	if has("php", "php_options", "php_ini", "php_extensions") {
-		links := []NavLink{
-			{Href: "/php/domains", Label: "Select PHP version", Active: path == "/php/domains"},
-			{Href: "/php/default", Label: "Default version", Active: path == "/php/default"},
+		if a.parent != "" {
+			for _, sibling := range sidebarAreas {
+				if sibling.parent != a.parent {
+					continue
+				}
+				if entry, ok := areaEntry(g, sibling, navPath); ok {
+					add(entry.Href, a.parent)
+					break
+				}
+			}
 		}
-		links = add(links, "php_options", "/php/options", "PHP Options", strings.HasPrefix(path, "/php") && strings.Contains(path, "/options"), "")
-		links = add(links, "php_extensions", "/php/extensions", "PHP Extensions", strings.HasPrefix(path, "/php") && strings.Contains(path, "/extensions"), "")
-		links = add(links, "php_ini", "/php/php_ini_editor", "PHP.INI Editor", strings.HasPrefix(path, "/php") && strings.Contains(path, "/php_ini_editor"), "")
-		open := strings.HasPrefix(path, "/php")
-		groups = append(groups, NavGroup{"PHP", phpIcon, "php-menu", links, open, open})
+		if entry, ok := areaEntry(g, a, navPath); ok {
+			add(entry.Href, a.label)
+			current = entry.Href
+		}
+		for _, t := range tabs {
+			if t.Active {
+				add(t.Href, t.Label)
+				current = t.Href
+			}
+		}
+		break
 	}
 
-	// Advanced group
-	if has("crons", "services", "ssh", "usage", "process_manager", "webserver_conf", "timezone", "waf", "ip_blocker", "info") {
-		var links []NavLink
-		links = add(links, "services", "/services", "Services", strings.HasPrefix(path, "/services"), "")
-		links = add(links, "crons", "/cronjobs", "Cron Jobs", strings.HasPrefix(path, "/cronjobs"), "")
-		links = add(links, "ip_blocker", "/security/ip-blocker", "IP Blocker", path == "/security/ip-blocker", "")
-		links = add(links, "process_manager", "/process-manager", "Process Manager", path == "/process-manager", "")
-		links = add(links, "webserver_conf", "/server/webserver_conf", "WebServer Settings", path == "/server/webserver_conf", "")
-		links = add(links, "waf", "/server/waf", "WAF", strings.HasPrefix(path, "/server/waf"), "")
-		links = add(links, "usage", "/server/usage", "Resource Usage", strings.HasPrefix(path, "/server/usage"), "")
-		links = add(links, "info", "/server/info", "Server Information", path == "/server/info", "")
-		open := hasAnyPrefix(path, "/cronjobs", "/services/", "/server", "/process-manager", "/server/usage", "/security/ip-blocker")
-		active := hasAnyPrefix(path, "/cronjobs", "/server", "/process-manager", "/server/usage", "/security/ip-blocker")
-		groups = append(groups, NavGroup{"Advanced", advancedIcon, "advanced-menu", links, open, active})
+	// a sub-page (e.g. /mysql/assign under Users) gets its own title as the last crumb
+	if title != "" && (len(crumbs) == 0 || stripQuery(current) != requestPath) {
+		add("", title)
 	}
-
-	// Docker group
-	if has("docker", "terminal", "change_image", "change_ws", "change_db") {
-		var links []NavLink
-		links = add(links, "docker", "/containers", "Containers", path == "/containers" || path == "/containers/new" || strings.HasPrefix(path, "/containers/edit"), "")
-		links = add(links, "terminal", "/containers/terminal", "Terminal", strings.HasPrefix(path, "/containers/terminal"), "")
-		links = add(links, "docker", "/containers/logs", "Logs", strings.HasPrefix(path, "/containers/logs"), "")
-		links = add(links, "change_image", "/containers/image/change", "Change image tag", path == "/containers/image/change", "")
-		links = add(links, "change_ws", "/containers/webserver", "Switch WebServer", path == "/containers/webserver", "")
-		links = add(links, "change_db", "/containers/mysql", "Switch MySQL Type", path == "/containers/mysql", "")
-		open := strings.HasPrefix(path, "/containers")
-		groups = append(groups, NavGroup{"Containers", dockerIcon, "docker-menu", links, open, open})
+	if len(crumbs) > 0 {
+		crumbs[len(crumbs)-1].Href = ""
 	}
+	return crumbs
+}
 
-	// Account group
-	if has("account", "twofa", "passkeys", "favorites", "login_history", "notifications", "locale", "sessions", "activity", "mcp") {
-		var links []NavLink
-		links = add(links, "account", "/account", "Email & Password", path == "/account", "")
-		links = add(links, "locale", "/account/language", "Change Language", strings.HasPrefix(path, "/account/language"), "")
-		links = add(links, "notifications", "/account/notifications", "Email Notifications", strings.HasPrefix(path, "/account/notifications"), "")
-		links = add(links, "twofa", "/account/2fa", "2FA", strings.HasPrefix(path, "/account/2fa"), "")
-		links = add(links, "passkeys", "/account/passkeys", "Passkeys", strings.HasPrefix(path, "/account/passkeys"), "")
-		links = add(links, "sessions", "/account/sessions", "Active Sessions", strings.HasPrefix(path, "/account/sessions"), "")
-		links = add(links, "favorites", "/account/favorites", "Favorite Pages", strings.HasPrefix(path, "/account/favorites"), "")
-		links = add(links, "activity", "/account/activity", "Account Activity", strings.HasPrefix(path, "/account/activity"), "")
-		links = add(links, "login_history", "/account/login-history", "Login History", strings.HasPrefix(path, "/account/login-history"), "")
-		links = add(links, "api", "/account/api", "API Reference", strings.HasPrefix(path, "/account/api"), "")
-		links = add(links, "mcp", "/account/mcp", "MCP", strings.HasPrefix(path, "/account/mcp"), "")
-		open := strings.HasPrefix(path, "/account")
-		groups = append(groups, NavGroup{"Account", accountIcon, "account-menu", links, open, open})
+// DashboardTabs returns the Dashboard/Upgrade tabs, nil without an upsell plan so the dashboard keeps no tab bar at all
+func DashboardTabs(path string, upsellAvailable bool) []NavLink {
+	if !upsellAvailable {
+		return nil
 	}
+	return []NavLink{
+		{Href: "/dashboard", Label: "Dashboard", Active: path == "/dashboard"},
+		{Href: "/dashboard/upgrade", Label: "Upgrade now", Active: path == "/dashboard/upgrade"},
+	}
+}
 
+// FeatureGroup is one sidebar area's pages that an upgrade would unlock
+type FeatureGroup struct {
+	Area  string
+	Pages []string
+}
+
+// UpgradeFeatures lists, per sidebar area, the pages the upsell plan unlocks that the current plan can't reach
+func UpgradeFeatures(allowed, upsellAllowed map[string]bool) []FeatureGroup {
+	combined := make(map[string]bool, len(allowed)+len(upsellAllowed))
+	for k, v := range allowed {
+		combined[k] = v
+	}
+	for k, v := range upsellAllowed {
+		combined[k] = combined[k] || v
+	}
+	current, upgraded := navGate{allowed: allowed}, navGate{allowed: combined}
+
+	var groups []FeatureGroup
+	for _, a := range sidebarAreas {
+		if a.keys != nil && !upgraded.has(a.keys...) {
+			continue
+		}
+		have := map[string]bool{}
+		if a.keys == nil || current.has(a.keys...) {
+			for _, t := range a.tabs(current, "", TabContext{}) {
+				have[t.Href] = true
+			}
+		}
+		var pages []string
+		for _, t := range a.tabs(upgraded, "", TabContext{}) {
+			if !have[t.Href] {
+				pages = append(pages, t.Label)
+			}
+		}
+		if len(pages) > 0 {
+			groups = append(groups, FeatureGroup{Area: a.label, Pages: pages})
+		}
+	}
 	return groups
 }

@@ -1,0 +1,67 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/dashboard/upgrade.html -->
+
+<section aria-label="{{.T.Get "Upgrade now"}}" class="p-4 sm:p-6 lg:p-8">
+    <div class="flex flex-col items-start gap-x-6 gap-y-8 sm:flex-row">
+
+        <!-- what the new plan unlocks -->
+        <div class="w-full min-w-0 flex-1">
+            <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</h1>
+
+            {{if .Features}}
+            <div class="mt-8" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(12rem,1fr));gap:1.5rem 1rem;align-items:start">
+                {{range .Features}}
+                <div class="border-l-4 border-blue-600 pl-4 dark:border-blue-500">
+                    <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get .Area}}</h2>
+                    <ul role="list" class="mt-3 flex flex-col gap-2">
+                        {{range .Pages}}
+                        <li class="flex items-center gap-x-3 text-sm text-gray-700 dark:text-gray-300"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-5 shrink-0 text-blue-600 dark:text-blue-500"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11.0026 16L18.0737 8.92893L16.6595 7.51472L11.0026 13.1716L8.17421 10.3431L6.75999 11.7574L11.0026 16Z"></path></svg>{{$.T.Get .}}</li>
+                        {{end}}
+                    </ul>
+                </div>
+                {{end}}
+            </div>
+            {{end}}
+        </div>
+
+        <!-- limits side by side plus the upgrade link -->
+        <div class="w-full min-w-0 flex-1 rounded border border-gray-200 bg-gray-50 p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.UpsellPlanName}}</h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Resource limits"}}</p>
+
+            <table class="mt-6 w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 dark:border-gray-800">
+                        <th scope="col" class="pb-2"></th>
+                        <th scope="col" class="pb-2 text-right font-medium text-gray-500 dark:text-gray-400">{{.CurrentPlanName}}</th>
+                        <th scope="col" class="pb-2 text-right font-semibold text-gray-900 dark:text-gray-50">{{.UpsellPlanName}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Limits}}
+                    <tr class="border-b border-gray-200 dark:border-gray-800">
+                        <td class="py-2.5 text-gray-700 dark:text-gray-300">{{$.T.Get .Label}}</td>
+                        <td class="py-2.5 text-right text-gray-500 dark:text-gray-400">{{$.T.Get .Current}}</td>
+                        <td class="py-2.5 text-right font-medium {{if eq .Change "up"}}text-emerald-600 dark:text-emerald-500{{else if eq .Change "down"}}text-red-600 dark:text-red-500{{else}}text-gray-900 dark:text-gray-50{{end}}">
+                            {{if eq .Change "up"}}<span aria-hidden="true">↑ </span>{{else if eq .Change "down"}}<span aria-hidden="true">↓ </span>{{end}}{{$.T.Get .New}}
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+
+            <div class="my-6 h-px bg-gray-200 dark:bg-gray-800"></div>
+
+            <a href="{{.UpsellURL}}" target="_blank" rel="noopener" class="inline-flex w-full items-center justify-center gap-1.5 rounded border border-black bg-black px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-800 dark:border-gray-800">
+                {{.T.Get "Upgrade to"}} {{.UpsellPlanName}}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 shrink-0" aria-label="{{.T.Get "Opens in a new tab"}}"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<!-- END templates/dashboard/upgrade.html -->
+{{end}}

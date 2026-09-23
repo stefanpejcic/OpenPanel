@@ -40,7 +40,7 @@ type WAFListPageData struct {
 }
 
 func renderWAFListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain, modsecStatus map[string]string, issues []WAFIssue) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "WAF")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Web Firewall")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -61,7 +61,7 @@ type WAFDomainPageData struct {
 }
 
 func renderWAFDomainPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domain, status string, removedRules, removedTags []string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "WAF for "+domain)
+	layout, _, err := web.BuildLayoutData(a, w, r, "Web Firewall for "+domain)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -126,7 +126,7 @@ type WAFLogsPageData struct {
 }
 
 func renderWAFLogSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "WAF Logs")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Web Firewall Logs")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

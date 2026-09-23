@@ -195,7 +195,7 @@ func renderImportPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbN
 }
 
 func renderProcessListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, processlistOutput string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Process List")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Running Queries")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

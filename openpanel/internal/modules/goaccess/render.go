@@ -34,7 +34,7 @@ type GoaccessPageData struct {
 }
 
 func renderGoaccessSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "GoAccess")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Visitor Statistics")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

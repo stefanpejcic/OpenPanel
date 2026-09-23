@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/csrf"
 
@@ -37,6 +38,28 @@ func ReadFilemanagerView(a *appctx.App, r *http.Request) string {
 		return c.Value
 	}
 	return a.Config.Get("filemanager_buttons_style", "classic")
+}
+
+// MenuStyleCookie is the browser cookie storing the user's own navigation style ("classic" or "modern"), set client-side by the user menu's toggle and read server-side by ReadMenuStyle.
+const MenuStyleCookie = "menu_style"
+
+// ReadMenuStyle resolves the navigation style: the user's menu_style cookie wins, then the admin-configured menu_style, falling back to "classic" for a missing or unknown value.
+// classic is the collapsible-group sidebar, modern the one-link-per-area sidebar with page tabs, area breadcrumbs and the matching dashboard sections.
+func ReadMenuStyle(a *appctx.App, r *http.Request) string {
+	cookie := ""
+	if c, err := r.Cookie(MenuStyleCookie); err == nil {
+		cookie = c.Value
+	}
+	return resolveMenuStyle(cookie, a.Config.Get("menu_style", ""))
+}
+
+func resolveMenuStyle(cookie, configured string) string {
+	for _, v := range []string{cookie, configured} {
+		if v == "classic" || v == "modern" {
+			return v
+		}
+	}
+	return "classic"
 }
 
 // BuildLayoutData assembles the shared app-shell data every authenticated page needs (nav, flashes, branding, translator, ...), factored out so each module doesn't reimplement it - also returns the injected user-context map since callers need fields like current_username/context/hosting_plan for their own page-specific data.
@@ -91,6 +114,32 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		logo = resellerLogo
 	}
 
+	menuStyle := ReadMenuStyle(a, r)
+	var (
+		navItems  []NavItem
+		navGroups []NavGroup
+		pageTabs  []NavLink
+		navTrail  []NavLink
+	)
+	if menuStyle == "modern" {
+		navPath, tabCtx := ResolveNav(r, func(key string) string { return webserver.GetEnvFileValue(userContext, key) })
+		if strings.HasPrefix(navPath, "/backup") {
+			tabCtx.BackupsAdminManaged = BackupsAdminManaged(userContext)
+		}
+		pageTabs = BuildPageTabs(userAllowed, upsellAllowed, navPath, tabCtx)
+		if strings.HasPrefix(navPath, "/dashboard") {
+			pageTabs = DashboardTabs(navPath, upsellPlanName != "" && upsellURL != "")
+		}
+		navItems = BuildSidebarNav(userAllowed, upsellAllowed, navPath)
+		navTrail = BuildNavTrail(userAllowed, upsellAllowed, navPath, r.URL.Path, t.Get(title), pageTabs)
+	} else {
+		navGroups = BuildClassicSidebarNav(userAllowed, upsellAllowed, NavPath(r))
+		// the Dashboard/Upgrade tabs belong to the upgrade page, not the menu, so classic keeps them too
+		if strings.HasPrefix(r.URL.Path, "/dashboard") {
+			pageTabs = DashboardTabs(r.URL.Path, upsellPlanName != "" && upsellURL != "")
+		}
+	}
+
 	layout := LayoutData{
 		// t.Get falls back to its input unchanged when no catalog entry matches (e.g. a dynamic title like "Delete container "+service), so it's safe to call unconditionally
 		Title:             t.Get(title),
@@ -103,7 +152,11 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		PanelVersion:      panelVersion,
 		CustomCSS:         a.CustomCSS,
 		CustomJS:          true, // the custom-JS <script> tag is always emitted, whether or not custom.js has real content (see base.html)
-		NavGroups:         BuildSidebarNav(userAllowed, upsellAllowed, NavPath(r)),
+		MenuStyle:         menuStyle,
+		NavItems:          navItems,
+		NavGroups:         navGroups,
+		PageTabs:          pageTabs,
+		NavTrail:          navTrail,
 		UserAllowed:       userAllowed,
 		UserAllowedJSON:   UserAllowedList(userAllowed),
 		UpsellAllowed:     upsellAllowed,

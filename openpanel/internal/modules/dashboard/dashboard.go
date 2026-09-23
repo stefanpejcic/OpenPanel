@@ -78,6 +78,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/dashboard", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleDashboard(a, w, r)
 	})))
+	mux.Handle("GET /dashboard/upgrade", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleUpgrade(a, w, r)
+	})))
 }
 
 func handleDashboard(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -141,6 +144,19 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	panelDir, _ := injected["panel_dir"].(string)
 	isEnterprise, _ := injected["is_enterprise"].(bool)
 
+	menuStyle := web.ReadMenuStyle(a, r)
+	var (
+		navItems  []web.NavItem
+		navGroups []web.NavGroup
+		navTrail  []web.NavLink
+	)
+	if menuStyle == "modern" {
+		navItems = web.BuildSidebarNav(userAllowed, upsellAllowed, web.NavPath(r))
+		navTrail = []web.NavLink{{Label: "Dashboard"}}
+	} else {
+		navGroups = web.BuildClassicSidebarNav(userAllowed, upsellAllowed, web.NavPath(r))
+	}
+
 	layout := web.LayoutData{
 		Title:             "Dashboard",
 		BrandName:         a.Config.Get("brand_name", ""),
@@ -152,7 +168,11 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		PanelVersion:      panelVersion,
 		CustomCSS:         a.CustomCSS,
 		CustomJS:          true, // matches base.html's always-true url_for() guard - not tied to a.CustomJS on purpose
-		NavGroups:         web.BuildSidebarNav(userAllowed, upsellAllowed, web.NavPath(r)),
+		MenuStyle:         menuStyle,
+		NavItems:          navItems,
+		NavGroups:         navGroups,
+		PageTabs:          web.DashboardTabs(r.URL.Path, upsellPlanName != "" && upsellURL != ""),
+		NavTrail:          navTrail,
 		UserAllowed:       userAllowed,
 		UserAllowedJSON:   web.UserAllowedList(userAllowed),
 		UpsellAllowed:     upsellAllowed,
@@ -180,7 +200,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 	return DashboardPageData{
 		LayoutData:            layout,
-		Sections:              buildDashboardSections(t, userAllowed, upsellAllowed),
+		Sections:              buildDashboardSections(t, userAllowed, upsellAllowed, menuStyle),
 		TourShow:              d.TourShow,
 		OnboardingShow:        d.OnboardingShow,
 		CustomMessage:         template.HTML(d.CustomMessage), //nolint:gosec // matches Jinja's `custom_message|safe`: admin-authored HTML from a local file, not user input

@@ -129,6 +129,16 @@
             window.location.href = url.toString();
         }
     </script>
+    <script>
+        // Global store for the navigation style ("classic" vs "modern") - initialized from the server-resolved value (see web.ReadMenuStyle) so the user menu's toggle can highlight the active choice. Both styles render a different sidebar server-side, so the setter reloads the page.
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('menuStyle', { value: {{toJSON .MenuStyle}} });
+        });
+        function setMenuStyle(v) {
+            document.cookie = 'menu_style=' + v + '; path=/; max-age=31536000; SameSite=Lax';
+            window.location.reload();
+        }
+    </script>
     <script defer src="{{static "js/showtoasts.min.js"}}"></script>
     <script defer src="{{static "js/health-toast.min.js"}}"></script>
     <script defer src="{{static "js/relative-date.js"}}"></script>
@@ -455,6 +465,34 @@ document.addEventListener('submit', (e) => {
 
 <div id="tour-main-menu" data-sidebar="group" class="relative flex w-full min-w-0 flex-col p-2">
     <div data-sidebar="group-content" class="w-full text-sm">
+        {{if eq .MenuStyle "modern"}}
+        <ul data-sidebar="menu" class="flex w-full min-w-0 flex-col gap-1">
+
+        {{range .NavItems}}
+        {{if .Section}}
+        <li class="px-2 pt-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-500">{{$.T.Get .Section}}</li>
+        {{end}}
+        <li class="relative">
+            {{if .Disabled}}
+            <a data-active="false" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
+               class="flex w-full items-center gap-x-2.5 rounded p-2 text-base sm:text-sm text-gray-400 dark:text-gray-600 cursor-not-allowed"
+               {{if $.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}>
+                {{.Icon}}
+                {{$.T.Get .Label}}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" class="shrink-0"><path d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm6-9h-1V6a5 5 0 0 0-10 0v2H6a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9a1 1 0 0 0-1-1ZM9 6a3 3 0 0 1 6 0v2H9V6Z"></path></svg>
+            </a>
+            {{else}}
+            <a id="{{.MenuID}}" data-active="{{if .Active}}true{{else}}false{{end}}" href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}}
+               class="flex w-full items-center gap-x-2.5 rounded p-2 text-base text-gray-900 transition hover:bg-gray-200/50 sm:text-sm dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50 data-[active=true]:bg-white data-[active=true]:text-blue-600 data-[active=true]:shadow data-[active=true]:ring-1 data-[active=true]:ring-gray-200 data-[active=true]:dark:bg-gray-900 data-[active=true]:dark:text-blue-500 data-[active=true]:dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500">
+                {{.Icon}}
+                {{$.T.Get .Label}}
+            </a>
+            {{end}}
+        </li>
+        {{end}}
+
+        </ul>
+        {{else}}
         <ul data-sidebar="menu" class="flex w-full min-w-0 flex-col gap-1 space-y-2">
 
         {{range .NavGroups}}
@@ -483,7 +521,7 @@ document.addEventListener('submit', (e) => {
                     {{if .Disabled}}
                     <a data-active="false" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
                        class="relative flex items-center gap-1.5 rounded py-1.5 pl-9 pr-3 text-base transition sm:text-sm text-gray-400 dark:text-gray-600 cursor-not-allowed"
-                       {{if $.UpsellURL}}href="{{$.UpsellURL}}" target="_blank" rel="noopener"{{else}}href="#" onclick="return false;"{{end}}>
+                       {{if $.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}>
                         {{$.T.Get .Label}}
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" class="shrink-0"><path d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm6-9h-1V6a5 5 0 0 0-10 0v2H6a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9a1 1 0 0 0-1-1ZM9 6a3 3 0 0 1 6 0v2H9V6Z"></path></svg>
                     </a>
@@ -501,6 +539,17 @@ document.addEventListener('submit', (e) => {
         {{end}}
 
         </ul>
+        {{end}}
+        {{if and .IsEnterprise .UpsellPlanName .UpsellURL}}
+        <div id="tour-upgrade" class="px-2 pt-3">
+            <span class="text-xs font-medium leading-6 text-gray-500">{{.T.Get "Upgrade"}}</span>
+            <ul aria-label="{{.T.Get "Upgrade"}}" role="list">
+                <li>
+                    <a href="/dashboard/upgrade" data-active="{{if eq .RequestPath "/dashboard/upgrade"}}true{{else}}false{{end}}" class="data-[active=true]:text-blue-600 data-[active=true]:dark:text-blue-500 text-gray-700 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-50 flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium transition hover:bg-gray-100 hover:dark:bg-gray-900 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M17.6567 14.8284L16.2425 13.4142L17.6567 12C19.2188 10.4379 19.2188 7.90524 17.6567 6.34314C16.0946 4.78105 13.5619 4.78105 11.9998 6.34314L10.5856 7.75736L9.17139 6.34314L10.5856 4.92893C12.9287 2.58578 16.7277 2.58578 19.0709 4.92893C21.414 7.27208 21.414 11.0711 19.0709 13.4142L17.6567 14.8284ZM14.8282 17.6569L13.414 19.0711C11.0709 21.4142 7.27189 21.4142 4.92875 19.0711C2.5856 16.7279 2.5856 12.9289 4.92875 10.5858L6.34296 9.17157L7.75717 10.5858L6.34296 12C4.78086 13.5621 4.78086 16.0948 6.34296 17.6569C7.90506 19.2189 10.4377 19.2189 11.9998 17.6569L13.414 16.2426L14.8282 17.6569ZM14.8282 7.75736L16.2425 9.17157L9.17139 16.2426L7.75717 14.8284L14.8282 7.75736Z"></path></svg>{{.UpsellPlanName}}</a>
+                </li>
+            </ul>
+        </div>
+        {{end}}
     </div>
 </div>
 
@@ -569,6 +618,23 @@ document.addEventListener('submit', (e) => {
 
 {{end}}
 <!-- END flash messages -->
+
+{{if .PageTabs}}
+<nav id="page-tabs" aria-label="{{.T.Get "Page sections"}}" class="border-b border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-950 sm:px-6 lg:px-8">
+    <ul class="-mb-px flex gap-x-6 overflow-x-auto text-sm">
+        {{range .PageTabs}}
+        <li class="shrink-0">
+            {{if .Disabled}}
+            <a class="inline-flex items-center gap-1 border-b-2 border-transparent py-3 text-gray-400 dark:text-gray-600 cursor-not-allowed" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}" {{if $.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}>{{$.T.Get .Label}}</a>
+            {{else}}
+            <a href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}} {{if .Active}}aria-current="page"{{end}}
+               class="inline-flex items-center gap-1 border-b-2 py-3 font-medium transition {{if .Active}}border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500{{else}}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300{{end}}">{{$.T.Get .Label}}{{if eq .Target "_blank"}}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3 shrink-0" aria-label="{{$.T.Get "Opens in a new tab"}}"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>{{end}}</a>
+            {{end}}
+        </li>
+        {{end}}
+    </ul>
+</nav>
+{{end}}
 
 <!-- START individual template file -->
 {{template "content" .}}

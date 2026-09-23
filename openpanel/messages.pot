@@ -13655,3 +13655,184 @@ msgstr ""
 #: templates/user/activity.html
 msgid "Year to date"
 msgstr ""
+
+#: internal/web/sidebar.go
+msgid "SSL Certificates"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Install App"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Catch-all Address"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Deliverability"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Configure"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "php.ini Editor"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Web Server Config"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Cache & Search"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Software Versions"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Web Server Type"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Monitor & Secure"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Statistics"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Inode Usage"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Visitor Statistics"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Processes & Services"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Web Firewall"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Server Info"
+msgstr ""
+
+
+#: internal/web/sidebar.go
+msgid "Running Queries"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Root Password"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Delete Accounts"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Extensions"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Server Settings"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Domain VHosts"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Processes"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Login Details"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Language"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Notifications"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Two-Factor Auth"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "API"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "AI Assistant (MCP)"
+msgstr ""
+
+#: templates/base.html
+msgid "Page sections"
+msgstr ""
+
+#: internal/modules/waf/render.go
+msgid "Web Firewall Logs"
+msgstr ""
+
+#: templates/mysql/processlist.html
+msgid "MySQL Running Queries"
+msgstr ""
+
+#: templates/psql/processlist.html
+msgid "PostgreSQL Running Queries"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Version per Domain"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Server Type"
+msgstr ""
+
+#: templates/base.html
+msgid "Upgrade"
+msgstr ""
+
+#: templates/dashboard/upgrade.html
+msgid "Upgrade to"
+msgstr ""
+
+#: templates/dashboard/upgrade.html
+msgid "Opens in a new tab"
+msgstr ""
+
+#: internal/modules/dashboard/sections.go
+msgid "phpMyAdmin Login Form"
+msgstr ""
+
+#: internal/modules/dashboard/sections.go
+msgid "Elasticsearch"
+msgstr ""
+
+#: internal/modules/dashboard/sections.go
+msgid "MongoDB"
+msgstr ""
+
+#: templates/partials/_footer.html
+msgid "Menu style"
+msgstr ""
+
+#: templates/partials/_footer.html
+msgid "Classic"
+msgstr ""
+
+#: templates/partials/_footer.html
+msgid "Modern"
+msgstr ""

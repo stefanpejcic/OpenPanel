@@ -192,7 +192,7 @@ func (d ActivityPageData) DateLabels() map[string]string {
 }
 
 func renderActivityPage(a *appctx.App, w http.ResponseWriter, r *http.Request, result ActivityPageResult) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Activity")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Activity Log")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -230,7 +230,7 @@ type MCPPageData struct {
 }
 
 func renderMCPPage(a *appctx.App, w http.ResponseWriter, r *http.Request, tokens []mcptokens.Token, mcpURL, newToken string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "MCP")
+	layout, _, err := web.BuildLayoutData(a, w, r, "AI Assistant (MCP)")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -248,7 +248,7 @@ type APISwaggerPageData struct {
 }
 
 func renderAPISwaggerPage(a *appctx.App, w http.ResponseWriter, r *http.Request, token string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "API Reference")
+	layout, _, err := web.BuildLayoutData(a, w, r, "API")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

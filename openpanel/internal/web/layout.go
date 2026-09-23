@@ -46,7 +46,11 @@ type LayoutData struct {
 	CustomCSS     bool
 	CustomJS      bool
 
-	NavGroups       []NavGroup
+	MenuStyle       string     // "classic" or "modern", see ReadMenuStyle
+	NavItems        []NavItem  // modern sidebar
+	NavGroups       []NavGroup // classic sidebar
+	PageTabs        []NavLink  // tab bar rendered above the page content, nil when the page's area has no siblings
+	NavTrail        []NavLink  // header trail, the last one is the current page and has no Href
 	UserAllowed     map[string]bool
 	UserAllowedJSON template.JS
 	IsEnterprise    bool

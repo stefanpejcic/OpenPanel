@@ -13,7 +13,7 @@
             {{.T.Get "Upgrade to"}} <strong>{{.UpgradePlanName}}</strong> {{.T.Get "for higher limits."}}
         </p>
         {{if .UpgradeURL}}
-        <a href="{{.UpgradeURL}}" target="_blank" rel="noopener" class="animate-upsell-pulse mt-2 flex w-full items-center justify-center rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-50 dark:hover:bg-gray-800">{{.T.Get "Upgrade now"}}</a>
+        <a href="/dashboard/upgrade" class="animate-upsell-pulse mt-2 flex w-full items-center justify-center rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-50 dark:hover:bg-gray-800">{{.T.Get "Upgrade now"}}</a>
         {{end}}
         {{else}}
         <p class="mt-1 text-gray-600 dark:text-gray-400">{{.T.Get "Contact your hosting provider to upgrade your plan."}}</p>

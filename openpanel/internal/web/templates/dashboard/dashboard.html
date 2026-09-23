@@ -44,7 +44,7 @@
             {{range .Section.Items}}
               {{if .Disabled}}
                 <a title="{{if $upsellPlanName}}{{$.T.Get "Upgrade to"}} {{$upsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
-                   {{if $upsellURL}}href="{{$upsellURL}}" target="_blank" rel="noopener"{{else}}href="#" onclick="return false;"{{end}}
+                   {{if $upsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}
                    class="block w-1/2 py-1 text-center lg:w-1/4 opacity-50 grayscale cursor-not-allowed">
                   <div :class="$store.dashboardIconView.value === 'icon' ? 'py-2 text-center' : 'p-2 px-4 flex gap-2'" class="{{if eq $iconView "icon"}}py-2 text-center{{else}}p-2 px-4 flex gap-2{{end}}">
                     <button type="button" tabindex="-1" class="size-9 items-center justify-center rounded-xl bg-slate-700 text-white ring-4 ring-slate-400/50 dark:ring-slate-600/50 cursor-not-allowed">

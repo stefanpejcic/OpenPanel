@@ -27,7 +27,9 @@ func TestRenderDashboardPage(t *testing.T) {
 			CSRFToken:       "test-csrf-token",
 			PanelDir:        "ltr",
 			PanelVersion:    "1.0.0",
-			NavGroups:       web.BuildSidebarNav(userAllowed, nil, "/dashboard"),
+			MenuStyle:       "modern",
+			NavItems:        web.BuildSidebarNav(userAllowed, nil, "/dashboard"),
+			NavTrail:        []web.NavLink{{Label: "Dashboard"}},
 			UserAllowed:     userAllowed,
 			UserAllowedJSON: web.UserAllowedList(userAllowed),
 			IsEnterprise:    true,
@@ -38,7 +40,7 @@ func TestRenderDashboardPage(t *testing.T) {
 			AdminPort:       "2087",
 			T:               mgr.Translator("en"),
 		},
-		Sections:           buildDashboardSections(mgr.Translator("en"), userAllowed, nil),
+		Sections:           buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "modern"),
 		TourShow:           true,
 		TwofaEnabled:       false,
 		TwofaNag:           "yes",
@@ -76,6 +78,7 @@ func TestRenderDashboardPage(t *testing.T) {
 		"websites-menu",
 		"mysql-menu",
 		"docker-menu",
+		`<span aria-current="page" class="text-gray-900 dark:text-gray-50">Dashboard</span>`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered dashboard missing %q", want)
@@ -95,7 +98,7 @@ func TestRenderDashboardPageUpsellEligible(t *testing.T) {
 			Title:           "Dashboard",
 			CSRFToken:       "tok",
 			PanelDir:        "ltr",
-			NavGroups:       web.BuildSidebarNav(userAllowed, upsellAllowed, "/dashboard"),
+			NavGroups:       web.BuildClassicSidebarNav(userAllowed, upsellAllowed, "/dashboard"),
 			UserAllowed:     userAllowed,
 			UserAllowedJSON: web.UserAllowedList(userAllowed),
 			UpsellAllowed:   upsellAllowed,
@@ -106,7 +109,7 @@ func TestRenderDashboardPageUpsellEligible(t *testing.T) {
 			AdminPort:       "2087",
 			T:               mgr.Translator("en"),
 		},
-		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, upsellAllowed),
+		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, upsellAllowed, "classic"),
 	}
 
 	w := httptest.NewRecorder()
@@ -116,14 +119,32 @@ func TestRenderDashboardPageUpsellEligible(t *testing.T) {
 
 	body := w.Body.String()
 	for _, want := range []string{
+		"sidebar-toggle-all", // classic sidebar keeps Expand all
+		"websites-menu",
 		"Upgrade to",
 		"Business",
-		"https://example.com/upgrade",
+		`href="/dashboard/upgrade"`,
 		"cursor-not-allowed",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered dashboard missing %q for an upsell-eligible feature", want)
 		}
+	}
+
+	// the sidebar's Upgrade link is Enterprise-only
+	upgradeSection := `<ul aria-label="Upgrade" role="list">`
+	if strings.Contains(body, upgradeSection) {
+		t.Error("did not expect the sidebar Upgrade link without Enterprise")
+	}
+	data.IsEnterprise = true
+	w = httptest.NewRecorder()
+	if err := dashboardPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body = w.Body.String()
+	i := strings.Index(body, upgradeSection)
+	if i < 0 || !strings.Contains(body[i:], `href="/dashboard/upgrade"`) || !strings.Contains(body[i:], "Business</a>") {
+		t.Error("expected the sidebar Upgrade link to Business pointing at /dashboard/upgrade on Enterprise")
 	}
 }
 
@@ -137,7 +158,7 @@ func TestRenderDashboardPageMinimalUser(t *testing.T) {
 			Title:           "Dashboard",
 			CSRFToken:       "tok",
 			PanelDir:        "ltr",
-			NavGroups:       web.BuildSidebarNav(userAllowed, nil, "/dashboard"),
+			NavGroups:       web.BuildClassicSidebarNav(userAllowed, nil, "/dashboard"),
 			UserAllowed:     userAllowed,
 			UserAllowedJSON: web.UserAllowedList(userAllowed),
 			CurrentUsername: "minimal",
@@ -145,7 +166,7 @@ func TestRenderDashboardPageMinimalUser(t *testing.T) {
 			AdminPort:       "2087",
 			T:               mgr.Translator("en"),
 		},
-		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil),
+		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "classic"),
 	}
 
 	w := httptest.NewRecorder()
@@ -167,7 +188,7 @@ func TestRenderDashboardPageWithFlashAndImpersonation(t *testing.T) {
 			Title:           "Dashboard",
 			CSRFToken:       "tok",
 			PanelDir:        "ltr",
-			NavGroups:       web.BuildSidebarNav(userAllowed, nil, "/dashboard"),
+			NavGroups:       web.BuildClassicSidebarNav(userAllowed, nil, "/dashboard"),
 			UserAllowed:     userAllowed,
 			UserAllowedJSON: web.UserAllowedList(userAllowed),
 			CurrentUsername: "impersonated-user",
@@ -179,7 +200,7 @@ func TestRenderDashboardPageWithFlashAndImpersonation(t *testing.T) {
 			},
 			T: mgr.Translator("en"),
 		},
-		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil),
+		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "classic"),
 	}
 
 	w := httptest.NewRecorder()

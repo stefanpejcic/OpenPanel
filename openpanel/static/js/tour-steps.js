@@ -66,7 +66,15 @@ window.TOUR_STEPS = [
         path: '/dashboard',
         element: '#tour-main-menu',
         title: 'Main Menu',
-        description: 'Files, Domains, MySQL, Emails and the rest of your enabled features live here, grouped by category.',
+        description: 'All your enabled features live here - Domains, Websites, Email, Files and more.',
+        side: 'right',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#tour-upgrade',
+        title: 'Upgrade',
+        description: 'See what a higher plan adds - more features and higher limits - compared side by side with your current plan.',
         side: 'right',
         align: 'start'
     },
@@ -75,6 +83,16 @@ window.TOUR_STEPS = [
         element: '#theme-toggle',
         title: 'Dark Mode',
         description: 'Click your profile at the bottom of the sidebar, then use this toggle to switch between light and dark theme.',
+        side: 'top',
+        align: 'start',
+        beforeShow: 'openProfileMenu',
+        beforeHide: 'closeProfileMenu'
+    },
+    {
+        path: '/dashboard',
+        element: '#tour-menu-style',
+        title: 'Menu Style',
+        description: 'Switch between the Classic menu, with expandable groups, and the Modern one, with one link per area and its pages as tabs at the top of each page.',
         side: 'top',
         align: 'start',
         beforeShow: 'openProfileMenu',
@@ -130,6 +148,14 @@ window.TOUR_STEPS = [
         align: 'start'
     },
 
+    {
+        path: '/files',
+        element: '#page-tabs',
+        title: 'Page Tabs',
+        description: 'Related pages are tabs up here - switch between File Manager, Upload, Trash, FTP and more without going back to the menu.',
+        side: 'bottom',
+        align: 'start'
+    },
     {
         path: '/files',
         element: '#tour-fm-breadcrumbs',
@@ -264,9 +290,9 @@ window.TOUR_STEPS = [
     },
     {
         path: '/sites',
-        element: 'a[href="/auto-installer"]',
+        element: '#sites-new-button',
         title: 'Add a Website',
-        description: 'Click New to launch the Auto Installer and set up WordPress or another supported app.',
+        description: 'Click New to install WordPress or another supported app.',
         side: 'bottom',
         align: 'end'
     }
@@ -546,7 +572,7 @@ window.TOUR_STEPS.push(
     {
         path: '/server/waf',
         element: '#waf-domains-table',
-        title: 'WAF',
+        title: 'Web Firewall',
         description: 'Turn the Coraza Web Application Firewall on or off for each of your domains individually.',
         side: 'top',
         align: 'start'
@@ -635,7 +661,7 @@ window.TOUR_STEPS.push(
     {
         path: '/account/activity',
         element: '#activitySearchForm',
-        title: 'Account Activity',
+        title: 'Activity Log',
         description: 'Search and filter the full activity log for your account.',
         side: 'bottom',
         align: 'start'
@@ -696,7 +722,7 @@ window.TOUR_STEPS.push(
     {
         path: '/inodes-explorer',
         element: '#folders_to_navigate',
-        title: 'Inodes Explorer',
+        title: 'Inode Usage',
         description: 'Browse folders to see how many inodes (files) each one contains.',
         side: 'top',
         align: 'start'
@@ -713,7 +739,7 @@ window.TOUR_STEPS.push(
     {
         path: '/malware-scanner',
         element: '#directory-select',
-        title: 'ClamAV Scanner',
+        title: 'Malware Scanner',
         description: 'Pick the folder you want to scan for malware.',
         side: 'bottom',
         align: 'start'
@@ -850,7 +876,7 @@ window.TOUR_STEPS.push(
     {
         path: '/mysql/processlist',
         element: '#processlist-table',
-        title: 'Process List',
+        title: 'Running Queries',
         description: 'Shows currently running MySQL queries/connections, useful for spotting slow or stuck queries.',
         side: 'top',
         align: 'start'
@@ -899,7 +925,7 @@ window.TOUR_STEPS.push(
     {
         path: '/postgresql/processlist',
         element: '#processlist-table',
-        title: 'Process List',
+        title: 'Running Queries',
         description: 'Shows currently running PostgreSQL queries/connections.',
         side: 'top',
         align: 'start'
@@ -924,7 +950,7 @@ window.TOUR_STEPS.push(
     {
         path: '/auto-installer',
         element: '#autoinstaller-apps',
-        title: 'Auto Installer',
+        title: 'Install App',
         description: 'Pick an application to install - WordPress and others depending on what’s enabled for your plan.',
         side: 'top',
         align: 'start'
@@ -1116,8 +1142,8 @@ window.TOUR_STEPS.push(
     {
         path: '/domains/stats',
         element: '#domains',
-        title: 'GoAccess',
-        description: 'Pick a domain to view its GoAccess report, generated from that domain\'s access logs.',
+        title: 'Visitor Statistics',
+        description: 'Pick a domain to view its visitor statistics report, generated from that domain\'s access logs.',
         side: 'bottom',
         align: 'start'
     },

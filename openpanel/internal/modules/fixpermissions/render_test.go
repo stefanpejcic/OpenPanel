@@ -14,7 +14,7 @@ func TestRenderFixPermissionsPage(t *testing.T) {
 	userAllowed := map[string]bool{"dashboard": true, "fix_permissions": true}
 	layout := web.LayoutData{
 		Title: "Test", BrandName: "Test Panel", CSRFToken: "test-csrf-token", PanelDir: "ltr",
-		NavGroups: web.BuildSidebarNav(userAllowed, nil, "/fix-permissions"), UserAllowed: userAllowed,
+		NavGroups: web.BuildClassicSidebarNav(userAllowed, nil, "/fix-permissions"), UserAllowed: userAllowed,
 		UserAllowedJSON: web.UserAllowedList(userAllowed), CurrentUsername: "testuser",
 		RequestPath: "/fix-permissions", AdminPort: "2087", T: mgr.Translator("en"),
 	}
