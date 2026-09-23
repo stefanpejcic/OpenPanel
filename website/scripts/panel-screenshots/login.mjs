@@ -16,7 +16,15 @@ async function login(headless) {
     return false;
   }
   if (hasCaptcha) console.log('Captcha detected, solve it and click Sign In...');
-  else await page.click('button[type=submit]');
+  else {
+    // credentials from the environment for servers that don't prefill the form
+    const admin = process.argv.includes('--admin');
+    const user = process.env[admin ? 'ADMIN_USER' : 'PANEL_USER'];
+    const pass = process.env[admin ? 'ADMIN_PASS' : 'PANEL_PASS'];
+    if (user) await page.fill('input[name=username]', user);
+    if (pass) await page.fill('input[name=password]', pass);
+    await page.click('button[type=submit]');
+  }
   await page.waitForURL(u => !u.pathname.startsWith('/login'), { timeout: hasCaptcha ? 600_000 : 30_000 });
   await ctx.storageState({ path: STATE_PATH });
   console.log(`Logged in, session saved to ${STATE_PATH}`);

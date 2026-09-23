@@ -11,7 +11,9 @@ if (!existsSync(STATE_PATH)) {
   process.exit(1);
 }
 
-const args = process.argv.slice(2).filter(a => a !== '--admin');
+// --dark shoots the same pages in dark mode, saved next to the light ones with a _dark suffix
+const dark = process.argv.includes('--dark');
+const args = process.argv.slice(2).filter(a => a !== '--admin' && a !== '--dark');
 const keys = args.length ? args : Object.keys(pages);
 const browser = await chromium.launch();
 const contextOptions = {
@@ -19,7 +21,7 @@ const contextOptions = {
   viewport: { width: VIEWPORT_WIDTH, height: 900 },
   deviceScaleFactor: 2,
   ignoreHTTPSErrors: true,
-  colorScheme: 'light',
+  colorScheme: dark ? 'dark' : 'light',
   locale: 'en-US',
 };
 const ctx = await browser.newContext({ ...contextOptions, storageState: STATE_PATH });
@@ -89,11 +91,11 @@ for (const key of keys) {
     try {
       // init runs before any page script, e.g. to set the theme in localStorage
       // every shot starts in light mode unless its init() says otherwise
-      await page.addInitScript(() => {
-        localStorage.setItem('color-theme', 'light');
+      await page.addInitScript(theme => {
+        localStorage.setItem('color-theme', theme);
         // a tour started by one shot must not carry over into the next
         for (const k of Object.keys(localStorage)) if (/tour/i.test(k)) localStorage.removeItem(k);
-      });
+      }, dark ? 'dark' : 'light');
       if (def.init) await page.addInitScript(def.init);
       await page.goto(BASE_URL + (shot.url || def.url), { waitUntil: 'domcontentloaded' });
       if (!def.anonymous && new URL(page.url()).pathname.startsWith('/login')) throw new Error(`session expired, run \`node login.mjs${admin ? ' --admin' : ''}\` again`);
@@ -109,7 +111,7 @@ for (const key of keys) {
       if (shot.prepare) await shot.prepare(page);
       if (def.prepare) await def.prepare(page);
       await globalPrepare(page);
-      const out = join(OUT_DIR, `${key}-${shot.name}.png`);
+      const out = join(OUT_DIR, `${key}-${shot.name}${dark ? '_dark' : ''}.png`);
       mkdirSync(dirname(out), { recursive: true });
       const clip = shot.crop ? await cropBox(page, shot.crop) : undefined;
       await page.screenshot({ path: out, clip, animations: 'disabled', caret: 'hide' });

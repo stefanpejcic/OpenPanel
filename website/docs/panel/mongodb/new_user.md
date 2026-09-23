@@ -8,6 +8,9 @@ Easily create a new MongoDB user in just a few clicks. Users are used for intera
 
 Navigate to **MongoDB > Create User**:
 
+![Create MongoDB User form with the username and password fields](/img/openpanel-screenshots/mongodb/new_user-form.png#gh-light-mode-only)
+![Create MongoDB User form with the username and password fields](/img/openpanel-screenshots/mongodb/new_user-form_dark.png#gh-dark-mode-only)
+
 1. **Enter a Username**
    Type your desired username into the input field. Only letters, numbers, and underscores are allowed, and the username must be between 1 and 31 characters long.
 

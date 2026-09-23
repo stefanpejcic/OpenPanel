@@ -12,6 +12,8 @@ Use **OpenAdmin > Emails > Queue** to access it.
 
 Each row shows one queued message, including its queue ID, sender, recipient(s), size, and the reason delivery is being retried.
 
+![Email Queue page with the queued messages table and the Refresh button](/img/openadmin-screenshots/emails/queue-page.png)
+
 ## Actions
 
 - **Retry** – Force an immediate delivery retry, for a **selected** message or for **all** queued messages.

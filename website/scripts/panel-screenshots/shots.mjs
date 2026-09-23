@@ -1,6 +1,7 @@
 // screenshot manifest: one entry per docs page, see PLAN.md for conventions
 export const BASE_URL = process.env.PANEL_URL || 'https://demo.openpanel.com:2083';
-export const STATE_PATH = '.auth/state.json';
+// a server other than the demo gets its own session file
+export const STATE_PATH = process.env.PANEL_URL ? `.auth/state_${new URL(process.env.PANEL_URL).hostname}.json` : '.auth/state.json';
 export const OUT_DIR = '../../static/img/openpanel-screenshots';
 export const VIEWPORT_WIDTH = 1100;
 
@@ -9,6 +10,7 @@ import { rename, all, click, fill, fillVisible, selectFirst, maskIPs, hideNotice
 // readable names for the demo's random mysql users and databases
 const MYSQL_USERS = { u1pd6u5s: 'wp_blog_user', stefan: 'shop_admin' };
 const MYSQL_DBS = { bd37zzjy: 'wp_blog', stefan: 'shop_db' };
+const MONGO_NAMES = { claudetestuser: 'shop_admin', claudetest: 'shop_db' };
 const PG_NAMES = { postgredb: 'shop_db', postgreuser: 'shop_admin' };
 const PASSWORD = 'hT9#vQ2m!Lx7pR4z';
 const DEMO_IP = { '185.241.214.25': '203.0.113.10' };
@@ -72,6 +74,15 @@ export const pages = {
         crop: { from: 'main section > div:first-child', to: '#databases-table tbody tr:last-of-type' },
       },
       {
+        name: 'connection',
+        alt: 'MariaDB badge next to the Databases title hovered, with the tooltip showing the server name and port to connect with',
+        prepare: async page => {
+          await page.evaluate(() => { window.Alpine.$data(document.querySelector('main section [x-data*="tooltip"]')).tooltip = true; });
+          await page.waitForTimeout(500);
+        },
+        crop: { from: 'main section > div:first-child', to: '#databases-table tbody tr:last-of-type' },
+      },
+      {
         name: 'sizes',
         alt: 'Databases table with Show database sizes enabled and the size unit dropdown set to MB',
         async prepare(page) {
@@ -90,6 +101,7 @@ export const pages = {
           await page.locator('#databases-table tbody tr').first().locator('button[title="Export"]').click();
           await page.locator('.export-section').first().waitFor({ state: 'visible' });
           await page.waitForTimeout(400);
+          await page.mouse.move(0, 0);
         },
         crop: { from: '#databases-table thead', to: '.export-section >> visible=true', pad: 16 },
       },
@@ -99,6 +111,7 @@ export const pages = {
         async prepare(page) {
           await page.locator('#databases-table tbody tr').first().locator('form[action="/mysql/delete"] button').click();
           await page.waitForTimeout(300);
+          await page.mouse.move(0, 0);
         },
         crop: { from: '#databases-table thead', to: '#databases-table tbody tr:first-child', pad: 0 },
       },
@@ -1538,5 +1551,91 @@ export const pages = {
         viewportWidth: 1440,
       },
     ],
+  },
+  // needs a server with Web Terminal enabled (not the demo):
+  // PANEL_URL=https://host:2083 node shoot.mjs containers/terminal_server
+  'containers/terminal_server': {
+    url: '/containers/terminal',
+    shots: [
+      {
+        name: 'select',
+        alt: 'Terminal page with the service dropdown opened, listing the running containers to connect to',
+        prepare: async page => {
+          // a native select's popup isn't captured in screenshots, so show its options expanded in place
+          await page.evaluate(() => {
+            const s = document.getElementById('service-select');
+            s.size = Math.min(s.options.length, 12);
+            s.style.height = 'auto';
+            s.focus();
+          });
+          await page.waitForTimeout(400);
+        },
+        crop: { from: 'main', to: '#service-select', fromTop: true, pad: 24, right: true },
+      },
+      {
+        name: 'shell',
+        url: '/containers/terminal/apache',
+        alt: 'Terminal connected to the apache container with a shell prompt and the shell dropdown',
+        prepare: async page => {
+          await page.waitForTimeout(4000);
+          await page.keyboard.type('ls /usr/local/apache2', { delay: 50 });
+          await page.keyboard.press('Enter');
+          await page.waitForTimeout(1500);
+        },
+        viewportHeight: 760,
+        crop: { content: 'main', maxHeight: 620 },
+      },
+    ],
+  },
+  // MongoDB isn't running on the demo, these need PANEL_URL of a server where it is
+  'mongodb/databases': {
+    url: '/mongodb',
+    prepare: rename(MONGO_NAMES),
+    shots: [
+      { name: 'list', alt: 'MongoDB Databases page listing databases with their size and the Delete button', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
+      {
+        name: 'delete',
+        alt: 'Delete button of a MongoDB database turned into a Confirm button with a countdown after the first click',
+        prepare: async page => { await page.locator('main table tbody tr:first-of-type button:has-text("Delete")').click(); await page.waitForTimeout(300); await page.mouse.move(0, 0); },
+        crop: { from: 'main table thead', to: 'main table tbody tr:first-of-type', pad: 8 },
+      },
+    ],
+  },
+  'mongodb/new_db': {
+    url: '/mongodb/new',
+    shots: [{ name: 'form', alt: 'Create a MongoDB Database form with the database name field', prepare: fillVisible(['shop_db']), crop: { from: 'main', to: 'main button:has-text("Create Database")', fromTop: true, pad: 32 } }],
+  },
+  'mongodb/users': {
+    url: '/mongodb/users',
+    prepare: rename(MONGO_NAMES),
+    shots: [
+      { name: 'list', alt: 'MongoDB Users page listing users with their roles and the Change Password and Delete buttons', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
+      {
+        name: 'delete',
+        alt: 'Delete button of a MongoDB user turned into a Confirm button with a countdown after the first click',
+        prepare: async page => { await page.locator('main table tbody tr:last-of-type button:has-text("Delete")').click(); await page.waitForTimeout(300); await page.mouse.move(0, 0); },
+        crop: { from: 'main table thead', to: 'main table tbody tr:last-of-type', pad: 8 },
+      },
+    ],
+  },
+  'mongodb/new_user': {
+    url: '/mongodb/user',
+    shots: [{ name: 'form', alt: 'Create MongoDB User form with the username and password fields', prepare: fillVisible(['shop_admin', PASSWORD]), crop: { from: 'main', to: 'main button:has-text("Create User")', fromTop: true, pad: 32 } }],
+  },
+  'mongodb/assign': {
+    url: '/mongodb/assign',
+    shots: [{ name: 'form', alt: 'Assign User to Database form with the user, database and role dropdowns', prepare: all(selectFirst(800), rename(MONGO_NAMES)), crop: { from: 'main', to: 'main button:has-text("Assign User to Database")', fromTop: true, pad: 32 } }],
+  },
+  'mongodb/remove': {
+    url: '/mongodb/remove',
+    shots: [{ name: 'form', alt: 'Remove User access from Database form with the user, database and role dropdowns', prepare: all(selectFirst(800), rename(MONGO_NAMES)), crop: { from: 'main', to: 'main button:has-text("Remove User from Database")', fromTop: true, pad: 32 } }],
+  },
+  'mongodb/password': {
+    url: '/mongodb/password/claudetestuser',
+    shots: [{ name: 'form', alt: 'Change MongoDB user password form with the new password field', prepare: all(rename(MONGO_NAMES), async page => { await page.locator('main input:visible').last().fill(PASSWORD); }), crop: 'content' }],
+  },
+  'mongodb/wizard': {
+    url: '/mongodb/wizard',
+    shots: [{ name: 'form', alt: 'MongoDB Database Wizard with steps to create a database, create a user with a password, and grant a role', prepare: fillVisible(['shop_db', 'shop_admin', PASSWORD]), crop: { from: 'main', to: 'main button:has-text("Create DB, User, and Grant Role")', fromTop: true, pad: 32 } }],
   },
 };

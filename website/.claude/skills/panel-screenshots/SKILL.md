@@ -34,7 +34,10 @@ versioned 1.X docs still use it.
 3. Only if that fails, ask the user. Say exactly what failed and offer:
    - disable the Cloudflare Turnstile on the demo login (login.mjs then works headless), or
    - solve the captcha in the browser window login.mjs opens, or
-   - give a different URL (`PANEL_URL=https://host:2083` or `ADMIN_URL=https://host:2087`) and credentials.
+   - give a different URL (`PANEL_URL=https://host:2083` or `ADMIN_URL=https://host:2087`) and credentials,
+     passed as `PANEL_USER`/`PANEL_PASS` or `ADMIN_USER`/`ADMIN_PASS`. Each host gets its own session file.
+   - Pages the demo can't show (services off, Super Admin only, writes needed) go on a second server the
+     user provides; mark those manifest entries and replace that server's IPs, hostnames and names too.
 4. The session expires during long runs. When shots fail with "session expired",
    rerun `node login.mjs` and then only the failed page keys.
 

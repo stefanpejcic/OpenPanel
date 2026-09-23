@@ -8,7 +8,7 @@ The Emails > Accounts page provides an overview of all email accounts managed th
 
 Use this interface to review usage, access webmail, and manage individual or multiple email accounts.
 
-![openadmin domains add](/img/admin/2.0/openadmin_emails_table.png)
+![Emails page listing email accounts with their quota usage, webmail button and actions menu](/img/openadmin-screenshots/emails/emails-list.png)
 
 The table includes the following information:
 
@@ -20,6 +20,8 @@ The table includes the following information:
   - **Set Quota** – set or remove the mailbox storage quota.
   - **Restrictions** – restrict the account from sending and/or receiving mail.
   - **Delete Account** – permanently remove the mailbox.
+
+![Actions menu of an email account with Change Password, Set Quota, Restrictions and Delete Account](/img/openadmin-screenshots/emails/emails-menu.png)
 
 Accounts can be selected using the checkboxes in the table to perform the same actions (**Set Password**, **Set Quota**, **Restrict**, **Delete**) on multiple accounts at once. A search box is also available to filter the list by email address.
 

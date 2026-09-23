@@ -11,6 +11,8 @@ The Web Terminal is available in **OpenAdmin**, allowing Administrators to manag
 3. Use the dropdown menu or selector to choose your preferred shell type: `sh` or `bash`.
 4. The terminal interface will load, and you can begin typing commands immediately.
 
+![Web Terminal with a root shell on the server and the shell dropdown](/img/openadmin-screenshots/advanced/terminal-page.png)
+
 :::info 
 The web terminal is available to Super Admin and Admin (staff) logins. Reseller logins will see a 403 error on this page.
 

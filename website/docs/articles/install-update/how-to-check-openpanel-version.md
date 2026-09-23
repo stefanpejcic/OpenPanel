@@ -10,5 +10,5 @@ Example output:
 
 ```bash
 root@server:~# opencli version
-1.7.5
+2.0.10
 ```

@@ -19,16 +19,26 @@ To list all current domains navigate to Domains page.
 
 The table shows these columns by default:
 
-| Field           | Description                                                       |
-|-----------------|-------------------------------------------------------------------|
-| **Domain**      | The domain name.                                                  |
-| **Status**      | Indicates whether the domain is active or suspended.              |
-| **PHP Version** | The PHP version configured for the domain.                        |
-| **SSL**         | Shows whether SSL is Automatic, Custom, or None for the domain.   |
-| **WAF**         | Toggle to enable/disable Coraza WAF for the domain.                |
-| **Owner**       | The user who added or owns the domain.                            |
+| Column          | Description                                                                 |
+|-----------------|-----------------------------------------------------------------------------|
+| **Domain**      | The domain name.                                                            |
+| **Status**      | Whether the domain is **Active** or **Suspended**.                          |
+| **PHP version** | The PHP version configured for the domain. Hover over it and click the pencil icon to change it. |
+| **Webserver**   | The webserver of the account that owns the domain (Apache, Nginx, OpenResty or OpenLiteSpeed). |
+| **SSL**         | Whether the domain has an SSL certificate.                                  |
+| **WAF**         | Toggle to enable or disable Coraza WAF for the domain.                      |
+| **Owner**       | The OpenPanel user who owns the domain.                                     |
+| **Actions**     | Menu with the [domain actions](#domain-actions).                            |
 
-Click **Show Columns** to also display **ID**, **Docroot**, and **HTTP Strict Transport Security (HSTS)** — HSTS can be toggled on/off directly from that column, the same way WAF can. Column visibility is remembered for your browser.
+Click **Show Columns** to show or hide columns. These optional columns are hidden by default:
+
+| Column                                    | Description                                                    |
+|-------------------------------------------|----------------------------------------------------------------|
+| **ID**                                    | The internal ID of the domain.                                 |
+| **Docroot**                               | The document root directory of the domain.                     |
+| **HTTP Strict Transport Security (HSTS)** | Toggle to enable or disable HSTS for the domain, like WAF.     |
+
+Any default column except Actions can be hidden the same way. Column visibility is remembered for your browser.
 
 Use the search box (**Search by user/domain...**) to filter the list by domain name or owning username.
 

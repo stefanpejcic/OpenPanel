@@ -48,4 +48,6 @@ Here you can edit the PHP.INI configuration files that will be applied to new us
 
 Select a PHP version to open its php.ini file for editing. After making changes, click **Save** to apply them.
 
+![Default PHP.INI Files section with the PHP 8.5 INI file expanded in an editable text area](/img/openadmin-screenshots/settings/php-ini-open.png)
+
 To revert to the original PHP.INI settings, click **Restore Default**, then click **Save**.

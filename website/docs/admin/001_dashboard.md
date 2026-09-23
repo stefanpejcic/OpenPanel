@@ -67,6 +67,12 @@ The **Resource Usage** widget displays a chart of CPU % and RAM % usage over the
 
 ![Resource Usage widget with a chart of CPU and RAM usage over the last hour and the View history link](/img/openadmin-screenshots/001_dashboard-usage.png)
 
+## Tasks
+
+The **Tasks** widget lists background tasks that are currently running on the server. Click **View all** to open the full list of tasks.
+
+![Tasks widget with the currently running background tasks and the View all link](/img/openadmin-screenshots/001_dashboard-tasks.png)
+
 ## Found a Bug
 
 By default, every page in both the OpenPanel and OpenAdmin UIs includes a **"Found a bug? Let us know"** link at the bottom. This link allows users to report issues directly to our [GitHub Issues](https://github.com/stefanpejcic/OpenPanel/issues) page and includes basic information to help reproduce the problem.
@@ -98,6 +104,10 @@ Search returns:
 ## Keyboard Shortcuts
 
 OpenAdmin UI can be navigated using keyboard shortcuts: [view documentation](/docs/articles/dev-experience/openadmin-keyboard-shortcuts/).
+
+Press **Ctrl + K** (or **Cmd + K** on macOS) on any page to show the list of available shortcuts:
+
+![Keyboard shortcuts dialog opened with Ctrl + K, listing the key combinations for OpenAdmin pages](/img/openadmin-screenshots/001_dashboard-shortcuts.png)
 
 ## Logout
 

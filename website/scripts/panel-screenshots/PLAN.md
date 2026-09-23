@@ -206,11 +206,72 @@ Manifest: `admin-shots.mjs`, output: `static/img/openadmin-screenshots/<section>
 Source: `../openadmin/internal/webtemplates/*.html`. Many pages use Alpine `activeTab`
 tabs that open from the URL hash (e.g. `/users/<name>#edit`).
 
-Status (2026-09-23): 47 pages done, 135 screenshots.
+Status (2026-09-23): 55 pages done, 156 screenshots.
 
-Not done, because the demo can't show them:
-- emails/* (4 pages): the mail server isn't running on the demo, every email page shows "Not Running".
-- security/blacklist-useragents, security/disable-admin, advanced/root-password, advanced/terminal:
-  403 for the demo login (it is an Admin, not the Super Admin).
-- SSH "Authorized Keys" tab: only shown when public key authentication is enabled.
-- settings/notifications daily report example: it's an email, kept as is.
+Pages the demo can't show (emails, Super Admin pages, SSH keys, API enabled, terminal) were shot on a second test
+server. Their entries in admin-shots.mjs are marked; run them with
+`ADMIN_URL=https://host:2087 ADMIN_USER=… ADMIN_PASS=… node login.mjs --admin` and then
+`ADMIN_URL=https://host:2087 node shoot.mjs --admin <key>`. The session is saved per host.
+Only the notifications daily report example (an email) is left as an old image.
+
+
+| Manifest key | Route | Shots |
+|---|---|---|
+| accounts/users | `/users` | list, columns, new, stats, history, info, transfer, services, storage, permissions, activity, logins, edit, export, suspend, delete |
+| 001_dashboard | `/dashboard` | window, summary, activity, news, sysinfo, usage, tasks, shortcuts, sse, search, menu |
+| 001_dashboard_dark | `/dashboard` | window |
+| 002_notifications | `/notifications` | list |
+| license | `/license` | key, support |
+| accounts/administrators | `/administrators` | list, menu, new, rename, password |
+| accounts/resellers | `/resellers` | list |
+| plans/hosting_plans | `/plans` | list, menu, new, edit, usage |
+| plans/feature-manager | `/features` | index, edit |
+| domains/domains | `/domains` | list, add, actions, delete |
+| domains/dns | `/domains/dns` | select, edit |
+| domains/dns_templates | `/domains/zone-templates` | page |
+| domains/file_templates | `/domains/file-templates` | default, suspended-website, suspended-user, apache, nginx, openresty, varnish |
+| domains/dns-cluster | `/domains/dns-cluster` | page |
+| security/2fa | `/security/2fa` | page |
+| security/basic_auth | `/security/basic_auth` | page |
+| security/firewall | `/security/firewall` | csf |
+| security/imunify | `/security/imunify/` | not-running |
+| security/passkeys | `/security/passkeys` | page |
+| security/waf | `/security/waf` | page, rules |
+| backups/system | `/backups/system` | backups, runs, settings |
+| backups/user | `/backups/user` | settings, configuration, runs |
+| services/status | `/services` | list, edit |
+| services/ftp | `/services/ftp` | accounts, configuration |
+| services/limits | `/services/limits` | page |
+| services/logs | `/services/logs` | page |
+| services/podman | `/services/podman` | info, images, volumes, diskusage |
+| settings/general | `/settings/general` | domain, ssl, ports, redirect, debug |
+| settings/openpanel | `/settings/open-panel` | branding, nameservers, users, display, filemanager, databases, security, statistics |
+| settings/modules | `/settings/modules` | page |
+| settings/defaults | `/settings/defaults` | page, services |
+| settings/custom_code | `/settings/custom-code` | css, js, header, footer, section, plugins, themes, after, before |
+| settings/locales | `/settings/locales` | list |
+| settings/notifications | `/settings/notifications` | email, webhook, services, thresholds, server, users, ssh, smtp |
+| settings/php | `/settings/php` | default, options, ini, ini-open |
+| settings/updates | `/settings/updates` | current, auto, logs, rollback |
+| settings/api | `/settings/api` | page |
+| advanced/crons | `/server/crons` | page |
+| advanced/migrate | `/server/migrate` | form |
+| advanced/processes | `/server/processes` | list |
+| advanced/reboot | `/server/reboot` | page |
+| advanced/resource-usage | `/server/resource-usage` | page, history |
+| advanced/ssh | `/server/ssh` | basic, advanced |
+| advanced/swap | `/server/swap` | page |
+| advanced/timezone | `/server/timezone` | page |
+| advanced/cpanel | `/import/cpanel` | page, form |
+| 000_intro | `/login` | login |
+| emails/emails | `/emails/accounts` | list, menu |
+| emails/queue | `/emails/queue` | page |
+| emails/settings | `/emails/settings` | status, accounts, webmail, storage, services, relay |
+| emails/summary | `/emails/reports` | page |
+| security/blacklist-useragents | `/security/blacklist-useragents` | page |
+| security/disable-admin | `/security/disable-admin` | page |
+| advanced/root-password | `/server/root-password` | form |
+| advanced/terminal | `/terminal` | page |
+| settings/api_server | `/settings/api` | enabled, try |
+| advanced/demo-mode_server | `/server/demo-mode` | page |
+| advanced/ssh_server | `/server/ssh` | keys |

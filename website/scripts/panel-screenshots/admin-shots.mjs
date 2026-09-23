@@ -1,6 +1,7 @@
 // OpenAdmin screenshot manifest: one entry per docs/admin page, same conventions as shots.mjs
 export const BASE_URL = process.env.ADMIN_URL || 'https://demo.openpanel.com:2087';
-export const STATE_PATH = '.auth/admin_state.json';
+// a server other than the demo gets its own session file
+export const STATE_PATH = process.env.ADMIN_URL ? `.auth/admin_state_${new URL(process.env.ADMIN_URL).hostname}.json` : '.auth/admin_state.json';
 export const OUT_DIR = '../../static/img/openadmin-screenshots';
 // below 1200px the admin header's resource bar is pinned to the bottom of the screen
 export const VIEWPORT_WIDTH = 1280;
@@ -9,6 +10,15 @@ import { rename, all, click, fill, fillVisible, selectFirst, maskIPs, hideNotice
 
 // demo host names and addresses -> example ones
 const DEMO_NAMES = {
+  // second test server used for pages the demo can't show
+  '185.7.32.112': '203.0.113.10',
+  'asdadsadsadasdas@': 'info@',
+  'asdadsadsdasdas@': 'info@',
+  'assaasas@': 'sales@',
+  'dsffds@': 'support@',
+  'newone@': 'john@',
+  'example.test.rs': 'example.com',
+  'root@stefan': 'root@server',
   'website-builder.tests.openpanel.org': 'portfolio.example.com',
   'redirect.tests.openpanel.org': 'old.example.com',
   'python.tests.openpanel.org': 'api.example.com',
@@ -27,6 +37,18 @@ const DEMO_NAMES = {
   'wp.tests.openpanel.org': 'blog.example.com',
   'tests.openpanel.org': 'example.com',
   'demo.openpanel.com': 'server.example.com',
+};
+
+// the dashboard fills news, system info and the chart over ajax after load
+const dashboardLoaded = async page => {
+  await page.waitForFunction(() => {
+    const news = document.getElementById('news-content');
+    const imgs = news ? [...news.querySelectorAll('img')] : [];
+    const host = document.getElementById('system-hostname');
+    return imgs.length > 0 && imgs.every(i => i.complete && i.naturalWidth > 0) && host && host.textContent.trim().length > 0;
+  }, null, { timeout: 30000 }).catch(() => {});
+  await page.waitForLoadState('networkidle').catch(() => {});
+  await page.waitForTimeout(3000);
 };
 
 // runs on every shot after its own prepare(), so selectors there can still use the real names
@@ -96,6 +118,7 @@ export const pages = {
   },
   '001_dashboard': {
     url: '/dashboard',
+    prepare: dashboardLoaded,
     shots: [
       { name: 'window', alt: 'OpenAdmin dashboard with the summary bar and the User Activity, Latest News, System Information and Resource Usage widgets', viewportHeight: 860 },
       { name: 'summary', alt: 'Summary bar with the number of nodes, containers, users, domains, websites, packages and emails', crop: { from: '#tour-quick-summary', pad: 12 } },
@@ -103,6 +126,19 @@ export const pages = {
       { name: 'news', alt: 'Latest News widget with articles from the OpenPanel blog', prepare: async page => { await page.waitForTimeout(2000); }, crop: { from: '#tour-latest-news', pad: 12 } },
       { name: 'sysinfo', alt: 'System Information widget with hostname, IPv4 address, OS, OpenPanel version, server time, kernel, CPU, uptime, processes and package updates', crop: { from: '#tour-system-info', pad: 12 } },
       { name: 'usage', alt: 'Resource Usage widget with a chart of CPU and RAM usage over the last hour and the View history link', prepare: async page => { await page.waitForTimeout(7000); }, viewportHeight: 1600, crop: { from: '#tour-usage-graphs', pad: 12 } },
+      { name: 'tasks', alt: 'Tasks widget with the currently running background tasks and the View all link', crop: { from: '#tour-tasks', pad: 12 } },
+      {
+        name: 'shortcuts',
+        alt: 'Keyboard shortcuts dialog opened with Ctrl + K, listing the key combinations for OpenAdmin pages',
+        prepare: async page => {
+          await page.evaluate(() => document.activeElement?.blur());
+          await page.keyboard.press('Control+k');
+          await page.waitForTimeout(800);
+          await page.evaluate(() => [...document.querySelectorAll('[x-show="showHelp"] *')].find(e => e.hasAttribute('@click.outside')).setAttribute('data-shot', 'dialog'));
+        },
+        viewportHeight: 860,
+        crop: { from: '[data-shot=dialog]', clamp: false, pad: 0 },
+      },
       {
         name: 'sse',
         alt: 'Resource usage bar in the top-right corner of OpenAdmin with the load tooltip open',
@@ -130,6 +166,7 @@ export const pages = {
   '001_dashboard_dark': {
     url: '/dashboard',
     init: () => localStorage.setItem('color-theme', 'dark'),
+    prepare: dashboardLoaded,
     shots: [{ name: 'window', alt: 'OpenAdmin dashboard in dark mode', viewportHeight: 860 }],
   },
   '002_notifications': {
@@ -418,6 +455,16 @@ export const pages = {
       { name: 'default', alt: 'Default version section linking to the User Defaults page', prepare: markSectionId('Default version'), crop: { from: '[data-shot=section]', pad: 16 } },
       { name: 'options', alt: 'Available Options section with the PHP options users can edit', prepare: markSectionId('Available Options'), crop: { from: '[data-shot=section]', pad: 16 } },
       { name: 'ini', alt: 'Default PHP.INI Files section with a php.ini per PHP version and Restore Default and Save buttons', prepare: markSectionId('Default PHP.INI Files'), crop: { from: '[data-shot=section]', pad: 16 } },
+      {
+        name: 'ini-open',
+        alt: 'Default PHP.INI Files section with the PHP 8.5 INI file expanded in an editable text area',
+        prepare: all(async page => {
+          await page.locator('main button:has-text("PHP 8.5 INI")').click();
+          await page.waitForTimeout(1500);
+        }, markSectionId('Default PHP.INI Files')),
+        viewportHeight: 3400,
+        crop: { from: 'main button:has-text("PHP 8.5 INI")', pad: 16, right: true, height: 560 },
+      },
     ],
   },
   'settings/updates': {
@@ -436,10 +483,6 @@ export const pages = {
   'advanced/crons': {
     url: '/server/crons',
     shots: [{ name: 'page', alt: 'Scheduler page listing OpenPanel system jobs with their cron schedule fields and command', crop: { content: 'main', maxHeight: 1000 } }],
-  },
-  'advanced/demo-mode': {
-    url: '/server/demo-mode',
-    shots: [{ name: 'page', alt: 'Demo Mode page saying demo mode is active and can only be disabled from the terminal', crop: 'content' }],
   },
   'advanced/migrate': {
     url: '/server/migrate',
@@ -477,7 +520,10 @@ export const pages = {
   },
   'advanced/cpanel': {
     url: '/import/cpanel',
-    shots: [{ name: 'page', alt: 'Account Imports page with the import logs and the Import Account button', crop: 'content' }],
+    shots: [
+      { name: 'page', alt: 'Account Imports page with the import logs and the Import Account button', crop: 'content' },
+      { name: 'form', url: '/user/import', alt: 'Import Account from backup form opened from the Import Account button', crop: 'content' },
+    ],
   },
   '000_intro': {
     url: '/login',
@@ -485,5 +531,107 @@ export const pages = {
     // the demo prefills its real credentials
     prepare: fill({ 'input[name=username]': 'admin', 'input[name=password]': '' }),
     shots: [{ name: 'login', alt: 'OpenAdmin login form with the username and password fields, Remember me, passkey sign-in and the Switch to OpenPanel button', viewportHeight: 760 }],
+  },
+  // the pages below need a full server (Super Admin login, mail server running):
+  // ADMIN_URL=https://host:2087 node shoot.mjs --admin emails/emails ...
+  'emails/emails': {
+    url: '/emails/accounts',
+    // the test accounts have no quota or usage, show a realistic mix instead
+    prepare: async page => {
+      await page.waitForTimeout(1500);
+      await page.evaluate(() => {
+        const quotas = [['18M', '~', 0], ['256K', '100M', 0.25], ['4G', '400G', 1], ['1M', '10G', 0.01]];
+        document.querySelectorAll('main tbody tr').forEach((row, i) => {
+          const q = quotas[i];
+          const cell = row.querySelector('td[x-data*="pct"]');
+          if (!q || !cell) return;
+          cell.querySelector('span').textContent = `( ${q[0]} / ${q[1]} ) [${Math.round(q[2])}%]`;
+          // keep a visible sliver on the bar for non-zero usage
+          cell.querySelector('div > div').style.width = (q[2] > 0 ? Math.max(q[2], 2) : 0) + '%';
+        });
+      });
+    },
+    shots: [
+      { name: 'list', alt: 'Emails page listing email accounts with their quota usage, webmail button and actions menu', crop: 'content' },
+      {
+        name: 'menu',
+        alt: 'Actions menu of an email account with Change Password, Set Quota, Restrictions and Delete Account',
+        prepare: async page => {
+          await page.locator('main tbody td div[x-data] > button').first().click();
+          await page.waitForTimeout(600);
+        },
+        crop: { from: 'main table thead', to: 'main tbody div[x-show="open"]:visible >> nth=0', pad: 12, right: true },
+      },
+    ],
+  },
+  'emails/queue': {
+    url: '/emails/queue',
+    shots: [{ name: 'page', alt: 'Email Queue page with the queued messages table and the Refresh button', crop: 'content' }],
+  },
+  'emails/settings': {
+    url: '/emails/settings',
+    shots: [
+      { name: 'status', alt: 'MailServer Status section with the running status and the Start, Restart and Stop buttons', prepare: markSection('MailServer Status'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'accounts', alt: 'Accounts section with the total number of email accounts on the server', prepare: markSection('Accounts'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'webmail', alt: 'Webmail section with the webmail status, client dropdown and webmail domain', prepare: markSection('Webmail'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'storage', alt: 'Storage section with the email storage location', prepare: markSection('Storage'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'services', alt: 'Enable Services section with toggles for the mail server services', prepare: markSection('Enable Services'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'relay', alt: 'Relay Hosts section for sending mail through an external relay', prepare: markSection('Relay Hosts'), crop: { from: '[data-shot=section]', pad: 16 } },
+    ],
+  },
+  'emails/summary': {
+    url: '/emails/reports',
+    shots: [{ name: 'page', alt: 'Mail Reports page with a calendar per month and the number of daily summary reports', crop: { content: 'main', maxHeight: 900 } }],
+  },
+  'security/blacklist-useragents': {
+    url: '/security/blacklist-useragents',
+    shots: [{ name: 'page', alt: 'Blacklist user agents page with the Enable dropdown and the list of blocked user agents', crop: { content: 'main', maxHeight: 800 } }],
+  },
+  'security/disable-admin': {
+    url: '/security/disable-admin',
+    shots: [{ name: 'page', alt: 'Disable OpenAdmin page with the Cancel and Confirm buttons', crop: 'content' }],
+  },
+  'advanced/root-password': {
+    url: '/server/root-password',
+    shots: [{ name: 'form', alt: 'Change Root Password form with the password field and its requirements', crop: 'content' }],
+  },
+  'advanced/terminal': {
+    url: '/terminal',
+    prepare: async page => {
+      await page.waitForTimeout(3000);
+      await page.keyboard.type('uptime', { delay: 60 });
+      await page.keyboard.press('Enter');
+      await page.waitForTimeout(1500);
+    },
+    shots: [{ name: 'page', alt: 'Web Terminal with a root shell on the server and the shell dropdown', viewportHeight: 760, crop: { content: 'main', maxHeight: 620 } }],
+  },
+  'settings/api_server': {
+    url: '/settings/api',
+    shots: [
+      { name: 'enabled', alt: 'API Access page with API access enabled, the Download spec and Disable API access buttons, and the interactive OpenAdmin API reference', crop: { from: 'main', to: 'main button:has-text("Authorize")', fromTop: true, pad: 24, right: true } },
+      {
+        name: 'try',
+        alt: 'An API endpoint expanded in the API reference after Try it out and Execute, with the curl command, request URL and server response',
+        prepare: async page => {
+          const op = page.locator('.opblock-get').first();
+          await op.locator('.opblock-summary').click();
+          await page.waitForTimeout(600);
+          await op.locator('button.try-out__btn').click();
+          await page.waitForTimeout(400);
+          await op.locator('button.execute').click();
+          await page.waitForTimeout(2500);
+          await op.evaluate(e => e.setAttribute('data-shot', 'op'));
+        },
+        crop: { from: '[data-shot=op]', pad: 8 },
+      },
+    ],
+  },
+  'advanced/demo-mode_server': {
+    url: '/server/demo-mode',
+    shots: [{ name: 'page', alt: 'Demo Mode page with the option to lock OpenPanel and OpenAdmin in read-only mode and the Enable Demo Mode button', crop: 'content' }],
+  },
+  'advanced/ssh_server': {
+    url: '/server/ssh',
+    shots: [{ name: 'keys', alt: 'SSH Access Authorized Keys tab listing an authorized public key with its Remove button and the field to add a new key', prepare: clickAlpine("tab = 'keys'", 1200), crop: 'content' }],
   },
 };

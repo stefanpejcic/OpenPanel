@@ -6,7 +6,6 @@ sidebar_position: 3
 
 The Email Settings section allows you to configure various parameters for the MailServer stack to ensure efficient and secure email management. 
 
-![openadmin domains add](/img/admin/2.0/openadmin_emails_settings.png)
 
 :::info
 Emails are only available on [OpenPanel Enterprise edition](/enterprise)
@@ -17,12 +16,14 @@ Emails are only available on [OpenPanel Enterprise edition](/enterprise)
 
 The status of the Mail Server service is displayed at the top of the page, where administrators can start, stop, or restart the service as needed.
 
-![openadmin_emails_settings_status](/img/admin/2.0/openadmin_emails_settings_status.png)
+![MailServer Status section with the running status and the Start, Restart and Stop buttons](/img/openadmin-screenshots/emails/settings-status.png)
 
 
 ## Accounts
 
 Displays the total number of email accounts currently active on the server. This includes all accounts across all domains configured on the system.
+
+![Accounts section with the total number of email accounts on the server](/img/openadmin-screenshots/emails/settings-accounts.png)
 
 ## Webmail
 
@@ -31,7 +32,7 @@ Displays the total number of email accounts currently active on the server. This
 - Select Webmail Client - Choose the webmail client your users will interact with. The service will be restarted to apply any changes made.
 - Set Webmail domain - Configure domain to be used for webmail service. Webmail will be available on this domain and /webmail on every user domain will redirect to this domain.
 
-![openadmin_emails_settings_webmail](/img/admin/2.0/openadmin_emails_settings_webmail.png)
+![Webmail section with the webmail status, client dropdown and webmail domain](/img/openadmin-screenshots/emails/settings-webmail.png)
 
 ## Storage
 
@@ -44,13 +45,13 @@ Configure where email data (mailboxes) is stored on disk.
 
 The storage location is locked (cannot be changed) once email accounts already exist. Click **Save Storage** to apply the change.
 
-![openadmin_emails_settings_storagel](/img/admin/2.0/openadmin_emails_settings_storage.png)
+![Storage section with the email storage location](/img/openadmin-screenshots/emails/settings-storage.png)
 
 ## Enable Services
 
 Administrators can set and configure different services based on their needs.
 
-![openadmin_emails_settings_services](/img/admin/2.0/openadmin_emails_settings_services.png)
+![Enable Services section with toggles for the mail server services](/img/openadmin-screenshots/emails/settings-services.png)
 
 Configure services for the MailServer stack:
 
@@ -78,7 +79,7 @@ Changes to this service will interrupt current email traffic and restart the mai
 
 The **Relay Hosts** feature allows you to configure an SMTP relay service (also known as a relay host or smarthost) for relaying (forwarding) outbound email on behalf of third parties. This service does not manage mail domains but helps in routing emails through an external SMTP server.
 
-![openadmin_emails_settings_relay](/img/admin/2.0/openadmin_emails_settings_relay.png)
+![Relay Hosts section for sending mail through an external relay](/img/openadmin-screenshots/emails/settings-relay.png)
 
 This feature is useful for organizations that need to route their outgoing email traffic through a trusted third-party service or SMTP server for better deliverability and security.
 

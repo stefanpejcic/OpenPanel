@@ -13,3 +13,5 @@ This menu item is only available with an **Enterprise** license and is hidden fo
 :::
 
 For detailed instructions, see the [Import cPanel backup guide](https://openpanel.com/docs/articles/transfers/import-cpanel-backup-to-openpanel/)
+
+![Import Account from backup form opened from the Import Account button](/img/openadmin-screenshots/advanced/cpanel-form.png)
