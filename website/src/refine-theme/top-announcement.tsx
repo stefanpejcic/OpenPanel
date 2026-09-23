@@ -108,44 +108,71 @@ export const TopAnnouncement = () => {
 };
 
 
+const CART_URL =
+    "https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1";
+
 const messages = [
     {
         text: (
             <>
-                🎉 Get <span className="font-semibold">2 months FREE</span> with the{" "}
-                <span className="font-semibold">Enterprise Annual License</span> — pay for 10, get 12.
+                🎉 <span className="font-semibold">Enterprise for €149.50/year</span>: pay for 10 months, get 12.
+                That's <span className="font-semibold">€12.46/mo</span> per server.
             </>
         ),
-        href: "https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1&utm_content=free-months",
-        cta: "Claim Free Months",
+        href: `${CART_URL}&utm_content=free-months`,
+        cta: "Get 2 Months Free",
     },
     {
         text: (
             <>
-                🚀 Unlock <span className="font-semibold">all Premium Features</span> — white-label,{" "}
-                priority support & more with{" "}<span className="font-semibold">Enterprise Annual</span>
+                🧪 Try <span className="font-semibold">OpenPanel Enterprise free for 30 days</span>. Every feature,
+                no card required.
             </>
         ),
-        href: "https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1&utm_content=unlock-features",
-        cta: "Upgrade to Enterprise",
-    },    
+        href: "/trial?utm_content=trial-30d",
+        cta: "Start Free Trial",
+    },
     {
         text: (
             <>
-                💰 Save <span className="font-semibold">17%</span> on the{" "}
-                <span className="font-semibold">Enterprise Annual License</span>{" "} — price locked for life.
+                🚀 Running Community Edition?{" "}
+                <span className="font-semibold">Upgrade to Enterprise</span> for user isolation, resource limits,
+                white-label & priority support.
             </>
         ),
-        href: "https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1&utm_content=price-lock",
-        cta: "Lock In My Price",
+        href: "/enterprise?utm_content=ce-upgrade",
+        cta: "See What You Get",
+    },
+    {
+        text: (
+            <>
+                💸 Tired of per-account pricing?{" "}
+                <span className="font-semibold">One flat price per server</span>, unlimited accounts. From €12.46/mo.
+            </>
+        ),
+        href: `${CART_URL}&utm_content=flat-price`,
+        cta: "Switch to OpenPanel",
+    },
+    {
+        text: (
+            <>
+                🔒 <span className="font-semibold">Price locked for life</span> on annual Enterprise. Today's rate
+                is the one you'll keep paying.
+            </>
+        ),
+        href: `${CART_URL}&utm_content=price-lock`,
+        cta: "Lock In €149.50/yr",
     },
 ];
 
-
-
-
 const Text = () => {
-    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    // Pick after hydration so the pre-rendered HTML and the client agree
+    // (Math.random() during SSR caused a mismatch and text flicker).
+    const [randomMessage, setRandomMessage] = React.useState(messages[0]);
+
+    React.useEffect(() => {
+        setRandomMessage(messages[Math.floor(Math.random() * messages.length)]);
+    }, []);
 
     return (
         <a
