@@ -4,11 +4,10 @@ import { LandingRainbowButton } from "@site/src/refine-theme/landing-rainbow-but
 import clsx from "clsx";
 import React from "react";
 
-const text = "Struggling with hosting panels?";
+const text = "Paying per account for your hosting panel?";
 const description =
-    "Boost your hosting service: Try OpenPanel Community edition and elevate your clients experience to new heights!";
-const image =
-    "https://openpanel.com/img/panel/v1/dashboard/dashboard.png";
+    "OpenPanel gives every user an isolated environment with its own resource limits, at one flat price per server with unlimited accounts. Click around the live demo, no signup needed.";
+const image = "/img/openpanel-screenshots/dashboard/dashboard-window_dark.png";
 
 export const BannerSidebar = ({ shouldShowBanner }) => {
     React.useEffect(() => {
@@ -51,7 +50,7 @@ export const BannerSidebar = ({ shouldShowBanner }) => {
                     "overflow-hidden",
                 )}
             >
-                <img src={image} alt={"refine App screenshot"} loading="lazy" />
+                <img src={image} alt={"OpenPanel user dashboard"} loading="lazy" />
             </Link>
 
             <h2 className={clsx("text-2xl font-semibold", "text-gray-0")}>
@@ -69,10 +68,24 @@ export const BannerSidebar = ({ shouldShowBanner }) => {
                 <div
                     className={clsx("text-gray-900", "text-base", "font-bold")}
                 >
-                    Try online
+                    Try the live demo
                 </div>
                 <ArrowRightIcon className={clsx("ml-2", "w-4", "h-4")} />
             </LandingRainbowButton>
+
+            <Link
+                to={"https://openpanel.com/trial?ref=banner-sidebar"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={clsx(
+                    "-mt-3",
+                    "text-sm",
+                    "text-gray-100 hover:text-gray-0",
+                    "underline",
+                )}
+            >
+                or start a 30-day free Enterprise trial
+            </Link>
         </div>
     );
 };

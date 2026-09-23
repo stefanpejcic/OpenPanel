@@ -29,15 +29,15 @@ type Props = {
 };
 
 export const BannerModal: FC<Props> = ({
-    title = "OpenPanel offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it.",
+    title = "Give every user their own isolated container, at one flat price per server.",
     variant = "purple",
     image = {
-        src: "https://openpanel.com/img/admin/openadmin_dashboard.png",
-        alt: "OpenPanel dashboard screenshot",
+        src: "/img/openadmin-screenshots/001_dashboard-window_dark.png",
+        alt: "OpenAdmin dashboard screenshot",
         href: "https://openpanel.com/demo?ref=banner-modal",
     },
     button = {
-        text: "Try online",
+        text: "Try the live demo",
         href: "https://openpanel.com/demo?ref=banner-modal",
         onClick: undefined,
     },
@@ -201,6 +201,22 @@ export const BannerModal: FC<Props> = ({
                                                 className={clsx("w-4", "h-4")}
                                             />
                                         </LandingRainbowButton>
+                                        <Link
+                                            to={
+                                                "https://openpanel.com/trial?ref=banner-modal"
+                                            }
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={clsx(
+                                                "-mt-5",
+                                                "text-sm",
+                                                "text-gray-100 hover:text-gray-0",
+                                                "underline",
+                                            )}
+                                        >
+                                            or start a 30-day free Enterprise
+                                            trial
+                                        </Link>
                                     </div>
                                     <button
                                         className={clsx(

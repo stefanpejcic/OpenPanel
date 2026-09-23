@@ -14,11 +14,11 @@
 <!-- Username and password fields only if 2FA is not enabled -->
             <div>
                 <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Username"}}</label>
-                <input type="text" name="username" id="username" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 text-gray-900 placeholder-gray-400 bg-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="" placeholder="{{.T.Get "username"}}" {{if .UnrecognizedError}}autofocus value="{{.Username}}"{{else if .Username}}value="{{.Username}}"{{else}}autofocus{{end}}>
+                <input type="text" name="username" id="username" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 text-gray-900 placeholder-gray-400 bg-white dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="" placeholder="{{.T.Get "username"}}" {{if .UnrecognizedError}}autofocus value="{{.Username}}"{{else if .Username}}value="{{.Username}}"{{else}}autofocus{{end}}>
             </div>
             <div>
                 <label for="password" class="flex mb-2 text-sm font-medium text-gray-900 dark:text-white justify-between">{{.T.Get "Password"}}{{if eq .PasswordReset "yes"}} <a href="/reset_password" tabindex="-1">{{.T.Get "Forgot password?"}}</a>{{end}}</label>
-                <input type="password" name="password" id="password" placeholder="••••••••" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 text-gray-900 placeholder-gray-400 bg-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="" {{if .PasswordError}}autofocus{{end}}>
+                <input type="password" name="password" id="password" placeholder="••••••••" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 text-gray-900 placeholder-gray-400 bg-white dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="" {{if .PasswordError}}autofocus{{end}}>
             </div>
 
 {{else}}
@@ -28,7 +28,7 @@
             <div>
                 <label for="twofa_code" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Two-Factor Authentication Code"}}</label>
 
-                <input autofocus id="twofa_code" name="twofa_code" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 text-gray-900 placeholder-gray-400 bg-white disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="">
+                <input autofocus id="twofa_code" name="twofa_code" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 text-gray-900 placeholder-gray-400 bg-white dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="">
             </div>
 {{end}}
 

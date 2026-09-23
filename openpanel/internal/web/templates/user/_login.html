@@ -22,7 +22,8 @@
       background-image: url("/static/images/bg-body.png");
       background-repeat: no-repeat;
       background-position: left; }
-    }
+    /* the light background pattern doesn't work on a dark page */
+    .dark body { background-image: none; }
     </style>
       <!-- Tailwind CSS v3 Configuration -->
       <script>
@@ -42,14 +43,17 @@
          };
       </script>
 
+    <!-- dark mode follows the saved theme, or the device setting if none is saved, same as base.html -->
+    <script>if(localStorage.getItem('color-theme')==='dark'||(!('color-theme' in localStorage)&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}</script>
+
     <!-- Custom code in header: deferred until the custom_code admin feature is ported -->
 
     <!-- Custom CSS code -->
     <link rel="stylesheet" href="{{static "css/custom.css"}}">
   </head>
 
-  <body class="mx-auto bg-slate-200 mwp-480 d-xl-flex align-items-center justify-content-center">
-<section class="bg-white-50 dark:bg-white-900">
+  <body class="mx-auto bg-slate-200 dark:bg-gray-950 mwp-480 d-xl-flex align-items-center justify-content-center">
+<section>
   <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
 
 {{if .Logo}}

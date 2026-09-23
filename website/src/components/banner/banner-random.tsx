@@ -5,16 +5,17 @@ import BrowserOnly from "@docusaurus/BrowserOnly";
 
 const data = [
     {
+        title: "Give every customer their own VPS, minus the VPS bill",
         description:
-            "Deliver a VPS-like experience to your users at a fraction of the cost, with all-inclusive features such as resource limiting, and enhanced security seamlessly integrated for worry-free hosting.",
+            "OpenPanel Enterprise isolates each user in their own container with CPU, RAM and disk limits, so one noisy site never takes down the rest. One flat price per server, unlimited accounts, from €12.46/mo.",
         image: {
-            src: "https://openpanel.com/img/admin/openadmin_dashboard.png",
-            alt: "OpenPanel Enterprise edition",
+            src: "/img/openadmin-screenshots/001_dashboard-window_dark.png",
+            alt: "OpenAdmin dashboard with an OpenPanel Enterprise license",
             href: "https://openpanel.com/enterprise/?ref=banner-admin-panel",
         },
         button: {
-            text: "Learn more",
-            href: "https://openpanel.com/enterprise/?ref=banner-admin-panel",
+            text: "Start 30-day free trial",
+            href: "https://openpanel.com/trial?ref=banner-admin-panel",
         },
         bannerName: "banner-twitter",
     },
