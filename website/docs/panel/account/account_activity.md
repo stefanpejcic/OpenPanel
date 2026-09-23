@@ -22,47 +22,69 @@ The OpenPanel interface records the following account activities:
 * Forgot password requested (via email)
 * Password reset (via email)
 * Logged in with password
+* Logged in with a passkey
 * Logged in using 2FA code
-* Logged in via API call
+* Logged in via user API
+* Logged in via admin API
 * Logged out
+* Registered or removed a passkey
+* Created or revoked an MCP token
 * Changed notification preferences
 * Terminated active session
 * Enabled or disabled Two-Factor Authentication (2FA)
-* Enabled or disabled **ElasticSearch**
-* Enabled or disabled **Memcached**
-* Enabled or disabled **OpenSearch**
-* Enabled or disabled **Redis**
-* Enabled or disabled **Varnish**
+* Changed locale (language)
+* Enabled, disabled, or restarted **ElasticSearch**
+* Enabled, disabled, or restarted **Memcached**
+* Enabled, disabled, or restarted **OpenSearch**
+* Enabled, disabled, or restarted **Redis**
+* Enabled, disabled, or restarted **Valkey**
+* Enabled, disabled, or restarted **Varnish**
 * Enabled or disabled **Varnish caching** for a domain
 * Added new DNS record for a domain
 * Updated DNS record for a domain
 * Deleted DNS record for a domain
+* Edited DNS zone for a domain
 * Reset DNS zone for a domain
 * Exported DNS zone for a domain
+* Created/edited/deleted dynamic DNS record
 * Added, edited, or deleted a custom Docker service
 * Switched MySQL type
 * Switched webserver type
 * Changed image tag for Docker service
-* Changed CPU or Memory limit for Docker service
-* Enabled or disabled Docker service
+* Changed CPU, Memory, or PIDs limit for Docker service
+* Started, stopped, or restarted Docker service
 * Force-pulled image for Docker service
-* Executed command via web terminal
-* Edited VirtualHosts file for a domain
-* Created or deleted redirect link for a domain
+* Opened interactive terminal for a Docker service
+* Executed command in the web terminal (password prompts and other input the shell doesn't echo back are not recorded)
+* Enabled, disabled, or restarted a service
+* Terminated process using Process Manager
+* Edited or restored default webserver configuration
 * Added domain
 * Deleted domain
 * Suspended or unsuspended domain
+* Changed domain docroot
+* Capitalized a domain
+* Edited VirtualHosts file for a domain
+* Created or deleted redirect link for a domain
+* Enabled AutoSSL, generated SSL, or configured custom SSL for a domain
 * Enabled or disabled WAF for a domain
+* Enabled or disabled WAF for new domains
 * Updated WAF rules for a domain
+* Blocked IP addresses or removed all blocked IPs using IP Blocker
 * Added email address
 * Modified email address (password, quota, suspend/unsuspend inbound or outbound traffic)
-* Downloaded email configuration for Outlook/Thunderbird
 * Deleted email address
+* Downloaded email configuration for Outlook/Thunderbird
+* Created or deleted an email alias
+* Set or removed default (catch-all) email address for a domain
+* Imported email accounts
+* Exported mailbox list
 * Accessed webmail for an email
 * Edited sieve filter for an email
 * Created file or folder
 * Uploaded files
 * Downloaded files from URL
+* Downloaded file via File Manager API
 * Created archive
 * Extracted archive
 * Renamed file or folder
@@ -73,68 +95,91 @@ The OpenPanel interface records the following account activities:
 * Changed file/folder permissions
 * Copied or moved files/folders
 * Edited file using File Editor
+* Fixed file permissions
 * Created or deleted FTP account
 * Changed FTP account password
 * Changed FTP account path
 * Downloaded FTP configuration (FileZilla/Cyberduck)
-* Initiated ClamAV scan for folder
+* Initiated malware scan for folder
+* Malware Scanner quarantined a file
+* Marked a quarantined file as safe and restored it
 * Created MySQL database
 * Created MySQL database user
-* Assigned or revoked all privileges for a user on a MySQL database
+* Created MySQL database and user using Database Wizard
+* Assigned or revoked privileges for a user on a MySQL database
 * Changed MySQL root user password
 * Deleted MySQL database or user
 * Changed password for MySQL database user
+* Imported into a MySQL database
+* Exported a MySQL database
+* Optimized or repaired a MySQL database
 * Edited MySQL configuration
 * Enabled or disabled remote MySQL access
+* Granted, changed, or removed remote MySQL access for a user
 * Created PostgreSQL database
 * Created PostgreSQL database user
+* Created PostgreSQL database and user using Database Wizard
 * Assigned or revoked all privileges for a user on a PostgreSQL database
 * Deleted PostgreSQL database or user
 * Changed password for PostgreSQL database user
+* Imported into a PostgreSQL database
+* Exported a PostgreSQL database
 * Edited PostgreSQL configuration
 * Enabled or disabled remote PostgreSQL access
-* Enabled or disabled **pgAdmin**
-* Edited version, password, or email for **pgAdmin**
-* Enabled or disabled **phpMyAdmin**
-* Edited Max Execution Time, Memory Limit, Upload Limit, Version, or Absolute URI for **phpMyAdmin**
+* Created or deleted MongoDB database
+* Created or deleted MongoDB database user
+* Created MongoDB database and user using Database Wizard
+* Granted or revoked a role for a user on a MongoDB database
+* Changed password for MongoDB database user
+* Imported into a MongoDB database
+* Opened **phpMyAdmin**
 * Changed default PHP version for new domains
 * Changed PHP version for a domain
-* Edited limits for PHP versions
 * Edited PHP configuration via PHP Selector
-* Created new Python / NodeJS application
+* Edited PHP.INI file
+* Enabled, disabled, or installed PHP extensions
+* Created new Python / NodeJS / PHP application
 * Started, stopped, or restarted application
-* Edited application
+* Edited application or its environment variables
 * Deleted application
-* Executed `pip`, `npm`, or `pnpm install` command
-* Installed, detached, or uninstalled WordPress
+* Created or restored application backup
+* Cloned application
+* Executed `composer install` or `composer update` command
+* Installed, cloned, detached, or uninstalled WordPress
 * Restored WordPress files or database from a backup
 * Generated full/files/databases WordPress backup
 * Initiated scan for WordPress installations
+* Reloaded WordPress data from filesystem
 * Generated auto-login link for wp-admin
+* Enabled or disabled WordPress maintenance mode
+* Enabled or disabled WordPress hardening rules
 * Flushed WP cache
 * Executed `wp-cli` commands
-* Initiated PageSpeed data refresh
+* Started WordPress core update
 * Updated WordPress debug options
 * Updated WordPress site information
 * Edited WordPress auto-update preferences
+* Initiated WP vulnerabilities scan
+* Installed, updated, cloned, or uninstalled Joomla, Drupal, Moodle, Nextcloud, OpenCart, PrestaShop, Matomo, MediaWiki, Flarum, phpBB, OJS, DokuWiki, SofaWiki, TinyFileManager, or TinyPhotoGallery
+* Generated or restored full/files/database backup for these applications
+* Enabled or disabled maintenance mode for these applications
+* Cleared cache for these applications
+* Generated auto-login link for these applications
+* Initiated PageSpeed data refresh
+* Initiated scan for existing installations
+* Detached a website
+* Ran bulk action on websites
 * Installed, detached, or uninstalled Website Builder
-* Terminated process using Process Manager
-* Enabled or disabled a service
-* Refreshed resource usage for the account
+* Saved Website Builder content
+* Created or edited cron job
+* Deleted cron job
+* Edited cron file
+* Manually ran cron job
+* Started a backup
+* Downloaded a backup
 * Changed backup config
 * Switched backup destination
-* Restored from a backup
-* Generated SSL
-* Created/edited/deleted dynamic DNS record
-* Changed domain docroot
-* Capitalized a domain
-* Created a default (catch-all) email address
-* Imported into a MySQL database
-* Imported into a PostgreSQL database
-* Edited PHP.INI file
-* Edited webserver configuration
-* Changed locale (language)
-
+* Restored full backup, database, or files from a backup
 
 You can search for these actions by IP, username, date, or specific action. Searching for a term automatically shows every matching entry in the log, not just the current page.
 

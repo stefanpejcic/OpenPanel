@@ -126,12 +126,17 @@ func handleDockerTerminalWS(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 	_ = logger.RecordUserAction(a.Config, username, "opened interactive terminal for service "+containerName, reqip.ClientIP(r))
 
+	ip := reqip.ClientIP(r)
+	onCommand := func(line string, edited bool) {
+		_ = logger.RecordUserAction(a.Config, username, terminalCommandLogMessage(containerName, line, edited), ip)
+	}
+
 	argv := podmanmanager.PodmanArgv(userContext, "exec", "-it", "-e", "TERM=xterm-256color", containerName, shell)
-	runPTYSession(conn, argv, rows, cols, podmanmanager.PodmanEnv(userContext), terminalCommandTimeout(a))
+	runPTYSession(conn, argv, rows, cols, podmanmanager.PodmanEnv(userContext), terminalCommandTimeout(a), onCommand)
 }
 
-// runPTYSession forks a PTY running argv, pumps its output to the websocket, and forwards websocket input (keystrokes, or {"type":"resize",...} control messages) to the PTY
-func runPTYSession(conn *websocket.Conn, argv []string, rows, cols int, extraEnv []string, readTimeout time.Duration) {
+// runPTYSession forks a PTY running argv, pumps its output to the websocket, and forwards websocket input (keystrokes, or {"type":"resize",...} control messages) to the PTY, reporting typed commands to onCommand
+func runPTYSession(conn *websocket.Conn, argv []string, rows, cols int, extraEnv []string, readTimeout time.Duration, onCommand func(line string, edited bool)) {
 	cmd := exec.Command(argv[0], argv[1:]...)
 	cmd.Env = append(append([]string{}, os.Environ()...), "TERM=xterm-256color", "COLORTERM=truecolor")
 	cmd.Env = append(cmd.Env, extraEnv...)
@@ -146,6 +151,9 @@ func runPTYSession(conn *websocket.Conn, argv []string, rows, cols int, extraEnv
 		_, _ = cmd.Process.Wait()
 	}()
 
+	output := &terminalOutput{}
+	recorder := newCommandRecorder(output, onCommand)
+
 	done := make(chan struct{})
 	var closeOnce sync.Once
 	stop := func() {
@@ -159,6 +167,7 @@ func runPTYSession(conn *websocket.Conn, argv []string, rows, cols int, extraEnv
 		for {
 			n, err := ptmx.Read(buf)
 			if n > 0 {
+				output.Write(buf[:n])
 				if writeErr := conn.WriteMessage(websocket.TextMessage, buf[:n]); writeErr != nil {
 					return
 				}
@@ -196,6 +205,7 @@ func runPTYSession(conn *websocket.Conn, argv []string, rows, cols int, extraEnv
 			}
 		}
 
+		recorder.Feed(data)
 		if _, err := ptmx.Write(data); err != nil {
 			stop()
 			return
