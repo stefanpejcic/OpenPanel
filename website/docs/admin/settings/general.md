@@ -25,7 +25,7 @@ To enable access to both OpenAdmin and OpenPanel through a domain name, such as 
    Use a tool such as https://www.whatsmydns.net/ to check that domain is pointed to server ip.
    
 3. Set in General Settings
-   Set the domain name in the **Hostname** field on *OpenAdmin > Settings > General Settings*.
+   Set the domain name in the **Hostname** field on *OpenAdmin > Settings > General*.
 
 :::info
 You can also [set a separate domain just for OpenPanel UI](/docs/articles/dev-experience/separate-domain-for-openpanel-access)
@@ -38,7 +38,7 @@ The **SSL** row below the hostname shows the current SSL status of the panel dom
 
 ## Set IP address for OpenPanel
 
-To access OpenPanel and OpenAdmin via the server's public IP address, enter the IP address in the same **Hostname** field in *OpenAdmin > Settings > General Settings* (this field accepts either a domain name or an IP address).
+To access OpenPanel and OpenAdmin via the server's public IP address, enter the IP address in the same **Hostname** field in *OpenAdmin > Settings > General* (this field accepts either a domain name or an IP address).
 
 ## Ports
 
@@ -61,7 +61,7 @@ To change the "/openpanel" to something else, simply set the value in the "/open
 
 ## Debugging (Dev Mode)
 
-Toggle **Dev mode** to enable verbose/detailed logging for OpenPanel and OpenAdmin, useful for error diagnostics. Logs can be viewed under *OpenAdmin > Services > View Log Files*.
+Toggle **Dev mode** to enable verbose/detailed logging for OpenPanel and OpenAdmin, useful for error diagnostics. Logs can be viewed under *OpenAdmin > Services > Log Files*.
 
 ![Debugging (Dev Mode) section of General Settings with the Dev mode toggle](/img/openadmin-screenshots/settings/general-debug.png#gh-light-mode-only)
 ![Debugging (Dev Mode) section of General Settings with the Dev mode toggle](/img/openadmin-screenshots/settings/general-debug_dark.png#gh-dark-mode-only)

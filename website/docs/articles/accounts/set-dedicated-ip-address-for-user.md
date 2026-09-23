@@ -13,7 +13,7 @@ No special configuration is required from the OpenPanel side — newly added IPs
 
 To change IP address for a user from OpenAdmin:
 
-1. Navigate to **OpenAdmin → Users → *username* → Edit**.
+1. Navigate to **OpenAdmin → Accounts → Users → *username* → Edit**.
 
 2. Update the **IP Address** field with the desired dedicated IP.
 

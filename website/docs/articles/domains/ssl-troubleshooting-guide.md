@@ -107,7 +107,7 @@ However, you can temporarily disable all rules - or disable the WAF completely b
 
 - Disabling 'waf' module in OpenAdmin > Settings > Modules 
 - Changing image tag from openpanel/caddy-coraza to caddy:latest in OpenAdmin > Services > Services Limits > CADDY image.
-- Stop & Start the Web Server from OpenAdmin > Services > Services Status.
+- Stop & Start the Web Server from OpenAdmin > Services > Service Status.
 
 Or use opencli command: ```opencli waf disable```
 

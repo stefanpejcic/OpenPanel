@@ -13,7 +13,7 @@ Follow these steps to transfer your **OpenPanel Enterprise Edition** license to 
 On the server where your license is currently activated, remove the license using one of the following methods:
 
 * **From OpenAdmin:**
-  Go to **OpenAdmin > License** and click the **Downgrade** button.
+  Go to **OpenAdmin > License & Support** and click the **Downgrade** button.
   ![Downgrade license](/img/docs-content/RSsLWmLQ-downgrade.png)
 
 * **From the Terminal:**
@@ -49,7 +49,7 @@ It will automatically bind to the next server where you activate it.
 Now, activate the license on your new server. You can do this in one of two ways:
 
 * **From OpenAdmin:**
-  Go to **OpenAdmin > License**, enter your license key, and click **Save key**.
+  Go to **OpenAdmin > License & Support**, enter your license key, and click **Save key**.
   ![Add license key](/img/guides/add_key.png)
 
 * **From the Terminal:**

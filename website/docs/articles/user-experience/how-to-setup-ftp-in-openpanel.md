@@ -33,7 +33,7 @@ The FTP feature uses the `vsftpd` server.
 
 To start it:
 
-* Navigate to **OpenAdmin > Services > FTP Accounts**
+* Navigate to **OpenAdmin > Services > FTP**
 * Click **Start FTP Server**
 
 ![Start FTP Server](/img/docs-content/pdMTHCNw-2025-07-09-11-35.png)
@@ -60,7 +60,7 @@ Restarting OpenPanel ensures that the newly enabled module and feature sets take
 
 To restart:
 
-* Go to **OpenAdmin > Services > Status**
+* Go to **OpenAdmin > Services > Service Status**
 * Click **Restart** next to **OpenPanel**
 
 ![Restart OpenPanel](/img/docs-content/pd1PdJ3V-2025-07-09-11-40.png)

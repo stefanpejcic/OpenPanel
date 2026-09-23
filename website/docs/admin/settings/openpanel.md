@@ -54,6 +54,7 @@ Settings for OpenPanel user accounts:
 
 Additional display settings include:
 
+- **Menu Style:** The default menu for OpenPanel users - **Classic** (expandable groups) or **Modern** (one link per area, with that area's pages as tabs at the top of each page). Users can still switch to the other style for themselves, see [Menu Style](/docs/panel/dashboard/menu-style/). The same setting also switches OpenAdmin's own menu, right after saving.
 - **Avatar Type:** Choose between Gravatar, Letter, or Icon for user avatars.
 - **Charts Mode for Resource Usage:** Select to show 1 chart, 2 charts, or no charts on the Resource Usage page.
 - **Enable Password Reset:** Allow users to reset passwords via the login form (not recommended for security reasons).

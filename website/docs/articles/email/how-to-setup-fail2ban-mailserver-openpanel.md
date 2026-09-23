@@ -21,7 +21,7 @@ To enable Fail2ban, navigate to **OpenAdmin > Emails > Settings** and under 'Ena
 
 ## 2. Recreate mailserver
 
-Fail2ban requires that the mailserver container is stopped, and start again in order to activate. Navigate to **OpenAdmin > Services > Status** and click 'Stop' for mailserver, then again 'Start'.
+Fail2ban requires that the mailserver container is stopped, and start again in order to activate. Navigate to **OpenAdmin > Services > Service Status** and click 'Stop' for mailserver, then again 'Start'.
 
 [![2025-07-17-15-37.png](/img/docs-content/d3hgY01F-2025-07-17-15-37.png)](/img/docs-content/d3hgY01F-2025-07-17-15-37.png)
 

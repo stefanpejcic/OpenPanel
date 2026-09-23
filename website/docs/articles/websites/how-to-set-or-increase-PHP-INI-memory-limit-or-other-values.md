@@ -65,7 +65,7 @@ Users can only modify options that have been explicitly allowed by the administr
 Administrators can manage these options in two ways:
 
 From the panel:
-[**OpenAdmin > Settings > PHP Settings**](/docs/admin/settings/php/) page.
+[**OpenAdmin > Settings > PHP**](/docs/admin/settings/php/) page.
 
 ![options.png](/img/docs-content/1zcTP8Qx-options.png)
 
@@ -80,7 +80,7 @@ Or via terminal:
 Administrators can configure the default php.ini files for all PHP versions.
 
 From the panel:
-[**OpenAdmin > Settings > PHP Settings**](/docs/admin/settings/php/) page.
+[**OpenAdmin > Settings > PHP**](/docs/admin/settings/php/) page.
 
 ![phpini.png](/img/docs-content/dVCpHWNV-phpini.png)
 

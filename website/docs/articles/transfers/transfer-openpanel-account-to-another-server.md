@@ -8,7 +8,7 @@ To migrate all users and files at once, please refer to the, please refer to the
 
 ### Using OpenAdmin
 
-1. Navigate to **OpenAdmin > Users**.
+1. Navigate to **OpenAdmin > Accounts > Users**.
 2. Click on the user you want to transfer.
 3. Under the **Transfer** section, fill in the remote server details:
    

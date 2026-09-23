@@ -85,7 +85,7 @@ The **Tasks** widget lists background tasks that are currently running on the se
 
 By default, every page in both the OpenPanel and OpenAdmin UIs includes a **"Found a bug? Let us know"** link at the bottom. This link allows users to report issues directly to our [GitHub Issues](https://github.com/stefanpejcic/OpenPanel/issues) page and includes basic information to help reproduce the problem.
 
-For the OpenPanel UI, administrators can disable this link by going to **Settings > OpenPanel Settings** and toggling off the **"Display link to report bugs"** option.
+For the OpenPanel UI, administrators can disable this link by going to **Settings > OpenPanel** and toggling off the **"Display link to report bugs"** option.
 
 ## Dark Mode
 
@@ -96,6 +96,13 @@ To enable Dark Mode, click your username in the bottom-left corner and select th
 ## Menu
 
 OpenAdmin menu lists all available options in the OpenAdmin interface. Simply click on a menu item to open it.
+
+The menu comes in two styles, set by the **Menu Style** option on [**Settings > OpenPanel**](/docs/admin/settings/openpanel/#display) (the same option sets the default for OpenPanel users):
+
+- **Classic** (default): items are grouped in expandable sections, like the screenshot below.
+- **Modern**: the sidebar has one link per area - Accounts, Hosting Plans, Domains, Emails, Backups, then **Server** (Services, Security, Server, System) and **Settings** (Settings, License & Support) - and the pages of that area are shown as tabs at the top of each page.
+
+These docs use the Modern names, so a path like **System > Server Time** means: click **System** in the sidebar, then the **Server Time** tab. In the Classic menu the same pages are in the expandable groups, for example **Server > Server Time**.
 
 ![OpenAdmin sidebar menu with the Accounts, Hosting Plans, Domains, Emails, Services, Security, Settings and Advanced sections](/img/openadmin-screenshots/001_dashboard-menu.png#gh-light-mode-only)
 ![OpenAdmin sidebar menu with the Accounts, Hosting Plans, Domains, Emails, Services, Security, Settings and Advanced sections](/img/openadmin-screenshots/001_dashboard-menu_dark.png#gh-dark-mode-only)

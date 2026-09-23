@@ -107,6 +107,38 @@
     {
       "from": "/docs/category/caching",
       "to": "/docs/category/cache-search/"
+    },
+    {
+      "from": "/docs/admin/advanced/timezone",
+      "to": "/docs/admin/system/timezone/"
+    },
+    {
+      "from": "/docs/admin/advanced/root-password",
+      "to": "/docs/admin/system/root-password/"
+    },
+    {
+      "from": "/docs/admin/advanced/ssh",
+      "to": "/docs/admin/system/ssh/"
+    },
+    {
+      "from": "/docs/admin/advanced/reboot",
+      "to": "/docs/admin/system/reboot/"
+    },
+    {
+      "from": "/docs/admin/advanced/swap",
+      "to": "/docs/admin/system/swap/"
+    },
+    {
+      "from": "/docs/admin/advanced/migrate",
+      "to": "/docs/admin/system/migrate/"
+    },
+    {
+      "from": "/docs/admin/advanced/demo-mode",
+      "to": "/docs/admin/system/demo-mode/"
+    },
+    {
+      "from": "/docs/admin/advanced/cpanel",
+      "to": "/docs/admin/backups/cpanel/"
     }
   ]
 }

@@ -42,7 +42,7 @@ Administrators can change the default page shown on domains without content.
 
 To customize:
 
-1. In **OpenAdmin**, go to **Domains > Edit Domain Templates**
+1. In **OpenAdmin**, go to **Domains > Domain Templates**
 2. Modify the HTML code for the default page
 
 ![Edit default page in OpenAdmin](/img/docs-content/JRx0Qm3T-2025-08-13-12-28.png)

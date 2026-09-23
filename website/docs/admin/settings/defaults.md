@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Defaults
 
-From **OpenAdmin > Settings > Edit User Defaults** Administrators can edit values for the `docker-compose.yml` and `.env` files used for new users.
+From **OpenAdmin > Settings > User Defaults** Administrators can edit values for the `docker-compose.yml` and `.env` files used for new users.
 
 ![Edit Defaults page with the default webserver, database, Varnish cache, PHP version and autostart services for new users](/img/openadmin-screenshots/settings/defaults-page.png#gh-light-mode-only)
 ![Edit Defaults page with the default webserver, database, Varnish cache, PHP version and autostart services for new users](/img/openadmin-screenshots/settings/defaults-page_dark.png#gh-dark-mode-only)

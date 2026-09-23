@@ -24,7 +24,7 @@ To customize OpenPanel, you have the following options:
 
 ## Personalized messages
 
-Administrators can set a custom message to be displayed for any OpenPanel uer from their **OpenAdmin > Users** page.
+Administrators can set a custom message to be displayed for any OpenPanel uer from their **OpenAdmin > Accounts > Users** page.
 
 ![custom img](/img/docs-content/9CCgHGG2-2025-06-11-12-26.png)
 
@@ -55,7 +55,7 @@ To set a custom name visible in the OpenPanel sidebar and on login pages, enter 
 
 ## Customize Templates
 
-You can customize all templates that are displayed to users, from [OpenAdmin > Domains > Edit Domain Templates](/docs/admin/domains/file_templates/):
+You can customize all templates that are displayed to users, from [OpenAdmin > Domains > Domain Templates](/docs/admin/domains/file_templates/):
 
 - [Default Landing Page](/docs/admin/domains/file_templates/#default-page)
 - [Suspended Website Template](/docs/admin/domains/file_templates/#suspended-website)

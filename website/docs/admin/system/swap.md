@@ -1,10 +1,10 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # Swap
 
-*OpenAdmin > Server > Swap* lets Administrators view current swap usage, change the swap file allocation, and drop (clear) swap.
+*OpenAdmin > System > Swap* lets Administrators view current swap usage, change the swap file allocation, and drop (clear) swap.
 
 ### Current usage
 

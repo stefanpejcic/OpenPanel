@@ -68,7 +68,7 @@ Replace `DOMAIN_NAME` with your actual domain name.
 
 ## Step 4: Restart the FTP Service
 
-1. Navigate to **OpenAdmin → Services → Services Status**.
+1. Navigate to **OpenAdmin → Services → Service Status**.
 2. Locate the **FTP** service.
 3. Click **Stop**, then **Start** to restart the service.
 

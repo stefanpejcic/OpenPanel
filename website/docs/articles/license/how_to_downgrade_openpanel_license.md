@@ -16,7 +16,7 @@ Downgrading from the Enterprise to the Community edition will immediately remove
 To downgrade from Enterprise edition to Community:
 
 - From OpenAdmin:
-  Navigate to **OpenAdmin > License** and click on the 'Downgrade' button:
+  Navigate to **OpenAdmin > License & Support** and click on the 'Downgrade' button:
   
   ![remove license key](/img/guides/downgrade_license.png)
 

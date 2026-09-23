@@ -115,7 +115,7 @@ Customize options:
 * To **enable/disable Varnish for all new users** use [*OpenAdmin > Settings > User Defaults* page and *Enable Varnish Proxy* option](/docs/admin/settings/defaults/).
 * To **enable/disable Varnish for a single user** when creating their account use the [**Enable Varnish Cache** option](/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/).
 * To **change default CPU/RAM for service** use the [*OpenAdmin > Settings > User Defaults* page](/docs/admin/settings/defaults/).
-* To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Domains > Edit Domain Templates* page](/docs/admin/settings/defaults/) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
+* To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Domains > Domain Templates* page](/docs/admin/settings/defaults/) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
 * To **purge Varnish cache** refer to [How-to Guides > Purging Varnish Cache](/docs/articles/websites/purge-varnish-cache-from-terminal/)
 * To **check if Varnish is enabled for domain** refer to [How to check if Varnish Caching is enabled for a domain in OpenPanel?](https://community.openpanel.org/d/207-how-to-check-if-varnish-caching-is-enabled-for-a-domain-in-openpanel)
 
@@ -222,7 +222,7 @@ When disabled:
 Customize options:
 * To **configure email server** refer to [*How-to Guides > Configure Email Server*](/docs/articles/user-experience/how-to-setup-email-in-openpanel/).
 * To **configure email client** refer to [*How-to Guides > How to setup your email client*](/docs/articles/email/how-to-setup-your-email-client/).
-* To **view all email accounts on a server** use the [*OpenAdmin > Emails > Email Accounts* page](/docs/admin/emails/).
+* To **view all email accounts on a server** use the [*OpenAdmin > Emails > Accounts* page](/docs/admin/emails/).
 * To **set up fail2ban** refer to [*How-to Guides > Setup Fail2ban](/docs/articles/email/how-to-setup-fail2ban-mailserver-openpanel/).
 * To **set up Rspamd** refer to [*How-to Guides > RSPAMD GUI](/docs/articles/email/rspamd-gui-port-11334/).
 * To **set up DKIM for a domain** refer to [*How-to Guides > Setup DKIM](/docs/articles/email/how-to-setup-dkim-for-mailserver/).
@@ -1102,7 +1102,7 @@ When disabled:
 
 Customize options:
 * To **enable HSTS for a domain** refer to:  [*How-to Guides > How to Enable HSTS on a Domain in OpenPanel*](/docs/articles/domains/how-to-enable-hsts-on-a-domain-in-openpanel/)
-* To **customize default pages** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/)
+* To **customize default pages** refer to: [*OpenAdmin > Domains > Domain Templates*](/docs/admin/domains/file_templates/)
 
 ## SSL
 
@@ -1127,7 +1127,7 @@ When disabled:
 * Users can not suspend/unsuspend domains.
 
 Customize options:
-* To **customize the suspended domain template** use:  [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/#suspended-website)
+* To **customize the suspended domain template** use:  [*OpenAdmin > Domains > Domain Templates*](/docs/admin/domains/file_templates/#suspended-website)
 
 ## Raw Access Logs
 
@@ -1204,7 +1204,7 @@ When disabled:
 * Users can not access the *Domains > Edit VHosts File* page.
 
 Customize options:
-* To **customize the vhost files for Apache/Nginx/OpenLiteSpeed** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/#apache-virtualhost)
+* To **customize the vhost files for Apache/Nginx/OpenLiteSpeed** refer to: [*OpenAdmin > Domains > Domain Templates*](/docs/admin/domains/file_templates/#apache-virtualhost)
 
 
 ## Webserver
@@ -1237,7 +1237,7 @@ When enabled:
 * Users can manage DNS records.
 * 'Edit Zone' links are available for domains under the *OpenPanel > Domains* page.
 * Administrators can access the [**OpenAdmin > Domains > DNS Cluster** page](/docs/admin/domains/dns-cluster/).
-* Administrators can access the [**OpenAdmin > Domains > Edit Zone Templates** page](/docs/admin/domains/dns_templates/).
+* Administrators can access the [**OpenAdmin > Domains > Zone Templates** page](/docs/admin/domains/dns_templates/).
 * Administrators can access the [**OpenAdmin > Domains > DNS Zone Editor** page](/docs/admin/domains/dns/).
 
 When disabled:
@@ -1246,7 +1246,7 @@ When disabled:
 
 Customize options:
 * To **configure nameservers** refer to: [*How-to Guides > Configure Nameservers*](/docs/articles/domains/how-to-configure-nameservers-in-openpanel/)
-* To **customize DNS zone templates** refer to: [OpenAdmin > Domains > Edit Zone Templates](/docs/admin/domains/dns_templates/)
+* To **customize DNS zone templates** refer to: [OpenAdmin > Domains > Zone Templates](/docs/admin/domains/dns_templates/)
 * To **configure a DNS cluster** refer to:  [*How-to Guides > DNS Clustering*](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/)
 
 
@@ -1306,12 +1306,12 @@ When disabled:
 * Users can not set PHP version per domain, set default version for new domains, edit options and view installed extensions.
 
 Customize options:
-* To **set the default PHP version to be used for new users** refer to: [*OpenAdmin > Settings > Edit User Defaults > Default PHP version*](/docs/panel/php/options/#available-options)
-* To **set default cpu/memory limits for PHP versions and additional PHP options** refer to: [*OpenAdmin > Settings > Edit User Defaults > Services*](/docs/panel/php/options/#available-options)
+* To **set the default PHP version to be used for new users** refer to: [*OpenAdmin > Settings > User Defaults > Default PHP version*](/docs/panel/php/options/#available-options)
+* To **set default cpu/memory limits for PHP versions and additional PHP options** refer to: [*OpenAdmin > Settings > User Defaults > Services*](/docs/panel/php/options/#available-options)
 * To **install a PHP extension** refer to: [*How-to Guides > How to install a PHP extension in OpenPanel*](/docs/articles/websites/how-to-install-php-extensions-in-openpanel/).
 * To **increase PHP INI memory_limit** refer to: [*How-to Guides > How to set or increase PHP INI memory_limit or other values?*](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/).
 * To **set PHP settings per website** refer to: [*How-to Guides > PHP settings per website (folder)*](/docs/articles/websites/php-user-ini-files/).
-* To **edit default .INI files** refer to: **OpenAdmin > Settings > PHP Settings > Default PHP.INI Files** or edit files in `/etc/openpanel/php/ini` folder.
+* To **edit default .INI files** refer to: **OpenAdmin > Settings > PHP > Default PHP.INI Files** or edit files in `/etc/openpanel/php/ini` folder.
 
 ## PHP Options
 
@@ -1324,7 +1324,7 @@ When disabled:
 * Users can not access the *PHP Options* page.
 
 Customize options:
-* To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP Settings > Available Options** or edit */etc/openpanel/php/options.txt* file.
+* To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP > Available Options** or edit */etc/openpanel/php/options.txt* file.
 
 ## PHP Extensions
 

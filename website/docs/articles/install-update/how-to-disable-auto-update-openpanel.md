@@ -3,7 +3,7 @@
 <Tabs>
   <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
 
-To disable automatic updates, navigate to **OpenAdmin > Settings > Update Preferences** and change 'Update automatically' option to 'Never':
+To disable automatic updates, navigate to **OpenAdmin > Settings > Updates** and change 'Update automatically' option to 'Never':
 
 ![openadmin update preferences](/img/admin/openadmin_set_update_preferences.png)
 

@@ -1,12 +1,12 @@
 ---
-sidebar_position: 8
+sidebar_position: 6
 ---
 
 # Migrate
 
 OpenPanel is fully OS-agnostic, running smoothly on any Linux distribution. This makes migrating the panel along with all user data from one server to another easy and efficient.
 
-Use **OpenAdmin > Server > Migrate** to transfer all server data to a fresh OpenPanel installation on a new server.
+Use **OpenAdmin > System > Migrate** to transfer all server data to a fresh OpenPanel installation on a new server.
 
 ![Server Migration form with the remote host, username and password fields and the Start Migration button](/img/openadmin-screenshots/advanced/migrate-form.png#gh-light-mode-only)
 ![Server Migration form with the remote host, username and password fields and the Start Migration button](/img/openadmin-screenshots/advanced/migrate-form_dark.png#gh-dark-mode-only)

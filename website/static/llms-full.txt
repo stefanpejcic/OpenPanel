@@ -184,7 +184,7 @@ The **Tasks** widget lists background tasks that are currently running on the se
 
 By default, every page in both the OpenPanel and OpenAdmin UIs includes a **"Found a bug? Let us know"** link at the bottom. This link allows users to report issues directly to our [GitHub Issues](https://github.com/stefanpejcic/OpenPanel/issues) page and includes basic information to help reproduce the problem.
 
-For the OpenPanel UI, administrators can disable this link by going to **Settings > OpenPanel Settings** and toggling off the **"Display link to report bugs"** option.
+For the OpenPanel UI, administrators can disable this link by going to **Settings > OpenPanel** and toggling off the **"Display link to report bugs"** option.
 
 ## Dark Mode
 
@@ -195,6 +195,13 @@ To enable Dark Mode, click your username in the bottom-left corner and select th
 ## Menu
 
 OpenAdmin menu lists all available options in the OpenAdmin interface. Simply click on a menu item to open it.
+
+The menu comes in two styles, set by the **Menu Style** option on [**Settings > OpenPanel**](/docs/admin/settings/openpanel/#display) (the same option sets the default for OpenPanel users):
+
+- **Classic** (default): items are grouped in expandable sections, like the screenshot below.
+- **Modern**: the sidebar has one link per area - Accounts, Hosting Plans, Domains, Emails, Backups, then **Server** (Services, Security, Server, System) and **Settings** (Settings, License & Support) - and the pages of that area are shown as tabs at the top of each page.
+
+These docs use the Modern names, so a path like **System > Server Time** means: click **System** in the sidebar, then the **Server Time** tab. In the Classic menu the same pages are in the expandable groups, for example **Server > Server Time**.
 
 ![OpenAdmin sidebar menu with the Accounts, Hosting Plans, Domains, Emails, Services, Security, Settings and Advanced sections](/img/openadmin-screenshots/001_dashboard-menu.png#gh-light-mode-only)
 ![OpenAdmin sidebar menu with the Accounts, Hosting Plans, Domains, Emails, Services, Security, Settings and Advanced sections](/img/openadmin-screenshots/001_dashboard-menu_dark.png#gh-dark-mode-only)
@@ -1057,271 +1064,6 @@ If an admin user has Two-Factor Authentication or a Passkey enabled (shown in th
 
 ---
 
-// File: admin/advanced/processes
-
-# Process Manager
-
-The Process Manager allows you to view and manage running system processes directly from the OpenPanel interface. It's a powerful tool for monitoring system activity and taking quick action when needed.
-
-The process table includes the following details:
-
-- **PID** – Process ID. Options are available to trace the process or kill it directly.
-- **Owner** – The user that owns the process.
-- **Priority** – The process's current scheduling priority.
-- **CPU** – Percentage of CPU usage.
-- **Memory** – Percentage of Memory usage.
-- **Command** – The command or service that launched the process.
-
-![Process Manager listing system processes with their PID, owner, priority, CPU and memory usage, command, and Trace and Kill links](/img/openadmin-screenshots/advanced/processes-list.png#gh-light-mode-only)
-![Process Manager listing system processes with their PID, owner, priority, CPU and memory usage, command, and Trace and Kill links](/img/openadmin-screenshots/advanced/processes-list_dark.png#gh-dark-mode-only)
-
-Use this tool to identify resource-heavy or suspicious processes, manage system load, or terminate unresponsive services.
-
----
-
-// File: admin/advanced/terminal
-
-# Terminal
-
-The Web Terminal is available in **OpenAdmin**, allowing Administrators to manage their server environment directly from the browser.
-
-1. Log in to your OpenAdmin panel.
-2. Navigate to **Server > Terminal**.
-3. Use the dropdown menu or selector to choose your preferred shell type: `sh` or `bash`.
-4. The terminal interface will load, and you can begin typing commands immediately.
-
-![Web Terminal with a root shell on the server and the shell dropdown](/img/openadmin-screenshots/advanced/terminal-page.png#gh-light-mode-only)
-![Web Terminal with a root shell on the server and the shell dropdown](/img/openadmin-screenshots/advanced/terminal-page_dark.png#gh-dark-mode-only)
-
-:::info 
-The web terminal is available to Super Admin and Admin (staff) logins. Reseller logins will see a 403 error on this page.
-
-To disable the web terminal entirely, refer to [How to disable the Terminal feature in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-web-terminal/)
-:::
-
----
-
-// File: admin/advanced/root-password
-
-# Change Root Password
-
-Use **OpenAdmin > Server > Change Root Password** to securely update the SSH password for the root user.
-
-:::info
-This page is available only to the Super Admin. Admin and Reseller logins will see a 403 error on this page.
-:::
-
-To ensure strong security, your new password must meet the following requirements:
-
-- Length: 8–20 characters
-
-- Must include both letters and numbers
-
-- No spaces, special characters, or emoji are allowed
-
-![Change Root Password form with the password field and its requirements](/img/openadmin-screenshots/advanced/root-password-form.png#gh-light-mode-only)
-![Change Root Password form with the password field and its requirements](/img/openadmin-screenshots/advanced/root-password-form_dark.png#gh-dark-mode-only)
-
-This action updates the root user's credentials used for direct SSH access to the server. Always store your new password securely and avoid using easily guessable combinations.
-
----
-
-// File: admin/advanced/ssh
-
-# SSH Access
-
-*OpenAdmin > Server > SSH Access* allows Administrators to view and modify current server SSH configuration. The current SSH service status (active/inactive) is shown in the top-right of the page.
-
-### Basic SSH Settings
-
-![SSH Access page on the Basic tab with the SSH port, root login, password and public key authentication settings](/img/openadmin-screenshots/advanced/ssh-basic.png#gh-light-mode-only)
-![SSH Access page on the Basic tab with the SSH port, root login, password and public key authentication settings](/img/openadmin-screenshots/advanced/ssh-basic_dark.png#gh-dark-mode-only)
-
-This tab displays:
-
-- **SSH Port** - current SSH port
-- **Permit Root Login** - allow login for *root* user (`PermitRootLogin`)
-- **Password Authentication** - enable usage of passwords for ssh (`PasswordAuthentication`)
-- **Public Key Authentication** - enable usage of ssh keys (`PubkeyAuthentication`)
-
-You can change any value and click on the save button to apply.
-
-### Authorized Keys
-
-This tab is only shown when **Public Key Authentication** is enabled. Here you can view current authorized ssh keys, remove them, or add a new key.
-
-![SSH Access Authorized Keys tab listing an authorized public key with its Remove button and the field to add a new key](/img/openadmin-screenshots/advanced/ssh_server-keys.png#gh-light-mode-only)
-![SSH Access Authorized Keys tab listing an authorized public key with its Remove button and the field to add a new key](/img/openadmin-screenshots/advanced/ssh_server-keys_dark.png#gh-dark-mode-only)
-
-### Advanced
-
-Here you can edit the raw SSH configuration file: `/etc/ssh/sshd_config`
-
-![SSH Access Advanced tab with the sshd configuration editor](/img/openadmin-screenshots/advanced/ssh-advanced.png#gh-light-mode-only)
-![SSH Access Advanced tab with the sshd configuration editor](/img/openadmin-screenshots/advanced/ssh-advanced_dark.png#gh-dark-mode-only)
-
----
-
-// File: admin/advanced/crons
-
-# Cron jobs
-
-**OpenAdmin > Server > Scheduled Actions** lets Administrators view the scheduled cron tasks used by OpenPanel, modify their schedules, or enable/disable logging to the file `/var/log/openpanel-cron.log`.
-
-![Scheduler page listing OpenPanel system jobs with their cron schedule fields and command](/img/openadmin-screenshots/advanced/crons-page.png#gh-light-mode-only)
-![Scheduler page listing OpenPanel system jobs with their cron schedule fields and command](/img/openadmin-screenshots/advanced/crons-page_dark.png#gh-dark-mode-only)
-
-
-Changing schedules may cause some OpenPanel features to stop working correctly. Only adjust these settings if:
-
-- You need to fine-tune execution on servers with limited resources, or
-- You have been advised to do so by OpenPanel support.
-
-These cron jobs are essential for OpenPanel’s internal operations.
-
-If you want to add your own custom cron jobs, use the root user’s crontab.
-
----
-
-// File: admin/advanced/reboot
-
-# Server Reboot
-
-Initiate a reboot of the server. Depending on the situation, you can perform either a **graceful reboot** or a **forceful reboot**.
-
-- **Graceful Server Reboot** attempts to safely stop running processes and allow the operating system to cleanly shut down services before restarting.
-- **Forceful Server Reboot** immediately restarts the system at the kernel level and should only be used if the server is unresponsive.
-
-![Server Reboot page explaining graceful and forceful reboots, with the reboot type dropdown and the Reboot Server button](/img/openadmin-screenshots/advanced/reboot-page.png#gh-light-mode-only)
-![Server Reboot page explaining graceful and forceful reboots, with the reboot type dropdown and the Reboot Server button](/img/openadmin-screenshots/advanced/reboot-page_dark.png#gh-dark-mode-only)
-
-## Graceful
-
-A graceful reboot tells the operating system to restart normally. Services and user processes are given a chance to shut down cleanly.
-
-Command used:
-
-```bash
-reboot
-```
-
-## Forceful
-
-A forceful reboot bypasses the normal shutdown procedure and immediately reboots the kernel. This may result in **data loss** or **filesystem inconsistencies**, so it should only be used when the server is completely unresponsive.
-
-Command used:
-```bash
-echo b > /proc/sysrq-trigger
-```
-
-:::danger
-⚠️ Use with caution. This command forces an immediate reboot without syncing disks or safely stopping processes.
-:::
-
----
-
-// File: admin/advanced/swap
-
-# Swap
-
-*OpenAdmin > Server > Swap* lets Administrators view current swap usage, change the swap file allocation, and drop (clear) swap.
-
-### Current usage
-
-Shows total/used/free swap (as reported by `free -m`) and a table of every active swap device (name, type, size, used, priority, from `swapon --show`). The alert threshold shown here is the same `swap=` value used by Sentinel's own swap check.
-
-![Swap page with the current swap usage, the swap size field with Apply, and the Drop Swap button](/img/openadmin-screenshots/advanced/swap-page.png#gh-light-mode-only)
-![Swap page with the current swap usage, the swap size field with Apply, and the Drop Swap button](/img/openadmin-screenshots/advanced/swap-page_dark.png#gh-dark-mode-only)
-
-### Change allocation
-
-Recreates the managed swap file (`/swapfile` by default) at the requested size and re-enables it, adding it to `/etc/fstab` if it isn't already there. This briefly disables swap while the file is recreated.
-
-### Drop swap
-
-Runs `swapoff -a; swapon -a`, the same cleanup Sentinel performs automatically when swap usage crosses its threshold. This moves swapped-out pages back into RAM without changing the swap size.
-
----
-
-// File: admin/advanced/timezone
-
-# Server Time
-
-Use the Server Time section to update the system-wide timezone for both the host operating system and the OpenPanel user interface.
-
-Changing the timezone ensures that logs, scheduled tasks, and UI timestamps align with your desired regional time settings.
-
-![Change TimeZone page with the current timezone and the timezone dropdown](/img/openadmin-screenshots/advanced/timezone-page.png#gh-light-mode-only)
-![Change TimeZone page with the current timezone and the timezone dropdown](/img/openadmin-screenshots/advanced/timezone-page_dark.png#gh-dark-mode-only)
-
-:::info
-After changing timezone, we recommend to restart the server or at least the OpenAdmin and Cron services: `systemctl restart admin cron`.
-:::
-
----
-
-// File: admin/advanced/migrate
-
-# Migrate
-
-OpenPanel is fully OS-agnostic, running smoothly on any Linux distribution. This makes migrating the panel along with all user data from one server to another easy and efficient.
-
-Use **OpenAdmin > Server > Migrate** to transfer all server data to a fresh OpenPanel installation on a new server.
-
-![Server Migration form with the remote host, username and password fields and the Start Migration button](/img/openadmin-screenshots/advanced/migrate-form.png#gh-light-mode-only)
-![Server Migration form with the remote host, username and password fields and the Start Migration button](/img/openadmin-screenshots/advanced/migrate-form_dark.png#gh-dark-mode-only)
-
-> ⚠️ This feature is intended only for full server migrations.
-
-For detailed instructions, see the [Migrate OpenAdmin to new server guide](https://openpanel.com/docs/articles/transfers/migrate-openadmin-to-new-server/)
-
----
-
-// File: admin/advanced/cpanel
-
-# Import cPanel Account
-
-Use **OpenAdmin > Backups > Import account** to create an OpenPanel account from a cPanel, CyberPanel, or OpenPanel backup. On the import page, select the backup file and choose the backup type (**OpenPanel**, **cPanel**, or **CyberPanel**) before starting the import.
-
-![Account Imports page with the import logs and the Import Account button](/img/openadmin-screenshots/advanced/cpanel-page.png#gh-light-mode-only)
-![Account Imports page with the import logs and the Import Account button](/img/openadmin-screenshots/advanced/cpanel-page_dark.png#gh-dark-mode-only)
-
-:::info
-This menu item is only available with an **Enterprise** license and is hidden for reseller logins. A **View Logs** button on the same page links to the account import history.
-:::
-
-For detailed instructions, see the [Import cPanel backup guide](https://openpanel.com/docs/articles/transfers/import-cpanel-backup-to-openpanel/)
-
-![Import Account from backup form opened from the Import Account button](/img/openadmin-screenshots/advanced/cpanel-form.png#gh-light-mode-only)
-![Import Account from backup form opened from the Import Account button](/img/openadmin-screenshots/advanced/cpanel-form_dark.png#gh-dark-mode-only)
-
----
-
-// File: admin/advanced/demo-mode
-
-# Demo Mode
-
-Enable Demo Mode to lock both the OpenPanel and OpenAdmin interfaces in read-only mode.
-
-This mode is ideal for hosting providers who want to showcase OpenPanel in a secure, public demo environment. Users will be able to explore the UI, but no changes can be made—all actions are disabled across both the admin and user panels.
-
-Once enabled, Demo Mode cannot be turned off via the admin panel.
-To disable it, run the following command in your terminal:
-```
-opencli config update demo_mode off
-```
-
-![Demo Mode page with the option to lock OpenPanel and OpenAdmin in read-only mode and the Enable Demo Mode button](/img/openadmin-screenshots/advanced/demo-mode_server-page.png#gh-light-mode-only)
-![Demo Mode page with the option to lock OpenPanel and OpenAdmin in read-only mode and the Enable Demo Mode button](/img/openadmin-screenshots/advanced/demo-mode_server-page_dark.png#gh-dark-mode-only)
-
-Make sure to configure your demo content and secure the server before enabling this mode. 📘 [Learn more](https://dev.openpanel.com/cli/config.html#demo-mode)
-
-:::info
-This page is currently not linked in the OpenAdmin sidebar. It can still be reached directly at `/server/demo-mode`.
-:::
-
----
-
 // File: admin/advanced/resource-usage
 
 # Resource Usage
@@ -1350,45 +1092,68 @@ Click **View Usage History** to open the historical resource usage page, which c
 
 ---
 
-// File: admin/backups/system
+// File: admin/advanced/crons
 
-# System Backups
+# Cron jobs
 
-*OpenAdmin > Backups > System* backs up the server's own **configuration** — not website files, databases, or mailbox contents. It's for disaster recovery of the panel and its services, and is only available to Administrators and Users, not Resellers. It has three tabs: **Backups**, **Runs**, and **Settings**.
+**OpenAdmin > Server > Scheduled Actions** lets Administrators view the scheduled cron tasks used by OpenPanel, modify their schedules, or enable/disable logging to the file `/var/log/openpanel-cron.log`.
 
-Everything here is driven by `opencli backup`, which archives a curated set of paths under `/etc/openpanel/`, plus `/root/docker-compose.yml` and `/root/.env`, plus the mail server's `compose.yml`, `.env`, and `mailserver.env` (but not mail accounts or DKIM keys). Real user data (site files, databases, mailboxes) and large downloadable assets (CMS installer archives, the GeoIP database, the vendored WAF ruleset, etc.) are deliberately excluded.
+![Scheduler page listing OpenPanel system jobs with their cron schedule fields and command](/img/openadmin-screenshots/advanced/crons-page.png#gh-light-mode-only)
+![Scheduler page listing OpenPanel system jobs with their cron schedule fields and command](/img/openadmin-screenshots/advanced/crons-page_dark.png#gh-dark-mode-only)
 
-### Backups
 
-Lists every archive in the configured destination directory, with:
+Changing schedules may cause some OpenPanel features to stop working correctly. Only adjust these settings if:
 
-- **Name**, **Size**, **Created**
-- **Restore** — extracts the archive back over the live paths it came from. Affected services may need a restart afterward to pick up the restored config.
-- **Delete** — removes the archive file. Confirms first; cannot be undone.
+- You need to fine-tune execution on servers with limited resources, or
+- You have been advised to do so by OpenPanel support.
 
-**Run Backup Now** creates a new backup immediately (in the background, with a progress toast).
+These cron jobs are essential for OpenPanel’s internal operations.
 
-![System Backups page on the Backups tab with the Run Backup Now button](/img/openadmin-screenshots/backups/system-backups.png#gh-light-mode-only)
-![System Backups page on the Backups tab with the Run Backup Now button](/img/openadmin-screenshots/backups/system-backups_dark.png#gh-dark-mode-only)
+If you want to add your own custom cron jobs, use the root user’s crontab.
 
-### Runs
+---
 
-History of every backup/restore/delete action taken from this page — timestamp, action, success/failure, archive name, duration, and detail.
+// File: admin/advanced/terminal
 
-![Runs tab of System Backups with the log of past backup runs](/img/openadmin-screenshots/backups/system-runs.png#gh-light-mode-only)
-![Runs tab of System Backups with the log of past backup runs](/img/openadmin-screenshots/backups/system-runs_dark.png#gh-dark-mode-only)
+# Terminal
 
-### Settings
+The Web Terminal is available in **OpenAdmin**, allowing Administrators to manage their server environment directly from the browser.
 
-- **Destination** — directory where backup archives are stored. Created automatically if it doesn't exist.
-- **Retention (days)** — backups older than this are pruned after each new run. `-1` keeps every backup indefinitely.
+1. Log in to your OpenAdmin panel.
+2. Navigate to **Server > Terminal**.
+3. Use the dropdown menu or selector to choose your preferred shell type: `sh` or `bash`.
+4. The terminal interface will load, and you can begin typing commands immediately.
 
-![Settings tab of System Backups with the destination directory and retention in days](/img/openadmin-screenshots/backups/system-settings.png#gh-light-mode-only)
-![Settings tab of System Backups with the destination directory and retention in days](/img/openadmin-screenshots/backups/system-settings_dark.png#gh-dark-mode-only)
+![Web Terminal with a root shell on the server and the shell dropdown](/img/openadmin-screenshots/advanced/terminal-page.png#gh-light-mode-only)
+![Web Terminal with a root shell on the server and the shell dropdown](/img/openadmin-screenshots/advanced/terminal-page_dark.png#gh-dark-mode-only)
 
-Automatic scheduling isn't built into this page — schedule `opencli backup` to run on its own (e.g. weekly) as a [System Cron Job](/docs/admin/advanced/crons/).
+:::info 
+The web terminal is available to Super Admin and Admin (staff) logins. Reseller logins will see a 403 error on this page.
 
-Settings are stored in `/etc/openpanel/openadmin/config/backups.ini`, which `opencli backup` itself reads at run time.
+To disable the web terminal entirely, refer to [How to disable the Terminal feature in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-web-terminal/)
+:::
+
+---
+
+// File: admin/advanced/processes
+
+# Process Manager
+
+The Process Manager allows you to view and manage running system processes directly from the OpenPanel interface. It's a powerful tool for monitoring system activity and taking quick action when needed.
+
+The process table includes the following details:
+
+- **PID** – Process ID. Options are available to trace the process or kill it directly.
+- **Owner** – The user that owns the process.
+- **Priority** – The process's current scheduling priority.
+- **CPU** – Percentage of CPU usage.
+- **Memory** – Percentage of Memory usage.
+- **Command** – The command or service that launched the process.
+
+![Process Manager listing system processes with their PID, owner, priority, CPU and memory usage, command, and Trace and Kill links](/img/openadmin-screenshots/advanced/processes-list.png#gh-light-mode-only)
+![Process Manager listing system processes with their PID, owner, priority, CPU and memory usage, command, and Trace and Kill links](/img/openadmin-screenshots/advanced/processes-list_dark.png#gh-dark-mode-only)
+
+Use this tool to identify resource-heavy or suspicious processes, manage system load, or terminate unresponsive services.
 
 ---
 
@@ -1444,6 +1209,68 @@ Raw log of every `opencli docker-backup` run (`/var/log/openpanel/admin/docker-b
 ![User Backups Runs tab with the log of past backup runs](/img/openadmin-screenshots/backups/user-runs_dark.png#gh-dark-mode-only)
 
 **Run Backup Now** triggers `opencli docker-backup` immediately for every user. It's only available in **Admin Configured** mode — in Disabled mode there's no central schedule for it to act on, since each user's own settings apply instead.
+
+---
+
+// File: admin/backups/system
+
+# System Backups
+
+*OpenAdmin > Backups > System* backs up the server's own **configuration** — not website files, databases, or mailbox contents. It's for disaster recovery of the panel and its services, and is only available to Administrators and Users, not Resellers. It has three tabs: **Backups**, **Runs**, and **Settings**.
+
+Everything here is driven by `opencli backup`, which archives a curated set of paths under `/etc/openpanel/`, plus `/root/docker-compose.yml` and `/root/.env`, plus the mail server's `compose.yml`, `.env`, and `mailserver.env` (but not mail accounts or DKIM keys). Real user data (site files, databases, mailboxes) and large downloadable assets (CMS installer archives, the GeoIP database, the vendored WAF ruleset, etc.) are deliberately excluded.
+
+### Backups
+
+Lists every archive in the configured destination directory, with:
+
+- **Name**, **Size**, **Created**
+- **Restore** — extracts the archive back over the live paths it came from. Affected services may need a restart afterward to pick up the restored config.
+- **Delete** — removes the archive file. Confirms first; cannot be undone.
+
+**Run Backup Now** creates a new backup immediately (in the background, with a progress toast).
+
+![System Backups page on the Backups tab with the Run Backup Now button](/img/openadmin-screenshots/backups/system-backups.png#gh-light-mode-only)
+![System Backups page on the Backups tab with the Run Backup Now button](/img/openadmin-screenshots/backups/system-backups_dark.png#gh-dark-mode-only)
+
+### Runs
+
+History of every backup/restore/delete action taken from this page — timestamp, action, success/failure, archive name, duration, and detail.
+
+![Runs tab of System Backups with the log of past backup runs](/img/openadmin-screenshots/backups/system-runs.png#gh-light-mode-only)
+![Runs tab of System Backups with the log of past backup runs](/img/openadmin-screenshots/backups/system-runs_dark.png#gh-dark-mode-only)
+
+### Settings
+
+- **Destination** — directory where backup archives are stored. Created automatically if it doesn't exist.
+- **Retention (days)** — backups older than this are pruned after each new run. `-1` keeps every backup indefinitely.
+
+![Settings tab of System Backups with the destination directory and retention in days](/img/openadmin-screenshots/backups/system-settings.png#gh-light-mode-only)
+![Settings tab of System Backups with the destination directory and retention in days](/img/openadmin-screenshots/backups/system-settings_dark.png#gh-dark-mode-only)
+
+Automatic scheduling isn't built into this page — schedule `opencli backup` to run on its own (e.g. weekly) as a [System Cron Job](/docs/admin/advanced/crons/).
+
+Settings are stored in `/etc/openpanel/openadmin/config/backups.ini`, which `opencli backup` itself reads at run time.
+
+---
+
+// File: admin/backups/cpanel
+
+# Import cPanel Account
+
+Use **OpenAdmin > Backups > Import Account** to create an OpenPanel account from a cPanel, CyberPanel, or OpenPanel backup. On the import page, select the backup file and choose the backup type (**OpenPanel**, **cPanel**, or **CyberPanel**) before starting the import.
+
+![Account Imports page with the import logs and the Import Account button](/img/openadmin-screenshots/advanced/cpanel-page.png#gh-light-mode-only)
+![Account Imports page with the import logs and the Import Account button](/img/openadmin-screenshots/advanced/cpanel-page_dark.png#gh-dark-mode-only)
+
+:::info
+This menu item is only available with an **Enterprise** license and is hidden for reseller logins. A **View Logs** button on the same page links to the account import history.
+:::
+
+For detailed instructions, see the [Import cPanel backup guide](https://openpanel.com/docs/articles/transfers/import-cpanel-backup-to-openpanel/)
+
+![Import Account from backup form opened from the Import Account button](/img/openadmin-screenshots/advanced/cpanel-form.png#gh-light-mode-only)
+![Import Account from backup form opened from the Import Account button](/img/openadmin-screenshots/advanced/cpanel-form_dark.png#gh-dark-mode-only)
 
 ---
 
@@ -2603,6 +2430,30 @@ Emails are only available on [OpenPanel Enterprise edition](/enterprise)
 
 ---
 
+// File: admin/emails/queue
+
+# Queue
+
+View and manage mail that's queued but not yet delivered by the mailserver (Postfix).
+
+Use **OpenAdmin > Emails > Queue** to access it.
+
+## Queue Table
+
+Each row shows one queued message, including its queue ID, sender, recipient(s), size, and the reason delivery is being retried.
+
+![Email Queue page with the queued messages table and the Refresh button](/img/openadmin-screenshots/emails/queue-page.png#gh-light-mode-only)
+![Email Queue page with the queued messages table and the Refresh button](/img/openadmin-screenshots/emails/queue-page_dark.png#gh-dark-mode-only)
+
+## Actions
+
+- **Retry** – Force an immediate delivery retry, for a **selected** message or for **all** queued messages.
+- **Delete** – Permanently remove a message from the queue, for a **selected** message or for **all** queued messages.
+
+Bulk actions (retry/delete **all**) apply to the entire queue at once — use with care.
+
+---
+
 // File: admin/emails/summary
 
 # Summary Reports
@@ -2735,30 +2586,6 @@ The following parameters are used to configure the relay host settings:
 When both **RELAY_USER** and **RELAY_PASSWORD** are configured, all outbound mail traffic will require a secure connection and the credentials will be mandatory.
 
 Once configured, click the **Save Relay** button to apply the settings and begin routing outbound emails through the specified relay host.
-
----
-
-// File: admin/emails/queue
-
-# Queue
-
-View and manage mail that's queued but not yet delivered by the mailserver (Postfix).
-
-Use **OpenAdmin > Emails > Queue** to access it.
-
-## Queue Table
-
-Each row shows one queued message, including its queue ID, sender, recipient(s), size, and the reason delivery is being retried.
-
-![Email Queue page with the queued messages table and the Refresh button](/img/openadmin-screenshots/emails/queue-page.png#gh-light-mode-only)
-![Email Queue page with the queued messages table and the Refresh button](/img/openadmin-screenshots/emails/queue-page_dark.png#gh-dark-mode-only)
-
-## Actions
-
-- **Retry** – Force an immediate delivery retry, for a **selected** message or for **all** queued messages.
-- **Delete** – Permanently remove a message from the queue, for a **selected** message or for **all** queued messages.
-
-Bulk actions (retry/delete **all**) apply to the entire queue at once — use with care.
 
 ---
 
@@ -3114,28 +2941,27 @@ Also double check that the feature's **Type** isn't `Enterprise` while running o
 
 ---
 
-// File: admin/security/basic_auth
+// File: admin/security/firewall
 
-# Basic Auth
+# Firewall
 
-Enable [Basic Access Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) as an additional security layer for the OpenAdmin interface.
+OpenPanel supports [Sentinel Firewall](https://sentinelfirewall.org/) - a fork of the *ConfigServer Security and Firewall* (CSF).
 
-![Basic Authentication page with the Enable dropdown and the username and password fields](/img/openadmin-screenshots/security/basic_auth-page.png#gh-light-mode-only)
-![Basic Authentication page with the Enable dropdown and the username and password fields](/img/openadmin-screenshots/security/basic_auth-page_dark.png#gh-dark-mode-only)
+## CSF
 
-## Enable
+Firewall (CSF) UI is displayed on **OpenAdmin > Security > Firewall**.
 
-To enable Basic Auth, select **Yes** under **Enable** and click **Save settings**.
+For instructions on how to use the CSF UI, please refer to [Sentinel Firewall official documentation](https://sentinelfirewall.org/docs/usage/introduction/).
 
-To disable Basic Auth, select **No** under **Enable** and click **Save settings**.
+![Sentinel Security and Firewall (CSF) page with the firewall status and server information actions](/img/openadmin-screenshots/security/firewall-csf.png#gh-light-mode-only)
+![Sentinel Security and Firewall (CSF) page with the firewall status and server information actions](/img/openadmin-screenshots/security/firewall-csf_dark.png#gh-dark-mode-only)
 
-## Logins
 
-When Basic Auth is enabled, a username and password are required.
+## External Firewall
 
-Configure the **Username** and **Password** fields, then click **Save settings** to apply. The password must be 6-30 characters and cannot contain an apostrophe (`'`).
+Some cloud providers, like [Hetzner](https://docs.hetzner.com/robot/dedicated-server/firewall/), offer their own external firewalls. If you are using an external firewall, ensure the following ports are open for OpenPanel services to be accessible: `53` `80` `443` `2083` `2087` `32768:60999`
 
-Use the **Generate** button next to the password field to create a random strong password, and the eye icon to toggle its visibility.
+If you are [using a custom port for OpenPanel instead of the default 2083](/docs/admin/settings/general/#ports), ensure that port is open as well.
 
 ---
 
@@ -3179,30 +3005,6 @@ The rule set table includes the following columns:
 ![WAF rule sets page listing each rule set with its number of rules, status and the View and Disable actions](/img/openadmin-screenshots/security/waf-rules_dark.png#gh-dark-mode-only)
 
 Properly configuring WAF rules helps maintain a balance between strong protection and minimizing false positives.
-
----
-
-// File: admin/security/firewall
-
-# Firewall
-
-OpenPanel supports [Sentinel Firewall](https://sentinelfirewall.org/) - a fork of the *ConfigServer Security and Firewall* (CSF).
-
-## CSF
-
-Firewall (CSF) UI is displayed on **OpenAdmin > Security > Firewall**.
-
-For instructions on how to use the CSF UI, please refer to [Sentinel Firewall official documentation](https://sentinelfirewall.org/docs/usage/introduction/).
-
-![Sentinel Security and Firewall (CSF) page with the firewall status and server information actions](/img/openadmin-screenshots/security/firewall-csf.png#gh-light-mode-only)
-![Sentinel Security and Firewall (CSF) page with the firewall status and server information actions](/img/openadmin-screenshots/security/firewall-csf_dark.png#gh-dark-mode-only)
-
-
-## External Firewall
-
-Some cloud providers, like [Hetzner](https://docs.hetzner.com/robot/dedicated-server/firewall/), offer their own external firewalls. If you are using an external firewall, ensure the following ports are open for OpenPanel services to be accessible: `53` `80` `443` `2083` `2087` `32768:60999`
-
-If you are [using a custom port for OpenPanel instead of the default 2083](/docs/admin/settings/general/#ports), ensure that port is open as well.
 
 ---
 
@@ -3253,20 +3055,28 @@ Imunify allows you to scan user files and detect any malicious content.
 
 ---
 
-// File: admin/security/disable-admin
+// File: admin/security/basic_auth
 
-# Disable OpenAdmin
+# Basic Auth
 
-As an advanced security measure, OpenPanel allows you to completely disable the OpenAdmin interface and its related admin service.
+Enable [Basic Access Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) as an additional security layer for the OpenAdmin interface.
 
-By enabling this option, access to OpenAdmin will be blocked, preventing any further administrative changes through the UI. This is particularly useful for hardened production environments where direct UI access is unnecessary or unwanted.
+![Basic Authentication page with the Enable dropdown and the username and password fields](/img/openadmin-screenshots/security/basic_auth-page.png#gh-light-mode-only)
+![Basic Authentication page with the Enable dropdown and the username and password fields](/img/openadmin-screenshots/security/basic_auth-page_dark.png#gh-dark-mode-only)
 
-Navigate to **Security > Disable OpenAdmin**, then click **Confirm** to disable OpenAdmin, or **Cancel** to return to the dashboard without making changes.
+## Enable
 
-![Disable OpenAdmin page with the Cancel and Confirm buttons](/img/openadmin-screenshots/security/disable-admin-page.png#gh-light-mode-only)
-![Disable OpenAdmin page with the Cancel and Confirm buttons](/img/openadmin-screenshots/security/disable-admin-page_dark.png#gh-dark-mode-only)
+To enable Basic Auth, select **Yes** under **Enable** and click **Save settings**.
 
-Use this feature with caution — re-enabling OpenAdmin access will require manual intervention via server-side configuration. To enable access to the OpenAdmin: `opencli admin on`
+To disable Basic Auth, select **No** under **Enable** and click **Save settings**.
+
+## Logins
+
+When Basic Auth is enabled, a username and password are required.
+
+Configure the **Username** and **Password** fields, then click **Save settings** to apply. The password must be 6-30 characters and cannot contain an apostrophe (`'`).
+
+Use the **Generate** button next to the password field to create a random strong password, and the eye icon to toggle its visibility.
 
 ---
 
@@ -3328,7 +3138,7 @@ This page manages passkeys for your **own** login. To disable passkeys for a Res
 
 Block visitors whose HTTP `User-Agent` header matches an entry on a blacklist — useful for keeping out known bad bots and scrapers.
 
-Use **OpenAdmin > Security > Blacklist UA** to manage it.
+Use **OpenAdmin > Security > Blacklist UA** to manage it. The page is available to the **Super Admin** and **Admin** roles - resellers can't access it.
 
 ![Blacklist user agents page with the Enable dropdown and the list of blocked user agents](/img/openadmin-screenshots/security/blacklist-useragents-page.png#gh-light-mode-only)
 ![Blacklist user agents page with the Enable dropdown and the list of blocked user agents](/img/openadmin-screenshots/security/blacklist-useragents-page_dark.png#gh-dark-mode-only)
@@ -3342,6 +3152,23 @@ Set **Enable** to **Yes** and click **Save settings** to turn user-agent blockin
 Edit the list of blocked user-agent strings (one per line) in the text area, then click **Save settings**.
 
 The list is stored at `/etc/openpanel/openpanel/conf/blacklist_useragents.txt` on the server.
+
+---
+
+// File: admin/security/disable-admin
+
+# Disable OpenAdmin
+
+As an advanced security measure, OpenPanel allows you to completely disable the OpenAdmin interface and its related admin service.
+
+By enabling this option, access to OpenAdmin will be blocked, preventing any further administrative changes through the UI. This is particularly useful for hardened production environments where direct UI access is unnecessary or unwanted.
+
+Navigate to **Security > Disable OpenAdmin**, then click **Confirm** to disable OpenAdmin, or **Cancel** to return to the dashboard without making changes.
+
+![Disable OpenAdmin page with the Cancel and Confirm buttons](/img/openadmin-screenshots/security/disable-admin-page.png#gh-light-mode-only)
+![Disable OpenAdmin page with the Cancel and Confirm buttons](/img/openadmin-screenshots/security/disable-admin-page_dark.png#gh-dark-mode-only)
+
+Use this feature with caution — re-enabling OpenAdmin access will require manual intervention via server-side configuration. To enable access to the OpenAdmin: `opencli admin on`
 
 ---
 
@@ -3382,65 +3209,6 @@ Core services (as listed under the **Monitoring** column) are tracked and, when 
 
 ---
 
-// File: admin/services/ftp
-
-# FTP Accounts
-
-:::info
-FTP management in OpenAdmin is only available on [OpenPanel Enterprise edition](/enterprise)
-:::
-
-The *Services > FTP* page lets you review the FTP sub-accounts associated with OpenPanel users, and edit the FTP server configuration. It has two tabs: **Accounts** (`/services/ftp`) and **Configuration** (`/services/ftp/settings`).
-
-![FTP page on the Accounts tab with the FTP service status and the table of FTP accounts](/img/openadmin-screenshots/services/ftp-accounts.png#gh-light-mode-only)
-![FTP page on the Accounts tab with the FTP service status and the table of FTP accounts](/img/openadmin-screenshots/services/ftp-accounts_dark.png#gh-dark-mode-only)
-
-The FTP service must be running for the accounts list to be available.
-
-The **Accounts** tab table includes the following details:
-- **Account** – Username of the FTP account.
-- **Owner** – The OpenPanel user account that owns the FTP account, linking to that user's page.
-- **Path** – The file system path to which the FTP account has access.
-
-This list is read-only in OpenAdmin — accounts are created/removed from the OpenPanel user interface, not from here. The data shown is populated by the `opencli ftp-users` command; if no accounts are shown yet, click **Click to refresh data** to run it manually, or wait for its periodic cronjob run.
-
-The **Configuration** tab exposes the raw FTP server configuration file in an editable text area. Edit the file contents and click **Save Configuration** to apply changes.
-
-![FTP Configuration tab with the FTP server settings](/img/openadmin-screenshots/services/ftp-configuration.png#gh-light-mode-only)
-![FTP Configuration tab with the FTP server settings](/img/openadmin-screenshots/services/ftp-configuration_dark.png#gh-dark-mode-only)
-
----
-
-// File: admin/services/logs
-
-# View Log Files
-
-The *OpenAdmin > Services > View Log Files* feature enables Administrators to access and monitor logs for both OpenPanel and system services.
-
-![Log Viewer with a log file selected, its content, and the Delete and Download buttons](/img/openadmin-screenshots/services/logs-page.png#gh-light-mode-only)
-![Log Viewer with a log file selected, its content, and the Delete and Download buttons](/img/openadmin-screenshots/services/logs-page_dark.png#gh-dark-mode-only)
-
-## How to View Log Files
-
-Navigate to *Services > View Log Files*
-
-Select the log file you would like to view from the dropdown, which groups entries under **OpenAdmin Logs**, **OpenPanel Logs**, and **Other Logs**, and optionally choose the number of lines to display: 20, 100, 500, 1000 (default), 2000, or ALL.
-
-After selecting a log file, two new buttons appear under the log content: 
-- *Delete* - will empty the file contents
-- *Download* - will download the entire log file to your browser.
-
-
-## Settings
-
-This functionality supports modularity by allowing customization of the log files displayed in the viewer.
-
-List of default log files: https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/main/openadmin/config/log_paths.json
-
-To define custom log files for the viewer, click on the 'Settings' link next ot the heading. IN the form edit the json and click on 'Save'.
-
----
-
 // File: admin/services/limits
 
 # Service Limits
@@ -3472,6 +3240,36 @@ This list reflects the CPU/RAM entries currently present in `/root/.env` — the
 ---
 
 To edit limits via the terminal, modify the `/root/.env` file directly.
+
+---
+
+// File: admin/services/logs
+
+# View Log Files
+
+The *OpenAdmin > Services > Log Files* feature enables Administrators to access and monitor logs for both OpenPanel and system services.
+
+![Log Viewer with a log file selected, its content, and the Delete and Download buttons](/img/openadmin-screenshots/services/logs-page.png#gh-light-mode-only)
+![Log Viewer with a log file selected, its content, and the Delete and Download buttons](/img/openadmin-screenshots/services/logs-page_dark.png#gh-dark-mode-only)
+
+## How to View Log Files
+
+Navigate to *Services > Log Files*
+
+Select the log file you would like to view from the dropdown, which groups entries under **OpenAdmin Logs**, **OpenPanel Logs**, and **Other Logs**, and optionally choose the number of lines to display: 20, 100, 500, 1000 (default), 2000, or ALL.
+
+After selecting a log file, two new buttons appear under the log content: 
+- *Delete* - will empty the file contents
+- *Download* - will download the entire log file to your browser.
+
+
+## Settings
+
+This functionality supports modularity by allowing customization of the log files displayed in the viewer.
+
+List of default log files: https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/main/openadmin/config/log_paths.json
+
+To define custom log files for the viewer, click on the 'Settings' link next ot the heading. IN the form edit the json and click on 'Save'.
 
 ---
 
@@ -3530,6 +3328,35 @@ Every table column has click-to-sort arrows (frontend-only, no page reload), and
 
 ---
 
+// File: admin/services/ftp
+
+# FTP Accounts
+
+:::info
+FTP management in OpenAdmin is only available on [OpenPanel Enterprise edition](/enterprise)
+:::
+
+The *Services > FTP* page lets you review the FTP sub-accounts associated with OpenPanel users, and edit the FTP server configuration. It has two tabs: **Accounts** (`/services/ftp`) and **Configuration** (`/services/ftp/settings`).
+
+![FTP page on the Accounts tab with the FTP service status and the table of FTP accounts](/img/openadmin-screenshots/services/ftp-accounts.png#gh-light-mode-only)
+![FTP page on the Accounts tab with the FTP service status and the table of FTP accounts](/img/openadmin-screenshots/services/ftp-accounts_dark.png#gh-dark-mode-only)
+
+The FTP service must be running for the accounts list to be available.
+
+The **Accounts** tab table includes the following details:
+- **Account** – Username of the FTP account.
+- **Owner** – The OpenPanel user account that owns the FTP account, linking to that user's page.
+- **Path** – The file system path to which the FTP account has access.
+
+This list is read-only in OpenAdmin — accounts are created/removed from the OpenPanel user interface, not from here. The data shown is populated by the `opencli ftp-users` command; if no accounts are shown yet, click **Click to refresh data** to run it manually, or wait for its periodic cronjob run.
+
+The **Configuration** tab exposes the raw FTP server configuration file in an editable text area. Edit the file contents and click **Save Configuration** to apply changes.
+
+![FTP Configuration tab with the FTP server settings](/img/openadmin-screenshots/services/ftp-configuration.png#gh-light-mode-only)
+![FTP Configuration tab with the FTP server settings](/img/openadmin-screenshots/services/ftp-configuration_dark.png#gh-dark-mode-only)
+
+---
+
 // File: admin/settings/general
 
 # General Settings
@@ -3555,7 +3382,7 @@ To enable access to both OpenAdmin and OpenPanel through a domain name, such as 
    Use a tool such as https://www.whatsmydns.net/ to check that domain is pointed to server ip.
    
 3. Set in General Settings
-   Set the domain name in the **Hostname** field on *OpenAdmin > Settings > General Settings*.
+   Set the domain name in the **Hostname** field on *OpenAdmin > Settings > General*.
 
 :::info
 You can also [set a separate domain just for OpenPanel UI](/docs/articles/dev-experience/separate-domain-for-openpanel-access)
@@ -3568,7 +3395,7 @@ The **SSL** row below the hostname shows the current SSL status of the panel dom
 
 ## Set IP address for OpenPanel
 
-To access OpenPanel and OpenAdmin via the server's public IP address, enter the IP address in the same **Hostname** field in *OpenAdmin > Settings > General Settings* (this field accepts either a domain name or an IP address).
+To access OpenPanel and OpenAdmin via the server's public IP address, enter the IP address in the same **Hostname** field in *OpenAdmin > Settings > General* (this field accepts either a domain name or an IP address).
 
 ## Ports
 
@@ -3591,7 +3418,7 @@ To change the "/openpanel" to something else, simply set the value in the "/open
 
 ## Debugging (Dev Mode)
 
-Toggle **Dev mode** to enable verbose/detailed logging for OpenPanel and OpenAdmin, useful for error diagnostics. Logs can be viewed under *OpenAdmin > Services > View Log Files*.
+Toggle **Dev mode** to enable verbose/detailed logging for OpenPanel and OpenAdmin, useful for error diagnostics. Logs can be viewed under *OpenAdmin > Services > Log Files*.
 
 ![Debugging (Dev Mode) section of General Settings with the Dev mode toggle](/img/openadmin-screenshots/settings/general-debug.png#gh-light-mode-only)
 ![Debugging (Dev Mode) section of General Settings with the Dev mode toggle](/img/openadmin-screenshots/settings/general-debug_dark.png#gh-dark-mode-only)
@@ -3656,6 +3483,7 @@ Settings for OpenPanel user accounts:
 
 Additional display settings include:
 
+- **Menu Style:** The default menu for OpenPanel users - **Classic** (expandable groups) or **Modern** (one link per area, with that area's pages as tabs at the top of each page). Users can still switch to the other style for themselves, see [Menu Style](/docs/panel/dashboard/menu-style/). The same setting also switches OpenAdmin's own menu, right after saving.
 - **Avatar Type:** Choose between Gravatar, Letter, or Icon for user avatars.
 - **Charts Mode for Resource Usage:** Select to show 1 chart, 2 charts, or no charts on the Resource Usage page.
 - **Enable Password Reset:** Allow users to reset passwords via the login form (not recommended for security reasons).
@@ -3760,7 +3588,7 @@ Configure the following settings related to user login attempts, session managem
 
 # Defaults
 
-From **OpenAdmin > Settings > Edit User Defaults** Administrators can edit values for the `docker-compose.yml` and `.env` files used for new users.
+From **OpenAdmin > Settings > User Defaults** Administrators can edit values for the `docker-compose.yml` and `.env` files used for new users.
 
 ![Edit Defaults page with the default webserver, database, Varnish cache, PHP version and autostart services for new users](/img/openadmin-screenshots/settings/defaults-page.png#gh-light-mode-only)
 ![Edit Defaults page with the default webserver, database, Varnish cache, PHP version and autostart services for new users](/img/openadmin-screenshots/settings/defaults-page_dark.png#gh-dark-mode-only)
@@ -3900,7 +3728,7 @@ Customize options:
 * To **enable/disable Varnish for all new users** use [*OpenAdmin > Settings > User Defaults* page and *Enable Varnish Proxy* option](/docs/admin/settings/defaults/).
 * To **enable/disable Varnish for a single user** when creating their account use the [**Enable Varnish Cache** option](/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/).
 * To **change default CPU/RAM for service** use the [*OpenAdmin > Settings > User Defaults* page](/docs/admin/settings/defaults/).
-* To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Domains > Edit Domain Templates* page](/docs/admin/settings/defaults/) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
+* To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Domains > Domain Templates* page](/docs/admin/settings/defaults/) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
 * To **purge Varnish cache** refer to [How-to Guides > Purging Varnish Cache](/docs/articles/websites/purge-varnish-cache-from-terminal/)
 * To **check if Varnish is enabled for domain** refer to [How to check if Varnish Caching is enabled for a domain in OpenPanel?](https://community.openpanel.org/d/207-how-to-check-if-varnish-caching-is-enabled-for-a-domain-in-openpanel)
 
@@ -4007,7 +3835,7 @@ When disabled:
 Customize options:
 * To **configure email server** refer to [*How-to Guides > Configure Email Server*](/docs/articles/user-experience/how-to-setup-email-in-openpanel/).
 * To **configure email client** refer to [*How-to Guides > How to setup your email client*](/docs/articles/email/how-to-setup-your-email-client/).
-* To **view all email accounts on a server** use the [*OpenAdmin > Emails > Email Accounts* page](/docs/admin/emails/).
+* To **view all email accounts on a server** use the [*OpenAdmin > Emails > Accounts* page](/docs/admin/emails/).
 * To **set up fail2ban** refer to [*How-to Guides > Setup Fail2ban](/docs/articles/email/how-to-setup-fail2ban-mailserver-openpanel/).
 * To **set up Rspamd** refer to [*How-to Guides > RSPAMD GUI](/docs/articles/email/rspamd-gui-port-11334/).
 * To **set up DKIM for a domain** refer to [*How-to Guides > Setup DKIM](/docs/articles/email/how-to-setup-dkim-for-mailserver/).
@@ -4887,7 +4715,7 @@ When disabled:
 
 Customize options:
 * To **enable HSTS for a domain** refer to:  [*How-to Guides > How to Enable HSTS on a Domain in OpenPanel*](/docs/articles/domains/how-to-enable-hsts-on-a-domain-in-openpanel/)
-* To **customize default pages** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/)
+* To **customize default pages** refer to: [*OpenAdmin > Domains > Domain Templates*](/docs/admin/domains/file_templates/)
 
 ## SSL
 
@@ -4912,7 +4740,7 @@ When disabled:
 * Users can not suspend/unsuspend domains.
 
 Customize options:
-* To **customize the suspended domain template** use:  [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/#suspended-website)
+* To **customize the suspended domain template** use:  [*OpenAdmin > Domains > Domain Templates*](/docs/admin/domains/file_templates/#suspended-website)
 
 ## Raw Access Logs
 
@@ -4989,7 +4817,7 @@ When disabled:
 * Users can not access the *Domains > Edit VHosts File* page.
 
 Customize options:
-* To **customize the vhost files for Apache/Nginx/OpenLiteSpeed** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/#apache-virtualhost)
+* To **customize the vhost files for Apache/Nginx/OpenLiteSpeed** refer to: [*OpenAdmin > Domains > Domain Templates*](/docs/admin/domains/file_templates/#apache-virtualhost)
 
 
 ## Webserver
@@ -5022,7 +4850,7 @@ When enabled:
 * Users can manage DNS records.
 * 'Edit Zone' links are available for domains under the *OpenPanel > Domains* page.
 * Administrators can access the [**OpenAdmin > Domains > DNS Cluster** page](/docs/admin/domains/dns-cluster/).
-* Administrators can access the [**OpenAdmin > Domains > Edit Zone Templates** page](/docs/admin/domains/dns_templates/).
+* Administrators can access the [**OpenAdmin > Domains > Zone Templates** page](/docs/admin/domains/dns_templates/).
 * Administrators can access the [**OpenAdmin > Domains > DNS Zone Editor** page](/docs/admin/domains/dns/).
 
 When disabled:
@@ -5031,7 +4859,7 @@ When disabled:
 
 Customize options:
 * To **configure nameservers** refer to: [*How-to Guides > Configure Nameservers*](/docs/articles/domains/how-to-configure-nameservers-in-openpanel/)
-* To **customize DNS zone templates** refer to: [OpenAdmin > Domains > Edit Zone Templates](/docs/admin/domains/dns_templates/)
+* To **customize DNS zone templates** refer to: [OpenAdmin > Domains > Zone Templates](/docs/admin/domains/dns_templates/)
 * To **configure a DNS cluster** refer to:  [*How-to Guides > DNS Clustering*](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/)
 
 
@@ -5091,12 +4919,12 @@ When disabled:
 * Users can not set PHP version per domain, set default version for new domains, edit options and view installed extensions.
 
 Customize options:
-* To **set the default PHP version to be used for new users** refer to: [*OpenAdmin > Settings > Edit User Defaults > Default PHP version*](/docs/panel/php/options/#available-options)
-* To **set default cpu/memory limits for PHP versions and additional PHP options** refer to: [*OpenAdmin > Settings > Edit User Defaults > Services*](/docs/panel/php/options/#available-options)
+* To **set the default PHP version to be used for new users** refer to: [*OpenAdmin > Settings > User Defaults > Default PHP version*](/docs/panel/php/options/#available-options)
+* To **set default cpu/memory limits for PHP versions and additional PHP options** refer to: [*OpenAdmin > Settings > User Defaults > Services*](/docs/panel/php/options/#available-options)
 * To **install a PHP extension** refer to: [*How-to Guides > How to install a PHP extension in OpenPanel*](/docs/articles/websites/how-to-install-php-extensions-in-openpanel/).
 * To **increase PHP INI memory_limit** refer to: [*How-to Guides > How to set or increase PHP INI memory_limit or other values?*](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/).
 * To **set PHP settings per website** refer to: [*How-to Guides > PHP settings per website (folder)*](/docs/articles/websites/php-user-ini-files/).
-* To **edit default .INI files** refer to: **OpenAdmin > Settings > PHP Settings > Default PHP.INI Files** or edit files in `/etc/openpanel/php/ini` folder.
+* To **edit default .INI files** refer to: **OpenAdmin > Settings > PHP > Default PHP.INI Files** or edit files in `/etc/openpanel/php/ini` folder.
 
 ## PHP Options
 
@@ -5109,7 +4937,7 @@ When disabled:
 * Users can not access the *PHP Options* page.
 
 Customize options:
-* To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP Settings > Available Options** or edit */etc/openpanel/php/options.txt* file.
+* To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP > Available Options** or edit */etc/openpanel/php/options.txt* file.
 
 ## PHP Extensions
 
@@ -5919,6 +5747,186 @@ Stored in `/root/openpanel_run_on_startup` file.
 
 ---
 
+// File: admin/system/timezone
+
+# Server Time
+
+Use the Server Time section to update the system-wide timezone for both the host operating system and the OpenPanel user interface.
+
+Changing the timezone ensures that logs, scheduled tasks, and UI timestamps align with your desired regional time settings.
+
+![Change TimeZone page with the current timezone and the timezone dropdown](/img/openadmin-screenshots/advanced/timezone-page.png#gh-light-mode-only)
+![Change TimeZone page with the current timezone and the timezone dropdown](/img/openadmin-screenshots/advanced/timezone-page_dark.png#gh-dark-mode-only)
+
+:::info
+After changing timezone, we recommend to restart the server or at least the OpenAdmin and Cron services: `systemctl restart admin cron`.
+:::
+
+---
+
+// File: admin/system/root-password
+
+# Change Root Password
+
+Use **OpenAdmin > System > Root Password** to securely update the SSH password for the root user.
+
+:::info
+This page is available only to the Super Admin. Admin and Reseller logins will see a 403 error on this page.
+:::
+
+To ensure strong security, your new password must meet the following requirements:
+
+- Length: 8–20 characters
+
+- Must include both letters and numbers
+
+- No spaces, special characters, or emoji are allowed
+
+![Change Root Password form with the password field and its requirements](/img/openadmin-screenshots/advanced/root-password-form.png#gh-light-mode-only)
+![Change Root Password form with the password field and its requirements](/img/openadmin-screenshots/advanced/root-password-form_dark.png#gh-dark-mode-only)
+
+This action updates the root user's credentials used for direct SSH access to the server. Always store your new password securely and avoid using easily guessable combinations.
+
+---
+
+// File: admin/system/ssh
+
+# SSH Access
+
+*OpenAdmin > System > SSH Access* allows Administrators to view and modify current server SSH configuration. The current SSH service status (active/inactive) is shown in the top-right of the page.
+
+### Basic SSH Settings
+
+![SSH Access page on the Basic tab with the SSH port, root login, password and public key authentication settings](/img/openadmin-screenshots/advanced/ssh-basic.png#gh-light-mode-only)
+![SSH Access page on the Basic tab with the SSH port, root login, password and public key authentication settings](/img/openadmin-screenshots/advanced/ssh-basic_dark.png#gh-dark-mode-only)
+
+This tab displays:
+
+- **SSH Port** - current SSH port
+- **Permit Root Login** - allow login for *root* user (`PermitRootLogin`)
+- **Password Authentication** - enable usage of passwords for ssh (`PasswordAuthentication`)
+- **Public Key Authentication** - enable usage of ssh keys (`PubkeyAuthentication`)
+
+You can change any value and click on the save button to apply.
+
+### Authorized Keys
+
+This tab is only shown when **Public Key Authentication** is enabled. Here you can view current authorized ssh keys, remove them, or add a new key.
+
+![SSH Access Authorized Keys tab listing an authorized public key with its Remove button and the field to add a new key](/img/openadmin-screenshots/advanced/ssh_server-keys.png#gh-light-mode-only)
+![SSH Access Authorized Keys tab listing an authorized public key with its Remove button and the field to add a new key](/img/openadmin-screenshots/advanced/ssh_server-keys_dark.png#gh-dark-mode-only)
+
+### Advanced
+
+Here you can edit the raw SSH configuration file: `/etc/ssh/sshd_config`
+
+![SSH Access Advanced tab with the sshd configuration editor](/img/openadmin-screenshots/advanced/ssh-advanced.png#gh-light-mode-only)
+![SSH Access Advanced tab with the sshd configuration editor](/img/openadmin-screenshots/advanced/ssh-advanced_dark.png#gh-dark-mode-only)
+
+---
+
+// File: admin/system/reboot
+
+# Server Reboot
+
+Initiate a reboot of the server. Depending on the situation, you can perform either a **graceful reboot** or a **forceful reboot**.
+
+- **Graceful Server Reboot** attempts to safely stop running processes and allow the operating system to cleanly shut down services before restarting.
+- **Forceful Server Reboot** immediately restarts the system at the kernel level and should only be used if the server is unresponsive.
+
+![Server Reboot page explaining graceful and forceful reboots, with the reboot type dropdown and the Reboot Server button](/img/openadmin-screenshots/advanced/reboot-page.png#gh-light-mode-only)
+![Server Reboot page explaining graceful and forceful reboots, with the reboot type dropdown and the Reboot Server button](/img/openadmin-screenshots/advanced/reboot-page_dark.png#gh-dark-mode-only)
+
+## Graceful
+
+A graceful reboot tells the operating system to restart normally. Services and user processes are given a chance to shut down cleanly.
+
+Command used:
+
+```bash
+reboot
+```
+
+## Forceful
+
+A forceful reboot bypasses the normal shutdown procedure and immediately reboots the kernel. This may result in **data loss** or **filesystem inconsistencies**, so it should only be used when the server is completely unresponsive.
+
+Command used:
+```bash
+echo b > /proc/sysrq-trigger
+```
+
+:::danger
+⚠️ Use with caution. This command forces an immediate reboot without syncing disks or safely stopping processes.
+:::
+
+---
+
+// File: admin/system/swap
+
+# Swap
+
+*OpenAdmin > System > Swap* lets Administrators view current swap usage, change the swap file allocation, and drop (clear) swap.
+
+### Current usage
+
+Shows total/used/free swap (as reported by `free -m`) and a table of every active swap device (name, type, size, used, priority, from `swapon --show`). The alert threshold shown here is the same `swap=` value used by Sentinel's own swap check.
+
+![Swap page with the current swap usage, the swap size field with Apply, and the Drop Swap button](/img/openadmin-screenshots/advanced/swap-page.png#gh-light-mode-only)
+![Swap page with the current swap usage, the swap size field with Apply, and the Drop Swap button](/img/openadmin-screenshots/advanced/swap-page_dark.png#gh-dark-mode-only)
+
+### Change allocation
+
+Recreates the managed swap file (`/swapfile` by default) at the requested size and re-enables it, adding it to `/etc/fstab` if it isn't already there. This briefly disables swap while the file is recreated.
+
+### Drop swap
+
+Runs `swapoff -a; swapon -a`, the same cleanup Sentinel performs automatically when swap usage crosses its threshold. This moves swapped-out pages back into RAM without changing the swap size.
+
+---
+
+// File: admin/system/migrate
+
+# Migrate
+
+OpenPanel is fully OS-agnostic, running smoothly on any Linux distribution. This makes migrating the panel along with all user data from one server to another easy and efficient.
+
+Use **OpenAdmin > System > Migrate** to transfer all server data to a fresh OpenPanel installation on a new server.
+
+![Server Migration form with the remote host, username and password fields and the Start Migration button](/img/openadmin-screenshots/advanced/migrate-form.png#gh-light-mode-only)
+![Server Migration form with the remote host, username and password fields and the Start Migration button](/img/openadmin-screenshots/advanced/migrate-form_dark.png#gh-dark-mode-only)
+
+> ⚠️ This feature is intended only for full server migrations.
+
+For detailed instructions, see the [Migrate OpenAdmin to new server guide](https://openpanel.com/docs/articles/transfers/migrate-openadmin-to-new-server/)
+
+---
+
+// File: admin/system/demo-mode
+
+# Demo Mode
+
+Enable Demo Mode to lock both the OpenPanel and OpenAdmin interfaces in read-only mode.
+
+This mode is ideal for hosting providers who want to showcase OpenPanel in a secure, public demo environment. Users will be able to explore the UI, but no changes can be made—all actions are disabled across both the admin and user panels.
+
+Once enabled, Demo Mode cannot be turned off via the admin panel.
+To disable it, run the following command in your terminal:
+```
+opencli config update demo_mode off
+```
+
+![Demo Mode page with the option to lock OpenPanel and OpenAdmin in read-only mode and the Enable Demo Mode button](/img/openadmin-screenshots/advanced/demo-mode_server-page.png#gh-light-mode-only)
+![Demo Mode page with the option to lock OpenPanel and OpenAdmin in read-only mode and the Enable Demo Mode button](/img/openadmin-screenshots/advanced/demo-mode_server-page_dark.png#gh-dark-mode-only)
+
+Make sure to configure your demo content and secure the server before enabling this mode. 📘 [Learn more](https://dev.openpanel.com/cli/config.html#demo-mode)
+
+:::info
+This page is currently not linked in the OpenAdmin sidebar. It can still be reached directly at `/server/demo-mode`.
+:::
+
+---
+
 // File: articles/000_intro
 
 # Start Here
@@ -6316,7 +6324,7 @@ OpenPanel supports both **per-user** and **global** custom messages that can be 
 
 To display a custom message in **OpenPanel > Dashboard** for a specific user:
 
-1. Navigate to **OpenAdmin > Users > *username* > Overview**.
+1. Navigate to **OpenAdmin > Accounts > Users > *username* > Overview**.
 
    ![add message](/img/docs-content/KZBxwWJC-2025-08-14-14-50.png)
 
@@ -6431,7 +6439,7 @@ No special configuration is required from the OpenPanel side — newly added IPs
 
 To change IP address for a user from OpenAdmin:
 
-1. Navigate to **OpenAdmin → Users → *username* → Edit**.
+1. Navigate to **OpenAdmin → Accounts → Users → *username* → Edit**.
 
 2. Update the **IP Address** field with the desired dedicated IP.
 
@@ -8775,7 +8783,7 @@ To customize OpenPanel, you have the following options:
 
 ## Personalized messages
 
-Administrators can set a custom message to be displayed for any OpenPanel uer from their **OpenAdmin > Users** page.
+Administrators can set a custom message to be displayed for any OpenPanel uer from their **OpenAdmin > Accounts > Users** page.
 
 ![custom img](/img/docs-content/9CCgHGG2-2025-06-11-12-26.png)
 
@@ -8806,7 +8814,7 @@ To set a custom name visible in the OpenPanel sidebar and on login pages, enter 
 
 ## Customize Templates
 
-You can customize all templates that are displayed to users, from [OpenAdmin > Domains > Edit Domain Templates](/docs/admin/domains/file_templates/):
+You can customize all templates that are displayed to users, from [OpenAdmin > Domains > Domain Templates](/docs/admin/domains/file_templates/):
 
 - [Default Landing Page](/docs/admin/domains/file_templates/#default-page)
 - [Suspended Website Template](/docs/admin/domains/file_templates/#suspended-website)
@@ -10709,7 +10717,7 @@ Database file: `/etc/openpanel/openadmin/users.db` contians all administrator ac
 
 [Named (BIND9)](https://www.isc.org/bind/) container is used for DNS.
 
-Administrators can set custom nameservers on *OpenAdmin > OpenPanel Settings* to be used for OpenPanel websites.
+Administrators can set custom nameservers on *OpenAdmin > OpenPanel* to be used for OpenPanel websites.
 
 [ default named.conf.options` configuration file](https://github.com/stefanpejcic/openpanel-configuration/blob/main/bind9/named.conf.options)
 
@@ -11276,7 +11284,7 @@ Administrators can change the default page shown on domains without content.
 
 To customize:
 
-1. In **OpenAdmin**, go to **Domains > Edit Domain Templates**
+1. In **OpenAdmin**, go to **Domains > Domain Templates**
 2. Modify the HTML code for the default page
 
 ![Edit default page in OpenAdmin](/img/docs-content/JRx0Qm3T-2025-08-13-12-28.png)
@@ -11785,7 +11793,7 @@ However, you can temporarily disable all rules - or disable the WAF completely b
 
 - Disabling 'waf' module in OpenAdmin > Settings > Modules 
 - Changing image tag from openpanel/caddy-coraza to caddy:latest in OpenAdmin > Services > Services Limits > CADDY image.
-- Stop & Start the Web Server from OpenAdmin > Services > Services Status.
+- Stop & Start the Web Server from OpenAdmin > Services > Service Status.
 
 Or use opencli command: ```opencli waf disable```
 
@@ -11962,7 +11970,7 @@ $ dig +short TXT mail._domainkey.example.com
 
 ## 3. Restart Mailserver
 
-Currently mailserver needs to be stopped and started again in order to start signing your outgoing emails with DKIM. Navigate to **OpenAdmin > Services > Status** and click 'Stop' for mailserver, then again 'Start'.
+Currently mailserver needs to be stopped and started again in order to start signing your outgoing emails with DKIM. Navigate to **OpenAdmin > Services > Service Status** and click 'Stop' for mailserver, then again 'Start'.
 
 [![2025-07-17-15-37.png](/img/docs-content/d3hgY01F-2025-07-17-15-37.png)](/img/docs-content/d3hgY01F-2025-07-17-15-37.png)
 
@@ -12390,7 +12398,7 @@ To enable Fail2ban, navigate to **OpenAdmin > Emails > Settings** and under 'Ena
 
 ## 2. Recreate mailserver
 
-Fail2ban requires that the mailserver container is stopped, and start again in order to activate. Navigate to **OpenAdmin > Services > Status** and click 'Stop' for mailserver, then again 'Start'.
+Fail2ban requires that the mailserver container is stopped, and start again in order to activate. Navigate to **OpenAdmin > Services > Service Status** and click 'Stop' for mailserver, then again 'Start'.
 
 [![2025-07-17-15-37.png](/img/docs-content/d3hgY01F-2025-07-17-15-37.png)](/img/docs-content/d3hgY01F-2025-07-17-15-37.png)
 
@@ -13231,7 +13239,7 @@ root@server:~# opencli version
 <Tabs>
   <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
 
-To disable automatic updates, navigate to **OpenAdmin > Settings > Update Preferences** and change 'Update automatically' option to 'Never':
+To disable automatic updates, navigate to **OpenAdmin > Settings > Updates** and change 'Update automatically' option to 'Never':
 
 ![openadmin update preferences](/img/admin/openadmin_set_update_preferences.png)
 
@@ -13262,7 +13270,7 @@ opencli config update autopatch no
 <Tabs>
   <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
 
-To enable automatic updates, navigate to **OpenAdmin > Settings > Update Preferences** and change 'Update automatically' option to 'Both':
+To enable automatic updates, navigate to **OpenAdmin > Settings > Updates** and change 'Update automatically' option to 'Both':
 
 ![openadmin update preferences](/img/admin/openadmin_set_update_preferences.png)
 
@@ -13292,7 +13300,7 @@ When a new update is available, you will receive a notification in the OpenAdmin
 <Tabs>
   <TabItem value="openadmin-admin-update-now" label="With OpenAdmin" default>
 
-To manually update OpenPanel, navigate to **OpenAdmin > Settings > Update Preferences** and click on the "Update Now" button.
+To manually update OpenPanel, navigate to **OpenAdmin > Settings > Updates** and click on the "Update Now" button.
 
 NOTE: update is visible only if newer version is available.
 
@@ -14216,7 +14224,7 @@ Downgrading from the Enterprise to the Community edition will immediately remove
 To downgrade from Enterprise edition to Community:
 
 - From OpenAdmin:
-  Navigate to **OpenAdmin > License** and click on the 'Downgrade' button:
+  Navigate to **OpenAdmin > License & Support** and click on the 'Downgrade' button:
   
   ![remove license key](/img/guides/downgrade_license.png)
 
@@ -14295,7 +14303,7 @@ Follow these steps to transfer your **OpenPanel Enterprise Edition** license to 
 On the server where your license is currently activated, remove the license using one of the following methods:
 
 * **From OpenAdmin:**
-  Go to **OpenAdmin > License** and click the **Downgrade** button.
+  Go to **OpenAdmin > License & Support** and click the **Downgrade** button.
   ![Downgrade license](/img/docs-content/RSsLWmLQ-downgrade.png)
 
 * **From the Terminal:**
@@ -14331,7 +14339,7 @@ It will automatically bind to the next server where you activate it.
 Now, activate the license on your new server. You can do this in one of two ways:
 
 * **From OpenAdmin:**
-  Go to **OpenAdmin > License**, enter your license key, and click **Save key**.
+  Go to **OpenAdmin > License & Support**, enter your license key, and click **Save key**.
   ![Add license key](/img/guides/add_key.png)
 
 * **From the Terminal:**
@@ -19581,9 +19589,9 @@ For Server Administrators (OpenAdmin):
 - [Enable CSF Blocklists](/docs/articles/security/csf-blocklists/)
 - [Limiting Connections with CSF](/docs/articles/security/how-to-limit-connections-csf/)
 - [Rate-limiting failed Openpanel logins](/docs/articles/dev-experience/rate_limiting_for_openpanel/)
-- [Change SSH root user password](/docs/admin/advanced/root-password/)
-- [Change SSH port](/docs/admin/advanced/ssh/#basic-ssh-settings)
-- [Configure SSH Keys](/docs/admin/advanced/ssh/#authorized-keys)
+- [Change SSH root user password](/docs/admin/system/root-password/)
+- [Change SSH port](/docs/admin/system/ssh/#basic-ssh-settings)
+- [Configure SSH Keys](/docs/admin/system/ssh/#authorized-keys)
 - [Disable Terminal in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-web-terminal/)
 - [Disable Server Reboot in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-server-reboot/)
 - [Disable OpenAdmin access](/docs/admin/security/disable-admin/)
@@ -20915,7 +20923,7 @@ To migrate all users and files at once, please refer to the, please refer to the
 
 ### Using OpenAdmin
 
-1. Navigate to **OpenAdmin > Users**.
+1. Navigate to **OpenAdmin > Accounts > Users**.
 2. Click on the user you want to transfer.
 3. Under the **Transfer** section, fill in the remote server details:
    
@@ -21118,7 +21126,7 @@ The Email feature uses the [`docker-mailserver`](https://docker-mailserver.githu
 
 To start it:
 
-* Navigate to **OpenAdmin > Emails > Email Accounts**
+* Navigate to **OpenAdmin > Emails > Accounts**
 * Copy the command displayed on the page `opencli email-server install`
 * Paste it on Terminal and wait for the process to finish.
 
@@ -21146,7 +21154,7 @@ Restarting OpenPanel ensures that the newly enabled module and feature sets take
 
 To restart:
 
-* Go to **OpenAdmin > Services > Status**
+* Go to **OpenAdmin > Services > Service Status**
 * Click **Restart** next to **OpenPanel**
 
 ![Restart OpenPanel](/img/docs-content/pd1PdJ3V-2025-07-09-11-40.png)
@@ -21221,7 +21229,7 @@ The FTP feature uses the `vsftpd` server.
 
 To start it:
 
-* Navigate to **OpenAdmin > Services > FTP Accounts**
+* Navigate to **OpenAdmin > Services > FTP**
 * Click **Start FTP Server**
 
 ![Start FTP Server](/img/docs-content/pdMTHCNw-2025-07-09-11-35.png)
@@ -21248,7 +21256,7 @@ Restarting OpenPanel ensures that the newly enabled module and feature sets take
 
 To restart:
 
-* Go to **OpenAdmin > Services > Status**
+* Go to **OpenAdmin > Services > Service Status**
 * Click **Restart** next to **OpenPanel**
 
 ![Restart OpenPanel](/img/docs-content/pd1PdJ3V-2025-07-09-11-40.png)
@@ -21345,7 +21353,7 @@ Replace `DOMAIN_NAME` with your actual domain name.
 
 ## Step 4: Restart the FTP Service
 
-1. Navigate to **OpenAdmin → Services → Services Status**.
+1. Navigate to **OpenAdmin → Services → Service Status**.
 2. Locate the **FTP** service.
 3. Click **Stop**, then **Start** to restart the service.
 
@@ -22096,7 +22104,7 @@ Users can only modify options that have been explicitly allowed by the administr
 Administrators can manage these options in two ways:
 
 From the panel:
-[**OpenAdmin > Settings > PHP Settings**](/docs/admin/settings/php/) page.
+[**OpenAdmin > Settings > PHP**](/docs/admin/settings/php/) page.
 
 ![options.png](/img/docs-content/1zcTP8Qx-options.png)
 
@@ -22111,7 +22119,7 @@ Or via terminal:
 Administrators can configure the default php.ini files for all PHP versions.
 
 From the panel:
-[**OpenAdmin > Settings > PHP Settings**](/docs/admin/settings/php/) page.
+[**OpenAdmin > Settings > PHP**](/docs/admin/settings/php/) page.
 
 ![phpini.png](/img/docs-content/dVCpHWNV-phpini.png)
 
@@ -23018,7 +23026,7 @@ Released on April 29, 2025
 - added *capitalize_domains* feature that allows users to customize domain type case.
 - `.md` extension can now also be edit/viewed from *OpenPanel > FileManager*.
 - if a README.md file is present in the current directory on *OpenPanel > FileManager*, it will be displayed below the file list table.
-- redesigned [OpenAdmin > Advanced > SSH](/docs/admin/advanced/ssh/) page.
+- redesigned [OpenAdmin > Advanced > SSH](/docs/admin/system/ssh/) page.
 - [added PIDs limits](https://github.com/stefanpejcic/openpanel-configuration/commit/68ab55dc558365a0a115a2205a02beb559315473) to OpenPanel system containers: openpanel, mysql, clamav, redis, ftp.
 - added [notifications support](https://containrrr.dev/shoutrrr/v0.8/services/overview/) to OpenPanel user backups.
 - compact formatting for disk usage alerts on *OpenAdmin > Notifications*.
@@ -23097,7 +23105,7 @@ Released on May 6, 2025
 - added daemon.json template for new users.
 - setting custom domain for panel will now also enforce ssl/tls on mailserver, setting ip instead will enforce plain-text.
 - added *--debug* flag to [opencli domain](https://dev.openpanel.com/cli/domain.html) command.
-- added [Server Reboot](/docs/admin/advanced/reboot/) option in OpenAdmin.
+- added [Server Reboot](/docs/admin/system/reboot/) option in OpenAdmin.
 - added horizontal scroll to tables on OpenAdmin pages: CorazaWAF rules, ProcessManager, Locales, Notifications, Plans, Services Status, Email Accounts.
 
 ### 🐛 Bug Fixes

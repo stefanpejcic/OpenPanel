@@ -1,12 +1,12 @@
 ---
-sidebar_position: 10
+sidebar_position: 7
 ---
 
 # Blacklist UA
 
 Block visitors whose HTTP `User-Agent` header matches an entry on a blacklist — useful for keeping out known bad bots and scrapers.
 
-Use **OpenAdmin > Security > Blacklist UA** to manage it.
+Use **OpenAdmin > Security > Blacklist UA** to manage it. The page is available to the **Super Admin** and **Admin** roles - resellers can't access it.
 
 ![Blacklist user agents page with the Enable dropdown and the list of blocked user agents](/img/openadmin-screenshots/security/blacklist-useragents-page.png#gh-light-mode-only)
 ![Blacklist user agents page with the Enable dropdown and the list of blocked user agents](/img/openadmin-screenshots/security/blacklist-useragents-page_dark.png#gh-dark-mode-only)

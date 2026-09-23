@@ -33,7 +33,7 @@ The Email feature uses the [`docker-mailserver`](https://docker-mailserver.githu
 
 To start it:
 
-* Navigate to **OpenAdmin > Emails > Email Accounts**
+* Navigate to **OpenAdmin > Emails > Accounts**
 * Copy the command displayed on the page `opencli email-server install`
 * Paste it on Terminal and wait for the process to finish.
 
@@ -61,7 +61,7 @@ Restarting OpenPanel ensures that the newly enabled module and feature sets take
 
 To restart:
 
-* Go to **OpenAdmin > Services > Status**
+* Go to **OpenAdmin > Services > Service Status**
 * Click **Restart** next to **OpenPanel**
 
 ![Restart OpenPanel](/img/docs-content/pd1PdJ3V-2025-07-09-11-40.png)

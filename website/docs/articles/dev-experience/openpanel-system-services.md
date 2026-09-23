@@ -83,7 +83,7 @@ Database file: `/etc/openpanel/openadmin/users.db` contians all administrator ac
 
 [Named (BIND9)](https://www.isc.org/bind/) container is used for DNS.
 
-Administrators can set custom nameservers on *OpenAdmin > OpenPanel Settings* to be used for OpenPanel websites.
+Administrators can set custom nameservers on *OpenAdmin > OpenPanel* to be used for OpenPanel websites.
 
 [ default named.conf.options` configuration file](https://github.com/stefanpejcic/openpanel-configuration/blob/main/bind9/named.conf.options)
 

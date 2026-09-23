@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # SSH Access
 
-*OpenAdmin > Server > SSH Access* allows Administrators to view and modify current server SSH configuration. The current SSH service status (active/inactive) is shown in the top-right of the page.
+*OpenAdmin > System > SSH Access* allows Administrators to view and modify current server SSH configuration. The current SSH service status (active/inactive) is shown in the top-right of the page.
 
 ### Basic SSH Settings
 

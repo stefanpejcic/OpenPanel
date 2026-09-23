@@ -6,7 +6,7 @@
 <Tabs>
   <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
 
-To enable automatic updates, navigate to **OpenAdmin > Settings > Update Preferences** and change 'Update automatically' option to 'Both':
+To enable automatic updates, navigate to **OpenAdmin > Settings > Updates** and change 'Update automatically' option to 'Both':
 
 ![openadmin update preferences](/img/admin/openadmin_set_update_preferences.png)
 
