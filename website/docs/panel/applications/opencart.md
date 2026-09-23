@@ -12,7 +12,8 @@ Install and manage [OpenCart](https://www.opencart.com/) sites in an existing do
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install OpenCart**.
 
-![Install OpenCart form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/opencart-form.png)
+![Install OpenCart form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/opencart-form.png#gh-light-mode-only)
+![Install OpenCart form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/opencart-form_dark.png#gh-dark-mode-only)
 
 On the install page, configure:
 

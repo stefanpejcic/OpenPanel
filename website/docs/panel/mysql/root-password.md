@@ -8,7 +8,8 @@ This page lets you change the MySQL/MariaDB **root** user's password for your ac
 
 ## Usage
 
-![Change MySQL root password form with a new password field and a password strength bar](/img/openpanel-screenshots/mysql/root-password-form.png)
+![Change MySQL root password form with a new password field and a password strength bar](/img/openpanel-screenshots/mysql/root-password-form.png#gh-light-mode-only)
+![Change MySQL root password form with a new password field and a password strength bar](/img/openpanel-screenshots/mysql/root-password-form_dark.png#gh-dark-mode-only)
 
 1. Open **OpenPanel** and navigate to **MySQL > Change root password**.
 2. Enter the new password.

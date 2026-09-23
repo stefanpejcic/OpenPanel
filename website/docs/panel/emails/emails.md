@@ -6,7 +6,8 @@ sidebar_position: 1
 
 If the **Emails** module is enabled on the server and your user account has access, you'll see a table listing all current email accounts, the total number of accounts, a search bar, and an option to add a new account.
 
-![Email Accounts page listing mailboxes with their storage usage and the Webmail, Manage and Connect Devices buttons](/img/openpanel-screenshots/emails/emails-list.png)
+![Email Accounts page listing mailboxes with their storage usage and the Webmail, Manage and Connect Devices buttons](/img/openpanel-screenshots/emails/emails-list.png#gh-light-mode-only)
+![Email Accounts page listing mailboxes with their storage usage and the Webmail, Manage and Connect Devices buttons](/img/openpanel-screenshots/emails/emails-list_dark.png#gh-dark-mode-only)
 
 - The total number of email accounts is displayed at the top left.  
 - A search bar is available on the top right for quick filtering.
@@ -23,7 +24,8 @@ From this interface, you can view all your email accounts and their details:
 
 To create a new email account, click the **New Email** button.
 
-![Create an Email form with the domain, username, password and storage quota fields](/img/openpanel-screenshots/emails/new-form.png)
+![Create an Email form with the domain, username, password and storage quota fields](/img/openpanel-screenshots/emails/new-form.png#gh-light-mode-only)
+![Create an Email form with the domain, username, password and storage quota fields](/img/openpanel-screenshots/emails/new-form_dark.png#gh-dark-mode-only)
 
 ---
 
@@ -31,7 +33,8 @@ To create a new email account, click the **New Email** button.
 
 Clicking the **Webmail** link autologins you into an email address and opens the RoundCube Webmail client in a new tab.
 
-![Webmail, Manage and Connect Devices buttons in the row of an email account](/img/openpanel-screenshots/emails/emails-buttons.png)
+![Webmail, Manage and Connect Devices buttons in the row of an email account](/img/openpanel-screenshots/emails/emails-buttons.png#gh-light-mode-only)
+![Webmail, Manage and Connect Devices buttons in the row of an email account](/img/openpanel-screenshots/emails/emails-buttons_dark.png#gh-dark-mode-only)
 
 ---
 
@@ -43,7 +46,8 @@ Clicking **Manage** for an account opens the management screen where you can:
 - Update storage quota  
 - Suspend incoming and/or outgoing emails
 
-![Edit Email account page with storage quota, incoming and outgoing mail toggles and a password field](/img/openpanel-screenshots/emails/edit-form.png)
+![Edit Email account page with storage quota, incoming and outgoing mail toggles and a password field](/img/openpanel-screenshots/emails/edit-form.png#gh-light-mode-only)
+![Edit Email account page with storage quota, incoming and outgoing mail toggles and a password field](/img/openpanel-screenshots/emails/edit-form_dark.png#gh-dark-mode-only)
 
 ---
 
@@ -51,7 +55,8 @@ Clicking **Manage** for an account opens the management screen where you can:
 
 Click **Connect Devices** to view the email server settings for that account.
 
-![Connect Devices page with the username, incoming and outgoing servers and the IMAP and SMTP ports](/img/openpanel-screenshots/emails/connect-page.png)
+![Connect Devices page with the username, incoming and outgoing servers and the IMAP and SMTP ports](/img/openpanel-screenshots/emails/connect-page.png#gh-light-mode-only)
+![Connect Devices page with the username, incoming and outgoing servers and the IMAP and SMTP ports](/img/openpanel-screenshots/emails/connect-page_dark.png#gh-dark-mode-only)
 
 Specific guides on how to set an email client using a specific device or service:
 

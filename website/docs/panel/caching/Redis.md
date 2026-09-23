@@ -4,7 +4,8 @@ sidebar_position: 2
 
 # Redis
 
-![Redis page with the service status, TCP server and port, container resource usage and logs](/img/openpanel-screenshots/caching/redis-page.png)
+![Redis page with the service status, TCP server and port, container resource usage and logs](/img/openpanel-screenshots/caching/redis-page.png#gh-light-mode-only)
+![Redis page with the service status, TCP server and port, container resource usage and logs](/img/openpanel-screenshots/caching/redis-page_dark.png#gh-dark-mode-only)
 
 REDIS stands as a robust and persistent object cache solution, purpose-built to efficiently retain frequently accessed website data within the RAM memory.
 
@@ -16,7 +17,8 @@ You have the option to enable or disable the REDIS service container as necessar
 
 Enabling the REDIS service container will initiate the Redis container service on the default port, which is _6379_.
 
-![Redis Status row with the Click to Enable or Click to Disable button](/img/openpanel-screenshots/caching/redis-status.png)
+![Redis Status row with the Click to Enable or Click to Disable button](/img/openpanel-screenshots/caching/redis-status.png#gh-light-mode-only)
+![Redis Status row with the Click to Enable or Click to Disable button](/img/openpanel-screenshots/caching/redis-status_dark.png#gh-dark-mode-only)
 
 ## Set Memory Limits
 
@@ -24,7 +26,8 @@ Upon initialization the Redis container has default memory limits set, it is adv
 
 While the service is running, real-time resource usage (CPU, memory, network and block I/O) is displayed on this page. Click **Edit limits** to set new limits on the /containers interface, which is accessible through the user panel navigation under **Containers**.
 
-![Containers page opened from Edit limits, with the CPU and memory limits of the Redis container](/img/openpanel-screenshots/caching/redis-limits.png)
+![Containers page opened from Edit limits, with the CPU and memory limits of the Redis container](/img/openpanel-screenshots/caching/redis-limits.png#gh-light-mode-only)
+![Containers page opened from Edit limits, with the CPU and memory limits of the Redis container](/img/openpanel-screenshots/caching/redis-limits_dark.png#gh-dark-mode-only)
 
 :::info
 Modifying the memory limit will require the Redis container to be restarted to apply the new restrictions, resulting in the removal of all existing data from the cache.
@@ -71,4 +74,5 @@ To incorporate REDIS caching into your WordPress website, a WordPress plugin is 
 
 You have the option to view the REDIS service logs. By doing so, you can identify any service errors or, for instance, determine whether memory limits have been reached.
 
-![Logs section of the Redis page with the View container log button](/img/openpanel-screenshots/caching/redis-log-button.png)
+![Logs section of the Redis page with the View container log button](/img/openpanel-screenshots/caching/redis-log-button.png#gh-light-mode-only)
+![Logs section of the Redis page with the View container log button](/img/openpanel-screenshots/caching/redis-log-button_dark.png#gh-dark-mode-only)

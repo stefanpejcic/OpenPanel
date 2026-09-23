@@ -18,7 +18,8 @@ To use your own SSL certificate:
 
 Once configured, your custom certificate details will appear on the same page, and the SSL status will change to **Custom SSL**.
 
-![Configure custom SSL form with fields for the certificate and the private key](/img/openpanel-screenshots/domains/ssl-custom.png)
+![Configure custom SSL form with fields for the certificate and the private key](/img/openpanel-screenshots/domains/ssl-custom.png#gh-light-mode-only)
+![Configure custom SSL form with fields for the certificate and the private key](/img/openpanel-screenshots/domains/ssl-custom_dark.png#gh-dark-mode-only)
 
 
 ## AutoSSL
@@ -35,7 +36,8 @@ To switch **from a custom certificate back to AutoSSL**:
 
 This switches the domain back to AutoSSL and immediately attempts to generate the certificate. Once issued, it will be displayed on the same page.
 
-![SSL Status row showing Auto SSL with the Generate now button](/img/openpanel-screenshots/domains/ssl-status.png)
+![SSL Status row showing Auto SSL with the Generate now button](/img/openpanel-screenshots/domains/ssl-status.png#gh-light-mode-only)
+![SSL Status row showing Auto SSL with the Generate now button](/img/openpanel-screenshots/domains/ssl-status_dark.png#gh-dark-mode-only)
 
 
 ### Requirements
@@ -54,4 +56,5 @@ If:
 
 Then the SSL section will show **“No Certificate!”**
 
-![SSL page for a domain with the AutoSSL status, the Generate now button, and the certificate details and files](/img/openpanel-screenshots/domains/ssl-page.png)
+![SSL page for a domain with the AutoSSL status, the Generate now button, and the certificate details and files](/img/openpanel-screenshots/domains/ssl-page.png#gh-light-mode-only)
+![SSL page for a domain with the AutoSSL status, the Generate now button, and the certificate details and files](/img/openpanel-screenshots/domains/ssl-page_dark.png#gh-dark-mode-only)

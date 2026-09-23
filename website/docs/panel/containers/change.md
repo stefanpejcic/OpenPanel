@@ -23,7 +23,8 @@ To change the tag for a Docker image:
 4. Enter the **New Image Tag** in the input field.
 5. Click the **Change Tag** button to apply the change.
 
-![Change image tag for redis form with the new image tag field](/img/openpanel-screenshots/containers/change-form.png)
+![Change image tag for redis form with the new image tag field](/img/openpanel-screenshots/containers/change-form.png#gh-light-mode-only)
+![Change image tag for redis form with the new image tag field](/img/openpanel-screenshots/containers/change-form_dark.png#gh-dark-mode-only)
 
 After confirmation:
 

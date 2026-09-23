@@ -12,7 +12,8 @@ Install and manage [Moodle](https://moodle.org/) — an open-source learning man
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install Moodle**.
 
-![Install Moodle form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/moodle-form.png)
+![Install Moodle form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/moodle-form.png#gh-light-mode-only)
+![Install Moodle form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/moodle-form_dark.png#gh-dark-mode-only)
 
 On the install page, configure:
 

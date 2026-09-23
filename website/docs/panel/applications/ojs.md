@@ -12,7 +12,8 @@ Install and manage [Open Journal Systems (OJS)](https://pkp.sfu.ca/software/ojs/
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install OJS**.
 
-![Install OJS form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/ojs-form.png)
+![Install OJS form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/ojs-form.png#gh-light-mode-only)
+![Install OJS form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/ojs-form_dark.png#gh-dark-mode-only)
 
 On the install page, configure:
 

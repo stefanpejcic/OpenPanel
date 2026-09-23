@@ -17,7 +17,8 @@ Navigate to **OpenPanel > MySQL > Create User**:
 3. **Click 'Create User'**  
    Once you enter or generate username and password, click the **Create User** button to create your new MySQL user.
 
-![Create MySQL User form with username and password fields and a password strength bar](/img/openpanel-screenshots/mysql/new_user-form.png)
+![Create MySQL User form with username and password fields and a password strength bar](/img/openpanel-screenshots/mysql/new_user-form.png#gh-light-mode-only)
+![Create MySQL User form with username and password fields and a password strength bar](/img/openpanel-screenshots/mysql/new_user-form_dark.png#gh-dark-mode-only)
 
 ---
 

@@ -12,7 +12,8 @@ Containerized [Java](https://www.java.com/) applications can be created and mana
 
 To create a new Java application, navigate to **OpenPanel > AutoInstaller** and click **Setup Java Application**.
 
-![Install Java Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/java_install-form.png)
+![Install Java Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/java_install-form.png#gh-light-mode-only)
+![Install Java Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/java_install-form_dark.png#gh-dark-mode-only)
 
 On the next page, you can configure the following settings:
 

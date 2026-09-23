@@ -4,7 +4,8 @@ sidebar_position: 3
 
 # Redirects
 
-![Redirect Domain to URL form with the destination URL field and the Save Redirect button](/img/openpanel-screenshots/domains/redirects-form.png)
+![Redirect Domain to URL form with the destination URL field and the Save Redirect button](/img/openpanel-screenshots/domains/redirects-form.png#gh-light-mode-only)
+![Redirect Domain to URL form with the destination URL field and the Save Redirect button](/img/openpanel-screenshots/domains/redirects-form_dark.png#gh-dark-mode-only)
 
 If the **Domain Redirects** feature is enabled, you can create and manage domain-level redirects from the Domains page.
 

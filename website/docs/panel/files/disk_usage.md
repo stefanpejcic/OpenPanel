@@ -11,7 +11,8 @@ Disk usage refers to the amount of space occupied by the content of your website
 
 The Disk Usage Chart provides a visual representation of disk usage per directory. It allows you to quickly assess which directories are consuming the most storage space.
 
-![Disk Usage page with a table of folder sizes and a bar chart of disk usage per folder](/img/openpanel-screenshots/files/disk_usage-page.png)
+![Disk Usage page with a table of folder sizes and a bar chart of disk usage per folder](/img/openpanel-screenshots/files/disk_usage-page.png#gh-light-mode-only)
+![Disk Usage page with a table of folder sizes and a bar chart of disk usage per folder](/img/openpanel-screenshots/files/disk_usage-page_dark.png#gh-dark-mode-only)
 
 ## Browsing Directories
 

@@ -4,7 +4,8 @@ sidebar_position: 5
 
 # Edit VHosts File
 
-![VirtualHosts file editor showing the domain configuration with the Save Changes button](/img/openpanel-screenshots/domains/vhosts-editor.png)
+![VirtualHosts file editor showing the domain configuration with the Save Changes button](/img/openpanel-screenshots/domains/vhosts-editor.png#gh-light-mode-only)
+![VirtualHosts file editor showing the domain configuration with the Save Changes button](/img/openpanel-screenshots/domains/vhosts-editor_dark.png#gh-dark-mode-only)
 
 A *Virtual Host* (or *vhost*) is a domain-specific configuration file used by the web server.
 

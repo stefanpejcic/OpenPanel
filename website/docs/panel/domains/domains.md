@@ -8,7 +8,8 @@ To create a website, the first step is to [add a domain name](/docs/panel/domain
 
 If the **Domains** module is enabled on the server and your user account has access to it, you'll see a table listing all current domains, the total number of domains, a search bar, and an option to add a new domain.
 
-![Domains page listing domains with their status, document root and PHP version](/img/openpanel-screenshots/domains/domains-list.png)
+![Domains page listing domains with their status, document root and PHP version](/img/openpanel-screenshots/domains/domains-list.png#gh-light-mode-only)
+![Domains page listing domains with their status, document root and PHP version](/img/openpanel-screenshots/domains/domains-list_dark.png#gh-dark-mode-only)
 
 From this interface, you can view:
 
@@ -29,7 +30,8 @@ Depending on the features enabled on your server, the following actions are avai
 * **Suspend / Unsuspend** — if the Suspend feature is enabled
 * **Delete**
 
-![Actions menu of a domain with Edit DNS Zone, Manage WAF, Change docroot, Edit VirtualHosts, Capitalize, Suspend and Delete](/img/openpanel-screenshots/domains/domains-actions.png)
+![Actions menu of a domain with Edit DNS Zone, Manage WAF, Change docroot, Edit VirtualHosts, Capitalize, Suspend and Delete](/img/openpanel-screenshots/domains/domains-actions.png#gh-light-mode-only)
+![Actions menu of a domain with Edit DNS Zone, Manage WAF, Change docroot, Edit VirtualHosts, Capitalize, Suspend and Delete](/img/openpanel-screenshots/domains/domains-actions_dark.png#gh-dark-mode-only)
 
 In addition, if the **Redirects** feature is enabled, a dedicated **Redirect** column lets you create, edit, or delete a redirect directly from the table without opening the dropdown menu.
 
@@ -43,7 +45,8 @@ To add a new domain:
 
 Unlike other panels, OpenPanel treats all domains equally. From this single interface, you can add **primary domains**, **addon domains**, or **subdomains**.
 
-![New Domain form with the domain name and document root fields](/img/openpanel-screenshots/domains/new-form.png)
+![New Domain form with the domain name and document root fields](/img/openpanel-screenshots/domains/new-form.png#gh-light-mode-only)
+![New Domain form with the domain name and document root fields](/img/openpanel-screenshots/domains/new-form_dark.png#gh-dark-mode-only)
 
 Once added, the system will automatically attempt to issue a free [Let’s Encrypt](https://letsencrypt.org/getting-started/) SSL certificate. If successful, the certificate will be applied immediately.
 
@@ -54,7 +57,8 @@ To delete a domain:
 1. Click the **"Delete"** option from the domain's dropdown menu.
 2. A confirmation page will appear. Click **"Delete Domain"** to proceed.
 
-![Delete domain confirmation page with the Delete Domain button](/img/openpanel-screenshots/domains/delete-form.png)
+![Delete domain confirmation page with the Delete Domain button](/img/openpanel-screenshots/domains/delete-form.png#gh-light-mode-only)
+![Delete domain confirmation page with the Delete Domain button](/img/openpanel-screenshots/domains/delete-form_dark.png#gh-dark-mode-only)
 
 > If the domain is linked to active applications (e.g. [Node.js](/docs/panel/applications/nodejs), [Python](/docs/panel/applications/python) or [WP Manager](/docs/panel/applications/wordpress)), deletion will be blocked until those applications are removed.
 > This prevents accidental removal of domains tied to running websites.

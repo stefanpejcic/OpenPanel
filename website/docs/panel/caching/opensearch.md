@@ -10,7 +10,8 @@ sidebar_position: 5
 - Log analytics  
 - Real-time data exploration  
 
-![OpenSearch page with the service status, TCP server and port](/img/openpanel-screenshots/caching/opensearch-page.png)
+![OpenSearch page with the service status, TCP server and port](/img/openpanel-screenshots/caching/opensearch-page.png#gh-light-mode-only)
+![OpenSearch page with the service status, TCP server and port](/img/openpanel-screenshots/caching/opensearch-page_dark.png#gh-dark-mode-only)
 
 You can manage the OpenSearch service through **OpenPanel > Caching > OpenSearch**, enabling fast, scalable search capabilities for your applications and systems.
 

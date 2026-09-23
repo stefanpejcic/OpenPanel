@@ -4,7 +4,8 @@ sidebar_position: 21
 
 # Raw Access Logs
 
-![Domain Logs table with the timestamp, client IP, method and requested URI of each request](/img/openpanel-screenshots/domains/logs-list.png)
+![Domain Logs table with the timestamp, client IP, method and requested URI of each request](/img/openpanel-screenshots/domains/logs-list.png#gh-light-mode-only)
+![Domain Logs table with the timestamp, client IP, method and requested URI of each request](/img/openpanel-screenshots/domains/logs-list_dark.png#gh-dark-mode-only)
 
 The **Raw Access Logs** feature is available in your OpenPanel dashboard only if the **Domain Logs** module is enabled on the server and your user account has the necessary permissions.
 

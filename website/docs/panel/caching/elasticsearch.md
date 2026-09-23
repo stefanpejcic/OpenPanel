@@ -10,7 +10,8 @@ sidebar_position: 4
 - Log analytics  
 - Real-time data exploration  
 
-![ElasticSearch page with the service status, TCP server and port](/img/openpanel-screenshots/caching/elasticsearch-page.png)
+![ElasticSearch page with the service status, TCP server and port](/img/openpanel-screenshots/caching/elasticsearch-page.png#gh-light-mode-only)
+![ElasticSearch page with the service status, TCP server and port](/img/openpanel-screenshots/caching/elasticsearch-page_dark.png#gh-dark-mode-only)
 
 Use **OpenPanel > Caching > Elasticsearch** to manage the Elasticsearch service, enabling fast and scalable search functionality across your applications and systems.
 

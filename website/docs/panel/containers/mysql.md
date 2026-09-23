@@ -22,7 +22,8 @@ Before switching the database type, please ensure the following:
 - **All existing databases and users must be removed.**
 - The current mysql container must be **stopped** before the new one can be started.
 
-![Switch MySQL type page with the conditions for switching between MariaDB and MySQL](/img/openpanel-screenshots/containers/mysql-page.png)
+![Switch MySQL type page with the conditions for switching between MariaDB and MySQL](/img/openpanel-screenshots/containers/mysql-page.png#gh-light-mode-only)
+![Switch MySQL type page with the conditions for switching between MariaDB and MySQL](/img/openpanel-screenshots/containers/mysql-page_dark.png#gh-dark-mode-only)
 
 > ⚠️ If you already have databases configured, **back up all data**, remove all databases and users, then proceed with switching the mysql server.  
 > To avoid downtime, it's best to make this change **before adding any databases**.

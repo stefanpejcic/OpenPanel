@@ -12,7 +12,8 @@ Install and manage [TinyPhotoGallery](https://github.com/stefanpejcic/tinyphotog
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install TinyPhotoGallery**.
 
-![Install TinyPhotoGallery form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyphotogallery-form.png)
+![Install TinyPhotoGallery form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyphotogallery-form.png#gh-light-mode-only)
+![Install TinyPhotoGallery form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyphotogallery-form_dark.png#gh-dark-mode-only)
 
 On the install page, configure:
 

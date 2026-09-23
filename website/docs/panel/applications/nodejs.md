@@ -12,7 +12,8 @@ Containerized [Node.js](https://nodejs.org) applications can be created and mana
 
 To create a new Node.js application, navigate to **OpenPanel > AutoInstaller** and click **Setup Node.js Application**.
 
-![Auto Installer page with cards for WordPress, Joomla, Drupal, Website Builder, PrestaShop, OpenCart and other applications](/img/openpanel-screenshots/applications/autoinstaller-page.png)
+![Auto Installer page with cards for WordPress, Joomla, Drupal, Website Builder, PrestaShop, OpenCart and other applications](/img/openpanel-screenshots/applications/autoinstaller-page.png#gh-light-mode-only)
+![Auto Installer page with cards for WordPress, Joomla, Drupal, Website Builder, PrestaShop, OpenCart and other applications](/img/openpanel-screenshots/applications/autoinstaller-page_dark.png#gh-dark-mode-only)
 
 On the next page, you can configure the following settings:
 
@@ -27,7 +28,8 @@ On the next page, you can configure the following settings:
 * **CPU Cores** – Number of CPU cores allocated to the application.
 * **Memory** – Amount of memory (in GB) allocated to the application.
 
-![Install Node.js Application form with the application details, domain, startup file and advanced options](/img/openpanel-screenshots/applications/nodejs_install-form.png)
+![Install Node.js Application form with the application details, domain, startup file and advanced options](/img/openpanel-screenshots/applications/nodejs_install-form.png#gh-light-mode-only)
+![Install Node.js Application form with the application details, domain, startup file and advanced options](/img/openpanel-screenshots/applications/nodejs_install-form_dark.png#gh-dark-mode-only)
 
 After completing the form, click **Start Installation**.
 The installation process will be displayed below the form. Once complete, you’ll be redirected to the management page where you can view all your applications.
@@ -79,11 +81,13 @@ Example `package.json` file:
 
 Once your application is created, you can manage it from **OpenPanel > Site Manager**.
 
-![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list.png)
+![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list.png#gh-light-mode-only)
+![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list_dark.png#gh-dark-mode-only)
 
 Click **Manage** next to the application name to open its management page.
 
-![Node.js application page with its status, runtime version, CPU and memory limits, and Stop and Restart actions](/img/openpanel-screenshots/applications/nodejs-site.png)
+![Node.js application page with its status, runtime version, CPU and memory limits, and Stop and Restart actions](/img/openpanel-screenshots/applications/nodejs-site.png#gh-light-mode-only)
+![Node.js application page with its status, runtime version, CPU and memory limits, and Stop and Restart actions](/img/openpanel-screenshots/applications/nodejs-site_dark.png#gh-dark-mode-only)
 
 On this page, you can view important details such as:
 

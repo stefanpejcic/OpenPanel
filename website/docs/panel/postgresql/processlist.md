@@ -4,7 +4,8 @@ sidebar_position: 11
 
 # Show Processes
 
-![PostgreSQL Processes table listing the active backend processes](/img/openpanel-screenshots/postgresql/processlist-list.png)
+![PostgreSQL Processes table listing the active backend processes](/img/openpanel-screenshots/postgresql/processlist-list.png#gh-light-mode-only)
+![PostgreSQL Processes table listing the active backend processes](/img/openpanel-screenshots/postgresql/processlist-list_dark.png#gh-dark-mode-only)
 
 This interface displays all currently active PostgreSQL queries (connections) from `pg_stat_activity`.
 

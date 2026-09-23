@@ -4,7 +4,8 @@ sidebar_position: 12
 
 # Configuration
 
-![PostgreSQL Configuration page with a table of settings, editable values and the Save Changes button](/img/openpanel-screenshots/postgresql/configuration-page.png)
+![PostgreSQL Configuration page with a table of settings, editable values and the Save Changes button](/img/openpanel-screenshots/postgresql/configuration-page.png#gh-light-mode-only)
+![PostgreSQL Configuration page with a table of settings, editable values and the Save Changes button](/img/openpanel-screenshots/postgresql/configuration-page_dark.png#gh-dark-mode-only)
 
 The PostgreSQL Configuration page lets you edit low-level `postgresql.conf` settings for your database service, without needing terminal access.
 

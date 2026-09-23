@@ -4,7 +4,8 @@ sidebar_position: 4
 
 # Database Wizard
 
-![PostgreSQL Database Wizard with steps to create a database, create a user with a password, and a preview of the GRANT statement](/img/openpanel-screenshots/postgresql/wizard-form.png)
+![PostgreSQL Database Wizard with steps to create a database, create a user with a password, and a preview of the GRANT statement](/img/openpanel-screenshots/postgresql/wizard-form.png#gh-light-mode-only)
+![PostgreSQL Database Wizard with steps to create a database, create a user with a password, and a preview of the GRANT statement](/img/openpanel-screenshots/postgresql/wizard-form_dark.png#gh-dark-mode-only)
 
 The Database Wizard can be accessed on the [PostgreSQL](/docs/category/postgresql/) page by clicking the "Database Wizard" button. This tool is designed to streamline the creation of a new database, a new user, and their assignment to the database. When you initiate the database wizard, it will provide a secure, randomly generated password for the user, as well as a random username and database name. You have the flexibility to modify these options, and there is also an option to generate random values for each field.
 

@@ -25,7 +25,8 @@ Each row shows:
   - **Backups** – Jumps to the site's backup tab.
   - **Delete** – Removes the site.
 
-![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list.png)
+![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list.png#gh-light-mode-only)
+![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list_dark.png#gh-dark-mode-only)
 
 Use the **Table/Grid** toggle and column sort headers (Type, Site Name, Created, Version) to organize the list.
 
@@ -33,7 +34,8 @@ Use the **Table/Grid** toggle and column sort headers (Type, Site Name, Created,
 
 If an application was installed manually (outside Site Manager), click **Scan** to detect it. The scan looks for installation files across every supported application type on disk, repairs the database host in the detected config if it still points to `localhost` instead of the actual database container, verifies the database connection, and imports any installation it finds as a new Site Manager entry.
 
-![Scan button in Site Manager and the confirmation box that explains the scan, with Start Scan and Cancel buttons](/img/openpanel-screenshots/applications/sites-scan.png)
+![Scan button in Site Manager and the confirmation box that explains the scan, with Start Scan and Cancel buttons](/img/openpanel-screenshots/applications/sites-scan.png#gh-light-mode-only)
+![Scan button in Site Manager and the confirmation box that explains the scan, with Start Scan and Cancel buttons](/img/openpanel-screenshots/applications/sites-scan_dark.png#gh-dark-mode-only)
 
 ## Bulk Actions
 
@@ -46,4 +48,5 @@ Select multiple sites using the checkboxes to:
 
 Each bulk action asks for confirmation before running.
 
-![Site Manager with one site selected and the bulk action bar with Update, Backup, Detach and Delete buttons](/img/openpanel-screenshots/applications/sites-bulk.png)
+![Site Manager with one site selected and the bulk action bar with Update, Backup, Detach and Delete buttons](/img/openpanel-screenshots/applications/sites-bulk.png#gh-light-mode-only)
+![Site Manager with one site selected and the bulk action bar with Update, Backup, Detach and Delete buttons](/img/openpanel-screenshots/applications/sites-bulk_dark.png#gh-dark-mode-only)

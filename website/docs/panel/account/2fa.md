@@ -10,7 +10,8 @@ The Two-Factor Authentication is a recommended security feature that allows you 
 
 To enable 2FA for your account click on the 'Click to enable 2FA' button.
 
-![Two-Factor Authentication page showing 2FA as disabled with the Click to enable 2FA button](/img/openpanel-screenshots/account/2fa-page.png)
+![Two-Factor Authentication page showing 2FA as disabled with the Click to enable 2FA button](/img/openpanel-screenshots/account/2fa-page.png#gh-light-mode-only)
+![Two-Factor Authentication page showing 2FA as disabled with the Click to enable 2FA button](/img/openpanel-screenshots/account/2fa-page_dark.png#gh-dark-mode-only)
 
 A QR code will be displayed that you can scan with your phone using a selected application such as Google Authenticator. Alternatively, you can click on the 'Click here to display OTP code' link to show a code that you can manually type in or copy into the application.
 

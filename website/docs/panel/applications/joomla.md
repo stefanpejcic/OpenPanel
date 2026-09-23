@@ -12,7 +12,8 @@ Install and manage [Joomla](https://www.joomla.org/) sites in an existing domain
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install Joomla**.
 
-![Install Joomla form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/joomla-form.png)
+![Install Joomla form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/joomla-form.png#gh-light-mode-only)
+![Install Joomla form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/joomla-form_dark.png#gh-dark-mode-only)
 
 On the install page, configure:
 

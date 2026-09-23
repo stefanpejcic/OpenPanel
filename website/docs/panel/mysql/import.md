@@ -18,6 +18,7 @@ To import tables into a database, navigate to **OpenPanel > MySQL > Import**:
 3. **Upload**  
    Click the **Upload** button and wait for the import process to complete.
 
-![Import into Database form with a database dropdown and a file picker for the .sql file](/img/openpanel-screenshots/mysql/import-form.png)
+![Import into Database form with a database dropdown and a file picker for the .sql file](/img/openpanel-screenshots/mysql/import-form.png#gh-light-mode-only)
+![Import into Database form with a database dropdown and a file picker for the .sql file](/img/openpanel-screenshots/mysql/import-form_dark.png#gh-dark-mode-only)
 
 If your SQL file is larger than **1 GB**, we recommend using the **Containers > Terminal** interface instead for more reliable import handling.

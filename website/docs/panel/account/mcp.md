@@ -8,7 +8,8 @@ OpenPanel exposes an [MCP](https://modelcontextprotocol.io) server at `/mcp`. On
 
 On **Account > MCP** page in the UI, you can generate and manage tokens to be used with Claude (MCP).
 
-![MCP page with the token generator and connection snippets for Claude Code and Claude Desktop](/img/openpanel-screenshots/account/mcp-page.png)
+![MCP page with the token generator and connection snippets for Claude Code and Claude Desktop](/img/openpanel-screenshots/account/mcp-page.png#gh-light-mode-only)
+![MCP page with the token generator and connection snippets for Claude Code and Claude Desktop](/img/openpanel-screenshots/account/mcp-page_dark.png#gh-dark-mode-only)
 
 [OpenPanel API documentation](/docs/panel/api/)
 

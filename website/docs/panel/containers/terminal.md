@@ -22,11 +22,13 @@ To access the Terminal:
 3. Click on the service you want to access.
 4. The terminal window will open, allowing you to run commands inside the container.
 
-![Terminal page with the service dropdown opened, listing the running containers to connect to](/img/openpanel-screenshots/containers/terminal_server-select.png)
+![Terminal page with the service dropdown opened, listing the running containers to connect to](/img/openpanel-screenshots/containers/terminal_server-select.png#gh-light-mode-only)
+![Terminal page with the service dropdown opened, listing the running containers to connect to](/img/openpanel-screenshots/containers/terminal_server-select_dark.png#gh-dark-mode-only)
 
 You can switch the shell type between `sh` and `bash` using the selector in the top-right corner of the terminal.
 
-![Terminal connected to the apache container with a shell prompt and the shell dropdown](/img/openpanel-screenshots/containers/terminal_server-shell.png)
+![Terminal connected to the apache container with a shell prompt and the shell dropdown](/img/openpanel-screenshots/containers/terminal_server-shell.png#gh-light-mode-only)
+![Terminal connected to the apache container with a shell prompt and the shell dropdown](/img/openpanel-screenshots/containers/terminal_server-shell_dark.png#gh-dark-mode-only)
 
 ---
 

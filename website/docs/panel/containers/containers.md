@@ -28,7 +28,8 @@ You can allocate portions of these total resources to individual services.
 
 Use the **Show Columns** dropdown above the table to toggle optional columns (Block I/O, Net I/O, PIDs) on or off. Name, CPU Usage, Memory Usage, Status and Actions are shown by default.
 
-![Containers page listing services with their image, CPU and memory usage, PIDs and status](/img/openpanel-screenshots/containers/containers-list.png)
+![Containers page listing services with their image, CPU and memory usage, PIDs and status](/img/openpanel-screenshots/containers/containers-list.png#gh-light-mode-only)
+![Containers page listing services with their image, CPU and memory usage, PIDs and status](/img/openpanel-screenshots/containers/containers-list_dark.png#gh-dark-mode-only)
 
 Each row in the table represents a containerized service and displays:
 
@@ -60,13 +61,15 @@ To change CPU or Memory limits for a service:
 
 All limits of a service (CPU, memory and PIDs), along with its image, environment variables, volumes and networks, can also be changed from its **Edit** page:
 
-![Edit service form with the image tag, environment variables, CPU, memory and PID limits, volumes and networks](/img/openpanel-screenshots/containers/edit-form.png)
+![Edit service form with the image tag, environment variables, CPU, memory and PID limits, volumes and networks](/img/openpanel-screenshots/containers/edit-form.png#gh-light-mode-only)
+![Edit service form with the image tag, environment variables, CPU, memory and PID limits, volumes and networks](/img/openpanel-screenshots/containers/edit-form_dark.png#gh-dark-mode-only)
 
 ## Adding New Services
 
 To add a new Docker service (container), fill in the **Add Service** form with the required details.  
 
-![Add service form with the name, Docker image and tag, environment variables and resource limits](/img/openpanel-screenshots/containers/new-form.png)
+![Add service form with the name, Docker image and tag, environment variables and resource limits](/img/openpanel-screenshots/containers/new-form.png#gh-light-mode-only)
+![Add service form with the name, Docker image and tag, environment variables and resource limits](/img/openpanel-screenshots/containers/new-form_dark.png#gh-dark-mode-only)
 
 - **Service Name** – Unique name for the container.  
   - Must start with a letter, contain only lowercase letters and digits, and be at least 3 characters long.  

@@ -12,7 +12,8 @@ Install and manage [Flarum](https://flarum.org/) forums in an existing domain, v
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install Flarum**.
 
-![Install Flarum form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/flarum-form.png)
+![Install Flarum form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/flarum-form.png#gh-light-mode-only)
+![Install Flarum form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/flarum-form_dark.png#gh-dark-mode-only)
 
 On the install page, configure:
 

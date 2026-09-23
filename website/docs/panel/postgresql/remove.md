@@ -20,4 +20,5 @@ To remove user access from a database, navigate to **PostgreSQL > Remove User fr
    After selecting both the user and the database, click the **Remove User from Database** button.
    The user will immediately lose **all privileges** on the selected database.
 
-![Remove User from Database form with user and database dropdowns](/img/openpanel-screenshots/postgresql/remove-form.png)
+![Remove User from Database form with user and database dropdowns](/img/openpanel-screenshots/postgresql/remove-form.png#gh-light-mode-only)
+![Remove User from Database form with user and database dropdowns](/img/openpanel-screenshots/postgresql/remove-form_dark.png#gh-dark-mode-only)

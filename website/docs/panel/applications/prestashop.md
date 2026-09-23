@@ -12,7 +12,8 @@ Install and manage [PrestaShop](https://www.prestashop.com/) sites in an existin
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install PrestaShop**.
 
-![Install PrestaShop form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/prestashop-form.png)
+![Install PrestaShop form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/prestashop-form.png#gh-light-mode-only)
+![Install PrestaShop form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/prestashop-form_dark.png#gh-dark-mode-only)
 
 On the install page, configure:
 

@@ -10,11 +10,13 @@ To capitalize a domain:
 
 Navigate to **Domains** and open the **Actions** menu for the desired domain, then click on *Capitalize*.
 
-![Actions menu of a domain with Edit DNS Zone, Manage WAF, Change docroot, Edit VirtualHosts, Capitalize, Suspend and Delete](/img/openpanel-screenshots/domains/domains-actions.png)
+![Actions menu of a domain with Edit DNS Zone, Manage WAF, Change docroot, Edit VirtualHosts, Capitalize, Suspend and Delete](/img/openpanel-screenshots/domains/domains-actions.png#gh-light-mode-only)
+![Actions menu of a domain with Edit DNS Zone, Manage WAF, Change docroot, Edit VirtualHosts, Capitalize, Suspend and Delete](/img/openpanel-screenshots/domains/domains-actions_dark.png#gh-dark-mode-only)
 
 Click on any letter in the domain name to toggle its case (uppercase/lowercase).
 
-![Capitalize page with one button per letter, the capitalized letters of MyCoffeeShop.com underlined](/img/openpanel-screenshots/domains/capitalize-page.png)
+![Capitalize page with one button per letter, the capitalized letters of MyCoffeeShop.com underlined](/img/openpanel-screenshots/domains/capitalize-page.png#gh-light-mode-only)
+![Capitalize page with one button per letter, the capitalized letters of MyCoffeeShop.com underlined](/img/openpanel-screenshots/domains/capitalize-page_dark.png#gh-dark-mode-only)
 
 Once you've made your changes, click the **Save** button.
 

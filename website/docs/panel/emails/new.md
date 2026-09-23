@@ -6,7 +6,8 @@ sidebar_position: 2
 
 To create a new email account, go to **OpenPanel > Emails > Create New Account**.
 
-![Create an Email form with the domain, username, password and storage quota fields](/img/openpanel-screenshots/emails/new-form.png)
+![Create an Email form with the domain, username, password and storage quota fields](/img/openpanel-screenshots/emails/new-form.png#gh-light-mode-only)
+![Create an Email form with the domain, username, password and storage quota fields](/img/openpanel-screenshots/emails/new-form_dark.png#gh-dark-mode-only)
 
 Fill in the form:
 

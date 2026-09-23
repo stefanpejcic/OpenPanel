@@ -12,7 +12,8 @@ Install and manage [phpBB](https://www.phpbb.com/) forums in an existing domain,
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install phpBB**.
 
-![Install phpBB form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/phpbb-form.png)
+![Install phpBB form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/phpbb-form.png#gh-light-mode-only)
+![Install phpBB form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/phpbb-form_dark.png#gh-dark-mode-only)
 
 On the install page, configure:
 

@@ -6,7 +6,8 @@ sidebar_position: 2
 
 You can customize your experience by selecting your preferred language.  
 
-![Change Language page with the language dropdown showing the current locale](/img/openpanel-screenshots/account/language-page.png)
+![Change Language page with the language dropdown showing the current locale](/img/openpanel-screenshots/account/language-page.png#gh-light-mode-only)
+![Change Language page with the language dropdown showing the current locale](/img/openpanel-screenshots/account/language-page_dark.png#gh-dark-mode-only)
 
 ## Changing Your Language  
 1. Navigate to **Account > Change Language**.

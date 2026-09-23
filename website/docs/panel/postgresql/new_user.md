@@ -17,7 +17,8 @@ Navigate to **PostgreSQL > Create User**:
 3. **Click 'Create User'**
    Once you enter or generate the username and password, click the **Create User** button to create your new PostgreSQL user.
 
-![Create PostgreSQL User form with username and password fields and a password strength bar](/img/openpanel-screenshots/postgresql/new_user-form.png)
+![Create PostgreSQL User form with username and password fields and a password strength bar](/img/openpanel-screenshots/postgresql/new_user-form.png#gh-light-mode-only)
+![Create PostgreSQL User form with username and password fields and a password strength bar](/img/openpanel-screenshots/postgresql/new_user-form_dark.png#gh-dark-mode-only)
 
 ---
 

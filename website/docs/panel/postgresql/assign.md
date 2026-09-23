@@ -20,4 +20,5 @@ To assign an existing user to a database, navigate to **PostgreSQL > Assign User
    After selecting both user and database, click the **Assign User to Database** button.
    The user will be granted **all privileges** on the selected database.
 
-![Assign User to Database form with user and database dropdowns](/img/openpanel-screenshots/postgresql/assign-form.png)
+![Assign User to Database form with user and database dropdowns](/img/openpanel-screenshots/postgresql/assign-form.png#gh-light-mode-only)
+![Assign User to Database form with user and database dropdowns](/img/openpanel-screenshots/postgresql/assign-form_dark.png#gh-dark-mode-only)

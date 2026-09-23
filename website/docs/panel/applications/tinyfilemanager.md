@@ -12,7 +12,8 @@ Install and manage [TinyFileManager](https://github.com/prasathmani/tinyfilemana
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install TinyFileManager**.
 
-![Install TinyFileManager form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyfilemanager-form.png)
+![Install TinyFileManager form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyfilemanager-form.png#gh-light-mode-only)
+![Install TinyFileManager form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyfilemanager-form_dark.png#gh-dark-mode-only)
 
 On the install page, configure:
 

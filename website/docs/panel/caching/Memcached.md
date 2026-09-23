@@ -4,7 +4,8 @@ sidebar_position: 3
 
 # Memcached
 
-![Memcached page with the service status, TCP server and port, container resource usage and logs](/img/openpanel-screenshots/caching/memcached-page.png)
+![Memcached page with the service status, TCP server and port, container resource usage and logs](/img/openpanel-screenshots/caching/memcached-page.png#gh-light-mode-only)
+![Memcached page with the service status, TCP server and port, container resource usage and logs](/img/openpanel-screenshots/caching/memcached-page_dark.png#gh-dark-mode-only)
 
 Memcached is a high-performance, distributed memory caching system. It is often used to speed up dynamic database-driven websites and applications by caching data in memory.
 
@@ -16,7 +17,8 @@ You have the options to enable or disable the Memcached service as needed. Disab
 
 Enabling the Memcached service will start the service using the default Memcached port, which is _11211_.
 
-![Memcached Status row with the Click to Enable or Click to Disable button](/img/openpanel-screenshots/caching/memcached-status.png)
+![Memcached Status row with the Click to Enable or Click to Disable button](/img/openpanel-screenshots/caching/memcached-status.png#gh-light-mode-only)
+![Memcached Status row with the Click to Enable or Click to Disable button](/img/openpanel-screenshots/caching/memcached-status_dark.png#gh-dark-mode-only)
 
 ## Set Memory Limits
 
@@ -28,7 +30,8 @@ While the service is running, real-time resource usage (CPU, memory, network and
 Changing the memory limit will necessitate the service to restart to apply the new restrictions, resulting in the removal of all existing cache data.
 :::
 
-![Containers page opened from Edit limits, with the CPU and memory limits of the Memcached container](/img/openpanel-screenshots/caching/memcached-limits.png)
+![Containers page opened from Edit limits, with the CPU and memory limits of the Memcached container](/img/openpanel-screenshots/caching/memcached-limits.png#gh-light-mode-only)
+![Containers page opened from Edit limits, with the CPU and memory limits of the Memcached container](/img/openpanel-screenshots/caching/memcached-limits_dark.png#gh-dark-mode-only)
 
 ## Connect to Memcached
 
@@ -71,5 +74,6 @@ To implement Memcached caching for your WordPress website, you'll need a dedicat
 
 You have the option to access the Memcached service logs. By doing so, you can identify any service errors or check for memory usage and limits.
 
-![Logs section of the Memcached page with the View container log button](/img/openpanel-screenshots/caching/memcached-log-button.png)
+![Logs section of the Memcached page with the View container log button](/img/openpanel-screenshots/caching/memcached-log-button.png#gh-light-mode-only)
+![Logs section of the Memcached page with the View container log button](/img/openpanel-screenshots/caching/memcached-log-button_dark.png#gh-dark-mode-only)
 

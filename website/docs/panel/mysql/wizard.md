@@ -4,7 +4,8 @@ sidebar_position: 3
 
 # Database Wizard
 
-![Database Wizard with steps to create a database, create a user with a password, and a preview of the GRANT statement](/img/openpanel-screenshots/mysql/wizard-form.png)
+![Database Wizard with steps to create a database, create a user with a password, and a preview of the GRANT statement](/img/openpanel-screenshots/mysql/wizard-form.png#gh-light-mode-only)
+![Database Wizard with steps to create a database, create a user with a password, and a preview of the GRANT statement](/img/openpanel-screenshots/mysql/wizard-form_dark.png#gh-dark-mode-only)
 
 The Database Wizard can be accessed on the [MySQL](/docs/category/mysql/) page by clicking the "Database Wizard" button. This tool is designed to streamline the creation of a new database, a new user, and their assignment to the database with **all privileges**.
 

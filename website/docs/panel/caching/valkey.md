@@ -4,7 +4,8 @@ sidebar_position: 1
 
 # Valkey
 
-![Valkey page with the service status, TCP server and port](/img/openpanel-screenshots/caching/valkey-page.png)
+![Valkey page with the service status, TCP server and port](/img/openpanel-screenshots/caching/valkey-page.png#gh-light-mode-only)
+![Valkey page with the service status, TCP server and port](/img/openpanel-screenshots/caching/valkey-page_dark.png#gh-dark-mode-only)
 
 Valkey is a high-performance, open-source in-memory key–value store designed as a community-driven fork of Redis for fast caching and data structure operations.
 
@@ -16,7 +17,8 @@ You have the option to enable or disable the Valkey service container as necessa
 
 Enabling the Valkey service container will initiate the Valkey container service on the default port, which is _6379_.
 
-![Valkey Status row with the Click to Enable or Click to Disable button](/img/openpanel-screenshots/caching/valkey-status.png)
+![Valkey Status row with the Click to Enable or Click to Disable button](/img/openpanel-screenshots/caching/valkey-status.png#gh-light-mode-only)
+![Valkey Status row with the Click to Enable or Click to Disable button](/img/openpanel-screenshots/caching/valkey-status_dark.png#gh-dark-mode-only)
 
 ## Set Memory Limits
 

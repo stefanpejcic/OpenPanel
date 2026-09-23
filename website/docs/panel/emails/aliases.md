@@ -6,7 +6,8 @@ sidebar_position: 5
 
 An alias forwards mail from a non-existing address to one or more destinations. Recipients can be local or external.
 
-![Aliases page listing alias addresses and the addresses they deliver to](/img/openpanel-screenshots/emails/aliases-list.png)
+![Aliases page listing alias addresses and the addresses they deliver to](/img/openpanel-screenshots/emails/aliases-list.png#gh-light-mode-only)
+![Aliases page listing alias addresses and the addresses they deliver to](/img/openpanel-screenshots/emails/aliases-list_dark.png#gh-dark-mode-only)
 
 Aliases are managed via Postfix. Each alias has one source address and one or more destination addresses. Mail sent to the alias is forwarded to all configured destinations: the alias itself does not store any mail.
 
@@ -24,7 +25,8 @@ Aliases are managed via Postfix. Each alias has one source address and one or mo
 
 4. Click **Create Alias**.
 
-![Create an Alias form with the domain, alias address and destination address fields](/img/openpanel-screenshots/emails/aliases_new-form.png)
+![Create an Alias form with the domain, alias address and destination address fields](/img/openpanel-screenshots/emails/aliases_new-form.png#gh-light-mode-only)
+![Create an Alias form with the domain, alias address and destination address fields](/img/openpanel-screenshots/emails/aliases_new-form_dark.png#gh-dark-mode-only)
 
 The destination can be any valid email address, either on this server or external.
 
@@ -36,4 +38,5 @@ Click **Manage** next to any alias to open its detail page. From there you can:
 - **Remove a destination**: click **Remove** next to any destination. If all destinations are removed the alias stops delivering mail.
 - **Delete the alias**: permanently removes the alias address and all its destinations. This cannot be undone.
 
-![Manage alias page listing its destination addresses with Remove buttons and a field to add a destination](/img/openpanel-screenshots/emails/aliases_manage-page.png)
+![Manage alias page listing its destination addresses with Remove buttons and a field to add a destination](/img/openpanel-screenshots/emails/aliases_manage-page.png#gh-light-mode-only)
+![Manage alias page listing its destination addresses with Remove buttons and a field to add a destination](/img/openpanel-screenshots/emails/aliases_manage-page_dark.png#gh-dark-mode-only)

@@ -22,7 +22,8 @@ Before switching the web server, please ensure the following:
 - **All existing domains must be removed.**
 - The current web server container must be **stopped** before the new one can be started.
 
-![Switch web server page with the conditions for switching to another web server](/img/openpanel-screenshots/containers/webserver-page.png)
+![Switch web server page with the conditions for switching to another web server](/img/openpanel-screenshots/containers/webserver-page.png#gh-light-mode-only)
+![Switch web server page with the conditions for switching to another web server](/img/openpanel-screenshots/containers/webserver-page_dark.png#gh-dark-mode-only)
 
 > ⚠️ If you already have domains configured, **back up all configurations**, remove all domains one by one, then proceed with switching the web server.  
 > To avoid downtime, it's best to make this change **before adding any domains**.

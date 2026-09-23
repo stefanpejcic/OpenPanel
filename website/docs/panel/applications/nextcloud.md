@@ -12,7 +12,8 @@ Install and manage [Nextcloud](https://nextcloud.com/) sites in an existing doma
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install Nextcloud**.
 
-![Install Nextcloud form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/nextcloud-form.png)
+![Install Nextcloud form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/nextcloud-form.png#gh-light-mode-only)
+![Install Nextcloud form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/nextcloud-form_dark.png#gh-dark-mode-only)
 
 On the install page, configure:
 

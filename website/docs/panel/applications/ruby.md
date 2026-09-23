@@ -12,7 +12,8 @@ Containerized [Ruby](https://www.ruby-lang.org/) applications can be created and
 
 To create a new Ruby application, navigate to **OpenPanel > AutoInstaller** and click **Setup Ruby Application**.
 
-![Install Ruby Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/ruby_install-form.png)
+![Install Ruby Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/ruby_install-form.png#gh-light-mode-only)
+![Install Ruby Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/ruby_install-form_dark.png#gh-dark-mode-only)
 
 On the next page, you can configure the following settings:
 

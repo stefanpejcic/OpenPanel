@@ -4,7 +4,8 @@ sidebar_position: 10
 
 # Remote PostgreSQL
 
-![Remote PostgreSQL Access page showing remote access as Disabled with the Enable Remote PostgreSQL Access button](/img/openpanel-screenshots/postgresql/remote-page.png)
+![Remote PostgreSQL Access page showing remote access as Disabled with the Enable Remote PostgreSQL Access button](/img/openpanel-screenshots/postgresql/remote-page.png#gh-light-mode-only)
+![Remote PostgreSQL Access page showing remote access as Disabled with the Enable Remote PostgreSQL Access button](/img/openpanel-screenshots/postgresql/remote-page_dark.png#gh-dark-mode-only)
 
 Remote PostgreSQL access gives you the ability to connect to a PostgreSQL database on this server from another (remote) device or location over the internet.
 
@@ -30,7 +31,8 @@ Once enabled, the page will show two sets of connection details:
 - **Remote** - the server IP and port to use when connecting **from a remote server** over the internet.
 - **Local** - the internal hostname (`postgres`) and default port (`5432`) to use when connecting **from a local server** inside the same account.
 
-![Remote and Local PostgreSQL connection details with the server address and port for each](/img/openpanel-screenshots/postgresql/remote-connection.png)
+![Remote and Local PostgreSQL connection details with the server address and port for each](/img/openpanel-screenshots/postgresql/remote-connection.png#gh-light-mode-only)
+![Remote and Local PostgreSQL connection details with the server address and port for each](/img/openpanel-screenshots/postgresql/remote-connection_dark.png#gh-dark-mode-only)
 
 :::info
 The remote port is unique to your PostgreSQL instance. Avoid using the standard port `5432` for remote access, as it will not function.
@@ -85,4 +87,5 @@ pg_close($conn);
 
 If you wish to disable access, simply click on the "Disable Remote PostgreSQL Access" button, and it will immediately deactivate remote access in your PostgreSQL configuration. Please be aware that this action will also necessitate a PostgreSQL service restart to apply the new setting.
 
-![Remote access Status row showing Disabled with the Click to Enable button](/img/openpanel-screenshots/postgresql/remote-status.png)
+![Remote access Status row showing Disabled with the Click to Enable button](/img/openpanel-screenshots/postgresql/remote-status.png#gh-light-mode-only)
+![Remote access Status row showing Disabled with the Click to Enable button](/img/openpanel-screenshots/postgresql/remote-status_dark.png#gh-dark-mode-only)

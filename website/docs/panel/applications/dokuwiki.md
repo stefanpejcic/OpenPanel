@@ -12,7 +12,8 @@ Install and manage [DokuWiki](https://www.dokuwiki.org/) wikis in an existing do
 
 Navigate to **OpenPanel > AutoInstaller** and click **Install DokuWiki**.
 
-![Install DokuWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/dokuwiki-form.png)
+![Install DokuWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/dokuwiki-form.png#gh-light-mode-only)
+![Install DokuWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/dokuwiki-form_dark.png#gh-dark-mode-only)
 
 On the install page, configure:
 

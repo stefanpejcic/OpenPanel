@@ -18,7 +18,8 @@ Go to **OpenPanel > Emails > Email Deliverability** to see a table of all your d
 | **DMARC** | Status of the `_dmarc` DMARC TXT record |
 | **Options** | **Details** button, opens the full record comparison for that domain |
 
-![Email Deliverability overview listing domains with the status of their email DNS records](/img/openpanel-screenshots/emails/deliverability_list-list.png)
+![Email Deliverability overview listing domains with the status of their email DNS records](/img/openpanel-screenshots/emails/deliverability_list-list.png#gh-light-mode-only)
+![Email Deliverability overview listing domains with the status of their email DNS records](/img/openpanel-screenshots/emails/deliverability_list-list_dark.png#gh-dark-mode-only)
 
 Records are checked live via DNS lookup, so each row briefly shows "Checking..." before the status badge loads.
 
@@ -33,7 +34,8 @@ Records are checked live via DNS lookup, so each row briefly shows "Checking..."
 
 ## Viewing record details
 
-![Email Deliverability details for a domain comparing the current and expected SPF, DKIM and DMARC records](/img/openpanel-screenshots/emails/deliverability-page.png)
+![Email Deliverability details for a domain comparing the current and expected SPF, DKIM and DMARC records](/img/openpanel-screenshots/emails/deliverability-page.png#gh-light-mode-only)
+![Email Deliverability details for a domain comparing the current and expected SPF, DKIM and DMARC records](/img/openpanel-screenshots/emails/deliverability-page_dark.png#gh-dark-mode-only)
 
 Click **Details** next to a domain to see, for each of SPF, DKIM, and DMARC:
 
