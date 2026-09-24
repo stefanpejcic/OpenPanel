@@ -10,6 +10,17 @@ opencli sentinel
 
 ![sentinel openpanel cli](/img/docs-content/kg56D2x2-sentinel-openpaenl.png)
 
+Additional flags:
+
+- `--startup` - run the actions performed after a server reboot: start stopped containers for root and all users and send the reboot notification.
+- `--report` - send the *Daily Usage Report* email (if email alerts are enabled).
+- `--action=<name> --title=<title> --message=<message>` - log a custom notification to OpenAdmin > Notifications (and email/webhook) if notifications are enabled for that action.
+
+Example:
+```bash
+opencli sentinel --action=admin_api --title="OpenAdmin API is on" --message="API access is now on."
+```
+
 
 <details>
   <summary>Example email notifications</summary>

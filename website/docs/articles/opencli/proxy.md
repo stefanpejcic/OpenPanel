@@ -9,13 +9,12 @@ opencli proxy
 
 Set `/something` on every domain to redirect to OpenPanel interface:
 ```bash
-opencli domain set something
+opencli proxy set /something
 ```
 
 Switch back to the default `/openpanel`:
 ```bash
-opencli domain set default
+opencli proxy default
 ```
 
-
-You can also pass `--no-restart` flag to avoid interrupting the Caddy or OpenPanel services.
+The OpenPanel service is restarted in the background to apply the change. Add `--no-restart` to skip the restart.

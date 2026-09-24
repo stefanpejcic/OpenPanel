@@ -18,7 +18,7 @@ Domain 'pejcic.rs' (owned by user: stefan) uses PHP version: php8.1
 
 ### Change version for a domain
 
-To change a PHP version for a domain name run the `domain` script with `--update` flag::
+To change a PHP version for a domain name use the `--update` flag:
 
 ```bash
 opencli php-domain <DOMAIN-NAME> --update <PHP-VERSION>
@@ -70,7 +70,7 @@ PHP version for user 'stefan' updated to: 8.1
 To list all available PHP versions for a user, grep 'php-fpm' in docker-compose.yml file for the user:
 
 ```bash
-grep php-fpm- /home/ <USERNAME>/docker-compose.yml
+grep php-fpm- /home/<USERNAME>/docker-compose.yml
 ```
 
 
@@ -99,4 +99,8 @@ Example:
     container_name: php-fpm-8.3
   php-fpm-8.4:
     container_name: php-fpm-8.4
+  php-fpm-8.5:
+    container_name: php-fpm-8.5
 ```
+
+To add PHP versions that are newer than the user's `docker-compose.yml` file, run [`opencli update --php`](/docs/articles/opencli/update/#php).

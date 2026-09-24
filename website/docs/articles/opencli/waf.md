@@ -24,6 +24,11 @@ To completely disable the WAF for all existing domains and prevent it from being
 opencli waf disable
 ```
 
+Add `-y` to skip the confirmation prompt:
+```bash
+opencli waf disable -y
+```
+
 
 
 ## Domain
@@ -220,4 +225,12 @@ root@apolo2:/home/pcx3# opencli waf stats request
      324 GET /.git/HEAD HTTP/1.1
      301 POST /wp-comments-post.php HTTP/1.1
      214 POST //xmlrpc.php HTTP/2.0
+```
+
+## Count
+
+Display total number of records in the WAF audit log:
+
+```bash
+opencli waf count
 ```

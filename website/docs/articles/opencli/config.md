@@ -23,12 +23,12 @@ opencli config update <OPTION> <NEW-VALUE>
 
 Example:
 ```bash
-opencli config update api on nesto.rs
+opencli config update api on
 Updated api to on
 ```
 
 :::info
-To apply the new settings, OpenPanel UI willl be restarted if needed.
+To apply the new setting, the OpenPanel UI container is restarted, except for these options: `email`, `autoupdate`, `autopatch`, `key`, `max_cpu`, `max_ram`.
 :::
 
 ## Available Options
@@ -43,6 +43,32 @@ Currently available configuration options:
 
 ```bash
 logo=https://http.cat/images/100.jpg
+```
+
+### `favicon`
+URL of a favicon to be displayed on all OpenPanel pages.
+
+**Check current value**:
+```bash
+opencli config get favicon
+```
+
+**Set new value**:
+```bash
+opencli config update favicon https://example.com/favicon.ico
+```
+
+### `dir`
+Text direction of the OpenPanel interface: `ltr` (left-to-right) or `rtl` (right-to-left). Default is `ltr`.
+
+**Check current value**:
+```bash
+opencli config get dir
+```
+
+**Set new value**:
+```bash
+opencli config update dir rtl
 ```
 
 ### brand_name
@@ -69,12 +95,7 @@ max_login_records=20
 
 ### default_php_version
 
-`default_php_version` sets the PHP version used for new accounts. Default value is 8.3
-
-```bash
-default_php_version=8.3
-```
-
+The default PHP version for new users is no longer set in `openpanel.config`. It is set with `DEFAULT_PHP_VERSION` in the `.env` template for new users: `/etc/openpanel/docker/compose/1.0/.env`. To change it for an existing user, use [`opencli php-default`](/docs/articles/opencli/php/#change-the-default-version).
 
 ### domains_per_page
 
@@ -282,6 +303,166 @@ ns4=ns4.openpanel.com
 In OpenPanel version 0.1.5, we implemented the Modules feature, which, by default, loads only the essential modules. Administrators also have the option to selectively disable modules they do not require.
 
 
+### `permit_subdomain_sharing`
+If set to `yes`, users can add subdomains of domains that another user owns. Default is `no`.
+
+**Check current value**:
+```bash
+opencli config get permit_subdomain_sharing
+```
+
+**Set new value**:
+```bash
+opencli config update permit_subdomain_sharing yes
+```
+
+### `email`
+Administrator email address used for notifications. Also set as `LF_ALERT_TO` in the CSF configuration.
+
+**Check current value**:
+```bash
+opencli config get email
+```
+
+**Set new value**:
+```bash
+opencli config update email admin@example.com
+```
+
+### `password_strength`
+Minimum password strength (`1`-`100`) for all password fields in OpenPanel: account, FTP, emails, databases. Default is `50`.
+
+**Check current value**:
+```bash
+opencli config get password_strength
+```
+
+**Set new value**:
+```bash
+opencli config update password_strength 70
+```
+
+### `email_plaintext_passwords`
+If set to `yes`, the welcome email sent with `opencli user-add --send-email` includes the password in plain text. If `no`, the password is replaced with `********`. Default is `no`.
+
+**Check current value**:
+```bash
+opencli config get email_plaintext_passwords
+```
+
+**Set new value**:
+```bash
+opencli config update email_plaintext_passwords yes
+```
+
+### `validate_ip_address_cookie`
+When enabled (`yes`), a session cookie is rejected if the request's IP address doesn't match the IP address it was issued to. Default is `yes`.
+
+**Check current value**:
+```bash
+opencli config get validate_ip_address_cookie
+```
+
+**Set new value**:
+```bash
+opencli config update validate_ip_address_cookie no
+```
+
+### `key`
+The OpenPanel Enterprise license key. Use [`opencli license`](/docs/articles/opencli/license/) to add, verify or delete the key instead of setting it directly.
+
+**Check current value**:
+```bash
+opencli config get key
+```
+
+**Set new value**:
+```bash
+opencli config update key enterprise-XXXXXXXXXX
+```
+
+### Captcha
+
+Captcha for the OpenPanel login and signup forms.
+
+### `captcha_provider`
+Captcha provider to use: `none` (disabled), `google` (Google reCAPTCHA), `turnstile` (Cloudflare Turnstile) or `custom`. Default is empty (disabled).
+
+**Check current value**:
+```bash
+opencli config get captcha_provider
+```
+
+**Set new value**:
+```bash
+opencli config update captcha_provider turnstile
+```
+
+### `recaptcha_site_key`
+Site key for Google reCAPTCHA (used when `captcha_provider` is `google`).
+
+**Check current value**:
+```bash
+opencli config get recaptcha_site_key
+```
+
+**Set new value**:
+```bash
+opencli config update recaptcha_site_key <SITE_KEY>
+```
+
+### `recaptcha_secret_key`
+Secret key for Google reCAPTCHA (used when `captcha_provider` is `google`).
+
+**Check current value**:
+```bash
+opencli config get recaptcha_secret_key
+```
+
+**Set new value**:
+```bash
+opencli config update recaptcha_secret_key <SECRET_KEY>
+```
+
+### `turnstile_site_key`
+Site key for Cloudflare Turnstile (used when `captcha_provider` is `turnstile`).
+
+**Check current value**:
+```bash
+opencli config get turnstile_site_key
+```
+
+**Set new value**:
+```bash
+opencli config update turnstile_site_key <SITE_KEY>
+```
+
+### `turnstile_secret_key`
+Secret key for Cloudflare Turnstile (used when `captcha_provider` is `turnstile`).
+
+**Check current value**:
+```bash
+opencli config get turnstile_secret_key
+```
+
+**Set new value**:
+```bash
+opencli config update turnstile_secret_key <SECRET_KEY>
+```
+
+### `custom_captcha_site_key`
+Site key for a custom captcha (used when `captcha_provider` is `custom`).
+
+**Check current value**:
+```bash
+opencli config get custom_captcha_site_key
+```
+
+**Set new value**:
+```bash
+opencli config update custom_captcha_site_key <SITE_KEY>
+```
+
 ### logrotate_enable
 Enable or disable **logrotate** for system logs: webserver, DNS, OpenPanel, FTP, MailServer, etc.
 ```bash
@@ -401,6 +582,32 @@ The `twofa_nag` option allows Administrator to set if 2FA nag should be displaye
 
 ```bash
 twofa_nag=yes
+```
+
+### `twofa_enforce`
+When enabled (`yes`), users have to set up 2FA before they can access any other page in OpenPanel. The 2FA module must be enabled. Default is `no`.
+
+**Check current value**:
+```bash
+opencli config get twofa_enforce
+```
+
+**Set new value**:
+```bash
+opencli config update twofa_enforce yes
+```
+
+### `onboarding`
+When enabled (`yes`), users who haven't finished it yet see a first-login setup wizard on their Dashboard: webserver, default PHP version, database server, backup destination and 2FA/passkey setup. Default is `yes`.
+
+**Check current value**:
+```bash
+opencli config get onboarding
+```
+
+**Set new value**:
+```bash
+opencli config update onboarding no
 ```
 
 ### how_to_guides
@@ -718,6 +925,19 @@ opencli config get autopurge_trash
 opencli config update autopurge_trash 7
 ```
 
+
+### `filemanager_files_per_page`
+Number of files displayed per page in the File Manager. Default is `1000`.
+
+**Check current value**:
+```bash
+opencli config get filemanager_files_per_page
+```
+
+**Set new value**:
+```bash
+opencli config update filemanager_files_per_page 500
+```
 
 ### `filemanager_buttons_style`
 

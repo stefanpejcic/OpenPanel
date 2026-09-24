@@ -16,10 +16,12 @@ List all FTP sub-users for a single OpenPanel accounts:
 opencli ftp-list <OPENPANEL_USERNAME>
 ```
 
+Add `--json` to either command for JSON output.
+
 ## Add
 Create FTP sub-user for openpanel user:
 ```bash
-opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME>
+opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--debug]
 ```
 
 ## Password
@@ -31,7 +33,7 @@ opencli ftp-password <username> <new_password> <openpanel_username> [--debug]
 ## Path
 Change FTP path for sub-user:
 ```bash
-opencli ftp-path <action> <username> <path> <openpanel_username> [--debug]
+opencli ftp-path <username> <path> <openpanel_username> [--debug]
 ```
 
 ## Delete
@@ -52,13 +54,13 @@ opencli ftp-connections <openpanel_username>
 ```
 
 ## Logs
-View live FTP service logs while service is running:
-```
-opencli ftp-connections <openpanel_username>
+View FTP service logs:
+```bash
+opencli ftp-logs
 ```
 
 ## Users
-Recreate list of all ftp users:
+Recreate list of all ftp users *(internal helper, not available as an `opencli` command)*:
 ```bash
-opencli ftp-users
+bash /usr/local/opencli/ftp/users.sh
 ```

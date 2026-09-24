@@ -36,29 +36,31 @@ opencli plan-list --json
 To create a new plan run the following command:
 
 ```bash
-opencli plan-create name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT>
+opencli plan-create name="<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT> max_hourly_email=<COUNT> [reseller=<USERNAME>]
 ```
 
 | Parameter           | Description                                      | Type    | Notes                                                         |
 |---------------------|--------------------------------------------------|---------|---------------------------------------------------------------|
 | `name`              | Name of the plan                                 | String  | No spaces                                                     |
-| `description`       | Plan description                                 | String  | Use quotes for multiple words                                |
-| `feature_set`       | Feature set assigned to the plan                 | String  | Must match an existing feature set name                      |
-| `email_limit`       | Max number of email accounts                     | Integer | `0` for unlimited                                            |
+| `description`       | Plan description                                 | String  | Use quotes for multiple words                                 |
+| `feature_set`       | Feature set assigned to the plan                 | String  | Must match an existing feature set name                       |
+| `emails`            | Max number of email accounts                     | Integer | `0` for unlimited                                             |
 | `max_email_quota`   | Max size per email account                       | String  | Integer followed by `B`, `k`, `M`, `G`, or `T`; `0` unlimited |
-| `ftp_limit`         | Max number of FTP accounts                       | Integer | `0` for unlimited                                            |
-| `domains_limit`     | Max number of domains                            | Integer | `0` for unlimited                                            |
-| `websites_limit`    | Max number of websites                           | Integer | `0` for unlimited                                            |
-| `disk_limit`        | Disk space limit in GB                           | Integer |                                                               |
-| `inodes_limit`      | Max number of inodes                             | Integer | `0` for unlimited (minimum recommended: 250000)             |
-| `db_limit`          | Max number of databases                          | Integer | `0` for unlimited                                            |
+| `max_hourly_email`  | Max outgoing emails per hour, across all domains | Integer |                                                               |
+| `ftp`               | Max number of FTP accounts                       | Integer | `0` for unlimited                                             |
+| `domains`           | Max number of domains                            | Integer | `0` for unlimited                                             |
+| `websites`          | Max number of websites                           | Integer | `0` for unlimited                                             |
+| `disk`              | Disk space limit in GB                           | Integer |                                                               |
+| `inodes`            | Max number of inodes                             | Integer | `0` for unlimited (minimum recommended: 250000)               |
+| `databases`         | Max number of databases                          | Integer | `0` for unlimited                                             |
 | `cpu`               | CPU core limit                                   | Integer |                                                               |
 | `ram`               | RAM limit in GB                                  | Integer |                                                               |
 | `bandwidth`         | Port speed in Mbit/s                             | Integer |                                                               |
+| `reseller`          | Reseller that can use this plan                  | String  | Optional, username of an existing reseller                    |
 
 Example:
 ```bash
-opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G"
+opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G max_hourly_email=1000
 ```
 
 ## List Users on Plan
@@ -66,7 +68,7 @@ opencli plan-create name="New Plan" description="This is a new plan" emails=100 
 List all users that are currently using a plan:
 
 ```bash
-opencli plan-usage
+opencli plan-usage <PLAN_NAME>
 ```
 
 <details>
@@ -87,7 +89,7 @@ opencli plan-usage
 You can also format the data as JSON:
 
 ```bash
-opencli plan-usage --json
+opencli plan-usage <PLAN_NAME> --json
 ```
 
 
@@ -127,22 +129,24 @@ TIP: use `'` or `"` around the plan name if it contains spaces: `"plan name here
 Change plan limits.
 
 ```bash
-opencli plan-edit --debug id=<ID> name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<DEFAULT> max_email_quota=<COUNT>
+opencli plan-edit id=<ID> name="<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT> max_hourly_email=<COUNT> [--debug]
 ```
 
 | Parameter           | Description                                      | Type    | Notes                                                         |
 |---------------------|--------------------------------------------------|---------|---------------------------------------------------------------|
+| `id`                | ID of the plan to edit                           | Integer | Required                                                      |
 | `name`              | Name of the plan                                 | String  | No spaces                                                     |
-| `description`       | Plan description                                 | String  | Use quotes for multiple words                                |
-| `feature_set`       | Feature set assigned to the plan                 | String  | Must match an existing feature set name                      |
-| `email_limit`       | Max number of email accounts                     | Integer | `0` for unlimited                                            |
+| `description`       | Plan description                                 | String  | Use quotes for multiple words                                 |
+| `feature_set`       | Feature set assigned to the plan                 | String  | Must match an existing feature set name                       |
+| `emails`            | Max number of email accounts                     | Integer | `0` for unlimited                                             |
 | `max_email_quota`   | Max size per email account                       | String  | Integer followed by `B`, `k`, `M`, `G`, or `T`; `0` unlimited |
-| `ftp_limit`         | Max number of FTP accounts                       | Integer | `0` for unlimited                                            |
-| `domains_limit`     | Max number of domains                            | Integer | `0` for unlimited                                            |
-| `websites_limit`    | Max number of websites                           | Integer | `0` for unlimited                                            |
-| `disk_limit`        | Disk space limit in GB                           | Integer |                                                               |
-| `inodes_limit`      | Max number of inodes                             | Integer | `0` for unlimited (minimum recommended: 250000)             |
-| `db_limit`          | Max number of databases                          | Integer | `0` for unlimited                                            |
+| `max_hourly_email`  | Max outgoing emails per hour, across all domains | Integer |                                                               |
+| `ftp`               | Max number of FTP accounts                       | Integer | `0` for unlimited                                             |
+| `domains`           | Max number of domains                            | Integer | `0` for unlimited                                             |
+| `websites`          | Max number of websites                           | Integer | `0` for unlimited                                             |
+| `disk`              | Disk space limit in GB                           | Integer |                                                               |
+| `inodes`            | Max number of inodes                             | Integer | `0` for unlimited (minimum recommended: 250000)               |
+| `databases`         | Max number of databases                          | Integer | `0` for unlimited                                             |
 | `cpu`               | CPU core limit                                   | Integer |                                                               |
 | `ram`               | RAM limit in GB                                  | Integer |                                                               |
 | `bandwidth`         | Port speed in Mbit/s                             | Integer |                                                               |
@@ -153,7 +157,7 @@ opencli plan-edit --debug id=<ID> name"<TEXT>" description="<TEXT>" emails=<COUN
   <summary>Example output</summary>
 
 ```bash
-# opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G"
+# opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G" max_hourly_email=1000
 ```
 </details>
 

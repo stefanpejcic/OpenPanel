@@ -10,6 +10,11 @@ List all websites hosted on the server:
 opencli websites-all
 ```
 
+List only websites of a specific type:
+```bash
+opencli websites-all <TYPE>
+```
+
 ### List websites for user
 
 List all websites owned by user:
@@ -17,6 +22,12 @@ List all websites owned by user:
 ```bash
 opencli websites-user <USERNAME>
 ```
+
+Additional flags:
+
+- `--type=<TYPE>` - list only websites of this type. Run `opencli websites-user` without a username to see available types.
+- `--domains=<domain1,domain2,...>` - list only websites on these domains.
+- `--json` - display output as JSON.
 
 ### Add websites for user
 

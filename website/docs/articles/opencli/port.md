@@ -1,6 +1,6 @@
 # Port 
 
-`opencli port` command is used to change port (`2023`) for accessing OpenPanel.
+`opencli port` command is used to change port (`2083`) for accessing OpenPanel.
 
 View current port:
 ```bash
@@ -21,4 +21,9 @@ Set default port `2083`:
 
 ```bash
 opencli port default
+```
+
+Caddy and OpenPanel are restarted and the new port is opened in the CSF firewall. Add `--no-restart` to skip both:
+```bash
+opencli port set <NUMBER> --no-restart
 ```

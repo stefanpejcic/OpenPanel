@@ -30,7 +30,9 @@ opencli email-server postconf                         Show postfix configuration
 opencli email-server logs [-f]                        Show logs. Use -f to 'follow' the logs
 opencli email-server login                            Run container shell
 opencli email-server supervisor                       Interact with supervisorctl
-opencli email-servers install                         Generate summary reports
+opencli email-server pflogsumm                        Generate summary reports
+opencli email-server postfwd                          Enable/disable postfwd rate-limiting and edit limits
+opencli email-server uninstall                        Uninstall the email server
 opencli email-server update-check                     Check for container package updates
 opencli email-server update-packages                  Update container packages
 opencli email-server versions                         Show versions
@@ -296,6 +298,27 @@ Generate HTML reports from mail logs:
 opencli email-server pflogsumm
 ```
 
+### Rate-limiting (postfwd)
+
+Show whether outgoing email rate-limiting (postfwd) is enabled:
+```bash
+opencli email-server postfwd
+```
+
+Enable or disable rate-limiting:
+```bash
+opencli email-server postfwd enable
+opencli email-server postfwd disable
+```
+
+View or edit the rate-limiting rules (the mailserver is reloaded after editing):
+```bash
+opencli email-server postfwd view
+opencli email-server postfwd edit
+```
+
+Rules for users and domains are generated with [`opencli email-ratelimit`](#rate-limits).
+
 ### Supervisor
 
 Interact with the supervisor:
@@ -416,6 +439,10 @@ opencli email-server uninstall
 
 
 
+### Debug
+
+Add `--debug` to any `email-server` command to display verbose information.
+
 ## Webmail
 
 Display current webmail domain:
@@ -428,6 +455,59 @@ Set 'webmail.example.com' as a webmail domain:
 
 ```bash
 opencli email-webmail domain webmail.example.com
+```
+
+Add `--debug` to display verbose information.
+
+## Rate limits
+
+`opencli email-ratelimit` generates postfwd rate-limiting rules for users and domains, based on the `max_hourly_email` limit of their plan.
+
+Show current rules:
+```bash
+opencli email-ratelimit
+```
+
+Regenerate rules for all users:
+```bash
+opencli email-ratelimit --all-users
+```
+
+Regenerate rules for a single user (removes their rules, re-fetches their domains and adds them again):
+```bash
+opencli email-ratelimit --username=<USERNAME>
+```
+
+Add or update the rule for a single domain:
+```bash
+opencli email-ratelimit --domain=<DOMAIN>
+```
+
+Remove rules for a user or a domain:
+```bash
+opencli email-ratelimit --delete-user=<USERNAME>
+opencli email-ratelimit --delete-domain=<DOMAIN>
+```
+
+Add `--skip-reload` to not reload postfix after the change.
+
+## Fix mail permissions
+
+Set the correct owner on mail folders for all domains:
+```bash
+opencli email-quotas
+```
+
+## Manage
+
+Run a command inside the mailserver container:
+```bash
+opencli email-manage <COMMAND> [<ARGS>...]
+```
+
+Example:
+```bash
+opencli email-manage postqueue -p
 ```
 
 ## Emails

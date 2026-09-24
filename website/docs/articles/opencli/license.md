@@ -8,7 +8,7 @@ View available options:
 opencli license
 ```
 
-Adding a license key:
+Adding a license key (keys start with `enterprise-`, `noc-` or `lifetime-`):
 ```bash
 opencli license <KEY>
 ```
@@ -21,6 +21,11 @@ Additional flags are available:
 View license key:
 ```bash
 opencli license key
+```
+
+Verify the current license key:
+```bash
+opencli license verify
 ```
 
 View license information:

@@ -74,7 +74,7 @@ execute command opencli config update autoupdate off
 
 11. How to enable detailed logs?
 
-- opencli config update dev_mode yes
+- opencli config update dev_mode on
 ------------------------------------------------------------
 ```
 </details>

@@ -58,12 +58,6 @@ Website files:
 - sets the permissions of all files to 644.
 - sets the permissions of all directories to 755.
 
-Website files:
-- sets the owner of all files in `/var/www/html/` to the  www-data user.
-- sets the group of all files in `/var/www/html/` to the www-data group.
-- sets the permissions of all files to 644.
-- sets the permissions of all directories to 755.
-
 Emails:
 - sets the owner of all files in `/var/mail/` to the  user.
 - sets the permissions of all files to 644.
@@ -88,7 +82,7 @@ Example:
 opencli files-fix_permissions stefan stefan.pejcic.rs
 ```
 
-## Single User
+#### Single User
 Fix permissions for all folders iniside user home directory (`/var/www/html/`):
 
 ```bash
@@ -101,4 +95,29 @@ Use the `--all` flag to change permissions for all active users:
 
 ```bash
 opencli files-fix_permissions --all
+```
+
+
+### Malware Scan
+
+Scans a user's website files (`html_data` volume) with ClamAV. Infected files are moved to the `.quarantine/` folder in the user's files and are listed on the Quarantine page in OpenPanel. Files marked as safe in OpenPanel are skipped, and so are `vendor/` and `node_modules/` folders.
+
+Requires the ClamAV service (`clamav` container) to be running.
+
+Scan files for a single user:
+```bash
+opencli files-malware_scan <USERNAME>
+```
+
+Scan files for all active users:
+```bash
+opencli files-malware_scan --all
+```
+
+### Resellers Storage
+
+Calculates total disk usage for all users owned by each reseller and saves the current and maximum disk blocks to the reseller's limits file (`/etc/openpanel/openadmin/resellers/<RESELLER>.json`).
+
+```bash
+opencli files-calculate_resellers_storage
 ```

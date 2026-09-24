@@ -45,6 +45,8 @@ Prefetches (pulls) container images for services listed as autostart, skipping i
 opencli docker-autostart [-f|--force]
 ```
 
+- `-f`, `--force` - prefetch images even when free disk space is low.
+
 ### Backup
 
 Generates a backup for all users. This is the bulk/system-wide counterpart to `opencli user-backup`, see [Users](/docs/articles/opencli/user/#backup-user).
@@ -82,7 +84,12 @@ Examples:
 
 To collect container resource usage information (cpu, ram, i/o) for all users:
 ```bash
-opencli docker-collect_stats
+opencli docker-collect_stats --all
+```
+
+For a single user:
+```bash
+opencli docker-collect_stats <USERNAME>
 ```
 
 `collect_stats` script will also rotate data according to [`resource_usage_retention` setting](/docs/articles/opencli/config/#resource_usage_retention)

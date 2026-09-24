@@ -17,12 +17,15 @@ Example:
 opencli domain set srv7.openpanel.org
 ```
 
-`--debug` flag can be passed to dispaly verbose information as script is running.
+Additional flags:
+
+- `--debug` - display verbose information as the script is running.
+- `--no-restart` - skip restarting services after the change.
 
 Note: If domain is not pointed to the server via A record and SSL can not be generated, then `http://IP` will be used instead of `https://DOMAIN`.
 
 Set IP address to be used instead of domain:
 
 ```bash
-opencli domain set ip
+opencli domain ip
 ```

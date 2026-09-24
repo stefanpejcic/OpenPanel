@@ -6,8 +6,12 @@
 Lists all domain names currently hosted on the server:
 
 ```bash
-opencli domains-all
+opencli domains-all [--docroot] [--php_version] [--json]
 ```
+
+- `--docroot` - also show the document root for each domain.
+- `--php_version` - also show the PHP version for each domain.
+- `--json` - display output as JSON.
 
 ## User
 
@@ -22,7 +26,7 @@ opencli domains-user <USERNAME> [--docroot|--php_version]
 Add a domain name for a user:
 
 ```bash
-opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
+opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy] [--skip_vhost] [--skip_containers] [--skip_dns] [--skip-sentinel] [--hs_ed25519_public_key KEY --hs_ed25519_secret_key KEY] [--debug]
 ```
 
 ### Custom Docroot
@@ -71,7 +75,21 @@ opencli domains-add <DOMAIN_NAME> <USERNAME> --php_version N.N
   opencli domains-add <DOMAIN_NAME> <USERNAME> --skip_caddy
   ```
 
+* **Skip Sentinel** – Add a domain without sending the *domains_add* notification:
+
+  ```bash
+  opencli domains-add <DOMAIN_NAME> <USERNAME> --skip-sentinel
+  ```
+
 **Note:** These options are primarily intended for bulk provisioning workflows (like [cpanel account importer](/docs/articles/transfers/import-cpanel-backup-to-openpanel/) or [user transfer](/docs/articles/transfers/transfer-openpanel-account-to-another-server/)) and advanced troubleshooting scenarios.
+
+### Onion (Tor) domains
+
+When adding a `.onion` domain, you can pass an existing hidden service key pair instead of generating a new one:
+
+```bash
+opencli domains-add <ONION_DOMAIN> <USERNAME> --hs_ed25519_public_key <KEY> --hs_ed25519_secret_key <KEY>
+```
 
 ## Suspend
 
@@ -79,6 +97,12 @@ Suspend a domain name:
 
 ```bash
 opencli domains-suspend <DOMAIN_NAME>
+```
+
+Add a reason for suspending the domain:
+
+```bash
+opencli domains-suspend <DOMAIN_NAME> --comment="<REASON>"
 ```
 
 ## Unsuspend
@@ -131,6 +155,12 @@ opencli domains-ssl <DOMAIN_NAME> info
 View caddy SSL-related logs for a domain:
 ```bash
 opencli domains-ssl <DOMAIN_NAME> logs
+```
+
+Show a specific number of lines, or follow the log live:
+```bash
+opencli domains-ssl <DOMAIN_NAME> logs 1000
+opencli domains-ssl <DOMAIN_NAME> logs -f
 ```
 
 ### Custom
@@ -198,6 +228,12 @@ To reload a DNS zone for a single domain:
 opencli domains-dns reload <DOMAIN_NAME>
 ```
 
+To reload all DNS zones, run the command without a domain:
+
+```bash
+opencli domains-dns reload
+```
+
 ### Show
 
 To display the DNS zone for a single domain:
@@ -227,16 +263,20 @@ opencli domains-dns create <DOMAIN_NAME>
 To delete a DNS zone for a domain:
 
 ```bash
-opencli domains-dns delete <DOMAIN_NAME>
+opencli domains-dns delete <DOMAIN_NAME> [-y]
 ```
+
+Add `-y` to skip the confirmation prompt.
 
 ### Default
 
 To restore the default DNS zone for a domain:
 
 ```bash
-opencli domains-dns default <DOMAIN_NAME>
+opencli domains-dns default <DOMAIN_NAME> [-y]
 ```
+
+Add `-y` to skip the confirmation prompt.
 
 ### Count
 
@@ -295,16 +335,23 @@ Enable [DNSSEC](https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extens
 opencli domains-dnssec <DOMAIN_NAME> [--update | --check]
 ```
 
+### Enable
+
+Enable DNSSEC for a domain (generates keys and signs the zone):
+```bash
+opencli domains-dnssec <DOMAIN_NAME>
+```
+
 ### Check
 
-Check if domain has DNSSEC enabled:
+Check if domain has DNSSEC enabled (displays the DS records):
 ```bash
 opencli domains-dnssec <DOMAIN_NAME> --check
 ```
 
 ### Update
 
-Configure/update DNSSEC for a domain:
+Re-sign the zone after DNS changes and reload the DNS service:
 ```bash
 opencli domains-dnssec <DOMAIN_NAME> --update
 ```
@@ -315,25 +362,25 @@ opencli domains-dnssec <DOMAIN_NAME> --update
 Manage [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) for a domain.
 
 ```bash
-opencli domains-hsts <DOMAIN_NAME> [on|off]
+opencli domains-hsts <DOMAIN_NAME> [enable|disable]
 ```
 
 ### Status
 Check HSTS status for a domain:
 ```bash
-opencli domains-hsts <DOMAIN_NAME> [on|off]
+opencli domains-hsts <DOMAIN_NAME>
 ```
 
 ### Enable
 Enable HSTS for a domain:
 ```bash
-opencli domains-hsts <DOMAIN_NAME> on
+opencli domains-hsts <DOMAIN_NAME> enable
 ```
 
 ### Disable
 Disable HSTS for a domain:
 ```bash
-opencli domains-hsts <DOMAIN_NAME> off
+opencli domains-hsts <DOMAIN_NAME> disable
 ```
 
 
@@ -361,10 +408,10 @@ opencli domains-edit <DOMAIN_NAME> --ws
 
 ## Stats
 
-Parse caddy access logs for users domains and generate static html.
+Parse caddy access logs for users domains and generate static html. Requires the `goaccess` module to be enabled.
 
 ```bash
-opencli domains-stats <USERNAME> --debug
+opencli domains-stats [USERNAME] [--debug]
 ```
 
 Generate stats for all domains:
@@ -406,7 +453,7 @@ opencli domains-update_ns --all [-y]
 Check Varnish status for domain, enable/disable Varnish caching.
 
 ```bash
-opencli domains-varnish <DOMAIN_NAME> <on|off> <--short>
+opencli domains-varnish <DOMAIN_NAME> [on|off] [--short]
 ```
 
 ### Status

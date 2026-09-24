@@ -21,5 +21,13 @@ opencli server-migrate -h <DESTINATION_IP> --user root --password <DESTINATION_P
 
 All available flags:
 ```bash
-opencli server-migrate -h <remote_host> -u <remote_user> [--password <password>] [--exclude-home] [--exclude-logs] [--exclude-mail] [--exclude-bind] [--exclude-openpanel] [--exclude-mysql] [--exclude-stack] [--exclude-postupdate] [--exclude-users]
+opencli server-migrate -h <remote_host> -u <remote_user> [--password <password>] [--force] [--exclude-home] [--exclude-logs] [--exclude-csf] [--exclude-mail] [--exclude-bind] [--exclude-openpanel] [--exclude-mysql] [--exclude-stack] [--exclude-postupdate] [--exclude-users] [--exclude-contexts]
 ```
+
+- `-h`, `--host` - destination server IP.
+- `-u`, `--user` - SSH user on the destination server.
+- `--password` - SSH password for the destination server.
+- `--force` - skip checking if the destination server already has users.
+- `--exclude-csf` - don't sync `/etc/csf/` firewall configuration.
+- `--exclude-contexts` - don't set up rootless Podman for users on the destination server.
+- `--exclude-*` - skip syncing that part of the data (home directories, logs, mail, DNS zones, OpenPanel configuration, MySQL, root docker stack, post-update scripts, users).

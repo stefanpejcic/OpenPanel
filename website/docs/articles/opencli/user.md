@@ -142,7 +142,7 @@ opencli user-list --quota
 ### Add User
 
 ```
-opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug] [--reseller=<RESELLER_USERNAME>] [--server=<IP_ADDRESS>]  [--key=<SSH_KEY_PATH>]
+opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug] [--reseller=<RESELLER_USERNAME>] [--private-note=<NOTE>] [--webserver=<TYPE>] [--sql=<mysql|mariadb>] [--no-sentinel]
 ```
 
 To create a new user run the following command:
@@ -158,38 +158,26 @@ opencli user-add stefan pejcic324 stefan@pejcic.rs 'Default Plan Nginx'
 
 
 :::tip
-Provide `random` as password to generate a strong random password.
+Provide `generate` as password to generate a strong random password.
 :::
 
+Optional flags:
 
-To send email to the email address for the user with login credentials, pass the `--send-email` flag.
+- `--send-email` - send an email with login credentials to the user's email address.
+- `--private-note=<NOTE>` - save a private note for this user (visible only in OpenAdmin).
+- `--reseller=<RESELLER_USERNAME>` - assign a reseller as the owner of this user.
+- `--webserver=<TYPE>` - webserver to use: `nginx`, `apache`, `openresty`, `openlitespeed` or `litespeed`, optionally prefixed with `varnish+` (e.g. `varnish+nginx`). Defaults to the plan/server setting.
+- `--sql=<mysql|mariadb>` - database type to use.
+- `--no-sentinel` - don't send the *user_create* notification.
+- `--skip-images` - don't pull container images for the new user.
+- `--debug` - display verbose information.
 
-
-#### Create user on Slave server
-
-To create a new user on another server:
-
-1. Create ssh key pair and establish ssh connection from master to the slave server.
-2. Run the following command:
-
+Example:
 ```bash
-opencli user-add <USERNAME> <PASSWORD> <EMAIL> "<PLAN_NAME>" --server=<IP_ADDRESS> --key=<SSH_KEY_PATH>
+opencli user-add stefan generate stefan@pejcic.rs 'Default Plan Nginx' --webserver=varnish+nginx --sql=mariadb --send-email
 ```
 
-#### Create all new users on Slave server
 
-To automatically create all future users on another server:
-
-1. Create ssh key pair and establish ssh connection from master to the slave server.
-2. Set the new server IP and path to the key file in `/etc/openpanel/openadmin/config/admin.ini` file:
-   ```
-   [CLUSTERING]
-   default_node="11.22.33.44"
-   default_ssh_key_path="/root/some-key.rsa"
-   ```
-3. That's it, all new user accounts are created on the remote server.
-
-> NOTE: The remote server must have a fresh installation of Ubuntu 24.04 - other distributions and versions are not supported.
 
 #### Create user for Reseller
 
@@ -203,10 +191,14 @@ opencli user-add <USERNAME> <PASSWORD> <EMAIL> "<PLAN_NAME>" --reseller=<RESELLE
 To transfer user account to another server:
 
 ```bash
-opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <OPENPANEL_USERNAME> --password <DESTINATION_SSH_PASSWORD> --port 22
+opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--port 22] [--force] [--live-transfer]
 ```
 
-add `--live-transfer` flag to suspend account after the transfer, and forward DNS to the new server.
+- `-h`, `--host` - destination server IP.
+- `-u`, `--username` - SSH user on the destination server.
+- `--port` - SSH port on the destination server (default `22`).
+- `--force` - overwrite the account if the username already exists on the destination server.
+- `--live-transfer` - suspend the account after the transfer and forward DNS to the new server.
 
 ### Backup User
 
@@ -246,19 +238,15 @@ add `-y` flag to disable prompt.
 This action is irreversible and will permanently delete all user data.
 :::
 
-To delete all users and all their data use the `--all` flag:
-
-```bash
-opencli user-delete --all
-```
-
 ### Suspend User
 
 To suspend (temporary disable access) to user, run the follwowing command:
 
 ```bash
-opencli user-suspend <USERNAME> [-y]
+opencli user-suspend <USERNAME> [-y] [--debug]
 ```
+
+add `-y` flag to disable prompt.
 
 ### Unsuspend User
 
@@ -288,6 +276,11 @@ To reset the password for a OpenPanel user, you can use the `user-password` comm
 
 ```bash
 opencli user-password <USERNAME> <NEW_PASSWORD>
+```
+
+Provide `random` as password to generate a strong random password:
+```bash
+opencli user-password <USERNAME> random
 ```
 
 ### Login as User
@@ -366,15 +359,17 @@ To assign IP address **that is currently used by another user** to this user, ru
 
 
 ```bash
-opencli user-ip <USERNAME> <IP_ADDRESS> --y
+opencli user-ip <USERNAME> <IP_ADDRESS> -y
 ```
 
 
 To remove dedicated IP address from a user run:
 
 ```bash
-opencli user-ip <USERNAME> delete
+opencli user-ip <USERNAME> delete [-y]
 ```
+
+Add `--debug` to any `user-ip` command to display verbose information.
 
 
 ### Check
@@ -510,8 +505,10 @@ opencli user-block_ip <username> --delete-all
 View up to last 20 successfull logins for the user.
 
 ```bash
-opencli user-loginlog <USERNAME> [--json]
+opencli user-loginlog <USERNAME> [--table|--text|--json]
 ```
+
+Output is shown as a table by default. Use `--text` for plain text or `--json` for JSON.
 
 ### Varnish
 Check Varnish Caching status for user and enable/disable Varnish service.
