@@ -47,7 +47,11 @@ All Tests Passed!
 ```
 </details>
 
+### Resolved issues
+
 When a check passes again, Sentinel marks the matching UNREAD notifications for that issue as READ in OpenAdmin > Notifications, since they no longer need admin attention. For example, if the OpenPanel container was reported as not running and is running on the next check, the *OpenPanel container not running!* notifications are marked as read. This applies to service and container checks (including recovery after a restart), disk, load, RAM, CPU, SWAP, web traffic, domain and nameserver checks. Event notifications like new logins, SSH logins, OOM kills and reboots are left unread.
+
+It also adds a *Resolved: &lt;title&gt;* notification saying when the issue was first reported, and sends it by email/webhook, so admins who got the alert also learn that it's over.
 
 <details>
   <summary>Example output</summary>
@@ -59,6 +63,40 @@ Checking services:
 [✔] openpanel is active and responding.
 [✔] Issue resolved, marked notification as read: OpenPanel container not running!
 ...
+```
+</details>
+
+### What gets emailed
+
+- **Alerts** need admin attention. They are logged as UNREAD and sent by email/webhook. Service alerts say what failed, what Sentinel tried, which command to check it with, and include the last log lines.
+- **Info** entries are for things Sentinel already fixed on its own, like restarting a stopped container. They are logged as READ for history and are not emailed.
+- All alerts from one run are sent as **one email and one webhook**. With a single alert the subject is its title, with more it's *N notifications from Sentinel on &lt;hostname&gt;* and the body lists them all.
+
+Load, CPU and RAM only alert after they stay over the threshold for **2 checks in a row** (about 10 minutes with the default cron), so short spikes don't trigger alerts. CPU usage is measured over 1 second.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+[!] CPU 96% > threshold 90% (1/2 checks), alerting if it stays high.
+...
+```
+</details>
+
+While an OpenPanel update is running, Sentinel skips all checks, so it doesn't alert about or recreate containers the update is restarting.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+--------------------------------------------------------------------------------
+  Sentinel - OpenPanel server health monitor
+--------------------------------------------------------------------------------
+[!] OpenPanel update in progress, skipping checks until it finishes.
+--------------------------------------------------------------------------------
 ```
 </details>
 

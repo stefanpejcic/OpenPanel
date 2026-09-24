@@ -19,6 +19,8 @@ OpenPanel tracks and notifies you of these events, grouped into categories:
 
 Each notification type can be individually disabled, and admins can set custom threshold limits.
 
+Notifications that need attention are shown as unread. Sentinel marks them as read once the issue is gone and adds a *Resolved* entry. Things Sentinel fixed on its own, like restarting a stopped container, are added as already-read entries for history and are not emailed. See [opencli sentinel](/docs/articles/opencli/sentinel) for details.
+
 Under the page title, **Last check** shows when [`opencli sentinel`](/docs/articles/opencli/sentinel) last completed its checks (it runs from cron every 5 minutes). The line turns amber if Sentinel hasn't run in over 15 minutes, which usually means its cron job is disabled or failing.
 
 Click the bell icon next to the search box to pause email/webhook alerts for a set time (10 min up to 1 day) — see [Pause Notifications](/docs/admin/settings/notifications#pause-notifications).
