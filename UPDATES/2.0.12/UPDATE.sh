@@ -14,3 +14,10 @@ if [ -f "$CRON_FILE" ]; then
         sed -i 's#/bin/bash /usr/local/admin/service/notifications.sh#/usr/local/bin/opencli sentinel#g' "$CRON_FILE"
     fi
 fi
+
+# notifications.log is JSON lines from 2.0.12, start empty instead of mixing in the old format
+NOTIFICATIONS_LOG="/var/log/openpanel/admin/notifications.log"
+if [ -f "$NOTIFICATIONS_LOG" ]; then
+    echo "Clearing $NOTIFICATIONS_LOG for the new notifications format..."
+    : > "$NOTIFICATIONS_LOG"
+fi

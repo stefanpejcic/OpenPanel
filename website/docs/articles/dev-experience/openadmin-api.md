@@ -636,12 +636,29 @@ Returns the cached findings from the last `check-vulnerabilities` bulk run — t
 
 `GET /api/notifications`
 
+Returns notifications newest first. `line_number` is the value to pass to the endpoints below. See the [notifications log format](/docs/articles/opencli/sentinel#notifications-log-format) for all fields.
+
 **Response Example:**
 
 ```json
-[
-  { "title": "Update available", "message": "New package updates available." }
-]
+{
+  "success": true,
+  "notifications": [
+    {
+      "id": "1790279898a1b2c3",
+      "time": "2026-09-24 19:58:17",
+      "last_seen": "2026-09-24 20:08:17",
+      "count": 3,
+      "status": "unread",
+      "severity": "critical",
+      "category": "service",
+      "source": "sentinel",
+      "title": "OpenPanel container not running!",
+      "message": "Container openpanel was not running. Sentinel tried to start it, but it is still not running.",
+      "line_number": 1
+    }
+  ]
+}
 ```
 
 ### Mark Notification as Read

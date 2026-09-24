@@ -49,9 +49,9 @@ All Tests Passed!
 
 ### Resolved issues
 
-When a check passes again, Sentinel marks the matching UNREAD notifications for that issue as READ in OpenAdmin > Notifications, since they no longer need admin attention. For example, if the OpenPanel container was reported as not running and is running on the next check, the *OpenPanel container not running!* notifications are marked as read. This applies to service and container checks (including recovery after a restart), disk, load, RAM, CPU, SWAP, web traffic, domain and nameserver checks. Event notifications like new logins, SSH logins, OOM kills and reboots are left unread.
+When a check passes again, Sentinel marks the matching unread notifications for that issue as read and resolved in OpenAdmin > Notifications, where they show a *Resolved after …* badge, since they no longer need admin attention. For example, if the OpenPanel container was reported as not running and is running on the next check, the *OpenPanel container not running!* notifications are marked as read. This applies to service and container checks (including recovery after a restart), disk, load, RAM, CPU, SWAP, web traffic, domain and nameserver checks. Event notifications like new logins, SSH logins, OOM kills and reboots are left unread.
 
-It also adds a *Resolved: &lt;title&gt;* notification saying when the issue was first reported, and sends it by email/webhook, so admins who got the alert also learn that it's over.
+It also sends a *Resolved: &lt;title&gt;* message by email/webhook saying when the issue was first reported, so admins who got the alert also learn that it's over.
 
 <details>
   <summary>Example output</summary>
@@ -68,9 +68,9 @@ Checking services:
 
 ### What gets emailed
 
-- **Alerts** need admin attention. They are logged as UNREAD and sent by email/webhook. Service alerts say what failed, what Sentinel tried, which command to check it with, and include the last log lines.
-- **Info** entries are for things Sentinel already fixed on its own, like restarting a stopped container. They are logged as READ for history and are not emailed.
-- All alerts from one run are sent as **one email and one webhook**. With a single alert the subject is its title, with more it's *N notifications from Sentinel on &lt;hostname&gt;* and the body lists them all.
+- **Alerts** need admin attention. They are logged as unread with a *critical* or *warning* severity and sent by email/webhook. Service alerts say what failed, what Sentinel tried, which command to check it with, and include the last log lines. If the same alert is detected again while it's still unread, its count and last seen time are updated instead of adding a new notification or sending another email.
+- **Info** entries are for things Sentinel already fixed on its own, like restarting a stopped container. They are logged as already read for history and are not emailed.
+- All alerts from one run are sent as **one email and one webhook**. With a single alert the subject is its title, with more it's *N notifications from Sentinel on &lt;hostname&gt;* and the body lists them all. In the email each notification is shown with its severity.
 
 Load, CPU and RAM only alert after they stay over the threshold for **2 checks in a row** (about 10 minutes with the default cron), so short spikes don't trigger alerts. CPU usage is measured over 1 second.
 
@@ -84,6 +84,24 @@ Load, CPU and RAM only alert after they stay over the threshold for **2 checks i
 ...
 ```
 </details>
+
+### Notifications log format
+
+Notifications are stored in `/var/log/openpanel/admin/notifications.log`, one JSON object per line:
+
+```json
+{"id":"1790279898a1b2c3","time":"2026-09-24 19:58:17","last_seen":"2026-09-24 20:08:17","count":3,"status":"unread","severity":"critical","category":"service","source":"sentinel","title":"OpenPanel container not running!","message":"Container openpanel was not running. Sentinel tried to start it, but it is still not running. ...","resolved_at":"2026-09-24 20:13:17"}
+```
+
+- `status`: `unread` or `read`
+- `severity`: `critical`, `warning` or `info`
+- `category`: `service`, `resources`, `security`, `dns`, `traffic`, `system`, `update` or `action`
+- `source`: `sentinel`, `update`, or the action name for `--action` notifications
+- `count` and `last_seen`: how many times the alert was detected while unread, and when it was last detected
+- `resolved_at`: when Sentinel detected that the issue was gone
+- `details`: optional structured data used by the Notifications page, e.g. RAM/CPU/disk usage and top processes, OOM kills, or a link to the crashlog or update log
+
+Lines in the old text format (from before 2.0.12) are still shown on the Notifications page as plain entries.
 
 While an OpenPanel update is running, Sentinel skips all checks, so it doesn't alert about or recreate containers the update is restarting.
 

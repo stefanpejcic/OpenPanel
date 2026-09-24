@@ -19,7 +19,11 @@ OpenPanel tracks and notifies you of these events, grouped into categories:
 
 Each notification type can be individually disabled, and admins can set custom threshold limits.
 
-Notifications that need attention are shown as unread. Sentinel marks them as read once the issue is gone and adds a *Resolved* entry. Things Sentinel fixed on its own, like restarting a stopped container, are added as already-read entries for history and are not emailed. See [opencli sentinel](/docs/articles/opencli/sentinel) for details.
+Each notification has a severity: **Critical** (e.g. a service is down and Sentinel couldn't restart it), **Warning** (e.g. high resource usage or a DNS issue) or **Info** (e.g. an update finished, a user action, or something Sentinel fixed on its own). The severity and category are shown under each title, and unread notifications have a colored bar matching their severity.
+
+Use the filters next to the search box to show only unread or resolved notifications, a single severity, or a single category (Service, Resources, Security, DNS, Traffic, System, Update, Action).
+
+Notifications that need attention are shown as unread. When Sentinel detects the same issue again while it's still unread, the notification shows how many times it was detected and when it was last seen, instead of adding a new one. Once the issue is gone, Sentinel marks it as read and shows a **Resolved after …** badge. Things Sentinel fixed on its own, like restarting a stopped container, are added as already-read Info entries for history and are not emailed. See [opencli sentinel](/docs/articles/opencli/sentinel) for details.
 
 Under the page title, **Last check** shows when [`opencli sentinel`](/docs/articles/opencli/sentinel) last completed its checks (it runs from cron every 5 minutes). The line turns amber if Sentinel hasn't run in over 15 minutes, which usually means its cron job is disabled or failing.
 

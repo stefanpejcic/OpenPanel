@@ -15,7 +15,7 @@ OpenPanel generates the following logs:
 |`/var/log/openpanel/admin/login.log`|OpenAdmin successful logins|
 |`/var/log/openpanel/admin/failed_login.log`|OpenAdmin failed login attempts |
 |`/var/log/openpanel/user/failed_login.log`|OpenPanel failed login attempts |
-|`/var/log/openpanel/admin/notifications.log`|OpenAdmin notifications (system and 8ser alerts) |
+|`/var/log/openpanel/admin/notifications.log`|OpenAdmin notifications (system and user alerts), one JSON object per line |
 |`/var/log/openpanel/admin/cron.log`|OpenAdmin systme cron logs |
 |`/var/log/openpanel/admin/error.log`|OpenAdmin error log |
 
