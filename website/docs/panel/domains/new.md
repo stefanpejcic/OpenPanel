@@ -36,3 +36,5 @@ Domain another.com added successfully
 
 Because OpenPanel starts services on demand to conserve resources, adding your first domain may take slightly longer - it will start the necessary webserver and PHP containers.
 Subsequent domains will be added much faster.
+
+See also: [Add a subdomain, addon or parked domain](/docs/articles/domains/subdomain-addon-parked-domain/)

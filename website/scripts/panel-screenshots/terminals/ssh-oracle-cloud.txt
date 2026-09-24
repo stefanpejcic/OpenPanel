@@ -1,0 +1,28 @@
+[p]you@laptop:~$[/] ssh ubuntu@203.0.113.10
+The authenticity of host '203.0.113.10 (203.0.113.10)' can't be established.
+ED25519 key fingerprint is SHA256:Xq3v1uP4eJ8tL0cW2mY7bN5aR9sK6dF1gH3jQ8zT4oE.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '203.0.113.10' (ED25519) to the list of known hosts.
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-79-generic aarch64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Thu Sep 24 14:02:11 UTC 2026
+
+  System load:  0.0               Processes:             118
+  Usage of /:   2.1% of 74.79GB   Users logged in:       0
+  Memory usage: 5%                IPv4 address for enp0s6: 203.0.113.10
+  Swap usage:   0%
+
+Expanded Security Maintenance for Applications is not enabled.
+
+0 updates can be applied immediately.
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+[g]ubuntu@server[/]:[p]~[/]$ sudo -i
+[g]root@server[/]:[p]~[/]# 

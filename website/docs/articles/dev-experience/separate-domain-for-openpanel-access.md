@@ -30,5 +30,5 @@ To set separate domain just for the OpenPanel UI, for example `pejcic.rs`:
 
 3. Restart services
   ```bash
-  docker restart caddy openpanel
+  podman restart caddy openpanel
   ```

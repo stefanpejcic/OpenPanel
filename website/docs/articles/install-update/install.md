@@ -4,7 +4,7 @@ sidebar_label: "Installing OpenPanel"
 
 # How to Install OpenPanel on a Linux Server (One Command)
 
-Before starting, ensure your server meets [the minimum requirements](/docs/admin/intro/#requirements) and runs a supported distribution.
+Before starting, ensure your server meets [the minimum requirements](/docs/admin/intro/#requirements) and runs a supported distribution. To choose the right server size, see [System Requirements & Sizing](/docs/articles/install-update/system-requirements/).
 
 To install OpenPanel on your server:
 
@@ -18,4 +18,7 @@ bash <(curl -sSL https://openpanel.org)
 
 The installation script supports [optional flags](/install) that can be used to configure openpanel, skip certain installation steps or simply display debugging information.
 
-If you encountered any errors while running the installation script, please copy & paste the installation log file to [the community forums](https://community.openpanel.org).
+If you encountered any errors while running the installation script, please copy & paste the installation log file to [GitHub Discussions](https://github.com/stefanpejcic/OpenPanel/discussions).
+
+![OpenPanel installer output in a terminal: the OpenPanel banner with version, OS, IP and Podman engine, each installation step marked OK, and the OpenAdmin URL with the generated username and password at the end](/img/openpanel-screenshots/install/installer-output-generic.png#screenshot)
+

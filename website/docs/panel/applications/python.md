@@ -6,6 +6,8 @@ sidebar_position: 22
 
 Containerized [Python](https://python.org/) applications can be created and managed in **OpenPanel Enterprise Edition**.
 
+Step-by-step guides: [Deploy a Flask app](/docs/articles/websites/deploy-flask-app/) · [Deploy a Django app](/docs/articles/websites/deploy-django-app/)
+
 ---
 
 ## Create an Application

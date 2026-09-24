@@ -6,6 +6,8 @@ sidebar_position: 23
 
 Containerized [Ruby](https://www.ruby-lang.org/) applications can be created and managed in **OpenPanel Enterprise Edition**.
 
+Step-by-step guide: [Deploy a Ruby / Rails app](/docs/articles/websites/deploy-ruby-app/)
+
 ---
 
 ## Create an Application

@@ -167,7 +167,7 @@ Services tab displays all user services (docker containers). Columns can be togg
 - Environment variables (sensitive values such as passwords are masked and can be revealed on click)
 - Current CPU usage
 - Current Memory usage
-- Actions, including a terminal link to run docker exec commands in that service.
+- Actions, including a terminal link to run podman exec commands in that service.
 
 An 'Edit Services' button also lets Administrators edit the raw service configuration.
 

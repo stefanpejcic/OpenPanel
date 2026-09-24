@@ -39,7 +39,7 @@ Despite these failures, Caddy successfully creates an ACME order:
 https://acme-staging-v02.api.letsencrypt.org/acme/order/262155913/31213094193
 ```
 
-##Cause
+## Cause
 
 The connection resets indicate a network-level issue:
 
@@ -47,7 +47,7 @@ The connection resets indicate a network-level issue:
 - Manual ACME challenge configuration overriding Caddy’s internal ACME handling
 - Repeated failed attempts may trigger Let’s Encrypt rate limits (HTTP 429)
 
-##Workaround / Steps to Resolve
+## Workaround / Steps to Resolve
 
 1. Remove manual ACME challenge configuration
 
@@ -84,7 +84,7 @@ Also check:
 
 3. Restart Caddy
 
-```docker restart caddy```
+```podman restart caddy```
 
 4. Wait for automatic ACME retry
 
@@ -103,7 +103,7 @@ tls {
     }
 }
 ```
-##Disable WAF
+## Disable WAF
 
 ModSecurity rules do not affect SSL generation: Caddy automatically tries to generate SSL when a website is visited via HTTPS, and this happens before the request is examined by any WAF rules.
 
@@ -120,7 +120,7 @@ Note that you need to remove existing domains as well, or edit their files to no
 We don’t recommend disabling WAF unless you have another firewall in place - for example, if you’re using a Cloudflare proxy & firewall for all domains.
 
 
-##Verification
+## Verification
 
 After completing the steps above:
 
@@ -134,7 +134,7 @@ Optional: verify certificate details with:
 ```curl -v https://test1.test.com ```
 
 
-##Notes
+## Notes
 Avoid manual ACME challenge configurations unless absolutely necessary
 Ensure firewall and provider-level settings do not block Let’s Encrypt validation IPs
 

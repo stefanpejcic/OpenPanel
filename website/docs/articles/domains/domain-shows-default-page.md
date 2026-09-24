@@ -23,6 +23,10 @@ Upload your website files (including an `index.php` or `index.html`) to the docu
 If **Varnish caching** is enabled and you access the domain before it has content, the default page may get cached.
 This means that even after you upload your site, the cached default page could still be shown.
 
+**How to check:**
+
+* Test by adding `?something-random-that-is-not-cached` to the url and opening in your browser.
+
 **How to fix:**
 
 * Temporarily disable and then re-enable Varnish caching for the domain, or

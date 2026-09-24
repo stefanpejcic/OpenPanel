@@ -28,7 +28,7 @@ nano /etc/openpanel/openpanel/static/js/custom.js
 This file is always loaded by the OpenPanel interface, so anything you put there runs on every page - not just onboarding. If the file didn't already exist, restart the `openpanel` container once so it picks up the new override:
 
 ```bash
-cd /root && docker compose up -d openpanel
+cd /root && podman-compose up -d openpanel
 ```
 
 Further edits to an existing `custom.js` take effect immediately on page reload - no restart needed.

@@ -35,9 +35,11 @@ This guide will walk you through deploying **OpenPanel** on a DigitalOcean Dropl
 Use SSH to connect:
 ```bash
 ssh root@yourDropletIpAddress
-````
+```
 
 > Replace `yourDropletIpAddress` with the static IP you assigned to your Droplet.
+
+![Terminal showing the first SSH connection as root: confirming the server's host key fingerprint, the Ubuntu 24.04 welcome message, and the root prompt](/img/openpanel-screenshots/install/ssh-digitalocean.png#screenshot)
 
 ---
 
@@ -47,6 +49,8 @@ Once logged in, run the installer script:
 ```bash
 bash <(curl -sSL https://openpanel.org)
 ```
+
+![OpenPanel installer output in a terminal: the OpenPanel banner with version, OS, IP and Podman engine, each installation step marked OK, and the OpenAdmin URL with the generated username and password at the end](/img/openpanel-screenshots/install/installer-output-generic.png#screenshot)
 
 ---
 

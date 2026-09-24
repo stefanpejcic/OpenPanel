@@ -1,5 +1,5 @@
 ---
-sidebar_label: "Adding custom docker images for OpenPanel users"
+sidebar_label: "Adding custom container images for OpenPanel users"
 ---
 
 # How to Use a Custom Docker Image for a Hosting User

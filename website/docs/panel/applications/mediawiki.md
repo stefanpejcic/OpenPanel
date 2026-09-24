@@ -56,14 +56,3 @@ The **Backups** tab generates on-demand backups (database, files, or both) into 
 ### Remove
 
 The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database, deletes every file in the docroot, removes the per-minute job-queue cron job, and removes it from Site Manager. This cannot be undone.
-
----
-
-## Not included
-
-To keep this feature simple, the following are **not** part of MediaWiki support (unlike the WordPress Manager):
-
-- A dedicated "MediaWiki Manager" sidebar page — manage installed sites from Site Manager instead
-- Scanning the filesystem for untracked installations
-- Security hardening rules
-- Only MySQL/MariaDB databases are supported

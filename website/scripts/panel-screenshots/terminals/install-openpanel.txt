@@ -1,0 +1,61 @@
+[p]root@server:~#[/] bash <(curl -sSL https://openpanel.org)
+--------------------------------------------------------------------------------------------------------
+   ____                         _____                      _  
+  / __ \                       |  __ \                    | | 
+ | |  | | _ __    ___  _ __    | |__) | __ _  _ __    ___ | | 
+ | |  | || '_ \  / _ \| '_ \   |  ___/ / _" || '_ \ / _  \| | 
+ | |__| || |_) ||  __/| | | |  | |    | (_| || | | ||  __/| | 
+  \____/ | .__/  \___||_| |_|  |_|     \__,_||_| |_| \___||_| 
+         | |                                                  
+         |_|                                   version: [g]2.0.11[/] 
+--------------------------------------------------------------------------------------------------------
+  OS: [g]UBUNTU 24.04[/]  |  Arch: [g]X86_64[/]  |  IP: [g]203.0.113.10[/]  |  Engine: [g]PODMAN[/]  |  Pkg: [g]APT-GET[/]
+--------------------------------------------------------------------------------------------------------
+[[g] OK [/]] No conflicting panels or web servers found.
+Starting OpenPanel installation process...
+Updating apt-get...
+Installing required packages...
+Installing [g]21[/] packages in one transaction...
+[[g] OK [/]] Podman ... ready.
+Pulling shared images...
+Hetzner detected — adding Cloudflare DNS resolvers...
+Downloading OpenPanel project repositories from Github...
+Downloading openpanel-configuration to /etc/openpanel/
+Downloading openadmin to /usr/local/admin/openadmin-amd64
+Downloading opencli commands to /usr/local/opencli
+[[g] OK [/]] configuration files ready.
+Root disk free is 72GB — prefetching all shared images in background...
+Setting up opencli...
+[[g] OK [/]] opencli commands are executable.
+Setting up OpenAdmin...
+[[g] OK [/]] OpenAdmin is running on port 2087.
+Setting up Podman Compose and system containers...
+[[g] OK [/]] Podman alpine container ran successfully.
+Setting up MariaDB...
+[[g] OK [/]] MySQL service started.
+Setting up BIND DNS...
+Pinning BIND9 to the server's real IP because Podman's aardvark-dns holds port 53 on each bridge gateway IP...
+[[g] OK [/]] rndc.key generated.
+Installing Sentinel Firewall...
+[[g] OK [/]] Sentinel Firewall installed.
+Setting shortlived SSL for IP address 203.0.113.10
+SSL attempt 1 for 203.0.113.10...
+[[g] OK [/]] SSL ready. OpenAdmin is now using HTTPS.
+Running housekeeping steps..
+[[g] OK [/]] All housekeeping steps completed.
+--------------------------------------------------------------------------------------------------------
+🎉 Thank you for choosing OpenPanel!
+
+  Getting started:  https://openpanel.com/docs/admin/intro/#post-install-steps
+  Report issues:    https://github.com/stefanpejcic/OpenPanel/issues/new/choose
+  Discord:          https://discord.openpanel.com/
+  Discussions:      https://github.com/stefanpejcic/OpenPanel/discussions
+--------------------------------------------------------------------------------------------------------
+
+[g]OpenPanel Community 2.0.11 installed successfully [/]in 4m 37s
+--------------------------------------------------------------------------------------------------------
+[g]●[/] OpenAdmin is running and is available on: https://203.0.113.10:2087/
+  Username: [g]clever_yonath7[/]
+  Password: [g]Xq7vN2pLk9TzR4mW[/]
+--------------------------------------------------------------------------------------------------------
+[p]root@server:~#[/] 

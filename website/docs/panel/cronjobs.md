@@ -87,6 +87,9 @@ This is useful for quickly checking that a job is configured correctly before re
 
 Each cron job execution is recorded in JSON format.
 
+![Inline cron job log panel with the Job and Lines filters, Refresh button and log entries of recent runs](/img/openpanel-screenshots/advanced/cronjobs-logs.png#gh-light-mode-only)
+![Inline cron job log panel with the Job and Lines filters, Refresh button and log entries of recent runs](/img/openpanel-screenshots/advanced/cronjobs-logs_dark.png#gh-dark-mode-only)
+
 To view the logs, click the *“View Logs”* button (or the per-job *“Logs”* button in a job's row). This opens an inline log panel at the top of the table, where you can filter by job name and choose how many lines to display, and refresh the results.
 
 To filter logs by a specific job name (comment) directly through the API endpoint, append the following parameter to the URL:
@@ -131,3 +134,5 @@ Simply click the *“Switch to File Editor”* button to open the editor.
 
 ![Cron jobs File Editor showing the jobs in crons.ini format](/img/openpanel-screenshots/advanced/cronjobs_editor-editor.png#gh-light-mode-only)
 ![Cron jobs File Editor showing the jobs in crons.ini format](/img/openpanel-screenshots/advanced/cronjobs_editor-editor_dark.png#gh-dark-mode-only)
+
+See also: [Restart a service automatically with a cron job](/docs/articles/containers/restart-service-with-cron/)

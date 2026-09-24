@@ -38,17 +38,3 @@ The **Backups** tab generates and restores files-only backups (there is no datab
 ### Remove
 
 The **Remove** tab's **Delete Application** button fully uninstalls the site: deletes `tinyfilemanager.php` and removes it from Site Manager. This cannot be undone.
-
----
-
-## Not included
-
-To keep this feature simple, the following are **not** part of TinyFileManager support:
-
-- A dedicated "TinyFileManager Manager" sidebar page — manage installed sites from Site Manager instead
-- Cloning a site
-- Scanning the filesystem for untracked installations
-- Security hardening rules
-- Maintenance mode, admin auto-login, and cache-clearing — no such concepts exist in TinyFileManager at all
-- Version tracking — no tagged releases exist upstream, so the manager page always just shows "main"
-- A database of any kind — TinyFileManager is entirely flat-file

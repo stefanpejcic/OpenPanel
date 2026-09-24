@@ -6,7 +6,7 @@ sidebar_label: "Custom Services"
 
 Custom services can be added to OpenAdmin to be run and monitored from the admin panel.
 
-In this example, We will add [netdata](https://learn.netdata.cloud/docs/netdata-agent/installation/docker) docker image.
+In this example, We will add [netdata](https://learn.netdata.cloud/docs/netdata-agent/installation/docker) container image.
 
 ## Add service
 
@@ -51,7 +51,7 @@ and add the netdata section:
 save and exit the file. then start the service:
 
 ```
-docker --context=default compose up -d netdata
+cd /root && podman-compose up -d netdata
 ```
 
 now, I suggest just whitelisting your IP on the firewall instead of opening the port to the internet.

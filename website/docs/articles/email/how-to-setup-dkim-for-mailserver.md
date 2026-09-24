@@ -30,7 +30,7 @@ When mail signed with your DKIM key is sent from your mail server, the receiver 
 
 If you are using nameservers on the same OpenPanel server that mailserver is running on, then run:
 ```bash
-docker cp openadmin_mailserver:/tmp/docker-mailserver/opendkim/keys/DOMAIN_NAME_HERE/mail.txt /tmp/mail.txt && cat /tmp/mail.txt >> /etc/bind/zones/DOMAIN_NAME_HERE.zone
+podman cp openadmin_mailserver:/tmp/docker-mailserver/opendkim/keys/DOMAIN_NAME_HERE/mail.txt /tmp/mail.txt && cat /tmp/mail.txt >> /etc/bind/zones/DOMAIN_NAME_HERE.zone
 ```
 
 Make sure to replace `DOMAIN_NAME_HERE` with *yourdomain.com*
@@ -44,7 +44,7 @@ This will append the DKIM record to the DNS zone.
 If you are using external nameservers like [Cloudflare](https://www.cloudflare.com/), run this command to view the record:
 
 ```bash
-docker cp openadmin_mailserver:/tmp/docker-mailserver/opendkim/keys/DOMAIN_NAME_HERE/mail.txt /tmp/mail.txt && cat /tmp/mail.txt
+podman cp openadmin_mailserver:/tmp/docker-mailserver/opendkim/keys/DOMAIN_NAME_HERE/mail.txt /tmp/mail.txt && cat /tmp/mail.txt
 ```
 
 Add the TXT record to your **remote server's DNS zone**:

@@ -40,7 +40,7 @@ Once enabled, the feature becomes instantly available to all users, appearing in
 
 ## Set pre-installed services
 
-OpenPanel uses docker compose files as the base for each user. Based on the docker images in that compose files, different services can be set per plan/user. 
+OpenPanel uses compose files as the base for each user. Based on the container images in those compose files, different services can be set per plan/user. 
 
 
 ## Localize the interface
@@ -83,7 +83,7 @@ nano /etc/openpanel/openpanel/custom_code/custom.css
 Set the custom css code, save and restart openpanel to apply changes:
 
 ```bash
-cd /root && docker compose up -d openpanel
+cd /root && podman-compose up -d openpanel
 ```
 
 Example:
@@ -129,7 +129,7 @@ For example, to edit the sidebar and hide the OpenPanel logo, follow these steps
    ```
 2. Copy the existing template code.
    ```bash
-   docker cp openpanel:/usr/local/panel/templates/partials/sidebar.html /root/custom_template/sidebar.html
+   podman cp openpanel:/usr/local/panel/templates/partials/sidebar.html /root/custom_template/sidebar.html
    ```
 3. Edit the code.
 
@@ -144,7 +144,7 @@ For example, to edit the sidebar and hide the OpenPanel logo, follow these steps
    ```
 6. Restart OpenPanel to apply the new template.
    ```bash
-   cd /root && docker compose up -d openpanel
+   cd /root && podman-compose up -d openpanel
    ```
 
 
@@ -161,7 +161,7 @@ To edit the login page:
    ```
 2. Copy the existing template code.
    ```bash
-   docker cp openpanel:/usr/local/panel/templates/user/login.html /root/custom_template/login.html
+   podman cp openpanel:/usr/local/panel/templates/user/login.html /root/custom_template/login.html
    ```
 3. Edit the code.
 
@@ -176,7 +176,7 @@ To edit the login page:
    ```
 6. Restart OpenPanel to apply the new login template.
    ```bash
-   cd /root && docker compose up -d openpanel
+   cd /root && podman-compose up -d openpanel
    ```
 
 
@@ -209,5 +209,5 @@ nano /etc/openpanel/openpanel/custom_code/in_footer.html
 
 ## Customize Email templates
 
-How to modify the email template used for user notifications: https://community.openpanel.org/d/189-customizing-the-email-template-used-for-user-notifications
+See [Customizing OpenAdmin Email Templates](/docs/articles/dev-experience/customizing-openadmin-email-templates/).
 

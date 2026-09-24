@@ -58,3 +58,5 @@ Then the SSL section will show **“No Certificate!”**
 
 ![SSL page for a domain with the AutoSSL status, the Generate now button, and the certificate details and files](/img/openpanel-screenshots/domains/ssl-page.png#gh-light-mode-only)
 ![SSL page for a domain with the AutoSSL status, the Generate now button, and the certificate details and files](/img/openpanel-screenshots/domains/ssl-page_dark.png#gh-dark-mode-only)
+
+Related guides: [Install a custom or paid SSL certificate](/docs/articles/domains/install-custom-ssl-certificate/) · [Let's Encrypt rate limits and renewal failures](/docs/articles/domains/lets-encrypt-rate-limits-renewal-failures/) · [Wildcard SSL certificates](/docs/articles/domains/wildcard-ssl-certificate/) · [Use Cloudflare with OpenPanel](/docs/articles/domains/cloudflare-with-openpanel/)

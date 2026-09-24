@@ -26,7 +26,7 @@ When disabled:
 
 Customize email notifications:
 * To **set default preferences for new users** edit the [`/etc/openpanel/skeleton/notifications.yaml`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/skeleton/notifications.yaml) file.
-* To **customize email templates** refer to [Customizing OpenPanel Email Templates](https://community.openpanel.org/d/214-customizing-openpanel-email-templates).
+* To **customize email templates** refer to [Customizing OpenAdmin Email Templates](/docs/articles/dev-experience/customizing-openadmin-email-templates/).
 * To **configure custom SMTP** use [OpenAdmin > Settings > Notifications page](/docs/admin/settings/notifications/).
 
 
@@ -117,7 +117,6 @@ Customize options:
 * To **change default CPU/RAM for service** use the [*OpenAdmin > Settings > User Defaults* page](/docs/admin/settings/defaults/).
 * To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Domains > Domain Templates* page](/docs/admin/settings/defaults/) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
 * To **purge Varnish cache** refer to [How-to Guides > Purging Varnish Cache](/docs/articles/websites/purge-varnish-cache-from-terminal/)
-* To **check if Varnish is enabled for domain** refer to [How to check if Varnish Caching is enabled for a domain in OpenPanel?](https://community.openpanel.org/d/207-how-to-check-if-varnish-caching-is-enabled-for-a-domain-in-openpanel)
 
 
 ## Docker
@@ -137,10 +136,10 @@ The web terminal, changing a service's image tag, and switching the webserver/My
 
 ## Web Terminal
 
-The **`terminal`** module allows users to run docker exec commands from an interactive shell inside their containers.
+The **`terminal`** module allows users to run podman exec commands from an interactive shell inside their containers.
 
 When enabled:
-* Users can access [**Containers > Terminal**](/docs/panel/containers/terminal/) page to run docker exec commands.
+* Users can access [**Containers > Terminal**](/docs/panel/containers/terminal/) page to run podman exec commands.
 
 When disabled:
 * Users do not have access to the *Terminal* page.
@@ -605,7 +604,6 @@ When disabled:
 Customize options:
 * To **enable 2FA widget** use [*OpenAdmin > Settings > OpenPanel* page and *Display 2FA widget* option](/docs/admin/settings/openpanel/).
 * To **enforce 2FA for all users** use [*OpenAdmin > Settings > OpenPanel* page and *Enforce 2FA* option](/docs/admin/settings/openpanel/).
-* To **check 2FA status for a user** refer to [How to check if 2FA is active for OpenPanel user account?](https://community.openpanel.org/d/220-how-to-check-if-2fa-is-active-for-openpanel-user-account).
 
 ## Passkeys
 

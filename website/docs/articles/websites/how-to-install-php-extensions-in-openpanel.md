@@ -77,7 +77,7 @@ and OpenPanel adds the `Zend OPcache` extension.
 1. **Connect to the server** via SSH as `root`
 2. **Enter the PHP container** for the desired user and version:
 ```
-   docker --context=USERNAME_HERE exec -it php-fpm-8.5 bash
+   opencli docker USERNAME_HERE php-fpm-8.5
 ```
  
 3. **Enable the extension** using `docker-php-ext-enable`:
@@ -88,7 +88,8 @@ and OpenPanel adds the `Zend OPcache` extension.
 4. **Exit and restart** the PHP container:
 ```
    exit
-   docker --context=USERNAME_HERE restart php-fpm-8.5
+   source /usr/local/opencli/lib/podman.sh
+   podman_user USERNAME_HERE restart php-fpm-8.5
 ```
 
 ## Adding Custom PHP Extensions
@@ -150,7 +151,7 @@ phpaddmod gmp
 2. Enter the PHP container for the desired user and version:
 
 ```
-docker --context=USERNAME_HERE exec -it php-fpm-8.5 bash
+opencli docker USERNAME_HERE php-fpm-8.5
 ```
 
 3. Install the extension

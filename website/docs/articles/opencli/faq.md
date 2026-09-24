@@ -26,7 +26,7 @@ LINK: https://demo.openpanel.com:2083/
 
 3. How to restart OpenAdmin or OpenPanel services?
 
-- OpenPanel: docker restart openpanel
+- OpenPanel: podman restart openpanel
 - OpenAdmin: service admin restart
 ------------------------------------------------------------
 

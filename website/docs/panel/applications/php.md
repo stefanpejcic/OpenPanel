@@ -8,6 +8,8 @@ Deploy a [Composer](https://getcomposer.org/)-based PHP application into an exis
 
 ---
 
+Step-by-step guide: [Deploy a Laravel app (Composer, scheduler and queue workers)](/docs/articles/websites/deploy-laravel-app/)
+
 ## Install a PHP Application
 
 Navigate to **OpenPanel > Websites > Install App** and click **Install PHP Application**.
@@ -55,13 +57,3 @@ The full history of every Composer install/update run for the application, each 
 
 **Delete Application** removes the application from Site Manager and clears its stored `.env` settings. Docroot files and any database are left untouched (the same "all website data remains" behavior the Node.js/Python installers use), so you can still access them manually or add the app again later. Click **Confirm delete** to proceed.
 
----
-
-## Not included
-
-Because a PHP application isn't containerized the way Node.js/Python/Ruby/Java applications are, the following don't apply:
-
-- A dedicated container — so also no Start/Stop/Restart actions, no CPU/Memory/PIDs limits, and no per-app Docker image/version picker
-- A custom port, or a startup file/command — the domain's existing vhost and PHP-FPM already handle routing and execution
-- Changing the PHP version from the app itself — it always follows whatever version the domain has set in PHP Selector
-- Screenshot, status and resource-usage cards on the manage page, since there's no container to report on

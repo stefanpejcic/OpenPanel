@@ -115,5 +115,4 @@ When both **RELAY_USER** and **RELAY_PASSWORD** are configured, all outbound mai
 
 Once configured, click the **Save Relay** button to apply the settings and begin routing outbound emails through the specified relay host.
 
-
-
+See also: [Port 25 blocked? Use an SMTP relay](/docs/articles/email/port-25-blocked-smtp-relay/) · [Why emails go to spam](/docs/articles/email/why-emails-go-to-spam/)

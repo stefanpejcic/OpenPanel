@@ -10,3 +10,5 @@ sidebar_position: 6
 If the **Domain Redirects** feature is enabled, you can create and manage domain-level redirects from the Domains page.
 
 For each domain, you can specify a destination URL to redirect traffic to. The URL must begin with `http://` or `https://`. All traffic to the domain will be redirected to this URL *before* reaching your web server.
+
+Step-by-step guide: [How to redirect HTTP to HTTPS, www to non-www, or one domain to another](/docs/articles/domains/redirect-http-https-www-domain/)

@@ -6,6 +6,8 @@ sidebar_position: 21
 
 Containerized [Node.js](https://nodejs.org) applications can be created and managed in **OpenPanel Enterprise Edition**.
 
+Step-by-step guide: [Deploy a Node.js / Next.js app](/docs/articles/websites/deploy-nodejs-app/)
+
 ---
 
 ## Create an Application

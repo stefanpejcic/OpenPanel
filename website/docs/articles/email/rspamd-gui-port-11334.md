@@ -29,7 +29,7 @@ You must set a controller password before logging in.
 1. Open a terminal and run:
 
    ```bash
-   docker exec -it openadmin_mailserver rspamadm pw
+   podman exec -it openadmin_mailserver rspamadm pw
    ```
 
    * Enter your new password.
@@ -42,7 +42,7 @@ You must set a controller password before logging in.
 2. Enter the mailserver container:
 
    ```bash
-   docker exec -it openadmin_mailserver sh
+   podman exec -it openadmin_mailserver sh
    ```
 
 3. Add the hashed password to the configuration:
@@ -55,7 +55,7 @@ You must set a controller password before logging in.
 
    ```bash
    exit
-   docker restart openadmin_mailserver
+   podman restart openadmin_mailserver
    ```
 
 ## How to access the RSPAMD GUI

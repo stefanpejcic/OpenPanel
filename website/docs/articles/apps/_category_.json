@@ -1,0 +1,9 @@
+{
+  "label": "Install Apps",
+  "position": 5.5,
+  "link": {
+    "type": "generated-index",
+    "title": "Install Apps with OpenPanel",
+    "description": "Step-by-step guides for self-hosting popular open-source applications on your own server with the OpenPanel auto installer."
+  }
+}

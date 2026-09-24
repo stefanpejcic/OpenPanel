@@ -43,3 +43,7 @@ Click **Details** next to a domain to see, for each of SPF, DKIM, and DMARC:
 - **Expected**: the value OpenPanel expects, based on this server's configuration
 
 Use this comparison to update your DNS zone so that the current value matches the expected one.
+
+---
+
+For a full deliverability checklist, including reverse DNS and blocklists, see [Why Do My Emails Go to Spam?](/docs/articles/email/why-emails-go-to-spam/)

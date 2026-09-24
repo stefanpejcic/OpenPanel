@@ -28,7 +28,7 @@ nano /etc/openpanel/openpanel/static/robots.txt
 The override is only checked once, at startup, so restart the service to apply it:
 
 ```bash
-cd /root && docker compose up -d openpanel
+cd /root && podman-compose up -d openpanel
 ```
 
 The same directory also holds the CSS/JS overrides — `css/custom.css` and `js/custom.js` under `/etc/openpanel/openpanel/static/` — if you're customizing one you may want the others too; see [Branding & White-Label](/docs/articles/dev-experience/customizing-openpanel-user-interface#set-a-custom-color-scheme).

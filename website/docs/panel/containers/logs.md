@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Logs
 
-The **Containers > Logs** page allows you to view container logs (`docker logs`) directly from the OpenPanel interface.
+The **Containers > Logs** page allows you to view container logs (`podman logs`) directly from the OpenPanel interface.
 
 ## Requirements
 
@@ -25,7 +25,7 @@ To access this feature:
 
 You can optionally adjust the number of log lines shown using the dropdown menu in the top-right corner of the logs panel.
 
-> 💡 Logs are fetched using `docker logs` and show the real-time output of the container’s stdout and stderr streams.
+> 💡 Logs are fetched using `podman logs` and show the real-time output of the container’s stdout and stderr streams.
 
 
 :::tip

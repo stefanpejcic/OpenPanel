@@ -47,17 +47,3 @@ The **Logs** tab shows the tail of `system/storage/logs/error.log` — the PHP w
 ### Remove
 
 The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database and database user, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
-
----
-
-## Not included
-
-To keep this feature simple, the following are **not** part of OpenCart support (unlike the WordPress Manager):
-
-- A dedicated "OpenCart Manager" sidebar page — manage installed sites from Site Manager instead
-- Cloning a site
-- Scanning the filesystem for untracked installations
-- Security hardening rules
-- Sample/demo data (OpenCart's CLI installer sets up an empty catalog)
-- A dedicated backup/restore system (use the account-level [Backups](/docs/panel/backups/) feature instead)
-- Only MySQL/MariaDB databases are supported

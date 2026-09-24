@@ -85,7 +85,7 @@ Email is now enabled for all hosting plans that include the **emails** feature. 
 If the mail server fails to start, try launching it manually from the terminal:
 
 ```bash
-cd /usr/local/mail/openmail && docker compose up mailserver
+cd /usr/local/mail/openmail && podman-compose up mailserver
 ```
 
 Review the startup logs for any errors, resolve them, and once the service is running correctly, stop it and restart it in detached mode using the `-d` flag.

@@ -63,17 +63,3 @@ The **Update** action updates an installed site to the latest release in place: 
 ### Remove
 
 The **Remove** tab's **Delete Application** button fully uninstalls the site: removes the registered cron job, drops the database and database user, deletes the docroot symlink plus the app root and `moodledata` directories, and removes it from Site Manager. This cannot be undone.
-
----
-
-## Not included
-
-To keep this feature simple, the following are **not** part of Moodle support (unlike the WordPress Manager):
-
-- A dedicated "Moodle Manager" sidebar page — manage installed sites from Site Manager instead
-- One-click "Login as Admin" — log in with the admin credentials you set during install
-- A general `admin/cli/*` command console — only cache purging and log tailing are exposed
-- Scanning the filesystem for untracked installations
-- Security hardening rules
-- Pinning an update to a specific version — Update always installs the latest release
-- Only MySQL/MariaDB databases are supported (not PostgreSQL)

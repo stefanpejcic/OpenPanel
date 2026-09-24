@@ -45,7 +45,7 @@ Each row in the table represents a containerized service and displays:
 - **Status** – A badge showing whether the service is currently **Enabled** (running) or **Disabled** (stopped).
 - **Actions**  
   - If the service is **stopped**, a **Start** button is shown to start it (with a **Pull & Start** option to pull the latest image first).  
-  - If the service is **running**, **Stop**, **Terminal** and **Logs** buttons are shown. Click **Terminal** to open a web terminal (`docker exec`) for that container, or **Logs** to jump to its log output.  
+  - If the service is **running**, **Stop**, **Terminal** and **Logs** buttons are shown. Click **Terminal** to open a web terminal (`podman exec`) for that container, or **Logs** to jump to its log output.  
   - **Edit** and **Delete** links are only available for services you added yourself — core services (webserver, database, mail, etc.) cannot be edited or deleted from this page.
 
 ## Editing Resources

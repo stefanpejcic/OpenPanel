@@ -35,9 +35,11 @@ Use SSH to connect:
 
 ```bash
 ssh root@yourInstanceIp
-````
+```
 
 > Replace `yourInstanceIp` with the public IP of your Vultr instance.
+
+![Terminal showing the first SSH connection as root: confirming the server's host key fingerprint, the Ubuntu 24.04 welcome message, and the root prompt](/img/openpanel-screenshots/install/ssh-vultr.png#screenshot)
 
 ---
 
@@ -49,7 +51,9 @@ Run the installation script:
 bash <(curl -sSL https://openpanel.org)
 ```
 
-> Follow the prompts to select your preferred database engine and complete installation.
+The installer runs without any prompts and takes about 5 minutes. When it finishes, it prints the **OpenAdmin URL**, **username** and **password**.
+
+![OpenPanel installer output in a terminal: the OpenPanel banner with version, OS, IP and Podman engine, each installation step marked OK, and the OpenAdmin URL with the generated username and password at the end](/img/openpanel-screenshots/install/installer-output-generic.png#screenshot)
 
 ---
 

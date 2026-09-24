@@ -9,6 +9,12 @@ sidebar_position: 1
 - [How to access Openpanel](/docs/articles/dev-experience/how-to-access-openpanel/)
 - [How to Reset a OpenPanel Account Password](/docs/articles/accounts/how-to-reset-openpanel-account-password)
 
+# Hosting Business
+- [Start a Web Hosting Business with OpenPanel](/docs/articles/hosting-business/start-web-hosting-business/)
+- [Suggested Hosting Plan Limits](/docs/articles/hosting-business/hosting-plan-templates/)
+- [Reseller Hosting](/docs/articles/hosting-business/reseller-hosting/)
+- [White-Label OpenPanel](/docs/articles/hosting-business/white-label-openpanel/)
+
 # Billing Integrations
 - [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/)
 - [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/)

@@ -194,3 +194,5 @@ opencli plan-delete 'Standard plan'
 </Tabs>
 
 Note: A package cannot be deleted if it has users assigned to it.
+
+Need a starting point? See [Suggested hosting plan limits](/docs/articles/hosting-business/hosting-plan-templates/).

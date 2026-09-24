@@ -48,16 +48,3 @@ The **Logs** tab shows the contents of `administrator/logs/*.php` — the PHP wa
 ### Remove
 
 The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database and database user, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
-
----
-
-## Not included
-
-To keep this feature simple, the following are **not** part of Joomla support (unlike the WordPress Manager):
-
-- A dedicated "Joomla Manager" sidebar page — manage installed sites from Site Manager instead
-- Cloning a site
-- Scanning the filesystem for untracked installations
-- Security hardening rules
-- A dedicated backup/restore system (use the account-level [Backups](/docs/panel/backups/) feature instead)
-- Only MySQL/MariaDB databases are supported (not PostgreSQL)

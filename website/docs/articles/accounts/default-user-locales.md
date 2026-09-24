@@ -103,7 +103,7 @@ To verify which locale is being used for a user, you can temporarily enable deve
 3. Tail the logs:
 
    ```bash
-   docker logs -f openpanel
+   podman logs -f openpanel
    ```
 
 Look for log lines similar to:

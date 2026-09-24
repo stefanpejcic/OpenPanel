@@ -21,7 +21,7 @@ First, ensure that the service is running:
 **From the terminal:**
 
 ```bash
-docker ps -a
+podman ps -a
 ```
 
 Look for the `openpanel_mysql` service in the output.
@@ -30,11 +30,11 @@ Look for the `openpanel_mysql` service in the output.
 
 ## MySQL Fails to Start
 
-If the MySQL service fails to start, Docker will keep restarting it. You can observe this from the `docker ps -a` output.
+If the MySQL service fails to start, Podman will keep restarting it. You can observe this from the `podman ps -a` output.
 
 Example:
 ```bash
-root@openpanel:~# docker ps -a
+root@openpanel:~# podman ps -a
 CONTAINER ID   IMAGE                COMMAND                  CREATED          STATUS                          PORTS     NAMES
 6d9885164cba   mysql/mysql-server   "/entrypoint.sh mysql…"   30 minutes ago   Restarting (1) 22 seconds ago             openpanel_mysql
 ```
@@ -43,12 +43,12 @@ CONTAINER ID   IMAGE                COMMAND                  CREATED          ST
 * If the uptime is only a few seconds and the status shows **not running** or **unhealthy**, check the service logs:
 
 ```bash
-docker logs -f openpanel_mysql
+podman logs -f openpanel_mysql
 ```
 
 Example:
 ```bash
-root@openpanel:~# docker logs -f openpanel_mysql
+root@openpanel:~# podman logs -f openpanel_mysql
 [Entrypoint] MySQL Docker Image 8.0.32-1.2.11-server
 [Entrypoint] Starting MySQL 8.0.32-1.2.11-server
 2025-10-17T15:36:55.291441Z 0 [Warning] [MY-011068] [Server] The syntax '--skip-host-cache' is deprecated and will be removed in a future release. Please use SET GLOBAL host_cache_size=0 instead.
@@ -65,11 +65,11 @@ root@openpanel:~# docker logs -f openpanel_mysql
 
 In this example, error is: *Another process with pid 60 is using unix socket file.*
 
-[Googling the error](https://stackoverflow.com/questions/36103721/docker-db-container-running-another-process-with-pid-id-is-using-unix-socket) we get the solution: `cd /root && docker compose down --volumes` **NOTE: this will remove all existing mysql data including users, plans, domains.. only run it on a fresh installation, ie. if this mysql error occurs after installing openpanel**.
+[Googling the error](https://stackoverflow.com/questions/36103721/docker-db-container-running-another-process-with-pid-id-is-using-unix-socket) we get the solution: `cd /root && podman-compose down --volumes` **NOTE: this will remove all existing mysql data including users, plans, domains.. only run it on a fresh installation, ie. if this mysql error occurs after installing openpanel**.
 
 * Copy any error messages and search online. Common issues include:
 
-  * Problem with the latest mysql docker image tag
+  * Problem with the latest mysql image tag
   * MySQL not running properly on ARM CPUs
 
 ---
@@ -100,9 +100,9 @@ If this is a fresh installation and there are no users or plans yet, MySQL may f
 
 ```
 cd /root
-docker compose down
-docker volume rm root_mysql # DANGER: this will delete all users and plans, only run it on a fresh install!
-docker compose up -d openpanel_mysql openpanel
+podman-compose down
+podman volume rm root_mysql # DANGER: this will delete all users and plans, only run it on a fresh install!
+podman-compose up -d openpanel_mysql openpanel
 ```
 
 Otherwise, check if credentials stored in `/etc/my.cnf` are correct:

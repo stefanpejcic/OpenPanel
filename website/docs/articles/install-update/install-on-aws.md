@@ -54,6 +54,13 @@ ssh -i your_private_key.pem ubuntu@yourElasticIpAddress
 
 > Replace `your_private_key.pem` with your key file and `yourElasticIpAddress` with the allocated Elastic IP.
 
+The installer must run as **root**, so switch to the root user:
+
+```bash
+sudo -i
+```
+
+![Terminal showing the first SSH connection as ubuntu and switching to root with sudo -i: confirming the server's host key fingerprint, the Ubuntu 24.04 welcome message, and the root prompt](/img/openpanel-screenshots/install/ssh-aws.png#screenshot)
 
 ---
 
@@ -66,6 +73,8 @@ Once logged in, run the installer script:
 ```bash
 bash <(curl -sSL https://openpanel.org)
 ```
+
+![OpenPanel installer output in a terminal: the OpenPanel banner with version, OS, IP and Podman engine, each installation step marked OK, and the OpenAdmin URL with the generated username and password at the end](/img/openpanel-screenshots/install/installer-output-generic.png#screenshot)
 
 ---
 

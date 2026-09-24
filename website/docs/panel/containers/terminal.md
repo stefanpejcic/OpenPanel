@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Terminal
 
-The **Terminal** page provides a web-based terminal (`docker exec`) for interacting with your running containers directly through the OpenPanel interface.
+The **Terminal** page provides a web-based terminal (`podman exec`) for interacting with your running containers directly through the OpenPanel interface.
 
 ## Requirements
 
@@ -36,4 +36,4 @@ You can switch the shell type between `sh` and `bash` using the selector in the 
 
 ---
 
-> 💡 This feature uses `docker exec` under the hood, giving you direct access to the container's shell environment in real-time.
+> 💡 This feature uses `podman exec` under the hood, giving you direct access to the container's shell environment in real-time.

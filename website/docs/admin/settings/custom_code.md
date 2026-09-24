@@ -179,8 +179,7 @@ This powerful customization layer helps ensure OpenPanel fits seamlessly into yo
 
 Examples:
 
-- [Custom email templates](https://community.openpanel.org/d/214-customizing-openpanel-email-templates)
-- [Custom OpenAdmin color scheme](https://community.openpanel.org/d/216-customizing-openadmin-color-scheme)
+- [Custom email templates](/docs/articles/dev-experience/customizing-openadmin-email-templates/)
 
 
 Stored in `/root/openpanel_run_after_update` file.

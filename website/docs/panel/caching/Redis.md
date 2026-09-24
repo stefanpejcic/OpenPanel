@@ -76,3 +76,5 @@ You have the option to view the REDIS service logs. By doing so, you can identif
 
 ![Logs section of the Redis page with the View container log button](/img/openpanel-screenshots/caching/redis-log-button.png#gh-light-mode-only)
 ![Logs section of the Redis page with the View container log button](/img/openpanel-screenshots/caching/redis-log-button_dark.png#gh-dark-mode-only)
+
+Step-by-step guide: [Enable Redis object cache for WordPress](/docs/articles/websites/wordpress-redis-object-cache/)

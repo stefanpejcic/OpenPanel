@@ -61,15 +61,3 @@ The **Backups** tab generates and restores full backups (database dump plus a fi
 
 The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database and database user (parsed from `config/config.ini.php`), deletes every file in the docroot, removes the stored admin credentials, and removes it from Site Manager. This cannot be undone.
 
----
-
-## Not included
-
-To keep this feature simple, the following are **not** part of Matomo support (unlike the WordPress Manager):
-
-- A dedicated "Matomo Manager" sidebar page — manage installed sites from Site Manager instead
-- Scanning the filesystem for untracked installations
-- Security hardening rules
-- Maintenance mode — Matomo has no offline-mode primitive to toggle
-- Sample/demo data (the installer sets up a single empty analytics site)
-- Only MySQL/MariaDB databases are supported

@@ -52,7 +52,7 @@ apt update && apt install nfs-common
 
 If mail is already running, stop it:
 ```bash
-cd /usr/local/openmail && docker --context=default compose down mailserver
+cd /usr/local/mail/openmail && podman-compose down mailserver
 ```
 
 Back up existing mail data:
@@ -81,7 +81,7 @@ mount -a
 ## Step 3: Restart Mail Services
 
 ```bash
-cd /usr/local/openmail && docker --context=default compose up -d mailserver
+cd /usr/local/mail/openmail && podman-compose up -d mailserver
 ```
 
 Verify the mount:

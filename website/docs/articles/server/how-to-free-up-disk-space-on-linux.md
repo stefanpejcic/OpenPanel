@@ -156,7 +156,7 @@ ncdu /
 
 ### 10. Update OpenPanel (Optional)
 
-Updating OpenPanel removes previous docker images
+Updating OpenPanel removes previous container images
 
 ```bash
 opencli update --force

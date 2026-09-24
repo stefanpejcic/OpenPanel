@@ -63,14 +63,3 @@ The **Update** action updates an installed site by extracting the target version
 
 The **Remove** tab's **Delete Application** button fully uninstalls the site: removes the registered cron job, drops the database and database user, deletes the docroot symlink plus the app root and files directories, and removes it from Site Manager. This cannot be undone.
 
----
-
-## Not included
-
-To keep this feature simple, the following are **not** part of OJS support (unlike the WordPress Manager):
-
-- A dedicated "OJS Manager" sidebar page — manage installed sites from Site Manager instead
-- A general OJS CLI/`tools/*.php` command console — only cache clearing, log tailing, admin login, and update are exposed
-- Scanning the filesystem for untracked installations
-- Security hardening rules
-- Only MySQL/MariaDB databases are supported — OJS itself supports PostgreSQL too, but the installer here is hardcoded to `mysqli`

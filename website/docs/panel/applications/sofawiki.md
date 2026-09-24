@@ -46,15 +46,3 @@ The **Backups** tab generates and restores files-only backups (there is no datab
 
 The **Remove** tab offers both **Detach** (removes the site from Site Manager without touching any files — use Scan to re-add it later) and **Delete Application** (deletes every file in the docroot and removes it from Site Manager). Deletion cannot be undone.
 
----
-
-## Not included
-
-To keep this feature simple, the following are **not** part of SofaWiki support (unlike the WordPress Manager):
-
-- A dedicated "SofaWiki Manager" sidebar page — manage installed sites from Site Manager instead
-- Scanning the filesystem for untracked installations
-- Security hardening rules
-- Maintenance mode, admin auto-login, and cache-clearing — no such concepts exist in SofaWiki at all
-- Version tracking — no tagged releases exist upstream, so the manager page always just shows "master"
-- A database of any kind — SofaWiki is entirely flat-file

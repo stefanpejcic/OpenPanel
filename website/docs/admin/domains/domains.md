@@ -57,7 +57,7 @@ Example output:
 root@server:~# opencli domains-all
 openpanel.com
 openpanel.org
-community.openpanel.org
+demo.openpanel.com
 api.openpanel.com
 support.openpanel.org
 ip.openpanel.com

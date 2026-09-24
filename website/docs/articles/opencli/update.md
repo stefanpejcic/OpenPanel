@@ -115,7 +115,7 @@ Updating OpenAdmin
 
 ## Panel
 
-Update only OpenPanel UI *(docker image from [openpanel/openpanel-ui](https://hub.docker.com/r/openpanel/openpanel))*:
+Update only OpenPanel UI *(container image from [openpanel/openpanel-ui](https://hub.docker.com/r/openpanel/openpanel))*:
 ```bash
 opencli update --panel
 ```

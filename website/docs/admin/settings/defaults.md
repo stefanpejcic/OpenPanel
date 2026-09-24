@@ -25,4 +25,4 @@ In these files you can configure additional services (docker containers) and cha
 
 Keep in mind that this is intended for advanced users and misconfiguration can cause exposed system ports, user hogging resources or exceeding disk limits.
 
-For more information refer to [How to add custom docker images](/docs/articles/containers/how-to-add-custom-docker-image-for-openpanel-user)
+For more information refer to [How to add custom container images](/docs/articles/containers/how-to-add-custom-docker-image-for-openpanel-user)

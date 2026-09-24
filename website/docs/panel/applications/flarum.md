@@ -57,15 +57,3 @@ The **Backups** tab generates on-demand backups (database, files, or both) into 
 
 The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database and database user, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
 
----
-
-## Not included
-
-To keep this feature simple, the following are **not** part of Flarum support (unlike the WordPress Manager):
-
-- A dedicated "Flarum Manager" sidebar page — manage installed sites from Site Manager instead
-- Scanning the filesystem for untracked installations
-- Security hardening rules
-- Maintenance mode — Flarum core has no "site offline" toggle to hook into
-- One-click admin login — Flarum's console has no login/session command, so this isn't offered; log in through the forum's normal login page
-- Only MySQL/MariaDB databases are supported

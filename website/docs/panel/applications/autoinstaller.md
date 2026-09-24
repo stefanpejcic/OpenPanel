@@ -29,6 +29,7 @@ For an application to appear on the Autoinstaller page, the corresponding module
 - [TinyPhotoGallery](/docs/panel/applications/tinyphotogallery)
 - [TinyFileManager](/docs/panel/applications/tinyfilemanager)
 - [OJS](/docs/panel/applications/ojs)
+- [n8n](/docs/panel/applications/n8n)
 - [NodeJS Applications*](/docs/panel/applications/nodejs)
 - [Python Applications*](/docs/panel/applications/python)
 - [Ruby Applications*](/docs/panel/applications/ruby)

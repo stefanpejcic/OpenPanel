@@ -22,7 +22,7 @@ In OpenPanel:
 
 ------------------------------------------------------------------------
 
-## **2) First diagnostic step --- run the command manually (is it even cron-related?)**
+## **2) Run the command manually (is it even cron-related?)**
 
 Before troubleshooting cron, always verify that the command itself
 works.
@@ -57,7 +57,8 @@ You should see a **cron service running for the user**.
 ### If it is NOT running, start it manually (terminal):
 
 ``` bash
-cd /home/USERNAME && docker --context=USERNAME compose up -d cron
+source /usr/local/opencli/lib/podman.sh
+cd /home/USERNAME && podman_compose_user USERNAME up -d cron
 ```
 
 
@@ -121,12 +122,17 @@ Look for: - Job started - Job failed - PHP errors - Permission denied -
 
 ## **6) Verify paths inside the container**
 
-Paths inside Docker may differ from host paths.
+Paths inside the container may differ from host paths.
 
-Check inside the container:
+Open a shell inside the container:
 
 ``` bash
-docker --context USERNAME exec -it CONTAINER bash
+opencli docker USERNAME CONTAINER
+```
+
+then run:
+
+``` bash
 ls /var/www/html
 ```
 
@@ -143,7 +149,8 @@ actually exists inside the container.
 If jobs still don't run, inspect the cron container itself:
 
 ``` bash
-docker --context USERNAME logs cron
+source /usr/local/opencli/lib/podman.sh
+podman_user USERNAME logs cron
 ```
 
 Look for:
@@ -200,7 +207,7 @@ command = php -q /var/www/html/example.com/apps/console/console.php daily
 ### ❓ "Cron doesn't run at all"
 
 Check: - Is cron service running? → Services page\
-- Is there a cron container? → `docker --context USERNAME  ps | grep cron`\
+- Is there a cron container? → `source /usr/local/opencli/lib/podman.sh && podman_user USERNAME ps | grep cron`\
 - Does `/home/USERNAME/crons.ini` exist?
 
 ### ❓ "Cron runs but command fails"

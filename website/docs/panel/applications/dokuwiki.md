@@ -47,15 +47,3 @@ The **Backups** tab generates on-demand files-only backups (a `tar.gz` of the do
 
 The **Remove** tab's **Delete Application** button fully uninstalls the site: deletes every file in the docroot and removes it from Site Manager. This cannot be undone.
 
----
-
-## Not included
-
-To keep this feature simple, the following are **not** part of DokuWiki support (unlike the WordPress Manager):
-
-- A dedicated "DokuWiki Manager" sidebar page — manage installed sites from Site Manager instead
-- Scanning the filesystem for untracked installations
-- Security hardening rules
-- One-click admin login — log in through the wiki's normal login page using the admin credentials set at install time
-- A version picker — install always uses DokuWiki's current stable release
-- A database of any kind — DokuWiki is a flat-file wiki

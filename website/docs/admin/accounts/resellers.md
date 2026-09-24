@@ -75,3 +75,5 @@ When a Reseller logs in, they see a **Reseller Account** page (`/account`) inste
 - **Branding** – Set a custom **Logo URL** shown instead of the default OpenPanel logo on every account they own (does not apply to the login page).
 
 Resellers also have their own **Two-Factor Authentication** and **Passkeys** pages under Security, scoped to their own login only.
+
+Business guide: [How to offer reseller hosting with OpenPanel](/docs/articles/hosting-business/reseller-hosting/)

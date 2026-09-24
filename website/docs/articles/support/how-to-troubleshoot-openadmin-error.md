@@ -8,7 +8,7 @@ sidebar_label: "Troubleshooting OpenAdmin UI Errors"
 
 If a **500 error** occurs in the OpenAdmin UI, enable dev_mode and tial to log to see the exact command run and response.
 
-If you need assistance, you can copy the message to our [support forums](https://community.openpanel.org/) or [Discord channel](https://discord.openpanel.com/) for help troubleshooting.
+If you need assistance, you can copy the message to our [GitHub Discussions](https://github.com/stefanpejcic/OpenPanel/discussions) or [Discord channel](https://discord.openpanel.com/) for help troubleshooting.
 
 ---
 

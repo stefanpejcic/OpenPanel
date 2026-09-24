@@ -6,6 +6,8 @@ sidebar_position: 5
 
 *OpenAdmin > System > Swap* lets Administrators view current swap usage, change the swap file allocation, and drop (clear) swap.
 
+Step-by-step guide: [How to Add or Resize Swap](/docs/articles/server/how-to-add-swap/)
+
 ### Current usage
 
 Shows total/used/free swap (as reported by `free -m`) and a table of every active swap device (name, type, size, used, priority, from `swapon --show`). The alert threshold shown here is the same `swap=` value used by Sentinel's own swap check.
@@ -20,3 +22,5 @@ Recreates the managed swap file (`/swapfile` by default) at the requested size a
 ### Drop swap
 
 Runs `swapoff -a; swapon -a`, the same cleanup Sentinel performs automatically when swap usage crosses its threshold. This moves swapped-out pages back into RAM without changing the swap size.
+
+See also: [High CPU or RAM usage: find the culprit](/docs/articles/server/high-cpu-ram-usage/)

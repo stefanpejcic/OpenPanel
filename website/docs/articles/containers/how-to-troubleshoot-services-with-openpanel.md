@@ -42,6 +42,6 @@ The Docker service logs will be displayed:
 
 In case you don't find any errors or potential causes within the output of these commands you should start the service container manually and watch the logs with the command:
 
-`cd /home/$username && docker --context=$username compose up SERVICE_NAME` (replace $username with the OpenPanel user and SERVICE_NAME with the name of the service you are troubleshooting)
+`source /usr/local/opencli/lib/podman.sh && cd /home/$username && podman_compose_user $username up SERVICE_NAME` (replace $username with the OpenPanel user and SERVICE_NAME with the name of the service you are troubleshooting)
 
 

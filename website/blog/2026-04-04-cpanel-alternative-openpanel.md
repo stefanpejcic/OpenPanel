@@ -176,4 +176,4 @@ If you want to test the full feature set including: cPanel backup import and WHM
 
 ---
 
-*Questions about migrating from cPanel? Open a thread in the [OpenPanel community](https://community.openpanel.com) — the team responds there.*
+*Questions about migrating from cPanel? Open a thread in the [OpenPanel GitHub Discussions](https://github.com/stefanpejcic/OpenPanel/discussions) — the team responds there.*

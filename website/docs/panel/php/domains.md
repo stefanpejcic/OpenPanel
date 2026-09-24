@@ -16,3 +16,5 @@ Ensure you check your site's requirements before selecting the appropriate PHP v
 :::info
 If you are using OpenLitespeed or Litespeed as webserver, PHP version can not be set per-domain — only a single PHP version is used for all domains. Use the [**Default PHP Version**](/docs/panel/php/default/) page instead to change it for all domains at once.
 :::
+
+Step-by-step guide: [How to change the PHP version per domain](/docs/articles/websites/change-php-version-per-domain/)

@@ -14,5 +14,5 @@ If you want to remove the port number for OpenPanel and access it directly via y
    ```
 3. Restart services to apply the change:
    ```bash
-   docker restart openpanel caddy
+   podman restart openpanel caddy
    ```

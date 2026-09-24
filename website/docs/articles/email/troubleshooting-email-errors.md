@@ -43,3 +43,9 @@ doveadm(stefan@stefi.openpanel.site): Error: User lookup failed: Internal error 
 **Solution**: Repeat the command `opencli email-setup email list`
 
 ----
+
+---
+
+## Emails Going to Spam?
+
+See the [deliverability checklist](/docs/articles/email/why-emails-go-to-spam/) - SPF, DKIM, DMARC, reverse DNS, blocklists and port 25.

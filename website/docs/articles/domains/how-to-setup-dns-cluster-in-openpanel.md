@@ -38,12 +38,12 @@ On SLAVE:
       inet 0.0.0.0 port 953 allow { MASTER_IP_HERE; } keys { "rndc-key"; };
   };
   ```
--  restart service with: `docker exec openpanel_dns rndc reconfig | docker compose up -d bind9`
+-  restart service with: `podman exec openpanel_dns rndc reconfig | podman-compose up -d bind9`
 
 Test connection from MASTER_IP with:
 
 ```bash
-docker exec openpanel_dns rndc -s SLAVE_IP -k rndc-key status
+podman exec openpanel_dns rndc -s SLAVE_IP -k rndc-key status
 ```
 
 ### Step 3: Create Nameservers in Your DNS Zone

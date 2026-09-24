@@ -275,3 +275,5 @@ To completely remove a website — files, database, and all — click **Uninstal
 
 ![Remove tab with the Detach and Uninstall options](/img/openpanel-screenshots/applications/wordpress-remove.png#gh-light-mode-only)
 ![Remove tab with the Detach and Uninstall options](/img/openpanel-screenshots/applications/wordpress-remove_dark.png#gh-dark-mode-only)
+
+Related guides: [Create a WordPress staging site](/docs/articles/websites/wordpress-staging-site/) · [Use WP-CLI](/docs/articles/websites/wordpress-wp-cli/) · [Fix the white screen / critical error](/docs/articles/websites/wordpress-white-screen-critical-error/) · [Redis object cache](/docs/articles/websites/wordpress-redis-object-cache/)

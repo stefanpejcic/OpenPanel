@@ -36,17 +36,3 @@ Every Drupal install shows up on the general **Site Manager** page (`/sites`) al
 ### Remove
 
 The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database and database user, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
-
----
-
-## Not included
-
-To keep this feature simple, the following are **not** part of Drupal support (unlike the WordPress Manager):
-
-- A dedicated "Drupal Manager" sidebar page — manage installed sites from Site Manager instead
-- Cloning a site
-- Scanning the filesystem for untracked installations
-- Security hardening rules
-- A Drush command passthrough console
-- A dedicated backup/restore system (use the account-level [Backups](/docs/panel/backups/) feature instead)
-- Only MySQL/MariaDB databases are supported (not PostgreSQL)

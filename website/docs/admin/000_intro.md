@@ -15,6 +15,8 @@ Minimum Requirements:
 - AMD64(x86_64) or ARM(AArch64) architecture
 - IPv4 address
 
+Not sure how big the server should be? See [System Requirements & Sizing](/docs/articles/install-update/system-requirements/) or use the [resource calculator](/calculator).
+
 Supported operating systems:
 - **Ubuntu 22, 24, 26** (24.04 is recommended)
 - **Debian 10, 11, 12, 13**
@@ -53,18 +55,30 @@ bash <(curl -sSL https://openpanel.org)
 
 The installation script supports [optional flags](/install) that can be used to configure openpanel, skip certain installation steps or simply display debugging information.
 
-If you encountered any errors while running the installation script, please copy & paste the installation log file to [the community forums](https://community.openpanel.org).
+If you encountered any errors while running the installation script, please copy & paste the installation log file to [GitHub Discussions](https://github.com/stefanpejcic/OpenPanel/discussions).
+
+![OpenPanel installer output in a terminal: the OpenPanel banner with version, OS, IP and Podman engine, each installation step marked OK, and the OpenAdmin URL with the generated username and password at the end](/img/openpanel-screenshots/install/installer-output-generic.png#screenshot)
 
   </TabItem>
   <TabItem value="openpanel-install-on-cloud" label="Cloud">
 
 [Amazon Web Services (AWS)](/docs/articles/install-update/install-on-aws)
 
+[Contabo](/docs/articles/install-update/install-on-contabo)
+
 [DigitalOcean](/docs/articles/install-update/install-on-digitalocean)
 
 [Google Cloud Platform (GCP)](/docs/articles/install-update/install-on-google-cloud)
 
+[Hetzner](/docs/articles/install-update/install-on-hetzner)
+
+[Linode (Akamai Cloud)](/docs/articles/install-update/install-on-linode)
+
 [Microsoft Azure](/docs/articles/install-update/install-on-microsoft-azure)
+
+[OVHcloud](/docs/articles/install-update/install-on-ovh)
+
+[Oracle Cloud (Always Free)](/docs/articles/install-update/install-on-oracle-cloud)
 
 [Vultr](/docs/articles/install-update/install-on-vultr)
     
@@ -74,6 +88,12 @@ If you encountered any errors while running the installation script, please copy
 [CloudInit](/docs/articles/install-update/install-using-cloudinit)
 
 [Ansible](/docs/articles/install-update/install-using-ansible)
+
+[Proxmox VE](/docs/articles/install-update/install-on-proxmox)
+
+[Home Server](/docs/articles/install-update/install-on-home-server)
+
+[Raspberry Pi](/docs/articles/install-update/install-on-raspberry-pi)
 
 [Virtualizor](/docs/articles/install-update/install-on-virtualizor)
 
@@ -93,6 +113,7 @@ Recommended steps after installing OpenPanel:
 - [Set Email address to receive Alerts](/docs/admin/settings/notifications/#email)
 - [Change Update Preferences](/docs/admin/settings/updates)
 - [Secure OpenPanel for Production Use](/docs/articles/security/securing-openpanel/)
+- [Manage User Containers from the Terminal](/docs/articles/containers/context/)
 
 OpenAdmin is available on port `2087` of your server (for example `https://server.example.com:2087`):
 

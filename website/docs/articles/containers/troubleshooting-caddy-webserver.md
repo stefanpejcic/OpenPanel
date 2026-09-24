@@ -38,7 +38,7 @@ If it appears, **Caddy is running properly**. If a specific website or domain is
 Check if Caddy is 'active' or 'running':
 
 ```bash
-docker ps -a
+podman ps -a
 ```
 
 If the status is `exited`, `restarting`, or `starting`, it indicates an issue with the container.
@@ -52,7 +52,7 @@ If Caddy has a syntax error in the main configuration file or any domain configu
 To validate the configuration:
 
 ```bash
-docker exec caddy caddy validate --config /etc/caddy/Caddyfile
+podman exec caddy caddy validate --config /etc/caddy/Caddyfile
 ```
 
 * `warn` or `info` messages are fine.
@@ -83,8 +83,8 @@ CADDY_RAM="1.0G"
 
 ```bash
 cd /root
-docker compose down caddy
-docker compose up -d caddy
+podman-compose down caddy
+podman-compose up -d caddy
 ```
 
 ---
@@ -94,7 +94,7 @@ docker compose up -d caddy
 If the above steps don’t resolve the issue, check the logs:
 
 ```bash
-docker logs -f caddy
+podman logs -f caddy
 ```
 
-Copy any errors and search online or post them on [our Discord channel](https://discord.openpanel.com/) or [OpenPanel forums](https://community.openpanel.org/t/openadmin) for help.
+Copy any errors and search online or post them on [our Discord channel](https://discord.openpanel.com/) or [GitHub Discussions](https://github.com/stefanpejcic/OpenPanel/discussions) for help.

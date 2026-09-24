@@ -6,6 +6,8 @@ sidebar_position: 24
 
 Containerized [Java](https://www.java.com/) applications can be created and managed in **OpenPanel Enterprise Edition**.
 
+Step-by-step guide: [Deploy a Java / Spring Boot app](/docs/articles/websites/deploy-java-app/)
+
 ---
 
 ## Create an Application

@@ -52,7 +52,7 @@ ingress:
 Run the following to authenticate Cloudflare:
 
 ```bash
-docker run -it --rm \
+podman run -it --rm \
   -v /root/cloudflared:/etc/cloudflared \
   cloudflare/cloudflared:latest tunnel login
 ```
@@ -64,7 +64,7 @@ Open the link in your browser and log in with your Cloudflare account.
 ## 3. Create a Tunnel
 
 ```bash
-docker run -it --rm \
+podman run -it --rm \
   -v /root/cloudflared:/etc/cloudflared \
   cloudflare/cloudflared:latest tunnel create my-openpanel-tunnel
 ```
@@ -93,7 +93,7 @@ For each site (`site1.example.com`, `site2.example.com`):
 ## 6. Start the Tunnel
 
 ```bash
-cd /root && docker compose up -d cloudflared
+cd /root && podman-compose up -d cloudflared
 ```
 
 ---

@@ -9,7 +9,7 @@ OpenPanel generates the following logs:
 | Log file | Description |
 |----------|-------------|
 |`/var/log/openpanel/user/access.log`| access logs for the OpenPanel|
-|`docker logs openpanel`|verbose logs and errors for the OpenPanel when dev_mode is enabled|
+|`podman logs openpanel`|verbose logs and errors for the OpenPanel when dev_mode is enabled|
 |`/var/log/openpanel/admin/access.log`|access logs for the OpenAdmin |
 |`/var/log/openpanel/admin/api.log`|OpenAdmin API log |
 |`/var/log/openpanel/admin/login.log`|OpenAdmin successful logins|
@@ -29,8 +29,8 @@ Services used by OpenPanel have the following logs:
 
 | Log file | Description |
 |----------|-------------|
-|`docker logs openpanel_mysql`|MySQL error log|
-|`docker logs openpanel_dns`|DNS service logs|
+|`podman logs openpanel_mysql`|MySQL error log|
+|`podman logs openpanel_dns`|DNS service logs|
 
 
 Logs can be viewed from the [OpenAdmin > Services > Log Viewer](/docs/admin/services/logs/) and Administrators can even [add custom log files to OpenAdmin Log Viewer](/docs/admin/services/logs/#settings).

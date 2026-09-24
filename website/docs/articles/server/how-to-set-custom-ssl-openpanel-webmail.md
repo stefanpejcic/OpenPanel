@@ -78,7 +78,7 @@ tls /etc/openpanel/caddy/ssl/custom/srv.openpanel.com/srv.openpanel.com.crt /etc
 Restart Caddy to apply the certificate:
 
 ```bash
-docker restart caddy
+podman restart caddy
 ```
 
 ---
@@ -146,7 +146,7 @@ tls /etc/openpanel/caddy/ssl/custom/webmail.openpanel.com/webmail.openpanel.com.
 Restart Caddy to apply the changes:
 
 ```bash
-docker restart caddy
+podman restart caddy
 ```
 
 ---

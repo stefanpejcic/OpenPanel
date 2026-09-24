@@ -1108,7 +1108,7 @@ support_message() {
   Getting started:  https://openpanel.com/docs/admin/intro/#post-install-steps
   Report issues:    https://github.com/stefanpejcic/OpenPanel/issues/new/choose
   Discord:          https://discord.openpanel.com/
-  Community forums: https://community.openpanel.org/
+  Discussions:      https://github.com/stefanpejcic/OpenPanel/discussions
 MSG
     line
 }

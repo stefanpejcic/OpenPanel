@@ -15,7 +15,7 @@ Please **only open a ticket for sales, or marketing-related** matters.
 For how-to questions or general issues like “this is not working” please use:
 
 * [Our Discord channel](https://discord.openpanel.com/)
-* [Community forums](https://community.openpanel.org/)
+* [GitHub Discussions](https://github.com/stefanpejcic/OpenPanel/discussions)
 
 These spaces are ideal for getting quick help from both the team and experienced users.
 

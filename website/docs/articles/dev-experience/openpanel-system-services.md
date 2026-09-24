@@ -64,7 +64,7 @@ MySQL login information is stored in files: `/etc/openpanel/mysql/host_db.conf` 
 - `/etc/openpanel/mysql/host_db.conf` is symlinked to `/etc/my.cnf` and is used for OpenAdmin service and OpenCLI commands.
 - `/etc/openpanel/mysql/hcontainer_db.conf` is mounted to `/etc/my.cnf` in OpenPanel container and is used by it.
 
-MySQL data is stored inside the `root_mysql` docker volume.
+MySQL data is stored inside the `root_mysql` volume.
 
 Admins can set memory (RAM) and CPU limits for MySQL service by modifying the `/root/.env` file:
 
@@ -120,7 +120,7 @@ To customize these reports edit the [/etc/openpanel/goaccess/goaccess.conf](http
 
 ## OpenPanel
 
-[openpanel/openpanel](https://hub.docker.com/r/openpanel/openpanel) docker image is used to provide access to the OpenPanel interface that allows users to manage their accounts.
+[openpanel/openpanel](https://hub.docker.com/r/openpanel/openpanel) container image is used to provide access to the OpenPanel interface that allows users to manage their accounts.
 
 Admins can set the OpenPanel version by changing the tag in the `/root/.env` file with any tag from [hub.docker.com](https://hub.docker.com/r/openpanel/openpanel/tags):
 ```

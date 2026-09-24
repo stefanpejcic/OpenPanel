@@ -28,7 +28,7 @@ Reproduce the issue in the UI, then review the logs at the same time to spot err
 * **OpenPanel logs:**
 
   ```bash
-  docker logs -f openpanel
+  podman logs -f openpanel
   ```
 * **OpenAdmin logs:**
 

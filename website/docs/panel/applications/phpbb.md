@@ -49,15 +49,3 @@ The **Backups** tab generates on-demand backups (database, files, or both) into 
 
 The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
 
----
-
-## Not included
-
-To keep this feature simple, the following are **not** part of phpBB support (unlike the WordPress Manager):
-
-- A dedicated "phpBB Manager" sidebar page — manage installed sites from Site Manager instead
-- Scanning the filesystem for untracked installations
-- Security hardening rules
-- One-click self-update — phpBB ships no safe unattended CLI updater, so updates are done from phpBB's own Admin Control Panel
-- One-click admin login — log in through the forum's normal login page
-- Only MySQL/MariaDB databases are supported

@@ -16,7 +16,7 @@ To view the full error details, run the following command in your terminal:
 opencli error ERROR_ID_HERE
 ```
 
-Check the output for the error message. If you need assistance, you can copy the message to our [support forums](https://community.openpanel.org/) or [Discord channel](https://discord.openpanel.com/) for help troubleshooting.
+Check the output for the error message. If you need assistance, you can copy the message to our [GitHub Discussions](https://github.com/stefanpejcic/OpenPanel/discussions) or [Discord channel](https://discord.openpanel.com/) for help troubleshooting.
 
 ---
 
@@ -51,7 +51,7 @@ Then restart the panel.
 When dev_mode is enabled, detailed logs for the user panel are available via:
 
 ```bash
-docker logs -f openpanel
+podman logs -f openpanel
 ```
 
 These logs provide verbose debugging information for troubleshooting.
