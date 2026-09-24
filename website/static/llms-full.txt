@@ -8678,50 +8678,17 @@ Services that auto-start for each user:
 
 # Custom OpenPanel Templates
 
-Templates offer a flexible way to customize the appearance of your control panel interface. Whether you're looking to align the panel's look with your brand identity or simply want to refresh its appearance, our template system provides the tools necessary to achieve your desired aesthetics.
+:::warning
+Custom templates are no longer supported. OpenPanel and OpenAdmin templates are now built into the application, so the `template` and `admin_template` settings have no effect and were removed from `openpanel.config`.
+:::
 
-## Using Templates
+To change the look of the OpenPanel interface, use these settings instead:
 
-OpenPanel templates are designed to be easily interchangeable, allowing users to swiftly change the look and feel of their control panel without affecting the underlying functionality. This ensures that you can update the appearance of your control panel as often as you like, without any downtime or disruption to your operations.
-
-To change theme for OpenPanel, run command:
-
-```opencli config update template PATH_HERE```
-
-instead of *PATH_HERE* set either just the folder name or a full path, example:
-
-```opencli config update template "/home/custom_template/"```
-
-
-and restart service to apply: `docker restart openpanel`.
-
----
-
-To change theme for OpenAdmin, run command:
-
-```opencli config update admin_template PATH_HERE```
-
-instead of *PATH_HERE* set either just the folder name or a full path, example:
-
-```opencli config update admin_template "/home/custom_admin_template/"```
-
-and restart service to apply: `service admin restart`.
-
----
-
-## Creating Custom Templates
-
-For those who require a more personalized touch, OpenPanel allows the creation of custom templates. This option is perfect for users who want to integrate their brand colors, logos, and other design elements into their control panel.
-
-To create new templates copy the default templates folders:
-
-For OpenPanel:
-`docker cp openpanel:/templates/ /home/custom_template/`
-
-For OpenAdmin:
-`cp /user/local/admin/templates/ /home/custom_admin_template/`
-
-and then make the changes in html/css files.
+- [`logo`](/docs/articles/opencli/config/#logo) - logo displayed on every page, the login page and in email footers.
+- [`favicon`](/docs/articles/opencli/config/#favicon) - favicon displayed on all OpenPanel pages.
+- [`brand_name`](/docs/articles/opencli/config/#brand_name) - name displayed instead of *OpenPanel*.
+- [`menu_style`](/docs/articles/opencli/config/#menu_style) - style of the sidebar menu.
+- [`filemanager_buttons_style`](/docs/articles/opencli/config/#filemanager_buttons_style) - how action buttons are shown in the File Manager.
 
 ---
 
@@ -14446,15 +14413,17 @@ Usage: opencli admin <command> [options]
 Commands:
   on                                            Enable and start the OpenAdmin service.
   off                                           Stop and disable the OpenAdmin service.
+  port [new_port]                               Display or update OpenAdmin port.
   log                                           Display the last 25 lines of the OpenAdmin error log.
-  logs                                          Display live logs for all OpenAdminn services.
+  logs                                          Display live logs for all OpenAdmin services.
   list                                          List all current admin users.
-  new <user> <pass>                             Add a new user with the specified username and password.
+  new <user> <pass> [--reseller|--super]        Add a new user, optionally as a reseller or super admin.
   password <user> <pass>                        Reset the password for the specified admin user.
-  update <user> --allowed_plans=[] --max_accounts=<int> --max_disk_blocks=1000000 Assign plans and set limits for reseller.
+  update <user> --allowed_plans=[] --max_accounts=<int> --max_disk_blocks=1000000 --logo_url=<url> Assign plans, limits, and branding for reseller.
   rename <old> <new>                            Change the admin username.
   suspend <user>                                Suspend admin user.
   unsuspend <user>                              Unsuspend admin user.
+  delete <user>                                 Delete admin user.
   notifications <command> <param> [value]       Control notification preferences.
 
   Notifications Commands:
@@ -14465,17 +14434,23 @@ Commands:
 Examples:
   opencli admin on
   opencli admin off
+  opencli admin port
+  opencli admin port 8443
   opencli admin log
   opencli admin logs
   opencli admin list
   opencli admin new stefan SuperStrong1
+  opencli admin new stefan SuperStrong1 --reseller
+  opencli admin new stefan SuperStrong1 --super
   opencli admin password stefan SuperStrong2
   opencli admin rename stefan pejcic
   opencli admin suspend pejcic
   opencli admin unsuspend pejcic
   opencli admin notifications check
-  opencli admin notifications get ssl
-  opencli admin notifications update ssl true
+  opencli admin notifications get reboot
+  opencli admin notifications update reboot yes
+  opencli admin notifications update load 10
+  opencli admin notifications update webhook_url https://discord.com/api/webhooks/XXXX/YYYYYYY
 ```
 
 
@@ -14534,6 +14509,27 @@ To create new reseller accounts:
 opencli admin new <username> <password> --reseller
 ```
 
+### Create Super Admin
+
+To create the super admin account (the `admin` role). Only one super admin can exist:
+
+```bash
+opencli admin new <username> <password> --super
+```
+
+### Update Reseller
+
+To set allowed plans, limits and logo for a reseller account. Only the flags that are passed are changed:
+
+```bash
+opencli admin update <username> --allowed_plans=<id1,id2> --max_accounts=<NUMBER> --max_disk_blocks=<NUMBER> --logo_url=<URL>
+```
+
+Example:
+```bash
+opencli admin update reseller1 --allowed_plans=1,2 --max_accounts=10
+```
+
 ### Reset Admin Password
 
 To reset the password for an admin user:
@@ -14568,7 +14564,7 @@ opencli admin unsuspend <username>
 
 ### Delete Admin User
 
-To rename an existing admin user:
+To delete an existing admin user:
 
 ```bash
 opencli admin delete <username>
@@ -14584,7 +14580,7 @@ Note: User with 'admin' role can not be deleted.
 
 `opencli admin notifications` allows you to change the notification preferences.
 
-Settings are stored in `/etc/openpanel/openadmin/config/notifications.ini` file. However, it is recommended not to modify this file directly. Instead, it's best to utilize the opencli commands. This way, any changes made are immediately applied, and the admin service is automatically restarted only when necessary.
+Settings are stored in `/etc/openpanel/openadmin/config/notifications.ini` file. However, it is recommended not to modify this file directly. Instead, it's best to utilize the opencli commands.
 
 #### Get
 
@@ -14616,20 +14612,56 @@ opencli admin notifications update load 10
 Updated load to 10
 ```
 
+#### Check
+
+Run all checks now and write notifications (same as running `opencli sentinel`):
+
+```bash
+opencli admin notifications check
+```
+
 #### Options
 
-Currently available options for notifications are:
+Any option from `notifications.ini` can be read or updated. The main options are:
 
-- reboot
-- attack
-- limit
-- update
-- load
-- swap
-- cpu
-- ram
-- du
+| Option        | Description                                                        | Default |
+|---------------|--------------------------------------------------------------------|---------|
+| `reboot`      | Notify when the server is rebooted.                                | `yes`   |
+| `attack`      | Notify on unusual traffic or SYN flood (DDoS) attacks.             | `yes`   |
+| `limit`       | Notify on Out of Memory (OOM) errors in the last 24 hours.         | `yes`   |
+| `update`      | Notify when a new OpenPanel update is available.                   | `yes`   |
+| `dns`         | Notify when the panel domain or nameservers don't resolve to this server. | `no` |
+| `login`       | Notify on OpenAdmin logins from a new IP address.                  | `yes`   |
+| `ssh`         | Notify on root SSH logins from a new IP address.                   | `yes`   |
+| `services`    | Comma-separated list of services to monitor.                       | `panel,admin,caddy,podman,mysql,csf,phpmyadmin` |
+| `load`        | Notify when server load is above this value.                       | `20`    |
+| `cpu`         | Notify when CPU usage (%) is above this value.                     | `90`    |
+| `ram`         | Notify when RAM usage (%) is above this value.                     | `85`    |
+| `du`          | Notify when disk usage (%) is above this value.                    | `85`    |
+| `swap`        | Notify when SWAP usage (%) is above this value.                    | `85`    |
+| `webhook_url` | Also send notifications to this webhook (e.g. Discord).            | empty   |
 
+The `[ACTIONS]` section of the file has a `yes`/`no` option for each OpenCLI action that sends a notification, for example `user_create`, `domains_add` or `admin_api`.
+
+
+### Port
+
+View the current OpenAdmin port:
+
+```bash
+opencli admin port
+```
+
+Change the OpenAdmin port (must be greater than 443). The port is opened in the firewall and OpenAdmin is restarted:
+
+```bash
+opencli admin port <NUMBER>
+```
+
+Add `--no-restart` to skip opening the port in the firewall and restarting OpenAdmin:
+```bash
+opencli admin port <NUMBER> --no-restart
+```
 
 ### View OpenAdmin logs
 
@@ -14745,12 +14777,12 @@ opencli config update <OPTION> <NEW-VALUE>
 
 Example:
 ```bash
-opencli config update api on nesto.rs
+opencli config update api on
 Updated api to on
 ```
 
 :::info
-To apply the new settings, OpenPanel UI willl be restarted if needed.
+To apply the new setting, the OpenPanel UI container is restarted, except for these options: `email`, `autoupdate`, `autopatch`, `key`, `max_cpu`, `max_ram`.
 :::
 
 ## Available Options
@@ -14765,6 +14797,32 @@ Currently available configuration options:
 
 ```bash
 logo=https://http.cat/images/100.jpg
+```
+
+### `favicon`
+URL of a favicon to be displayed on all OpenPanel pages.
+
+**Check current value**:
+```bash
+opencli config get favicon
+```
+
+**Set new value**:
+```bash
+opencli config update favicon https://example.com/favicon.ico
+```
+
+### `dir`
+Text direction of the OpenPanel interface: `ltr` (left-to-right) or `rtl` (right-to-left). Default is `ltr`.
+
+**Check current value**:
+```bash
+opencli config get dir
+```
+
+**Set new value**:
+```bash
+opencli config update dir rtl
 ```
 
 ### brand_name
@@ -14791,12 +14849,7 @@ max_login_records=20
 
 ### default_php_version
 
-`default_php_version` sets the PHP version used for new accounts. Default value is 8.3
-
-```bash
-default_php_version=8.3
-```
-
+The default PHP version for new users is no longer set in `openpanel.config`. It is set with `DEFAULT_PHP_VERSION` in the `.env` template for new users: `/etc/openpanel/docker/compose/1.0/.env`. To change it for an existing user, use [`opencli php-default`](/docs/articles/opencli/php/#change-the-default-version).
 
 ### domains_per_page
 
@@ -15004,6 +15057,166 @@ ns4=ns4.openpanel.com
 In OpenPanel version 0.1.5, we implemented the Modules feature, which, by default, loads only the essential modules. Administrators also have the option to selectively disable modules they do not require.
 
 
+### `permit_subdomain_sharing`
+If set to `yes`, users can add subdomains of domains that another user owns. Default is `no`.
+
+**Check current value**:
+```bash
+opencli config get permit_subdomain_sharing
+```
+
+**Set new value**:
+```bash
+opencli config update permit_subdomain_sharing yes
+```
+
+### `email`
+Administrator email address used for notifications. Also set as `LF_ALERT_TO` in the CSF configuration.
+
+**Check current value**:
+```bash
+opencli config get email
+```
+
+**Set new value**:
+```bash
+opencli config update email admin@example.com
+```
+
+### `password_strength`
+Minimum password strength (`1`-`100`) for all password fields in OpenPanel: account, FTP, emails, databases. Default is `50`.
+
+**Check current value**:
+```bash
+opencli config get password_strength
+```
+
+**Set new value**:
+```bash
+opencli config update password_strength 70
+```
+
+### `email_plaintext_passwords`
+If set to `yes`, the welcome email sent with `opencli user-add --send-email` includes the password in plain text. If `no`, the password is replaced with `********`. Default is `no`.
+
+**Check current value**:
+```bash
+opencli config get email_plaintext_passwords
+```
+
+**Set new value**:
+```bash
+opencli config update email_plaintext_passwords yes
+```
+
+### `validate_ip_address_cookie`
+When enabled (`yes`), a session cookie is rejected if the request's IP address doesn't match the IP address it was issued to. Default is `yes`.
+
+**Check current value**:
+```bash
+opencli config get validate_ip_address_cookie
+```
+
+**Set new value**:
+```bash
+opencli config update validate_ip_address_cookie no
+```
+
+### `key`
+The OpenPanel Enterprise license key. Use [`opencli license`](/docs/articles/opencli/license/) to add, verify or delete the key instead of setting it directly.
+
+**Check current value**:
+```bash
+opencli config get key
+```
+
+**Set new value**:
+```bash
+opencli config update key enterprise-XXXXXXXXXX
+```
+
+### Captcha
+
+Captcha for the OpenPanel login and signup forms.
+
+### `captcha_provider`
+Captcha provider to use: `none` (disabled), `google` (Google reCAPTCHA), `turnstile` (Cloudflare Turnstile) or `custom`. Default is empty (disabled).
+
+**Check current value**:
+```bash
+opencli config get captcha_provider
+```
+
+**Set new value**:
+```bash
+opencli config update captcha_provider turnstile
+```
+
+### `recaptcha_site_key`
+Site key for Google reCAPTCHA (used when `captcha_provider` is `google`).
+
+**Check current value**:
+```bash
+opencli config get recaptcha_site_key
+```
+
+**Set new value**:
+```bash
+opencli config update recaptcha_site_key <SITE_KEY>
+```
+
+### `recaptcha_secret_key`
+Secret key for Google reCAPTCHA (used when `captcha_provider` is `google`).
+
+**Check current value**:
+```bash
+opencli config get recaptcha_secret_key
+```
+
+**Set new value**:
+```bash
+opencli config update recaptcha_secret_key <SECRET_KEY>
+```
+
+### `turnstile_site_key`
+Site key for Cloudflare Turnstile (used when `captcha_provider` is `turnstile`).
+
+**Check current value**:
+```bash
+opencli config get turnstile_site_key
+```
+
+**Set new value**:
+```bash
+opencli config update turnstile_site_key <SITE_KEY>
+```
+
+### `turnstile_secret_key`
+Secret key for Cloudflare Turnstile (used when `captcha_provider` is `turnstile`).
+
+**Check current value**:
+```bash
+opencli config get turnstile_secret_key
+```
+
+**Set new value**:
+```bash
+opencli config update turnstile_secret_key <SECRET_KEY>
+```
+
+### `custom_captcha_site_key`
+Site key for a custom captcha (used when `captcha_provider` is `custom`).
+
+**Check current value**:
+```bash
+opencli config get custom_captcha_site_key
+```
+
+**Set new value**:
+```bash
+opencli config update custom_captcha_site_key <SITE_KEY>
+```
+
 ### logrotate_enable
 Enable or disable **logrotate** for system logs: webserver, DNS, OpenPanel, FTP, MailServer, etc.
 ```bash
@@ -15123,6 +15336,32 @@ The `twofa_nag` option allows Administrator to set if 2FA nag should be displaye
 
 ```bash
 twofa_nag=yes
+```
+
+### `twofa_enforce`
+When enabled (`yes`), users have to set up 2FA before they can access any other page in OpenPanel. The 2FA module must be enabled. Default is `no`.
+
+**Check current value**:
+```bash
+opencli config get twofa_enforce
+```
+
+**Set new value**:
+```bash
+opencli config update twofa_enforce yes
+```
+
+### `onboarding`
+When enabled (`yes`), users who haven't finished it yet see a first-login setup wizard on their Dashboard: webserver, default PHP version, database server, backup destination and 2FA/passkey setup. Default is `yes`.
+
+**Check current value**:
+```bash
+opencli config get onboarding
+```
+
+**Set new value**:
+```bash
+opencli config update onboarding no
 ```
 
 ### how_to_guides
@@ -15441,6 +15680,19 @@ opencli config update autopurge_trash 7
 ```
 
 
+### `filemanager_files_per_page`
+Number of files displayed per page in the File Manager. Default is `1000`.
+
+**Check current value**:
+```bash
+opencli config get filemanager_files_per_page
+```
+
+**Set new value**:
+```bash
+opencli config update filemanager_files_per_page 500
+```
+
 ### `filemanager_buttons_style`
 
 Set default buttons style on 'OpenPanel > File Manager' - Available 'classic' 'modern'
@@ -15738,6 +15990,8 @@ Prefetches (pulls) container images for services listed as autostart, skipping i
 opencli docker-autostart [-f|--force]
 ```
 
+- `-f`, `--force` - prefetch images even when free disk space is low.
+
 ### Backup
 
 Generates a backup for all users. This is the bulk/system-wide counterpart to `opencli user-backup`, see [Users](/docs/articles/opencli/user/#backup-user).
@@ -15775,7 +16029,12 @@ Examples:
 
 To collect container resource usage information (cpu, ram, i/o) for all users:
 ```bash
-opencli docker-collect_stats
+opencli docker-collect_stats --all
+```
+
+For a single user:
+```bash
+opencli docker-collect_stats <USERNAME>
 ```
 
 `collect_stats` script will also rotate data according to [`resource_usage_retention` setting](/docs/articles/opencli/config/#resource_usage_retention)
@@ -15803,14 +16062,17 @@ Example:
 opencli domain set srv7.openpanel.org
 ```
 
-`--debug` flag can be passed to dispaly verbose information as script is running.
+Additional flags:
+
+- `--debug` - display verbose information as the script is running.
+- `--no-restart` - skip restarting services after the change.
 
 Note: If domain is not pointed to the server via A record and SSL can not be generated, then `http://IP` will be used instead of `https://DOMAIN`.
 
 Set IP address to be used instead of domain:
 
 ```bash
-opencli domain set ip
+opencli domain ip
 ```
 
 ---
@@ -15825,8 +16087,12 @@ opencli domain set ip
 Lists all domain names currently hosted on the server:
 
 ```bash
-opencli domains-all
+opencli domains-all [--docroot] [--php_version] [--json]
 ```
+
+- `--docroot` - also show the document root for each domain.
+- `--php_version` - also show the PHP version for each domain.
+- `--json` - display output as JSON.
 
 ## User
 
@@ -15841,7 +16107,7 @@ opencli domains-user <USERNAME> [--docroot|--php_version]
 Add a domain name for a user:
 
 ```bash
-opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
+opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy] [--skip_vhost] [--skip_containers] [--skip_dns] [--skip-sentinel] [--hs_ed25519_public_key KEY --hs_ed25519_secret_key KEY] [--debug]
 ```
 
 ### Custom Docroot
@@ -15890,7 +16156,21 @@ opencli domains-add <DOMAIN_NAME> <USERNAME> --php_version N.N
   opencli domains-add <DOMAIN_NAME> <USERNAME> --skip_caddy
   ```
 
+* **Skip Sentinel** – Add a domain without sending the *domains_add* notification:
+
+  ```bash
+  opencli domains-add <DOMAIN_NAME> <USERNAME> --skip-sentinel
+  ```
+
 **Note:** These options are primarily intended for bulk provisioning workflows (like [cpanel account importer](/docs/articles/transfers/import-cpanel-backup-to-openpanel/) or [user transfer](/docs/articles/transfers/transfer-openpanel-account-to-another-server/)) and advanced troubleshooting scenarios.
+
+### Onion (Tor) domains
+
+When adding a `.onion` domain, you can pass an existing hidden service key pair instead of generating a new one:
+
+```bash
+opencli domains-add <ONION_DOMAIN> <USERNAME> --hs_ed25519_public_key <KEY> --hs_ed25519_secret_key <KEY>
+```
 
 ## Suspend
 
@@ -15898,6 +16178,12 @@ Suspend a domain name:
 
 ```bash
 opencli domains-suspend <DOMAIN_NAME>
+```
+
+Add a reason for suspending the domain:
+
+```bash
+opencli domains-suspend <DOMAIN_NAME> --comment="<REASON>"
 ```
 
 ## Unsuspend
@@ -15950,6 +16236,12 @@ opencli domains-ssl <DOMAIN_NAME> info
 View caddy SSL-related logs for a domain:
 ```bash
 opencli domains-ssl <DOMAIN_NAME> logs
+```
+
+Show a specific number of lines, or follow the log live:
+```bash
+opencli domains-ssl <DOMAIN_NAME> logs 1000
+opencli domains-ssl <DOMAIN_NAME> logs -f
 ```
 
 ### Custom
@@ -16017,6 +16309,12 @@ To reload a DNS zone for a single domain:
 opencli domains-dns reload <DOMAIN_NAME>
 ```
 
+To reload all DNS zones, run the command without a domain:
+
+```bash
+opencli domains-dns reload
+```
+
 ### Show
 
 To display the DNS zone for a single domain:
@@ -16046,16 +16344,20 @@ opencli domains-dns create <DOMAIN_NAME>
 To delete a DNS zone for a domain:
 
 ```bash
-opencli domains-dns delete <DOMAIN_NAME>
+opencli domains-dns delete <DOMAIN_NAME> [-y]
 ```
+
+Add `-y` to skip the confirmation prompt.
 
 ### Default
 
 To restore the default DNS zone for a domain:
 
 ```bash
-opencli domains-dns default <DOMAIN_NAME>
+opencli domains-dns default <DOMAIN_NAME> [-y]
 ```
+
+Add `-y` to skip the confirmation prompt.
 
 ### Count
 
@@ -16114,16 +16416,23 @@ Enable [DNSSEC](https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extens
 opencli domains-dnssec <DOMAIN_NAME> [--update | --check]
 ```
 
+### Enable
+
+Enable DNSSEC for a domain (generates keys and signs the zone):
+```bash
+opencli domains-dnssec <DOMAIN_NAME>
+```
+
 ### Check
 
-Check if domain has DNSSEC enabled:
+Check if domain has DNSSEC enabled (displays the DS records):
 ```bash
 opencli domains-dnssec <DOMAIN_NAME> --check
 ```
 
 ### Update
 
-Configure/update DNSSEC for a domain:
+Re-sign the zone after DNS changes and reload the DNS service:
 ```bash
 opencli domains-dnssec <DOMAIN_NAME> --update
 ```
@@ -16134,25 +16443,25 @@ opencli domains-dnssec <DOMAIN_NAME> --update
 Manage [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) for a domain.
 
 ```bash
-opencli domains-hsts <DOMAIN_NAME> [on|off]
+opencli domains-hsts <DOMAIN_NAME> [enable|disable]
 ```
 
 ### Status
 Check HSTS status for a domain:
 ```bash
-opencli domains-hsts <DOMAIN_NAME> [on|off]
+opencli domains-hsts <DOMAIN_NAME>
 ```
 
 ### Enable
 Enable HSTS for a domain:
 ```bash
-opencli domains-hsts <DOMAIN_NAME> on
+opencli domains-hsts <DOMAIN_NAME> enable
 ```
 
 ### Disable
 Disable HSTS for a domain:
 ```bash
-opencli domains-hsts <DOMAIN_NAME> off
+opencli domains-hsts <DOMAIN_NAME> disable
 ```
 
 
@@ -16180,10 +16489,10 @@ opencli domains-edit <DOMAIN_NAME> --ws
 
 ## Stats
 
-Parse caddy access logs for users domains and generate static html.
+Parse caddy access logs for users domains and generate static html. Requires the `goaccess` module to be enabled.
 
 ```bash
-opencli domains-stats <USERNAME> --debug
+opencli domains-stats [USERNAME] [--debug]
 ```
 
 Generate stats for all domains:
@@ -16225,7 +16534,7 @@ opencli domains-update_ns --all [-y]
 Check Varnish status for domain, enable/disable Varnish caching.
 
 ```bash
-opencli domains-varnish <DOMAIN_NAME> <on|off> <--short>
+opencli domains-varnish <DOMAIN_NAME> [on|off] [--short]
 ```
 
 ### Status
@@ -16310,7 +16619,9 @@ opencli email-server postconf                         Show postfix configuration
 opencli email-server logs [-f]                        Show logs. Use -f to 'follow' the logs
 opencli email-server login                            Run container shell
 opencli email-server supervisor                       Interact with supervisorctl
-opencli email-servers install                         Generate summary reports
+opencli email-server pflogsumm                        Generate summary reports
+opencli email-server postfwd                          Enable/disable postfwd rate-limiting and edit limits
+opencli email-server uninstall                        Uninstall the email server
 opencli email-server update-check                     Check for container package updates
 opencli email-server update-packages                  Update container packages
 opencli email-server versions                         Show versions
@@ -16576,6 +16887,27 @@ Generate HTML reports from mail logs:
 opencli email-server pflogsumm
 ```
 
+### Rate-limiting (postfwd)
+
+Show whether outgoing email rate-limiting (postfwd) is enabled:
+```bash
+opencli email-server postfwd
+```
+
+Enable or disable rate-limiting:
+```bash
+opencli email-server postfwd enable
+opencli email-server postfwd disable
+```
+
+View or edit the rate-limiting rules (the mailserver is reloaded after editing):
+```bash
+opencli email-server postfwd view
+opencli email-server postfwd edit
+```
+
+Rules for users and domains are generated with [`opencli email-ratelimit`](#rate-limits).
+
 ### Supervisor
 
 Interact with the supervisor:
@@ -16696,6 +17028,10 @@ opencli email-server uninstall
 
 
 
+### Debug
+
+Add `--debug` to any `email-server` command to display verbose information.
+
 ## Webmail
 
 Display current webmail domain:
@@ -16708,6 +17044,59 @@ Set 'webmail.example.com' as a webmail domain:
 
 ```bash
 opencli email-webmail domain webmail.example.com
+```
+
+Add `--debug` to display verbose information.
+
+## Rate limits
+
+`opencli email-ratelimit` generates postfwd rate-limiting rules for users and domains, based on the `max_hourly_email` limit of their plan.
+
+Show current rules:
+```bash
+opencli email-ratelimit
+```
+
+Regenerate rules for all users:
+```bash
+opencli email-ratelimit --all-users
+```
+
+Regenerate rules for a single user (removes their rules, re-fetches their domains and adds them again):
+```bash
+opencli email-ratelimit --username=<USERNAME>
+```
+
+Add or update the rule for a single domain:
+```bash
+opencli email-ratelimit --domain=<DOMAIN>
+```
+
+Remove rules for a user or a domain:
+```bash
+opencli email-ratelimit --delete-user=<USERNAME>
+opencli email-ratelimit --delete-domain=<DOMAIN>
+```
+
+Add `--skip-reload` to not reload postfix after the change.
+
+## Fix mail permissions
+
+Set the correct owner on mail folders for all domains:
+```bash
+opencli email-quotas
+```
+
+## Manage
+
+Run a command inside the mailserver container:
+```bash
+opencli email-manage <COMMAND> [<ARGS>...]
+```
+
+Example:
+```bash
+opencli email-manage postqueue -p
 ```
 
 ## Emails
@@ -17087,7 +17476,7 @@ execute command opencli config update autoupdate off
 
 11. How to enable detailed logs?
 
-- opencli config update dev_mode yes
+- opencli config update dev_mode on
 ------------------------------------------------------------
 ```
 </details>
@@ -17156,12 +17545,6 @@ Website files:
 - sets the permissions of all files to 644.
 - sets the permissions of all directories to 755.
 
-Website files:
-- sets the owner of all files in `/var/www/html/` to the  www-data user.
-- sets the group of all files in `/var/www/html/` to the www-data group.
-- sets the permissions of all files to 644.
-- sets the permissions of all directories to 755.
-
 Emails:
 - sets the owner of all files in `/var/mail/` to the  user.
 - sets the permissions of all files to 644.
@@ -17186,7 +17569,7 @@ Example:
 opencli files-fix_permissions stefan stefan.pejcic.rs
 ```
 
-## Single User
+#### Single User
 Fix permissions for all folders iniside user home directory (`/var/www/html/`):
 
 ```bash
@@ -17199,6 +17582,31 @@ Use the `--all` flag to change permissions for all active users:
 
 ```bash
 opencli files-fix_permissions --all
+```
+
+
+### Malware Scan
+
+Scans a user's website files (`html_data` volume) with ClamAV. Infected files are moved to the `.quarantine/` folder in the user's files and are listed on the Quarantine page in OpenPanel. Files marked as safe in OpenPanel are skipped, and so are `vendor/` and `node_modules/` folders.
+
+Requires the ClamAV service (`clamav` container) to be running.
+
+Scan files for a single user:
+```bash
+opencli files-malware_scan <USERNAME>
+```
+
+Scan files for all active users:
+```bash
+opencli files-malware_scan --all
+```
+
+### Resellers Storage
+
+Calculates total disk usage for all users owned by each reseller and saves the current and maximum disk blocks to the reseller's limits file (`/etc/openpanel/openadmin/resellers/<RESELLER>.json`).
+
+```bash
+opencli files-calculate_resellers_storage
 ```
 
 ---
@@ -17223,10 +17631,12 @@ List all FTP sub-users for a single OpenPanel accounts:
 opencli ftp-list <OPENPANEL_USERNAME>
 ```
 
+Add `--json` to either command for JSON output.
+
 ## Add
 Create FTP sub-user for openpanel user:
 ```bash
-opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME>
+opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--debug]
 ```
 
 ## Password
@@ -17238,7 +17648,7 @@ opencli ftp-password <username> <new_password> <openpanel_username> [--debug]
 ## Path
 Change FTP path for sub-user:
 ```bash
-opencli ftp-path <action> <username> <path> <openpanel_username> [--debug]
+opencli ftp-path <username> <path> <openpanel_username> [--debug]
 ```
 
 ## Delete
@@ -17259,15 +17669,15 @@ opencli ftp-connections <openpanel_username>
 ```
 
 ## Logs
-View live FTP service logs while service is running:
-```
-opencli ftp-connections <openpanel_username>
+View FTP service logs:
+```bash
+opencli ftp-logs
 ```
 
 ## Users
-Recreate list of all ftp users:
+Recreate list of all ftp users *(internal helper, not available as an `opencli` command)*:
 ```bash
-opencli ftp-users
+bash /usr/local/opencli/ftp/users.sh
 ```
 
 ---
@@ -17370,7 +17780,7 @@ View available options:
 opencli license
 ```
 
-Adding a license key:
+Adding a license key (keys start with `enterprise-`, `noc-` or `lifetime-`):
 ```bash
 opencli license <KEY>
 ```
@@ -17383,6 +17793,11 @@ Additional flags are available:
 View license key:
 ```bash
 opencli license key
+```
+
+Verify the current license key:
+```bash
+opencli license verify
 ```
 
 View license information:
@@ -17467,81 +17882,117 @@ As new commands are added gradually, they might not yet be available in your Ope
   <summary>Example output</summary>
 
 ```bash
-opencli server-ips
-Description: Generates a file with a list of users with their dedicated IPs
-Usage: opencli server-ips
-------------------------
-opencli server-logrotate
-Description: Configures logrotate for caddy, openpanel, syslog.
-Usage: opencli server-logrotate
-------------------------
-opencli server-migrate
-Description: Migrates all data from this server to another.
-Usage: opencli server-migrate -h <DESTINATION_IP> --user root --password <DESTINATION_PASSWORD> [--force] [--exclude-* options]
-------------------------
-opencli ftp-add
-Description: Create FTP sub-user for openpanel user.
-Usage: opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME>
-------------------------
-opencli ftp-delete
-Description: Delete FTP sub-user for openpanel user.
-Usage: opencli ftp-delete <username> <openpanel_username> [--debug]
-------------------------
-opencli ftp-path
-Description: Change FTP path for a user.
-Usage: opencli ftp-path <username> <path> <openpanel_username> [--debug]
-------------------------
-opencli ftp-password
-Description: Change password for FTP sub-user of openpanel user.
-Usage: opencli ftp-password <username> <new_password> <openpanel_username> [--debug]
-------------------------
-opencli ftp-connections
-Description: Display all active FTP connection or for particular OpenPanel user.
-Usage: opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME>
-------------------------
-opencli ftp-logs
-Description: View the FTP server log
-Usage: opencli ftp-log
-------------------------
-opencli ftp-list
-Description: List FTP sub-users for openpanel user.
-Usage: opencli ftp-list [OPENPANEL_USERNAME] [--json]
-------------------------
-opencli patch
-Description: Download and install a patch
-Usage: opencli patch <NAME>
-------------------------
-opencli domain
-Description: View and set domain/ip for accessing panels.
-Usage: opencli domain [set <domain_name> | ip] [--debug]
-------------------------
-opencli phpmyadmin
-Description: View and set domain/ip for phpMyAdmin access.
-Usage: opencli phpmyadmin [set <domain_name> | ip]
-------------------------
-opencli api-list
-Description: List available API endpoints with usage examples.
-Usage: opencli api-list [--save]
+opencli admin
+Description: Manage OpenAdmin service and Administrators.
+Usage: opencli admin <command> [options]
 ------------------------
 opencli api
 Description: Check status, enable or disable OpenAdmin API access, and list available API endpoints.
 Usage: opencli api <status|on|off|list>
 ------------------------
-opencli license
-Description: Manage OpenPanel Enterprise license.
-Usage: opencli license verify 
+opencli backup
+Description: Backs up (and restores) OpenPanel/OpenAdmin SYSTEM AND USER
+Usage: opencli backup [--restore <ARCHIVE>] [--quiet]
 ------------------------
-opencli faq
-Description: Display answers to most frequently asked questions.
-Usage: opencli faq
+opencli config
+Description: Get or update a value in the OpenPanel configuration file.
+Usage: opencli config <get|update> <setting_name> [new_value]
+------------------------
+opencli docker
+Description: Open an interactive shell inside a system or user container, picking the user and container via fzf if not given.
+Usage: opencli docker [<user> [<container>]]
+------------------------
+opencli docker-autostart
+Description: Prefetch (pull) container images for services listed as autostart, skipping if free disk space is low.
+Usage: opencli docker-autostart [-f|--force]
+------------------------
+opencli docker-backup
+Description: Generates a backup for all users.
+Usage: opencli docker-backup
+------------------------
+opencli docker-collect_stats
+Description: Collect resource usage information for user(s).
+Usage: opencli docker-collect_stats <username|--all>
+------------------------
+opencli docker-logs
+Description: Display log sizes for user and system containers
+Usage: opencli docker-logs [--all|--system|--users|<USERNAME>]
+------------------------
+opencli docker-update
+Description: Check for image updates across root's stack and every
+Usage: opencli docker-update [-y|--yes] [--dry-run]
+------------------------
+opencli domain
+Description: View and set domain/ip for accessing panels.
+Usage: opencli domain [set <domain_name> | ip] [--debug] [--no-restart]
+------------------------
+opencli domains-add
+Description: Add a domain name for user.
+Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy] [--skip_vhost] [--skip_containers] [--skip_dns] [--skip-sentinel] [--debug] [--hs_ed25519_public_key KEY --hs_ed25519_secret_key KEY]
+------------------------
+opencli domains-all
+Description: Lists all domain names currently hosted on the server.
+Usage: opencli domains-all [--docroot] [--php_version] [--json]
+------------------------
+opencli domains-delete
+Description: Delete a domain name.
+Usage: opencli domains-delete <DOMAIN_NAME> [--debug]
+------------------------
+opencli domains-dns
+Description: Manage DNS zones and the DNS server via subcommands (create, delete, reload, list, check, start/stop/restart, etc).
+Usage: opencli domains-dns <reconfig|check|reload|show|list|create|delete|default|count|config|start|restart|hard-restart|stop> [DOMAIN] [-y]
+------------------------
+opencli domains-dnssec
+Description: Enable DNSSEC for a domain, re-sign the zone after changes, or check its DNSSEC status.
+Usage: opencli domains-dnssec <DOMAIN> [--update | --check]
+------------------------
+opencli domains-docroot
+Description: View and change docroot for a domain.
+Usage: opencli domains-docroot <DOMAIN_NAME> [update <DOCROOT>] [--debug]
+------------------------
+opencli domains-edit
+Description: Open a domain's docroot directory, or its webserver vhost config file in nano with --ws.
+Usage: opencli domains-edit <DOMAIN_NAME> [--ws]
+------------------------
+opencli domains-hsts
+Description: Manage HSTS for a domain
+Usage: opencli domains-hsts <domain> [enable|disable]
+------------------------
+opencli domains-ssl
+Description: Check SSL for domain, add custom certificate, view files.
+Usage: opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|custom] [path/to/fullchain.pem path/to/key.pem]
+------------------------
+opencli domains-stats
+Description: Parse caddy access logs for users domains and generate static html
+Usage: opencli domains-stats [USERNAME] [--debug]
+------------------------
+opencli domains-suspend
+Description: Suspend a domain name
+Usage: opencli domains-suspend <DOMAIN-NAME> [--comment="<COMMENT>"]
+------------------------
+opencli domains-unsuspend
+Description: Unsuspend a domain name
+Usage: opencli domains-unsuspend <DOMAIN-NAME>
+------------------------
+opencli domains-update_ns
+Description: Change nameservers for a single or all dns zones.
+Usage: opencli domains-update_ns <DOMAIN_NAME | --all> [-y]
+------------------------
+opencli domains-user
+Description: Lists all domain names currently owned by a specific user.
+Usage: opencli domains-user <USERNAME> [--docroot|--php_version]
+------------------------
+opencli domains-varnish
+Description: Check Varnish status for domain, enable/disable Varnish caching.
+Usage: opencli domains-varnish <DOMAIN-NAME> [on|off] [--short]
+------------------------
+opencli domains-whoowns
+Description: Check which username owns a certain domain name.
+Usage: opencli domains-whoowns <DOMAIN-NAME> [--context] [--docroot]
 ------------------------
 opencli email-manage
-Description: Manage mailserver configuration and overview.
-Usage: opencli email-manage <COMMAND> <ATTRIBUTES>
-------------------------
-opencli email-server
-Description: Manage mailserver
-Usage: opencli email-server <status|config|install|start|stop|restart|queue|flush|view|unhold|delete|fail2ban|ports|logs|login|supervisor|postfwd|pflogsumm|update-check|update-packages|versions> [args] [--debug]
+Description: Pass commands through to docker-mailserver's setup CLI inside the mailserver container.
+Usage: opencli email-manage <COMMAND> [<ARGS>...]
 ------------------------
 opencli email-quotas
 Description: Fixes email permission issues for all domains.
@@ -17549,252 +18000,23 @@ Usage: opencli email-quotas
 ------------------------
 opencli email-ratelimit
 Description: Configure rate-limiting using postfwd for domains and users.
-Usage: opencli email-ratelimit
+Usage: opencli email-ratelimit [--username=<user>] [--domain=<domain>] [--all-users] [--delete-user=<user>] [--delete-domain=<domain>] [--skip-reload]
 ------------------------
-opencli email-webmail
-Description: Display or update the domain used for accessing webmail.
-Usage: opencli email-webmail [--debug] [domain <domain>]
+opencli email-server
+Description: Manage mailserver
+Usage: opencli email-server <status|config|install|uninstall|start|stop|restart|queue|flush|view|unhold|delete|fail2ban|ports|postconf|logs|login|supervisor|postfwd|pflogsumm|update-check|update-packages|versions> [args] [--debug]
 ------------------------
 opencli email-setup
 Description: Setup email addresses, forwarders, filters..
 Usage: opencli email-setup <COMMAND> <ATTRIBUTES>
 ------------------------
-opencli update
-Description: Check if update is available, install updates.
-Usage: opencli update [--check | --force | --admin | --panel | --cli]
+opencli email-webmail
+Description: Display or update the domain used for accessing webmail.
+Usage: opencli email-webmail [--debug] [domain <domain>]
 ------------------------
-opencli webserver-get_webserver_for_user
-Description: View cached or check the installed webserver inside user container.
-Usage: opencli webserver-get_webserver_for_user <USERNAME>
-------------------------
-opencli version
-Description: Displays the current (installed) version of OpenPanel container image.
-Usage: opencli version 
-------------------------
-opencli dev
-Description: Overwrite OpenPanel container files and restart service to apply.
-Usage: opencli dev [path]
-------------------------
-opencli sentinel
-Description: Check system services, traffic and resource usage, and log/send custom notifications on request.
-Usage: opencli sentinel [--startup] [--report] [--action=<name> --title=<title> --message=<msg>]
-------------------------
-opencli docker-collect_stats
-Description: Collect resource usage information for user(s).
-Usage: opencli docker-collect_stats <username|--all>
-------------------------
-opencli docker-usage_stats_cleanup
-Description: Rotates resource usage logs for all users according to the resource_usage_retention setting.
-------------------------
-opencli docker-backup
-Description: Generates a backup for all users.
-Usage: opencli docker-backup
-------------------------
-opencli docker-autostart
-Description: Prefetch (pull) container images for services listed as autostart, skipping if free disk space is low.
-Usage: opencli docker-autostart [-f|--force]
-------------------------
-opencli docker-images
-Description: Check images for updates.
-Usage: opencli docker-images [--all|<USERNAME>]
-------------------------
-opencli docker-logs
-Description: Display log sizes for user and system containers
-Usage: opencli docker-logs [--all|--system|--users|<USERNAME>]
-------------------------
-opencli docker-limits
-Description: Set global container limits for all containers combined.
-Usage: opencli docker-limits [--apply | --apply SIZE | --read]
-------------------------
-opencli user-2fa
-Description: Check or disable 2FA for a user.
-Usage: opencli user-2fa <username> [disable]
-------------------------
-opencli user-redis
-Description: Check and enable/disable REDIS for user.
-Usage: opencli user-redis [check|enable|disable] <USERNAME>
-------------------------
-opencli user-loginlog
-Description: View user's .lastlogin file with last 20 successfull logins.
-Usage: opencli user-loginlog <USERNAME> [--table|--text|--json]
-------------------------
-opencli user-ssh
-Description: Manage SSH settings for user.
-Usage: opencli user-ssh <check|enable|disable> <username>
-------------------------
-opencli user-email
-Description: Change email for user
-Usage: opencli user-email <USERNAME> <NEW_EMAIL>
-------------------------
-opencli user-varnish
-Description: Enable/disable Varnish Caching for user and display current status.
-Usage: opencli user-varnish <USERNAME> [enable|disable|status]
-------------------------
-opencli user-add
-Description: Create a new user with the provided plan_name.
-Usage: opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug] [--webserver="<nginx|apache|openresty|openlitespeed|litespeed|varnish+nginx|varnish+apache|varnish+openresty|varnish+openlitespeed>"] [--sql=<mysql|mariadb>] [--reseller=<RESELLER_USERNAME>] [--private-note="this user.."] [--no-sentinel]
-------------------------
-opencli user-rename
-Description: Rename username.
-Usage: opencli user-rename <old_username> <new_username>
-------------------------
-opencli user-delete
-Description: Delete user account and permanently remove all their data.
-Usage: opencli user-delete <username> [-y] [--all]
-------------------------
-opencli user-resources
-Description: View services limits for user.
-Usage: opencli user-resources <CONTEXT> [--activate=<SERVICE_NAME>] [--deactivate=<SERVICE_NAME>] [--update_cpu=<FLOAT>] [--update_ram=<FLOAT>] [--service=<NAME>] [--json]
-------------------------
-opencli user-change_plan
-Description: Change plan for a user and apply new plan limits.
-Usage: opencli user-change_plan <USERNAME> <NEW_PLAN_NAME>
-------------------------
-opencli user-password
-Description: Reset password for a user.
-Usage: opencli user-password <USERNAME> <NEW_PASSWORD | RANDOM> [--ssh]
-------------------------
-opencli user-memcached
-Description: Check and enable/disable Memcached for user.
-Usage: opencli user-memcached [check|enable|disable] <USERNAME>
-------------------------
-opencli user-login
-Description: Login as a user container.
-Usage: opencli user-login <USERNAME>
-------------------------
-opencli user-unsuspend
-Description: Unsuspend user: start all containers and unsuspend domains
-Usage: opencli user-unsuspend <USERNAME>
-------------------------
-opencli user-ip
-Description: Assing or remove dedicated IP to a user.
-Usage: opencli user-ip <USERNAME> <IP | DELETE> [-y] [--debug]
-------------------------
-opencli user-block_ip
-Description: View, add, or remove blocked IP addresses for a user's domains.
-Usage: opencli user-block_ip <username> [--list='ip_here another_ip' | --delete-all]
-------------------------
-opencli user-suspend
-Description: Suspend user: stop all containers and suspend domains.
-Usage: opencli user-suspend <USERNAME>
-------------------------
-opencli user-list
-Description: Display all users: id, username, email, plan, registered date.
-Usage: opencli user-list [--json]
-------------------------
-opencli user-transfer
-Description: Transfers a single user account from this server to another.
-Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
-------------------------
-opencli user-backup
-Description: Creates a full account .tar.gz backup of a single OpenPanel user account.
-Usage: opencli user-backup --account <USER> [--output <DIR>] [--quiet]
-------------------------
-opencli user-restore
-Description: Restores a single OpenPanel user account from a full account .tar.gz backup.
-Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--quiet] [--temp-dir=<PATH>]
-------------------------
-opencli user-check
-Description: Performs comprehensive security checks on user files, rootless Podman instance and containers.
-Usage: opencli user-check <USERNAME>
-------------------------
-opencli user-quota
-Description: Enforce and recalculate disk and inodes for a user.
-Usage: opencli user-quota <username|--all>
-------------------------
-opencli report
-Description: Generate a system report and send it to OpenPanel support team.
-Usage: opencli report [--public|--link|--upload] [--non-interactive]
-------------------------
-opencli websites-scan
-Description: Scan user files for WP sites and add them to SiteManager interface.
-Usage: opencli websites-scan <USERNAME|-all>
-------------------------
-opencli websites-all
-Description: Lists all websites currently hosted on the server.
-Usage: opencli websites-all [TYPE]
-------------------------
-opencli websites-user
-Description: Lists all websites and domains owned by a specific user.
-Usage: opencli websites-user <USERNAME> [--type=] [--domains=] [--json]
-------------------------
-opencli websites-pagespeed
-Description: Check Google PageSpeed data for website(s)
-Usage: opencli websites-pagespeed <DOMAIN> [-all]
-------------------------
-opencli websites-secure
-Description: WP Manager security rules for domain.
-Usage: opencli websites-secure <DOMAIN> [--rules='RULE1 RULE2' | --disable-all | --list-active-rules]
-------------------------
-opencli websites-vulnerability
-Description: Scan WP site for vulnerabilities.
-Usage: opencli websites-vulnerability <DOMAIN> [--all]
-------------------------
-opencli imunify
-Description: Install and manage ImunifyAV service.
-Usage: opencli imunify [status|start|stop|install|update|uninstall]
-------------------------
-opencli config
-Description: Get or update a value in the OpenPanel configuration file.
-Usage: opencli config [get|update] <parameter_name> [new_value]
-------------------------
-opencli docker
-Description: Open an interactive shell inside a system or user container, picking the user and container via fzf if not given.
-Usage: opencli docker [<user> [<container>]]
-------------------------
-opencli install
-Description: Create cronjobs and configuration files needed for openpanel.
-Usage: opencli install
-------------------------
-opencli imav-deploy
-------------------------
-opencli port
-Description: View and change port for accessing openpanel.
-Usage: opencli port [set <port>] 
-------------------------
-opencli plan-delete
-Description: Delete hosting plan
-Usage: opencli plan-delete <PLAN_NAME>
-------------------------
-opencli plan-list
-Description: Display all plans: id, name, description, limits..
-Usage: opencli plan-list [--json]
-------------------------
-opencli plan-edit
-Description: Edit an existing hosting plan (Package) and modify its parameters.
-Usage: opencli plan-edit --debug id=<ID> name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<DEFAULT>
-------------------------
-opencli plan-usage
-Description: Display all users that are currently using the plan.
-Usage: opencli plan-usage <PLAN_NAME> [--json]
-------------------------
-opencli plan-apply
-Description: Change plan for a user and apply new plan limits.
-Usage: opencli plan-apply <NEW_PLAN_ID> <USERNAME>
-------------------------
-opencli plan-create
-Description: Create a new hosting plan (Package) and set its limits.
-Usage: opencli plan-create name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME>
-------------------------
-opencli php-domain
-Description: View or change the PHP version used for a single domain name.
-Usage: opencli php-domain <domain_name>
-------------------------
-opencli php-ini
-Description: View or change php.ini values of any php version for a user.
-Usage: opencli php-ini <username> <action> <setting> [value]
-------------------------
-opencli php-default
-Description: View or change the default PHP version used for new domains added by user.
-Usage: opencli php-default <username>
-------------------------
-opencli admin
-Description: Manage OpenAdmin service and Administrators.
-Usage: opencli admin <command> [options]
-------------------------
-opencli waf
-Description: Manage CorazaWAF
-Usage: opencli waf <setting> 
+opencli faq
+Description: Display answers to most frequently asked questions.
+Usage: opencli faq
 ------------------------
 opencli files-calculate_resellers_storage
 Description: Calculates total disk usage for all resellers.
@@ -17804,80 +18026,225 @@ opencli files-fix_permissions
 Description: Fix permissions for users /home directory files inside the container.
 Usage: opencli files-fix_permissions <USERNAME|--all> [PATH] [--debug]
 ------------------------
+opencli files-malware_scan
+Description: Scan a user's (or every user's) html_data files for malware
+Usage: opencli files-malware_scan <USERNAME> OR opencli files-malware_scan --all
+------------------------
 opencli files-purge_trash
 Description: Auto-purge .Trash folders for users.
 Usage: opencli files-purge_trash [--user USERNAME] [--force] [--dry-run]
 ------------------------
-opencli firewall-reset
-Description: Deletes all container related ports from CSF and opens exposed ports.
+opencli ftp-add
+Description: Create FTP sub-user for openpanel user.
+Usage: opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--debug]
 ------------------------
-opencli domains-dnssec
-Description: Enable DNSSEC for a domain and re-sign after changes in the zone.
-Usage: opencli domains-dnssec <DOMAIN> [--update | --check]
+opencli ftp-connections
+Description: Display all active FTP connection or for particular OpenPanel user.
+Usage: opencli ftp-connections [OPENPANEL_USERNAME]
 ------------------------
-opencli domains-update_ns
-Description: Change nameservers for a single or all dns zones.
-Usage: opencli domains-update_ns <DOMAIN_NAME>
+opencli ftp-delete
+Description: Delete FTP sub-user for openpanel user.
+Usage: opencli ftp-delete <username> <openpanel_username> [--debug]
 ------------------------
-opencli domains-all
-Description: Lists all domain names currently hosted on the server.
-Usage: opencli domains-all [--docroot] [--php_version] [--json]
+opencli ftp-list
+Description: List FTP sub-users for openpanel user.
+Usage: opencli ftp-list [OPENPANEL_USERNAME] [--json]
 ------------------------
-opencli domains-varnish
-Description: Check Varnish status for domain, enable/disable Varnish caching.
-Usage: opencli domains-varnish <DOMAIN-NAME> [on|off] [--short]
+opencli ftp-logs
+Description: View the FTP server log
+Usage: opencli ftp-logs
 ------------------------
-opencli domains-hsts
-Description: Manage HSTS for a domain
-Usage: opencli domains-hsts <domain> [enable|disable]
+opencli ftp-password
+Description: Change password for FTP sub-user of openpanel user.
+Usage: opencli ftp-password <username> <new_password> <openpanel_username> [--debug]
 ------------------------
-opencli domains-add
-Description: Add a domain name for user.
-Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy] [--skip_vhost] [--skip_containers] [--skip_dns] [--skip-sentinel] [--debug] [--hs_ed25519_public_key KEY --hs_ed25519_secret_key KEY]
+opencli ftp-path
+Description: Change FTP path for a user.
+Usage: opencli ftp-path <username> <path> <openpanel_username> [--debug]
 ------------------------
-opencli domains-delete
-Description: Delete a domain name.
-Usage: opencli domains-delete <DOMAIN_NAME> --debug
+opencli imunify
+Description: Install and manage ImunifyAV service.
+Usage: opencli imunify [status|start|stop|install|update|uninstall]
 ------------------------
-opencli domains-whoowns
-Description: Check which username owns a certain domain name.
-Usage: opencli domains-whoowns <DOMAIN-NAME> [--context] [--docroot]
+opencli license
+Description: Manage OpenPanel Enterprise license.
+Usage: opencli license [key|verify|info|delete|<LICENSE_KEY>] [--json] [--no-restart]
 ------------------------
-opencli domains-unsuspend
-Description: Unsuspend a domain name
-Usage: opencli domains-unsuspend <DOMAIN-NAME>
+opencli php-default
+Description: View or change the default PHP version used for new domains added by user.
+Usage: opencli php-default <USERNAME> [--update <PHP_VERSION>]
 ------------------------
-opencli domains-dns
-Description: Manage DNS zones and the DNS server via subcommands (create, delete, reload, list, check, start/stop/restart, etc).
-Usage: opencli domains-dns <reconfig|check|reload|show|list|create|delete|default|count|config|start|restart|hard-restart|stop> [DOMAIN]
+opencli php-domain
+Description: View or change the PHP version used for a single domain name.
+Usage: opencli php-domain <DOMAIN_NAME> [--update <PHP_VERSION>]
 ------------------------
-opencli domains-user
-Description: Lists all domain names currently owned by a specific user.
-Usage: opencli domains-user <USERNAME> [--docroot|--php_version]
+opencli phpmyadmin
+Description: View and set domain/ip for phpmyadmin access.
+Usage: opencli phpmyadmin [set <domain_name> | ip]
 ------------------------
-opencli domains-suspend
-Description: Suspend a domain name
-Usage: opencli domains-suspend <DOMAIN-NAME>
+opencli plan-apply
+Description: Change plan for a user and apply new plan limits.
+Usage: opencli plan-apply <PLAN_ID> <USERNAME>... [--all] [--cpu] [--ram] [--dsk] [--net] [--email] [--debug]
 ------------------------
-opencli domains-ssl
-Description: Check SSL for domain, add custom certificate, view files.
-Usage: opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|custom] [path/to/fullchain.pem path/to/key.pem]
+opencli plan-create
+Description: Create a new hosting plan (Package) and set its limits.
+Usage: opencli plan-create name="<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT> max_hourly_email=<COUNT> [reseller=<USERNAME>]
 ------------------------
-opencli domains-edit
-Description: Open a domain's docroot directory, or its webserver vhost config file in nano with --ws.
-Usage: opencli domains-edit <DOMAIN_NAME> [--ws]
+opencli plan-delete
+Description: Delete hosting plan
+Usage: opencli plan-delete <PLAN_NAME> [--json]
 ------------------------
-opencli domains-docroot
-Description: View and change docroot for a domain.
-Usage: opencli domains-docroot <DOMAIN_NAME> [update </var/www/html/>] --debug
+opencli plan-edit
+Description: Edit an existing hosting plan (Package) and modify its parameters.
+Usage: opencli plan-edit id=<ID> name="<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT> max_hourly_email=<COUNT> [--debug]
 ------------------------
-opencli domains-stats
-Description: Parse caddy access logs for users domains and generate static html
-Usage: opencli domains-stats
+opencli plan-list
+Description: Display all plans: id, name, description, limits..
+Usage: opencli plan-list [--json]
+------------------------
+opencli plan-usage
+Description: Display all users that are currently using the plan.
+Usage: opencli plan-usage <PLAN_NAME> [--json]
+------------------------
+opencli port
+Description: View and change port for accessing openpanel.
+Usage: opencli port [set <port> | default]
 ------------------------
 opencli proxy
 Description: View and change proxy path '/openpanel' for accessing openpanel.
 Usage: opencli proxy [set <path>|default]
+------------------------
+opencli report
+Description: Generate a system report and send it to OpenPanel support team.
+Usage: opencli report [--public|--link|--upload] [--non-interactive]
+------------------------
+opencli sentinel
+Description: Check system services, traffic and resource usage, and log/send custom notifications on request.
+Usage: opencli sentinel [--startup] [--report] [--action=<name> --title=<title> --message=<msg>]
+------------------------
+opencli server-logrotate
+Description: Configures logrotate for caddy, openpanel, syslog.
+Usage: opencli server-logrotate
+------------------------
+opencli server-migrate
+Description: Migrates all data from this server to another.
+Usage: opencli server-migrate -h <DESTINATION_IP> --user root --password <DESTINATION_PASSWORD> [--force] [--exclude-* options]
+------------------------
+opencli update
+Description: Check if update is available, install updates.
+Usage: opencli update [--check | --force | --admin | --panel | --cli | --translations | --system | --modules | --compose | --env | --php]
+------------------------
+opencli user-2fa
+Description: Check or disable 2FA for a user.
+Usage: opencli user-2fa <username> [disable]
+------------------------
+opencli user-add
+Description: Create a new user with the provided plan_name.
+Usage: opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug] [--webserver="<nginx|apache|openresty|openlitespeed|litespeed|varnish+nginx|varnish+apache|varnish+openresty|varnish+openlitespeed>"] [--sql=<mysql|mariadb>] [--reseller=<RESELLER_USERNAME>] [--private-note="this user.."] [--no-sentinel]
+------------------------
+opencli user-backup
+Description: Creates a full account .tar.gz backup of a single OpenPanel user account.
+Usage: opencli user-backup --account <USER> [--output <DIR>] [--quiet]
+------------------------
+opencli user-block_ip
+Description: View, add, or remove blocked IP addresses for a user's domains.
+Usage: opencli user-block_ip <username> [--list='ip_here another_ip' | --delete-all]
+------------------------
+opencli user-change_plan
+Description: Change plan for a user and apply new plan limits.
+Usage: opencli user-change_plan <USERNAME> <NEW_PLAN_NAME>
+------------------------
+opencli user-check
+Description: Performs comprehensive security checks on user files, rootless Podman instance and containers.
+Usage: opencli user-check <USERNAME>
+------------------------
+opencli user-delete
+Description: Delete user account and permanently remove all their data.
+Usage: opencli user-delete <username> [-y]
+------------------------
+opencli user-email
+Description: Change email for user
+Usage: opencli user-email <USERNAME> <NEW_EMAIL>
+------------------------
+opencli user-ip
+Description: Assign or remove dedicated IP to a user.
+Usage: opencli user-ip <USERNAME> <IP | DELETE> [-y] [--debug]
+------------------------
+opencli user-list
+Description: Display all users: id, username, email, plan, registered date,
+Usage: opencli user-list [--json] [--total] [--quota]
+------------------------
+opencli user-login
+Description: Generate an auto-login link for OpenPanel user.
+Usage: opencli user-login <username> [--open|--delete]
+------------------------
+opencli user-loginlog
+Description: View user's .lastlogin file with last 20 successfull logins.
+Usage: opencli user-loginlog <USERNAME> [--table|--text|--json]
+------------------------
+opencli user-password
+Description: Reset password for a user.
+Usage: opencli user-password <USERNAME> <NEW_PASSWORD | random>
+------------------------
+opencli user-quota
+Description: Report or set disk and inodes for users.
+Usage: opencli user-quota <username|--all>
+------------------------
+opencli user-rename
+Description: Rename username.
+Usage: opencli user-rename <old_username> <new_username>
+------------------------
+opencli user-restore
+Description: Restores a single OpenPanel user account from a full account .tar.gz backup.
+Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--quiet] [--temp-dir=<PATH> ]
+------------------------
+opencli user-suspend
+Description: Suspend user: stop all containers and suspend domains.
+Usage: opencli user-suspend <USERNAME> [-y] [--debug]
+------------------------
+opencli user-transfer
+Description: Transfers a single user account from this server to another.
+Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--port <SSH_PORT>] [--force] [--live-transfer]
+------------------------
+opencli user-unsuspend
+Description: Unsuspend user: start all containers and unsuspend domains
+Usage: opencli user-unsuspend <USERNAME>
+------------------------
+opencli user-varnish
+Description: Enable/disable Varnish Caching for user and display current status.
+Usage: opencli user-varnish <USERNAME> [enable|disable|status]
+------------------------
+opencli version
+Description: Displays the current (installed) version of OpenPanel container image.
+Usage: opencli version
+------------------------
+opencli waf
+Description: Manage CorazaWAF
+Usage: opencli waf <status|enable|disable|domain|tags|ids|update|stats|count> [options]
+------------------------
+opencli websites-all
+Description: Lists all websites currently hosted on the server.
+Usage: opencli websites-all [TYPE]
+------------------------
+opencli websites-pagespeed
+Description: Check Google PageSpeed data for website(s)
+Usage: opencli websites-pagespeed <DOMAIN | -all>
+------------------------
+opencli websites-scan
+Description: Scan user files for WP sites and add them to SiteManager interface.
+Usage: opencli websites-scan <USERNAME|-all>
+------------------------
+opencli websites-secure
+Description: WP Manager security rules for domain.
+Usage: opencli websites-secure <DOMAIN> [--rules='RULE1 RULE2' | --disable-all | --list-active-rules]
+------------------------
+opencli websites-user
+Description: Lists all websites and domains owned by a specific user.
+Usage: opencli websites-user <USERNAME> [--type=] [--domains=] [--json]
+------------------------
+opencli websites-vulnerability
+Description: Scan WP site for vulnerabilities.
+Usage: opencli websites-vulnerability <DOMAIN | --all>
 ------------------------
 opencli error
 Description: Displays information for specific error ID received in OpenPanel UI.
@@ -17886,6 +18253,7 @@ Usage: opencli error <ID_HERE>
 opencli locale
 Description: Install locales (Languages) for OpenPanel UI.
 Usage: opencli locale <CODE>
+------------------------
 ```
 </details>
 
@@ -17913,7 +18281,7 @@ Domain 'pejcic.rs' (owned by user: stefan) uses PHP version: php8.1
 
 ### Change version for a domain
 
-To change a PHP version for a domain name run the `domain` script with `--update` flag::
+To change a PHP version for a domain name use the `--update` flag:
 
 ```bash
 opencli php-domain <DOMAIN-NAME> --update <PHP-VERSION>
@@ -17965,7 +18333,7 @@ PHP version for user 'stefan' updated to: 8.1
 To list all available PHP versions for a user, grep 'php-fpm' in docker-compose.yml file for the user:
 
 ```bash
-grep php-fpm- /home/ <USERNAME>/docker-compose.yml
+grep php-fpm- /home/<USERNAME>/docker-compose.yml
 ```
 
 
@@ -17994,7 +18362,11 @@ Example:
     container_name: php-fpm-8.3
   php-fpm-8.4:
     container_name: php-fpm-8.4
+  php-fpm-8.5:
+    container_name: php-fpm-8.5
 ```
+
+To add PHP versions that are newer than the user's `docker-compose.yml` file, run [`opencli update --php`](/docs/articles/opencli/update/#php).
 
 ---
 
@@ -18061,29 +18433,31 @@ opencli plan-list --json
 To create a new plan run the following command:
 
 ```bash
-opencli plan-create name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT>
+opencli plan-create name="<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT> max_hourly_email=<COUNT> [reseller=<USERNAME>]
 ```
 
 | Parameter           | Description                                      | Type    | Notes                                                         |
 |---------------------|--------------------------------------------------|---------|---------------------------------------------------------------|
 | `name`              | Name of the plan                                 | String  | No spaces                                                     |
-| `description`       | Plan description                                 | String  | Use quotes for multiple words                                |
-| `feature_set`       | Feature set assigned to the plan                 | String  | Must match an existing feature set name                      |
-| `email_limit`       | Max number of email accounts                     | Integer | `0` for unlimited                                            |
+| `description`       | Plan description                                 | String  | Use quotes for multiple words                                 |
+| `feature_set`       | Feature set assigned to the plan                 | String  | Must match an existing feature set name                       |
+| `emails`            | Max number of email accounts                     | Integer | `0` for unlimited                                             |
 | `max_email_quota`   | Max size per email account                       | String  | Integer followed by `B`, `k`, `M`, `G`, or `T`; `0` unlimited |
-| `ftp_limit`         | Max number of FTP accounts                       | Integer | `0` for unlimited                                            |
-| `domains_limit`     | Max number of domains                            | Integer | `0` for unlimited                                            |
-| `websites_limit`    | Max number of websites                           | Integer | `0` for unlimited                                            |
-| `disk_limit`        | Disk space limit in GB                           | Integer |                                                               |
-| `inodes_limit`      | Max number of inodes                             | Integer | `0` for unlimited (minimum recommended: 250000)             |
-| `db_limit`          | Max number of databases                          | Integer | `0` for unlimited                                            |
+| `max_hourly_email`  | Max outgoing emails per hour, across all domains | Integer |                                                               |
+| `ftp`               | Max number of FTP accounts                       | Integer | `0` for unlimited                                             |
+| `domains`           | Max number of domains                            | Integer | `0` for unlimited                                             |
+| `websites`          | Max number of websites                           | Integer | `0` for unlimited                                             |
+| `disk`              | Disk space limit in GB                           | Integer |                                                               |
+| `inodes`            | Max number of inodes                             | Integer | `0` for unlimited (minimum recommended: 250000)               |
+| `databases`         | Max number of databases                          | Integer | `0` for unlimited                                             |
 | `cpu`               | CPU core limit                                   | Integer |                                                               |
 | `ram`               | RAM limit in GB                                  | Integer |                                                               |
 | `bandwidth`         | Port speed in Mbit/s                             | Integer |                                                               |
+| `reseller`          | Reseller that can use this plan                  | String  | Optional, username of an existing reseller                    |
 
 Example:
 ```bash
-opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G"
+opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G max_hourly_email=1000
 ```
 
 ## List Users on Plan
@@ -18091,7 +18465,7 @@ opencli plan-create name="New Plan" description="This is a new plan" emails=100 
 List all users that are currently using a plan:
 
 ```bash
-opencli plan-usage
+opencli plan-usage <PLAN_NAME>
 ```
 
 <details>
@@ -18112,7 +18486,7 @@ opencli plan-usage
 You can also format the data as JSON:
 
 ```bash
-opencli plan-usage --json
+opencli plan-usage <PLAN_NAME> --json
 ```
 
 
@@ -18152,22 +18526,24 @@ TIP: use `'` or `"` around the plan name if it contains spaces: `"plan name here
 Change plan limits.
 
 ```bash
-opencli plan-edit --debug id=<ID> name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<DEFAULT> max_email_quota=<COUNT>
+opencli plan-edit id=<ID> name="<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT> max_hourly_email=<COUNT> [--debug]
 ```
 
 | Parameter           | Description                                      | Type    | Notes                                                         |
 |---------------------|--------------------------------------------------|---------|---------------------------------------------------------------|
+| `id`                | ID of the plan to edit                           | Integer | Required                                                      |
 | `name`              | Name of the plan                                 | String  | No spaces                                                     |
-| `description`       | Plan description                                 | String  | Use quotes for multiple words                                |
-| `feature_set`       | Feature set assigned to the plan                 | String  | Must match an existing feature set name                      |
-| `email_limit`       | Max number of email accounts                     | Integer | `0` for unlimited                                            |
+| `description`       | Plan description                                 | String  | Use quotes for multiple words                                 |
+| `feature_set`       | Feature set assigned to the plan                 | String  | Must match an existing feature set name                       |
+| `emails`            | Max number of email accounts                     | Integer | `0` for unlimited                                             |
 | `max_email_quota`   | Max size per email account                       | String  | Integer followed by `B`, `k`, `M`, `G`, or `T`; `0` unlimited |
-| `ftp_limit`         | Max number of FTP accounts                       | Integer | `0` for unlimited                                            |
-| `domains_limit`     | Max number of domains                            | Integer | `0` for unlimited                                            |
-| `websites_limit`    | Max number of websites                           | Integer | `0` for unlimited                                            |
-| `disk_limit`        | Disk space limit in GB                           | Integer |                                                               |
-| `inodes_limit`      | Max number of inodes                             | Integer | `0` for unlimited (minimum recommended: 250000)             |
-| `db_limit`          | Max number of databases                          | Integer | `0` for unlimited                                            |
+| `max_hourly_email`  | Max outgoing emails per hour, across all domains | Integer |                                                               |
+| `ftp`               | Max number of FTP accounts                       | Integer | `0` for unlimited                                             |
+| `domains`           | Max number of domains                            | Integer | `0` for unlimited                                             |
+| `websites`          | Max number of websites                           | Integer | `0` for unlimited                                             |
+| `disk`              | Disk space limit in GB                           | Integer |                                                               |
+| `inodes`            | Max number of inodes                             | Integer | `0` for unlimited (minimum recommended: 250000)               |
+| `databases`         | Max number of databases                          | Integer | `0` for unlimited                                             |
 | `cpu`               | CPU core limit                                   | Integer |                                                               |
 | `ram`               | RAM limit in GB                                  | Integer |                                                               |
 | `bandwidth`         | Port speed in Mbit/s                             | Integer |                                                               |
@@ -18178,7 +18554,7 @@ opencli plan-edit --debug id=<ID> name"<TEXT>" description="<TEXT>" emails=<COUN
   <summary>Example output</summary>
 
 ```bash
-# opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G"
+# opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G" max_hourly_email=1000
 ```
 </details>
 
@@ -18208,7 +18584,7 @@ These flags can be combined, e.g. `--cpu --ram` applies only CPU and RAM limits.
 
 # Port 
 
-`opencli port` command is used to change port (`2023`) for accessing OpenPanel.
+`opencli port` command is used to change port (`2083`) for accessing OpenPanel.
 
 View current port:
 ```bash
@@ -18231,6 +18607,11 @@ Set default port `2083`:
 opencli port default
 ```
 
+Caddy and OpenPanel are restarted and the new port is opened in the CSF firewall. Add `--no-restart` to skip both:
+```bash
+opencli port set <NUMBER> --no-restart
+```
+
 ---
 
 // File: articles/opencli/proxy
@@ -18246,16 +18627,15 @@ opencli proxy
 
 Set `/something` on every domain to redirect to OpenPanel interface:
 ```bash
-opencli domain set something
+opencli proxy set /something
 ```
 
 Switch back to the default `/openpanel`:
 ```bash
-opencli domain set default
+opencli proxy default
 ```
 
-
-You can also pass `--no-restart` flag to avoid interrupting the Caddy or OpenPanel services.
+The OpenPanel service is restarted in the background to apply the change. Add `--no-restart` to skip the restart.
 
 ---
 
@@ -18269,10 +18649,18 @@ To check current server info you can use the following command:
 opencli report 
 ```
 
-To make the report public and share it when asking for support:
+To upload the report to support.openpanel.org and get a key to share when asking for support:
 ```bash
 opencli report --public
 ```
+`--link` and `--upload` are aliases for `--public`.
+
+For plain output without progress messages, screen clearing or colors (useful in scripts):
+```bash
+opencli report --non-interactive
+```
+
+The report is saved to `/var/log/openpanel/admin/reports/`.
 
 ---
 
@@ -18289,6 +18677,17 @@ opencli sentinel
 ```
 
 ![sentinel openpanel cli](/img/docs-content/kg56D2x2-sentinel-openpaenl.png)
+
+Additional flags:
+
+- `--startup` - run the actions performed after a server reboot: start stopped containers for root and all users and send the reboot notification.
+- `--report` - send the *Daily Usage Report* email (if email alerts are enabled).
+- `--action=<name> --title=<title> --message=<message>` - log a custom notification to OpenAdmin > Notifications (and email/webhook) if notifications are enabled for that action.
+
+Example:
+```bash
+opencli sentinel --action=admin_api --title="OpenAdmin API is on" --message="API access is now on."
+```
 
 
 <details>
@@ -18359,8 +18758,16 @@ opencli server-migrate -h <DESTINATION_IP> --user root --password <DESTINATION_P
 
 All available flags:
 ```bash
-opencli server-migrate -h <remote_host> -u <remote_user> [--password <password>] [--exclude-home] [--exclude-logs] [--exclude-mail] [--exclude-bind] [--exclude-openpanel] [--exclude-mysql] [--exclude-stack] [--exclude-postupdate] [--exclude-users]
+opencli server-migrate -h <remote_host> -u <remote_user> [--password <password>] [--force] [--exclude-home] [--exclude-logs] [--exclude-csf] [--exclude-mail] [--exclude-bind] [--exclude-openpanel] [--exclude-mysql] [--exclude-stack] [--exclude-postupdate] [--exclude-users] [--exclude-contexts]
 ```
+
+- `-h`, `--host` - destination server IP.
+- `-u`, `--user` - SSH user on the destination server.
+- `--password` - SSH password for the destination server.
+- `--force` - skip checking if the destination server already has users.
+- `--exclude-csf` - don't sync `/etc/csf/` firewall configuration.
+- `--exclude-contexts` - don't set up rootless Podman for users on the destination server.
+- `--exclude-*` - skip syncing that part of the data (home directories, logs, mail, DNS zones, OpenPanel configuration, MySQL, root docker stack, post-update scripts, users).
 
 ---
 
@@ -18411,6 +18818,60 @@ opencli update --cli
 Update only translation files *(locale files from [stefanpejcic/openpanel-translations](https://github.com/stefanpejcic/openpanel-translations))*:
 ```bash
 opencli update --translations
+```
+
+## System
+
+Update system packages and kernel, remove older kernels and check if a reboot is required:
+```bash
+opencli update --system
+```
+You'll be asked to confirm before packages are updated. A full server backup is recommended beforehand.
+
+## Modules
+
+Update only the OpenAdmin modules/features list *(`/etc/openpanel/openadmin/config/features.json` from [stefanpejcic/openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration))*:
+```bash
+opencli update --modules
+```
+
+## Templates
+
+Update only the `docker-compose.yml` template used for new users *(`/etc/openpanel/docker/compose/1.0/docker-compose.yml`)*:
+```bash
+opencli update --compose
+```
+
+Update only the `.env` template used for new users *(`/etc/openpanel/docker/compose/1.0/.env`)*:
+```bash
+opencli update --env
+```
+
+The previous file is saved with a `.bak` extension. Existing users are not changed.
+
+## PHP
+
+Update PHP files and add new PHP versions to the template and to all existing users:
+```bash
+opencli update --php
+```
+
+This will:
+- replace `/etc/openpanel/php/` (ini files, ionCube loaders, composer) with the latest files from [stefanpejcic/openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration),
+- add any missing `php-fpm-X.Y` services to `docker-compose.yml` and their `PHP_FPM_X_Y_*` limits to `.env`,
+- add missing PHP mounts (php.ini, ionCube) to the OpenLiteSpeed service,
+- add missing ionCube mounts to existing `php-fpm-X.Y` services (e.g. when a loader for a PHP version becomes available),
+- copy the `php.ini/X.Y.ini` file for each new version.
+
+The template and every user in `/home/` are checked. Before changing a file, a backup is saved as `docker-compose.yml.php_<date>.bak` and `.env.php_<date>.bak`. If the new configuration is invalid, the backup is restored and that user is skipped. A summary is shown at the end.
+
+Running containers are not restarted. New mounts take effect the next time the user's PHP or OpenLiteSpeed service is restarted.
+
+## Combining options
+
+Several options can be combined. They run in the order given:
+```bash
+opencli update --compose --env
 ```
 
 ---
@@ -18561,7 +19022,7 @@ opencli user-list --quota
 ### Add User
 
 ```
-opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug] [--reseller=<RESELLER_USERNAME>] [--server=<IP_ADDRESS>]  [--key=<SSH_KEY_PATH>]
+opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug] [--reseller=<RESELLER_USERNAME>] [--private-note=<NOTE>] [--webserver=<TYPE>] [--sql=<mysql|mariadb>] [--no-sentinel]
 ```
 
 To create a new user run the following command:
@@ -18577,38 +19038,26 @@ opencli user-add stefan pejcic324 stefan@pejcic.rs 'Default Plan Nginx'
 
 
 :::tip
-Provide `random` as password to generate a strong random password.
+Provide `generate` as password to generate a strong random password.
 :::
 
+Optional flags:
 
-To send email to the email address for the user with login credentials, pass the `--send-email` flag.
+- `--send-email` - send an email with login credentials to the user's email address.
+- `--private-note=<NOTE>` - save a private note for this user (visible only in OpenAdmin).
+- `--reseller=<RESELLER_USERNAME>` - assign a reseller as the owner of this user.
+- `--webserver=<TYPE>` - webserver to use: `nginx`, `apache`, `openresty`, `openlitespeed` or `litespeed`, optionally prefixed with `varnish+` (e.g. `varnish+nginx`). Defaults to the plan/server setting.
+- `--sql=<mysql|mariadb>` - database type to use.
+- `--no-sentinel` - don't send the *user_create* notification.
+- `--skip-images` - don't pull container images for the new user.
+- `--debug` - display verbose information.
 
-
-#### Create user on Slave server
-
-To create a new user on another server:
-
-1. Create ssh key pair and establish ssh connection from master to the slave server.
-2. Run the following command:
-
+Example:
 ```bash
-opencli user-add <USERNAME> <PASSWORD> <EMAIL> "<PLAN_NAME>" --server=<IP_ADDRESS> --key=<SSH_KEY_PATH>
+opencli user-add stefan generate stefan@pejcic.rs 'Default Plan Nginx' --webserver=varnish+nginx --sql=mariadb --send-email
 ```
 
-#### Create all new users on Slave server
 
-To automatically create all future users on another server:
-
-1. Create ssh key pair and establish ssh connection from master to the slave server.
-2. Set the new server IP and path to the key file in `/etc/openpanel/openadmin/config/admin.ini` file:
-   ```
-   [CLUSTERING]
-   default_node="11.22.33.44"
-   default_ssh_key_path="/root/some-key.rsa"
-   ```
-3. That's it, all new user accounts are created on the remote server.
-
-> NOTE: The remote server must have a fresh installation of Ubuntu 24.04 - other distributions and versions are not supported.
 
 #### Create user for Reseller
 
@@ -18622,10 +19071,14 @@ opencli user-add <USERNAME> <PASSWORD> <EMAIL> "<PLAN_NAME>" --reseller=<RESELLE
 To transfer user account to another server:
 
 ```bash
-opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <OPENPANEL_USERNAME> --password <DESTINATION_SSH_PASSWORD> --port 22
+opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--port 22] [--force] [--live-transfer]
 ```
 
-add `--live-transfer` flag to suspend account after the transfer, and forward DNS to the new server.
+- `-h`, `--host` - destination server IP.
+- `-u`, `--username` - SSH user on the destination server.
+- `--port` - SSH port on the destination server (default `22`).
+- `--force` - overwrite the account if the username already exists on the destination server.
+- `--live-transfer` - suspend the account after the transfer and forward DNS to the new server.
 
 ### Backup User
 
@@ -18665,19 +19118,15 @@ add `-y` flag to disable prompt.
 This action is irreversible and will permanently delete all user data.
 :::
 
-To delete all users and all their data use the `--all` flag:
-
-```bash
-opencli user-delete --all
-```
-
 ### Suspend User
 
 To suspend (temporary disable access) to user, run the follwowing command:
 
 ```bash
-opencli user-suspend <USERNAME> [-y]
+opencli user-suspend <USERNAME> [-y] [--debug]
 ```
+
+add `-y` flag to disable prompt.
 
 ### Unsuspend User
 
@@ -18707,6 +19156,11 @@ To reset the password for a OpenPanel user, you can use the `user-password` comm
 
 ```bash
 opencli user-password <USERNAME> <NEW_PASSWORD>
+```
+
+Provide `random` as password to generate a strong random password:
+```bash
+opencli user-password <USERNAME> random
 ```
 
 ### Login as User
@@ -18785,15 +19239,17 @@ To assign IP address **that is currently used by another user** to this user, ru
 
 
 ```bash
-opencli user-ip <USERNAME> <IP_ADDRESS> --y
+opencli user-ip <USERNAME> <IP_ADDRESS> -y
 ```
 
 
 To remove dedicated IP address from a user run:
 
 ```bash
-opencli user-ip <USERNAME> delete
+opencli user-ip <USERNAME> delete [-y]
 ```
+
+Add `--debug` to any `user-ip` command to display verbose information.
 
 
 ### Check
@@ -18929,8 +19385,10 @@ opencli user-block_ip <username> --delete-all
 View up to last 20 successfull logins for the user.
 
 ```bash
-opencli user-loginlog <USERNAME> [--json]
+opencli user-loginlog <USERNAME> [--table|--text|--json]
 ```
+
+Output is shown as a table by default. Use `--text` for plain text or `--json` for JSON.
 
 ### Varnish
 Check Varnish Caching status for user and enable/disable Varnish service.
@@ -19009,6 +19467,11 @@ To completely disable the WAF for all existing domains and prevent it from being
 
 ```bash
 opencli waf disable
+```
+
+Add `-y` to skip the confirmation prompt:
+```bash
+opencli waf disable -y
 ```
 
 
@@ -19209,6 +19672,14 @@ root@apolo2:/home/pcx3# opencli waf stats request
      214 POST //xmlrpc.php HTTP/2.0
 ```
 
+## Count
+
+Display total number of records in the WAF audit log:
+
+```bash
+opencli waf count
+```
+
 ---
 
 // File: articles/opencli/websites
@@ -19225,6 +19696,11 @@ List all websites hosted on the server:
 opencli websites-all
 ```
 
+List only websites of a specific type:
+```bash
+opencli websites-all <TYPE>
+```
+
 ### List websites for user
 
 List all websites owned by user:
@@ -19232,6 +19708,12 @@ List all websites owned by user:
 ```bash
 opencli websites-user <USERNAME>
 ```
+
+Additional flags:
+
+- `--type=<TYPE>` - list only websites of this type. Run `opencli websites-user` without a username to see available types.
+- `--domains=<domain1,domain2,...>` - list only websites on these domains.
+- `--json` - display output as JSON.
 
 ### Add websites for user
 
@@ -25736,15 +26218,28 @@ Released on September 22, 2026
 
 // File: changelog/2.0.11
 
-Not yet released.
+Released on September 24. 2026
 
 ### Polish
 - Added light/dark mode screenshots to all docs pages for OpenPanel and OpenAdmin.
 - Improvements to user activity log page: filter by type and range, uri params, icons per activity record.
+- Added `/dashboard/upgrade` page in OpenPanel UI when upsell plan is set on Enterprise edition, listing new features and plan limits for upsell plan.
+- Added new `menu_style` option: default is 'classic' for existing installations and 'modern' for new installations that simplifies menu items with tabs.
 
 
 ### 🐛 Bug Fixes
 - Fixed css bug on dark mode in login forms for OpenPanel and OpenAdmin.
+
+---
+
+// File: changelog/2.0.12
+
+Not yet released.
+
+### Polish
+- Version and Port columns are removed from `OpenAdmin > Services` table.
+
+### 🐛 Bug Fixes
 
 ---
 
@@ -25936,22 +26431,19 @@ Released on 17. September 2026.
 # Changelog
 
 ### Upcoming version
-
 | Version| Release date | 
 |---|---|
-|__[2.0.11](/docs/changelog/2.0.11)__| September 30, 2026 |
-|__[1.7.67](/docs/changelog/1.7.67)__|  |
+|__[2.0.12](/docs/changelog/2.0.12)__| September 30, 2026 |
 
 ### Latest
+| Version| Release date | 
+|---|---|
+|__[2.0.11](/docs/changelog/2.0.11)__| September 24, 2026 |
 
+### Previous versions
 | Version| Release date | 
 |---|---|
 |__[2.0.10](/docs/changelog/2.0.10)__| September 22, 2026 |
-
-### Previous versions
-
-| Version| Release date | 
-|---|---|
 |__[2.0.9](/docs/changelog/2.0.9)__| September 22, 2026 |
 |__[2.0.8](/docs/changelog/2.0.8)__| September 15, 2026 |
 |__[2.0.7](/docs/changelog/2.0.7)__| September 14, 2026 |
