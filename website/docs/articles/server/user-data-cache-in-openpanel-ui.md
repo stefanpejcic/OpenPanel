@@ -1,4 +1,8 @@
-# Cached data in OpenPanel UI
+---
+sidebar_label: "Cached data in OpenPanel UI"
+---
+
+# Why Changes Don’t Show Immediately: User Data Cache Explained
 
 The **OpenPanel end-user interface** reduces server disk I/O by leveraging caching with Redis.
 

@@ -1,4 +1,8 @@
-# Adding custom docker images for OpenPanel users
+---
+sidebar_label: "Adding custom docker images for OpenPanel users"
+---
+
+# How to Use a Custom Docker Image for a Hosting User
 
 Each user has a Docker service running in [Rootless mode](https://docs.docker.com/engine/security/rootless/) and a single `docker-compose.yml` file that has all their services defined.
 

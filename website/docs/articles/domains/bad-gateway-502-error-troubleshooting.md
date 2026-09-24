@@ -1,4 +1,8 @@
-# 502 Error Troubleshooting Guide
+---
+sidebar_label: "502 Error Troubleshooting Guide"
+---
+
+# How to Fix 502 Bad Gateway Errors
 
 This guide explains the most common causes of **502 Bad Gateway** errors and how to fix them.
 

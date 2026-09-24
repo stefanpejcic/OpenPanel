@@ -1,4 +1,8 @@
-# Installing OpenPanel via Ansible
+---
+sidebar_label: "Installing OpenPanel via Ansible"
+---
+
+# How to Install OpenPanel with Ansible
 
 Use the following **Ansible playbook** to install OpenPanel on one or more target machines:
 

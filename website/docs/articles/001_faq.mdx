@@ -1,0 +1,135 @@
+---
+sidebar_position: 1
+sidebar_label: FAQ
+slug: faq
+title: "OpenPanel FAQ: Pricing, Requirements, Windows, Shared Hosting and More"
+description: "Quick answers to the most common OpenPanel questions: is it free, how much Enterprise costs, system requirements, supported operating systems, Windows and shared hosting support, cPanel migration, SSL, email and more."
+---
+
+import { FaqSchema } from "@site/src/refine-theme/faq-schema";
+
+export const faq = [
+  {
+    question: "Is OpenPanel free?",
+    answer: "Yes. OpenPanel Community edition is free forever, with no trial period and no credit card required. It is limited to 3 user accounts and 50 domains and is meant for personal use. For commercial hosting, OpenPanel Enterprise is a paid license.",
+    link: { href: "/docs/articles/license/pricing/", label: "Community vs Enterprise" },
+  },
+  {
+    question: "How much does OpenPanel Enterprise cost?",
+    answer: "OpenPanel Enterprise costs €14.95 per server per month (less with yearly billing), with unlimited user accounts. Pricing is per server, not per account, so the price does not grow as you add customers.",
+    link: { href: "/enterprise/", label: "Enterprise pricing" },
+  },
+  {
+    question: "Is there a free trial of OpenPanel Enterprise?",
+    answer: "Yes. You can try OpenPanel Enterprise free for 30 days, no credit card required. If you don't buy a license when the trial ends, you are not charged. Websites keep working, and after you remove the trial key the server goes back to Community edition limits.",
+    link: { href: "/trial", label: "Start a free trial" },
+  },
+  {
+    question: "Is OpenPanel open source?",
+    answer: "The full source code of OpenPanel is published on GitHub. OpenCLI and the configuration files are licensed under CC BY-NC 4.0, while the OpenPanel and OpenAdmin web interfaces are covered by an End User License Agreement.",
+    link: { href: "https://github.com/stefanpejcic/OpenPanel", label: "OpenPanel on GitHub" },
+  },
+  {
+    question: "Does OpenPanel support Windows?",
+    answer: "No. OpenPanel runs only on Linux servers and cannot be installed on Windows or Windows Server. You can still manage OpenPanel from any browser on Windows, macOS or Linux. If your hardware runs Windows, you can install OpenPanel inside a Linux virtual machine, for example with Hyper-V.",
+  },
+  {
+    question: "Can I install OpenPanel on shared hosting?",
+    answer: "No. OpenPanel needs root access to a blank server, so it cannot be installed on a shared hosting account. You need a VPS, a cloud server or a dedicated server with a fresh Linux installation.",
+    link: { href: "/docs/admin/intro/#requirements", label: "System requirements" },
+  },
+  {
+    question: "Can I install OpenPanel on an OpenVZ or LXC container?",
+    answer: "OpenPanel requires a full virtual machine (such as KVM, VMware or Hyper-V) or a bare metal server. Container-based VPS types like OpenVZ or LXC are not supported.",
+  },
+  {
+    question: "What are the minimum system requirements for OpenPanel?",
+    answer: "OpenPanel needs at least 1 GB of RAM, 20 GB of disk space and a public IPv4 address on a blank virtual machine or bare metal server. 4 GB of RAM and 50 GB of disk space are recommended.",
+    link: { href: "/docs/admin/intro/#requirements", label: "Full requirements" },
+  },
+  {
+    question: "Which Linux distributions does OpenPanel support?",
+    answer: "OpenPanel supports Ubuntu 22.04, 24.04 and 26.04, Debian 10 to 13, AlmaLinux 9.5 and 10, Rocky Linux 9.6 and 10, and CentOS 9.5. Ubuntu 24.04 is recommended.",
+    link: { href: "/docs/admin/intro/#requirements", label: "Supported operating systems" },
+  },
+  {
+    question: "Does OpenPanel run on ARM servers?",
+    answer: "Yes. OpenPanel runs on both x86_64 (AMD64) and ARM (AArch64) servers.",
+  },
+  {
+    question: "How do I install OpenPanel?",
+    answer: "Log in to a fresh Linux server as root and run a single command: bash <(curl -sSL https://openpanel.org). The installer sets up everything automatically.",
+    link: { href: "/docs/articles/install-update/install/", label: "Installation guide" },
+  },
+  {
+    question: "How do I log in to OpenPanel after installation?",
+    answer: "The admin panel (OpenAdmin) is available on port 2087 and the user panel (OpenPanel) on port 2083 of your server's IP address. The admin username and password are randomly generated during installation and shown when the installer finishes. You can also set a custom domain and remove the port.",
+    link: { href: "/docs/articles/dev-experience/how-to-access-openadmin/", label: "How to access OpenAdmin" },
+  },
+  {
+    question: "Can I migrate from cPanel to OpenPanel?",
+    answer: "Yes. OpenPanel Enterprise can import cPanel account backups (including JetBackup 5 downloads) directly from OpenAdmin. Community users can move websites over manually.",
+    link: { href: "/docs/articles/transfers/import-cpanel-backup-to-openpanel/", label: "Import a cPanel backup" },
+  },
+  {
+    question: "Does OpenPanel include free SSL certificates?",
+    answer: "Yes. OpenPanel issues and renews free Let's Encrypt SSL certificates for every domain automatically.",
+    link: { href: "/docs/articles/domains/ssl-troubleshooting-guide/", label: "SSL troubleshooting" },
+  },
+  {
+    question: "Does OpenPanel include email hosting?",
+    answer: "Yes, in OpenPanel Enterprise. Once enabled, it provides mailboxes, webmail, spam filtering and DKIM signing for all users on the server.",
+    link: { href: "/docs/articles/user-experience/how-to-setup-email-in-openpanel/", label: "Enable email hosting" },
+  },
+  {
+    question: "Can I host WordPress with OpenPanel?",
+    answer: "Yes. WordPress can be installed in a few clicks from the auto installer, and existing WordPress sites can be imported.",
+    link: { href: "/docs/articles/websites/how-to-install-wordpress-with-openpanel/", label: "Install WordPress" },
+  },
+  {
+    question: "Can I host Node.js or Python applications?",
+    answer: "Yes. OpenPanel Enterprise can create and manage containerized Node.js and Python applications, in addition to PHP websites.",
+    link: { href: "/docs/panel/applications/nodejs/", label: "Node.js applications" },
+  },
+  {
+    question: "Can I use OpenPanel to sell web hosting?",
+    answer: "Yes, with OpenPanel Enterprise. It has unlimited accounts, hosting plans, resellers, an API and integrations with WHMCS, Blesta, FOSSBilling, ClientExec and WISECP for automated provisioning. The Community edition is for personal use only.",
+    link: { href: "/docs/articles/extensions/openpanel-and-whmcs/", label: "WHMCS integration" },
+  },
+  {
+    question: "How does OpenPanel isolate users?",
+    answer: "Each user gets their own isolated set of containers for the web server, PHP, databases and other services, with individual CPU and RAM limits. One user's sites, load or security issues do not affect other users on the same server.",
+    link: { href: "/docs/articles/containers/how-does-openpanel-isolate-users/", label: "User isolation explained" },
+  },
+  {
+    question: "Does OpenPanel use Docker or Podman?",
+    answer: "Existing OpenPanel installations run user services in rootless Docker. Starting with OpenPanel 2.0, new installations use Podman, which uses less RAM because it has no background daemon per user.",
+    link: { href: "/blog/podman-switch-openpanel-2", label: "Why OpenPanel is switching to Podman" },
+  },
+  {
+    question: "Is there an OpenPanel demo?",
+    answer: "Yes. You can try both the admin and user interfaces on the live demo without installing anything.",
+    link: { href: "/demo/", label: "Open the demo" },
+  },
+  {
+    question: "How do I uninstall OpenPanel?",
+    answer: "OpenPanel has no official uninstaller. The only safe way to remove it is to reinstall the server's operating system.",
+    link: { href: "/docs/articles/support/how-to-unlinstall-openpanel/", label: "Uninstall guide" },
+  },
+];
+
+<FaqSchema faq={faq.map(({ question, answer }) => ({ question, answer }))} />
+
+# OpenPanel FAQ
+
+Short answers to the questions we get asked most often. Each answer links to the full guide.
+
+{faq.map((item) => (
+  <div key={item.question}>
+    <h2 id={item.question.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}>{item.question}</h2>
+    <p>
+      {item.answer}
+      {item.link && <> <a href={item.link.href}>{item.link.label} →</a></>}
+    </p>
+  </div>
+))}

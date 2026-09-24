@@ -1,4 +1,8 @@
-# OpenPanel Installation on Vultr
+---
+sidebar_label: "OpenPanel Installation on Vultr"
+---
+
+# How to Install a Hosting Control Panel on Vultr
 
 This guide will walk you through deploying **OpenPanel** on a Vultr instance with Ubuntu.
 

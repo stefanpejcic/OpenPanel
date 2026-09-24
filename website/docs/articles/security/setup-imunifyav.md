@@ -1,4 +1,8 @@
-# Setting Up ImunifyAV
+---
+sidebar_label: "Setting Up ImunifyAV"
+---
+
+# How to Set Up ImunifyAV Malware Scanning
 
 ImunifyAV regularly scans user files and alerts you if any malware is detected.
 

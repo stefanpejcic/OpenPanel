@@ -1,4 +1,8 @@
-# Sharing .htaccess rules
+---
+sidebar_label: "Sharing .htaccess rules"
+---
+
+# How to Share .htaccess Rules Across Websites
 
 Shared .htaccess Across Multiple Domains/Subdomains
 

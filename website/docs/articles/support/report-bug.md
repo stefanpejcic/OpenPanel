@@ -1,4 +1,8 @@
-# Report a Bug
+---
+sidebar_label: "Report a Bug"
+---
+
+# How to Report a Bug
 
 As a small team, we carefully prioritize our work to keep maintenance costs low and honor the fixed pricing we introduced in 2023. The same developers who build and maintain OpenPanel are also responsible for handling tickets and emails. To use our time effectively, we ask that you follow the guidelines below.
 

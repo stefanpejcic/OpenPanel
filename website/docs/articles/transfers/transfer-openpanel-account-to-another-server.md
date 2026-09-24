@@ -1,4 +1,8 @@
-# Transfer account
+---
+sidebar_label: "Transfer account"
+---
+
+# How to Transfer a Hosting Account to Another Server
 
 This feature allows administrators to transfer (copy) individual accounts from one OpenPanel server to another.
 

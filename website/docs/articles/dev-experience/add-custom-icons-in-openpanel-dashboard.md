@@ -1,4 +1,8 @@
-# Custom Section
+---
+sidebar_label: "Custom Section"
+---
+
+# How to Add a Custom Links Section to the User Dashboard
 
 To add custom section in *OpenPanel > Dashboard* page, navigate to **OpenAdmin > Settings > Custom Code** and edit the 'Custom Section'.
 

@@ -1,4 +1,8 @@
-#  Removing the Port for OpenPanel
+---
+sidebar_label: "Removing the Port for OpenPanel"
+---
+
+# How to Access the User Panel Without a Port Number
 
 By default, the OpenPanel interface runs on a Gunicorn web server, while all other websites run on Caddy. This setup ensures that the admin panel remains accessible even if the main web server is down.
 

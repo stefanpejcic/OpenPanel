@@ -1,4 +1,8 @@
-# Default Locale
+---
+sidebar_label: "Default Locale"
+---
+
+# How to Set the Default Language (Locale) for New Users
 
 **OpenPanel** is fully localization-ready, but currently ships only with English (`en`) as the default language.
 Additional languages can be installed by the System Administrator from ***OpenAdmin → Settings → Locales***, and they will become immediately available in the user interface.

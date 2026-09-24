@@ -1,4 +1,8 @@
-# Troubleshooting Caddy Webserver
+---
+sidebar_label: "Troubleshooting Caddy Webserver"
+---
+
+# How to Troubleshoot the Caddy Web Server
 
 OpenPanel uses Caddy webserver to handle SSL and reverse proxy to per-user webservers.
 

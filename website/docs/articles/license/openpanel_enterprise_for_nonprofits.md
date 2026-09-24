@@ -1,4 +1,8 @@
-# Educational or NPO
+---
+sidebar_label: "Educational or NPO"
+---
+
+# Discounted Licenses for Education and Nonprofits
 
 How to get a discount for OpenPanel licenses for educational or non-profit organizations:
 

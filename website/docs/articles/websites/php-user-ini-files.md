@@ -1,4 +1,8 @@
-# PHP settings per website (folder)
+---
+sidebar_label: "PHP settings per website (folder)"
+---
+
+# How to Set PHP Settings per Website or Folder (.user.ini)
 
 Using `.user.ini` files, you can set different PHP limits for each website or folder.
 

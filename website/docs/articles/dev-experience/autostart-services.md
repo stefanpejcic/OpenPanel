@@ -1,4 +1,8 @@
-# Auto-start Services
+---
+sidebar_label: "Auto-start Services"
+---
+
+# Which Services Start Automatically (and How to Auto-Start Others)
 
 Services in OpenPanel start only when they are actually needed, to avoid wasting resources.
 

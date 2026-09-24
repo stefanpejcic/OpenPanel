@@ -1,4 +1,8 @@
-# Downgrade License
+---
+sidebar_label: "Downgrade License"
+---
+
+# How to Downgrade from Enterprise to Community Edition
 
 OpenPanel is available in two editions:
 

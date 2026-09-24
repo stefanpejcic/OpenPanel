@@ -1,4 +1,8 @@
-# Speed up DNS propagation
+---
+sidebar_label: "Speed up DNS propagation"
+---
+
+# How to Speed Up DNS Propagation
 
 DNS propagation cannot be speed up.
 

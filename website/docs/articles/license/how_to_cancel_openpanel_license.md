@@ -1,4 +1,8 @@
-# How do I cancel my license in the my.openpanel.com?
+---
+sidebar_label: "How do I cancel my license in the my.openpanel.com?"
+---
+
+# How to Cancel Your License Subscription
 
 To cancel a license purchased through the my.openpanel.com website, follow the steps below:
 

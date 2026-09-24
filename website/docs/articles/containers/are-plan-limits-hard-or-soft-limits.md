@@ -1,4 +1,8 @@
-# Hard Limits
+---
+sidebar_label: "Hard Limits"
+---
+
+# Are Hosting Plan CPU and RAM Limits Hard or Soft Limits?
 
 Each user plan has fixed resource usage limits - these are **hard limits**, meaning users cannot exceed them under any circumstances.
 

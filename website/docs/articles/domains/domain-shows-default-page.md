@@ -1,4 +1,8 @@
-# Domain Shows Default Page
+---
+sidebar_label: "Domain Shows Default Page"
+---
+
+# Why Does My Domain Show the Default Page Instead of My Website?
 
 When you add a domain to **OpenPanel**, it will initially display the following message:
 

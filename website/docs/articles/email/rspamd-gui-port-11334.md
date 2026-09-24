@@ -1,4 +1,8 @@
-# RSPAMD GUI
+---
+sidebar_label: "RSPAMD GUI"
+---
+
+# How to Access the Rspamd Web Interface (Port 11334)
 
 [Rspamd](https://rspamd.com/) is an advanced spam filtering system that offers many different ways to filter messages, including regular expressions and statistical analysis. Each message is analyzed by rspamd and given a spam score.
 

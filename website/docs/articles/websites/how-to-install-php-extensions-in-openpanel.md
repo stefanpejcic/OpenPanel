@@ -1,4 +1,8 @@
-# How to install a PHP extension in OpenPanel
+---
+sidebar_label: "How to install a PHP extension in OpenPanel"
+---
+
+# How to Install a PHP Extension
 
 OpenPanel uses the [`shinsenter/php`](https://github.com/shinsenter/php) Docker images for PHP services. These images include many commonly used PHP extensions out of the box and provide a simple way to install additional extensions when needed.
 

@@ -1,4 +1,8 @@
-# Troubleshooting DNS
+---
+sidebar_label: "Troubleshooting DNS"
+---
+
+# How to Troubleshoot DNS Problems (Domain Not Resolving)
 
 Make sure the DNS-server on the host server responds to requests for the domain zone:
 

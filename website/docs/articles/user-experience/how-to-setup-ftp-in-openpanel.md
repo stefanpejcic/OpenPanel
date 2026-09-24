@@ -1,4 +1,8 @@
-# Setup FTP
+---
+sidebar_label: "Setup FTP"
+---
+
+# How to Enable FTP Access for Hosting Users
 
 [OpenPanel Enterprise](https://openpanel.com/enterprise/) supports FTP access. Once enabled, a shared FTP server becomes available for all users.
 

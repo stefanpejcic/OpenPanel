@@ -1,4 +1,8 @@
-# Access demo
+---
+sidebar_label: "Access demo"
+---
+
+# How to Try the Live Demo
 
 How to access OpenPanel demo servers?
 

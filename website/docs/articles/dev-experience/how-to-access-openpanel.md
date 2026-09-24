@@ -1,4 +1,8 @@
-# Access OpenPanel
+---
+sidebar_label: "Access OpenPanel"
+---
+
+# How to Access the OpenPanel User Panel (URL, Port and Login)
 
 OpenPanel is the end-user control panel, accessible by default via the server's IP address and port `2083`. Administrators can configure a custom domain and modify the default port.
 

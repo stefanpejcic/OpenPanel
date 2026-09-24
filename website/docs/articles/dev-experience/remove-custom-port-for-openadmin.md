@@ -1,4 +1,8 @@
-#  Removing the Port for OpenAdmin
+---
+sidebar_label: "Removing the Port for OpenAdmin"
+---
+
+# How to Access the Admin Panel Without a Port Number
 
 By default, the OpenAdmin interface runs on a Gunicorn web server, while all other websites run on Caddy. This setup ensures that the admin panel remains accessible even if the main web server is down.
 

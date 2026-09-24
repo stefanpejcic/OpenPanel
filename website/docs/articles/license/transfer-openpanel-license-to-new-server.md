@@ -1,4 +1,8 @@
-# Transfer License to a New Server
+---
+sidebar_label: "Transfer License to a New Server"
+---
+
+# How to Transfer a License to a New Server or IP
 
 Follow these steps to transfer your **OpenPanel Enterprise Edition** license to another server:
 

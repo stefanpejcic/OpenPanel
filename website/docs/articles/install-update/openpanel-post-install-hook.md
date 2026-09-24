@@ -1,4 +1,8 @@
-# OpenPanel Post-install script
+---
+sidebar_label: "OpenPanel Post-install script"
+---
+
+# How to Run a Custom Script After Installation
 
 To execute custom code after OpenPanel installation process, use the `--post_install=` flag and specify the path or link to your script.
 

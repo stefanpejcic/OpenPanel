@@ -1,4 +1,8 @@
-# Domain for phpMyAdmin
+---
+sidebar_label: "Domain for phpMyAdmin"
+---
+
+# How to Access phpMyAdmin on a Custom Domain
 
 UPDATE: panel domain set for OpenPanel interface is now used for phpMyAdmin as well. 
 

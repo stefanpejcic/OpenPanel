@@ -1,4 +1,8 @@
-# OpenPanel Installation on DigitalOcean
+---
+sidebar_label: "OpenPanel Installation on DigitalOcean"
+---
+
+# How to Install a Hosting Control Panel on DigitalOcean
 
 This guide will walk you through deploying **OpenPanel** on a DigitalOcean Droplet with Ubuntu.
 

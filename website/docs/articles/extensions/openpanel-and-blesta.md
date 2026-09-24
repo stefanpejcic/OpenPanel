@@ -1,4 +1,8 @@
-# Blesta
+---
+sidebar_label: "Blesta"
+---
+
+# How to Automate Hosting Provisioning with Blesta
 
 OpenPanel Enterprise edition has billing integrations with [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/), [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/), Blesta, [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/) and [WISECP](/docs/articles/extensions/openpanel-and-wisecp/).
 

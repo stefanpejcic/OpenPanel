@@ -1,4 +1,8 @@
-# Cloudflare Tunnel + OpenPanel
+---
+sidebar_label: "Cloudflare Tunnel + OpenPanel"
+---
+
+# How to Host Websites Behind a Cloudflare Tunnel (No Public IP)
 
 Cloudflare Tunnel allows you to securely expose services (websites, APIs, or internal tools) to the internet **without opening firewall ports** or exposing your server’s IP address.
 

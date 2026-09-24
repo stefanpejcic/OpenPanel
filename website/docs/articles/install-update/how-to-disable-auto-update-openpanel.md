@@ -1,4 +1,8 @@
-# Disable Updates
+---
+sidebar_label: "Disable Updates"
+---
+
+# How to Disable Automatic Updates
 
 <Tabs>
   <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>

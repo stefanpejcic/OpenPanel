@@ -1,4 +1,8 @@
-# 504 Error Troubleshooting Guide
+---
+sidebar_label: "504 Error Troubleshooting Guide"
+---
+
+# How to Fix 504 Gateway Timeout Errors
 
 This guide explains the most common causes of **504 Gateway Timeout** errors and how to fix them.
 

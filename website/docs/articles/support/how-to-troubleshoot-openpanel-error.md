@@ -1,4 +1,8 @@
-# Troubleshooting OpenPanel UI Errors
+---
+sidebar_label: "Troubleshooting OpenPanel UI Errors"
+---
+
+# How to Fix Errors in the User Panel
 
 ## 500 Error
 

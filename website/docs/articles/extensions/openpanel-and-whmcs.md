@@ -1,4 +1,8 @@
-# WHMCS
+---
+sidebar_label: "WHMCS"
+---
+
+# How to Automate Hosting Provisioning with WHMCS
 
 OpenPanel Enterprise edition has billing integrations with WHMCS, [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling), [Blesta](/docs/articles/extensions/openpanel-and-blesta), [ClientExec](/docs/articles/extensions/openpanel-and-clientexec) and [WISECP](/docs/articles/extensions/openpanel-and-wisecp).
 

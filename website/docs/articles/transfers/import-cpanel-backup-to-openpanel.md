@@ -1,4 +1,8 @@
-# Import cPanel backup
+---
+sidebar_label: "Import cPanel backup"
+---
+
+# How to Migrate from cPanel: Import a cPanel Backup
 
 Import cPanel accounts from backup.
 

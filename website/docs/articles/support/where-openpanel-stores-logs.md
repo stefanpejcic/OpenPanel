@@ -1,4 +1,8 @@
-# OpenPanel Log Files locations
+---
+sidebar_label: "OpenPanel Log Files locations"
+---
+
+# Where Are the Log Files? Full List of Log Locations
 
 OpenPanel generates the following logs:
 

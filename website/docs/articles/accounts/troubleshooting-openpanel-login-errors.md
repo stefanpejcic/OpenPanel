@@ -1,4 +1,8 @@
-# Login Errors
+---
+sidebar_label: "Login Errors"
+---
+
+# How to Fix Control Panel Login Errors
 
 The following error messages may appear on the OpenPanel login page. Here's what each one means and how to resolve it:
 

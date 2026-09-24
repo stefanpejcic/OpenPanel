@@ -1,4 +1,8 @@
-# Disable Terminal within OpenPanel
+---
+sidebar_label: "Disable Terminal within OpenPanel"
+---
+
+# How to Disable the Web Terminal for Hosting Users
 
 If for some reason, you want to disable command-line access through **OpenPanel > Containers > Terminal** page, you can do that on your server.
 

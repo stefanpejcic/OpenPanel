@@ -1,4 +1,8 @@
-# How to Install Custom or Older IonCube Loader Versions in OpenPanel
+---
+sidebar_label: "How to Install Custom or Older IonCube Loader Versions in OpenPanel"
+---
+
+# How to Install a Custom or Older ionCube Loader Version
 
 Starting with **OpenPanel version 1.7.2**, IonCube Loader is automatically available for all PHP versions that support it on new installations.
 

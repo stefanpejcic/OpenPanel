@@ -1,4 +1,8 @@
-# MySQL, MariaDB, or Percona
+---
+sidebar_label: "MySQL, MariaDB, or Percona"
+---
+
+# How to Choose MySQL, MariaDB or Percona per User
 
 When creating a user, you can select which MySQL-compatible database type to use:
 

@@ -1,4 +1,8 @@
-# Troubleshooting OpenAdmin UI Errors
+---
+sidebar_label: "Troubleshooting OpenAdmin UI Errors"
+---
+
+# How to Fix Errors in the Admin Panel
 
 ## 500 Error
 

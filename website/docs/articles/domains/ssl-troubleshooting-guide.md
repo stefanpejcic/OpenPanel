@@ -1,4 +1,8 @@
-# Troubleshooting Guide: Caddy / Let’s Encrypt SSL Validation Failure
+---
+sidebar_label: "SSL Validation Failure"
+---
+
+# How to Fix Let’s Encrypt SSL Certificate Validation Failures
 
 ## Issue
 

@@ -1,4 +1,8 @@
-# Purging Varnish Cache
+---
+sidebar_label: "Purging Varnish Cache"
+---
+
+# How to Purge the Varnish Cache from the Terminal
 
 If Varnish is enabled for a website, cache can be purged from the terminal or directly through OpenPanel.
 

@@ -1,4 +1,8 @@
-# Limiting Connections with CSF
+---
+sidebar_label: "Limiting Connections with CSF"
+---
+
+# How to Limit Connections per IP with CSF
 
 CSF allows you to restrict the number of simultaneous connections to specific ports on your server.
 

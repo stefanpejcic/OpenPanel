@@ -1,4 +1,8 @@
-# Restrict OpenAdmin
+---
+sidebar_label: "Restrict OpenAdmin"
+---
+
+# How to Restrict Admin Panel Access by IP Address
 
 To restrict OpenAdmin access only to your team, whitelist your server's IP addresses on the firewall, and then disable port `2087`.
 

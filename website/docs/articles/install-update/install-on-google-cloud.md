@@ -1,4 +1,8 @@
-# OpenPanel Installation on Google Cloud
+---
+sidebar_label: "OpenPanel Installation on Google Cloud"
+---
+
+# How to Install a Hosting Control Panel on Google Cloud
 
 This guide will walk you through deploying **OpenPanel** on a Google Cloud VM instance with Ubuntu.
 

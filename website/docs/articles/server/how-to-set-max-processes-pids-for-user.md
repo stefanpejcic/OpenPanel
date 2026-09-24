@@ -1,4 +1,8 @@
-# Setting the Max Processes (PIDs) Limit for a User
+---
+sidebar_label: "Setting the Max Processes (PIDs) Limit for a User"
+---
+
+# How to Set the Max Processes (PIDs) Limit for a User
 
 Every user's `user-<uid>.slice` cgroup has a **TasksMax** ceiling — the maximum number of processes/threads (PIDs) the user's account can run at once. This isn't a plan tier customers shop for like CPU, RAM or disk — it's a safety net against fork bombs and runaway processes.
 

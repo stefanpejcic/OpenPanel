@@ -1,4 +1,8 @@
-# Setup TLS for FTP
+---
+sidebar_label: "Setup TLS for FTP"
+---
+
+# How to Enable FTPS (FTP over TLS)
 
 This guide explains how to enable Explicit FTP over TLS (FTPS) in OpenPanel using VSFTPD.
 

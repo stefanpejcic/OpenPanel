@@ -1,4 +1,8 @@
-# Unlimited CPU&RAM
+---
+sidebar_label: "Unlimited CPU&RAM"
+---
+
+# How to Remove CPU and RAM Limits for User Services
 
 Setting unlimited CPU and RAM resources allows an OpenPanel user account to consume all available CPU cores and physical memory on the server.
 

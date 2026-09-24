@@ -1,4 +1,8 @@
-# Troubleshooting service issues with OpenPanel
+---
+sidebar_label: "Troubleshooting service issues with OpenPanel"
+---
+
+# How to Troubleshoot User Services (Web Server, MySQL, PHP)
 
 If you've run into issues with a service that is managed by OpenPanel and your account has the Docker feature enabled you can use it to restart the service container and check the logs for further troubleshooting.
 

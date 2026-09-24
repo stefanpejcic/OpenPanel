@@ -1,4 +1,8 @@
-# Main IP in OpenPanel
+---
+sidebar_label: "Main IP in OpenPanel"
+---
+
+# How the Server’s Main IP Address Is Chosen (and How to Check It)
 
 The network configuration of the server determines the server's main IP address. The Main IP address is **not** configurable through OpenPanel.
 

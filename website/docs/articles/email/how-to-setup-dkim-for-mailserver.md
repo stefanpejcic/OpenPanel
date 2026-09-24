@@ -1,4 +1,8 @@
-# Setup DKIM
+---
+sidebar_label: "Setup DKIM"
+---
+
+# How to Set Up DKIM for Your Mail Server
 
 Ensure that you're running the [**Enterprise edition**](https://openpanel.com/enterprise/) of OpenPanel. Email support is only available in this version.
 

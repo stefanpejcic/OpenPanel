@@ -1,4 +1,8 @@
-# Migrate server
+---
+sidebar_label: "Migrate server"
+---
+
+# How to Migrate All Accounts to a New Server
 
 OpenPanel is a truly OS-agnostic hosting panel, meaning it runs seamlessly on any Linux distribution. This makes migrating the panel along with all user data - from one server to another straightforward and efficient.
 

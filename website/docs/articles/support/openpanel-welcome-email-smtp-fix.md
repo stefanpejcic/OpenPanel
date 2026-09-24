@@ -1,4 +1,8 @@
-# Debugging Failed Welcome Emails in OpenPanel Enterprise
+---
+sidebar_label: "Debugging Failed Welcome Emails in OpenPanel Enterprise"
+---
+
+# How to Fix Welcome Emails Not Being Sent (SMTP)
 
 **Symptom:** `opencli user-add` / OpenAdmin UI reports `Failed to send welcome email`, with no error in `/var/log/openpanel/admin/error.log` and no `/var/log/openpanel/admin/emails/` directory, even though direct SMTP tests succeed.
 

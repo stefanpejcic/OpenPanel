@@ -1,4 +1,8 @@
-# Customize robots.txt and security.txt
+---
+sidebar_label: "Customize robots.txt and security.txt"
+---
+
+# How to Customize robots.txt and security.txt
 
 How to control search engine crawling and publish a security contact for your panel
 

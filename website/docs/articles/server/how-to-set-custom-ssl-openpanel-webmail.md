@@ -1,4 +1,8 @@
-# Setting Custom SSL Certificates for OpenPanel, OpenAdmin, and Webmail
+---
+sidebar_label: "Setting Custom SSL Certificates for OpenPanel, OpenAdmin, and Webmail"
+---
+
+# How to Set a Custom SSL Certificate for the Control Panel and Webmail
 
 ⚠️ Currently, adding custom SSL certificates for OpenPanel and Webmail is only possible from the terminal.
 

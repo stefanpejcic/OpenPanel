@@ -1,4 +1,8 @@
-# Keyboard Shortcuts
+---
+sidebar_label: "Keyboard Shortcuts"
+---
+
+# Admin Panel Keyboard Shortcuts
 
 OpenAdmin UI can be navigated using keyboard shortcuts.
 

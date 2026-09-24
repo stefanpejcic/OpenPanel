@@ -1,4 +1,8 @@
-# Troubleshooting OpenPanel
+---
+sidebar_label: "Troubleshooting OpenPanel"
+---
+
+# Control Panel Troubleshooting Guide
 
 When troubleshooting OpenPanel, the first step is to **reproduce the issue**. If you can confirm it’s a bug (and like all software, bugs do happen), try to identify a consistent way to trigger it.
 

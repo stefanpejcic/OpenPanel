@@ -1,4 +1,8 @@
-# Manually Update
+---
+sidebar_label: "Manually Update"
+---
+
+# How to Manually Update OpenPanel
 
 When a new update is available, you will receive a notification in the OpenAdmin panel.
 

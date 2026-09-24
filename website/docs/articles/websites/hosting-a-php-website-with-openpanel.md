@@ -1,4 +1,8 @@
-# Hosting a PHP Website with OpenPanel
+---
+sidebar_label: "Hosting a PHP Website with OpenPanel"
+---
+
+# How to Host a PHP Website
 
 This guide walks you through hosting a PHP website on OpenPanel.
 

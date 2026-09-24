@@ -1,4 +1,8 @@
-# OpenPanel Cron Troubleshooting Guide
+---
+sidebar_label: "OpenPanel Cron Troubleshooting Guide"
+---
+
+# Cron Job Not Running? Troubleshooting Guide
 
 This is a **generic troubleshooting guide** for OpenPanel cron jobs.
 

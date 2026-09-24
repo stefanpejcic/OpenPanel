@@ -1,4 +1,8 @@
-# How to display a custom message
+---
+sidebar_label: "How to display a custom message"
+---
+
+# How to Show a Custom Message or Announcement to Hosting Users
 
 OpenPanel supports both **per-user** and **global** custom messages that can be displayed in your users’ OpenPanel interfaces.
 

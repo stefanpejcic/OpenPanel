@@ -1,4 +1,8 @@
-# Limit OpenPanel
+---
+sidebar_label: "Limit OpenPanel"
+---
+
+# How to Rate Limit Login and Requests to the Control Panel
 
 Both OpenPanel and OpenAdmin interfaces have a built-in rate limiting and IP address blocking to protect against brute-force attacks.
 

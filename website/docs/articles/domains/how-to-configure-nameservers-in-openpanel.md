@@ -1,4 +1,8 @@
-# Configure Nameservers
+---
+sidebar_label: "Configure Nameservers"
+---
+
+# How to Configure Custom Nameservers (ns1 / ns2)
 
 Before adding any domains, it is important to first create nameservers to ensure valid DNS zone files and proper propagation.
 

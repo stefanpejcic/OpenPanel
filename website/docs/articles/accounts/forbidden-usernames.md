@@ -1,4 +1,8 @@
-# Reserved Usernames
+---
+sidebar_label: "Reserved Usernames"
+---
+
+# Reserved Usernames That Cannot Be Used for Hosting Accounts
 
 ## Basic restrictions
 

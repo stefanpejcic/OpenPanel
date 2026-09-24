@@ -1,4 +1,8 @@
-# Volume Management in OpenPanel
+---
+sidebar_label: "Volume Management in OpenPanel"
+---
+
+# How User Data Volumes Are Stored and Managed
 
 OpenPanel uses **volumes** to persist important user data across container restarts and updates.
 Unlike container storage, which is ephemeral, volumes ensure that your databases, website files, and configurations remain intact even if containers are removed or recreated.

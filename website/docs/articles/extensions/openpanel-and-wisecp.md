@@ -1,4 +1,8 @@
-# WISECP
+---
+sidebar_label: "WISECP"
+---
+
+# How to Automate Hosting Provisioning with WISECP
 
 OpenPanel Enterprise edition has billing integrations with [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/), [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/), [Blesta](/docs/articles/extensions/openpanel-and-blesta/), [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/) and WISECP.
 

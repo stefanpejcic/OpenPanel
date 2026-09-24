@@ -1,4 +1,8 @@
-# Hosting a Static Website with OpenPanel
+---
+sidebar_label: "Hosting a Static Website with OpenPanel"
+---
+
+# How to Host a Static HTML Website
 
 This guide walks you through hosting a static website on OpenPanel.
 

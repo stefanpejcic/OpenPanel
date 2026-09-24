@@ -1,4 +1,8 @@
-# How to set or increase PHP INI memory_limit or other values?
+---
+sidebar_label: "How to set or increase PHP INI memory_limit or other values?"
+---
+
+# How to Increase PHP memory_limit, upload_max_filesize and Other php.ini Values
 
 There are multiple ways to manage PHP settings in OpenPanel. This guide walks you through the available methods and when to use each one.
 

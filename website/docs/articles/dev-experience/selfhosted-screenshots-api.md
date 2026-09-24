@@ -1,4 +1,8 @@
-# Screenshots API
+---
+sidebar_label: "Screenshots API"
+---
+
+# How to Self-Host the Website Screenshots API
 
 [OpenPanel SiteManager](/docs/panel/applications/) displays a website screenshot for each website. These screenshots are by default locally generated and stored on your server.
 

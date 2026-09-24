@@ -1,4 +1,8 @@
-# Disable Terminal within OpenAdmin
+---
+sidebar_label: "Disable Terminal within OpenAdmin"
+---
+
+# How to Disable the Web Terminal in the Admin Panel
 
 If for some reason, you want to disable command-line *root* access through OpenAdmin's Terminal feature, you can do that on your server.
 

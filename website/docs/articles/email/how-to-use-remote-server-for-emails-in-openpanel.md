@@ -1,4 +1,8 @@
-# Offload Email Storage to a Remote NFS Server
+---
+sidebar_label: "Offload Email Storage to a Remote NFS Server"
+---
+
+# How to Store Emails on a Remote NFS Server
 
 ## Architecture
 

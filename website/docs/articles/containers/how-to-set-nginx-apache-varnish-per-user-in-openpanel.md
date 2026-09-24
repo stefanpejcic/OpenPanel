@@ -1,4 +1,8 @@
-# Apache, Nginx, OpenResty, OpenLiteSpeed, and Varnish
+---
+sidebar_label: "Apache, Nginx, OpenResty, OpenLiteSpeed, and Varnish"
+---
+
+# How to Switch Between Nginx, Apache, OpenResty, OpenLiteSpeed and Varnish per User
 
 Configuring Nginx, Apache, OpenResty, OpenLiteSpeed, and Varnish per user in OpenPanel.
 

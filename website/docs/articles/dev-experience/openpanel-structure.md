@@ -1,4 +1,8 @@
-# OpenPanel Folder Structure
+---
+sidebar_label: "OpenPanel Folder Structure"
+---
+
+# Control Panel Files and Folder Structure Explained
 
 OpenPanel uses the following files and directories:
 

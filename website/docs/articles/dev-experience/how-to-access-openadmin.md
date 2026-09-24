@@ -1,4 +1,8 @@
-# Access OpenAdmin
+---
+sidebar_label: "Access OpenAdmin"
+---
+
+# How to Access the OpenAdmin Panel (URL, Port and Login)
 
 Run `opencli admin` command to find the address on which admin panel is accessible. Example output:
 

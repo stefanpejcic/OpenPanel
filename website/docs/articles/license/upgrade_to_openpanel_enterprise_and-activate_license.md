@@ -1,4 +1,8 @@
-# Upgrade to Enterprise
+---
+sidebar_label: "Upgrade to Enterprise"
+---
+
+# How to Upgrade to Enterprise and Activate a License Key
 
 OpenPanel is available in two editions:
 

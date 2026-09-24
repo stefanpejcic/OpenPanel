@@ -1,4 +1,8 @@
-# Custom OpenPanel Templates
+---
+sidebar_label: "Custom OpenPanel Templates"
+---
+
+# How to Create a Custom Theme / Template for the Control Panel
 
 :::warning
 Custom templates are no longer supported. OpenPanel and OpenAdmin templates are now built into the application, so the `template` and `admin_template` settings have no effect and were removed from `openpanel.config`.

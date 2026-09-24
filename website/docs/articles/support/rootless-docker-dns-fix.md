@@ -1,4 +1,8 @@
-# Fixing Outbound DNS/Internet Access in Rootless Docker (OpenPanel)
+---
+sidebar_label: "Fixing Outbound DNS/Internet Access in Rootless Docker (OpenPanel)"
+---
+
+# How to Fix No Internet / DNS Access in Rootless Docker Containers
 
 ## Symptom
 

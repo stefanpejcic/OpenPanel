@@ -1,4 +1,8 @@
-# Skip Update
+---
+sidebar_label: "Skip Update"
+---
+
+# How to Skip a Specific Update Version
 
 OpenPanel can be updated either **automatically** or **manually**, depending on your preferences.
 

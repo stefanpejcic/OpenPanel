@@ -1,4 +1,8 @@
-# 403 Error Troubleshooting Guide
+---
+sidebar_label: "403 Error Troubleshooting Guide"
+---
+
+# How to Fix 403 Forbidden Errors on a Website
 
 This guide covers the most common causes of **403 Forbidden** errors on a website and how to resolve them.
 

@@ -1,4 +1,8 @@
-# Installing OpenPanel on Virtualizor
+---
+sidebar_label: "Installing OpenPanel on Virtualizor"
+---
+
+# How to Install OpenPanel on Virtualizor VPS
 
 To add OpenPanel to your Virtualizor server as an additional control panel available for your users to install:
 

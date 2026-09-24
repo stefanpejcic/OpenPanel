@@ -1,4 +1,8 @@
-# Services
+---
+sidebar_label: "Services"
+---
+
+# Control Panel System Services and How to Restart Them
 
 OpenPanel uses the following services:
 

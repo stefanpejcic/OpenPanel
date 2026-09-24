@@ -1,4 +1,8 @@
-# Installing OpenPanel via Cloud-Init
+---
+sidebar_label: "Installing OpenPanel via Cloud-Init"
+---
+
+# How to Install OpenPanel with Cloud-Init (User Data)
 
 Use the following **cloud-init YAML** configuration to automatically install OpenPanel on your server during first boot:
 

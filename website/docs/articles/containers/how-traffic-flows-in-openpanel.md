@@ -1,4 +1,8 @@
-# How Web Traffic Flows with User Containers
+---
+sidebar_label: "How Web Traffic Flows with User Containers"
+---
+
+# How Web Traffic Reaches a Website: Proxy, Web Server and Containers Explained
 
 Caddy is the **entry point** for all incoming web traffic.
 When the first domain is added, Caddy automatically starts and begins listening on ports **80** (HTTP) and **443** (HTTPS).

@@ -183,7 +183,7 @@ const faq = [
                 payment method on your account is charged for your licenses.
                 To prevent a license from renewing, cancel it before the
                 renewal date — see{" "}
-                <a href="/docs/articles/license/hot_to_cancel_openpanel_license/">
+                <a href="/docs/articles/license/how_to_cancel_openpanel_license/">
                     How do I cancel my OpenPanel Enterprise license?
                 </a>
             </>

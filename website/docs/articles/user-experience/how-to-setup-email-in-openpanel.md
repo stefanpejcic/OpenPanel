@@ -1,4 +1,8 @@
-# Setup Email
+---
+sidebar_label: "Setup Email"
+---
+
+# How to Enable Email Hosting on Your Server
 
 [OpenPanel Enterprise](https://openpanel.com/enterprise/) supports Emails. Once enabled, a shared Email server becomes available for all users.
 

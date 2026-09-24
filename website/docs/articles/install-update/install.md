@@ -1,4 +1,8 @@
-# Installing OpenPanel
+---
+sidebar_label: "Installing OpenPanel"
+---
+
+# How to Install OpenPanel on a Linux Server (One Command)
 
 Before starting, ensure your server meets [the minimum requirements](/docs/admin/intro/#requirements) and runs a supported distribution.
 

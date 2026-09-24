@@ -1,4 +1,8 @@
-# DNS Clustering
+---
+sidebar_label: "DNS Clustering"
+---
+
+# How to Set Up a DNS Cluster Across Multiple Servers
 
 DNS clustering enables you to synchronize DNS records across multiple OpenPanel servers, providing redundancy and scalability for your DNS infrastructure.
 

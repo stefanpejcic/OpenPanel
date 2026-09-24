@@ -1,4 +1,8 @@
-# Network Isolation in OpenPanel
+---
+sidebar_label: "Network Isolation in OpenPanel"
+---
+
+# How Network Isolation Works Between Hosting Users
 
 OpenPanel uses containers to isolate services for each user. These containers are then further segregated into local networks, providing an additional layer of isolation.
 

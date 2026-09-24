@@ -1,4 +1,8 @@
-# Configuring OpenPanel Backups
+---
+sidebar_label: "Configuring OpenPanel Backups"
+---
+
+# How to Configure Automatic Server and Account Backups
 
 OpenPanel has a unique feature where end-users can configure their remote backups. This provides users with more freedom and control over the schedule, what to backup and finally more privacy as Admin does not have access to their destination.
 

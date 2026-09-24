@@ -1,4 +1,8 @@
-# OpenPanel Installation on Microsoft Azure
+---
+sidebar_label: "OpenPanel Installation on Microsoft Azure"
+---
+
+# How to Install a Hosting Control Panel on Microsoft Azure
 
 This guide will walk you through deploying **OpenPanel** on an Azure Virtual Machine with Ubuntu.
 

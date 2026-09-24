@@ -1,4 +1,8 @@
-# user.ini
+---
+sidebar_label: "user.ini"
+---
+
+# How to Hide PHP Errors or Increase Upload Limits per Website
 
 If you have multiple websites in the same domain folder and only want to enable or disable php settings for a certain website, create a file `.user.ini` inside the website folder.
 

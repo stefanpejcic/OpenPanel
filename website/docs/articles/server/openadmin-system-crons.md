@@ -1,4 +1,8 @@
-# OpenAdmin System Crons
+---
+sidebar_label: "OpenAdmin System Crons"
+---
+
+# System Cron Jobs Explained
 
 Cron jobs used by OpenPanel are configured in **`/etc/cron.d/openpanel`** file and should **not be edited manually**, as they will be overwritten during updates.  
 

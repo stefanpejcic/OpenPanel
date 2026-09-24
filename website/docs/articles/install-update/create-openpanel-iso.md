@@ -1,4 +1,8 @@
-# Creating an OpenPanel ISO Image
+---
+sidebar_label: "Creating an OpenPanel ISO Image"
+---
+
+# How to Create a Custom ISO Image with OpenPanel Preinstalled
 
 This guide is intended for server providers offering Cloud, VPS, or Dedicated servers who want to enable fast image deployment with OpenPanel.
 

@@ -1,4 +1,8 @@
-# How to Install WordPress® With OpenPanel
+---
+sidebar_label: "How to Install WordPress® With OpenPanel"
+---
+
+# How to Install WordPress®
 
 [WordPress](https://wordpress.org/)® is a powerful, web-based content management system (CMS) that makes it easy to build websites and blogs. This guide walks you through two methods for installing WordPress on your OpenPanel account: **automatic installation via WP Manager** and **manual installation**.
 

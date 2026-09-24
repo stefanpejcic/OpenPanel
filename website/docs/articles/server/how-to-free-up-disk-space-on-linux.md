@@ -1,4 +1,8 @@
-# How To Free Up Disk Space
+---
+sidebar_label: "How To Free Up Disk Space"
+---
+
+# How to Free Up Disk Space on a Linux Server
 
 Low disk space can affect server stability and performance. This guide helps you identify and free up disk space on your OpenPanel server.
 

@@ -1,4 +1,8 @@
-# How to setup your email client
+---
+sidebar_label: "How to setup your email client"
+---
+
+# How to Set Up Your Email Client (IMAP / SMTP Settings)
 
 How do I set up my email client with a specific device or service?
 

@@ -1,4 +1,8 @@
-# Setup Fail2ban
+---
+sidebar_label: "Setup Fail2ban"
+---
+
+# How to Protect Your Mail Server with Fail2ban
 
 Ensure that you're running the [**Enterprise edition**](https://openpanel.com/enterprise/) of OpenPanel. Email support is only available in this version.
 

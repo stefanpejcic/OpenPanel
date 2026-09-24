@@ -1,4 +1,8 @@
-# User Isolation
+---
+sidebar_label: "User Isolation"
+---
+
+# How Hosting Users Are Isolated from Each Other
 
 OpenPanel is built with **security-first architecture**, enforcing multiple levels of isolation to protect user environments.
 

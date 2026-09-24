@@ -1,4 +1,8 @@
-# How license expiration affects OpenPanel
+---
+sidebar_label: "How license expiration affects OpenPanel"
+---
+
+# What Happens When an Enterprise License Expires?
 
 When the Enterprise license expires, all OpenAdmin UI pages are redirected to a **“License Expired”** page, example:
 

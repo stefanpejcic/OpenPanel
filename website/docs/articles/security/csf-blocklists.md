@@ -1,4 +1,8 @@
-# CSF Blocklists
+---
+sidebar_label: "CSF Blocklists"
+---
+
+# How to Block Malicious IPs with CSF Blocklists
 
 CSF/LFD supports downloading and applying blocklists of IPs and CIDRs from public sources. 
 

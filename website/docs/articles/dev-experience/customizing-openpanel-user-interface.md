@@ -1,4 +1,8 @@
-# Branding & White-Label
+---
+sidebar_label: "Branding & White-Label"
+---
+
+# How to White-Label and Rebrand the Control Panel
 
 Everything in OpenPanel is modular and can easily be modified or disabled without breaking the rest of the functionalities.
 

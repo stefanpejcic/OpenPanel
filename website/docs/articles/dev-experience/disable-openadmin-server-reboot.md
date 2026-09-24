@@ -1,4 +1,8 @@
-# Disable Reboot within OpenAdmin
+---
+sidebar_label: "Disable Reboot within OpenAdmin"
+---
+
+# How to Disable Server Reboot in the Admin Panel
 
 If for some reason, you want to disable *Server Reboot* feature through OpenAdmin, you can do that on your server.
 

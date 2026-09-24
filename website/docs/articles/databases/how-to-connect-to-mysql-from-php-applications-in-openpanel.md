@@ -1,4 +1,8 @@
-# Connecting to MySQL Server from Applications in OpenPanel
+---
+sidebar_label: "Connecting to MySQL Server from Applications in OpenPanel"
+---
+
+# How to Connect to MySQL from PHP Applications (Hostname, Port, Credentials)
 
 OpenPanel runs each user service inside its own container and uses local networks to isolate them. This means that applications do not connect to the database via `localhost` or `127.0.0.1`, but instead through container hostnames.
 

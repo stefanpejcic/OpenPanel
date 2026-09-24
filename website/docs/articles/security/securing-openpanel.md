@@ -1,4 +1,8 @@
-# Securing OpenPanel
+---
+sidebar_label: "Securing OpenPanel"
+---
+
+# How to Secure a Hosting Server: Hardening Checklist
 
 This section describes the best practices and settings that can increase the security of your OpenPanel server and, thus, protect it from various types of attacks and loss of sensitive data:
 

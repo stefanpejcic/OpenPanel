@@ -1,4 +1,8 @@
-# How to Reset a OpenPanel Account Password
+---
+sidebar_label: "How to Reset a OpenPanel Account Password"
+---
+
+# How to Reset a Hosting Account Password
 
 If you forget your Openpanel account password, follow these steps:
 

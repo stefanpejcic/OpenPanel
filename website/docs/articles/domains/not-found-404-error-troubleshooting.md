@@ -1,4 +1,8 @@
-# 404 Error Troubleshooting Guide
+---
+sidebar_label: "404 Error Troubleshooting Guide"
+---
+
+# How to Fix 404 Not Found Errors
 
 This guide explains the most common causes of **404 Not Found** errors on a website and how to resolve them.
 

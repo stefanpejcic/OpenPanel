@@ -1,4 +1,8 @@
-# Update LF_ALERT_TO
+---
+sidebar_label: "Update LF_ALERT_TO"
+---
+
+# How to Change the Email Address for LFD Security Alerts
 
 How to Set the Email Address for CSF/LFD Alerts
 

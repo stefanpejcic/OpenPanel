@@ -1,4 +1,8 @@
-# Delete Multiple Accounts
+---
+sidebar_label: "Delete Multiple Accounts"
+---
+
+# How to Delete Multiple Hosting Accounts at Once
 
 The `opencli user-delete` command lets you delete OpenPanel user accounts in bulk. **Use caution**-it's easy to accidentally delete the wrong users.
 

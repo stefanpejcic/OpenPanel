@@ -1,4 +1,8 @@
-# Installation on AWS EC2
+---
+sidebar_label: "Installation on AWS EC2"
+---
+
+# How to Install a Hosting Control Panel on AWS EC2
 
 This guide will walk you through deploying **OpenPanel** on an AWS EC2 instance with Ubuntu or Debian.
 

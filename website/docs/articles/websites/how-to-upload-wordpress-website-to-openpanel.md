@@ -1,4 +1,8 @@
-# How to Migrate a WordPress® Installation to OpenPanel
+---
+sidebar_label: "How to Migrate a WordPress® Installation to OpenPanel"
+---
+
+# How to Migrate an Existing WordPress® Site
 
 This guide will walk you through the process of uploading your WordPress website to **OpenPanel**, including domain setup, database configuration, file uploads, and final testing.
 

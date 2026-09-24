@@ -1,4 +1,8 @@
-# Set a separate domain for OpenPanel UI
+---
+sidebar_label: "Set a separate domain for OpenPanel UI"
+---
+
+# How to Use a Custom Domain for the Control Panel Login
 
 To set separate domain just for the OpenPanel UI, for example `pejcic.rs`:
 
