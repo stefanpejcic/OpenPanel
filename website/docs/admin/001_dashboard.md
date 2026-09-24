@@ -11,6 +11,8 @@ For administrator accounts, the dashboard also displays a quick summary bar with
 ![Summary bar with the number of nodes, containers, users, domains, websites, packages and emails](/img/openadmin-screenshots/001_dashboard-summary.png#gh-light-mode-only)
 ![Summary bar with the number of nodes, containers, users, domains, websites, packages and emails](/img/openadmin-screenshots/001_dashboard-summary_dark.png#gh-dark-mode-only)
 
+Below the welcome message, quick action buttons open the most common tasks: **Create User**, **Add Domain**, **New Plan** and **Check for Updates** (resellers see **Create User** and **New Plan**).
+
 The dashboard page contains widgets:
 
 - **User Activity** widget: Displays real-time combined activity log of all OpenPanel users.
@@ -104,6 +106,13 @@ The menu comes in two styles, set by the **Menu Style** option on [**Settings > 
 
 These docs use the Modern names, so a path like **System > Server Time** means: click **System** in the sidebar, then the **Server Time** tab. In the Classic menu the same pages are in the expandable groups, for example **Server > Server Time**.
 
+In the Modern menu, a colored dot next to a sidebar item flags something that needs attention - hover it to see what:
+
+- **Services** (red): a monitored service is down, according to an unread notification.
+- **Settings** (orange): changes are waiting for an OpenPanel or OpenAdmin restart.
+
+Settings pages (General, OpenPanel, User Defaults, PHP, Notifications, Updates, Custom Code and Service Limits) ask for confirmation before you leave with changes that weren't saved.
+
 ![OpenAdmin sidebar menu with the Accounts, Hosting Plans, Domains, Emails, Services, Security, Settings and Advanced sections](/img/openadmin-screenshots/001_dashboard-menu.png#gh-light-mode-only)
 ![OpenAdmin sidebar menu with the Accounts, Hosting Plans, Domains, Emails, Services, Security, Settings and Advanced sections](/img/openadmin-screenshots/001_dashboard-menu_dark.png#gh-dark-mode-only)
 
@@ -113,7 +122,7 @@ Search returns:
 
 - OpenPanel users with login link for their OpenPanel
 - Website/Domains of users
-- Features/pages in the Admin interface
+- Features/pages in the Admin interface, shown as **Area › Page** - pages can be found by their current name, their previous name (for example **General Settings** or **CorazaWAF**) or the menu area they are in
 
 ![Search box in the OpenAdmin sidebar with matching pages, users and websites](/img/openadmin-screenshots/001_dashboard-search.png#gh-light-mode-only)
 ![Search box in the OpenAdmin sidebar with matching pages, users and websites](/img/openadmin-screenshots/001_dashboard-search_dark.png#gh-dark-mode-only)

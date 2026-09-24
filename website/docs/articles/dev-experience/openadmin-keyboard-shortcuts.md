@@ -20,7 +20,7 @@ To view all available shortcuts: `Ctrl` + `K`
 | `Ctrl` + `Shift` + `E`      | Email Accounts                   | `/emails/accounts`           |
 | `Ctrl` + `Shift` + `S`      | Services Status                  | `/services`                  |
 | `Ctrl` + `Shift` + `C`      | ConfigServer Firewall (CSF)      | `/security/firewall`         |
-| `Ctrl` + `Shift` + `W`      | CorazaWAF Settings               | `/security/waf`              |
+| `Ctrl` + `Shift` + `W`      | Web Firewall (Coraza)            | `/security/waf`              |
 | `Ctrl` + `Shift` + `L`      | View Logs                        | `/services/logs`             |
 | `Ctrl` + `Shift` + `B`      | Basic Auth                       | `/security/basic_auth`       |
 | `Ctrl` + `Shift` + `1` (Numpad only) | License                     | `/license`                   |

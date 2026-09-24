@@ -2,9 +2,9 @@
 sidebar_position: 2
 ---
 
-# WAF
+# Web Firewall (Coraza)
 
-The WAF section allows you to manage CorazaWAF, a powerful Web Application Firewall integrated into OpenPanel.
+The **Security > Web Firewall (Coraza)** page allows you to manage CorazaWAF, a powerful Web Application Firewall integrated into OpenPanel.
 
 Use this interface to enhance security by enabling protection against common web threats such as SQL injection, XSS, and other malicious behavior.
 
