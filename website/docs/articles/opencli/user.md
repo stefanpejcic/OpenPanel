@@ -156,6 +156,15 @@ Example:
 opencli user-add stefan pejcic324 stefan@pejcic.rs 'Default Plan Nginx'
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-add stefan pejcic324 stefan@pejcic.rs 'Default Plan Nginx'
+[✔] Successfully added user stefan with password: pejcic324
+```
+</details>
+
 
 :::tip
 Provide `generate` as password to generate a strong random password.
@@ -177,6 +186,15 @@ Example:
 opencli user-add stefan generate stefan@pejcic.rs 'Default Plan Nginx' --webserver=varnish+nginx --sql=mariadb --send-email
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-add stefan generate stefan@pejcic.rs 'Default Plan Nginx' --webserver=varnish+nginx --sql=mariadb --send-email
+[✔] Successfully added user stefan with password: k3Vq9XbT2mWz4LpR
+```
+</details>
+
 
 
 #### Create user for Reseller
@@ -186,6 +204,15 @@ opencli user-add stefan generate stefan@pejcic.rs 'Default Plan Nginx' --webserv
 opencli user-add <USERNAME> <PASSWORD> <EMAIL> "<PLAN_NAME>" --reseller=<RESELLER_USERNAME>
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-add client1 'StrongPass1' client1@example.com 'Default Plan Nginx' --reseller=reseller1
+[✔] Successfully added user client1 with password: StrongPass1
+```
+</details>
+
 ### Transfer User
 
 To transfer user account to another server:
@@ -193,6 +220,24 @@ To transfer user account to another server:
 ```bash
 opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--port 22] [--force] [--live-transfer]
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-transfer --account stefan --host 203.0.113.20 --username root --password 'DestinationPass'
+Import started, log file: /var/log/openpanel/admin/transfers/stefan_203.0.113.20_20260924_103000.log
+[2026-09-24 10:30:00] Log file: /var/log/openpanel/admin/transfers/stefan_203.0.113.20_20260924_103000.log
+[2026-09-24 10:30:00] PID: 48213
+[2026-09-24 10:30:00] Testing SSH connection to root@203.0.113.20...
+[2026-09-24 10:30:01] SSH connection established, starting transfer process..
+[2026-09-24 10:30:02] Resolved context for stefan: stefan
+[2026-09-24 10:30:02] Creating system user (stefan) on remote server ...
+...
+[2026-09-24 10:34:41] Elapsed time: 0h 4m 41s
+[2026-09-24 10:34:41] SUCCESS: Transfer process for user stefan completed.
+```
+</details>
 
 - `-h`, `--host` - destination server IP.
 - `-u`, `--username` - SSH user on the destination server.
@@ -208,6 +253,42 @@ To create a full account `.tar.gz` backup of a single user (files, databases, ma
 opencli user-backup --account <USER> [--output <DIR>] [--quiet]
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-backup --account stefan
+[2026-09-24 10:30:00] Backup started  log: /var/log/openpanel/admin/backups/stefan_backup_20260924_103000.log  (PID: 48213)
+[2026-09-24 10:30:00] Account: stefan  Context: stefan  UID:1001 GID:1001  Plan: Default Plan Nginx
+[2026-09-24 10:30:00] Checking disk space ...
+[2026-09-24 10:30:00]   Source size  (~812 MB via du)
+[2026-09-24 10:30:00]   Free at dest (~48210 MB at /backup)
+[2026-09-24 10:30:00]   Disk space OK.
+[2026-09-24 10:30:00] Writing manifest ...
+[2026-09-24 10:30:00] Exporting panel DB rows ...
+...
+[2026-09-24 10:30:02] Streaming /home/stefan  →  homedir/ ...
+...
+
+═══════════════════════════════════════════════════════════════
+  BACKUP COMPLETE — stefan_20260924_103000.tar.gz
+═══════════════════════════════════════════════════════════════
+  Archive:                 /backup/stefan_20260924_103000.tar.gz
+  Size:                    402M
+  Compression:             pigz
+  Time taken:              0h 1m 12s
+
+  Contents:
+    Plan:                  "Default Plan Nginx"
+    Domains (2):           example.com example.net
+    Sites:                 1
+    Feature set:           default
+    FTP accounts:          2
+    Home dir:              homedir/  (source ~812 MB)
+    Containers:            nginx php-fpm-8.3 mysql
+```
+</details>
+
 - `--output <DIR>` - custom destination directory for the archive (defaults to the location configured for backups).
 - `--quiet` - only log to file, don't print progress to stdout.
 
@@ -218,6 +299,45 @@ To restore a user account from a `.tar.gz` backup created with `user-backup`:
 ```bash
 opencli user-restore --file <ARCHIVE> [--force] [--new-username=<NAME>] [--temp-dir=<PATH>] [--quiet]
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-restore --file /backup/stefan_20260924_103000.tar.gz
+Import started, log file: /var/log/openpanel/admin/imports/openpanel-import_20260924_110000.log
+[2026-09-24 11:00:00] Log file: /var/log/openpanel/admin/imports/openpanel-import_20260924_110000.log
+[2026-09-24 11:00:00] PID: 51234
+[2026-09-24 11:00:00] Archive: /backup/stefan_20260924_103000.tar.gz
+[2026-09-24 11:00:00] Checking disk space for extraction ...
+[2026-09-24 11:00:00] Extracting archive ...
+[2026-09-24 11:00:09] Restoring 'stefan' (context: stefan)  format v2
+[2026-09-24 11:00:09] Restoring system user (stefan) ...
+[2026-09-24 11:00:10] Restoring /home/stefan ...
+[2026-09-24 11:00:31] Restoring panel DB rows ...
+[2026-09-24 11:00:31] Plan 'Default Plan Nginx' exists (ID: 1) — reusing.
+[2026-09-24 11:00:31] User row ready (ID: 7).
+[2026-09-24 11:00:31] Restoring domains ...
+[2026-09-24 11:00:31] Domain restored: example.com
+[2026-09-24 11:00:31] Domain restored: example.net
+[2026-09-24 11:00:31] Restoring FTP accounts ...
+[2026-09-24 11:00:32] FTP user restored: backup@example.com
+...
+[2026-09-24 11:00:40] Reloading services ...
+[2026-09-24 11:00:41] Recalculating quotas ...
+
+═══════════════════════════════════════════════════════════════
+  RESTORE COMPLETE — stefan
+═══════════════════════════════════════════════════════════════
+  Archive:                 stefan_20260924_103000.tar.gz
+  Time taken:              0h 0m 41s
+
+  Restored:
+    System user:           stefan  [created]
+    Home directory:        /home/stefan/  (812M)
+...
+```
+</details>
 
 - `--force` - overwrite the account if a user with the same username already exists.
 - `--new-username=<NAME>` - restore under a different username than the one in the backup.
@@ -231,6 +351,16 @@ To delete a user and all his data run the following command:
 ```bash
 opencli user-delete <USERNAME>
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-delete stefan
+This will permanently delete user 'stefan' and all associated data. Confirm? [Y/n]: y
+User stefan deleted successfully.
+```
+</details>
 
 add `-y` flag to disable prompt.
 
@@ -246,6 +376,16 @@ To suspend (temporary disable access) to user, run the follwowing command:
 opencli user-suspend <USERNAME> [-y] [--debug]
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-suspend stefan
+Are you sure you want to suspend OpenPanel user 'stefan'? (y/N) y
+User 'stefan' suspended successfully.
+```
+</details>
+
 add `-y` flag to disable prompt.
 
 ### Unsuspend User
@@ -256,6 +396,15 @@ To unsuspend (enable access) to user, run the follwowing command:
 opencli user-unsuspend <USERNAME>
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-unsuspend stefan
+User 'stefan' unsuspended successfully.
+```
+</details>
+
 ### Rename User
 
 To change a username run:
@@ -263,12 +412,30 @@ To change a username run:
 opencli user-rename <USERNAME> <NEW_USERNAME>
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-rename stefan pejcic
+User 'stefan' successfully renamed to 'pejcic'.
+```
+</details>
+
 ### Change Email
 
 To change a email run:
 ```bash
 opencli user-email <USERNAME> <NEW_EMAIL>
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-email stefan stefan@example.com
+Success: Email for user 'stefan' updated to 'stefan@example.com'
+```
+</details>
 
 ### Change Password
 
@@ -278,10 +445,28 @@ To reset the password for a OpenPanel user, you can use the `user-password` comm
 opencli user-password <USERNAME> <NEW_PASSWORD>
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-password stefan 'NewStrongPass1'
+Successfully changed password for user stefan
+```
+</details>
+
 Provide `random` as password to generate a strong random password:
 ```bash
 opencli user-password <USERNAME> random
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-password stefan random
+Successfully changed password for user stefan, new random generated password is: 7kQ!vR2m#Lx9TzpA
+```
+</details>
 
 ### Login as User
 
@@ -305,10 +490,28 @@ To invalidate an existing token for a user:
 opencli user-login <USERNAME> --delete
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-login demouser --delete
+Auto-login token 'b7f3c9e2a1d84f06' for user demouser is now invalidated.
+```
+</details>
+
 To open the link in a browser:
 ```bash
 opencli user-login <USERNAME> --open
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-login demouser --open
+https://srv.example.com:2083/login_autologin?admin_token=b7f3c9e2a1d84f06&username=demouser
+```
+</details>
 
 ### Change Plan
 
@@ -317,6 +520,20 @@ Command: `opencli user-change_plan` allows you to change plan for a user.
 ```bash
 opencli user-change_plan <username> "<new_plan_name>"
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-change_plan stefan "Developer Plus"
+[✔] Total CPU limit (4) set successfully.
+[✔] Tasks ceiling set to 300 (derived from RAM; /home/stefan/TasksMax overrides).
+[✔] Total RAM limit (6G) set successfully.
+[✔] Disk limit (10) and inodes (1000000) applied successfully.
+Changing port speed to 100 is not possible at the moment.
+Plan changed successfully for user stefan from Standard plan to Developer Plus
+```
+</details>
 
 ### Quota
 
@@ -346,6 +563,18 @@ To disable **Two-Factor Authentication** for a user, run the following command:
 opencli user-2fa <USERNAME> [disable]
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-2fa stefan
+Two-factor authentication for stefan is ENABLED.
+
+# opencli user-2fa stefan disable
+Two-factor authentication for stefan is now DISABLED.
+```
+</details>
+
 
 ### Assign / Remove IP to User
 
@@ -355,6 +584,15 @@ To assign free IP address to a user run the following command:
 opencli user-ip <USERNAME> <IP_ADDRESS>
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-ip stefan 203.0.113.11
+IP successfully changed for user stefan to dedicated IP address: 203.0.113.11
+```
+</details>
+
 To assign IP address **that is currently used by another user** to this user, run the following command:
 
 
@@ -362,12 +600,31 @@ To assign IP address **that is currently used by another user** to this user, ru
 opencli user-ip <USERNAME> <IP_ADDRESS> -y
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-ip stefan 203.0.113.11 -y
+IP successfully changed for user stefan to dedicated IP address: 203.0.113.11
+```
+</details>
+
 
 To remove dedicated IP address from a user run:
 
 ```bash
 opencli user-ip <USERNAME> delete [-y]
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-ip stefan delete
+IP configuration deleted for user stefan.
+IP successfully changed for user stefan to shared IP address: 203.0.113.10
+```
+</details>
 
 Add `--debug` to any `user-ip` command to display verbose information.
 
@@ -491,15 +748,38 @@ List blocked IPs for a user:
 opencli user-block_ip <username>
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-block_ip stefan
+11.22.33.44
+124.64.23.0/24
+```
+</details>
+
 Block IP addresses from accessing user websites:
 ```bash
 opencli user-block_ip <username> --list='11.22.33.44 124.64.23.0/24'
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-block_ip stefan --list='11.22.33.44 124.64.23.0/24'
+Blocking IP 11.22.33.44 for user stefan...
+Blocking IP 124.64.23.0/24 for user stefan...
+Blocklist applied for domain 'example.com'
+Blocklist applied for domain 'example.net'
+```
+</details>
+
 Remove all blocked IP addresses for a user:
 ```bash
 opencli user-block_ip <username> --delete-all
 ```
+The blocklist is emptied and Caddy is reloaded. The command prints no output.
 
 ### View login log
 View up to last 20 successfull logins for the user.
@@ -507,6 +787,26 @@ View up to last 20 successfull logins for the user.
 ```bash
 opencli user-loginlog <USERNAME> [--table|--text|--json]
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-loginlog stefan
+IP            Country  Time
+203.0.113.5   RS       2026-09-24 09:12:44
+198.51.100.7  DE       2026-09-23 18:02:10
+
+# opencli user-loginlog stefan --json
+[
+  {
+    "ip": "203.0.113.5",
+    "country": "RS",
+    "time": "2026-09-24 09:12:44"
+  }
+]
+```
+</details>
 
 Output is shown as a table by default. Use `--text` for plain text or `--json` for JSON.
 
@@ -520,21 +820,59 @@ opencli user-varnish <USERNAME> [enable|disable|status]
 
 Enable Varnish:
 ```bash
-opencli user-varnish <USERNAME> enable 
+opencli user-varnish <USERNAME> enable
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-varnish stefan enable
+...
+Varnish Cache is now enabled.
+```
+</details>
 
 Disable Varnish:
 ```bash
-opencli user-varnish <USERNAME> disable 
+opencli user-varnish <USERNAME> disable
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-varnish stefan disable
+...
+Varnish Cache is now disabled.
+```
+</details>
 
 Check status:
 ```bash
 opencli user-varnish <USERNAME> status
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-varnish stefan status
+Varnish Cache is enabled.
+```
+</details>
+
 Check short status (returns *Current status: on/off*):
 ```bash
 opencli user-varnish <USERNAME>
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-varnish stefan
+Current status: On
+```
+</details>
 

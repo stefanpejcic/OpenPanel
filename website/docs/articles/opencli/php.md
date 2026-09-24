@@ -10,11 +10,14 @@ To view the current PHP version used by a domain, run the following command:
 opencli php-domain <DOMAIN-NAME>
 ```
 
-Example:
+<details>
+  <summary>Example output</summary>
+
 ```bash
 # opencli php-domain pejcic.rs
-Domain 'pejcic.rs' (owned by user: stefan) uses PHP version: php8.1
+Domain 'pejcic.rs' (owned by user: stefan) uses PHP version: 8.1
 ```
+</details>
 
 ### Change version for a domain
 
@@ -24,16 +27,14 @@ To change a PHP version for a domain name use the `--update` flag:
 opencli php-domain <DOMAIN-NAME> --update <PHP-VERSION>
 ```
 
-Example:
+<details>
+  <summary>Example output</summary>
+
 ```bash
 # opencli php-domain pejcic.rs --update 8.3
-Updating PHP version to: 8.3
-Domain 'pejcic.rs' (owned by user: stefan) uses PHP version: php8.3
-Updating PHP version in the Apache configuration file...
- * Reloading Apache httpd web server apache2
- *
 Updated PHP version in the configuration file to 8.3
 ```
+</details>
 
 ### View default version
 
@@ -45,11 +46,14 @@ To list the currently set default PHP version for a user, run the following comm
 opencli php-default <USERNAME>
 ```
 
-Example:
+<details>
+  <summary>Example output</summary>
+
 ```bash
 # opencli php-default stefan
-Default PHP version for user 'stefan' is: php8.3
+Default PHP version for user 'stefan' is: 8.3
 ```
+</details>
 
 ### Change the default version
 
@@ -59,11 +63,14 @@ To update the default PHP version for a user use the php-default with `--update`
 opencli php-default <USERNAME> --update <VERSION>
 ```
 
-Example:
+<details>
+  <summary>Example output</summary>
+
 ```bash
 # opencli php-default stefan --update 8.1
-PHP version for user 'stefan' updated to: 8.1
+Default PHP version for user 'stefan' updated to: 8.1
 ```
+</details>
 
 ### List versions
 
@@ -74,7 +81,9 @@ grep php-fpm- /home/<USERNAME>/docker-compose.yml
 ```
 
 
-Example:
+<details>
+  <summary>Example output</summary>
+
 ```bash
 # grep php-fpm- /home/demo/docker-compose.yml
   php-fpm-5.6:
@@ -102,5 +111,6 @@ Example:
   php-fpm-8.5:
     container_name: php-fpm-8.5
 ```
+</details>
 
 To add PHP versions that are newer than the user's `docker-compose.yml` file, run [`opencli update --php`](/docs/articles/opencli/update/#php).

@@ -8,6 +8,45 @@ Using the command you can check current system health and get suggestions on imp
 opencli sentinel
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+--------------------------------------------------------------------------------
+  Sentinel - OpenPanel server health monitor
+--------------------------------------------------------------------------------
+Checking services:
+[✔] openpanel is active and responding.
+[✔] admin is active.
+[✔] caddy is active and responding.
+[✔] podman.socket is active.
+[✔] MariaDB container active and responding.
+[✔] csf is active.
+[✔] phpmyadmin container is active.
+[✔] No OOM errors detected.
+--------------------------------------------------------------------------------
+Checking traffic:
+[✔] No unusual traffic detected on web ports (80|443).
+--------------------------------------------------------------------------------
+Checking logins, resources, and DNS...
+[✔] No new logins to OpenAdmin.
+[✔] No active SSH sessions.
+[✔] Disk 41% < threshold 85%
+[✔] Load 0.42 < threshold 20.
+[✔] RAM 38% < threshold 85%
+[✔] CPU 7% < threshold 90%
+[✔] No SWAP configured.
+[✔] All nameservers resolve to local IPs.
+[✔] No dead user containers found (checked in 2s).
+--------------------------------------------------------------------------------
+All Tests Passed!
+--------------------------------------------------------------------------------
+18 PASS  0 WARN  0 FAIL
+--------------------------------------------------------------------------------
+```
+</details>
+
 ![sentinel openpanel cli](/img/docs-content/kg56D2x2-sentinel-openpaenl.png)
 
 Additional flags:
@@ -20,6 +59,17 @@ Example:
 ```bash
 opencli sentinel --action=admin_api --title="OpenAdmin API is on" --message="API access is now on."
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel --action=admin_api --title="OpenAdmin API is on" --message="API access is now on."
+[!] Notifications are disabled for action: admin_api
+```
+</details>
+
+Nothing is printed when the notification is logged. The message above is shown only when notifications for that action are disabled in `notifications.ini`.
 
 
 <details>

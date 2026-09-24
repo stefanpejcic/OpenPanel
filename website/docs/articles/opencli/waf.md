@@ -8,6 +8,15 @@
 opencli waf status
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf status
+CorazaWAF is ENABLED
+```
+</details>
+
 
 ## Enable
 To enable the WAF and ensure it is used for new domains, run:
@@ -15,6 +24,23 @@ To enable the WAF and ensure it is used for new domains, run:
 ```bash
 opencli waf enable
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf enable
+Downloading Coraza rules..
+...
+Downloading OWASP CRS..
+Cloning into '/etc/openpanel/caddy/coreruleset'...
+Enabling WAF module..
+Setting container image 'openpanel/caddy-coraza'..
+Restarting Web Server to use the new image with CorazaWAF..
+...
+CorazaWAF is ENABLED
+```
+</details>
 
 
 ## Disable
@@ -24,10 +50,41 @@ To completely disable the WAF for all existing domains and prevent it from being
 opencli waf disable
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf disable
+Checking if CorazaWAF is used by any user domains..
+WARNING: WAF is still active on some domains:
+ - example.com
+ - example.net
+Do you really want to disable WAF protection on these domains and stop using Coraza WAF on the server? [y/N]: y
+Disabling Coraza WAF...
+Disabling WAF module...
+CorazaWAF is DISABLED: 'waf' module is not enabled in OpenAdmin > Settings > Modules.)
+```
+</details>
+
 Add `-y` to skip the confirmation prompt:
 ```bash
 opencli waf disable -y
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf disable -y
+Checking if CorazaWAF is used by any user domains..
+WARNING: WAF is still active on some domains:
+ - example.com
+ - example.net
+Disabling Coraza WAF...
+Disabling WAF module...
+CorazaWAF is DISABLED: 'waf' module is not enabled in OpenAdmin > Settings > Modules.)
+```
+</details>
 
 
 
@@ -41,6 +98,15 @@ Check if CorazaWAF is enabled for domain:
 opencli waf domain <DOMAIN_NAME>
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf domain example.com
+SecRuleEngine is set to On for domain example.com
+```
+</details>
+
 ### Enable
 Enable WAF for a domain:
 
@@ -48,12 +114,30 @@ Enable WAF for a domain:
 opencli waf domain <DOMAIN_NAME> enable
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf domain example.com enable
+SecRuleEngine On is now set for domain example.com
+```
+</details>
+
 ### Disable
 Disable WAF for a domain:
 
 ```bash
 opencli waf domain <DOMAIN_NAME> disable
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf domain example.com disable
+SecRuleEngine Off is now set for domain example.com
+```
+</details>
 
 ## Update
 
@@ -63,6 +147,16 @@ Update OWASP CRS:
 opencli waf update
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf update
+Updating OWASP CRS..
+Update successful.
+```
+</details>
+
 ### Update Log
 
 View update log for OWASP CRS:
@@ -70,6 +164,17 @@ View update log for OWASP CRS:
 ```bash
 opencli waf update log
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf update log
+3f2c1a9 Merge pull request #4012 from coreruleset/fix-942440-fp
+8d71b0e fix(942440): reduce false positives
+...
+```
+</details>
 
 ## IDs
 
@@ -79,6 +184,17 @@ List all rule IDs from all enabled sets:
 opencli waf ids
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf ids
+/etc/openpanel/caddy/coreruleset/rules/REQUEST-901-INITIALIZATION.conf:901001
+/etc/openpanel/caddy/coreruleset/rules/REQUEST-901-INITIALIZATION.conf:901100
+...
+```
+</details>
+
 ## Tags
 
 List all rule tags from all enabled sets:
@@ -86,6 +202,17 @@ List all rule tags from all enabled sets:
 ```bash
 opencli waf tags
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf tags
+/etc/openpanel/caddy/coreruleset/rules/REQUEST-913-SCANNER-DETECTION.conf:application-multi
+/etc/openpanel/caddy/coreruleset/rules/REQUEST-913-SCANNER-DETECTION.conf:attack-reputation-scanner
+...
+```
+</details>
 
 ## Stats
 
@@ -96,9 +223,11 @@ Get stats from the log.
 opencli waf stats country
 ```
 
-Example:
-```
-root@apolo2:/home/pcx3# opencli waf stats country
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf stats country
     2000 US
     1501 DE
     1033 BE
@@ -114,15 +243,18 @@ root@apolo2:/home/pcx3# opencli waf stats country
      102 BG
       70 CA
 ```
+</details>
 
 ### IP
 ```bash
 opencli waf stats ip
 ```
 
-Example:
-```
-root@apolo2:/home/pcx3# opencli waf stats ip
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf stats ip
    11069 154.83.103.102
     9038 154.83.103.15
     9038 154.83.103.111
@@ -134,15 +266,18 @@ root@apolo2:/home/pcx3# opencli waf stats ip
     4062 108.162.221.121
     4055 154.83.103.14
 ```
+</details>
 
 ### Path
 ```bash
 opencli waf stats path
 ```
 
-Example:
-```
-root@apolo2:/home/pcx3# opencli waf stats path
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf stats path
     1308 /modules/younitedpay/logo.png
      707 /.git/config
      608 /.env
@@ -154,15 +289,18 @@ root@apolo2:/home/pcx3# opencli waf stats path
      201 /.aws/credentials
      109 /wp-content/themes/include.php
 ```
+</details>
 
 ### Agent
 ```bash
 opencli waf stats agent
 ```
 
-Example:
-```
-root@apolo2:/home/pcx3# opencli waf stats agent
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf stats agent
    10400  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36
     1909  Mozlila/5.0 (Linux; Android 7.0; SM-G892A Bulid/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/60.0.3112.107 Moblie Safari/537.36
     1308  Go-http-client/2.0
@@ -174,15 +312,18 @@ root@apolo2:/home/pcx3# opencli waf stats agent
      371  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36 OPR/117.0.0.0
      350  Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 10.0; Trident/5.0; WOW64)
 ```
+</details>
 
 ### Hourly
 ```bash
 opencli waf stats hourly
 ```
 
-Example:
-```
-root@apolo2:/home/pcx3# opencli waf stats hourly
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf stats hourly
      14 2025/04/14 00
      14 2025/04/14 10
       7 2025/04/14 19
@@ -206,15 +347,18 @@ root@apolo2:/home/pcx3# opencli waf stats hourly
       7 2025/04/21 15
      14 2025/04/22 05
 ```
+</details>
 
 ### Request
 ```bash
 opencli waf stats request
 ```
 
-Example:
-```
-root@apolo2:/home/pcx3# opencli waf stats request
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf stats request
     1803 POST /xmlrpc.php HTTP/1.1
     1408 POST /xmlrpc.php HTTP/2.0
     1038 GET /modules/younitedpay/logo.png HTTP/2.0
@@ -226,6 +370,7 @@ root@apolo2:/home/pcx3# opencli waf stats request
      301 POST /wp-comments-post.php HTTP/1.1
      214 POST //xmlrpc.php HTTP/2.0
 ```
+</details>
 
 ## Count
 
@@ -234,3 +379,13 @@ Display total number of records in the WAF audit log:
 ```bash
 opencli waf count
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf count
+12408
+```
+</details>
+

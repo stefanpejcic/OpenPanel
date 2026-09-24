@@ -11,10 +11,33 @@ Create a backup:
 opencli backup
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli backup
+[2026-09-24 03:00:01] === System backup started ===
+[2026-09-24 03:00:01] Including 42/45 configured paths that exist on this server.
+[2026-09-24 03:00:09] Backup archive created: /backup/system-backup_2026-09-24_03-00-01.tar.gz (18M, 8s)
+[2026-09-24 03:00:09] Pruned old backup: /backup/system-backup_2026-09-17_03-00-01.tar.gz
+[2026-09-24 03:00:09] === System backup finished (8s, pruned 1 old backup(s)) ===
+```
+</details>
+
 Restore from an archive:
 ```bash
 opencli backup --restore <archive_filename>
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli backup --restore system-backup_2026-09-24_03-00-01.tar.gz
+[2026-09-24 10:15:42] === Restoring from system-backup_2026-09-24_03-00-01.tar.gz ===
+[2026-09-24 10:15:45] === Restore finished (3s) -- affected services may need a restart to pick up restored config ===
+```
+</details>
 
 Additional flags:
 

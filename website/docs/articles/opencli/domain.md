@@ -7,15 +7,29 @@ View current setting:
 opencli domain
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domain
+srv7.openpanel.org
+```
+</details>
+
 Set domain:
 
 ```bash
 opencli domain set <DOMAIN_NAME>
 ```
-Example:
+
+<details>
+  <summary>Example output</summary>
+
 ```bash
-opencli domain set srv7.openpanel.org
+# opencli domain set srv7.openpanel.org
+srv7.openpanel.org is now set for accessing the OpenPanel and OpenAdmin interfaces.
 ```
+</details>
 
 Additional flags:
 
@@ -29,3 +43,13 @@ Set IP address to be used instead of domain:
 ```bash
 opencli domain ip
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domain ip
+203.0.113.10 is now set for accessing the OpenPanel and OpenAdmin interfaces.
+```
+</details>
+

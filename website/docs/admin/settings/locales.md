@@ -36,7 +36,7 @@ opencli locale tr-tr
 Example: Install multiple locales:
 
 ```bash
-opencli locale sr-sr tr-tr zh-cn
+opencli locale sr-rs tr-tr zh-cn
 ```
 
 Example: Install all available locales:

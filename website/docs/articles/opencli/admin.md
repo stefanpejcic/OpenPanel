@@ -59,11 +59,14 @@ Check if admin panel is enabled or disabled and display link on which the OpenAd
 opencli admin
 ```
 
-Example:
+<details>
+  <summary>Example output</summary>
+
 ```bash
 # opencli admin
-● OpenAdmin is running and is available on: https://server.openpanel.co:2087/
+● OpenAdmin is running and is available on: https://server.example.com:2087/
 ```
+</details>
 
 ### Enable / Disable OpenAdmin
 
@@ -75,11 +78,32 @@ To disable access to the OpenAdmin panel:
 opencli admin off
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin off
+Disabling the OpenAdmin...
+× OpenAdmin is disabled. To enable it run 'opencli admin on'
+```
+</details>
+
 To enable access to the OpenAdmin panel:
 
 ```bash
 opencli admin on
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin on
+Enabling the OpenAdmin...
+● OpenAdmin is running and is available on: https://server.example.com:2087/
+```
+</details>
+
 ### List Admin users
 
 To view all admin accounts:
@@ -88,6 +112,20 @@ To view all admin accounts:
 opencli admin list
 ```
 
+Each line shows the username, role (`admin`, `user` or `reseller`) and whether the account is active (`1`) or suspended (`0`).
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin list
+stefan|admin|1
+support|user|1
+reseller1|reseller|1
+olduser|user|0
+```
+</details>
+
 ### Create new Admin
 
 To create new admin accounts:
@@ -95,6 +133,15 @@ To create new admin accounts:
 ```bash
 opencli admin new <username> <password>
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin new support SuperStrong1
+Admin User 'support' created.
+```
+</details>
 
 
 ### Create new Reseller
@@ -105,6 +152,15 @@ To create new reseller accounts:
 opencli admin new <username> <password> --reseller
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin new reseller1 SuperStrong1 --reseller
+Reseller user 'reseller1' created.
+```
+</details>
+
 ### Create Super Admin
 
 To create the super admin account (the `admin` role). Only one super admin can exist:
@@ -112,6 +168,15 @@ To create the super admin account (the `admin` role). Only one super admin can e
 ```bash
 opencli admin new <username> <password> --super
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin new stefan SuperStrong1 --super
+Super Administrator 'stefan' created.
+```
+</details>
 
 ### Update Reseller
 
@@ -121,10 +186,15 @@ To set allowed plans, limits and logo for a reseller account. Only the flags tha
 opencli admin update <username> --allowed_plans=<id1,id2> --max_accounts=<NUMBER> --max_disk_blocks=<NUMBER> --logo_url=<URL>
 ```
 
-Example:
+
+<details>
+  <summary>Example output</summary>
+
 ```bash
-opencli admin update reseller1 --allowed_plans=1,2 --max_accounts=10
+# opencli admin update reseller1 --allowed_plans=1,2 --max_accounts=10
+Reseller reseller1 updated successfully.
 ```
+</details>
 
 ### Reset Admin Password
 
@@ -134,6 +204,23 @@ To reset the password for an admin user:
 opencli admin password <username> <new_password>
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin password stefan SuperStrong2
+Password for user 'stefan' changed.
+
+===============================================================
+● OpenAdmin is running and is available on: https://server.example.com:2087/
+
+- username: stefan
+- password: SuperStrong2
+
+===============================================================
+```
+</details>
+
 ### Rename Admin User
 
 To rename an existing admin user:
@@ -141,6 +228,15 @@ To rename an existing admin user:
 ```bash
 opencli admin rename <old_username> <new_username>
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin rename support helpdesk
+User 'support' renamed to 'helpdesk'.
+```
+</details>
 
 ### Suspend Admin User
 
@@ -150,6 +246,15 @@ To suspend an existing admin user:
 opencli admin suspend <username>
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin suspend helpdesk
+User 'helpdesk' suspended successfully.
+```
+</details>
+
 ### Unsuspend Admin User
 
 To unsuspend an existing admin user:
@@ -158,6 +263,15 @@ To unsuspend an existing admin user:
 opencli admin unsuspend <username>
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin unsuspend helpdesk
+User 'helpdesk' unsuspended successfully.
+```
+</details>
+
 ### Delete Admin User
 
 To delete an existing admin user:
@@ -165,6 +279,15 @@ To delete an existing admin user:
 ```bash
 opencli admin delete <username>
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin delete helpdesk
+User 'helpdesk' deleted successfully.
+```
+</details>
 
 :::info
 Note: User with 'admin' role can not be deleted.
@@ -186,12 +309,15 @@ The `get` parameter allows you to view current notification settings.
 opencli admin notifications get <OPTION>
 ```
 
-Example:
+
+<details>
+  <summary>Example output</summary>
 
 ```bash
 # opencli admin notifications get reboot
 yes
 ```
+</details>
 
 #### Update
 
@@ -202,11 +328,15 @@ The `update` parameter allows you to change the notification settings.
 opencli admin notifications update <OPTION> <NEW-VALUE>
 ```
 
-Example:
+
+<details>
+  <summary>Example output</summary>
+
 ```bash
-opencli admin notifications update load 10
+# opencli admin notifications update load 10
 Updated load to 10
 ```
+</details>
 
 #### Check
 
@@ -215,6 +345,45 @@ Run all checks now and write notifications (same as running `opencli sentinel`):
 ```bash
 opencli admin notifications check
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin notifications check
+--------------------------------------------------------------------------------
+  Sentinel - OpenPanel server health monitor
+--------------------------------------------------------------------------------
+Checking services:
+[✔] openpanel is active and responding.
+[✔] admin is active.
+[✔] caddy is active and responding.
+[✔] podman.socket is active.
+[✔] MariaDB container active and responding.
+[✔] csf is active.
+[✔] phpmyadmin container is active.
+[✔] No OOM errors detected.
+--------------------------------------------------------------------------------
+Checking traffic:
+[✔] No unusual traffic detected on web ports (80|443).
+--------------------------------------------------------------------------------
+Checking logins, resources, and DNS...
+[✔] No new logins to OpenAdmin.
+[✔] No active SSH sessions.
+[✔] Disk 41% < threshold 85%
+[✔] Load 0.42 < threshold 20.
+[✔] RAM 38% < threshold 85%
+[✔] CPU 7% < threshold 90%
+[✔] No SWAP configured.
+[✔] All nameservers resolve to local IPs.
+[✔] No dead user containers found (checked in 2s).
+--------------------------------------------------------------------------------
+All Tests Passed!
+--------------------------------------------------------------------------------
+18 PASS  0 WARN  0 FAIL
+--------------------------------------------------------------------------------
+```
+</details>
 
 #### Options
 
@@ -248,20 +417,53 @@ View the current OpenAdmin port:
 opencli admin port
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin port
+2087
+```
+</details>
+
 Change the OpenAdmin port (must be greater than 443). The port is opened in the firewall and OpenAdmin is restarted:
 
 ```bash
 opencli admin port <NUMBER>
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin port 8443
+Changing port to: 8443
+Opening port on firewall..
+Restarting OpenAdmin..
+Done
+```
+</details>
+
 Add `--no-restart` to skip opening the port in the firewall and restarting OpenAdmin:
 ```bash
 opencli admin port <NUMBER> --no-restart
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin port 8443 --no-restart
+Changing port to: 8443
+Make sure to open the new port on Firewall and restart OpenAdmin service to apply new port.
+Done
+```
+</details>
+
+
 ### View OpenAdmin logs
 
-To multitail [all OpenAdmin logs](/docs/admin/services/logs/):
+To view [all OpenAdmin logs](/docs/admin/services/logs/) live in split panes with `multitail` (press `q` to exit):
 
 ```bash
 opencli admin logs
@@ -273,6 +475,18 @@ To tail OpenAdmin error log:
 ```bash
 opencli admin log
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin log
+Restarting OpenAdmin service:
+tail -f 25 /var/log/openpanel/admin/error.log
+
+(last 25 lines of /var/log/openpanel/admin/error.log)
+```
+</details>
 
 
 

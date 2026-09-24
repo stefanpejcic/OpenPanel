@@ -31,6 +31,34 @@ You can also format the data as JSON:
 opencli plan-list --json
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli plan-list --json
+[
+  {
+    "id": "1",
+    "name": "Standard plan",
+    "description": "Small plan for testing",
+    "email_limit": "0",
+    "ftp_limit": "0",
+    "domains_limit": "0",
+    "websites_limit": "10",
+    "disk_limit": "5 GB",
+    "inodes_limit": "1000000",
+    "db_limit": "0",
+    "cpu": "2",
+    "ram": "2g",
+    "bandwidth": "10",
+    "feature_set": "basic",
+    "max_email_quota": "10G",
+    "max_hourly_email": "100"
+  }
+]
+```
+</details>
+
 ## Create Plan
 
 To create a new plan run the following command:
@@ -63,6 +91,15 @@ Example:
 opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G max_hourly_email=1000
 ```
 
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G max_hourly_email=1000
+Plan New Plan created successfully.
+```
+</details>
+
 ## List Users on Plan
 
 List all users that are currently using a plan:
@@ -91,6 +128,24 @@ You can also format the data as JSON:
 ```bash
 opencli plan-usage <PLAN_NAME> --json
 ```
+An empty array `[]` is returned when no users are on the plan.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli plan-usage 'Standard plan' --json
+[
+  {
+    "id": "3",
+    "username": "demo",
+    "email": "stefan@netops.com",
+    "plan_name": "Standard plan",
+    "registered_date": "2025-04-28 14:47:52"
+  }
+]
+```
+</details>
 
 
 ## Delete Plan
@@ -158,6 +213,40 @@ opencli plan-edit id=<ID> name="<TEXT>" description="<TEXT>" emails=<COUNT> ftp=
 
 ```bash
 # opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G" max_hourly_email=1000
++===================================+
+| PLAN ID: 1
++===================================+
+Old Plan Name:        Standard plan
+Old Disk Limit:       5 GB
+Old Inodes Limit:     1000000
+Old CPU:              2
+Old RAM:              2g
+Old Bandwidth:        10
+Old max_hourly_email: 100
+Old feature set:      basic
++===================================+
+New plan information:
+Name:                 New Plan
+Description:          This is a new plan
+Feature set:          default
+Disk limit:           100 GB
+Inodes limit:         100000
+CPU:                  4 cores
+RAM:                  8g
+Bandwidth:            100
+FTP accounts:         50
+Email accounts:       100
+Max email quota:      2G
+Max hourly email:     1000
+Total domains:        20
+Total websites:       30
+Total databases:      10
++===================================+
+...
+Plan ID 1 updated successfully. Applying new limits to 2 users on this plan..
+
+You can track progress using the command:
+tail -f /tmp/opencli_plan_apply_20260924_103000.log
 ```
 </details>
 
@@ -168,6 +257,26 @@ Editing a plan (above) does not by itself change the limits already applied to u
 ```bash
 opencli plan-apply <plan_id> <username1> <username2>... [--all] [--debug]
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli plan-apply 1 stefan
++=============================================================================+
+Processing user: stefan (1/1)
+
+- Tasks:      [OK]   Ceiling set to 400 tasks (derived from RAM; /home/stefan/TasksMax overrides).
+- Memory:     [OK]   total limit changed to 8GB.
+- CPU:        [OK]   total limit changed to 4 core(s).
+- Disk        [OK]   total limit changed to 104857600 blocks.
+- Inodes:     [OK]   total limit changed to 100000 inodes.
+- Emails      [OK]   max hourly emails for all domains limit changed to 1000.
+- Bandwidth:[WARN]   Bandwidth limiting is not implemented yet under podman.
++=============================================================================+
+Completed!
+```
+</details>
 
 Use `--all` instead of listing usernames to apply it to every user currently on that plan.
 
