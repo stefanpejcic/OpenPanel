@@ -19,6 +19,8 @@ OpenPanel tracks and notifies you of these events, grouped into categories:
 
 Each notification type can be individually disabled, and admins can set custom threshold limits.
 
+Under the page title, **Last check** shows when [`opencli sentinel`](/docs/articles/opencli/sentinel) last completed its checks (it runs from cron every 5 minutes). The line turns amber if Sentinel hasn't run in over 15 minutes, which usually means its cron job is disabled or failing.
+
 Click the bell icon next to the search box to pause email/webhook alerts for a set time (10 min up to 1 day) — see [Pause Notifications](/docs/admin/settings/notifications#pause-notifications).
 
 To manage notification settings, click the **Edit Settings** button on the Notifications page or navigate to: [Settings > Notifications](/docs/admin/settings/notifications).
