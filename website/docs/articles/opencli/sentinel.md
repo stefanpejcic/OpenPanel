@@ -47,6 +47,21 @@ All Tests Passed!
 ```
 </details>
 
+When a check passes again, Sentinel marks the matching UNREAD notifications for that issue as READ in OpenAdmin > Notifications, since they no longer need admin attention. For example, if the OpenPanel container was reported as not running and is running on the next check, the *OpenPanel container not running!* notifications are marked as read. This applies to service and container checks (including recovery after a restart), disk, load, RAM, CPU, SWAP, web traffic, domain and nameserver checks. Event notifications like new logins, SSH logins, OOM kills and reboots are left unread.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+Checking services:
+[✔] openpanel is active and responding.
+[✔] Issue resolved, marked notification as read: OpenPanel container not running!
+...
+```
+</details>
+
 ![sentinel openpanel cli](/img/docs-content/kg56D2x2-sentinel-openpaenl.png)
 
 Additional flags:
