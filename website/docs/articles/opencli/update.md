@@ -289,6 +289,204 @@ The template and every user in `/home/` are checked. Before changing a file, a b
 
 Running containers are not restarted. New mounts take effect the next time the user's PHP or OpenLiteSpeed service is restarted.
 
+## Service files
+
+These options download the latest files for a single service from [stefanpejcic/openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration) and overwrite the files in `/etc/openpanel/`. Files that exist only on your server are kept. Several options can be combined, the files are downloaded only once.
+
+### WP-CLI
+
+Update WP-CLI *(`/etc/openpanel/wordpress/wp-cli.phar`)*:
+```bash
+opencli update --wp
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --wp
+[INFO] Downloading configuration files from github
+[INFO] [✔] /etc/openpanel/wordpress/wp-cli.phar updated
+```
+</details>
+
+### OpenLiteSpeed
+
+Update OpenLiteSpeed files *(`/etc/openpanel/openlitespeed/` from [stefanpejcic/openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration/tree/main/openlitespeed))*:
+```bash
+opencli update --ols
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --ols
+[INFO] Downloading configuration files from github
+[INFO] [✔] /etc/openpanel/openlitespeed updated
+```
+</details>
+
+### Apache
+
+Update Apache files *(`/etc/openpanel/apache/` from [stefanpejcic/openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration/tree/main/apache))*:
+```bash
+opencli update --apache
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --apache
+[INFO] Downloading configuration files from github
+[INFO] [✔] /etc/openpanel/apache updated
+```
+</details>
+
+### ClamAV
+
+Update ClamAV files *(`/etc/openpanel/clamav/`)*. If the `clamav` container is running, it is also removed, its image is deleted, and the container is started again with a newly downloaded image:
+```bash
+opencli update --clamav
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --clamav
+[INFO] Downloading configuration files from github
+[INFO] [✔] /etc/openpanel/clamav updated
+[INFO] Removing clamav container
+[INFO] Deleting image docker.io/clamav/clamav:1.4
+[INFO] Downloading new clamav image
+[INFO] Starting clamav container
+[INFO] [✔] clamav container restarted with the new image
+```
+</details>
+
+If the container is not running, only the files are updated:
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --clamav
+[INFO] Downloading configuration files from github
+[INFO] [✔] /etc/openpanel/clamav updated
+[INFO] clamav container is not running, skipping image update
+```
+</details>
+
+### phpMyAdmin
+
+Update phpMyAdmin files *(`/etc/openpanel/mysql/phpmyadmin/`)*. If the `phpmyadmin` container is running, it is also removed, its image is deleted, and the container is started again with a newly downloaded image:
+```bash
+opencli update --phpmyadmin
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --phpmyadmin
+[INFO] Downloading configuration files from github
+[INFO] [✔] /etc/openpanel/mysql/phpmyadmin updated
+[INFO] Removing phpmyadmin container
+[INFO] Deleting image docker.io/library/phpmyadmin:latest
+[INFO] Downloading new phpmyadmin image
+[INFO] Starting phpmyadmin container
+[INFO] [✔] phpmyadmin container restarted with the new image
+```
+</details>
+
+### PostgreSQL
+
+Update PostgreSQL files *(`/etc/openpanel/postgres/` from [stefanpejcic/openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration/tree/main/postgres))*:
+```bash
+opencli update --postgres
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --postgres
+[INFO] Downloading configuration files from github
+[INFO] [✔] /etc/openpanel/postgres updated
+```
+</details>
+
+### Skeleton
+
+Update the files copied to new user accounts *(`/etc/openpanel/skeleton/` from [stefanpejcic/openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration/tree/main/skeleton))*:
+```bash
+opencli update --skeleton
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --skeleton
+[INFO] Downloading configuration files from github
+[INFO] [✔] /etc/openpanel/skeleton updated
+```
+</details>
+
+### SSH
+
+Update SSH files *(`/etc/openpanel/ssh/` from [stefanpejcic/openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration/tree/main/ssh))*:
+```bash
+opencli update --ssh
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --ssh
+[INFO] Downloading configuration files from github
+[INFO] [✔] /etc/openpanel/ssh updated
+```
+</details>
+
+### Varnish
+
+Update Varnish files *(`/etc/openpanel/varnish/` from [stefanpejcic/openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration/tree/main/varnish))*:
+```bash
+opencli update --varnish
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --varnish
+[INFO] Downloading configuration files from github
+[INFO] [✔] /etc/openpanel/varnish updated
+```
+</details>
+
+### Cron
+
+Update the OpenPanel cron jobs *(`/etc/openpanel/cron`)* and install them to `/etc/cron.d/openpanel`:
+```bash
+opencli update --cron
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --cron
+[INFO] Downloading configuration files from github
+[INFO] [✔] /etc/openpanel/cron updated
+[INFO] [✔] /etc/cron.d/openpanel updated
+```
+</details>
+
 ## Combining options
 
 Several options can be combined. They run in the order given:
