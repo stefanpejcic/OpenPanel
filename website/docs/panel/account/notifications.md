@@ -19,7 +19,7 @@ Changes made through the [OpenPanel API](/docs/panel/api/) do send the same emai
 
 ## Security alerts
 
-Every security email shows when the change was made, the IP address, the country with its flag, the browser and operating system, and what to do if it wasn't you.
+Emails about changes to the account (logins, password, email address, 2FA, passkeys and API tokens) show when the change was made, the IP address, the country with its flag, the browser and operating system, and what to do if it wasn't you.
 
 ### New login
 
@@ -94,6 +94,19 @@ Sends an email when a token for the [AI Assistant (MCP)](/docs/panel/account/mcp
 
 ![New API token email with the token name Claude Desktop, read-only access that expires in 30 days, the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-api-token.png)
 
+### SSL certificate problem
+
+Checks the SSL certificate of every domain that points to this server once a day, and sends an email when:
+- an AutoSSL certificate has 7 days or less left. AutoSSL certificates are renewed about 30 days before they expire, so this means renewal is failing. The email includes the last error from the web server, for example a DNS record pointing elsewhere.
+- any certificate, AutoSSL or custom, has 1 day or less left.
+
+Each alert is sent once per certificate, and all affected domains of the account are listed in one email. Domains that don't point to this server are skipped.
+
+![SSL certificate problem card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-ssl.png#gh-light-mode-only)
+![SSL certificate problem card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-ssl_dark.png#gh-dark-mode-only)
+
+![SSL certificate problem email listing an AutoSSL certificate that fails to renew with the error, and a custom certificate that expires in less than a day](/img/openpanel-screenshots/account/notifications-email-ssl.png)
+
 ### Malware found
 
 Sends an email when the scheduled malware scan finds infected files and moves them to quarantine. The email lists up to 20 files with the malware signature found in each, and points to the **Malware Scanner > Quarantine** page to delete or restore them.
@@ -107,7 +120,7 @@ Scans you start yourself from the Malware Scanner page don't send an email, sinc
 
 ### Email me if this alert gets turned off
 
-Every security alert except **Malware found** has this option, and it's on by default. When it's on and someone turns the alert itself off, an email is sent listing the alerts that were turned off. This way nobody can quietly turn off your login or password alerts before doing something with your account.
+Every security alert except **SSL certificate problem** and **Malware found** has this option, and it's on by default. When it's on and someone turns the alert itself off, an email is sent listing the alerts that were turned off. This way nobody can quietly turn off your login or password alerts before doing something with your account.
 
 To really stop an alert, turn off this option first, save, and then turn off the alert.
 

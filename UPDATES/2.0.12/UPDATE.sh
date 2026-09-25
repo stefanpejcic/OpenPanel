@@ -28,6 +28,12 @@ if [ -f "$CRON_FILE" ] && ! grep -q "opencli email-ratelimit --notify" "$CRON_FI
     echo '*/30 * * * * root /usr/local/bin/opencli email-ratelimit --notify && echo "$(date) Checked for users that reached the hourly email limit" >> /var/log/openpanel/admin/cron.log' >> "$CRON_FILE"
 fi
 
+# emails users about SSL certificates that expire soon or fail to renew, new in 2.0.12
+if [ -f "$CRON_FILE" ] && ! grep -q "opencli domains-ssl --notify" "$CRON_FILE"; then
+    echo "Adding daily SSL certificate check to $CRON_FILE..."
+    echo '15 6 * * * root /usr/local/bin/opencli domains-ssl --notify && echo "$(date) Checked SSL certificates that expire soon or fail to renew" >> /var/log/openpanel/admin/cron.log' >> "$CRON_FILE"
+fi
+
 # new notification options in 2.0.12, added with their default so the Account > Notifications page and opencli agree
 NEW_NOTIFICATION_KEYS=(
     notify_passkey_change=1
@@ -37,6 +43,7 @@ NEW_NOTIFICATION_KEYS=(
     notify_malware_found=1
     notify_email_ratelimit=1
     notify_service_failed=1
+    notify_ssl_expiry=1
 )
 for prefs in /etc/openpanel/openpanel/core/users/*/notifications.yaml; do
     [ -f "$prefs" ] || continue

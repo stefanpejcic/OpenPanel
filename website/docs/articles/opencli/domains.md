@@ -367,6 +367,26 @@ Updated example.com to use AutoSSL.
 ```
 </details>
 
+Email users about SSL certificates that need attention:
+```bash
+opencli domains-ssl --notify
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-ssl --notify
+stefan: notified about 2 certificate(s).
+```
+</details>
+
+It checks every domain that points to this server and emails its owner, if they have [SSL certificate problem](/docs/panel/account/notifications/#ssl-certificate-problem) turned on, when:
+- an AutoSSL certificate has 7 days or less left, which means renewal is failing, since certificates are renewed about 30 days before they expire. The email includes the last error from the Caddy logs.
+- any certificate, AutoSSL or custom, has 1 day or less left.
+
+Each alert is sent once per certificate. It runs daily from cron.
+
 ## Docroot
 
 View and change docroot for a domain.

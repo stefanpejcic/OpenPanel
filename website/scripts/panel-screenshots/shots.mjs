@@ -475,6 +475,7 @@ export const pages = {
       { name: 'contact-email', alt: 'Contact email changed card with the Email me switch and the option to get an email if this alert gets turned off', prepare: markCard('Contact email changed'), crop: { from: '[data-shot=card]', pad: 12 } },
       { name: 'passkey', alt: 'Passkey added or removed card with the Email me switch and the option to get an email if this alert gets turned off', prepare: markCard('Passkey added or removed'), crop: { from: '[data-shot=card]', pad: 12 } },
       { name: 'api-token', alt: 'API token created or revoked card with the Email me switch and the option to get an email if this alert gets turned off', prepare: markCard('API token created or revoked'), crop: { from: '[data-shot=card]', pad: 12 } },
+      { name: 'ssl', alt: 'SSL certificate problem card with the Email me switch and a Learn more link', prepare: markCard('SSL certificate problem'), crop: { from: '[data-shot=card]', pad: 12 } },
       { name: 'malware', alt: 'Malware found card with the Email me switch and a Learn more link', prepare: markCard('Malware found'), crop: { from: '[data-shot=card]', pad: 12 } },
       { name: 'ratelimit', alt: 'Hourly email limit reached card with the Email me switch and a Learn more link', prepare: markCard('Hourly email limit reached'), crop: { from: '[data-shot=card]', pad: 12 } },
       { name: 'service', alt: 'Service stopped card with the Email me switch and a Learn more link', prepare: markCard('Service stopped'), crop: { from: '[data-shot=card]', pad: 12 } },

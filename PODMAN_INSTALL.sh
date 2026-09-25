@@ -671,6 +671,26 @@ setup_compose() {
     }
 
     sed -i "s|MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=${root_pw}|" /root/.env
+
+    # autoscale container limits based on server resources, min 1 core / 1g, max 6 cores / 8g
+    local total_cpus total_ram_gb cpus ram name div name_div
+    total_cpus=$(nproc)
+    total_ram_gb=$(awk '/MemTotal/{printf "%.0f", $2/1024/1024}' /proc/meminfo)
+    for name_div in OPENPANEL:2 CADDY:3; do
+        name=${name_div%:*}; div=${name_div#*:}
+        cpus=$(( total_cpus / div )); ram=$(( total_ram_gb / div ))
+        (( cpus < 1 )) && cpus=1; (( cpus > 6 )) && cpus=6
+        (( ram < 1 ))  && ram=1;  (( ram > 8 ))  && ram=8
+        sed -i "s/^${name}_CPUS=.*/${name}_CPUS=\"${cpus}.0\"/" /root/.env
+        sed -i "s/^${name}_RAM=.*/${name}_RAM=\"${ram}g\"/" /root/.env
+    done
+    if (( total_cpus >= 4 && total_ram_gb >= 6 )); then
+        for name in REDIS MYSQL; do
+            sed -i "s/^${name}_CPUS=.*/${name}_CPUS=\"1.0\"/" /root/.env
+            sed -i "s/^${name}_RAM=.*/${name}_RAM=\"1g\"/" /root/.env
+        done
+    fi
+
     ln -s "${ETC_DIR}mysql/host_my.cnf" "$mysql_cnf"
     sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/host_my.cnf"
     sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/container_my.cnf"

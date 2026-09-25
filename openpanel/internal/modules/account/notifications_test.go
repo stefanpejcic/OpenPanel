@@ -5,8 +5,8 @@ import "testing"
 func TestBuildNotificationCards(t *testing.T) {
 	prefs := []NotificationPref{{Key: "notify_account_login", Value: "1"}, {Key: "notify_account_login_for_known_netblock", Value: "0"}}
 	cards := buildNotificationCards(prefs)
-	if len(cards) != 11 {
-		t.Fatalf("got %d cards, want 11", len(cards))
+	if len(cards) != 12 {
+		t.Fatalf("got %d cards, want 12", len(cards))
 	}
 	if !cards[0].On || len(cards[0].Subs) != 2 || cards[0].Subs[0].On {
 		t.Errorf("login card wrong: %+v", cards[0])
@@ -17,7 +17,7 @@ func TestBuildNotificationCards(t *testing.T) {
 }
 
 func TestNotificationDefault(t *testing.T) {
-	cases := map[string]int{"notify_account_login": 1, "notify_account_login_for_known_netblock": 0, "notify_username_change": 1, "notify_ssl_expiry": 0}
+	cases := map[string]int{"notify_account_login": 1, "notify_account_login_for_known_netblock": 0, "notify_username_change": 1, "notify_autossl_expiry": 0}
 	for key, want := range cases {
 		if got := notificationDefault(key); got != want {
 			t.Errorf("%s: got %d want %d", key, got, want)

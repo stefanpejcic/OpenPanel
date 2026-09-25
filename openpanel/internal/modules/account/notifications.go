@@ -43,6 +43,7 @@ var notificationDefs = []notificationDef{
 	{Key: "notify_passkey_change_notification_disabled", Default: "1", Title: "Email me if this alert gets turned off", Parent: "notify_passkey_change"},
 	{Key: "notify_api_token_change", Default: "1", Title: "API token created or revoked", Description: "Get an email when an AI Assistant (MCP) token is created or revoked for your account.", Group: "Security", Anchor: "api-token-created-or-revoked"},
 	{Key: "notify_api_token_change_notification_disabled", Default: "1", Title: "Email me if this alert gets turned off", Parent: "notify_api_token_change"},
+	{Key: "notify_ssl_expiry", Default: "1", Title: "SSL certificate problem", Description: "Get an email when an SSL certificate fails to renew or is about to expire, before visitors see a security warning.", Group: "Security", Anchor: "ssl-certificate-problem"},
 	{Key: "notify_malware_found", Default: "1", Title: "Malware found", Description: "Get an email when the scheduled malware scan finds infected files and moves them to quarantine.", Group: "Security", Anchor: "malware-found"},
 	{Key: "notify_disk_limit", Default: "1", Title: "Disk space running out", Description: "Get an email when your account uses 85% of its disk space or 95% of its inodes.", Group: "Usage", Anchor: "disk-space-running-out"},
 	{Key: "notify_email_quota_limit", Default: "1", Title: "Mailbox almost full", Description: "Get an email when one of your email accounts uses 90% of its quota.", Group: "Usage", Anchor: "mailbox-almost-full"},
