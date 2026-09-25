@@ -31,3 +31,7 @@ A **history** of recently removed extensions is kept per PHP version, so you can
 :::info
 On OpenLiteSpeed accounts, extensions are managed the LiteSpeed way and the available list may differ slightly from the Nginx/Apache/OpenResty extensions table.
 :::
+
+:::info
+**ionCube Loader** is provided by OpenPanel for every PHP version it supports (all except PHP 8.0). It's listed with *Provided by OpenPanel* and shows whether it's loaded, but it can't be installed, enabled or disabled from this page.
+:::

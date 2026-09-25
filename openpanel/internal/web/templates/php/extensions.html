@@ -63,6 +63,9 @@
                             {{end}}
                         </td>
                         <td class="whitespace-nowrap p-4 text-sm">
+                            {{if .Managed}}
+                            <span class="text-xs text-gray-500 dark:text-gray-400" title="{{$.T.Get "Mounted into the PHP service by OpenPanel, it can't be installed or disabled here."}}">{{$.T.Get "Provided by OpenPanel"}}</span>
+                            {{else}}
                             <form method="post" class="inline">
                                 <input type="hidden" name="csrf_token" value="{{$csrf}}"/>
                                 <input type="hidden" name="extension" value="{{.Name}}"/>
@@ -71,6 +74,7 @@
                                     {{if eq .State "active"}}{{$.T.Get "Disable"}}{{else}}{{$.T.Get "Enable"}}{{end}}
                                 </button>
                             </form>
+                            {{end}}
                         </td>
                     </tr>
                     {{end}}

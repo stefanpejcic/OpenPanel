@@ -502,6 +502,51 @@ var extensionNameRE = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 type ExtensionRow struct {
 	Name  string `json:"name"`
 	State string `json:"state"` // "active" | "disabled" | "not_installed"
+	// Managed extensions are mounted by OpenPanel itself and can't be installed or toggled from this page
+	Managed bool `json:"managed,omitempty"`
+}
+
+// ioncubeExtension is mounted into the PHP containers by OpenPanel (compose volumes), never installed with phpaddmod
+const ioncubeExtension = "ioncube_loader"
+
+// ioncubeProvided reports whether the compose service for this PHP container mounts the ionCube loader
+func ioncubeProvided(userContext, service string) bool {
+	composeData, err := docker.LoadCompose(userContext)
+	if err != nil {
+		return false
+	}
+	services, _ := composeData["services"].(map[string]any)
+	svc, _ := services[service].(map[string]any)
+	vols, _ := svc["volumes"].([]any)
+	for _, v := range vols {
+		if str, ok := v.(string); ok && strings.Contains(str, "ioncube") {
+			return true
+		}
+	}
+	return false
+}
+
+// ioncubeLoaded looks for ionCube in `php -m`, where it's listed as "ionCube Loader"
+func ioncubeLoaded(active map[string]bool) bool {
+	return active["ioncube loader"] || active[ioncubeExtension]
+}
+
+// withIoncube marks the ionCube row as managed, and adds it when the catalog doesn't list it for this version
+func withIoncube(rows []ExtensionRow, provided, loaded bool) []ExtensionRow {
+	if !provided {
+		return rows
+	}
+	state := "disabled"
+	if loaded {
+		state = "active"
+	}
+	for i := range rows {
+		if strings.EqualFold(rows[i].Name, ioncubeExtension) {
+			rows[i].State, rows[i].Managed = state, true
+			return rows
+		}
+	}
+	return append(rows, ExtensionRow{Name: ioncubeExtension, State: state, Managed: true})
 }
 
 // phpExtensionsService resolves which container PHP extension management for "version" acts on: "php-fpm-<version>" normally, or the single LiteSpeed/OpenLiteSpeed webserver container when that's this account's webserver
@@ -551,6 +596,10 @@ func handlePHPExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			flashAndRedirect(a, w, r, "error", "Invalid extension name.", "/php/php"+version+"/extensions")
 			return
 		}
+		if strings.EqualFold(extension, ioncubeExtension) {
+			flashAndRedirect(a, w, r, "error", "ionCube Loader is provided by OpenPanel and can't be enabled or disabled here.", "/php/php"+version+"/extensions")
+			return
+		}
 
 		var ok bool
 		var errMsg string
@@ -578,6 +627,11 @@ func handlePHPExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	var extensions []ExtensionRow
 	if isLitespeed {
 		extensions = litespeedExtensionRows(ctx, userContext, service, version)
+		for i := range extensions {
+			if strings.EqualFold(extensions[i].Name, ioncubeExtension) {
+				extensions[i].Managed = true
+			}
+		}
 	} else {
 		active, disabled := getActiveAndDisabledExtensions(ctx, userContext, service)
 		supportedNames := extensionsSupportedForVersion(ctx, version)
@@ -590,8 +644,12 @@ func handlePHPExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			} else if disabled[lname] {
 				state = "disabled"
 			}
+			if lname == ioncubeExtension {
+				continue
+			}
 			extensions = append(extensions, ExtensionRow{Name: name, State: state})
 		}
+		extensions = withIoncube(extensions, ioncubeProvided(userContext, service), ioncubeLoaded(active))
 	}
 
 	if r.URL.Query().Get("output") == "json" {
@@ -641,6 +699,9 @@ func handlePHPAvailableExtensions(a *appctx.App, w http.ResponseWriter, r *http.
 		installed := getLitespeedInstalledPackages(ctx, userContext, service, version)
 		extensions = make([]availableExt, 0, len(supportedNames))
 		for _, name := range supportedNames {
+			if strings.EqualFold(name, ioncubeExtension) {
+				continue
+			}
 			extensions = append(extensions, availableExt{Name: name, Installed: installed[strings.ToLower(name)]})
 		}
 	} else {
@@ -649,6 +710,9 @@ func handlePHPAvailableExtensions(a *appctx.App, w http.ResponseWriter, r *http.
 		extensions = make([]availableExt, 0, len(supportedNames))
 		for _, name := range supportedNames {
 			lname := strings.ToLower(name)
+			if lname == ioncubeExtension {
+				continue
+			}
 			extensions = append(extensions, availableExt{Name: name, Installed: active[lname] || disabled[lname]})
 		}
 		if info, statErr := os.Stat(extensionsTableFile); statErr == nil {
@@ -710,7 +774,7 @@ func handlePHPInstallExtensions(a *appctx.App, w http.ResponseWriter, r *http.Re
 	var extensions []string
 	for _, e := range raw {
 		e = strings.TrimSpace(e)
-		if extensionNameRE.MatchString(e) {
+		if extensionNameRE.MatchString(e) && !strings.EqualFold(e, ioncubeExtension) {
 			extensions = append(extensions, e)
 		}
 	}

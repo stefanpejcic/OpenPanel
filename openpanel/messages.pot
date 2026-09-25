@@ -14104,3 +14104,11 @@ msgstr ""
 #: templates/php/default.html
 msgid "as default"
 msgstr ""
+
+#: templates/php/extensions.html
+msgid "Provided by OpenPanel"
+msgstr ""
+
+#: templates/php/extensions.html
+msgid "Mounted into the PHP service by OpenPanel, it can't be installed or disabled here."
+msgstr ""

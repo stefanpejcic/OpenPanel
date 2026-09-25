@@ -262,3 +262,37 @@ func TestRenderPHPMyAdminUnavailablePage(t *testing.T) {
 		t.Error("expected error message in body")
 	}
 }
+
+func TestWithIoncube(t *testing.T) {
+	rows := []ExtensionRow{{Name: "apcu", State: "active"}}
+	if got := withIoncube(rows, false, true); len(got) != 1 {
+		t.Errorf("not provided by compose, nothing should be added: %+v", got)
+	}
+	got := withIoncube(rows, true, true)
+	if len(got) != 2 || got[1] != (ExtensionRow{Name: "ioncube_loader", State: "active", Managed: true}) {
+		t.Errorf("got %+v", got)
+	}
+	if got := withIoncube([]ExtensionRow{{Name: "ioncube_loader", State: "not_installed"}}, true, false); got[0].State != "disabled" || !got[0].Managed {
+		t.Errorf("provided but not loaded should show as disabled, got %+v", got)
+	}
+	if !ioncubeLoaded(map[string]bool{"ioncube loader": true}) || ioncubeLoaded(map[string]bool{"apcu": true}) {
+		t.Error("ionCube should be detected by its php -m name")
+	}
+}
+
+func TestRenderExtensionsManagedRow(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := PHPExtensionsPageData{LayoutData: baseLayout(mgr, "/php/php8.4/extensions"), Version: "8.4",
+		Extensions: []ExtensionRow{{Name: "apcu", State: "active"}, {Name: "ioncube_loader", State: "active", Managed: true}}}
+	w := httptest.NewRecorder()
+	if err := extensionsPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "Provided by OpenPanel") || strings.Contains(body, `name="extension" value="ioncube_loader"`) {
+		t.Error("ionCube row should say Provided by OpenPanel and have no toggle form")
+	}
+	if !strings.Contains(body, `name="extension" value="apcu"`) {
+		t.Error("normal extensions keep their toggle")
+	}
+}
