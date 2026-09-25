@@ -152,7 +152,7 @@
         {{else}}
         <tr>
             <td colspan="2" class="p-6 text-center">
-                {{.StatusDetail}}
+                {{$.T.Get .StatusDetail}}
                 <br>
                 <span id="refresh-message"></span>
             </td>
@@ -161,7 +161,7 @@
     {{else}}
         <tr>
             <td colspan="2" class="p-6 text-center">
-                {{.StatusDetail}}
+                {{$.T.Get .StatusDetail}}
                 <br>
                 <span id="refresh-message"></span>
             </td>

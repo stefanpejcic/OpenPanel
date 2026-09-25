@@ -71,7 +71,7 @@
 
         <!-- START errors -->
         {{$message := .ErrorMessage}}
-        {{with .FirstFlash}}{{$message = .Text}}{{end}}
+        {{with .FirstFlash}}{{$message = $.T.Get .Text}}{{end}}
 
         {{if $message}}
         <div class="mt-6 flex items-center space-x-2.5 rounded bg-red-50 p-4 dark:bg-red-500/10">
