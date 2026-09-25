@@ -14028,3 +14028,7 @@ msgstr ""
 #: templates/partials/_db_tuning.html
 msgid "PHP workers:"
 msgstr ""
+
+#: templates/php/options.html
+msgid "Not set (PHP default)"
+msgstr ""

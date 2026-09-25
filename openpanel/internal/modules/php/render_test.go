@@ -145,6 +145,7 @@ func TestRenderPHPOptionsPage(t *testing.T) {
 			Fields: []OptionField{
 				{Key: "display_errors", Kind: "checkbox_binary", Value: "1", Checked: true},
 				{Key: "post_max_size", Kind: "unit", Value: "256M", NumberPart: "256", UnitPart: "M"},
+				buildOptionField("date.timezone", "", []string{"Africa/Abidjan", "Europe/Belgrade"}),
 			},
 		}
 		w := httptest.NewRecorder()
@@ -160,7 +161,10 @@ func TestRenderPHPOptionsPage(t *testing.T) {
 				t.Errorf("expected %q in body", want)
 			}
 		}
-		if n := strings.Count(body, "review(&#34;"); n != 2 {
+		if !strings.Contains(body, `<option value="" selected>`) || strings.Contains(body, `value="Africa/Abidjan" selected`) {
+			t.Error("an unset timezone should select the empty option, not the first zone")
+		}
+		if n := strings.Count(body, "review(&#34;"); n != 3 {
 			t.Errorf("expected an optimize button per option, got %d", n)
 		}
 	})

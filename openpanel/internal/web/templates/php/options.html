@@ -56,6 +56,7 @@
                             <input type="hidden" name="{{.Key}}" value="0" />
                         {{else if eq .Kind "timezone"}}
                             <select id="{{.Key}}" name="{{.Key}}" class="bgroup/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2">
+                                <option value="" {{if not .Value}}selected{{end}}>{{$.T.Get "Not set (PHP default)"}}</option>
                                 {{range .Timezones}}
                                     <option value="{{.Name}}" {{if .Selected}}selected{{end}}>{{.Name}}</option>
                                 {{end}}
