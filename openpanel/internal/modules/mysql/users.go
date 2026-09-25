@@ -1,7 +1,6 @@
 package mysql
 
 import (
-	"fmt"
 	"net/http"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -10,6 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleDatabasesUsers lists MySQL users for this account.
@@ -37,14 +37,14 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 		rows, execErr := mysqlmanager.Exec(ctx, userContext, query, "")
 		if execErr != nil {
-			flashSess(a, w, r, "error", "Error fetching users: "+execErr.Error())
+			flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching users: %(error)s", "error", execErr.Error()))
 		} else {
 			for _, row := range rows {
 				usersOutput = append(usersOutput, toStringCell(row[0]))
 			}
 		}
 	} else {
-		flashSess(a, w, r, "warning", mysqlWarningFlashMessage(mysqlVersion, status.State, status.Health))
+		flashSess(a, w, r, "warning", web.Tr(a, r, mysqlWarningFlashMessage(mysqlVersion, status.State, status.Health), "service", mysqlVersion, "state", status.State))
 	}
 
 	if r.URL.Query().Get("output") == "json" {
@@ -82,7 +82,7 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			flashAndRedirect(a, w, r, "error", "User name is required.", "/mysql/user")
 			return
 		case !validators.IsValidIdentifier(dbUser):
-			flashAndRedirect(a, w, r, "error", fmt.Sprintf("Name %s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", dbUser), "/mysql/user")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/mysql/user")
 			return
 		case isRestrictedUser(dbUser):
 			flashAndRedirect(a, w, r, "error", "This username is not allowed.", "/mysql/user")
@@ -102,7 +102,7 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			invalidateDatabasesInfo(ctx, a, userContext)
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "created a MySQL database user "+dbUser, ipAddress)
-			flashSess(a, w, r, "success", "Successfully created a database user "+dbUser)
+			flashSess(a, w, r, "success", web.Tr(a, r, "Successfully created a database user %(db_user)s", "db_user", dbUser))
 		}
 	}
 
@@ -146,7 +146,7 @@ func handleDeleteDBUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		flashAndRedirect(a, w, r, "error", "User name is required.", "/delete_db_user")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		flashAndRedirect(a, w, r, "error", fmt.Sprintf("Name %s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", dbUser), "/delete_db_user")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/delete_db_user")
 		return
 	case isRestrictedUser(dbUser):
 		flashAndRedirect(a, w, r, "error", "This is a system username that can not be deleted.", "/mysql/users")
@@ -157,14 +157,14 @@ func handleDeleteDBUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "DROP USER IF EXISTS '"+dbUser+"'@'"+dbHost+"'", ""); execErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error deleting user: "+execErr.Error(), "/mysql/users")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting user: %(error)s", "error", execErr.Error()), "/mysql/users")
 		return
 	}
 	invalidateDatabasesInfo(ctx, a, userContext)
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted a MySQL database user "+dbUser, ipAddress)
-	flashSess(a, w, r, "success", "Successfully deleted user "+dbUser)
+	flashSess(a, w, r, "success", web.Tr(a, r, "Successfully deleted user %(db_user)s", "db_user", dbUser))
 	http.Redirect(w, r, "/mysql/users", http.StatusFound)
 }
 
@@ -190,7 +190,7 @@ func handleChangeMySQLUserPassword(a *appctx.App, w http.ResponseWriter, r *http
 		flashAndRedirect(a, w, r, "error", "User name is required.", "/mysql/change_user_password")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		flashAndRedirect(a, w, r, "error", fmt.Sprintf("Name %s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", dbUser), "/mysql/change_user_password")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/mysql/change_user_password")
 		return
 	case isRestrictedUser(dbUser):
 		flashAndRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/mysql/users")
@@ -205,13 +205,13 @@ func handleChangeMySQLUserPassword(a *appctx.App, w http.ResponseWriter, r *http
 
 	escapedPassword := escapeMySQLString(newPassword)
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "ALTER USER '"+dbUser+"'@'"+dbHost+"' IDENTIFIED BY '"+escapedPassword+"'", ""); execErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error changing password: "+execErr.Error(), "/mysql/users")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error changing password: %(error)s", "error", execErr.Error()), "/mysql/users")
 		return
 	}
 	mysqlmanager.InvalidatePool(userContext)
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "changed password for MySQL database user "+dbUser, ipAddress)
-	flashSess(a, w, r, "success", "Successfully changed password for user "+dbUser)
+	flashSess(a, w, r, "success", web.Tr(a, r, "Successfully changed password for user %(db_user)s", "db_user", dbUser))
 	http.Redirect(w, r, "/mysql/users", http.StatusFound)
 }

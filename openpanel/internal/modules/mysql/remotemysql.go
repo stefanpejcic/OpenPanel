@@ -13,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var (
@@ -87,16 +88,16 @@ func handleRemoteMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				portChanged = true
 			}
 		}
-    if portChanged {
-        realServiceName, _ := docker.GetEnvValue(userContext, "MYSQL_TYPE") // "sql" -> "mariadb"/"mysql"
-        result := docker.RestartContainer(ctx, userContext, realServiceName)
-        if !result.Success {
-            flashSess(a, w, r, "error", "Port changed but the MySQL service failed to restart. Try restarting it manually from Services.")
-        }
-    } else {
-        docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
-    }
-}
+		if portChanged {
+			realServiceName, _ := docker.GetEnvValue(userContext, "MYSQL_TYPE") // "sql" -> "mariadb"/"mysql"
+			result := docker.RestartContainer(ctx, userContext, realServiceName)
+			if !result.Success {
+				flashSess(a, w, r, "error", "Port changed but the MySQL service failed to restart. Try restarting it manually from Services.")
+			}
+		} else {
+			docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
+		}
+	}
 
 	mysqlRemotePortOriginal = webserver.GetEnvFileValue(userContext, "MYSQL_PORT")
 	remoteMySQLDisplay := "ON"
@@ -168,7 +169,7 @@ func handleRemoteMySQLAccessAdd(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 	existing, execErr := mysqlmanager.Exec(ctx, userContext, "SELECT Host FROM mysql.user WHERE User = '"+dbUser+"'", "")
 	if execErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error adding access: "+execErr.Error(), "/mysql/remote-mysql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error adding access: %(error)s", "error", execErr.Error()), "/mysql/remote-mysql")
 		return
 	}
 	existingHosts := make([]string, 0, len(existing))
@@ -177,26 +178,26 @@ func handleRemoteMySQLAccessAdd(a *appctx.App, w http.ResponseWriter, r *http.Re
 	}
 	for _, h := range existingHosts {
 		if h == dbHost {
-			flashAndRedirect(a, w, r, "error", "User "+dbUser+" already has access from host "+dbHost+".", "/mysql/remote-mysql")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "User %(db_user)s already has access from host %(db_host)s.", "db_user", dbUser, "db_host", dbHost), "/mysql/remote-mysql")
 			return
 		}
 	}
 
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "CREATE USER '"+dbUser+"'@'"+dbHost+"' IDENTIFIED BY '"+escapedPassword+"'", ""); execErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error adding access: "+execErr.Error(), "/mysql/remote-mysql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error adding access: %(error)s", "error", execErr.Error()), "/mysql/remote-mysql")
 		return
 	}
 	if len(existingHosts) > 0 {
 		cloneMySQLGrants(ctx, userContext, dbUser, existingHosts[0], dbHost)
 	}
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "FLUSH PRIVILEGES", ""); execErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error adding access: "+execErr.Error(), "/mysql/remote-mysql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error adding access: %(error)s", "error", execErr.Error()), "/mysql/remote-mysql")
 		return
 	}
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "granted MySQL remote access for user "+dbUser+" from host "+dbHost, ipAddress)
-	flashSess(a, w, r, "success", "Successfully granted access for "+dbUser+" from "+dbHost)
+	flashSess(a, w, r, "success", web.Tr(a, r, "Successfully granted access for %(db_user)s from %(db_host)s", "db_user", dbUser, "db_host", dbHost))
 	http.Redirect(w, r, "/mysql/remote-mysql", http.StatusFound)
 }
 
@@ -229,17 +230,17 @@ func handleRemoteMySQLAccessEdit(a *appctx.App, w http.ResponseWriter, r *http.R
 	}
 
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "RENAME USER '"+dbUser+"'@'"+oldHost+"' TO '"+dbUser+"'@'"+newHost+"'", ""); execErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error updating access: "+execErr.Error(), "/mysql/remote-mysql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error updating access: %(error)s", "error", execErr.Error()), "/mysql/remote-mysql")
 		return
 	}
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "FLUSH PRIVILEGES", ""); execErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error updating access: "+execErr.Error(), "/mysql/remote-mysql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error updating access: %(error)s", "error", execErr.Error()), "/mysql/remote-mysql")
 		return
 	}
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "changed MySQL remote access host for user "+dbUser+" from "+oldHost+" to "+newHost, ipAddress)
-	flashSess(a, w, r, "success", "Successfully updated access for "+dbUser)
+	flashSess(a, w, r, "success", web.Tr(a, r, "Successfully updated access for %(db_user)s", "db_user", dbUser))
 	http.Redirect(w, r, "/mysql/remote-mysql", http.StatusFound)
 }
 
@@ -268,16 +269,16 @@ func handleRemoteMySQLAccessDelete(a *appctx.App, w http.ResponseWriter, r *http
 	}
 
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "DROP USER IF EXISTS '"+dbUser+"'@'"+dbHost+"'", ""); execErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error removing access: "+execErr.Error(), "/mysql/remote-mysql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error removing access: %(error)s", "error", execErr.Error()), "/mysql/remote-mysql")
 		return
 	}
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "FLUSH PRIVILEGES", ""); execErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error removing access: "+execErr.Error(), "/mysql/remote-mysql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error removing access: %(error)s", "error", execErr.Error()), "/mysql/remote-mysql")
 		return
 	}
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "removed MySQL remote access for user "+dbUser+" from host "+dbHost, ipAddress)
-	flashSess(a, w, r, "success", "Successfully removed access for "+dbUser+" from "+dbHost)
+	flashSess(a, w, r, "success", web.Tr(a, r, "Successfully removed access for %(db_user)s from %(db_host)s", "db_user", dbUser, "db_host", dbHost))
 	http.Redirect(w, r, "/mysql/remote-mysql", http.StatusFound)
 }

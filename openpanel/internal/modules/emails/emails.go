@@ -26,6 +26,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // emailRegex mirrors EMAIL_REGEX.
@@ -345,7 +346,7 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if len(missing) > 0 {
 			sess, _ := a.Sessions.Get(r, session.CookieName)
 			for _, field := range missing {
-				flash.Add(sess, "error", "Error: "+field+" not provided.")
+				flash.Add(sess, "error", web.Tr(a, r, "Error: %(field)s not provided.", "field", field))
 			}
 			_ = a.Sessions.Save(r, w, sess)
 			http.Redirect(w, r, "/emails/new", http.StatusFound)
@@ -392,7 +393,7 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				if msg == "" {
 					msg = "command failed"
 				}
-				flashAndRedirect(a, w, r, "error", "Failed to add email "+email+": "+msg, "/emails/new")
+				flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to add email %(email)s: %(msg)s", "email", email, "msg", msg), "/emails/new")
 				return
 			}
 		}
@@ -411,7 +412,7 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created email "+email, ipAddress)
 		InvalidateEmailCache(ctx, a, userID, currentUsername)
-		flashAndRedirect(a, w, r, "success", "Email "+email+" added successfully.", "/emails")
+		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Email %(email)s added successfully.", "email", email), "/emails")
 		return
 	}
 
@@ -679,7 +680,7 @@ func postSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, emai
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, strings.Join(actionsTaken, "; ")+" for email "+email, ipAddress)
 	InvalidateEmailCache(ctx, a, userID, currentUsername)
-	flashAndRedirect(a, w, r, "success", "Settings saved for email "+email, r.URL.Path)
+	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Settings saved for email %(email)s", "email", email), r.URL.Path)
 }
 
 func deleteSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, userID int, currentUsername string) {
@@ -690,10 +691,10 @@ func deleteSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, em
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "deleted email "+email, ipAddress)
 		InvalidateEmailCache(ctx, a, userID, currentUsername)
-		flashAndRedirect(a, w, r, "success", "Email "+email+" deleted successfully.", "/emails")
+		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Email %(email)s deleted successfully.", "email", email), "/emails")
 		return
 	}
-	flashAndRedirect(a, w, r, "error", "ERROR: Failed to delete email "+email+": "+strings.TrimSpace(string(out)), "/emails")
+	flashAndRedirect(a, w, r, "error", web.Tr(a, r, "ERROR: Failed to delete email %(email)s: %(output)s", "email", email, "output", strings.TrimSpace(string(out))), "/emails")
 }
 
 // DELETE (select-then-confirm page)

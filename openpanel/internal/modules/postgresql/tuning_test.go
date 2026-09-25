@@ -48,7 +48,7 @@ func TestPgHealthyServerHasNoRecommendations(t *testing.T) {
 
 func TestPgDefaultsOnSmallContainer(t *testing.T) {
 	s := basePgStats()
-	s.Settings["shared_buffers"] = Setting{"16384", "8kB"}       // 128MB default
+	s.Settings["shared_buffers"] = Setting{"16384", "8kB"}        // 128MB default
 	s.Settings["effective_cache_size"] = Setting{"524288", "8kB"} // 4GB default
 	s.Settings["max_parallel_workers"] = Setting{"8", ""}
 	s.Settings["checkpoint_completion_target"] = Setting{"0.5", ""}

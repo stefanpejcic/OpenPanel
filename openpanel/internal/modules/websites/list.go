@@ -20,8 +20,8 @@ type SiteRow struct {
 	Type        string
 	Container   string
 	Ports       string
-	IsStatic bool   // mirrors the case-sensitive `'static' in site[5]` check in sites.html's Actions column, unlike every other type check on this page that one isn't lowercased first
-	Docroot  string // the site's full container-path docroot (domain's docroot + subdirectory suffix parsed out of SiteName), same computation dispatch.go's /website handler does per-request, needed here so the Actions column's autologin button can pass it through without a second lookup
+	IsStatic    bool   // mirrors the case-sensitive `'static' in site[5]` check in sites.html's Actions column, unlike every other type check on this page that one isn't lowercased first
+	Docroot     string // the site's full container-path docroot (domain's docroot + subdirectory suffix parsed out of SiteName), same computation dispatch.go's /website handler does per-request, needed here so the Actions column's autologin button can pass it through without a second lookup
 }
 
 // SiteGroup is one type-grouped section of the /sites table (e.g. all "wordpress" rows together), in first-seen order.

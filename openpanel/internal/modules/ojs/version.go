@@ -22,7 +22,7 @@ type githubTag struct {
 
 // ojsVersion is one parsed, displayable OJS release.
 type ojsVersion struct {
-	Dotted                      string // e.g. "3.5.0-5", used in the download URL and shown to the user
+	Dotted                     string // e.g. "3.5.0-5", used in the download URL and shown to the user
 	Major, Minor, Patch, Build int
 }
 

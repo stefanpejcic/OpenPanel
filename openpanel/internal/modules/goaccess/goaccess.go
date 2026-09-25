@@ -9,6 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
@@ -54,7 +55,7 @@ func handleDomainStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	logFilePath := "/var/log/caddy/stats/" + currentUsername + "/" + domainName + ".html"
 	content, readErr := os.ReadFile(logFilePath)
 	if readErr != nil {
-		flashAndRedirect(a, w, r, "error", "Stats file for domain "+domainName+" not found. Data is generated every 24h.", "/domains/stats")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Stats file for domain %(domain_name)s not found. Data is generated every 24h.", "domain_name", domainName), "/domains/stats")
 		return
 	}
 

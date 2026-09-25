@@ -8,6 +8,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleDatabasesAssign grants a Postgres user access to a database - unlike MySQL's equivalent, there's no privilege checklist here, Postgres assignment is always the fixed GRANT ALL PRIVILEGES + USAGE + CREATE trio
@@ -45,7 +46,7 @@ func handleDatabasesAssign(a *appctx.App, w http.ResponseWriter, r *http.Request
 		} else {
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "assigned all privileges to PostgreSQL user "+dbUser+" on database "+databaseName, ipAddress)
-			flashSess(a, w, r, "success", "Successfully added a user "+dbUser+" to PostgreSQL database")
+			flashSess(a, w, r, "success", web.Tr(a, r, "Successfully added a user %(db_user)s to PostgreSQL database", "db_user", dbUser))
 		}
 
 		http.Redirect(w, r, "/postgresql", http.StatusFound)
@@ -89,11 +90,11 @@ func handleRemovePostgresUserFromDB(a *appctx.App, w http.ResponseWriter, r *htt
 	}
 
 	if _, execErr := postgresmanager.Exec(ctx, userContext, `REVOKE ALL PRIVILEGES ON DATABASE "`+databaseName+`" FROM "`+dbUser+`"`, "postgres"); execErr != nil {
-		flashSess(a, w, r, "error", "Failed to revoke privileges for user "+dbUser+" from PostgreSQL database "+databaseName)
+		flashSess(a, w, r, "error", web.Tr(a, r, "Failed to revoke privileges for user %(db_user)s from PostgreSQL database %(database_name)s", "db_user", dbUser, "database_name", databaseName))
 	} else {
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "revoked all privileges for PostgreSQL user "+dbUser+" from database "+databaseName, ipAddress)
-		flashSess(a, w, r, "success", "Successfully revoked all privileges for user "+dbUser+" from PostgreSQL database "+databaseName)
+		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully revoked all privileges for user %(db_user)s from PostgreSQL database %(database_name)s", "db_user", dbUser, "database_name", databaseName))
 	}
 
 	http.Redirect(w, r, "/postgresql", http.StatusFound)

@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 func flashAndRedirectLog(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
@@ -47,17 +48,17 @@ func handleWAFLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	logFilePath := wafLogPath(domainName)
 	info, statErr := os.Stat(logFilePath)
 	if statErr != nil {
-		flashAndRedirectLog(a, w, r, "error", "Log file not found for domain "+domainName+".")
+		flashAndRedirectLog(a, w, r, "error", web.Tr(a, r, "Log file not found for domain %(domain_name)s.", "domain_name", domainName))
 		return
 	}
 	if info.Size() == 0 {
-		flashAndRedirectLog(a, w, r, "info", "Log file for domain "+domainName+" is empty.")
+		flashAndRedirectLog(a, w, r, "info", web.Tr(a, r, "Log file for domain %(domain_name)s is empty.", "domain_name", domainName))
 		return
 	}
 
 	content, readErr := os.ReadFile(logFilePath)
 	if readErr != nil {
-		flashAndRedirectLog(a, w, r, "danger", "Error reading log file: "+readErr.Error())
+		flashAndRedirectLog(a, w, r, "danger", web.Tr(a, r, "Error reading log file: %(error)s", "error", readErr.Error()))
 		return
 	}
 

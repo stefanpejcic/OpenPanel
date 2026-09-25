@@ -18,6 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // getCPUAndRAMForPlanID looks up a hosting plan's CPU/RAM limits, cached 30s.
@@ -271,13 +272,21 @@ func handleManageContainer(a *appctx.App, w http.ResponseWriter, r *http.Request
 		switch {
 		case pullRequested:
 			logMsg = fmt.Sprintf("pulled image for %s and %sd", containerName, actionType)
-			flashMsg = fmt.Sprintf("Image pulled and container %s %sd successfully.", containerName, actionType)
+			flashMsg = map[string]string{
+				"activate":   web.Tr(a, r, "Image pulled and container %(container_name)s activated successfully.", "container_name", containerName),
+				"deactivate": web.Tr(a, r, "Image pulled and container %(container_name)s deactivated successfully.", "container_name", containerName),
+				"restart":    web.Tr(a, r, "Image pulled and container %(container_name)s restarted successfully.", "container_name", containerName),
+			}[actionType]
 		case action == "restart":
 			logMsg = fmt.Sprintf("restarted %s", containerName)
-			flashMsg = fmt.Sprintf("Container %s restarted successfully.", containerName)
+			flashMsg = web.Tr(a, r, "Container %(container_name)s restarted successfully.", "container_name", containerName)
 		default:
 			logMsg = fmt.Sprintf("%sd %s", actionType, containerName)
-			flashMsg = fmt.Sprintf("Container %s %sd successfully.", containerName, actionType)
+			if actionType == "deactivate" {
+				flashMsg = web.Tr(a, r, "Container %(container_name)s deactivated successfully.", "container_name", containerName)
+			} else {
+				flashMsg = web.Tr(a, r, "Container %(container_name)s activated successfully.", "container_name", containerName)
+			}
 		}
 		_ = logger.RecordUserAction(a.Config, username, logMsg, reqip.ClientIP(r))
 		flashAndRedirect(a, w, r, "success", flashMsg, "/containers")

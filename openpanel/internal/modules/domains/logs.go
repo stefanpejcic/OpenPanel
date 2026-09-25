@@ -8,6 +8,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // AccessLogRequest mirrors one Caddy JSON access-log line's nested "request" object
@@ -49,17 +50,17 @@ func handleViewDomainAccessLog(a *appctx.App, w http.ResponseWriter, r *http.Req
 	logFilePath := "/var/log/caddy/domlogs/" + domainName + "/access.log"
 	info, statErr := os.Stat(logFilePath)
 	if statErr != nil {
-		flashAndRedirect(a, w, r, "error", "Log file not found for domain "+domainName+".", "/domains/log")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Log file not found for domain %(domain_name)s.", "domain_name", domainName), "/domains/log")
 		return
 	}
 	if info.Size() == 0 {
-		flashAndRedirect(a, w, r, "info", "Log file for domain "+domainName+" is empty.", "/domains/log")
+		flashAndRedirect(a, w, r, "info", web.Tr(a, r, "Log file for domain %(domain_name)s is empty.", "domain_name", domainName), "/domains/log")
 		return
 	}
 
 	content, err := os.ReadFile(logFilePath)
 	if err != nil {
-		flashAndRedirect(a, w, r, "danger", "Error reading log file: "+err.Error(), "/domains/log")
+		flashAndRedirect(a, w, r, "danger", web.Tr(a, r, "Error reading log file: %(error)s", "error", err.Error()), "/domains/log")
 		return
 	}
 

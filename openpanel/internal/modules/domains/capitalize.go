@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // capitalizedDomainsFile returns the per-account file storing display-case overrides (e.g. "MyBrand.com" instead of "mybrand.com"), same /home/<context>/ convention as every other per-account file
@@ -79,7 +80,7 @@ func handleCapitalizeDomains(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		_ = r.ParseForm()
 		capitalizedDomain := r.Form.Get("capitalized_domain")
 		if saveErr := saveCapitalizedDomain(ctx, a, userContext, domain, capitalizedDomain); saveErr == nil {
-			flashSess(a, w, r, "success", "Domain has been capitalized to "+capitalizedDomain)
+			flashSess(a, w, r, "success", web.Tr(a, r, "Domain has been capitalized to %(capitalized_domain)s", "capitalized_domain", capitalizedDomain))
 			_ = logger.RecordUserAction(a.Config, currentUsername, "capitalized domain "+domain+" to "+capitalizedDomain, reqip.ClientIP(r))
 		}
 	}

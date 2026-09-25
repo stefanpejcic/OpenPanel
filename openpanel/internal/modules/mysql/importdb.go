@@ -18,6 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var mysqlImportSecureFilenameRE = regexp.MustCompile(`[^A-Za-z0-9_.-]`)
@@ -44,7 +45,7 @@ func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	urlDBName := r.PathValue("dbname")
 
 	if !docker.IsServiceRunning(ctx, userContext, mysqlVersion) {
-		flashSess(a, w, r, "warning", mysqlVersion+" container is not running. Please allow a few moments for the initialization..")
+		flashSess(a, w, r, "warning", web.Tr(a, r, "%(mysql_version)s container is not running. Please allow a few moments for the initialization..", "mysql_version", mysqlVersion))
 		docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
 	}
 
@@ -70,7 +71,7 @@ func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 			maxImportBytes := int64(atoiDefault(mysqlImportMaxSizeGB, 1)) * 1024 * 1024 * 1024
 			if fileHeader.Size > maxImportBytes {
-				flashSess(a, w, r, "error", "Uploaded file exceeds "+mysqlImportMaxSizeGB+" GB limit.")
+				flashSess(a, w, r, "error", web.Tr(a, r, "Uploaded file exceeds %(mysql_import_max_size_gb)s GB limit.", "mysql_import_max_size_gb", mysqlImportMaxSizeGB))
 				renderImportPage(a, w, r, mysqlVersion, "", http.StatusRequestEntityTooLarge)
 				return
 			}
@@ -86,11 +87,11 @@ func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			if imported {
 				ipAddress := reqip.ClientIP(r)
 				_ = logger.RecordUserAction(a.Config, currentUsername, "imported "+fileHeader.Filename+" into MySQL database "+dbName, ipAddress)
-				flashSess(a, w, r, "success", "Successfully imported from "+fileHeader.Filename+" file to database: "+dbName)
+				flashSess(a, w, r, "success", web.Tr(a, r, "Successfully imported from %(filename)s file to database: %(db_name)s", "filename", fileHeader.Filename, "db_name", dbName))
 				renderImportPage(a, w, r, mysqlVersion, "", http.StatusOK)
 				return
 			}
-			flashSess(a, w, r, "error", "Import into '"+dbName+"' failed: "+errDetail)
+			flashSess(a, w, r, "error", web.Tr(a, r, "Import into '%(db_name)s' failed: %(err_detail)s", "db_name", dbName, "err_detail", errDetail))
 			// falls through to the shared bottom render below, using the URL's dbname (not the form's dbName) - the failure page should reflect what page the admin was already on
 		} else {
 			flashSess(a, w, r, "error", "No database file uploaded!")

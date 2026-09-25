@@ -14,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // UndeletableServices are the built-in services that can never be removed through the delete-container flow
@@ -287,7 +288,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	_ = logger.RecordUserAction(a.Config, username, "added container "+serviceName, reqip.ClientIP(r))
 	if !stream {
-		flashAndRedirect(a, w, r, "success", fmt.Sprintf("Container %s created successfully!", serviceName), "/containers")
+		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Container %(service_name)s created successfully!", "service_name", serviceName), "/containers")
 		return
 	}
 

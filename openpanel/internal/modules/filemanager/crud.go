@@ -14,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleCreateFile creates an empty file at the given path and optionally redirects straight into the editor for it
@@ -272,10 +273,10 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	if changed == 1 {
 		flash.Add(sess, "success", "Permissions changed.")
 	} else if changed > 1 {
-		flash.Add(sess, "success", strconv.Itoa(changed)+" items updated.")
+		flash.Add(sess, "success", web.Tr(a, r, "%(changed)s items updated.", "changed", strconv.Itoa(changed)))
 	}
 	if len(errored) > 0 {
-		flash.Add(sess, "error", "Error changing permissions for: "+strings.Join(errored, ", ")+". Check ownership.")
+		flash.Add(sess, "error", web.Tr(a, r, "Error changing permissions for: %(errored)s. Check ownership.", "errored", strings.Join(errored, ", ")))
 	}
 	_ = a.Sessions.Save(r, w, sess)
 	http.Redirect(w, r, filesRedirectPath(pathParam), http.StatusFound)

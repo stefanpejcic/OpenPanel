@@ -2,7 +2,6 @@ package php
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os/exec"
 	"strings"
@@ -12,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handlePHPInfo renders `php -i` output for one PHP version, starting its container first if needed
@@ -41,7 +41,7 @@ func handlePHPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if !docker.IsServiceRunning(ctx, userContext, service) {
 			result := docker.StartOrStopContainer(ctx, userContext, service, "activate", "run")
 			if !result.Success || !docker.IsServiceRunning(ctx, userContext, service) {
-				flashAndRedirect(a, w, r, "error", fmt.Sprintf("Failed to start PHP %s: %s", service, result.Message), "/php/domains")
+				flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to start PHP %(service)s: %(message)s", "service", service, "message", result.Message), "/php/domains")
 				return
 			}
 		}

@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // HealthIssue is a {id, severity, message} toast issue, rendered client-side via reportHealthIssues()
@@ -64,17 +65,17 @@ func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 			_ = r.ParseForm()
 			if newContent := r.Form.Get("editor_content"); newContent != "" {
 				if writeErr := os.WriteFile(phpIniFilePath, []byte(newContent), 0o644); writeErr != nil {
-					flashAndRedirect(a, w, r, "error", "Error saving "+text+" php.ini file!", "/php/php"+version+".ini/editor")
+					flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error saving %(text)s php.ini file!", "text", text), "/php/php"+version+".ini/editor")
 					return
 				}
 
 				var message string
 				if docker.ComposeContainer(ctx, userContext, containerToRestart, "status") {
-					message = fmt.Sprintf("PHP.INI file for %s version %s edited successfully, and %s service restarted to apply.", text, version, containerToRestart)
+					message = web.Tr(a, r, "PHP.INI file for %(text)s version %(version)s edited successfully, and %(container_to_restart)s service restarted to apply.", "text", text, "version", version, "container_to_restart", containerToRestart)
 					docker.ComposeContainer(ctx, userContext, containerToRestart, "stop")
 					docker.ComposeContainer(ctx, userContext, containerToRestart, "start")
 				} else {
-					message = fmt.Sprintf("PHP.INI file for %s version %s edited successfully.", text, version)
+					message = web.Tr(a, r, "PHP.INI file for %(text)s version %(version)s edited successfully.", "text", text, "version", version)
 				}
 
 				flashSess(a, w, r, "success", message)

@@ -571,9 +571,9 @@ type PythonNodeAppsPageData struct {
 	Type                                                                        string // Container.Type lowercased ("python" or "nodejs")
 	PM2Status                                                                   string // pm2_data.status stringified ("true"/"false"/"unknown")
 	CPU, RAM, PIDs, StartupFile, CustomCmd, Workdir, CurrentVersion, GitRepoURL string
-	RequirementsSelected                                                       bool
-	EnvVars                                                                    string          // the service's current `environment:` list from docker-compose.yml, one "KEY=VALUE" per line, for the Env Vars tab's textarea - empty if none set yet
-	Domains                                                                    []appctx.Domain // every domain the user owns, for the Clone tab's target domain dropdown - same list appinstall's own install page uses
+	RequirementsSelected                                                        bool
+	EnvVars                                                                     string          // the service's current `environment:` list from docker-compose.yml, one "KEY=VALUE" per line, for the Env Vars tab's textarea - empty if none set yet
+	Domains                                                                     []appctx.Domain // every domain the user owns, for the Clone tab's target domain dropdown - same list appinstall's own install page uses
 }
 
 func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PythonNodeAppsPageData) {

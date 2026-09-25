@@ -9,6 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // SiteRow is one row of the delete-confirmation "websites using this domain" list
@@ -50,9 +51,9 @@ func handleDeleteDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-delete", domainURL).CombinedOutput()
 		if cmdErr == nil && strings.Contains(strings.ToLower(string(out)), "deleted successfully") {
 			_ = logger.RecordUserAction(a.Config, currentUsername, "deleted domain "+domainURL, reqip.ClientIP(r))
-			flashAndRedirect(a, w, r, "success", "Domain "+domainURL+" deleted successfully.", "/domains")
+			flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Domain %(domain_url)s deleted successfully.", "domain_url", domainURL), "/domains")
 		} else {
-			flashAndRedirect(a, w, r, "error", "Failed to delete domain "+domainURL+". Output: "+string(out), "/domains")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to delete domain %(domain_url)s. Output: %(output)s", "domain_url", domainURL, "output", string(out)), "/domains")
 		}
 		return
 	}

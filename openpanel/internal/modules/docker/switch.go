@@ -2,7 +2,6 @@ package docker
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -11,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // userDatabaseCount counts the databases the user created on the active mysql/mariadb server, ok is false when the server can't be asked
@@ -57,7 +57,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 		}
 
 		if IsServiceRunning(ctx, userContext, mysqlType) && !hasOnlyRestrictedDatabases(ctx, a, userContext) {
-			msg := fmt.Sprintf("Existing databases must first be deleted and %s container stopped in order to change mysql type.", mysqlType)
+			msg := web.Tr(a, r, "Existing databases must first be deleted and %(mysql_type)s container stopped in order to change mysql type.", "mysql_type", mysqlType)
 			if outputJSON {
 				jsonErr(http.StatusConflict, msg)
 				return
@@ -70,7 +70,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 		newSQL := r.Form.Get("new_sql")
 		// switching wipes the data volume, so picking the type already in use must not go through
 		if newSQL == flavor {
-			msg := fmt.Sprintf("Already using %s.", flavor)
+			msg := web.Tr(a, r, "Already using %(flavor)s.", "flavor", flavor)
 			if outputJSON {
 				jsonErr(http.StatusBadRequest, msg)
 				return
@@ -104,7 +104,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 			StartOrStopContainer(ctx, userContext, "phpmyadmin", "deactivate", "")
 
 			if composeErr := setComposePerconaConfig(userContext, newSQL == "percona"); composeErr != nil {
-				msg := "Failed to update mysql image: " + composeErr.Error()
+				msg := web.Tr(a, r, "Failed to update mysql image: %(error)s", "error", composeErr.Error())
 				if outputJSON {
 					jsonErr(http.StatusInternalServerError, msg)
 					return
@@ -124,7 +124,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 			startResp := StartOrStopContainer(ctx, userContext, targetService, "activate", "")
 			if !startResp.Success {
-				msg := fmt.Sprintf("Failed to start %s.", targetService)
+				msg := web.Tr(a, r, "Failed to start %(target_service)s.", "target_service", targetService)
 				if outputJSON {
 					jsonErr(http.StatusInternalServerError, msg)
 					return
@@ -140,7 +140,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 			mysqlmanager.InvalidatePool(userContext)
 
 			_ = logger.RecordUserAction(a.Config, username, "switched mysql type to: "+newSQL, reqip.ClientIP(r))
-			successMsg := fmt.Sprintf("Successfully switched to %s!", newSQL)
+			successMsg := web.Tr(a, r, "Successfully switched to %(new_sql)s!", "new_sql", newSQL)
 			if outputJSON {
 				writeJSON(w, map[string]string{"message": successMsg})
 				return
@@ -199,7 +199,7 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 		outputJSON := r.URL.Query().Get("output") == "json"
 
 		if domainsErr == nil && len(userDomains) > 0 {
-			msg := fmt.Sprintf("Existing domains (%d) must first be removed in order to change webserver.", len(userDomains))
+			msg := web.Tr(a, r, "Existing domains (%(count)s) must first be removed in order to change webserver.", "count", len(userDomains))
 			if outputJSON {
 				writeJSONError(w, http.StatusConflict, msg)
 				return
@@ -231,7 +231,7 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 			deleteDockerVolume(ctx, userContext, userContext+"_webserver_data")
 			startResp := StartOrStopContainer(ctx, userContext, newWebserver, "activate", "")
 			if !startResp.Success {
-				msg := fmt.Sprintf("Failed to start %s.", newWebserver)
+				msg := web.Tr(a, r, "Failed to start %(new_webserver)s.", "new_webserver", newWebserver)
 				if outputJSON {
 					writeJSONError(w, http.StatusInternalServerError, msg)
 					return
@@ -250,7 +250,7 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 			}
 
 			_ = logger.RecordUserAction(a.Config, username, "switched webserver type to: "+newWebserver, reqip.ClientIP(r))
-			successMsg := fmt.Sprintf("Successfully switched to %s!", newWebserver)
+			successMsg := web.Tr(a, r, "Successfully switched to %(new_webserver)s!", "new_webserver", newWebserver)
 			if outputJSON {
 				writeJSON(w, map[string]string{"message": successMsg})
 				return

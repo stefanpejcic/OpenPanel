@@ -13,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // DatabaseRow is one row of psql/databases.html's table.
@@ -58,7 +59,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		userDatabasesSQL := "SELECT datname FROM pg_database " + dbWhere + " ORDER BY datname"
 		rows, execErr := postgresmanager.Exec(ctx, userContext, userDatabasesSQL, "postgres")
 		if execErr != nil {
-			flashSess(a, w, r, "error", "Error fetching databases: "+execErr.Error())
+			flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching databases: %(error)s", "error", execErr.Error()))
 		} else {
 			assignedSQL := `
 				SELECT
@@ -132,7 +133,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if !validators.IsValidIdentifier(databaseName) {
-			flashAndRedirect(a, w, r, "error", "Name "+databaseName+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "/postgresql/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/postgresql/new")
 			return
 		}
 
@@ -155,18 +156,18 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		if dbUsage >= dbLimit {
-			flashAndRedirect(a, w, r, "error", "You have reached the maximum number of databases allowed."+plan.UpgradeMessage(), "/postgresql/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "You have reached the maximum number of databases allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()), "/postgresql/new")
 			return
 		}
 
 		if _, execErr := postgresmanager.Exec(ctx, userContext, `CREATE DATABASE "`+databaseName+`"`, "postgres"); execErr != nil {
-			flashAndRedirect(a, w, r, "error", "Failed to create database: "+execErr.Error(), "/postgresql/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create database: %(error)s", "error", execErr.Error()), "/postgresql/new")
 			return
 		}
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a PostgreSQL database "+databaseName, ipAddress)
-		flashSess(a, w, r, "success", "Successfully created a PostgreSQL database "+databaseName)
+		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully created a PostgreSQL database %(database_name)s", "database_name", databaseName))
 		http.Redirect(w, r, "/postgresql", http.StatusFound)
 		return
 	}
@@ -191,20 +192,20 @@ func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 	if !validators.IsValidIdentifier(databaseName) {
-		flashAndRedirect(a, w, r, "error", "Name "+databaseName+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "/postgresql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/postgresql")
 		return
 	}
 
 	postgresmanager.InvalidatePool(userContext, databaseName)
 
 	if _, execErr := postgresmanager.Exec(ctx, userContext, `DROP DATABASE IF EXISTS "`+databaseName+`" WITH (FORCE)`, "postgres"); execErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error deleting database "+databaseName+": "+execErr.Error(), "/postgresql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting database %(database_name)s: %(error)s", "database_name", databaseName, "error", execErr.Error()), "/postgresql")
 		return
 	}
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted a PostgreSQL database "+databaseName, ipAddress)
-	flashSess(a, w, r, "success", "Successfully deleted a PostgreSQL database "+databaseName)
+	flashSess(a, w, r, "success", web.Tr(a, r, "Successfully deleted a PostgreSQL database %(database_name)s", "database_name", databaseName))
 	http.Redirect(w, r, "/postgresql", http.StatusFound)
 }
 

@@ -138,8 +138,8 @@ func basePageData(a *appctx.App, r *http.Request, t i18n.Translator) loginPageDa
 		CaptchaProvider:  widget.Provider,
 		CaptchaFieldName: widget.FieldName,
 		CaptchaSiteKey:   widget.SiteKey,
-		CSRFToken:     csrf.Token(r),
-		T:             t,
+		CSRFToken:        csrf.Token(r),
+		T:                t,
 	}
 }
 

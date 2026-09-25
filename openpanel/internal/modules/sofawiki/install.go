@@ -18,6 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // sofawikiSourceZip is the only source SofaWiki ships: a plain branch archive, no tagged releases and no composer.json
@@ -44,7 +45,7 @@ func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			writeNDJSON(w, flusher, canFlush, map[string]any{"error": "You have reached the maximum number of sites allowed." + plan.UpgradeMessage()})
 			return
 		}
-		flashSess(a, w, r, "warning", "You have reached the maximum number of sites allowed."+plan.UpgradeMessage())
+		flashSess(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
 	} else if r.Method == http.MethodPost {
 		handleInstallStream(a, w, r)
 		return
@@ -203,7 +204,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed SofaWiki on domain "+selectedDomain, ipAddress)
-	flashSess(a, w, r, "success", "SofaWiki installed successfully on "+selectedDomain)
+	flashSess(a, w, r, "success", web.Tr(a, r, "SofaWiki installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
 	emit(map[string]any{"status": "SofaWiki installation completed! Visit the site to finish setup (folder rights, then the SofaWiki setup wizard)."})
 }
 

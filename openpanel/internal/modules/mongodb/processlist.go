@@ -10,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mongomanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // ProcessRow is one row of mongodb/processlist.html's table.
@@ -43,7 +44,7 @@ func handleProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var processList []ProcessRow
 	ops, opsErr := mongomanager.CurrentOps(ctx, userContext)
 	if opsErr != nil {
-		flashSess(a, w, r, "error", "Error fetching process list: "+opsErr.Error())
+		flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching process list: %(error)s", "error", opsErr.Error()))
 	}
 	for _, op := range ops {
 		processList = append(processList, ProcessRow{
@@ -102,9 +103,9 @@ func handleKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	opid := r.Form.Get("opid")
 	if err := killOp(r.Context(), userContext, opid); err != nil {
-		flashAndRedirect(a, w, r, "error", "Error killing operation "+opid+": "+err.Error(), "/mongodb/processlist")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error killing operation %(opid)s: %(error)s", "opid", opid, "error", err.Error()), "/mongodb/processlist")
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "killed MongoDB operation "+opid, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", "Operation "+opid+" killed.", "/mongodb/processlist")
+	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Operation %(opid)s killed.", "opid", opid), "/mongodb/processlist")
 }

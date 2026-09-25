@@ -13,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
@@ -55,7 +56,7 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 				return
 			}
 			if !litespeedDefaultVersions[versionFloat] {
-				flashAndRedirect(a, w, r, "error", "Default PHP version for OpenLitespeed can not be set to "+newPHPVersion+" - only available tags are: 8.5 8.4 8.3 8.2", "/php/default")
+				flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Default PHP version for OpenLitespeed can not be set to %(new_phpversion)s - only available tags are: 8.5 8.4 8.3 8.2", "new_phpversion", newPHPVersion), "/php/default")
 				return
 			}
 		}
@@ -63,15 +64,15 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		if updatePHPVersionPreference(userContext, newPHPVersion) {
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "changed default PHP version for new domains to "+newPHPVersion, ipAddress)
-			message := "PHP version " + newPHPVersion + " set as default for new domains"
+			message := web.Tr(a, r, "PHP version %(new_phpversion)s set as default for new domains", "new_phpversion", newPHPVersion)
 
 			if isLitespeed {
 				if docker.ComposeContainer(ctx, userContext, webServer, "status") {
-					message = "PHP version " + newPHPVersion + " saved, and Litespeed restarted to apply the version."
+					message = web.Tr(a, r, "PHP version %(new_phpversion)s saved, and Litespeed restarted to apply the version.", "new_phpversion", newPHPVersion)
 					docker.ComposeContainer(ctx, userContext, webServer, "stop")
 					docker.ComposeContainer(ctx, userContext, webServer, "start")
 				} else {
-					message = "PHP version " + newPHPVersion + " saved and will be used by Litespeed for new domains."
+					message = web.Tr(a, r, "PHP version %(new_phpversion)s saved and will be used by Litespeed for new domains.", "new_phpversion", newPHPVersion)
 				}
 			} else if previousVersion := r.Form.Get("previous_version"); previousVersion != "" {
 				stopPHPServiceIfRunningAndUnused(ctx, userContext, previousVersion)
@@ -83,7 +84,7 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			}
 			flashSess(a, w, r, "success", message)
 		} else {
-			flashSess(a, w, r, "error", "Default PHP version could not be changed to "+newPHPVersion)
+			flashSess(a, w, r, "error", web.Tr(a, r, "Default PHP version could not be changed to %(new_phpversion)s", "new_phpversion", newPHPVersion))
 			writeJSONError(w, http.StatusNotFound, "Configuration file not found")
 			return
 		}

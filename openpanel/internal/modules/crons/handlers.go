@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
@@ -293,7 +294,7 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if errMsg := ValidateCronFileFormat(crontabContent); errMsg != "" {
-		flashAndRedirect(a, w, r, "error", "Invalid crons file format: "+errMsg, "/cronjobs/editor")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Invalid crons file format: %(err_msg)s", "err_msg", errMsg), "/cronjobs/editor")
 		return
 	}
 

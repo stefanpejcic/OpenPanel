@@ -10,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleExportDatabase streams a database dump (sql or gzip) for download.
@@ -38,10 +39,10 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		flashAndRedirect(a, w, r, "error", "Database name is required.", "/mysql")
 		return
 	case !validators.IsValidIdentifier(databaseName):
-		flashAndRedirect(a, w, r, "error", "Name "+databaseName+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "/mysql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "database_name", databaseName), "/mysql")
 		return
 	case isRestrictedDatabase(databaseName):
-		flashAndRedirect(a, w, r, "error", "Database '"+databaseName+"' is restricted and cannot be exported. Contact Administrator", "/mysql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Database '%(database_name)s' is restricted and cannot be exported. Contact Administrator", "database_name", databaseName), "/mysql")
 		return
 	case exportFormat != "sql" && exportFormat != "gzip":
 		flashAndRedirect(a, w, r, "error", "Invalid export format provided, select SQL or GZIP.", "/mysql")
@@ -55,14 +56,14 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	case "mariadb":
 		dumpCmd = "mariadb-dump"
 	default:
-		flashAndRedirect(a, w, r, "error", "Unsupported database engine: "+mysqlVersion, "/mysql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Unsupported database engine: %(mysql_version)s", "mysql_version", mysqlVersion), "/mysql")
 		return
 	}
 
 	argv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, dumpCmd, "-u", "root", databaseName)
 	dumpOutput, dumpErr := podmanmanager.Command(ctx, userContext, argv).Output()
 	if dumpErr != nil {
-		flashAndRedirect(a, w, r, "error", "Failed to export database "+databaseName+".", "/mysql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to export database %(database_name)s.", "database_name", databaseName), "/mysql")
 		return
 	}
 
@@ -80,7 +81,7 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			return
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "exported MYSQL database "+databaseName+" to folder "+localPath, reqip.ClientIP(r))
-		flashAndRedirect(a, w, r, "success", "Database '"+databaseName+"' exported to "+displayFile, "/mysql")
+		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Database '%(database_name)s' exported to %(display_file)s", "database_name", databaseName, "display_file", displayFile), "/mysql")
 		return
 
 	default:

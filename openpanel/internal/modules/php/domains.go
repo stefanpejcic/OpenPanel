@@ -14,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var phpVersionFormRE = regexp.MustCompile(`^\d+\.\d+$`)
@@ -26,7 +27,7 @@ type PHPDomainRow struct {
 	DomainID   int
 	DomainURL  string
 	PHPVersion string
-	Level string // "unset", "good", "secure", or "unsupported" - the 3-bar badge color settings.html renders
+	Level      string // "unset", "good", "secure", or "unsupported" - the 3-bar badge color settings.html renders
 }
 
 // PHPVersionCount is one entry of settings.html's summary counter row.
@@ -103,7 +104,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if !docker.IsServiceRunning(ctx, userContext, newPHPContainer) {
 			result := docker.StartOrStopContainer(ctx, userContext, newPHPContainer, "activate", "run")
 			if !result.Success {
-				flashAndRedirect(a, w, r, "error", "Failed to start PHP "+newPHPVersion+": "+result.Message, target)
+				flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to start PHP %(new_phpversion)s: %(message)s", "new_phpversion", newPHPVersion, "message", result.Message), target)
 				return
 			}
 		}
@@ -111,7 +112,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		confFile := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
 		content, readErr := os.ReadFile(confFile)
 		if readErr != nil {
-			flashAndRedirect(a, w, r, "error", "Failed to read vhost configuration for "+domainURL+": "+readErr.Error(), target)
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to read vhost configuration for %(domain_url)s: %(error)s", "domain_url", domainURL, "error", readErr.Error()), target)
 			return
 		}
 
@@ -119,7 +120,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		_ = os.WriteFile(confFile, []byte(updated), 0o644)
 
 		if strings.Contains(updated, "php-fpm-"+oldPHPVersion) {
-			flashAndRedirect(a, w, r, "error", "Error occurred while updating PHP version for domain "+domainURL, target)
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error occurred while updating PHP version for domain %(domain_url)s", "domain_url", domainURL), target)
 			return
 		}
 
@@ -132,7 +133,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, fmt.Sprintf("changed PHP version for domain %s from %s to %s", domainURL, oldPHPVersion, newPHPVersion), ipAddress)
-		flashSess(a, w, r, "success", fmt.Sprintf("PHP version for domain %s updated from %s to %s", domainURL, oldPHPVersion, newPHPVersion))
+		flashSess(a, w, r, "success", web.Tr(a, r, "PHP version for domain %(domain_url)s updated from %(old_phpversion)s to %(new_phpversion)s", "domain_url", domainURL, "old_phpversion", oldPHPVersion, "new_phpversion", newPHPVersion))
 
 		if redirectTo != "" {
 			http.Redirect(w, r, redirectTo, http.StatusFound)

@@ -17,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // ImportRow is one parsed row of an uploaded email-import file.
@@ -88,7 +89,7 @@ func handleImportEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	rawRows, err := parseImportCSV(file)
 	if err != nil {
-		flashAndRedirect(a, w, r, "error", "Error reading file: "+err.Error(), "/emails/import")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error reading file: %(error)s", "error", err.Error()), "/emails/import")
 		return
 	}
 

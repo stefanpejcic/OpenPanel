@@ -10,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // mongoToolAuth runs a mongo tool inside the container with the root credentials the container already has, so the password never goes through the panel
@@ -35,10 +36,10 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		flashAndRedirect(a, w, r, "error", "Database name is required.", "/mongodb")
 		return
 	case !validators.IsValidIdentifier(databaseName):
-		flashAndRedirect(a, w, r, "error", "Name "+databaseName+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "/mongodb")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "database_name", databaseName), "/mongodb")
 		return
 	case isRestrictedDatabase(databaseName):
-		flashAndRedirect(a, w, r, "error", "Database '"+databaseName+"' is a system database and cannot be exported.", "/mongodb")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Database '%(database_name)s' is a system database and cannot be exported.", "database_name", databaseName), "/mongodb")
 		return
 	case format != "archive" && format != "gzip":
 		flashAndRedirect(a, w, r, "error", "Invalid export format provided, select Archive or GZIP.", "/mongodb")
@@ -57,7 +58,7 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 	dump, dumpErr := podmanmanager.Command(r.Context(), userContext, podmanmanager.PodmanArgv(userContext, args...)).Output()
 	if dumpErr != nil {
-		flashAndRedirect(a, w, r, "error", "Failed to export database "+databaseName+".", "/mongodb")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to export database %(database_name)s.", "database_name", databaseName), "/mongodb")
 		return
 	}
 
@@ -74,5 +75,5 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "exported MongoDB database "+databaseName+" to folder "+localPath, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", "Database '"+databaseName+"' exported to "+displayFile, "/mongodb")
+	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Database '%(database_name)s' exported to %(display_file)s", "database_name", databaseName, "display_file", displayFile), "/mongodb")
 }

@@ -13,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // bulkItem is one selected row from the /sites table, as posted by the bulk-actions bottom bar.
@@ -85,7 +86,7 @@ func handleSitesBulk(a *appctx.App, mux *http.ServeMux, w http.ResponseWriter, r
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "ran bulk action '"+req.Action+"' on "+itoa(len(req.Sites))+" site(s)", reqip.ClientIP(r))
-	flashSess(a, w, r, bulkFlashCategory(results), bulkFlashMessage(req.Action, results))
+	flashSess(a, w, r, bulkFlashCategory(results), bulkFlashMessage(a, r, req.Action, results))
 	writeJSON(w, http.StatusOK, map[string]any{"results": results})
 }
 
@@ -154,7 +155,7 @@ func bulkFlashCategory(results []bulkResult) string {
 	}
 }
 
-func bulkFlashMessage(action string, results []bulkResult) string {
+func bulkFlashMessage(a *appctx.App, r *http.Request, action string, results []bulkResult) string {
 	var failed []bulkResult
 	for _, res := range results {
 		if !res.OK {
@@ -163,10 +164,10 @@ func bulkFlashMessage(action string, results []bulkResult) string {
 	}
 	actionTitle := strings.ToUpper(action[:1]) + action[1:]
 	if len(failed) == 0 {
-		return actionTitle + ": completed successfully for all " + itoa(len(results)) + " selected site(s)."
+		return web.Tr(a, r, "%(action_title)s: completed successfully for all %(total)s selected site(s).", "action_title", actionTitle, "total", itoa(len(results)))
 	}
 
-	msg := actionTitle + ": " + itoa(len(failed)) + " of " + itoa(len(results)) + " selected site(s) failed."
+	msg := web.Tr(a, r, "%(action_title)s: %(failed)s of %(total)s selected site(s) failed.", "action_title", actionTitle, "failed", itoa(len(failed)), "total", itoa(len(results)))
 	for _, res := range failed {
 		msg += " " + res.SiteName + " (" + res.Message + ")."
 	}

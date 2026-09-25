@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var secureFilenameRE = regexp.MustCompile(`[^A-Za-z0-9_.-]`)
@@ -120,7 +121,7 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if allSuccess {
 			flashOnlySession(a, r, w, "success", "Files uploaded successfully.")
 		} else {
-			flashOnlySession(a, r, w, "error", "Some files failed: "+strings.Join(errs, "; "))
+			flashOnlySession(a, r, w, "error", web.Tr(a, r, "Some files failed: %(errs)s", "errs", strings.Join(errs, "; ")))
 		}
 	}
 

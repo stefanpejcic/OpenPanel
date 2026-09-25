@@ -18,6 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // dokuwikiStableTarball is DokuWiki's version-agnostic "always current stable" download, wrapped in a single top-level dokuwiki-<version>/ dir inside the tarball
@@ -43,7 +44,7 @@ func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			writeNDJSON(w, flusher, canFlush, map[string]any{"error": "You have reached the maximum number of sites allowed." + plan.UpgradeMessage()})
 			return
 		}
-		flashSess(a, w, r, "warning", "You have reached the maximum number of sites allowed."+plan.UpgradeMessage())
+		flashSess(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
 	} else if r.Method == http.MethodPost {
 		handleInstallStream(a, w, r)
 		return
@@ -257,7 +258,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed DokuWiki on domain "+selectedDomain, ipAddress)
-	flashSess(a, w, r, "success", "DokuWiki installed successfully on "+selectedDomain)
+	flashSess(a, w, r, "success", web.Tr(a, r, "DokuWiki installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
 	emit(map[string]any{"status": "DokuWiki installation completed!", "admin_user": adminUser, "admin_password": adminPassword})
 }
 

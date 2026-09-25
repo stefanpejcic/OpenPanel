@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleMCPSettings renders the MCP token management page - the actual /mcp JSON-RPC endpoint lives in mcp_rpc.go
@@ -80,7 +81,7 @@ func handleMCPCreateToken(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	sess.Values["mcp_new_token"] = rawToken
-	flash.Add(sess, "success", "Token \""+name+"\" created. Copy it below - it will not be shown again.")
+	flash.Add(sess, "success", web.Tr(a, r, "Token \"%(name)s\" created. Copy it below - it will not be shown again.", "name", name))
 	_ = a.Sessions.Save(r, w, sess)
 
 	http.Redirect(w, r, "/account/mcp", http.StatusFound)

@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // AliasEntry is one parsed alias source -> targets mapping.
@@ -205,14 +206,14 @@ func postAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email stri
 
 	out, err := exec.CommandContext(ctx, "opencli", "email-setup", "alias", "add", email, target).CombinedOutput()
 	if err != nil {
-		flashAndRedirect(a, w, r, "error", "Error adding alias: "+strings.TrimSpace(string(out)), "/emails/aliases/"+email)
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error adding alias: %(output)s", "output", strings.TrimSpace(string(out))), "/emails/aliases/"+email)
 		return
 	}
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "added alias "+email+" -> "+target, ipAddress)
 	InvalidateAliasCache(ctx, a, userID, currentUsername)
-	flashAndRedirect(a, w, r, "success", "Alias "+email+" → "+target+" added successfully.", "/emails/aliases/"+email)
+	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Alias %(email)s → %(target)s added successfully.", "email", email, "target", target), "/emails/aliases/"+email)
 }
 
 func deleteAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, userID int, currentUsername string, userDomains map[string]bool) {
@@ -246,7 +247,7 @@ func deleteAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email st
 		if entry != nil {
 			for _, t := range entry.Targets {
 				if out, err := exec.CommandContext(ctx, "opencli", "email-setup", "alias", "del", email, t).CombinedOutput(); err != nil {
-					flashAndRedirect(a, w, r, "error", "Error deleting alias "+email+" -> "+t+": "+strings.TrimSpace(string(out)), "/emails/aliases")
+					flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting alias %(email)s -> %(target)s: %(output)s", "email", email, "target", t, "output", strings.TrimSpace(string(out))), "/emails/aliases")
 					return
 				}
 			}
@@ -254,7 +255,7 @@ func deleteAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email st
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "deleted alias "+email, ipAddress)
 		InvalidateAliasCache(ctx, a, userID, currentUsername)
-		flashAndRedirect(a, w, r, "success", "Alias "+email+" deleted successfully.", "/emails/aliases")
+		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Alias %(email)s deleted successfully.", "email", email), "/emails/aliases")
 		return
 	}
 
@@ -302,7 +303,7 @@ func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		if len(missing) > 0 {
 			for _, field := range missing {
-				flashSess(a, w, r, "error", "Error: "+field+" not provided.")
+				flashSess(a, w, r, "error", web.Tr(a, r, "Error: %(field)s not provided.", "field", field))
 			}
 			http.Redirect(w, r, "/emails/aliases/new", http.StatusFound)
 			return
@@ -327,14 +328,14 @@ func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		out, cmdErr := exec.CommandContext(ctx, "opencli", "email-setup", "alias", "add", source, target).CombinedOutput()
 		if cmdErr != nil {
-			flashAndRedirect(a, w, r, "error", "Error creating alias: "+strings.TrimSpace(string(out)), "/emails/aliases/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error creating alias: %(output)s", "output", strings.TrimSpace(string(out))), "/emails/aliases/new")
 			return
 		}
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created alias "+source+" -> "+target, ipAddress)
 		InvalidateAliasCache(ctx, a, userID, currentUsername)
-		flashAndRedirect(a, w, r, "success", "Alias "+source+" → "+target+" created successfully.", "/emails/aliases")
+		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Alias %(source)s → %(target)s created successfully.", "source", source, "target", target), "/emails/aliases")
 		return
 	}
 

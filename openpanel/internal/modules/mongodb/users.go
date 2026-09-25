@@ -9,6 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleDatabasesUsers lists the MongoDB users, starting the container in the background if it isn't running yet
@@ -37,7 +38,7 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	default:
 		users, listErr := mongomanager.ListUsers(ctx, userContext)
 		if listErr != nil {
-			flashSess(a, w, r, "error", "Error fetching users: "+listErr.Error())
+			flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching users: %(error)s", "error", listErr.Error()))
 		} else {
 			for _, u := range users {
 				userRows = append(userRows, UserRow{Name: u.Username, Roles: rolesDisplay(u.Roles), IsSystem: isRestrictedUser(u.Username)})
@@ -75,7 +76,7 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			flashAndRedirect(a, w, r, "error", "User name is required.", "/mongodb/user")
 			return
 		case !validators.IsValidIdentifier(dbUser):
-			flashAndRedirect(a, w, r, "error", "Name "+dbUser+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "/mongodb/user")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/mongodb/user")
 			return
 		case isRestrictedUser(dbUser):
 			flashAndRedirect(a, w, r, "error", "This username is not allowed.", "/mongodb/user")
@@ -86,11 +87,11 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		}
 
 		if createErr := mongomanager.CreateUser(ctx, userContext, dbUser, password); createErr != nil {
-			flashSess(a, w, r, "error", "Failed to create user: "+createErr.Error())
+			flashSess(a, w, r, "error", web.Tr(a, r, "Failed to create user: %(error)s", "error", createErr.Error()))
 		} else {
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "created a MongoDB user "+dbUser, ipAddress)
-			flashSess(a, w, r, "success", "Successfully created a MongoDB user "+dbUser)
+			flashSess(a, w, r, "success", web.Tr(a, r, "Successfully created a MongoDB user %(db_user)s", "db_user", dbUser))
 		}
 
 		http.Redirect(w, r, "/mongodb/user", http.StatusFound)
@@ -132,7 +133,7 @@ func handleDeleteMongoUser(a *appctx.App, w http.ResponseWriter, r *http.Request
 		flashAndRedirect(a, w, r, "error", "User name is required.", "/delete_mongodb_user")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		flashAndRedirect(a, w, r, "error", "Name "+dbUser+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "/delete_mongodb_user")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "db_user", dbUser), "/delete_mongodb_user")
 		return
 	case isRestrictedUser(dbUser):
 		flashAndRedirect(a, w, r, "error", "This is a system username that cannot be deleted.", "/mongodb/users")
@@ -140,9 +141,9 @@ func handleDeleteMongoUser(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	if dropErr := mongomanager.DropUser(ctx, userContext, dbUser); dropErr != nil {
-		flashSess(a, w, r, "error", "Error deleting user "+dbUser+": "+dropErr.Error())
+		flashSess(a, w, r, "error", web.Tr(a, r, "Error deleting user %(db_user)s: %(error)s", "db_user", dbUser, "error", dropErr.Error()))
 	} else {
-		flashSess(a, w, r, "success", "Successfully deleted user "+dbUser)
+		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully deleted user %(db_user)s", "db_user", dbUser))
 	}
 
 	ipAddress := reqip.ClientIP(r)
@@ -169,7 +170,7 @@ func handleChangeMongoUserPassword(a *appctx.App, w http.ResponseWriter, r *http
 		flashAndRedirect(a, w, r, "error", "User name is required.", "/mongodb/change_user_password")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		flashAndRedirect(a, w, r, "error", "Name "+dbUser+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "/mongodb/change_user_password")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/mongodb/change_user_password")
 		return
 	case isRestrictedUser(dbUser):
 		flashAndRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/mongodb/users")
@@ -180,11 +181,11 @@ func handleChangeMongoUserPassword(a *appctx.App, w http.ResponseWriter, r *http
 	}
 
 	if changeErr := mongomanager.ChangeUserPassword(ctx, userContext, dbUser, newPassword); changeErr != nil {
-		flashSess(a, w, r, "error", "Error changing password for user "+dbUser+": "+changeErr.Error())
+		flashSess(a, w, r, "error", web.Tr(a, r, "Error changing password for user %(db_user)s: %(error)s", "db_user", dbUser, "error", changeErr.Error()))
 	} else {
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "changed password for MongoDB user "+dbUser, ipAddress)
-		flashSess(a, w, r, "success", "Successfully changed password for user "+dbUser)
+		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully changed password for user %(db_user)s", "db_user", dbUser))
 	}
 
 	http.Redirect(w, r, "/mongodb/users", http.StatusFound)

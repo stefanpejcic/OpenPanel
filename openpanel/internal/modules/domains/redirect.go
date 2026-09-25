@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // httpURLRE requires the whole value to be a scheme plus at least one non-whitespace char, not just a prefix check, so a redirect_url can't smuggle a newline into the Caddyfile line insertOrReplaceRedirect() splices this into
@@ -43,7 +44,7 @@ func handleDeleteRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 	if redirectURL == "" {
-		flashAndRedirect(a, w, r, "error", "Domain "+domainURL+" does not have a redirect URL configured.", "/domains")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Domain %(domain_url)s does not have a redirect URL configured.", "domain_url", domainURL), "/domains")
 		return
 	}
 
@@ -72,7 +73,7 @@ func handleDeleteRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	reloadCaddyWebserver(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted the redirect link "+redirectURL+" for domain "+domainURL, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", "Successfully deleted the redirect link "+redirectURL+" for domain "+domainURL, "/domains")
+	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Successfully deleted the redirect link %(redirect_url)s for domain %(domain_url)s", "redirect_url", redirectURL, "domain_url", domainURL), "/domains")
 }
 
 // handleSetRedirect sets or replaces a domain's redirect rule.
@@ -118,7 +119,7 @@ func handleSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		reloadCaddyWebserver(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a redirect link "+redirectURL+" for domain "+domainURL, reqip.ClientIP(r))
-		flashAndRedirect(a, w, r, "success", "Successfully created redirect from domain "+domainURL+" to "+redirectURL, "/domains")
+		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Successfully created redirect from domain %(domain_url)s to %(redirect_url)s", "domain_url", domainURL, "redirect_url", redirectURL), "/domains")
 		return
 	}
 

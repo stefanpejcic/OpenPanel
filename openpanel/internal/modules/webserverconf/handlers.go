@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 const redirectPath = "/server/webserver_conf"
@@ -76,17 +77,17 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	if action == "restore_default" {
 		defaultConfPath, ok := defaultConfTemplates[entry.ServiceName]
 		if !ok || !fileExists(defaultConfPath) {
-			flashAndRedirect(a, w, r, "error", "No default configuration is available for "+entry.ServiceName+".")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "No default configuration is available for %(service_name)s.", "service_name", entry.ServiceName))
 			return false
 		}
 
 		content, readErr := os.ReadFile(defaultConfPath)
 		if readErr != nil {
-			flashAndRedirect(a, w, r, "error", "Error restoring "+entry.ConfFile+": "+readErr.Error())
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error restoring %(conf_file)s: %(error)s", "conf_file", entry.ConfFile, "error", readErr.Error()))
 			return false
 		}
 		if writeErr := os.WriteFile(configFilePath, content, 0o644); writeErr != nil {
-			flashAndRedirect(a, w, r, "error", "Error restoring "+entry.ConfFile+": "+writeErr.Error())
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error restoring %(conf_file)s: %(error)s", "conf_file", entry.ConfFile, "error", writeErr.Error()))
 			return false
 		}
 		actionDescription = "restored " + entry.ConfFile + " to default"
@@ -100,7 +101,7 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		previousContent, prevErr := os.ReadFile(configFilePath)
 
 		if writeErr := os.WriteFile(configFilePath, []byte(newContent), 0o644); writeErr != nil {
-			flashAndRedirect(a, w, r, "error", "Error writing to "+entry.ConfFile+": "+writeErr.Error())
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error writing to %(conf_file)s: %(error)s", "conf_file", entry.ConfFile, "error", writeErr.Error()))
 			return false
 		}
 
@@ -110,7 +111,7 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 				if prevErr == nil {
 					_ = os.WriteFile(configFilePath, previousContent, 0o644)
 				}
-				flashAndRedirect(a, w, r, "error", "Configuration was not saved - it failed the "+entry.ServiceName+" syntax check: "+testOutput)
+				flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Configuration was not saved - it failed the %(service_name)s syntax check: %(test_output)s", "service_name", entry.ServiceName, "test_output", testOutput))
 				return false
 			}
 		}
@@ -122,13 +123,13 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	if docker.IsServiceRunning(r.Context(), userContext, entry.ServiceName) {
 		argv := podmanmanager.PodmanArgv(userContext, "restart", entry.ServiceName)
 		if runErr := podmanmanager.Command(r.Context(), userContext, argv).Run(); runErr != nil {
-			flash.Add(sess, "error", "Error restarting "+entry.ServiceName+" container.")
+			flash.Add(sess, "error", web.Tr(a, r, "Error restarting %(service_name)s container.", "service_name", entry.ServiceName))
 		} else {
 			var message string
 			if action == "restore_default" {
-				message = "Restored " + entry.ConfFile + " to the default configuration and " + entry.ServiceName + " container restarted successfully."
+				message = web.Tr(a, r, "Restored %(conf_file)s to the default configuration and %(service_name)s container restarted successfully.", "conf_file", entry.ConfFile, "service_name", entry.ServiceName)
 			} else {
-				message = "Changes saved to " + entry.ConfFile + " and " + entry.ServiceName + " container restarted successfully."
+				message = web.Tr(a, r, "Changes saved to %(conf_file)s and %(service_name)s container restarted successfully.", "conf_file", entry.ConfFile, "service_name", entry.ServiceName)
 			}
 			flash.Add(sess, "success", message)
 			_ = logger.RecordUserAction(a.Config, username, actionDescription+" and restarted "+entry.ServiceName, reqip.ClientIP(r))
@@ -136,9 +137,9 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	} else {
 		var message string
 		if action == "restore_default" {
-			message = "Restored " + entry.ConfFile + " to the default configuration - the " + entry.ServiceName + " container is not running."
+			message = web.Tr(a, r, "Restored %(conf_file)s to the default configuration - the %(service_name)s container is not running.", "conf_file", entry.ConfFile, "service_name", entry.ServiceName)
 		} else {
-			message = "Changes saved to " + entry.ConfFile + " - the " + entry.ServiceName + " container is not running."
+			message = web.Tr(a, r, "Changes saved to %(conf_file)s - the %(service_name)s container is not running.", "conf_file", entry.ConfFile, "service_name", entry.ServiceName)
 		}
 		flash.Add(sess, "success", message)
 		_ = logger.RecordUserAction(a.Config, username, actionDescription, reqip.ClientIP(r))

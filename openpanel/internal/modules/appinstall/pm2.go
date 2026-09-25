@@ -18,6 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // undeletableAppActions is a confusingly-named variable - it's actually the *allowed* app_actions list, not a list of undeletable things
@@ -115,11 +116,11 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	siteName := strings.ToLower(r.PathValue("site_name"))
 
 	if !undeletableAppActions[action] {
-		flashAndRedirectApp(a, w, r, "error", "Invalid action '"+action+"'. Allowed actions: start, stop, update, restart.", "/website")
+		flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Invalid action '%(action)s'. Allowed actions: start, stop, update, restart.", "action", action), "/website")
 		return
 	}
 	if undeletableServices[siteName] || strings.HasPrefix(siteName, "php-fpm-") {
-		flashAndRedirectApp(a, w, r, "error", "Hacker! Service '"+siteName+"' cannot be deleted.", "/website")
+		flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Hacker! Service '%(site_name)s' cannot be deleted.", "site_name", siteName), "/website")
 		return
 	}
 
@@ -149,41 +150,41 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		// -f composeFile is required - podman-compose has no default search path here (the openpanel process's cwd is "/", not the user's home), so without it this silently no-ops against a nonexistent /docker-compose.yml instead of touching the user's actual stack. Pre-existing bug found via manual testing: this affected Start/Stop for every app type (nodejs/python/ruby/java), not just n8n - "restart" a few lines down already passed -f correctly, which is what exposed the inconsistency.
 		argv := podmanmanager.PodmanComposeArgv("-f", composeFile, "down", siteName)
 		if runErr := podmanmanager.Command(ctx, userContext, argv).Run(); runErr != nil {
-			flashAndRedirectApp(a, w, r, "error", "Failed to stop container '"+siteName+"': "+runErr.Error(), "/website?domain="+nameForManager)
+			flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Failed to stop container '%(site_name)s': %(error)s", "site_name", siteName, "error", runErr.Error()), "/website?domain="+nameForManager)
 			return
 		}
-		flashAndRedirectApp(a, w, r, "success", "Stopped container for application: '"+siteName+"'.", "/website?domain="+nameForManager)
+		flashAndRedirectApp(a, w, r, "success", web.Tr(a, r, "Stopped container for application: '%(site_name)s'.", "site_name", siteName), "/website?domain="+nameForManager)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "stopped container for application "+siteName, ip)
 		return
 
 	case "start":
 		argv := podmanmanager.PodmanComposeArgv("-f", composeFile, "up", "-d", siteName)
 		if runErr := podmanmanager.Command(ctx, userContext, argv).Run(); runErr != nil {
-			flashAndRedirectApp(a, w, r, "error", "Failed to start container '"+siteName+"': "+runErr.Error(), "/website?domain="+nameForManager)
+			flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Failed to start container '%(site_name)s': %(error)s", "site_name", siteName, "error", runErr.Error()), "/website?domain="+nameForManager)
 			return
 		}
-		flashAndRedirectApp(a, w, r, "success", "Started container for application '"+siteName+"'.", "/website?domain="+nameForManager)
+		flashAndRedirectApp(a, w, r, "success", web.Tr(a, r, "Started container for application '%(site_name)s'.", "site_name", siteName), "/website?domain="+nameForManager)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "started container for application "+siteName, ip)
 		return
 
 	case "restart":
 		pullArgv := podmanmanager.PodmanComposeArgv("-f", composeFile, "pull", siteName)
 		if runErr := podmanmanager.Command(ctx, userContext, pullArgv).Run(); runErr != nil {
-			flashAndRedirectApp(a, w, r, "error", "Failed to restart container '"+siteName+"': "+runErr.Error(), "/website?domain="+nameForManager)
+			flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Failed to restart container '%(site_name)s': %(error)s", "site_name", siteName, "error", runErr.Error()), "/website?domain="+nameForManager)
 			return
 		}
 		downArgv := podmanmanager.PodmanComposeArgv("-f", composeFile, "down", siteName)
 		if runErr := podmanmanager.Command(ctx, userContext, downArgv).Run(); runErr != nil {
-			flashAndRedirectApp(a, w, r, "error", "Failed to restart container '"+siteName+"': "+runErr.Error(), "/website?domain="+nameForManager)
+			flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Failed to restart container '%(site_name)s': %(error)s", "site_name", siteName, "error", runErr.Error()), "/website?domain="+nameForManager)
 			return
 		}
 		upArgv := podmanmanager.PodmanComposeArgv("-f", composeFile, "up", "-d", siteName)
 		if runErr := podmanmanager.Command(ctx, userContext, upArgv).Run(); runErr != nil {
-			flashAndRedirectApp(a, w, r, "error", "Failed to restart container '"+siteName+"': "+runErr.Error(), "/website?domain="+nameForManager)
+			flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Failed to restart container '%(site_name)s': %(error)s", "site_name", siteName, "error", runErr.Error()), "/website?domain="+nameForManager)
 			return
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "restarted container for application "+siteName, ip)
-		flashAndRedirectApp(a, w, r, "success", "Re-downloaded image and started container for application '"+siteName+"'.", "/website?domain="+nameForManager)
+		flashAndRedirectApp(a, w, r, "success", web.Tr(a, r, "Re-downloaded image and started container for application '%(site_name)s'.", "site_name", siteName), "/website?domain="+nameForManager)
 		return
 
 	case "update":
@@ -210,7 +211,7 @@ func handlePM2EnvVars(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 			continue
 		}
 		if !envVarLineRE.MatchString(line) {
-			flashAndRedirectApp(a, w, r, "error", "Error saving: invalid line \""+line+"\" - each line must be KEY=VALUE.", redirectPath)
+			flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Error saving: invalid line \"%(line)s\" - each line must be KEY=VALUE.", "line", line), redirectPath)
 			return
 		}
 		envLines = append(envLines, line)
@@ -228,7 +229,7 @@ func handlePM2EnvVars(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 	}
 	svc, ok := services[containerName].(map[string]any)
 	if !ok {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: service '"+containerName+"' not found in docker-compose.yml.", redirectPath)
+		flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Error saving: service '%(container_name)s' not found in docker-compose.yml.", "container_name", containerName), redirectPath)
 		return
 	}
 
@@ -242,7 +243,7 @@ func handlePM2EnvVars(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 		svc["environment"] = envAny
 	}
 	if saveErr := docker.SaveCompose(userContext, composeData); saveErr != nil {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: "+saveErr.Error(), redirectPath)
+		flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Error saving: %(error)s", "error", saveErr.Error()), redirectPath)
 		return
 	}
 
@@ -415,7 +416,7 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 			PIDs:    strings.TrimSpace(r.FormValue("pids")),
 		}
 		if errs := validatePM2SettingsSimple(settings); len(errs) > 0 {
-			flashAndRedirectApp(a, w, r, "error", "Error saving: "+errs[0], redirectPath)
+			flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Error saving: %(errs)s", "errs", errs[0]), redirectPath)
 			return
 		}
 		if !fileExists(envFile) {
@@ -423,7 +424,7 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 			return
 		}
 		if applyErr := applyPM2SettingsSimple(a, r.Context(), userContext, containerName, kind, settings); applyErr != nil {
-			flashAndRedirectApp(a, w, r, "error", "Error saving: "+applyErr.Error(), redirectPath)
+			flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Error saving: %(error)s", "error", applyErr.Error()), redirectPath)
 			return
 		}
 		flashAndRedirectApp(a, w, r, "success", "Changes saved, make sure to restart the application for changes to take effect.", redirectPath)
@@ -444,7 +445,7 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 	}
 
 	if errs := validatePM2Settings(settings); len(errs) > 0 {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: "+errs[0], redirectPath)
+		flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Error saving: %(errs)s", "errs", errs[0]), redirectPath)
 		return
 	}
 	if !fileExists(envFile) {
@@ -453,7 +454,7 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 	}
 
 	if applyErr := applyPM2Settings(a, r.Context(), userContext, containerName, kind, settings); applyErr != nil {
-		flashAndRedirectApp(a, w, r, "error", "Error saving: "+applyErr.Error(), redirectPath)
+		flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Error saving: %(error)s", "error", applyErr.Error()), redirectPath)
 		return
 	}
 
@@ -524,9 +525,9 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 					rmVolArgv := podmanmanager.PodmanArgv(userContext, "volume", "rm", "-f", userContext+"_"+serviceKey+"_data")
 					_ = podmanmanager.Command(ctx, userContext, rmVolArgv).Run()
 				}
-				flashSess(a, w, r, "success", "Application '"+siteName+"' removed successfully")
+				flashSess(a, w, r, "success", web.Tr(a, r, "Application '%(site_name)s' removed successfully", "site_name", siteName))
 			} else {
-				flashSess(a, w, r, "warning", "Service '"+serviceKey+"' not found in compose file")
+				flashSess(a, w, r, "warning", web.Tr(a, r, "Service '%(service_key)s' not found in compose file", "service_key", serviceKey))
 			}
 		}
 	}
@@ -547,16 +548,16 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			filtered = append(filtered, line)
 		}
 		_ = os.WriteFile(envFile, []byte(strings.Join(filtered, "\n")), 0o644)
-		flashSess(a, w, r, "success", "Environment variables for '"+serviceName+"' removed from .env")
+		flashSess(a, w, r, "success", web.Tr(a, r, "Environment variables for '%(service_name)s' removed from .env", "service_name", serviceName))
 	} else {
-		flashSess(a, w, r, "warning", ".env file not found at "+envFile)
+		flashSess(a, w, r, "warning", web.Tr(a, r, ".env file not found at %(env_file)s", "env_file", envFile))
 	}
 
 	if _, execErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE site_name = ?", siteName); execErr == nil {
 		_ = logger.RecordUserAction(a.Config, currentUsername, "deleted application "+siteName, reqip.ClientIP(r))
-		flashSess(a, w, r, "success", "Application '"+siteName+"' deleted from the database")
+		flashSess(a, w, r, "success", web.Tr(a, r, "Application '%(site_name)s' deleted from the database", "site_name", siteName))
 	} else {
-		flashAndRedirectApp(a, w, r, "error", "Failed to delete application '"+siteName+"' from the database: "+execErr.Error(), "/sites")
+		flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Failed to delete application '%(site_name)s' from the database: %(error)s", "site_name", siteName, "error", execErr.Error()), "/sites")
 		return
 	}
 

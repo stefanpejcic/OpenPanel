@@ -21,6 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // ----------------------------
@@ -583,7 +584,7 @@ func handlePHPExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	version := phpVersionFromSegment(versionSeg)
 	service, isLitespeed := phpExtensionsService(userContext, version)
 	if ok, errMsg := ensurePHPServiceRunning(ctx, userContext, service); !ok {
-		flashAndRedirect(a, w, r, "error", "Failed to start PHP "+version+": "+errMsg, "/php/extensions")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to start PHP %(version)s: %(err_msg)s", "version", version, "err_msg", errMsg), "/php/extensions")
 		return
 	}
 
@@ -616,9 +617,9 @@ func handlePHPExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			}
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, fmt.Sprintf("%s PHP extension %s for PHP %s", actionWord, extension, version), ipAddress)
-			flashSess(a, w, r, "success", fmt.Sprintf("Extension %s %s, PHP %s restarted to apply changes.", extension, actionWord, version))
+			flashSess(a, w, r, "success", web.Tr(a, r, "Extension %(extension)s %(action_word)s, PHP %(version)s restarted to apply changes.", "extension", extension, "action_word", actionWord, "version", version))
 		} else {
-			flashSess(a, w, r, "error", fmt.Sprintf("Could not change extension %s: %s", extension, errMsg))
+			flashSess(a, w, r, "error", web.Tr(a, r, "Could not change extension %(extension)s: %(err_msg)s", "extension", extension, "err_msg", errMsg))
 		}
 		http.Redirect(w, r, "/php/php"+version+"/extensions", http.StatusFound)
 		return

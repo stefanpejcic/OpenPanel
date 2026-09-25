@@ -10,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleExportDatabase dumps one database with pg_dump and sends it to the browser or into /var/www/html
@@ -32,10 +33,10 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		flashAndRedirect(a, w, r, "error", "Database name is required.", "/postgresql")
 		return
 	case !validators.IsValidIdentifier(databaseName):
-		flashAndRedirect(a, w, r, "error", "Name "+databaseName+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "/postgresql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "database_name", databaseName), "/postgresql")
 		return
 	case isSystemDatabase(databaseName):
-		flashAndRedirect(a, w, r, "error", "Database '"+databaseName+"' is a system database and cannot be exported.", "/postgresql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Database '%(database_name)s' is a system database and cannot be exported.", "database_name", databaseName), "/postgresql")
 		return
 	case format != "sql" && format != "gzip":
 		flashAndRedirect(a, w, r, "error", "Invalid export format provided, select SQL or GZIP.", "/postgresql")
@@ -48,7 +49,7 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	argv := podmanmanager.PodmanArgv(userContext, "exec", "postgres", "pg_dump", "-U", "postgres", "--no-owner", "--no-privileges", databaseName)
 	dump, dumpErr := podmanmanager.Command(r.Context(), userContext, argv).Output()
 	if dumpErr != nil {
-		flashAndRedirect(a, w, r, "error", "Failed to export database "+databaseName+".", "/postgresql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to export database %(database_name)s.", "database_name", databaseName), "/postgresql")
 		return
 	}
 
@@ -65,5 +66,5 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "exported PostgreSQL database "+databaseName+" to folder "+localPath, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", "Database '"+databaseName+"' exported to "+displayFile, "/postgresql")
+	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Database '%(database_name)s' exported to %(display_file)s", "database_name", databaseName, "display_file", displayFile), "/postgresql")
 }

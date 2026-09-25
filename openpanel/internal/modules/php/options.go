@@ -17,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // ConfigEntry is one parsed line of a php.ini file - Value is only meaningful when HasValue is true, since a bare directive with no '=' still counts as an entry
@@ -273,9 +274,9 @@ func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, ver
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "edited PHP "+version+" configuration using PHP Selector", ipAddress)
 		if result := docker.RestartContainer(ctx, userContext, phpContainer); result.Success {
-			flashSess(a, w, r, "success", "Configuration edited successfully and "+text+" service restarted to apply new settings.")
+			flashSess(a, w, r, "success", web.Tr(a, r, "Configuration edited successfully and %(text)s service restarted to apply new settings.", "text", text))
 		} else {
-			flashSess(a, w, r, "error", "Configuration edited successfully, but "+text+" failed to restart. Try restarting it manually from Services.")
+			flashSess(a, w, r, "error", web.Tr(a, r, "Configuration edited successfully, but %(text)s failed to restart. Try restarting it manually from Services.", "text", text))
 		}
 		http.Redirect(w, r, "/php/php"+version+"/options", http.StatusFound)
 		return

@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 const ftpContainerName = "openadmin_ftp"
@@ -231,28 +232,28 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 		const realPath = "/var/www/html/"
 		if !strings.HasPrefix(ftpPath, realPath) {
-			flashAndRedirect(a, w, r, "error", "The FTP path must start with "+realPath, "/ftp/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "The FTP path must start with %(real_path)s", "real_path", realPath), "/ftp/new")
 			return
 		}
 
 		ftpUsername = ftpUsername + "@" + ftpDomain
 		if !isValidUsername(ftpUsername) {
-			flashAndRedirect(a, w, r, "error", "Username "+ftpUsername+" contains invalid characters, only allowed: BCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_@.", "/ftp/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Username %(ftp_username)s contains invalid characters, only allowed: BCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_@.", "ftp_username", ftpUsername), "/ftp/new")
 			return
 		}
 
 		out, cmdErr := exec.CommandContext(ctx, "opencli", "ftp-add", ftpUsername, ftpPassword, ftpPath, currentUsername).CombinedOutput()
 		if cmdErr != nil {
-			flashAndRedirect(a, w, r, "error", "Error creating FTP user "+ftpUsername+": "+string(out), "/ftp/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error creating FTP user %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), "/ftp/new")
 			return
 		}
 		if strings.Contains(string(out), "Success: FTP user") {
 			_ = logger.RecordUserAction(a.Config, currentUsername, "created FTP account "+ftpUsername, reqip.ClientIP(r))
 			_ = a.Cache.Delete(ctx, "count_ftp_accounts:"+userContext)
-			flashAndRedirectToAccounts(a, w, r, "success", "FTP account "+ftpUsername+" created successfully.")
+			flashAndRedirectToAccounts(a, w, r, "success", web.Tr(a, r, "FTP account %(ftp_username)s created successfully.", "ftp_username", ftpUsername))
 			return
 		}
-		flashAndRedirect(a, w, r, "error", "Failed to create FTP account "+ftpUsername+": "+string(out), "/ftp/new")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create FTP account %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), "/ftp/new")
 		return
 	}
 
@@ -288,10 +289,10 @@ func handleDeleteFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	if strings.Contains(string(out), "Success") {
 		_ = logger.RecordUserAction(a.Config, currentUsername, "deleted FTP account "+usernameToDelete, reqip.ClientIP(r))
 		_ = a.Cache.Delete(r.Context(), "count_ftp_accounts:"+userContext)
-		flashAndRedirectToAccounts(a, w, r, "success", "FTP account "+usernameToDelete+" deleted successfully!")
+		flashAndRedirectToAccounts(a, w, r, "success", web.Tr(a, r, "FTP account %(username_to_delete)s deleted successfully!", "username_to_delete", usernameToDelete))
 		return
 	}
-	flashAndRedirectToAccounts(a, w, r, "error", "Failed to delete FTP account "+usernameToDelete+". Output: "+string(out))
+	flashAndRedirectToAccounts(a, w, r, "error", web.Tr(a, r, "Failed to delete FTP account %(username_to_delete)s. Output: %(output)s", "username_to_delete", usernameToDelete, "output", string(out)))
 }
 
 // handleChangeFTPPassword handles both the change-password form page and its submission for one FTP account
@@ -321,14 +322,14 @@ func handleChangeFTPPassword(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 		out, cmdErr := exec.CommandContext(r.Context(), "opencli", "ftp-password", username, newPassword, currentUsername).CombinedOutput()
 		if cmdErr != nil {
-			flashAndRedirectToAccounts(a, w, r, "error", "Error changing FTP password: "+string(out))
+			flashAndRedirectToAccounts(a, w, r, "error", web.Tr(a, r, "Error changing FTP password: %(output)s", "output", string(out)))
 			return
 		}
 		if strings.Contains(string(out), "Success: FTP user") {
 			_ = logger.RecordUserAction(a.Config, currentUsername, "changed password for FTP account "+username, reqip.ClientIP(r))
-			flashAndRedirectToAccounts(a, w, r, "success", "FTP password changed successfully for user "+username)
+			flashAndRedirectToAccounts(a, w, r, "success", web.Tr(a, r, "FTP password changed successfully for user %(username)s", "username", username))
 		} else {
-			flashAndRedirectToAccounts(a, w, r, "error", "Failed to change FTP password: "+string(out))
+			flashAndRedirectToAccounts(a, w, r, "error", web.Tr(a, r, "Failed to change FTP password: %(output)s", "output", string(out)))
 		}
 		return
 	}
@@ -363,14 +364,14 @@ func handleChangeFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 
 		out, cmdErr := exec.CommandContext(r.Context(), "opencli", "ftp-path", usernameToModify, newPath, currentUsername).CombinedOutput()
 		if cmdErr != nil {
-			flashAndRedirectToAccounts(a, w, r, "error", "Error changing FTP path for user "+usernameToModify+": "+string(out))
+			flashAndRedirectToAccounts(a, w, r, "error", web.Tr(a, r, "Error changing FTP path for user %(username_to_modify)s: %(output)s", "username_to_modify", usernameToModify, "output", string(out)))
 			return
 		}
 		if strings.Contains(string(out), "Success: FTP path for user") {
 			_ = logger.RecordUserAction(a.Config, currentUsername, "changed path for FTP account "+usernameToModify, reqip.ClientIP(r))
-			flashAndRedirectToAccounts(a, w, r, "success", "FTP path changed successfully for user "+usernameToModify)
+			flashAndRedirectToAccounts(a, w, r, "success", web.Tr(a, r, "FTP path changed successfully for user %(username_to_modify)s", "username_to_modify", usernameToModify))
 		} else {
-			flashAndRedirectToAccounts(a, w, r, "error", "Failed to change FTP path for user "+usernameToModify+": "+string(out))
+			flashAndRedirectToAccounts(a, w, r, "error", web.Tr(a, r, "Failed to change FTP path for user %(username_to_modify)s: %(output)s", "username_to_modify", usernameToModify, "output", string(out)))
 		}
 		return
 	}

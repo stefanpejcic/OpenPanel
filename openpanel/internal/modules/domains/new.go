@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var domainCharsRE = regexp.MustCompile(`^[a-zA-Z0-9.-]+$`)
@@ -114,7 +115,7 @@ func handleDomainsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		fullPublicKeyPath := filepath.Join(homePrefix, strings.TrimPrefix(normalizedPublic, userHomeDirectory))
 		if info, statErr := os.Stat(fullPublicKeyPath); statErr != nil || info.IsDir() {
-			flashAndRedirect(a, w, r, "error", "Public key file: "+onionPublicKey+" does not exist!", "/domains/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Public key file: %(onion_public_key)s does not exist!", "onion_public_key", onionPublicKey), "/domains/new")
 			return
 		}
 
@@ -125,7 +126,7 @@ func handleDomainsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		fullSecretKeyPath := filepath.Join(homePrefix, strings.TrimPrefix(normalizedSecret, userHomeDirectory))
 		if info, statErr := os.Stat(fullSecretKeyPath); statErr != nil || info.IsDir() {
-			flashAndRedirect(a, w, r, "error", "Secret key file: "+onionSecretKey+" does not exist!", "/domains/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Secret key file: %(onion_secret_key)s does not exist!", "onion_secret_key", onionSecretKey), "/domains/new")
 			return
 		}
 

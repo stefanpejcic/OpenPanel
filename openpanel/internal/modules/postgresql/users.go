@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleDatabasesUsers lists the PostgreSQL roles, starting the container in the background if it isn't running yet
@@ -44,7 +45,7 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 		rows, execErr := postgresmanager.Exec(ctx, userContext, query, "postgres")
 		if execErr != nil {
-			flashSess(a, w, r, "error", "Error fetching users: "+execErr.Error())
+			flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching users: %(error)s", "error", execErr.Error()))
 		} else {
 			for _, row := range rows {
 				usersList = append(usersList, toStringCell(row[0]))
@@ -86,7 +87,7 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			flashAndRedirect(a, w, r, "error", "User name is required.", "/postgresql/user")
 			return
 		case !validators.IsValidIdentifier(dbUser):
-			flashAndRedirect(a, w, r, "error", "Name "+dbUser+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "/postgresql/user")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/postgresql/user")
 			return
 		case isRestrictedUser(dbUser):
 			flashAndRedirect(a, w, r, "error", "This username is not allowed.", "/postgresql/user")
@@ -97,11 +98,11 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		}
 
 		if _, execErr := postgresmanager.Exec(ctx, userContext, `CREATE USER "`+dbUser+`" WITH PASSWORD `+pq.QuoteLiteral(password), "postgres"); execErr != nil {
-			flashSess(a, w, r, "error", "Failed to create user: "+execErr.Error())
+			flashSess(a, w, r, "error", web.Tr(a, r, "Failed to create user: %(error)s", "error", execErr.Error()))
 		} else {
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "created a PostgreSQL user "+dbUser, ipAddress)
-			flashSess(a, w, r, "success", "Successfully created a PostgreSQL user "+dbUser)
+			flashSess(a, w, r, "success", web.Tr(a, r, "Successfully created a PostgreSQL user %(db_user)s", "db_user", dbUser))
 		}
 
 		http.Redirect(w, r, "/postgresql/user", http.StatusFound)
@@ -143,7 +144,7 @@ func handleDeletePostgresUser(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		flashAndRedirect(a, w, r, "error", "User name is required.", "/delete_postgres_user")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		flashAndRedirect(a, w, r, "error", "Name "+dbUser+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "/delete_postgres_user")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "db_user", dbUser), "/delete_postgres_user")
 		return
 	case isRestrictedUser(dbUser):
 		flashAndRedirect(a, w, r, "error", "This is a system username that cannot be deleted.", "/postgresql/users")
@@ -163,9 +164,9 @@ func handleDeletePostgresUser(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 
 	if _, execErr := postgresmanager.Exec(ctx, userContext, `DROP ROLE IF EXISTS "`+dbUser+`"`, "postgres"); execErr != nil {
-		flashSess(a, w, r, "error", "Error deleting user "+dbUser+": "+execErr.Error())
+		flashSess(a, w, r, "error", web.Tr(a, r, "Error deleting user %(db_user)s: %(error)s", "db_user", dbUser, "error", execErr.Error()))
 	} else {
-		flashSess(a, w, r, "success", "Successfully deleted user "+dbUser)
+		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully deleted user %(db_user)s", "db_user", dbUser))
 	}
 
 	ipAddress := reqip.ClientIP(r)
@@ -192,7 +193,7 @@ func handleChangePostgresUserPassword(a *appctx.App, w http.ResponseWriter, r *h
 		flashAndRedirect(a, w, r, "error", "User name is required.", "/postgresql/change_user_password")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		flashAndRedirect(a, w, r, "error", "Name "+dbUser+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "/postgresql/change_user_password")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/postgresql/change_user_password")
 		return
 	case isRestrictedUser(dbUser):
 		flashAndRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/postgresql/users")
@@ -203,11 +204,11 @@ func handleChangePostgresUserPassword(a *appctx.App, w http.ResponseWriter, r *h
 	}
 
 	if _, execErr := postgresmanager.Exec(ctx, userContext, `ALTER USER "`+dbUser+`" WITH PASSWORD `+pq.QuoteLiteral(newPassword), "postgres"); execErr != nil {
-		flashSess(a, w, r, "error", "Error changing password for user "+dbUser+": "+execErr.Error())
+		flashSess(a, w, r, "error", web.Tr(a, r, "Error changing password for user %(db_user)s: %(error)s", "db_user", dbUser, "error", execErr.Error()))
 	} else {
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "changed password for PostgreSQL user "+dbUser, ipAddress)
-		flashSess(a, w, r, "success", "Successfully changed password for user "+dbUser)
+		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully changed password for user %(db_user)s", "db_user", dbUser))
 	}
 
 	http.Redirect(w, r, "/postgresql/users", http.StatusFound)

@@ -10,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // ProcessRow is one row of mysql/processlist.html's table.
@@ -36,7 +37,7 @@ func handleMySQLProcessList(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	var processList []ProcessRow
 	rows, execErr := mysqlmanager.Exec(ctx, userContext, "SHOW FULL PROCESSLIST", "")
 	if execErr != nil {
-		flashSess(a, w, r, "error", "Error fetching process list: "+execErr.Error())
+		flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching process list: %(error)s", "error", execErr.Error()))
 	} else {
 		for _, row := range rows {
 			processList = append(processList, ProcessRow{
@@ -98,9 +99,9 @@ func handleMySQLKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	_ = r.ParseForm()
 	id := r.Form.Get("id")
 	if err := killQuery(r.Context(), userContext, id); err != nil {
-		flashAndRedirect(a, w, r, "error", "Error killing query "+id+": "+err.Error(), "/mysql/processlist")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error killing query %(id)s: %(error)s", "id", id, "error", err.Error()), "/mysql/processlist")
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "killed MySQL query "+id, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", "Query "+id+" killed.", "/mysql/processlist")
+	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Query %(id)s killed.", "id", id), "/mysql/processlist")
 }

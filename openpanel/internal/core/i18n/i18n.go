@@ -3,6 +3,7 @@ package i18n
 
 import (
 	"context"
+	"html/template"
 	"os"
 	"path/filepath"
 	"sort"
@@ -161,6 +162,11 @@ func (m *Manager) Translator(locale string) Translator {
 
 func (t Translator) Get(str string, kv ...string) string {
 	return t.manager.Get(t.locale, str, kv...)
+}
+
+// HTML translates already-trusted HTML text like flash messages without losing its template.HTML type
+func (t Translator) HTML(s template.HTML) template.HTML {
+	return template.HTML(t.Get(string(s))) //nolint:gosec // catalog text and server-generated flashes, not user input
 }
 
 func (t Translator) GetN(str, plural string, n int) string {

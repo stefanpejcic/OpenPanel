@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var importSecureFilenameRE = regexp.MustCompile(`[^A-Za-z0-9_.-]`)
@@ -76,11 +77,11 @@ func handlePostgresImportDB(a *appctx.App, w http.ResponseWriter, r *http.Reques
 			if imported {
 				ipAddress := reqip.ClientIP(r)
 				_ = logger.RecordUserAction(a.Config, currentUsername, "imported "+filename+" into PostgreSQL database "+dbName, ipAddress)
-				flashSess(a, w, r, "success", "Successfully imported "+filename+" into database: "+dbName)
+				flashSess(a, w, r, "success", web.Tr(a, r, "Successfully imported %(filename)s into database: %(db_name)s", "filename", filename, "db_name", dbName))
 				renderImportPage(a, w, r, "", http.StatusOK)
 				return
 			}
-			flashSess(a, w, r, "error", "Error importing "+filename+" into database "+dbName+": "+importErr)
+			flashSess(a, w, r, "error", web.Tr(a, r, "Error importing %(filename)s into database %(db_name)s: %(import_err)s", "filename", filename, "db_name", dbName, "import_err", importErr))
 			renderImportPage(a, w, r, dbName, http.StatusOK)
 			return
 		}

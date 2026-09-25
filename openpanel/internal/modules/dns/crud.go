@@ -14,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleUpdateDNSRecord replaces one or more zone-file lines (rowID through endRowID) with new content, after checking the serial number hasn't changed since the client last loaded the zone
@@ -49,7 +50,7 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	path := zoneFilePath(domain)
 	if !fileExists(path) {
-		flashAndRedirect(a, w, r, "error", "Error:Zone file not found for domain: "+domain, "/domains/edit-dns-zone")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error:Zone file not found for domain: %(domain)s", "domain", domain), "/domains/edit-dns-zone")
 		return
 	}
 
@@ -236,13 +237,13 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	f, openErr := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if openErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error adding DNS record: "+openErr.Error(), redirectTarget)
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", openErr.Error()), redirectTarget)
 		return
 	}
 	_, writeErr := f.WriteString(newRecord + "\n")
 	_ = f.Close()
 	if writeErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error adding DNS record: "+writeErr.Error(), redirectTarget)
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", writeErr.Error()), redirectTarget)
 		return
 	}
 
@@ -340,7 +341,7 @@ func handleRestartDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	cctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 	if err := exec.CommandContext(cctx, "opencli", "domains-dns", "default", domain, "-y").Run(); err != nil {
-		flashAndRedirect(a, w, r, "error", "Failed to restart DNS zone: "+err.Error(), "/domains/edit-dns-zone/"+domain)
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to restart DNS zone: %(error)s", "error", err.Error()), "/domains/edit-dns-zone/"+domain)
 		return
 	}
 

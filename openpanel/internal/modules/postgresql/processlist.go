@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // ProcessRow is one row of psql/processlist.html's table.
@@ -58,7 +59,7 @@ func handleProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		ORDER BY pid
 	`, "postgres")
 	if execErr != nil {
-		flashSess(a, w, r, "error", "Error fetching process list: "+execErr.Error())
+		flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching process list: %(error)s", "error", execErr.Error()))
 	} else {
 		for _, row := range rows {
 			processList = append(processList, ProcessRow{
@@ -124,9 +125,9 @@ func handleKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	pid := r.Form.Get("pid")
 	if err := cancelQuery(r.Context(), userContext, pid); err != nil {
-		flashAndRedirect(a, w, r, "error", "Error killing query "+pid+": "+err.Error(), "/postgresql/processlist")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error killing query %(pid)s: %(error)s", "pid", pid, "error", err.Error()), "/postgresql/processlist")
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "killed PostgreSQL query "+pid, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", "Query "+pid+" killed.", "/postgresql/processlist")
+	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Query %(pid)s killed.", "pid", pid), "/postgresql/processlist")
 }

@@ -19,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 func atoiDefault(s string, def int) int {
@@ -58,7 +59,7 @@ func HandleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	websiteCount, _ := countUserWebsites(a, userID)
 
 	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		flashSess(a, w, r, "warning", "You have reached the maximum number of sites allowed."+plan.UpgradeMessage())
+		flashSess(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
 	} else if r.Method == http.MethodPost {
 		HandleInstall(a, w, r)
 		return

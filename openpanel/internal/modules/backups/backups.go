@@ -13,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // Register wires the backups routes onto mux, gated behind the "backups" feature flag
@@ -281,7 +282,7 @@ func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "switched backup target to '"+target+"'", reqip.ClientIP(r))
-		flashSess(a, w, r, "success", "Backup target switched to '"+target+"' successfully.")
+		flashSess(a, w, r, "success", web.Tr(a, r, "Backup target switched to '%(target)s' successfully.", "target", target))
 	}
 
 	if _, err := os.Stat(path); err != nil {

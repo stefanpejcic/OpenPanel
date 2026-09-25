@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var allowedEditors = map[string]bool{"monaco": true, "ace": true, "codemirror": true, "text": true}
@@ -161,7 +162,7 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 		}
 		if info.Size() > fileLimitBytes {
 			flashAndRedirect(a, w, r, "error",
-				"File is too large to open in the editor (limit is "+strconv.Itoa(fileLimitMB)+" MB)", "/files")
+				web.Tr(a, r, "File is too large to open in the editor (limit is %(file_limit_mb)s MB)", "file_limit_mb", strconv.Itoa(fileLimitMB)), "/files")
 			return
 		}
 	}
@@ -216,7 +217,7 @@ func handleDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 	}
 	fileLimitMB := atoiDefault(a.Config.Get("filemanager_download_size", "500"), 500)
 	if info.Size() > int64(fileLimitMB)*1024*1024 {
-		flashAndRedirect(a, w, r, "error", "File size exceeds "+strconv.Itoa(fileLimitMB)+"MB limit. Download aborted.", filesRedirectPath(pathParam))
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "File size exceeds %(file_limit_mb)sMB limit. Download aborted.", "file_limit_mb", strconv.Itoa(fileLimitMB)), filesRedirectPath(pathParam))
 		return
 	}
 
@@ -298,7 +299,7 @@ func handleViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filen
 			return
 		}
 		if info.Size() > int64(fileLimitMB)*1024*1024 {
-			flashAndRedirect(a, w, r, "error", "File is too large to view in the browser (limit is "+strconv.Itoa(fileLimitMB)+" MB)", "/files")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "File is too large to view in the browser (limit is %(file_limit_mb)s MB)", "file_limit_mb", strconv.Itoa(fileLimitMB)), "/files")
 			return
 		}
 	}

@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 func atoiDefault(s string, def int) int {
@@ -96,7 +97,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		rows, execErr := mysqlmanager.Exec(ctx, userContext, query, "")
 		if execErr != nil {
-			flashSess(a, w, r, "error", "Error fetching databases: "+execErr.Error())
+			flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching databases: %(error)s", "error", execErr.Error()))
 		} else {
 			assignedLookup := map[string]string{}
 			for _, row := range rows {
@@ -112,7 +113,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else {
-		flashSess(a, w, r, "warning", mysqlWarningFlashMessage(mysqlVersion, status.State, status.Health))
+		flashSess(a, w, r, "warning", web.Tr(a, r, mysqlWarningFlashMessage(mysqlVersion, status.State, status.Health), "service", mysqlVersion, "state", status.State))
 	}
 
 	if r.URL.Query().Get("output") == "json" {
@@ -161,7 +162,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	status := docker.GetContainerStatus(ctx, userContext, mysqlVersion)
 	if status.State != "running" {
-		flashAndRedirect(a, w, r, "warning", fmt.Sprintf("%s service is not ready yet. Please wait for the installation to finish before creating a database.", mysqlVersion), "/mysql")
+		flashAndRedirect(a, w, r, "warning", web.Tr(a, r, "%(mysql_version)s service is not ready yet. Please wait for the installation to finish before creating a database.", "mysql_version", mysqlVersion), "/mysql")
 		return
 	}
 
@@ -173,7 +174,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if !validators.IsValidIdentifier(databaseName) {
-			flashAndRedirect(a, w, r, "error", fmt.Sprintf("Name %s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", databaseName), "/mysql/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mysql/new")
 			return
 		}
 		if len(databaseName) > 64 {
@@ -192,12 +193,12 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		dbUsage := getDatabaseCount(ctx, a, currentUsername, userContext)
 
 		if dbLimit != 0 && dbUsage >= dbLimit {
-			flashAndRedirect(a, w, r, "error", fmt.Sprintf("Error creating database: '%s' - You have reached the maximum number of databases allowed.%s", databaseName, plan.UpgradeMessage()), "/mysql/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error creating database: '%(database_name)s' - You have reached the maximum number of databases allowed.%(upgrade_message)s", "database_name", databaseName, "upgrade_message", plan.UpgradeMessage()), "/mysql/new")
 			return
 		}
 
 		if _, execErr := mysqlmanager.Exec(ctx, userContext, "CREATE DATABASE IF NOT EXISTS `"+databaseName+"`", ""); execErr != nil {
-			flashAndRedirect(a, w, r, "error", "Error creating database: "+execErr.Error(), "/mysql/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error creating database: %(error)s", "error", execErr.Error()), "/mysql/new")
 			return
 		}
 		invalidateDatabasesInfo(ctx, a, userContext)
@@ -205,7 +206,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a MySQL database "+databaseName, ipAddress)
-		flashSess(a, w, r, "success", "Successfully created a database "+databaseName)
+		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully created a database %(database_name)s", "database_name", databaseName))
 		http.Redirect(w, r, "/mysql", http.StatusFound)
 		return
 	}
@@ -230,12 +231,12 @@ func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 	if !validators.IsValidIdentifier(databaseName) {
-		flashAndRedirect(a, w, r, "error", fmt.Sprintf("Name %s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", databaseName), "/mysql/users")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mysql/users")
 		return
 	}
 
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "DROP DATABASE IF EXISTS `"+databaseName+"`", ""); execErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error deleting database: "+execErr.Error(), "/mysql")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting database: %(error)s", "error", execErr.Error()), "/mysql")
 		return
 	}
 	invalidateDatabasesInfo(ctx, a, userContext)
@@ -243,7 +244,7 @@ func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted a MYSQL database "+databaseName, ipAddress)
-	flashSess(a, w, r, "success", "Successfully deleted a database "+databaseName)
+	flashSess(a, w, r, "success", web.Tr(a, r, "Successfully deleted a database %(database_name)s", "database_name", databaseName))
 	http.Redirect(w, r, "/mysql", http.StatusFound)
 }
 

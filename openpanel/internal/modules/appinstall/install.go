@@ -17,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // containerStartPollAttempts/containerStartPollInterval bound how long the post-install readiness check waits for a freshly started container to report State.Running=true
@@ -125,7 +126,7 @@ func HandleInstallPage(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.
 	websiteCount, _ := countUserWebsites(a, userID)
 
 	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		flashSess(a, w, r, "warning", "You have reached the maximum number of sites allowed."+plan.UpgradeMessage())
+		flashSess(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
 	} else if r.Method == http.MethodPost {
 		HandleInstall(kind, a, w, r)
 		return

@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleDatabasesWizard creates a database and a user for it in one step - unlike most other handlers in this package, validation/creation failures here re-render the same form (preserving the typed database/user names) rather than redirecting, so the admin doesn't have to retype everything
@@ -26,7 +27,7 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	status := docker.GetContainerStatus(ctx, userContext, mysqlVersion)
 	if status.State != "running" {
-		flashAndRedirect(a, w, r, "warning", mysqlVersion+" service is not ready yet. Please wait for the installation to finish before creating a database.", "/mysql")
+		flashAndRedirect(a, w, r, "warning", web.Tr(a, r, "%(mysql_version)s service is not ready yet. Please wait for the installation to finish before creating a database.", "mysql_version", mysqlVersion), "/mysql")
 		return
 	}
 

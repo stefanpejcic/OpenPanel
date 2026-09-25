@@ -19,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/werkzeugpw"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 func updateEmailByID(ctx context.Context, a *appctx.App, userID int, newEmail string) error {
@@ -153,7 +154,7 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 				out, runErr := exec.CommandContext(ctx, "opencli", "user-rename", currentUsername, newUsername).CombinedOutput()
 				output := string(out)
 				if runErr == nil && strings.Contains(strings.ToLower(output), "successfully") {
-					flash.Add(sess, "success", fmt.Sprintf("Username has been changed successfully from %s to %s.", currentUsername, newUsername))
+					flash.Add(sess, "success", web.Tr(a, r, "Username has been changed successfully from %(current_username)s to %(new_username)s.", "current_username", currentUsername, "new_username", newUsername))
 
 					message := securityEmail(a, r, "Username changed for account "+newUsername,
 						"The username was changed from "+currentUsername+" to "+newUsername+". Use "+newUsername+" to log in from now on.",

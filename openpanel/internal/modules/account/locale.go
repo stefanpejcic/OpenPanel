@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleAccountLocale sets the user's preferred UI language.
@@ -44,9 +45,9 @@ func handleAccountLocale(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 			var message string
 			if oldLocale, ok := sess.Values["locale"].(string); ok && oldLocale != "" {
-				message = "Language changed from " + oldLocale + " to " + locale
+				message = web.Tr(a, r, "Language changed from %(old_locale)s to %(locale)s", "old_locale", oldLocale, "locale", locale)
 			} else {
-				message = "Language changed to " + locale
+				message = web.Tr(a, r, "Language changed to %(locale)s", "locale", locale)
 			}
 
 			sess.Values["locale"] = locale

@@ -3,7 +3,6 @@ package cache
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"math"
 	"net/http"
 	"os"
@@ -18,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterVarnish wires the varnish page and stats routes onto mux.
@@ -150,7 +150,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 					_ = docker.SwapAllWebserversComposePort(userContext, "off")
 					restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
 					_ = docker.ToggleProxyHTTPPort(userContext, "off")
-					msg := fmt.Sprintf("Failed to start %s: could not bring it back up with the Varnish proxy port", webserver)
+					msg := web.Tr(a, r, "Failed to start %(webserver)s: could not bring it back up with the Varnish proxy port", "webserver", webserver)
 					if outputJSON {
 						writeJSON(w, http.StatusInternalServerError, map[string]string{"error": msg})
 						return
@@ -165,7 +165,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 					_ = docker.SwapAllWebserversComposePort(userContext, "off")
 					restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
 					_ = docker.ToggleProxyHTTPPort(userContext, "off")
-					msg := fmt.Sprintf("Failed to start %s: %s", service, result.Message)
+					msg := web.Tr(a, r, "Failed to start %(service)s: %(message)s", "service", service, "message", result.Message)
 					if outputJSON {
 						writeJSON(w, http.StatusInternalServerError, map[string]string{"error": msg})
 						return
@@ -190,7 +190,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				_ = logger.RecordUserAction(a.Config, currentUsername, "disabled Varnish", ipAddress)
 
 				if !result.Success {
-					msg := fmt.Sprintf("Failed to start %s after disabling %s: %s", webserver, service, result.Message)
+					msg := web.Tr(a, r, "Failed to start %(webserver)s after disabling %(service)s: %(message)s", "webserver", webserver, "service", service, "message", result.Message)
 					if outputJSON {
 						writeJSON(w, http.StatusInternalServerError, map[string]string{"error": msg})
 						return
@@ -219,7 +219,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			}
 			_ = logger.RecordUserAction(a.Config, currentUsername, verb+" Varnish caching for domain "+domainName, ipAddress)
 			_ = exec.CommandContext(ctx, "opencli", "domains-varnish", domainName, what).Run()
-			flashSess(a, w, r, "success", fmt.Sprintf("Varnish cache is now %s for domain %s", newStatus, domainName))
+			flashSess(a, w, r, "success", web.Tr(a, r, "Varnish cache is now %(new_status)s for domain %(domain_name)s", "new_status", newStatus, "domain_name", domainName))
 		}
 	}
 

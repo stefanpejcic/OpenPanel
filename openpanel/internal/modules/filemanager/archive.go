@@ -22,6 +22,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleExtractFiles extracts an uploaded archive (zip/tar/tar.gz/tgz/gz) into a destination directory, validating member paths first
@@ -55,7 +56,7 @@ func handleExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if mkErr := os.MkdirAll(destinationPath, 0o755); mkErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error occurred before starting archive extraction: "+mkErr.Error(), filesRedirectPath(pathParam))
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error occurred before starting archive extraction: %(error)s", "error", mkErr.Error()), filesRedirectPath(pathParam))
 		return
 	}
 	archivePath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, selectedFile), true)
@@ -94,7 +95,7 @@ func handleExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	if extractErr != nil {
 		if timeoutCtx.Err() == context.DeadlineExceeded {
-			flashAndRedirect(a, w, r, "error", fmt.Sprintf("Extraction timed out after %g minutes!", maxTime), filesRedirectPath(pathParam))
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Extraction timed out after %(minutes)s minutes!", "minutes", maxTime), filesRedirectPath(pathParam))
 			return
 		}
 		flashAndRedirect(a, w, r, "error", "Extraction failed.", filesRedirectPath(pathParam))
@@ -224,7 +225,7 @@ func handleCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		missing = append(missing, "selectedFiles")
 	}
 	if len(missing) > 0 {
-		flashAndRedirect(a, w, r, "error", "Missing required form data for compression: "+strings.Join(missing, ", "), filesRedirectPath(pathParam))
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Missing required form data for compression: %(missing)s", "missing", strings.Join(missing, ", ")), filesRedirectPath(pathParam))
 		return
 	}
 
@@ -291,7 +292,7 @@ func handleCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		if errMsg == "" {
 			errMsg = "Unknown error"
 		}
-		flashAndRedirect(a, w, r, "error", "Archive creation failed: "+errMsg, filesRedirectPath(pathParam))
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Archive creation failed: %(err_msg)s", "err_msg", errMsg), filesRedirectPath(pathParam))
 		return
 	}
 

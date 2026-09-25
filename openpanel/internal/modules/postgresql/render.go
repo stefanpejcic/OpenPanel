@@ -26,18 +26,18 @@ func loadPage(files ...string) *web.Page {
 }
 
 var (
-	databasesPage          = loadPage("psql/databases.html")
-	newDatabasePage        = loadPage("psql/new.html")
-	usersPage              = loadPage("psql/users.html")
-	createUserPage         = loadPage("psql/psql_user.html")
-	passwordPage           = loadPage("psql/password.html")
-	wizardPage             = loadPage("psql/wizard.html")
-	assignPage             = loadPage("psql/assign.html")
-	removePage             = loadPage("psql/remove.html")
-	importPage             = loadPage("psql/import.html")
-	processlistPage        = loadPage("psql/processlist.html")
-	remotePostgresPage     = loadPage("psql/remote_psql.html")
-	configurationPage      = loadPage("psql/configuration.html", "partials/_db_tuning.html")
+	databasesPage      = loadPage("psql/databases.html")
+	newDatabasePage    = loadPage("psql/new.html")
+	usersPage          = loadPage("psql/users.html")
+	createUserPage     = loadPage("psql/psql_user.html")
+	passwordPage       = loadPage("psql/password.html")
+	wizardPage         = loadPage("psql/wizard.html")
+	assignPage         = loadPage("psql/assign.html")
+	removePage         = loadPage("psql/remove.html")
+	importPage         = loadPage("psql/import.html")
+	processlistPage    = loadPage("psql/processlist.html")
+	remotePostgresPage = loadPage("psql/remote_psql.html")
+	configurationPage  = loadPage("psql/configuration.html", "partials/_db_tuning.html")
 )
 
 // ServiceStatusData is the container_state/health_status view-model shared by databases.html and users.html.
@@ -50,9 +50,9 @@ type ServiceStatusData struct {
 type DatabasesPageData struct {
 	web.LayoutData
 	ServiceStatusData
-	Databases []DatabaseRow
-	Unit      string
-	ShowAll   bool
+	Databases    []DatabaseRow
+	Unit         string
+	ShowAll      bool
 	StatusDetail string // longer explanatory text for the table's empty-state row while the service isn't running/healthy, "" when running+healthy
 }
 

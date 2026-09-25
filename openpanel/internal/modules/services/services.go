@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // Register wires the services routes onto mux, gated behind the "services" feature flag
@@ -116,29 +117,29 @@ func HandleServiceAction(a *appctx.App, r *http.Request, action, service, userCo
 		result := docker.RestartContainer(r.Context(), userContext, service)
 		if result.Success {
 			_ = logger.RecordUserAction(a.Config, username, "restarted service "+service, reqip.ClientIP(r))
-			flash.Add(sess, "success", service+" service is now restarted.")
+			flash.Add(sess, "success", web.Tr(a, r, "%(service)s service is now restarted.", "service", service))
 		} else {
 			msg := result.Message
 			if msg == "" {
-				msg = "Failed to restart the " + service + " service."
+				msg = web.Tr(a, r, "Failed to restart the %(service)s service.", "service", service)
 			}
 			flash.Add(sess, "error", msg)
 		}
 	case "enable", "disable":
 		dockerAction := "deactivate"
-		successMsg := service + " service is now disabled."
-		failMsg := "Failed to stop the " + service + " service."
+		successMsg := web.Tr(a, r, "%(service)s service is now disabled.", "service", service)
+		failMsg := web.Tr(a, r, "Failed to stop the %(service)s service.", "service", service)
 		if action == "enable" {
 			dockerAction = "activate"
-			successMsg = service + " service is now enabled."
-			failMsg = "Failed to start the " + service + " service."
+			successMsg = web.Tr(a, r, "%(service)s service is now enabled.", "service", service)
+			failMsg = web.Tr(a, r, "Failed to start the %(service)s service.", "service", service)
 		}
 		result := docker.StartOrStopContainer(r.Context(), userContext, service, dockerAction, "")
 		if result.Success {
 			_ = logger.RecordUserAction(a.Config, username, action+"d service "+service, reqip.ClientIP(r))
 			flash.Add(sess, "success", successMsg)
 		} else {
-			flash.Add(sess, "error", failMsg+" Try restart.")
+			flash.Add(sess, "error", web.Tr(a, r, "%(fail_msg)s Try restart.", "fail_msg", failMsg))
 		}
 	}
 }

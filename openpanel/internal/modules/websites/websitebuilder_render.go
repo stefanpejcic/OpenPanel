@@ -207,7 +207,7 @@ func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	_ = a.Cache.Delete(ctx, cacheKeyUserWebsites(userID))
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed Website Builder on "+selectedDomain, ipAddress)
-	flashSess(a, w, r, "success", "Website created successfully on "+selectedDomain)
+	flashSess(a, w, r, "success", web.Tr(a, r, "Website created successfully on %(selected_domain)s", "selected_domain", selectedDomain))
 
 	emit(map[string]any{"status": "Website creation completed!"})
 

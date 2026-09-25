@@ -269,19 +269,19 @@ func isSystemMySQLDatabase(name string) bool {
 	}
 }
 
-// mysqlWarningFlashMessage builds the shorter, service-name-interpolated flash message shown above the databases/users table - distinct from mysqlContainerStatusDetail()'s longer table-body text, even though both branch on the same two fields
+// mysqlWarningFlashMessage builds the shorter flash message as a catalog template with %(service)s and %(state)s placeholders, shown above the databases/users table - distinct from mysqlContainerStatusDetail()'s longer table-body text, even though both branch on the same two fields
 func mysqlWarningFlashMessage(mysqlVersion, containerState, healthStatus string) string {
 	switch {
 	case containerState == "not_found":
-		return mysqlVersion + " service is not yet installed. Starting it in the background.."
+		return "%(service)s service is not yet installed. Starting it in the background.."
 	case containerState != "running":
-		return mysqlVersion + " service is not accessible. Current status: " + containerState + "."
+		return "%(service)s service is not accessible. Current status: %(state)s."
 	case healthStatus == "unhealthy":
-		return mysqlVersion + " is running but still initializing. If it stays in this state for more than 60s, check the logs."
+		return "%(service)s is running but still initializing. If it stays in this state for more than 60s, check the logs."
 	case healthStatus == "starting":
-		return mysqlVersion + " is starting. It is not ready to handle queries yet."
+		return "%(service)s is starting. It is not ready to handle queries yet."
 	case healthStatus != "healthy":
-		return mysqlVersion + " is running, but health status is unknown. It may or may not be ready to handle queries."
+		return "%(service)s is running, but health status is unknown. It may or may not be ready to handle queries."
 	default:
 		return ""
 	}

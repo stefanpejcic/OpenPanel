@@ -14,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // WAFIssue is one health-check issue surfaced on the WAF list page, e.g. a warning that the WAF is disabled for one or more domains
@@ -87,7 +88,7 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				if reloadErr := reloadCaddy(r.Context()); reloadErr == nil {
 					_ = logger.RecordUserAction(a.Config, username, statusText+" WAF for domain "+domainName, reqip.ClientIP(r))
 					notifySentinel(domainName, statusText)
-					flash.Add(sess, "success", "WAF for domain: "+domainName+" is now "+statusText)
+					flash.Add(sess, "success", web.Tr(a, r, "WAF for domain: %(domain_name)s is now %(status_text)s", "domain_name", domainName, "status_text", statusText))
 				} else {
 					log.Printf("WAF - Error changing WAF status for domain: %v", reloadErr)
 					flash.Add(sess, "error", "Error changing WAF status.")
@@ -98,7 +99,7 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			log.Printf("WAF - Error: config file for domain %s does not exist.", domainName)
-			flash.Add(sess, "warning", "Config file for "+domainName+" not found")
+			flash.Add(sess, "warning", web.Tr(a, r, "Config file for %(domain_name)s not found", "domain_name", domainName))
 		}
 		_ = a.Sessions.Save(r, w, sess)
 	}

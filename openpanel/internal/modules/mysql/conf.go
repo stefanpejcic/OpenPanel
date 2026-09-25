@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // defaultConfKeys is the fallback list of admin-editable my.cnf keys used when no custom keys file is present
@@ -177,15 +178,15 @@ func handleEditMySQLConfig(a *appctx.App, w http.ResponseWriter, r *http.Request
 		} else {
 			argv := podmanmanager.PodmanArgv(userContext, "restart", mysqlVersion)
 			if runErr := podmanmanager.Command(ctx, userContext, argv).Run(); runErr != nil {
-				flashSess(a, w, r, "error", mysqlVersion+" configuration saved but service failed to restart.")
+				flashSess(a, w, r, "error", web.Tr(a, r, "%(mysql_version)s configuration saved but service failed to restart.", "mysql_version", mysqlVersion))
 			} else {
-				flashSess(a, w, r, "success", mysqlVersion+" configuration updated and service restarted.")
+				flashSess(a, w, r, "success", web.Tr(a, r, "%(mysql_version)s configuration updated and service restarted.", "mysql_version", mysqlVersion))
 			}
 		}
 	}
 
 	if !docker.IsServiceRunning(ctx, userContext, mysqlVersion) {
-		flashSess(a, w, r, "warning", mysqlVersion+" container is not running. Please wait for initialization.")
+		flashSess(a, w, r, "warning", web.Tr(a, r, "%(mysql_version)s container is not running. Please wait for initialization.", "mysql_version", mysqlVersion))
 		docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
 	}
 

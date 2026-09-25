@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // DatabaseRow is one row of mongodb/databases.html's table.
@@ -52,7 +53,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	default:
 		dbs, listErr := mongomanager.ListDatabases(ctx, userContext)
 		if listErr != nil {
-			flashSess(a, w, r, "error", "Error fetching databases: "+listErr.Error())
+			flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching databases: %(error)s", "error", listErr.Error()))
 		} else {
 			for _, d := range dbs {
 				databaseInfo = append(databaseInfo, DatabaseRow{Database: d.Name, SizeDisplay: formatSize(d.SizeBytes), IsSystem: mongomanager.IsSystemDatabase(d.Name)})
@@ -100,7 +101,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if !validators.IsValidIdentifier(databaseName) {
-			flashAndRedirect(a, w, r, "error", "Name "+databaseName+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "/mongodb/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mongodb/new")
 			return
 		}
 		if isRestrictedDatabase(databaseName) {
@@ -126,18 +127,18 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		if dbUsage >= dbLimit {
-			flashAndRedirect(a, w, r, "error", "You have reached the maximum number of databases allowed."+plan.UpgradeMessage(), "/mongodb/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "You have reached the maximum number of databases allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()), "/mongodb/new")
 			return
 		}
 
 		if createErr := mongomanager.CreateDatabase(ctx, userContext, databaseName); createErr != nil {
-			flashAndRedirect(a, w, r, "error", "Failed to create database: "+createErr.Error(), "/mongodb/new")
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create database: %(error)s", "error", createErr.Error()), "/mongodb/new")
 			return
 		}
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a MongoDB database "+databaseName, ipAddress)
-		flashSess(a, w, r, "success", "Successfully created a MongoDB database "+databaseName)
+		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully created a MongoDB database %(database_name)s", "database_name", databaseName))
 		http.Redirect(w, r, "/mongodb", http.StatusFound)
 		return
 	}
@@ -162,7 +163,7 @@ func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		flashAndRedirect(a, w, r, "error", "Database name is required.", "/mongodb")
 		return
 	case !validators.IsValidIdentifier(databaseName):
-		flashAndRedirect(a, w, r, "error", "Name "+databaseName+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "/mongodb")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mongodb")
 		return
 	case isRestrictedDatabase(databaseName):
 		flashAndRedirect(a, w, r, "error", "This is a system database that cannot be deleted.", "/mongodb")
@@ -170,13 +171,13 @@ func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	if dropErr := mongomanager.DropDatabase(ctx, userContext, databaseName); dropErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error deleting database "+databaseName+": "+dropErr.Error(), "/mongodb")
+		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting database %(database_name)s: %(error)s", "database_name", databaseName, "error", dropErr.Error()), "/mongodb")
 		return
 	}
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted a MongoDB database "+databaseName, ipAddress)
-	flashSess(a, w, r, "success", "Successfully deleted a MongoDB database "+databaseName)
+	flashSess(a, w, r, "success", web.Tr(a, r, "Successfully deleted a MongoDB database %(database_name)s", "database_name", databaseName))
 	http.Redirect(w, r, "/mongodb", http.StatusFound)
 }
 

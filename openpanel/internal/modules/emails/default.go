@@ -10,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // defaultAliasesFile is the postfix-regex.cf file used for domain default addresses.
@@ -87,7 +88,7 @@ func handleDefaultAlias(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := setDefaultAliasForDomain(domain, destination); err != nil {
-			flashAndRedirect(a, w, r, "error", "Failed to update default email: "+err.Error(), "/emails/default/"+domain)
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to update default email: %(error)s", "error", err.Error()), "/emails/default/"+domain)
 			return
 		}
 
