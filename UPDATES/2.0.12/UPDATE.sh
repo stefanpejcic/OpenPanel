@@ -53,3 +53,7 @@ for prefs in /etc/openpanel/openpanel/core/users/*/notifications.yaml; do
         grep -q "^${entry%%=*}=" "$prefs" || echo "$entry" >> "$prefs"
     done
 done
+
+# update locales
+opencli update --translations
+
