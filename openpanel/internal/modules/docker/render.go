@@ -368,18 +368,37 @@ type ChangeMySQLPageData struct {
 	web.LayoutData
 	Title     string
 	MySQLType string
-	Available string
+	Choices   []ServerChoice
+	Blocked   bool
+	DBCount   int
 }
 
-// renderChangeMySQLPage renders the MySQL-switch page. Unlike renderChangeWebserverPage below, it never passes a domains value, so the switch form and green highlighting always show with no domain check for MySQL switching - matching handleContainersMySQL, which likewise never computes user domains.
-func renderChangeMySQLPage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlType, available string) {
-	title := "Switch from " + mysqlType + " to " + available
-	layout, _, err := web.BuildLayoutData(a, w, r, title)
+// databaseChoices are the cards shown on /containers/mysql, same names and descriptions as the onboarding modal
+var databaseChoices = []ServerChoice{
+	{Value: "mysql", Label: "MySQL", Description: "Can be better fine-tuned for any type of application.", Icon: "mysql"},
+	{Value: "mariadb", Label: "MariaDB", Description: "Recommended for WordPress sites - smaller image, lower resource usage, and faster default query execution.", Icon: "mariadb"},
+	{Value: "percona", Label: "Percona", Description: "MySQL drop-in with extra performance and monitoring features, geared toward high-traffic sites.", Icon: "percona"},
+}
+
+// databaseService is the compose service behind a database choice, Percona runs as the mysql service with another image
+func databaseService(choice string) string {
+	if choice == "percona" {
+		return "mysql"
+	}
+	return choice
+}
+
+// renderChangeMySQLPage renders the database server switch page, blocked while user databases still exist
+func renderChangeMySQLPage(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext, flavor string, blocked bool, dbCount int) {
+	layout, _, err := web.BuildLayoutData(a, w, r, "Database Server")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := ChangeMySQLPageData{LayoutData: layout, Title: title, MySQLType: mysqlType, Available: available}
+	data := ChangeMySQLPageData{
+		LayoutData: layout, Title: "Database Server", MySQLType: flavor, Blocked: blocked, DBCount: dbCount,
+		Choices: serverChoicesFor(userContext, databaseChoices, flavor, databaseService),
+	}
 	if err := changeMySQLPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOCKER - change_mysql template render error: %v", err)
 	}
@@ -398,38 +417,61 @@ var changeWebserverPage = web.MustLoadPage(
 	"docker/change_webserver.html",
 )
 
-type ChangeWebserverPageData struct {
-	web.LayoutData
-	Title                       string
-	Webserver                   string
-	AvailableOptions            []string
-	AvailableOptionsCapitalized []string
-	HasDomains                  bool
+// ServerChoice is one option card on the webserver and database switch pages
+type ServerChoice struct {
+	Value       string
+	Label       string
+	Description string
+	Icon        string
+	Current     bool
 }
 
-func capitalizeFirst(s string) string {
-	if s == "" {
-		return s
+// webserverChoices are the cards shown on /containers/webserver, same names and descriptions as the onboarding modal
+var webserverChoices = []ServerChoice{
+	{Value: "apache", Label: "Apache", Description: "Recommended for websites that use .htaccess for rewrite rules.", Icon: "apache"},
+	{Value: "nginx", Label: "Nginx", Description: "Recommended for NodeJS and Python applications, and high-traffic sites.", Icon: "nginx"},
+	{Value: "openlitespeed", Label: "OpenLiteSpeed", Description: "Recommended for WordPress websites, but only one PHP version.", Icon: "openlitespeed"},
+	{Value: "openresty", Label: "OpenResty", Description: "Nginx core bundled with Lua scripting for custom logic.", Icon: "openresty"},
+	{Value: "litespeed", Label: "LiteSpeed", Description: "LiteSpeed Enterprise, needs a license.", Icon: "openlitespeed"},
+}
+
+type ChangeWebserverPageData struct {
+	web.LayoutData
+	Title       string
+	Webserver   string
+	Choices     []ServerChoice
+	DomainCount int
+}
+
+// serverChoicesFor keeps the choices whose service exists in the user's compose file and marks the current one
+func serverChoicesFor(userContext string, all []ServerChoice, current string, service func(string) string) []ServerChoice {
+	services := map[string]map[string]any{}
+	if composeData, err := LoadCompose(userContext); err == nil {
+		services = servicesOf(composeData)
 	}
-	return strings.ToUpper(s[:1]) + s[1:]
+	var out []ServerChoice
+	for _, c := range all {
+		_, exists := services[service(c.Value)]
+		if !exists && c.Value != current {
+			continue
+		}
+		c.Current = c.Value == current
+		out = append(out, c)
+	}
+	return out
 }
 
 // renderChangeWebserverPage renders the webserver-switch page.
-func renderChangeWebserverPage(a *appctx.App, w http.ResponseWriter, r *http.Request, webserver string, available []string, userDomains []appctx.Domain) {
-	title := "Switch from " + webserver
-	layout, _, err := web.BuildLayoutData(a, w, r, title)
+func renderChangeWebserverPage(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext, webserver string, userDomains []appctx.Domain) {
+	layout, _, err := web.BuildLayoutData(a, w, r, "Webserver")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	capitalized := make([]string, len(available))
-	for i, ws := range available {
-		capitalized[i] = capitalizeFirst(ws)
-	}
 	data := ChangeWebserverPageData{
-		LayoutData: layout, Title: title, Webserver: webserver,
-		AvailableOptions: available, AvailableOptionsCapitalized: capitalized,
-		HasDomains: len(userDomains) > 0,
+		LayoutData: layout, Title: "Webserver", Webserver: webserver,
+		Choices:     serverChoicesFor(userContext, webserverChoices, webserver, func(v string) string { return v }),
+		DomainCount: len(userDomains),
 	}
 	if err := changeWebserverPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOCKER - change_webserver template render error: %v", err)

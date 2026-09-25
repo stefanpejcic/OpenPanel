@@ -21,17 +21,61 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 
 func TestRenderDefaultPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
+	api := map[string]VersionInfo{"8.4": {StatusLabel: "Latest", IsLatestVersion: true}, "8.2": {StatusLabel: "Security fixes only"}}
 	data := DefaultVersionPageData{
-		LayoutData: baseLayout(mgr, "/php/default"), PHPDefaultVersion: "8.2",
-		InstalledVersions: []string{"8.1", "8.2"}, Service: "php-fpm-8.2",
+		LayoutData: baseLayout(mgr, "/php/default"), PHPDefaultVersion: "8.2", Service: "php-fpm-8.2",
+		Choices: phpVersionChoices([]string{"8.2", "8.4"}, "8.2", false, api),
 	}
 	w := httptest.NewRecorder()
 	if err := defaultVersionPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	if !strings.Contains(body, "8.2") {
-		t.Error("expected current default version in body")
+	if !strings.Contains(body, `name="new_php_version" value="8.2" checked disabled`) {
+		t.Error("expected the current default locked")
+	}
+	if !strings.Contains(body, `name="new_php_version" value="8.4" x-model="choice"`) || !strings.Contains(body, "The latest version") {
+		t.Error("expected a selectable 8.4 card with its description")
+	}
+	if strings.Index(body, `name="new_php_version" value="8.4"`) > strings.Index(body, `name="new_php_version" value="8.2"`) {
+		t.Error("newest version should be listed first")
+	}
+}
+
+func TestPHPVersionChoices(t *testing.T) {
+	got := phpVersionChoices([]string{"7.4", "8.10", "8.2", "8.9"}, "8.2", false, nil)
+	var order []string
+	for _, c := range got {
+		order = append(order, c.Version)
+	}
+	if strings.Join(order, " ") != "8.10 8.9 8.2 7.4" {
+		t.Errorf("order = %v", order)
+	}
+	if got[2].Description != "" || !got[2].Current {
+		t.Errorf("8.2 should be current with no description when the API is unknown, got %+v", got[2])
+	}
+
+	ls := phpVersionChoices([]string{"7.4", "8.3", "8.5"}, "8.5.1", true, nil)
+	if len(ls) != 2 || ls[0].Version != "8.5" || !ls[0].Current {
+		t.Errorf("litespeed should only list its versions and match 8.5.1 to 8.5, got %+v", ls)
+	}
+
+	// the labels the php-versions API really returns
+	for label, want := range map[string]string{"Supported (Latest)": "The latest", "Security-Fixes Only": "Security fixes", "Supported": "Fully supported", "Unsupported": "No longer"} {
+		if d := phpVersionDescription(VersionInfo{StatusLabel: label}, true); !strings.HasPrefix(d, want) {
+			t.Errorf("%s: %q", label, d)
+		}
+	}
+	if d := phpVersionDescription(VersionInfo{StatusLabel: "Supported", IsEOLVersion: true}, true); !strings.HasPrefix(d, "No longer") {
+		t.Errorf("isEOLVersion should win over the label, got %q", d)
+	}
+
+	api := map[string]VersionInfo{"8.5": {StatusLabel: "Supported (Latest)", IsLatestVersion: true}, "7.2": {StatusLabel: "Unsupported", IsEOLVersion: true}}
+	old := phpVersionChoices([]string{"8.5", "7.2", "7.1", "5.6"}, "8.5", false, api)
+	for _, c := range old[1:] {
+		if !strings.HasPrefix(c.Description, "No longer") {
+			t.Errorf("%s should be end of life, got %q", c.Version, c.Description)
+		}
 	}
 }
 

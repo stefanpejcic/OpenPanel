@@ -22,11 +22,11 @@
             {{range .Locales}}
             <button type="submit" name="locale" value="{{.Code}}"
                     x-show="query === '' || {{toJSON (printf "%s %s %s" .Native .English .Code)}}.toLowerCase().includes(query.toLowerCase())"
-                    class="flex items-center gap-3 rounded-lg border p-4 text-left transition {{if eq .Code $current}}border-blue-500 bg-blue-50 dark:bg-gray-900{{else}}border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900{{end}}">
+                    class="flex items-center gap-3 rounded-lg border p-4 text-left transition {{if eq .Code $current}}border-indigo-500 shadow-md bg-gray-50 dark:bg-gray-900{{else}}border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900{{end}}">
                 <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-8 h-6 rounded-sm shadow-sm">
                 <span class="flex flex-col">
                     <span class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.Native}}</span>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{.English}}</span>
+                    {{if ne .English .Native}}<span class="text-xs text-gray-500 dark:text-gray-400">{{.English}}</span>{{end}}
                 </span>
                 {{if eq .Code $current}}<i class="bi bi-check-circle-fill ml-auto text-blue-600 dark:text-blue-300"></i>{{end}}
             </button>

@@ -106,7 +106,7 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	renderDefaultPage(a, w, r, phpDefaultVersion, service, installedVersions)
+	renderDefaultPage(a, w, r, phpDefaultVersion, service, installedVersions, isLitespeed)
 }
 
 // computeDefaultPHPVersionAndService resolves the current default PHP version and the service that runs it, querying the LiteSpeed container directly when running under LiteSpeed since it has no per-domain php-fpm service

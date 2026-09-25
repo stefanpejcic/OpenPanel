@@ -97,7 +97,7 @@
         {{range .Locales}}{{if eq .Code $current}}
         <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-6 h-4 rounded-sm" onerror="this.style.display='none'" />
         <span class="font-medium">{{.Native}}</span>
-        <span class="text-gray-500 dark:text-gray-400">{{.English}}</span>
+        {{if ne .English .Native}}<span class="text-gray-500 dark:text-gray-400">{{.English}}</span>{{end}}
         {{end}}{{end}}
         {{if not $found}}<span class="text-gray-400">{{.T.Get "Change Language"}}</span>{{end}}
         <svg id="locale-chevron" class="ml-auto w-4 h-4 text-gray-400 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -116,7 +116,7 @@
             class="flex items-center gap-3 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 {{if eq .Code $current}}bg-gray-50 dark:bg-gray-600{{end}}">
             <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-6 h-4 rounded-sm" onerror="this.style.display='none'" />
             <span class="font-medium text-gray-900 dark:text-white">{{.Native}}</span>
-            <span class="text-gray-500 dark:text-gray-400">{{.English}}</span>
+            {{if ne .English .Native}}<span class="text-gray-500 dark:text-gray-400">{{.English}}</span>{{end}}
             {{if eq .Code $current}}
             <svg class="ml-auto w-4 h-4 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             {{end}}

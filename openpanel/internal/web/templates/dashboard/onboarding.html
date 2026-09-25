@@ -638,8 +638,12 @@ function onboardingWizard(opts) {
             // is the actual distinguishing signal the remote PHP-versions
             // API provides - most-specific check first.
             const label = (info.label || '').toLowerCase();
+            // "Unsupported" contains "supported", so end of life has to be checked first
+            if (info.level === 'unsupported' || label.indexOf('unsupported') !== -1) {
+                return '{{.T.Get "No longer receives any patches - you should definitely plan an upgrade."}}';
+            }
             if (info.is_latest || label.indexOf('latest') !== -1) {
-                return '{{.T.Get "The latest version - recommended for the newest features and, performance."}}';
+                return '{{.T.Get "The latest version - recommended for the newest features and performance."}}';
             }
             if (label.indexOf('security') !== -1) {
                 return '{{.T.Get "Security fixes only - fine for older apps, but you should plan an upgrade."}}';

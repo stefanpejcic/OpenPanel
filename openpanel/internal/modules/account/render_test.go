@@ -154,10 +154,10 @@ func TestRenderLocalePage(t *testing.T) {
 		}
 		return body[i : i+strings.Index(body[i:], "</button>")]
 	}
-	if de := cardOf("de"); !strings.Contains(de, "border-blue-500") || !strings.Contains(de, "bi-check-circle-fill") {
+	if de := cardOf("de"); !strings.Contains(de, "border-indigo-500") || !strings.Contains(de, "bi-check-circle-fill") {
 		t.Error("expected the current locale's card to be highlighted")
 	}
-	if en := cardOf("en"); strings.Contains(en, "border-blue-500") || strings.Contains(en, "bi-check-circle-fill") {
+	if en := cardOf("en"); strings.Contains(en, "border-indigo-500") || strings.Contains(en, "bi-check-circle-fill") {
 		t.Error("only the current locale should be highlighted")
 	}
 	if !strings.Contains(body, `class="grid grid-cols-3 gap-3"`) || strings.Count(body, `name="locale"`) != 3 {

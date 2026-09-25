@@ -2,41 +2,41 @@
 sidebar_position: 14
 ---
 
-# Switch MySQL Type
+# Switch Database Server
 
-The **MySQL > Server Type** page allows you to switch your current mysql service between available options: **MySQL** and **MariaDB**.
+The **MySQL > Server Type** page lets you choose which database server runs your MySQL databases: **MySQL**, **MariaDB** or **Percona**.
 
-The currently active type is displayed in the top-right corner of the page.
+![Database Server page with cards for MySQL, MariaDB and Percona, the current one marked, and a notice to remove existing databases before switching](/img/openpanel-screenshots/containers/mysql-page.png#gh-light-mode-only)
+![Database Server page with cards for MySQL, MariaDB and Percona, the current one marked, and a notice to remove existing databases before switching](/img/openpanel-screenshots/containers/mysql-page_dark.png#gh-dark-mode-only)
+
+Each database server is shown as a card with a short description:
+
+| Database server | Best for |
+|---|---|
+| **MySQL** | Can be better fine-tuned for any type of application. |
+| **MariaDB** | WordPress sites: smaller image, lower resource usage and faster default query execution. |
+| **Percona** | Percona Server for MySQL, a MySQL drop-in with extra performance and monitoring features, geared toward high-traffic sites. |
+
+The database server you're using now is marked **Current**.
+
+Percona is fully compatible with MySQL, so your applications, phpMyAdmin, import and export work the same way on all three.
 
 ## Requirements
 
-To access this feature:
+- Your hosting plan must include the **Switch MySQL Type** (`change_db`) feature.
+- **All databases must be removed** from your account before switching, because switching deletes all database data. While you have databases, the page shows how many there are with a link to the Databases page, and the database servers can't be selected.
 
-- The **Docker** module must be enabled **server-wide** by an Administrator.
-- Your account must have the **Docker** feature enabled.
+:::danger
+Switching the database server **deletes all databases and database users**. Export every database you want to keep first (**MySQL > Databases > Export**), and import them again after switching.
+:::
 
-## Usage
+## Steps to Switch
 
-Before switching the database type, please ensure the following:
+1. Export the databases you want to keep, then delete them from **MySQL > Databases**.
+2. Navigate to **MySQL > Server Type**.
+3. Click the card of the database server you want to use.
+4. Click **Switch to &lt;database server&gt;**.
 
-- **All existing databases and users must be removed.**
-- The current mysql container must be **stopped** before the new one can be started.
+Switching stops the current database server, deletes its data and starts the new one. You can then create your databases again, or import them on the [Import](/docs/panel/mysql/import/) page.
 
-![Switch MySQL type page with the conditions for switching between MariaDB and MySQL](/img/openpanel-screenshots/containers/mysql-page.png#gh-light-mode-only)
-![Switch MySQL type page with the conditions for switching between MariaDB and MySQL](/img/openpanel-screenshots/containers/mysql-page_dark.png#gh-dark-mode-only)
-
-> ⚠️ If you already have databases configured, **back up all data**, remove all databases and users, then proceed with switching the mysql server.  
-> To avoid downtime, it's best to make this change **before adding any databases**.
-
-### Steps to Switch
-
-Since only two database types exist, there's nothing to pick from a list — the page shows a single button for the other available type.
-
-1. In the OpenPanel menu, navigate to **MySQL > Server Type**.
-2. Click the **Switch to `<type>`** button (for example, **Switch to mariadb**) to initiate the process.
-
-After confirmation:
-
-- The existing database container will be stopped and its data will be removed.
-- The new mysql type server will be started.
-- You can then re-add your database and users under the new server.
+You can also choose the database server in the onboarding wizard when you first log in.

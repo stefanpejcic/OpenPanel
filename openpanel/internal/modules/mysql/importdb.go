@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"compress/gzip"
 	"context"
 	"io"
 	"net/http"
@@ -132,9 +133,19 @@ func importDatabaseDump(ctx context.Context, userContext, mysqlVersion, dbName, 
 	}
 	defer inFile.Close()
 
+	var dump io.Reader = inFile
+	if strings.HasSuffix(tempFilePath, ".gz") {
+		zr, gzErr := gzip.NewReader(inFile)
+		if gzErr != nil {
+			return false, "not a valid .gz file: " + gzErr.Error()
+		}
+		defer zr.Close()
+		dump = zr
+	}
+
 	importArgv := podmanmanager.PodmanArgv(userContext, "exec", "-i", mysqlVersion, mysqlVersion, dbName)
 	cmd := podmanmanager.Command(ctx, userContext, importArgv)
-	cmd.Stdin = inFile
+	cmd.Stdin = dump
 	var stderr strings.Builder
 	cmd.Stderr = &stderr
 

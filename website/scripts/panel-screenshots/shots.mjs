@@ -474,7 +474,7 @@ export const pages = {
   },
   'account/language': {
     url: '/account/language',
-    shots: [{ name: 'page', alt: 'Change Language page with the language dropdown showing the current locale', crop: 'content' }],
+    shots: [{ name: 'page', alt: 'Change Language page with a card for each language showing its flag, native and English name, the current one highlighted', crop: 'content' }],
   },
   'account/api': {
     url: '/account/api',
@@ -859,7 +859,7 @@ export const pages = {
   },
   'php/default': {
     url: '/php/default',
-    shots: [{ name: 'form', alt: 'Default PHP version page with the version dropdown and the current default version', prepare: selectFirst(300), crop: 'content' }],
+    shots: [{ name: 'form', alt: 'Default PHP version page with a card for each installed PHP version, its support status and the current default marked', crop: 'content' }],
   },
   'php/extensions': {
     url: '/php/8.5/extensions',
@@ -970,11 +970,11 @@ export const pages = {
   },
   'containers/mysql': {
     url: '/containers/mysql',
-    shots: [{ name: 'page', alt: 'Switch MySQL type page with the conditions for switching between MariaDB and MySQL', crop: 'content' }],
+    shots: [{ name: 'page', alt: 'Database Server page with cards for MySQL, MariaDB and Percona, the current one marked, and a notice to remove existing databases before switching', crop: 'content' }],
   },
   'containers/webserver': {
     url: '/containers/webserver',
-    shots: [{ name: 'page', alt: 'Switch web server page with the conditions for switching to another web server', crop: 'content' }],
+    shots: [{ name: 'page', alt: 'Web Server Type page with a card for each available web server, the current one marked, and the Switch button', crop: 'content' }],
   },
   'advanced/cronjobs': {
     url: '/cronjobs',

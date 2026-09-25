@@ -13,8 +13,8 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
-// hasOnlyRestrictedDatabases reports whether the active mysql/mariadb server has no real user-created databases, only the system ones every fresh install ships with, in which case it's safe to force a type switch. Any failure to check returns false, falling back to the safe "must stop it manually" path rather than risking a silent wipe.
-func hasOnlyRestrictedDatabases(ctx context.Context, a *appctx.App, userContext string) bool {
+// userDatabaseCount counts the databases the user created on the active mysql/mariadb server, ok is false when the server can't be asked
+func userDatabaseCount(ctx context.Context, a *appctx.App, userContext string) (count int, ok bool) {
 	raw := a.Config.Get("mysql_restricted_databases", "information_schema performance_schema mysql phpmyadmin sys mariadb.sys")
 	fields := strings.Fields(strings.Trim(strings.TrimSpace(raw), `"'`))
 	quoted := make([]string, len(fields))
@@ -24,9 +24,15 @@ func hasOnlyRestrictedDatabases(ctx context.Context, a *appctx.App, userContext 
 	query := "SELECT COUNT(*) AS total FROM information_schema.schemata WHERE schema_name NOT IN (" + strings.Join(quoted, ", ") + ")"
 	rows, err := mysqlmanager.Exec(ctx, userContext, query, "")
 	if err != nil || len(rows) == 0 || len(rows[0]) == 0 {
-		return false
+		return 0, false
 	}
-	return mysqlmanager.ToInt(rows[0][0]) == 0
+	return mysqlmanager.ToInt(rows[0][0]), true
+}
+
+// hasOnlyRestrictedDatabases reports whether the active mysql/mariadb server has no real user-created databases, only the system ones every fresh install ships with, in which case it's safe to force a type switch. Any failure to check returns false, falling back to the safe "must stop it manually" path rather than risking a silent wipe.
+func hasOnlyRestrictedDatabases(ctx context.Context, a *appctx.App, userContext string) bool {
+	count, ok := userDatabaseCount(ctx, a, userContext)
+	return ok && count == 0
 }
 
 // handleContainersMySQL swaps between mysql/mariadb, wiping the old data volume. Every failure branch (stop failed, start failed) returns immediately with a redirect carrying the specific error message, rather than falling through to a generic "Invalid mysql server selected" flash that would bury the real cause.
@@ -42,10 +48,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 	userContext, _ := injected["context"].(string)
 
 	mysqlType, _ := GetEnvValue(userContext, "MYSQL_TYPE")
-	available := "mysql"
-	if mysqlType == "mysql" {
-		available = "mariadb"
-	}
+	flavor := databaseFlavor(userContext, mysqlType)
 
 	if r.Method == http.MethodPost {
 		outputJSON := r.URL.Query().Get("output") == "json"
@@ -65,6 +68,16 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 		_ = r.ParseForm()
 		newSQL := r.Form.Get("new_sql")
+		// switching wipes the data volume, so picking the type already in use must not go through
+		if newSQL == flavor {
+			msg := fmt.Sprintf("Already using %s.", flavor)
+			if outputJSON {
+				jsonErr(http.StatusBadRequest, msg)
+				return
+			}
+			flashAndRedirect(a, w, r, "error", msg, "/containers/mysql")
+			return
+		}
 		if newSQL == "mysql" || newSQL == "mariadb" || newSQL == "percona" {
 			// Percona isn't a separate compose service the way mariadb is - it's drop-in compatible with the "mysql" service, just a different image (see setComposePerconaConfig)
 			targetService := newSQL
@@ -146,11 +159,16 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, mysqlType)
+		writeJSON(w, flavor)
 		return
 	}
 
-	renderChangeMySQLPage(a, w, r, mysqlType, available)
+	blocked, dbCount := false, 0
+	if IsServiceRunning(ctx, userContext, mysqlType) {
+		count, ok := userDatabaseCount(ctx, a, userContext)
+		blocked, dbCount = !ok || count > 0, count
+	}
+	renderChangeMySQLPage(a, w, r, userContext, flavor, blocked, dbCount)
 }
 
 var webserverOptions = []string{"apache", "nginx", "openresty", "openlitespeed", "litespeed"}
@@ -254,5 +272,5 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	renderChangeWebserverPage(a, w, r, webserver, available, userDomains)
+	renderChangeWebserverPage(a, w, r, userContext, webserver, userDomains)
 }

@@ -352,6 +352,19 @@ func setComposePerconaConfig(userContext string, percona bool) error {
 	return SaveCompose(userContext, composeData)
 }
 
+// databaseFlavor is mysql, mariadb or percona, Percona keeps MYSQL_TYPE=mysql and is only visible in the mysql service's image
+func databaseFlavor(userContext, mysqlType string) string {
+	if mysqlType != "mysql" {
+		return mysqlType
+	}
+	if composeData, err := LoadCompose(userContext); err == nil {
+		if img, _ := servicesOf(composeData)["mysql"]["image"].(string); strings.Contains(strings.ToLower(img), "percona") {
+			return "percona"
+		}
+	}
+	return mysqlType
+}
+
 // ensureMyCnfClientSocket adds an explicit "socket=" line to my.cnf's [client] section, pointing CLI tools like mysql/mysqldump at the shared /var/run/mysqld/mysqld.sock this compose file bind-mounts into every mysql-adjacent container - needed only for Percona, since mysql/mariadb's Debian-based images already default to that socket path but Percona's RPM-based image defaults to /var/lib/mysql/mysql.sock instead, which breaks import/export without this override.
 func ensureMyCnfClientSocket(userContext string) error {
 	path := homePath(userContext, "my.cnf")

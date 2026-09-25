@@ -172,13 +172,13 @@ When disabled:
 
 ## Switch MySQL Type
 
-The **`change_db`** module allows users to switch between MySQL and MariaDB for their account.
+The **`change_db`** module allows users to switch between MySQL, MariaDB and Percona for their account.
 
 When enabled:
-* Users can access [**MySQL > Server Type**](/docs/panel/mysql/server_type/) page to switch mysql/mariadb.
+* Users can access [**MySQL > Server Type**](/docs/panel/mysql/server_type/) page to switch between MySQL, MariaDB and Percona.
 
 When disabled:
-* Users do not have access to the *Switch MySQL Type* page.
+* Users do not have access to the *Switch Database Server* page.
 
 
 ## Fix Permissions

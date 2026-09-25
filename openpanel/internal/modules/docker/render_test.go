@@ -2,6 +2,8 @@ package docker
 
 import (
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -118,50 +120,114 @@ func TestRenderDeleteConfirmPage(t *testing.T) {
 
 func TestRenderChangeMySQLPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
-	w := httptest.NewRecorder()
-	data := ChangeMySQLPageData{
-		LayoutData: baseLayout(mgr, "/containers/mysql"), Title: "Switch from mysql to mariadb",
-		MySQLType: "mysql", Available: "mariadb",
+	choices := []ServerChoice{
+		{Value: "mysql", Label: "MySQL", Description: "d", Icon: "mysql", Current: true},
+		{Value: "mariadb", Label: "MariaDB", Description: "d", Icon: "mariadb"},
+		{Value: "percona", Label: "Percona", Description: "d", Icon: "percona"},
 	}
+	w := httptest.NewRecorder()
+	data := ChangeMySQLPageData{LayoutData: baseLayout(mgr, "/containers/mysql"), Title: "Database Server", MySQLType: "mysql", Choices: choices}
 	if err := changeMySQLPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
-	if !strings.Contains(w.Body.String(), "mariadb") {
-		t.Error("expected available mysql type in rendered page")
+	body := w.Body.String()
+	if !strings.Contains(body, `name="new_sql" value="percona"`) || !strings.Contains(body, "/static/img/servers/percona.svg") {
+		t.Error("expected a percona card with its icon")
+	}
+	if !strings.Contains(body, `name="new_sql" value="mysql" checked disabled`) || !strings.Contains(body, "Choose a database server") {
+		t.Error("expected the current type locked and the switch button")
+	}
+
+	w = httptest.NewRecorder()
+	data.Blocked, data.DBCount = true, 3
+	_ = changeMySQLPage.Render(w, 200, data)
+	if body := w.Body.String(); strings.Contains(body, "Choose a database server") || !strings.Contains(body, "Go to Databases") || !strings.Contains(body, "<strong>3</strong>") {
+		t.Error("blocked page should show the notice instead of the button")
+	}
+}
+
+func TestDatabaseFlavorAndChoices(t *testing.T) {
+	dir := t.TempDir()
+	old := homeDirOverride
+	homeDirOverride = dir
+	defer func() { homeDirOverride = old }()
+
+	write := func(mysqlImage string) {
+		compose := "services:\n  mysql:\n    image: " + mysqlImage + "\n  mariadb:\n    image: mariadb:latest\n"
+		if err := os.WriteFile(filepath.Join(dir, "docker-compose.yml"), []byte(compose), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	write("mysql:${MYSQL_VERSION:-latest}")
+	if got := databaseFlavor("u", "mysql"); got != "mysql" {
+		t.Errorf("flavor = %q, want mysql", got)
+	}
+	write("percona/percona-server:8.0")
+	if got := databaseFlavor("u", "mysql"); got != "percona" {
+		t.Errorf("flavor = %q, want percona", got)
+	}
+	if got := databaseFlavor("u", "mariadb"); got != "mariadb" {
+		t.Errorf("flavor = %q, want mariadb", got)
+	}
+
+	choices := serverChoicesFor("u", databaseChoices, "percona", databaseService)
+	if len(choices) != 3 || !choices[2].Current || choices[0].Current {
+		t.Errorf("all three should show with percona current, got %+v", choices)
+	}
+	web := serverChoicesFor("u", webserverChoices, "apache", func(v string) string { return v })
+	if len(web) != 1 || web[0].Value != "apache" {
+		t.Errorf("webservers missing from compose should be hidden, got %+v", web)
 	}
 }
 
 func TestRenderChangeWebserverPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
+	choices := []ServerChoice{
+		{Value: "nginx", Label: "Nginx", Description: "d", Icon: "nginx", Current: true},
+		{Value: "apache", Label: "Apache", Description: "d", Icon: "apache"},
+	}
 
 	t.Run("no domains", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		data := ChangeWebserverPageData{
-			LayoutData: baseLayout(mgr, "/containers/webserver"), Title: "Switch from nginx",
-			Webserver: "nginx", AvailableOptions: []string{"apache"}, AvailableOptionsCapitalized: []string{"Apache"},
-		}
+		data := ChangeWebserverPageData{LayoutData: baseLayout(mgr, "/containers/webserver"), Title: "Webserver", Webserver: "nginx", Choices: choices}
 		if err := changeWebserverPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), `name='new_ws'`) {
-			t.Error("expected switch form to render when there are no domains")
+		body := w.Body.String()
+		if !strings.Contains(body, `name="new_ws" value="apache"`) || !strings.Contains(body, "/static/img/servers/apache.svg") {
+			t.Error("expected an apache card with its icon")
+		}
+		if !strings.Contains(body, `name="new_ws" value="nginx" checked disabled`) {
+			t.Error("the current webserver should be shown checked and not selectable")
+		}
+		if !strings.Contains(body, "Choose a webserver") {
+			t.Error("expected the switch button when there are no domains")
 		}
 	})
 
 	t.Run("has domains", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		data := ChangeWebserverPageData{
-			LayoutData: baseLayout(mgr, "/containers/webserver"), Title: "Switch from nginx",
-			Webserver: "nginx", AvailableOptions: []string{"apache"}, AvailableOptionsCapitalized: []string{"Apache"},
-			HasDomains: true,
-		}
+		data := ChangeWebserverPageData{LayoutData: baseLayout(mgr, "/containers/webserver"), Title: "Webserver", Webserver: "nginx", Choices: choices, DomainCount: 2}
 		if err := changeWebserverPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if strings.Contains(w.Body.String(), `name='new_ws'`) {
-			t.Error("switch form should be hidden while domains still exist")
+		body := w.Body.String()
+		if strings.Contains(body, "Choose a webserver") {
+			t.Error("switch button should be hidden while domains still exist")
+		}
+		if !strings.Contains(body, "Go to Domains") || !strings.Contains(body, "<strong>2</strong>") {
+			t.Error("expected the remove domains notice with the count")
 		}
 	})
+}
+
+func TestServerChoicesFor(t *testing.T) {
+	// no compose file for this context, so only the current one is kept
+	got := serverChoicesFor("choicestest", webserverChoices, "nginx", func(v string) string { return v })
+	if len(got) != 1 || got[0].Value != "nginx" || !got[0].Current {
+		t.Errorf("got %+v", got)
+	}
 }
 
 func TestRenderChangeImagePage(t *testing.T) {

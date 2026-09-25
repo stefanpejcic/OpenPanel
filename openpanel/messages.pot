@@ -14036,3 +14036,71 @@ msgstr ""
 #: templates/user/locale.html
 msgid "Choose the language OpenPanel is shown in for your account."
 msgstr ""
+
+#: templates/docker/change_webserver.html
+msgid "To switch the webserver, first remove all domains from your account."
+msgstr ""
+
+#: templates/docker/change_webserver.html
+msgid "Go to Domains"
+msgstr ""
+
+#: templates/docker/change_webserver.html
+msgid "Switching stops the current webserver, removes its configuration and starts the new one."
+msgstr ""
+
+#: templates/docker/change_webserver.html
+msgid "Choose a webserver"
+msgstr ""
+
+#: templates/docker/change_webserver.html
+msgid "LiteSpeed Enterprise, needs a license."
+msgstr ""
+
+#: templates/docker/change_mysql.html
+msgid "Database Server"
+msgstr ""
+
+#: templates/docker/change_mysql.html
+msgid "Choose the database server for your MySQL databases."
+msgstr ""
+
+#: templates/docker/change_mysql.html
+msgid "To switch the database server, first remove all databases from your account."
+msgstr ""
+
+#: templates/docker/change_mysql.html
+msgid "Go to Databases"
+msgstr ""
+
+#: templates/docker/change_mysql.html
+msgid "Switching stops the current database server, deletes its data and starts the new one."
+msgstr ""
+
+#: templates/docker/change_mysql.html
+msgid "Choose a database server"
+msgstr ""
+
+#: templates/php/default.html
+msgid "Choose the default PHP version used for all new domains."
+msgstr ""
+
+#: templates/php/default.html
+msgid "OpenLiteSpeed uses one PHP version for all domains. Changing it restarts the web server."
+msgstr ""
+
+#: templates/php/default.html
+msgid "No PHP versions are installed."
+msgstr ""
+
+#: templates/php/default.html
+msgid "Choose a PHP version"
+msgstr ""
+
+#: templates/php/default.html
+msgid "Set"
+msgstr ""
+
+#: templates/php/default.html
+msgid "as default"
+msgstr ""
