@@ -92,6 +92,7 @@ func apiMCPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			expiryNote = ", expires in " + strconv.Itoa(body.ExpiresInDays) + "d"
 		}
 		_ = logger.RecordUserAction(a.Config, username, "created a new MCP token ("+name+scopeNote+expiryNote+") via API", reqip.ClientIP(r))
+		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_api_token_change", mcpTokenEmail(a, r, username, name, tokenScope(body.ReadOnly, body.ExpiresInDays)+" through the OpenPanel API", true))
 	}
 
 	writeAPIAccountJSON(w, http.StatusCreated, map[string]any{
@@ -110,6 +111,7 @@ func apiMCPRevoke(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	name := rowName(ctx, a, "SELECT name FROM mcp_tokens WHERE id = ? AND user_id = ?", tokenID, userID)
 	deleted, err := mcptokens.RevokeToken(ctx, a.DB, tokenID, userID)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -124,6 +126,7 @@ func apiMCPRevoke(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if injectErr == nil {
 		username, _ := data["current_username"].(string)
 		_ = logger.RecordUserAction(a.Config, username, "revoked MCP token #"+strconv.Itoa(tokenID)+" via API", reqip.ClientIP(r))
+		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_api_token_change", mcpTokenEmail(a, r, username, name, "", false))
 	}
 
 	writeAPIAccountJSON(w, http.StatusOK, map[string]string{"message": "Token revoked"})

@@ -45,9 +45,18 @@ Sends an email when the account password is changed, and says whether it was cha
 
 ![Password changed email saying it was changed from the OpenPanel interface, with the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-password.png)
 
+### Contact email changed
+
+Sends an email when the contact email address for the account is changed. The email shows the old and the new address and goes to the **old** one, so the real owner knows about it even if someone else changed it.
+
+![Contact email changed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-contact-email.png#gh-light-mode-only)
+![Contact email changed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-contact-email_dark.png#gh-dark-mode-only)
+
+![Email address changed email showing the old and new address, the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-contact-email.png)
+
 ### Two-factor authentication changed
 
-Sends an email when two-factor authentication is turned on or off, when 2FA setup is started, or when a new passkey is added to the account. The passkey email includes the passkey's name.
+Sends an email when two-factor authentication is turned on or off, or when 2FA setup is started.
 
 ![Two-factor authentication changed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-twofa.png#gh-light-mode-only)
 ![Two-factor authentication changed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-twofa_dark.png#gh-dark-mode-only)
@@ -60,22 +69,45 @@ When 2FA is turned off:
 
 ![Two-factor authentication disabled email saying only the password is needed to log in, with the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-2fa-disabled.png)
 
+
+### Passkey added or removed
+
+Sends an email when a [passkey](/docs/panel/security/passkeys/) is added to the account or removed from it, from the panel or the API. The email includes the passkey's name.
+
+![Passkey added or removed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-passkey.png#gh-light-mode-only)
+![Passkey added or removed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-passkey_dark.png#gh-dark-mode-only)
+
 When a passkey is added:
 
 ![New passkey email with the passkey name MacBook Touch ID, the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-passkey.png)
 
-### Contact email changed
+When a passkey is removed:
 
-Sends an email when the contact email address for the account is changed. The email shows the old and the new address and goes to the **old** one, so the real owner knows about it even if someone else changed it.
+![Passkey removed email with the passkey name MacBook Touch ID, the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-passkey-removed.png)
 
-![Contact email changed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-contact-email.png#gh-light-mode-only)
-![Contact email changed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-contact-email_dark.png#gh-dark-mode-only)
+### API token created or revoked
 
-![Email address changed email showing the old and new address, the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-contact-email.png)
+Sends an email when a token for the [AI Assistant (MCP)](/docs/panel/account/mcp/) is created or revoked, from the panel or the API. The email includes the token's name, and for a new token whether it has full or read-only access and when it expires. Anyone with the token can manage the account, so treat it like a password.
+
+![API token created or revoked card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-api-token.png#gh-light-mode-only)
+![API token created or revoked card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-api-token_dark.png#gh-dark-mode-only)
+
+![New API token email with the token name Claude Desktop, read-only access that expires in 30 days, the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-api-token.png)
+
+### Malware found
+
+Sends an email when the scheduled malware scan finds infected files and moves them to quarantine. The email lists up to 20 files with the malware signature found in each, and points to the **Malware Scanner > Quarantine** page to delete or restore them.
+
+Scans you start yourself from the Malware Scanner page don't send an email, since you see the results right away.
+
+![Malware found card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-malware.png#gh-light-mode-only)
+![Malware found card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-malware_dark.png#gh-dark-mode-only)
+
+![Malware found email listing two quarantined files with their malware signatures, when the scan ran and what to do next](/img/openpanel-screenshots/account/notifications-email-malware.png)
 
 ### Email me if this alert gets turned off
 
-Every security alert has this option, and it's on by default. When it's on and someone turns the alert itself off, an email is sent listing the alerts that were turned off. This way nobody can quietly turn off your login or password alerts before doing something with your account.
+Every security alert except **Malware found** has this option, and it's on by default. When it's on and someone turns the alert itself off, an email is sent listing the alerts that were turned off. This way nobody can quietly turn off your login or password alerts before doing something with your account.
 
 To really stop an alert, turn off this option first, save, and then turn off the alert.
 
@@ -107,6 +139,30 @@ When a mailbox is full, new emails to it are rejected. Delete old emails or rais
 
 ![Mailbox email with usage bars for info@example.com at 92 percent and a full sales@example.com, tips to free up space and an Upgrade to Business section](/img/openpanel-screenshots/account/notifications-email-mailbox.png)
 
+### Hourly email limit reached
+
+Sends an email when the account reaches the hourly email sending limit of its hosting plan and new emails are rejected. The limit counts emails from all domains on the account together. The email shows how many emails were rejected, when, and from which addresses.
+
+A sudden spike often means a mailbox password was stolen or a contact form is abused by spammers, so the email also says what to check.
+
+Rejections are checked every 30 minutes, and the email is sent at most once a day.
+
+![Hourly email limit reached card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-ratelimit.png#gh-light-mode-only)
+![Hourly email limit reached card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-ratelimit_dark.png#gh-dark-mode-only)
+
+![Hourly email limit email with a full usage bar, rejected emails by sender, an Upgrade to Business section and tips on what to check](/img/openpanel-screenshots/account/notifications-email-ratelimit.png)
+
+### Service stopped
+
+Sends an email when a service on the account, like MySQL or PHP, had stopped and the server's hourly automatic check had to start it again. The email lists each service, whether it ran out of memory, and whether it could be started again.
+
+The email is sent at most once a day.
+
+![Service stopped card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-service.png#gh-light-mode-only)
+![Service stopped card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-service_dark.png#gh-dark-mode-only)
+
+![Services restarted email listing MySQL that ran out of memory and PHP, both restarted, with tips for services that keep stopping](/img/openpanel-screenshots/account/notifications-email-service.png)
+
 ### Upgrade offer
 
-On Enterprise, if the account's hosting plan has an [upsell plan](/docs/admin/plans/hosting_plans/) with an upgrade URL, the disk space and mailbox emails also get an **Upgrade to** section named after the upsell plan, with a button to **Dashboard > Upgrade**. It's only added when the upsell plan actually raises the limit that's running out: more disk space or inodes for the disk email, bigger maximum mailbox size for the mailbox email.
+On Enterprise, if the account's hosting plan has an [upsell plan](/docs/admin/plans/hosting_plans/) with an upgrade URL, the disk space, mailbox and hourly email limit emails also get an **Upgrade to** section named after the upsell plan, with a button to **Dashboard > Upgrade**. It's only added when the upsell plan actually raises the limit that's running out: more disk space or inodes for the disk email, bigger maximum mailbox size for the mailbox email, and more emails per hour for the hourly limit email.

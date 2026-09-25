@@ -5,8 +5,8 @@ import "testing"
 func TestBuildNotificationCards(t *testing.T) {
 	prefs := []NotificationPref{{Key: "notify_account_login", Value: "1"}, {Key: "notify_account_login_for_known_netblock", Value: "0"}}
 	cards := buildNotificationCards(prefs)
-	if len(cards) != 6 {
-		t.Fatalf("got %d cards, want 6", len(cards))
+	if len(cards) != 11 {
+		t.Fatalf("got %d cards, want 11", len(cards))
 	}
 	if !cards[0].On || len(cards[0].Subs) != 2 || cards[0].Subs[0].On {
 		t.Errorf("login card wrong: %+v", cards[0])
@@ -38,5 +38,14 @@ func TestBrowserFromUserAgent(t *testing.T) {
 		if got := browserFromUserAgent(ua); got != want {
 			t.Errorf("%q: got %q want %q", ua, got, want)
 		}
+	}
+}
+
+func TestTokenScope(t *testing.T) {
+	if got := tokenScope(true, 30); got != " with read-only access that expires in 30 days" {
+		t.Errorf("got %q", got)
+	}
+	if got := tokenScope(false, 0); got != " with full access that never expires" {
+		t.Errorf("got %q", got)
 	}
 }

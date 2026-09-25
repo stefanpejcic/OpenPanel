@@ -51,6 +51,52 @@ func securityEmail(a *appctx.App, r *http.Request, subject, text, ifNotYou strin
 	}}
 }
 
+// passkeyEmail is sent when a passkey is added or removed, removed also lists how many are left
+func passkeyEmail(a *appctx.App, r *http.Request, username, name string, added bool) userEmail {
+	if added {
+		return securityEmail(a, r, "New passkey added to account "+username,
+			"A passkey named \""+name+"\" was added. It can be used to log in without a password.",
+			"If you didn't add it, delete it from Account > Passkeys and change your password right away.")
+	}
+	return securityEmail(a, r, "Passkey removed from account "+username,
+		"The passkey named \""+name+"\" was removed and can't be used to log in anymore.",
+		"If you didn't remove it, log in, check your passkeys on Account > Passkeys and change your password right away.")
+}
+
+// mcpTokenEmail is sent when an AI Assistant (MCP) token is created or revoked, a token gives the same access as logging in
+func mcpTokenEmail(a *appctx.App, r *http.Request, username, name, scope string, created bool) userEmail {
+	if created {
+		return securityEmail(a, r, "New API token created for account "+username,
+			"An AI Assistant (MCP) token named \""+name+"\" was created"+scope+". Anyone who has it can manage account "+username+" through the AI Assistant.",
+			"If you didn't create it, revoke it right away on Account > AI Assistant (MCP) and change your password.")
+	}
+	return securityEmail(a, r, "API token revoked for account "+username,
+		"The AI Assistant (MCP) token named \""+name+"\" was revoked and can't be used anymore.",
+		"If you didn't revoke it, log in, check your tokens on Account > AI Assistant (MCP) and change your password right away.")
+}
+
+// tokenScope describes a new token's access for the email, like " with read-only access that expires in 30 days"
+func tokenScope(readOnly bool, expiresInDays int) string {
+	scope := " with full access"
+	if readOnly {
+		scope = " with read-only access"
+	}
+	if expiresInDays > 0 {
+		return scope + " that expires in " + strconv.Itoa(expiresInDays) + " days"
+	}
+	return scope + " that never expires"
+}
+
+// rowName reads a passkey or token name before it's deleted, so the email can say which one it was
+func rowName(ctx context.Context, a *appctx.App, query string, id, userID int) string {
+	var name sql.NullString
+	_ = a.DB.QueryRowContext(ctx, query, id, userID).Scan(&name)
+	if name.String == "" {
+		return "#" + strconv.Itoa(id)
+	}
+	return name.String
+}
+
 // notificationsFilePath is the one key=value-per-line preferences file per user.
 func notificationsFilePath(username string) string {
 	return "/etc/openpanel/openpanel/core/users/" + username + "/notifications.yaml"

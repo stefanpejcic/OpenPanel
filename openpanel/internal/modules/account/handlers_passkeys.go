@@ -166,10 +166,7 @@ func handlePasskeysRegisterComplete(a *appctx.App, w http.ResponseWriter, r *htt
 	}
 
 	_ = logger.RecordUserAction(a.Config, username, "registered a new passkey ("+name+")", reqip.ClientIP(r))
-	checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_twofactorauth_change", securityEmail(a, r,
-		"New passkey added to account "+username,
-		"A passkey named \""+name+"\" was added. It can be used to log in without a password.",
-		"If you didn't add it, delete it from Account > Passkeys and change your password right away."))
+	checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_passkey_change", passkeyEmail(a, r, username, name, true))
 
 	writeJSONPasskeys(w, http.StatusOK, map[string]bool{"success": true})
 }
@@ -187,6 +184,7 @@ func handlePasskeysDelete(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 
+	name := rowName(ctx, a, "SELECT name FROM user_passkeys WHERE id = ? AND user_id = ?", passkeyID, userID)
 	result, execErr := a.DB.ExecContext(ctx, "DELETE FROM user_passkeys WHERE id = ? AND user_id = ?", passkeyID, userID)
 	deleted := false
 	if execErr == nil {
@@ -201,6 +199,7 @@ func handlePasskeysDelete(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	if deleted {
 		if injectErr == nil {
 			_ = logger.RecordUserAction(a.Config, username, "removed passkey #"+strconv.Itoa(passkeyID), reqip.ClientIP(r))
+			checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_passkey_change", passkeyEmail(a, r, username, name, false))
 		}
 		flash.Add(sess, "success", "Passkey removed.")
 	} else {

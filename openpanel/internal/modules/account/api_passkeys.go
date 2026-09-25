@@ -51,6 +51,7 @@ func apiPasskeysDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	name := rowName(ctx, a, "SELECT name FROM user_passkeys WHERE id = ? AND user_id = ?", passkeyID, userID)
 	result, execErr := a.DB.ExecContext(ctx, "DELETE FROM user_passkeys WHERE id = ? AND user_id = ?", passkeyID, userID)
 	if execErr != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -66,6 +67,7 @@ func apiPasskeysDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if injectErr == nil {
 		username, _ := data["current_username"].(string)
 		_ = logger.RecordUserAction(a.Config, username, "removed passkey #"+strconv.Itoa(passkeyID)+" via API", reqip.ClientIP(r))
+		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_passkey_change", passkeyEmail(a, r, username, name, false))
 	}
 
 	writeAPIAccountJSON(w, http.StatusOK, map[string]string{"message": "Passkey removed"})

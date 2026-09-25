@@ -895,6 +895,23 @@ Done. 3 lines in /usr/local/mail/openmail/postfwd/postfwd.cf
 
 Add `--skip-reload` to not reload postfix after the change.
 
+Email users whose account reached the hourly limit:
+```bash
+opencli email-ratelimit --notify
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli email-ratelimit --notify
+stefan: 37 email(s) rejected, user notified.
+demo: 4 email(s) rejected, already notified today.
+```
+</details>
+
+It reads the last 30 minutes of the mailserver log for emails rejected by the hourly limit and emails each account's owner once a day, if they have [Hourly email limit reached](/docs/panel/account/notifications/#hourly-email-limit-reached) turned on. It runs every 30 minutes from cron, and does nothing when the mailserver isn't running.
+
 ## Fix mail permissions
 
 Set the correct owner on mail folders for all domains:

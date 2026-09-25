@@ -76,6 +76,7 @@ func handleMCPCreateToken(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			expiryNote = ", expires in " + strconv.Itoa(expiresInDays) + "d"
 		}
 		_ = logger.RecordUserAction(a.Config, username, "created a new MCP token ("+name+scopeNote+expiryNote+")", reqip.ClientIP(r))
+		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_api_token_change", mcpTokenEmail(a, r, username, name, tokenScope(readOnly, expiresInDays), true))
 	}
 
 	sess.Values["mcp_new_token"] = rawToken
@@ -96,6 +97,7 @@ func handleMCPRevokeToken(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	name := rowName(ctx, a, "SELECT name FROM mcp_tokens WHERE id = ? AND user_id = ?", tokenID, userID)
 	deleted, err := mcptokens.RevokeToken(ctx, a.DB, tokenID, userID)
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 
@@ -104,6 +106,7 @@ func handleMCPRevokeToken(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		if injectErr == nil {
 			username, _ := data["current_username"].(string)
 			_ = logger.RecordUserAction(a.Config, username, "revoked MCP token #"+strconv.Itoa(tokenID), reqip.ClientIP(r))
+			checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_api_token_change", mcpTokenEmail(a, r, username, name, "", false))
 		}
 		flash.Add(sess, "success", "Token revoked.")
 	} else {

@@ -35,12 +35,19 @@ var notificationDefs = []notificationDef{
 	{Key: "notify_account_login_notification_disabled", Default: "1", Title: "Email me if login alerts get turned off", Parent: "notify_account_login"},
 	{Key: "notify_password_change", Default: "1", Title: "Password changed", Description: "Get an email when the password for your account is changed.", Group: "Security", Anchor: "password-changed"},
 	{Key: "notify_password_change_notification_disabled", Default: "1", Title: "Email me if this alert gets turned off", Parent: "notify_password_change"},
-	{Key: "notify_twofactorauth_change", Default: "1", Title: "Two-factor authentication changed", Description: "Get an email when 2FA is turned on or off, or a passkey is added.", Group: "Security", Anchor: "two-factor-authentication-changed"},
-	{Key: "notify_twofactorauth_change_notification_disabled", Default: "1", Title: "Email me if this alert gets turned off", Parent: "notify_twofactorauth_change"},
 	{Key: "notify_contact_address_change", Default: "1", Title: "Contact email changed", Description: "Get an email when the contact email address for your account is changed.", Group: "Security", Anchor: "contact-email-changed"},
 	{Key: "notify_contact_address_change_notification_disabled", Default: "1", Title: "Email me if this alert gets turned off", Parent: "notify_contact_address_change"},
+	{Key: "notify_twofactorauth_change", Default: "1", Title: "Two-factor authentication changed", Description: "Get an email when two-factor authentication is turned on or off.", Group: "Security", Anchor: "two-factor-authentication-changed"},
+	{Key: "notify_twofactorauth_change_notification_disabled", Default: "1", Title: "Email me if this alert gets turned off", Parent: "notify_twofactorauth_change"},
+	{Key: "notify_passkey_change", Default: "1", Title: "Passkey added or removed", Description: "Get an email when a passkey is added to your account or removed from it.", Group: "Security", Anchor: "passkey-added-or-removed"},
+	{Key: "notify_passkey_change_notification_disabled", Default: "1", Title: "Email me if this alert gets turned off", Parent: "notify_passkey_change"},
+	{Key: "notify_api_token_change", Default: "1", Title: "API token created or revoked", Description: "Get an email when an AI Assistant (MCP) token is created or revoked for your account.", Group: "Security", Anchor: "api-token-created-or-revoked"},
+	{Key: "notify_api_token_change_notification_disabled", Default: "1", Title: "Email me if this alert gets turned off", Parent: "notify_api_token_change"},
+	{Key: "notify_malware_found", Default: "1", Title: "Malware found", Description: "Get an email when the scheduled malware scan finds infected files and moves them to quarantine.", Group: "Security", Anchor: "malware-found"},
 	{Key: "notify_disk_limit", Default: "1", Title: "Disk space running out", Description: "Get an email when your account uses 85% of its disk space or 95% of its inodes.", Group: "Usage", Anchor: "disk-space-running-out"},
 	{Key: "notify_email_quota_limit", Default: "1", Title: "Mailbox almost full", Description: "Get an email when one of your email accounts uses 90% of its quota.", Group: "Usage", Anchor: "mailbox-almost-full"},
+	{Key: "notify_email_ratelimit", Default: "1", Title: "Hourly email limit reached", Description: "Get an email when your account reaches its limit of emails sent per hour and new emails are rejected.", Group: "Usage", Anchor: "hourly-email-limit-reached"},
+	{Key: "notify_service_failed", Default: "1", Title: "Service stopped", Description: "Get an email when a service like MySQL or PHP stopped or ran out of memory and had to be restarted.", Group: "Usage", Anchor: "service-stopped"},
 }
 
 // readNotificationsPrefs returns every known key, a key missing from the file gets its default
@@ -71,6 +78,8 @@ var criticalNotificationKeys = []string{
 	"notify_contact_address_change_notification_disabled",
 	"notify_password_change_notification_disabled",
 	"notify_twofactorauth_change_notification_disabled",
+	"notify_passkey_change_notification_disabled",
+	"notify_api_token_change_notification_disabled",
 }
 
 // alertWasDisabled is true when a watched alert like notify_password_change was switched off while its _notification_disabled key was on
