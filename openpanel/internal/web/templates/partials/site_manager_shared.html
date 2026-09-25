@@ -65,7 +65,7 @@ function sendDataToPreview(event) {
   <template x-if="!loading && screenshotAvailable">
     <div class="relative group">
       <a :href="'http://' + domain" target="_blank" class="block w-full h-full relative">
-        <img :src="screenshotUrl" :alt="'Screenshot of ' + domain" class="w-full h-full object-cover rounded"/>
+        <img :src="screenshotUrl" :alt="{{toJSON (.T.Get "Screenshot of")}} + ' ' + domain" class="w-full h-full object-cover rounded"/>
       </a>
 
       <div class="absolute inset-0 rounded bg-black/0 group-hover:bg-black/40 transition-all duration-200 pointer-events-none flex items-end p-3">

@@ -90,7 +90,7 @@
 
                                     <div class="flex gap-2">
                                         {{if isSystemMySQLUser $user}}
-            <span class="bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">System User</span>
+            <span class="bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">{{$.T.Get "System User"}}</span>
                                         {{else}}
 
                                             <a href="/mysql/password/{{$user}}" class="btn btn-primary" type="button"><i class="bi bi-key-fill"></i> {{$.T.Get "Change Password"}}</a>

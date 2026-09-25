@@ -146,7 +146,7 @@ dropArea.addEventListener('drop', (e) => {
         </form>
 
         <div id="download-progress-div" class="hidden">
-            <div id="download-progress-header" class="text-sm text-gray-500 dark:text-gray-500">Download in progress...</div>
+            <div id="download-progress-header" class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Download in progress..."}}</div>
             <div id="download-progress-bar" class="w-full bg-gray-200 h-4 rounded-full mt-2 relative">
                 <div id="download-progress-bar-inner" class="bg-blue-500 h-4 rounded-full" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                 <span id="download-progress-label" class="absolute inset-0 flex items-center justify-center text-sm text-white">0%</span>

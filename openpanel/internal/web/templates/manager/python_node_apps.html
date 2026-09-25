@@ -566,8 +566,8 @@
 
     <div class="relative w-full mt-2">
     <select id="requirements" name="requirements" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2">
-    <option value="1" {{if .RequirementsSelected}}selected{{end}}>Yes</option>
-    <option value="" {{if not .RequirementsSelected}}selected{{end}}>No</option>
+    <option value="1" {{if .RequirementsSelected}}selected{{end}}>{{$.T.Get "Yes"}}</option>
+    <option value="" {{if not .RequirementsSelected}}selected{{end}}>{{$.T.Get "No"}}</option>
     </select>
                         </div>
 </div>

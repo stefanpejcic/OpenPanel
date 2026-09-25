@@ -72,18 +72,18 @@
     <h1>{{.Title}}</h1>
 
     <div class="meta">
-        {{if .Service}}Service: <b>{{.Service}}</b><br>{{end}}
-        {{if .Version}}Version: <b>{{.Version}}</b>{{end}}
+        {{if .Service}}{{.T.Get "Service"}}: <b>{{.Service}}</b><br>{{end}}
+        {{if .Version}}{{.T.Get "Version"}}: <b>{{.Version}}</b>{{end}}
     </div>
 
     {{if .FileContent}}
-        <h2>PHP Configuration (php -i output)</h2>
+        <h2>{{.T.Get "PHP Configuration"}} (php -i)</h2>
         <div class="container-box">
             <pre class="mono">{{.FileContent}}</pre>
         </div>
     {{else}}
         <div class="error">
-            No PHP information available.
+            {{.T.Get "No PHP information available."}}
         </div>
     {{end}}
 

@@ -231,16 +231,16 @@
                             {{else if eq $group.Type "matomo"}}Matomo
                             {{else if eq $group.Type "moodle"}}Moodle
                             {{else if eq $group.Type "mediawiki"}}MediaWiki
-                            {{else if contains $group.Type "nodejs"}}NodeJS Containers
-                            {{else if contains $group.Type "bun"}}Bun Applications
-                            {{else if contains $group.Type "python"}}Python Containers
-                            {{else if contains $group.Type "ruby"}}Ruby Applications
-                            {{else if contains $group.Type "java"}}Java Applications
+                            {{else if contains $group.Type "nodejs"}}{{$.T.Get "NodeJS Containers"}}
+                            {{else if contains $group.Type "bun"}}{{$.T.Get "Bun Applications"}}
+                            {{else if contains $group.Type "python"}}{{$.T.Get "Python Containers"}}
+                            {{else if contains $group.Type "ruby"}}{{$.T.Get "Ruby Applications"}}
+                            {{else if contains $group.Type "java"}}{{$.T.Get "Java Applications"}}
                             {{else if contains $group.Type "n8n"}}n8n
                             {{else if contains $group.Type "mautic"}}Mautic
                             {{else if contains $group.Type "fossbilling"}}FOSSBilling
-                            {{else if eq $group.Type "php"}}PHP Applications
-                            {{else if eq $group.Type "websitebuilder"}}Website Builder
+                            {{else if eq $group.Type "php"}}{{$.T.Get "PHP Applications"}}
+                            {{else if eq $group.Type "websitebuilder"}}{{$.T.Get "Website Builder"}}
                             {{else if eq $group.Type "flarum"}}Flarum
                             {{else if eq $group.Type "sofawiki"}}SofaWiki
                             {{else if eq $group.Type "dokuwiki"}}DokuWiki

@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="robots" content="noindex">
         <link rel="shortcut icon" type="image/x-icon" href="{{if .Favicon}}{{.Favicon}}{{else}}{{static "images/favicon.svg"}}{{end}}">
-        <title>GrapesJS Website Editor - {{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}</title>
+        <title>GrapesJS {{.T.Get "Website Editor"}} - {{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}</title>
         <link href="{{static "vendor/grapesjs/grapes.min.css"}}" rel="stylesheet">
 
         <script type="text/javascript">

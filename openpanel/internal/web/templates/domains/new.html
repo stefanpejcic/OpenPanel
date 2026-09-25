@@ -75,7 +75,7 @@
             </div>
 
             <div class="col-span-full" id="keys-fields" style="display: none;">
-                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="hs_ed25519_public_key">Public key<span class="text-red-500 dark:text-red-500">*</span></label>
+                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="hs_ed25519_public_key">{{.T.Get "Public Key"}}<span class="text-red-500 dark:text-red-500">*</span></label>
                 <div class="relative w-full mt-2">
                     <input
                         type="text"
@@ -89,7 +89,7 @@
             </div>
 
             <div class="col-span-full" id="key2-fields" style="display: none;">
-                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="hs_ed25519_secret_key">Secret Key<span class="text-red-500 dark:text-red-500">*</span></label>
+                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="hs_ed25519_secret_key">{{.T.Get "Secret Key"}}<span class="text-red-500 dark:text-red-500">*</span></label>
                 <div class="relative w-full mt-2">
                     <input
                         type="text"
