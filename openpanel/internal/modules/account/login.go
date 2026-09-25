@@ -63,10 +63,23 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 type localeOption struct {
 	Code     string
 	FlagCode string
+	Native   string
+	English  string
 }
 
 // flagOverrides maps locale codes to a different flag image code, for locales whose ISO code doesn't match the corresponding country flag
-var flagOverrides = map[string]string{"en": "gb", "zh": "cn", "uk": "ua", "lo": "la"}
+var flagOverrides = map[string]string{"en": "gb", "zh": "cn", "uk": "ua", "lo": "la", "ne": "np", "sr": "rs", "sv": "se"}
+
+// localeNames are the native and English names shown next to each flag, unknown locales fall back to their code
+var localeNames = map[string][2]string{
+	"en": {"English", "English"}, "bg": {"Български", "Bulgarian"}, "de": {"Deutsch", "German"},
+	"es": {"Español", "Spanish"}, "fr": {"Français", "French"}, "hu": {"Magyar", "Hungarian"},
+	"it": {"Italiano", "Italian"}, "lo": {"ລາວ", "Lao"}, "ne": {"नेपाली", "Nepali"},
+	"nl": {"Nederlands", "Dutch"}, "pl": {"Polski", "Polish"}, "pt": {"Português", "Portuguese"},
+	"ro": {"Română", "Romanian"}, "ru": {"Русский", "Russian"}, "sr": {"Српски", "Serbian"},
+	"sv": {"Svenska", "Swedish"}, "tr": {"Türkçe", "Turkish"}, "uk": {"Українська", "Ukrainian"},
+	"zh": {"中文", "Chinese"},
+}
 
 func localeOptions(codes []string) []localeOption {
 	opts := make([]localeOption, len(codes))
@@ -75,10 +88,14 @@ func localeOptions(codes []string) []localeOption {
 		if primary, _, ok := strings.Cut(flag, "_"); ok {
 			flag = primary
 		}
+		names, known := localeNames[flag]
 		if override, ok := flagOverrides[flag]; ok {
 			flag = override
 		}
-		opts[i] = localeOption{Code: c, FlagCode: flag}
+		if !known {
+			names = [2]string{strings.ToUpper(c), c}
+		}
+		opts[i] = localeOption{Code: c, FlagCode: flag, Native: names[0], English: names[1]}
 	}
 	return opts
 }
@@ -145,8 +162,11 @@ func handleLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			handleLoginTwofa(a, w, r, sess, t)
 			return
 		case r.Form.Get("locale") != "":
-			sess.Values["locale"] = r.Form.Get("locale")
-			_ = a.Sessions.Save(r, w, sess)
+			// only real locales, anything else would get its own cached translator
+			if locale := r.Form.Get("locale"); contains(a.I18n.AvailableLocales(r.Context()), locale) {
+				sess.Values["locale"] = locale
+				_ = a.Sessions.Save(r, w, sess)
+			}
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}

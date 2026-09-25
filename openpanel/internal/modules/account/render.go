@@ -63,7 +63,7 @@ func renderAccountPage(a *appctx.App, w http.ResponseWriter, r *http.Request, pe
 // LocalePageData is user/locale.html's template context.
 type LocalePageData struct {
 	web.LayoutData
-	Locales []string
+	Locales []localeOption
 	Current string
 }
 
@@ -73,7 +73,10 @@ func renderLocalePage(a *appctx.App, w http.ResponseWriter, r *http.Request, loc
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := LocalePageData{LayoutData: layout, Locales: locales, Current: current}
+	if current == "" {
+		current = layout.T.Locale()
+	}
+	data := LocalePageData{LayoutData: layout, Locales: localeOptions(locales), Current: current}
 	if err := localePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - locale template render error: %v", err)
 	}

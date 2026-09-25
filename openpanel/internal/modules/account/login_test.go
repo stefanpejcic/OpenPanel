@@ -8,11 +8,11 @@ import (
 func TestLocaleOptions(t *testing.T) {
 	got := localeOptions([]string{"en", "de", "zh", "uk", "sr"})
 	want := []localeOption{
-		{Code: "en", FlagCode: "gb"},
-		{Code: "de", FlagCode: "de"},
-		{Code: "zh", FlagCode: "cn"},
-		{Code: "uk", FlagCode: "ua"},
-		{Code: "sr", FlagCode: "sr"},
+		{Code: "en", FlagCode: "gb", Native: "English", English: "English"},
+		{Code: "de", FlagCode: "de", Native: "Deutsch", English: "German"},
+		{Code: "zh", FlagCode: "cn", Native: "中文", English: "Chinese"},
+		{Code: "uk", FlagCode: "ua", Native: "Українська", English: "Ukrainian"},
+		{Code: "sr", FlagCode: "rs", Native: "Српски", English: "Serbian"},
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("localeOptions() = %+v, want %+v", got, want)

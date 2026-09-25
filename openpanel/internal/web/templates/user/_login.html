@@ -88,97 +88,97 @@
 
   <div class="col-span-full">
 
-    <!-- Custom flag dropdown -->
+    <!-- language dropdown with flags and search -->
+    {{$current := .T.Locale}}
+    {{$found := false}}{{range .Locales}}{{if eq .Code $current}}{{$found = true}}{{end}}{{end}}
     <div class="relative" id="locale-dropdown">
-      <button
-        type="button"
-        id="locale-btn"
-        class="flex items-center gap-2 w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 cursor-pointer"
-        aria-haspopup="listbox"
-        aria-expanded="false"
-      >
-        <img id="locale-flag" src="" alt="" class="w-5 h-4 object-cover rounded-sm hidden" />
-        <span id="locale-label" class="flex-1 text-left text-gray-400 dark:text-gray-400">{{.T.Get "Change Language"}}</span>
-        <svg class="w-4 h-4 text-gray-500 transition-transform duration-200" id="locale-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <button type="button" id="locale-btn" aria-haspopup="listbox" aria-expanded="false"
+        class="flex items-center gap-3 w-full rounded border border-gray-300 bg-white px-3 py-2 text-left text-sm shadow-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
+        {{range .Locales}}{{if eq .Code $current}}
+        <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-6 h-4 rounded-sm" onerror="this.style.display='none'" />
+        <span class="font-medium">{{.Native}}</span>
+        <span class="text-gray-500 dark:text-gray-400">{{.English}}</span>
+        {{end}}{{end}}
+        {{if not $found}}<span class="text-gray-400">{{.T.Get "Change Language"}}</span>{{end}}
+        <svg id="locale-chevron" class="ml-auto w-4 h-4 text-gray-400 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
         </svg>
       </button>
 
-      <ul
-        id="locale-list"
-        role="listbox"
-        class="hidden absolute z-50 mt-1 w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded shadow-lg max-h-60 overflow-y-auto"
-      >
-        {{range .Locales}}
-        <li
-          role="option"
-          data-value="{{.Code}}"
-          class="flex items-center gap-2 px-2.5 py-1.5 text-sm text-gray-900 dark:text-white hover:bg-blue-50 dark:hover:bg-gray-600 cursor-pointer"
-        >
-        <img
-          src="/static/flags/{{.FlagCode}}.png"
-          alt="{{.Code}}"
-          class="w-5 h-4 object-cover rounded-sm"
-          onerror="this.style.display='none'"
-        />
-          <span>{{.Code}}</span>
-        </li>
-        {{end}}
-      </ul>
+      <div id="locale-list" class="hidden absolute z-50 mt-1 w-full rounded border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700">
+        <div class="border-b border-gray-200 p-2 dark:border-gray-600">
+          <input id="locale-search" type="search" placeholder="{{.T.Get "Search"}}" autocomplete="off"
+            class="block w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+        </div>
+        <ul role="listbox" class="max-h-64 overflow-y-auto py-1">
+          {{range .Locales}}
+          <li role="option" data-value="{{.Code}}" data-search="{{.Native}} {{.English}} {{.Code}}" aria-selected="{{if eq .Code $current}}true{{else}}false{{end}}"
+            class="flex items-center gap-3 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 {{if eq .Code $current}}bg-gray-50 dark:bg-gray-600{{end}}">
+            <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-6 h-4 rounded-sm" onerror="this.style.display='none'" />
+            <span class="font-medium text-gray-900 dark:text-white">{{.Native}}</span>
+            <span class="text-gray-500 dark:text-gray-400">{{.English}}</span>
+            {{if eq .Code $current}}
+            <svg class="ml-auto w-4 h-4 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            {{end}}
+          </li>
+          {{end}}
+        </ul>
+      </div>
     </div>
+
 
   </div>
 </div>
 
 <script>
 (function () {
+  var dropdown = document.getElementById('locale-dropdown');
   var btn      = document.getElementById('locale-btn');
   var list     = document.getElementById('locale-list');
-  var label    = document.getElementById('locale-label');
-  var flag     = document.getElementById('locale-flag');
+  var search   = document.getElementById('locale-search');
   var chevron  = document.getElementById('locale-chevron');
+  var items    = list.querySelectorAll('[role="option"]');
+
+  function setOpen(open) {
+    list.classList.toggle('hidden', !open);
+    btn.setAttribute('aria-expanded', String(open));
+    chevron.style.transform = open ? 'rotate(180deg)' : '';
+    if (open) {
+      search.value = '';
+      filter();
+      search.focus();
+    }
+  }
+
+  function filter() {
+    var q = search.value.trim().toLowerCase();
+    items.forEach(function (item) {
+      item.style.display = !q || item.getAttribute('data-search').toLowerCase().indexOf(q) !== -1 ? '' : 'none';
+    });
+  }
 
   btn.addEventListener('click', function () {
-    var open = list.classList.toggle('hidden');
-    btn.setAttribute('aria-expanded', String(!open)); // open means NOT hidden
-    chevron.style.transform = list.classList.contains('hidden') ? '' : 'rotate(180deg)';
+    setOpen(list.classList.contains('hidden'));
   });
-
+  search.addEventListener('input', filter);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') setOpen(false);
+  });
   document.addEventListener('click', function (e) {
-    if (!document.getElementById('locale-dropdown').contains(e.target)) {
-      list.classList.add('hidden');
-      btn.setAttribute('aria-expanded', 'false');
-      chevron.style.transform = '';
-    }
+    if (!dropdown.contains(e.target)) setOpen(false);
   });
 
-  list.querySelectorAll('[role="option"]').forEach(function (item) {
+  items.forEach(function (item) {
     item.addEventListener('click', function () {
-      var selectedLocale = item.getAttribute('data-value');
-      var selectedImg    = item.querySelector('img');
-
-      label.textContent = selectedLocale;
-      label.classList.remove('text-gray-400', 'dark:text-gray-400');
-
-      if (selectedImg && selectedImg.style.display !== 'none') {
-        flag.src = selectedImg.src;
-        flag.alt = selectedImg.alt;
-        flag.classList.remove('hidden');
-      } else {
-        flag.classList.add('hidden');
-      }
-
-      list.classList.add('hidden');
-      btn.setAttribute('aria-expanded', 'false');
-      chevron.style.transform = '';
-
+      setOpen(false);
+      if (item.getAttribute('aria-selected') === 'true') return;
       fetch('/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'X-CSRF-TOKEN': "{{.CSRFToken}}"
         },
-        body: 'locale=' + encodeURIComponent(selectedLocale)
+        body: 'locale=' + encodeURIComponent(item.getAttribute('data-value'))
       }).then(function (response) {
         if (response.redirected) {
           window.location.href = response.url;

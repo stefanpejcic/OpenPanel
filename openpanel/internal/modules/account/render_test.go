@@ -49,6 +49,9 @@ func TestRenderLoginPage(t *testing.T) {
 		`Sign In`,
 		`data-value="en"`,
 		`data-value="de"`,
+		`id="locale-search"`,
+		`data-search="Deutsch German de"`,
+		`/static/flags/gb.png`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered login page missing %q\n--- body ---\n%s", want, body)
@@ -133,32 +136,44 @@ func TestRenderAccountPage(t *testing.T) {
 
 func TestRenderLocalePage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := LocalePageData{LayoutData: baseLayout(mgr, "/account/language"), Locales: localeOptions([]string{"en", "de", "sr"}), Current: "de"}
+	w := httptest.NewRecorder()
+	if err := localePage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{`value="en"`, `value="de"`, "Deutsch", "German", "/static/flags/gb.png", "/static/flags/rs.png", `action="/account/language"`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q in body", want)
+		}
+	}
+	cardOf := func(code string) string {
+		i := strings.Index(body, `value="`+code+`"`)
+		if i < 0 {
+			return ""
+		}
+		return body[i : i+strings.Index(body[i:], "</button>")]
+	}
+	if de := cardOf("de"); !strings.Contains(de, "border-blue-500") || !strings.Contains(de, "bi-check-circle-fill") {
+		t.Error("expected the current locale's card to be highlighted")
+	}
+	if en := cardOf("en"); strings.Contains(en, "border-blue-500") || strings.Contains(en, "bi-check-circle-fill") {
+		t.Error("only the current locale should be highlighted")
+	}
+	if !strings.Contains(body, `class="grid grid-cols-3 gap-3"`) || strings.Count(body, `name="locale"`) != 3 {
+		t.Error("expected one card per locale in a 3 column grid")
+	}
+}
 
-	t.Run("no current locale", func(t *testing.T) {
-		data := LocalePageData{LayoutData: baseLayout(mgr, "/account/language"), Locales: []string{"en", "de"}}
-		w := httptest.NewRecorder()
-		if err := localePage.Render(w, 200, data); err != nil {
-			t.Fatalf("Render: %v", err)
+func TestLocaleOptionsFlags(t *testing.T) {
+	for code, flag := range map[string]string{"en": "gb", "sr": "rs", "sv": "se", "ne": "np", "zh": "cn", "de": "de", "xx": "xx"} {
+		if got := localeOptions([]string{code})[0].FlagCode; got != flag {
+			t.Errorf("%s: flag %q, want %q", code, got, flag)
 		}
-		body := w.Body.String()
-		if !strings.Contains(body, `value="en"`) || !strings.Contains(body, `value="de"`) {
-			t.Error("expected both locale options in body")
-		}
-		if strings.Contains(body, "Current") {
-			t.Error("did not expect a Current marker when no locale is selected")
-		}
-	})
-
-	t.Run("with current locale", func(t *testing.T) {
-		data := LocalePageData{LayoutData: baseLayout(mgr, "/account/language"), Locales: []string{"en", "de"}, Current: "de"}
-		w := httptest.NewRecorder()
-		if err := localePage.Render(w, 200, data); err != nil {
-			t.Fatalf("Render: %v", err)
-		}
-		if !strings.Contains(w.Body.String(), "(Current)") {
-			t.Error("expected the current locale to be marked")
-		}
-	})
+	}
+	if o := localeOptions([]string{"xx"})[0]; o.Native != "XX" {
+		t.Errorf("unknown locale should fall back to its code, got %+v", o)
+	}
 }
 
 func TestRenderTwofaPage(t *testing.T) {
@@ -474,4 +489,28 @@ func TestRenderMCPPage(t *testing.T) {
 			t.Error("expected revoke form actions for each token")
 		}
 	})
+}
+
+func TestLoginLocaleButtonShowsCurrent(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := loginPageData{Title: "Login", CSRFToken: "x", Locales: localeOptions([]string{"en", "de"}), T: mgr.Translator("de")}
+	w := httptest.NewRecorder()
+	if err := loginPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	btn := body[strings.Index(body, `id="locale-btn"`):strings.Index(body, `id="locale-list"`)]
+	if !strings.Contains(btn, "Deutsch") || !strings.Contains(btn, "/static/flags/de.png") || strings.Contains(btn, "English") {
+		t.Errorf("button should show the current language, got %s", btn)
+	}
+	if !strings.Contains(body, `data-value="de" data-search="Deutsch German de" aria-selected="true"`) {
+		t.Error("current language should be marked selected in the list")
+	}
+
+	data.T = mgr.Translator("xx")
+	w = httptest.NewRecorder()
+	_ = loginPage.Render(w, 200, data)
+	if !strings.Contains(w.Body.String(), "Change Language") {
+		t.Error("unknown current locale should fall back to the Change Language label")
+	}
 }

@@ -14032,3 +14032,7 @@ msgstr ""
 #: templates/php/options.html
 msgid "Not set (PHP default)"
 msgstr ""
+
+#: templates/user/locale.html
+msgid "Choose the language OpenPanel is shown in for your account."
+msgstr ""

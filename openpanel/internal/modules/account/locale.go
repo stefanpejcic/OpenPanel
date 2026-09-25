@@ -35,6 +35,10 @@ func handleAccountLocale(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
 		locale := r.Form.Get("locale")
+		if locale != "" && !contains(locales, locale) {
+			http.Error(w, "unknown language", http.StatusBadRequest)
+			return
+		}
 		if locale != "" {
 			sess, _ := a.Sessions.Get(r, session.CookieName)
 

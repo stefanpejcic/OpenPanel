@@ -3,71 +3,36 @@
 {{define "content"}}
 <!-- START templates/user/locale.html -->
 
-<!-- page header -->
-<section aria-label="Locale / Language" x-data="{ searchQuery: '' }">
+{{$current := .Current}}
+<section aria-label="Locale / Language" x-data="{ query: '' }">
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Change Language"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Change locale for your account."}}</p>
+            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Change Language"}}</h1></div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Choose the language OpenPanel is shown in for your account."}}</p>
+        </div>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+
+    <div class="p-6">
+        <div class="relative mb-4 w-full sm:max-w-[250px]">
+            <input x-model="query" type="search" placeholder="{{.T.Get "Search"}}" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8"/>
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center text-gray-400 dark:text-gray-600"><i class="bi bi-search"></i></div>
+        </div>
+        <form method="POST" action="/account/language" class="grid grid-cols-3 gap-3">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            {{range .Locales}}
+            <button type="submit" name="locale" value="{{.Code}}"
+                    x-show="query === '' || {{toJSON (printf "%s %s %s" .Native .English .Code)}}.toLowerCase().includes(query.toLowerCase())"
+                    class="flex items-center gap-3 rounded-lg border p-4 text-left transition {{if eq .Code $current}}border-blue-500 bg-blue-50 dark:bg-gray-900{{else}}border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900{{end}}">
+                <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-8 h-6 rounded-sm shadow-sm">
+                <span class="flex flex-col">
+                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.Native}}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{.English}}</span>
+                </span>
+                {{if eq .Code $current}}<i class="bi bi-check-circle-fill ml-auto text-blue-600 dark:text-blue-300"></i>{{end}}
+            </button>
+            {{end}}
+        </form>
     </div>
-</div>
-<!-- END page header -->
-
-
-
-
-<!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" method="GET">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-
-
-            <div class="col-span-full">
-
-
-<select class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" id="locale-select" aria-label="Select Language">
-                                            <option selected disabled>{{.T.Get "Choose Language"}}</option>
-                                            {{$current := .Current}}
-                                            {{range .Locales}}<option value="{{.}}" {{if and $current (eq $current .)}}selected{{end}}>{{.}} {{if and $current (eq $current .)}}({{$.T.Get "Current"}}){{end}}</option>{{end}}
-                                        </select>
-
-<script>
-
-function change_locales() {
-    var localeSelect = document.getElementById('locale-select');
-
-    if (localeSelect) {
-        localeSelect.addEventListener('change', function () {
-            var selectedLocale = localeSelect.value;
-            if (selectedLocale) {
-                fetch('/account/language', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRF-Token': csrf_token
-                    },
-                    body: 'locale=' + encodeURIComponent(selectedLocale)
-                }).then(function(response) {
-                    if (response.redirected) {
-                        window.location.href = response.url;
-                    } else {
-                        window.location.reload();
-                    }
-                });
-            }
-        });
-    }
-}
-
-change_locales();
-</script>
-
-    </form>
-</div>
 
 </section>
 
