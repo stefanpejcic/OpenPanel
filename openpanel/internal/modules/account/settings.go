@@ -114,8 +114,9 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 			if !updatePasswordByID(ctx, a, sess, userID, newPassword) {
 				flash.Add(sess, "error", "Password does not meet the required strength.")
 			} else {
-				message := "Password changed for account " + currentUsername + "\n" +
-					"Password for account <b>" + currentUsername + "</b> has been changed."
+				message := securityEmail(a, r, "Password changed for account "+currentUsername,
+					"The password for account "+currentUsername+" was changed from the OpenPanel interface. All other sessions stay logged in until they expire.",
+					"If you didn't change it, reset your password right away or contact your hosting provider.")
 				prettyMessage := "Password for account " + currentUsername + " has been changed successfully."
 				checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_password_change", message)
 				flash.Add(sess, "success", prettyMessage)
@@ -125,8 +126,9 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 		}
 
 		if newEmail != currentEmail {
-			message := "Email address changed for account " + currentUsername + "\n" +
-				"Email address for account <b>" + currentUsername + "</b> has been changed to: <b>" + newEmail + "</b>."
+			message := securityEmail(a, r, "Email address changed for account "+currentUsername,
+				"The contact email address for account "+currentUsername+" was changed from "+currentEmail+" to "+newEmail+". This is the last notification sent to this address, new ones go to "+newEmail+".",
+				"If you didn't change it, log in and set your email address back, then change your password.")
 			checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_contact_address_change", message)
 			_ = updateEmailByID(ctx, a, userID, newEmail)
 			a.Cache.Delete(ctx, "get_user_details_with_plan:"+strconv.Itoa(userID))
@@ -153,8 +155,9 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 				if runErr == nil && strings.Contains(strings.ToLower(output), "successfully") {
 					flash.Add(sess, "success", fmt.Sprintf("Username has been changed successfully from %s to %s.", currentUsername, newUsername))
 
-					message := "Username " + currentUsername + " changed\n" +
-						"Username changed from <b>" + currentUsername + "</b> to <b>" + newUsername + "</b>."
+					message := securityEmail(a, r, "Username changed for account "+newUsername,
+						"The username was changed from "+currentUsername+" to "+newUsername+". Use "+newUsername+" to log in from now on.",
+						"If you didn't change it, contact your hosting provider right away.")
 					checkIfUserShouldBeNotified(a, ctx, userID, newUsername, "notify_username_change", message)
 					a.Cache.Delete(ctx, "get_user_details_with_plan:"+strconv.Itoa(userID))
 					_ = logger.RecordUserAction(a.Config, newUsername, "changed username from "+currentUsername+" to "+newUsername, ip)

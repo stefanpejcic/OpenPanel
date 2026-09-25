@@ -125,15 +125,46 @@ func renderPasskeysPage(a *appctx.App, w http.ResponseWriter, r *http.Request, p
 type NotificationsPageData struct {
 	web.LayoutData
 	Notifications []NotificationPref
+	Cards         []NotificationCard
+	Email         string
 }
 
-func renderNotificationsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, prefs []NotificationPref) {
+// NotificationCard is one event on the page, Subs are its extra options shown under the switch
+type NotificationCard struct {
+	Key, Title, Description, Group, DocsURL string
+	On                                      bool
+	Subs                                    []NotificationCard
+}
+
+func buildNotificationCards(prefs []NotificationPref) []NotificationCard {
+	values := make(map[string]bool, len(prefs))
+	for _, p := range prefs {
+		values[p.Key] = p.Value == "1"
+	}
+	var cards []NotificationCard
+	for _, d := range notificationDefs {
+		c := NotificationCard{Key: d.Key, Title: d.Title, Description: d.Description, Group: d.Group, On: values[d.Key]}
+		if d.Parent == "" {
+			c.DocsURL = "https://openpanel.com/docs/panel/account/notifications/#" + d.Anchor
+			cards = append(cards, c)
+			continue
+		}
+		for i := range cards {
+			if cards[i].Key == d.Parent {
+				cards[i].Subs = append(cards[i].Subs, c)
+			}
+		}
+	}
+	return cards
+}
+
+func renderNotificationsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, prefs []NotificationPref, email string) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Notification Preferences")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := NotificationsPageData{LayoutData: layout, Notifications: prefs}
+	data := NotificationsPageData{LayoutData: layout, Notifications: prefs, Cards: buildNotificationCards(prefs), Email: email}
 	if err := notificationsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - notifications template render error: %v", err)
 	}

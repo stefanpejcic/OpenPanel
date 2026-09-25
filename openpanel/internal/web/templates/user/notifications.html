@@ -1,56 +1,90 @@
 {{define "alpine_plugins"}}{{end}}
 
+{{define "notification_icon"}}
+{{- if eq .Key "notify_account_login"}}
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/><path d="M21 12h-13l3 -3"/><path d="M11 15l-3 -3"/></svg>
+{{- else if eq .Key "notify_password_change"}}
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 11v-4a4 4 0 1 1 8 0v4"/></svg>
+{{- else if eq .Key "notify_twofactorauth_change"}}
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/><path d="M9 12l2 2l4 -4"/></svg>
+{{- else if eq .Key "notify_contact_address_change"}}
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"/><path d="M3 7l9 6l9 -6"/></svg>
+{{- else if eq .Key "notify_disk_limit"}}
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6a8 3 0 1 0 16 0a8 3 0 1 0 -16 0"/><path d="M4 6v6a8 3 0 0 0 16 0v-6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></svg>
+{{- else if eq .Key "notify_email_quota_limit"}}
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path d="M4 13h3l3 3h4l3 -3h3"/></svg>
+{{- end}}
+{{end}}
+
+
 {{define "content"}}
 <!-- START templates/user/notifications.html -->
 
-<!-- page header -->
-<section aria-label="Notifications Settings" x-data="{ searchQuery: '' }">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+{{$switch := "relative w-9 h-5 shrink-0 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"}}
+
+<section aria-label="Notifications Settings" x-data="{ on: { {{range $i, $p := .Notifications}}{{if $i}}, {{end}}{{toJSON $p.Key}}: {{if eq $p.Value "1"}}true{{else}}false{{end}}{{end}} } }">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email Notifications"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Select events for which to receive email notifications."}}</p>
+            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email Notifications"}}</h1></div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">
+                {{.T.Get "Security alerts help you spot unwanted changes early, usage alerts warn you before you run out of space."}}
+                {{if .Email}}{{.T.Get "Emails are sent to"}} <span class="font-medium text-gray-900 dark:text-gray-50">{{.Email}}</span> (<a href="/account" class="text-blue-600 hover:underline hover:underline-offset-4 dark:text-blue-500">{{.T.Get "change"}}</a>).{{end}}
+            </p>
+        </div>
+        <div class="shrink-0">
+            <button type="submit" form="notifications-form" class="whitespace-nowrap rounded border border-black bg-black px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-gray-800">{{.T.Get "Save Preferences"}}</button>
+        </div>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-    </div>
-</div>
-<!-- END page header -->
 
-
-
-<!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" method="POST">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-
-            <div class="col-span-full">
-              <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Receive email notifications for"}}:</label>
-              <div class="">
-                {{range .Notifications}}
-                    <div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" name="{{.Key}}" id="{{.Key}}" type="checkbox" role="switch" value="1" {{if eq .Value "1"}}checked{{end}}>
-                                    <label class="form-check-label" for="{{.Key}}">{{.Label}} </label>
-                                </div>
+    <div class="p-4 sm:p-6 lg:p-8">
+        <form method="POST" id="notifications-form">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {{range .Cards}}
+                {{$card := .}}
+                <div class="flex flex-col rounded border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
+                    <div class="flex items-center gap-3">
+                        <span class="notif-icon notif-icon--{{if eq .Group "Usage"}}usage{{else}}security{{end}}">{{template "notification_icon" .}}</span>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{$.T.Get .Group}}</p>
                     </div>
+                    <h4 class="mt-4 font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get .Title}}</h4>
+                    <p class="mt-2 flex-1 text-sm leading-6 text-gray-500 dark:text-gray-400">{{$.T.Get .Description}}</p>
+                    <div class="my-6 border-t border-gray-200 dark:border-gray-800"></div>
+                    <div class="flex items-center justify-between gap-4">
+                        <label class="inline-flex cursor-pointer items-center gap-3">
+                            <input type="checkbox" name="{{.Key}}" value="1" x-model="on[{{toJSON .Key}}]" class="sr-only peer">
+                            <div class="{{$switch}}"></div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">{{$.T.Get "Email me"}} <span class="sr-only">{{$.T.Get .Title}}</span></span>
+                        </label>
+                        <a href="{{.DocsURL}}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline hover:underline-offset-4 dark:text-blue-500">
+                            {{$.T.Get "Learn more"}} <i class="bi bi-box-arrow-up-right text-xs" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    {{if .Subs}}
+                    <div class="mt-4 space-y-3 border-l border-gray-200 pl-4 dark:border-gray-800" x-show="on[{{toJSON $card.Key}}]" x-cloak>
+                        {{range .Subs}}
+                        <label class="flex cursor-pointer items-center gap-3">
+                            <input type="checkbox" name="{{.Key}}" value="1" x-model="on[{{toJSON .Key}}]" class="sr-only peer">
+                            <div class="{{$switch}}"></div>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">{{$.T.Get .Title}}</span>
+                        </label>
+                        {{end}}
+                    </div>
+                    {{end}}
+                </div>
                 {{end}}
-
-              </div>
             </div>
-        </div>
+        </form>
+    </div>
+</section>
 
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-
-        <div class="md:flex items-center md:justify-end md:space-x-4">
-            <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Preferences"}} <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>
-            </button>
-        </div>
-
-    </form>
-</div>
-<!-- END form -->
+<style>
+.notif-icon { display: inline-flex; width: 2.25rem; height: 2.25rem; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 9999px; }
+.notif-icon--security { background: #f5f3ff; color: #7c3aed; }
+.notif-icon--usage { background: #f0f9ff; color: #0284c7; }
+.dark .notif-icon--security { background: rgb(139 92 246 / 0.14); color: #a78bfa; }
+.dark .notif-icon--usage { background: rgb(14 165 233 / 0.12); color: #38bdf8; }
+</style>
 
 <!-- END templates/user/notifications.html -->
 {{end}}

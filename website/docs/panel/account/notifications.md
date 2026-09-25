@@ -4,55 +4,109 @@ sidebar_position: 3
 
 # Notifications
 
-Users can set actions for which to receive email notifications:
+The **Account > Notifications** page lets users pick which events they get an email about. Each event has its own card with a switch, and some cards have extra options that show up once the switch is on.
 
-![Email Notifications page with a checkbox for each event and the Save Preferences button](/img/openpanel-screenshots/account/notifications-form.png#gh-light-mode-only)
-![Email Notifications page with a checkbox for each event and the Save Preferences button](/img/openpanel-screenshots/account/notifications-form_dark.png#gh-dark-mode-only)
+![Email Notifications page with a card and switch for each event and the Save Preferences button](/img/openpanel-screenshots/account/notifications-form.png#gh-light-mode-only)
+![Email Notifications page with a card and switch for each event and the Save Preferences button](/img/openpanel-screenshots/account/notifications-form_dark.png#gh-dark-mode-only)
 
 :::info
 If you do not see the Notifications page, ask your provider to enable the [notifications module](/docs/admin/settings/modules/#notifications).
+
+Emails go to the contact email address set on the [Account](/docs/panel/account/) page. They're sent through OpenAdmin using the SMTP settings from **OpenAdmin > Settings > Notifications**, so if nothing arrives, ask your provider to check those.
+
+Changes made through the [OpenPanel API](/docs/panel/api/) do send the same emails as changes made from the panel.
 :::
 
-| Value                                          | Description                                  | Default |
-|------------------------------------------------|----------------------------------------------|---------|
-| notify_account_login                           | Notify on new logins                         | 1       |
-| notify_account_login_for_known_netblock        | Also notify on logins from an IP address that's already in your login history. Turn it off to only get emails for logins from new IP addresses | 1       |
-| notify_account_login_notification_disabled     | Notify when login notifications are disabled | 1       |
-| notify_autossl_expiry                          | Notify when SSL certificate is soon expiring | 0       |
-| notify_autossl_expiry_coverage                 | Notify when SSL certificate is expired       | 0       |
-| notify_autossl_renewal_coverage                | Notify when certificate renewal failed   | 0       |
-| notify_autossl_renewal_coverage_reduced        | Notify when certificate renewal failed   | 0       |
-| notify_autossl_renewal_uncovered_domains       | Notify when certificate renewal fails for custom SSL| 0   |
-| notify_contact_address_change                  | Notify when email address is changed             | 1       |
-| notify_contact_address_change_notification_disabled | Notify when notifications for email address change are disabled | 1   |
-| notify_disk_limit                              | Notify when the account uses 85% of its disk space or 95% of its inodes. Sent once, and again only after usage drops below and crosses the limit again | 1       |
-| notify_email_quota_limit                       | Notify when an email account uses 90% of its quota. Sent once, and again only after usage drops below and crosses the limit again | 1       |
-| notify_password_change                         | Notify when password is changed                    | 1       |
-| notify_password_change_notification_disabled   | Notify when notifications for password change are disabled      | 1       |
-| notify_ssl_expiry                              | Notify when SSL certificate is expired                      | 1       |
-| notify_twofactorauth_change                    | Notify when two-factor authentication is disabled/enabled   | 1       |
-| notify_twofactorauth_change_notification_disabled | Notify when notifications for two-factor authenticatin change are disabled | 1 |
+## Security alerts
 
+Every security email shows when the change was made, the IP address, the country with its flag, the browser and operating system, and what to do if it wasn't you.
 
-User does not receive notifications for actions performed through the OpenAdmin interface (such as impersonating a user, changing a password, disabling 2FA, etc.). Logins, password, email, username and 2FA changes made through the [OpenPanel API](/docs/panel/api/) do send the same notifications as when they're made from the panel.
+### New login
 
-When a security notification (login, password, email address or 2FA change) is turned off and its matching `_notification_disabled` option is on, an email is sent to let you know the notification was disabled.
+Sends an email every time someone logs in to the account, from the panel or the API. Besides the details above, it shows how they logged in: password, password and 2FA code, passkey or the API. The country is looked up from the IP address and shows `UNKNOWN` if the lookup fails.
 
-:::note
-Emails are currently sent only for logins, password, email address, username and two-factor authentication changes, disk usage and email quota limits. The SSL options are saved but not sent yet.
-:::
+![New login card with the Email me switch on and its two extra options, also for known IP addresses and email me if login alerts get turned off](/img/openpanel-screenshots/account/notifications-login.png#gh-light-mode-only)
+![New login card with the Email me switch on and its two extra options, also for known IP addresses and email me if login alerts get turned off](/img/openpanel-screenshots/account/notifications-login_dark.png#gh-dark-mode-only)
 
+Here is an example of the email.
 
-## Email notifications
+![New login email showing the login method, time, IP address, country with its flag and browser](/img/openpanel-screenshots/account/notifications-email-login.png)
 
-![new_login.png](/img/panel/v1/account/new_login.png)
+By default, logins from an IP address that's already in your login history don't send an email, so you only hear about logins from new places. Turn on **Also for IP addresses I logged in from before** to get an email for every login.
 
-![2fa_disabled.png](/img/panel/v1/account/2fa_disabled.png)
+If you didn't log in yourself, change your password right away and turn on [two-factor authentication](/docs/panel/security/2fa/).
 
-![2fa_enabled.png](/img/panel/v1/account/2fa_enabled.png)
+### Password changed
 
-![email_changed.png](/img/panel/v1/account/email_changed.png)
+Sends an email when the account password is changed, and says whether it was changed from the panel or the API. If you didn't change it, reset your password or contact your provider.
 
-![pass_changed.png](/img/panel/v1/account/pass_changed.png)
+![Password changed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-password.png#gh-light-mode-only)
+![Password changed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-password_dark.png#gh-dark-mode-only)
 
-![preferences_changed.png](/img/panel/v1/account/preferences_changed.png)
+![Password changed email saying it was changed from the OpenPanel interface, with the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-password.png)
+
+### Two-factor authentication changed
+
+Sends an email when two-factor authentication is turned on or off, when 2FA setup is started, or when a new passkey is added to the account. The passkey email includes the passkey's name.
+
+![Two-factor authentication changed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-twofa.png#gh-light-mode-only)
+![Two-factor authentication changed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-twofa_dark.png#gh-dark-mode-only)
+
+When 2FA is turned on:
+
+![Two-factor authentication enabled email saying a code from the authenticator app is now needed on every login, with the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-2fa-enabled.png)
+
+When 2FA is turned off:
+
+![Two-factor authentication disabled email saying only the password is needed to log in, with the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-2fa-disabled.png)
+
+When a passkey is added:
+
+![New passkey email with the passkey name MacBook Touch ID, the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-passkey.png)
+
+### Contact email changed
+
+Sends an email when the contact email address for the account is changed. The email shows the old and the new address and goes to the **old** one, so the real owner knows about it even if someone else changed it.
+
+![Contact email changed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-contact-email.png#gh-light-mode-only)
+![Contact email changed card with the Email me switch and the option to get an email if this alert gets turned off](/img/openpanel-screenshots/account/notifications-contact-email_dark.png#gh-dark-mode-only)
+
+![Email address changed email showing the old and new address, the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-contact-email.png)
+
+### Email me if this alert gets turned off
+
+Every security alert has this option, and it's on by default. When it's on and someone turns the alert itself off, an email is sent listing the alerts that were turned off. This way nobody can quietly turn off your login or password alerts before doing something with your account.
+
+To really stop an alert, turn off this option first, save, and then turn off the alert.
+
+![Notification preferences changed email listing New login and Password changed as turned off, with the time, IP address, country and browser](/img/openpanel-screenshots/account/notifications-email-alert-disabled.png)
+
+## Usage alerts
+
+### Disk space running out
+
+Sends an email when the account uses 85% of its disk space or 95% of its inodes (number of files). The email shows disk and inode usage as bars against the plan limits, marks the one over the limit, and suggests the Disk Usage and Inodes Explorer pages to find what takes up space.
+
+![Disk space running out card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-disk.png#gh-light-mode-only)
+![Disk space running out card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-disk_dark.png#gh-dark-mode-only)
+
+Usage is checked every 5 minutes. The email is sent once, and again only after usage drops below the limit and crosses it again, so you don't get the same email every few minutes. Your provider is also told about it.
+
+Once the limit is reached, websites and email can stop working. Delete files you no longer need or ask your provider for a bigger plan.
+
+![Disk space email with usage bars for disk space at 87 percent over the 85 percent limit and inodes at 42 percent, tips to free up space and an Upgrade to Business section](/img/openpanel-screenshots/account/notifications-email-disk.png)
+
+### Mailbox almost full
+
+Sends an email when one of your email accounts uses 90% of its quota, showing a usage bar for each account that is almost full.
+
+![Mailbox almost full card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-mailbox.png#gh-light-mode-only)
+![Mailbox almost full card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-mailbox_dark.png#gh-dark-mode-only) It's sent once per email account, and again only after usage drops below 90% and reaches it again.
+
+When a mailbox is full, new emails to it are rejected. Delete old emails or raise the quota on the [Email Accounts](/docs/panel/emails/) page.
+
+![Mailbox email with usage bars for info@example.com at 92 percent and a full sales@example.com, tips to free up space and an Upgrade to Business section](/img/openpanel-screenshots/account/notifications-email-mailbox.png)
+
+### Upgrade offer
+
+On Enterprise, if the account's hosting plan has an [upsell plan](/docs/admin/plans/hosting_plans/) with an upgrade URL, the disk space and mailbox emails also get an **Upgrade to** section named after the upsell plan, with a button to **Dashboard > Upgrade**. It's only added when the upsell plan actually raises the limit that's running out: more disk space or inodes for the disk email, bigger maximum mailbox size for the mailbox email.

@@ -87,7 +87,7 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = a.Sessions.Save(r, w, sess)
 	_ = logger.RecordUserAction(a.Config, result.Username, "logged in via user API", ip)
 	clearFailedAttempts(ip)
-	notifyLogin(a, ctx, result.UserID, result.Username, loginNotifyMessage("password", ip), knownIP)
+	notifyLogin(a, ctx, result.UserID, result.Username, loginNotifyMessage(a, r, "api", ip), knownIP)
 
 	token, signErr := mintAPIToken(a, result.UserID)
 	if signErr != nil {

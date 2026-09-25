@@ -466,7 +466,16 @@ export const pages = {
   },
   'account/notifications': {
     url: '/account/notifications',
-    shots: [{ name: 'form', alt: 'Email Notifications page with a checkbox for each event and the Save Preferences button', crop: 'content' }],
+    prepare: rename({ 'stefan@test.rs': 'john@example.com' }, 'body'),
+    shots: [
+      { name: 'form', alt: 'Email Notifications page with a card and switch for each event, a Learn more link on each card and the Save Preferences button', crop: 'content' },
+      { name: 'login', alt: 'New login card with the Email me switch on and its two extra options, also for known IP addresses and email me if login alerts get turned off', prepare: markCard('New login'), crop: { from: '[data-shot=card]', pad: 12 } },
+      { name: 'password', alt: 'Password changed card with the Email me switch and the option to get an email if this alert gets turned off', prepare: markCard('Password changed'), crop: { from: '[data-shot=card]', pad: 12 } },
+      { name: 'twofa', alt: 'Two-factor authentication changed card with the Email me switch and the option to get an email if this alert gets turned off', prepare: markCard('Two-factor authentication changed'), crop: { from: '[data-shot=card]', pad: 12 } },
+      { name: 'contact-email', alt: 'Contact email changed card with the Email me switch and the option to get an email if this alert gets turned off', prepare: markCard('Contact email changed'), crop: { from: '[data-shot=card]', pad: 12 } },
+      { name: 'disk', alt: 'Disk space running out card with the Email me switch and a Learn more link', prepare: markCard('Disk space running out'), crop: { from: '[data-shot=card]', pad: 12 } },
+      { name: 'mailbox', alt: 'Mailbox almost full card with the Email me switch and a Learn more link', prepare: markCard('Mailbox almost full'), crop: { from: '[data-shot=card]', pad: 12 } },
+    ],
   },
   'account/favorites': {
     url: '/account/favorites',

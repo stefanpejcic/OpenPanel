@@ -113,7 +113,10 @@ func apiTwofaConfirm(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	data, injectErr := a.InjectData(ctx, userID)
 	if injectErr == nil {
 		username, _ := data["current_username"].(string)
-		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_twofactorauth_change", "Two-Factor Authentication was enabled via API.")
+		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_twofactorauth_change", securityEmail(a, r,
+			"Two-factor authentication enabled for account "+username,
+			"Two-factor authentication was turned on through the OpenPanel API. A code from your authenticator app is now needed on every login.",
+			"If you didn't turn it on, contact your hosting provider, someone else may now control your 2FA codes."))
 		_ = logger.RecordUserAction(a.Config, username, "enabled 2FA for account via API", reqip.ClientIP(r))
 	}
 
@@ -134,7 +137,10 @@ func apiTwofaDisable(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	data, injectErr := a.InjectData(ctx, userID)
 	if injectErr == nil {
 		username, _ := data["current_username"].(string)
-		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_twofactorauth_change", "Two-Factor Authentication was disabled via API.")
+		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_twofactorauth_change", securityEmail(a, r,
+			"Two-factor authentication disabled for account "+username,
+			"Two-factor authentication was turned off through the OpenPanel API. Only the password is needed to log in now.",
+			"If you didn't turn it off, change your password and turn 2FA back on right away."))
 		_ = logger.RecordUserAction(a.Config, username, "disabled 2FA for account via API", reqip.ClientIP(r))
 	}
 

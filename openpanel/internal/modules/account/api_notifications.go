@@ -99,9 +99,7 @@ func apiNotificationsUpdate(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	clearNotificationPrefsCache(ctx, a, username, prefs)
 	_ = logger.RecordUserAction(a.Config, username, "changed notification preferences for the account via API", reqip.ClientIP(r))
 	if weShouldNotifyUser {
-		message := "Notification preferences changed for account " + username + "\n Notification preferences have been changed for your account <b>" + username +
-			"</b>.<br><br> Review the new notification settings from <b>Account > Notifications</b> page."
-		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_always", message)
+		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_always", prefsChangedMessage(a, r, username, originalValues, newValues))
 	}
 
 	writeAPIAccountJSON(w, http.StatusOK, map[string]any{"preferences": toAPINotificationPrefs(prefs)})

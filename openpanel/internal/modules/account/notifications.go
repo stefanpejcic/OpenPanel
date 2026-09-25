@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"unicode"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -16,48 +15,52 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
-// NotificationPref is one key=value line from a user's notifications.yaml, kept in on-disk order since the page rewrites the file in the same order it read it
+// NotificationPref is one key=value line from a user's notifications.yaml
 type NotificationPref struct {
 	Key   string
 	Value string
 	Label string
 }
 
-// notificationLabel mirrors notifications.html's display transform: strips the "notify" prefix for shipped keys, or Title Case otherwise (dead in practice, every shipped key starts with "notify")
-func notificationLabel(key string) string {
-	if strings.HasPrefix(key, "notify") {
-		return strings.ReplaceAll(key[len("notify"):], "_", " ")
-	}
-	return titleCase(strings.ReplaceAll(key, "_", " "))
+type notificationDef struct {
+	Key, Default, Title, Description string
+	Group, Anchor                    string
+	Parent                           string
 }
 
-func titleCase(s string) string {
-	words := strings.Fields(s)
-	for i, w := range words {
-		r := []rune(w)
-		r[0] = unicode.ToUpper(r[0])
-		words[i] = string(r)
-	}
-	return strings.Join(words, " ")
+// notificationDefs are the only keys the page shows and saves, in the order they get written back
+var notificationDefs = []notificationDef{
+	{Key: "notify_account_login", Default: "1", Title: "New login", Description: "Get an email every time someone logs in to your account, with the IP address, country and browser.", Group: "Security", Anchor: "new-login"},
+	{Key: "notify_account_login_for_known_netblock", Default: "0", Title: "Also for IP addresses I logged in from before", Parent: "notify_account_login"},
+	{Key: "notify_account_login_notification_disabled", Default: "1", Title: "Email me if login alerts get turned off", Parent: "notify_account_login"},
+	{Key: "notify_password_change", Default: "1", Title: "Password changed", Description: "Get an email when the password for your account is changed.", Group: "Security", Anchor: "password-changed"},
+	{Key: "notify_password_change_notification_disabled", Default: "1", Title: "Email me if this alert gets turned off", Parent: "notify_password_change"},
+	{Key: "notify_twofactorauth_change", Default: "1", Title: "Two-factor authentication changed", Description: "Get an email when 2FA is turned on or off, or a passkey is added.", Group: "Security", Anchor: "two-factor-authentication-changed"},
+	{Key: "notify_twofactorauth_change_notification_disabled", Default: "1", Title: "Email me if this alert gets turned off", Parent: "notify_twofactorauth_change"},
+	{Key: "notify_contact_address_change", Default: "1", Title: "Contact email changed", Description: "Get an email when the contact email address for your account is changed.", Group: "Security", Anchor: "contact-email-changed"},
+	{Key: "notify_contact_address_change_notification_disabled", Default: "1", Title: "Email me if this alert gets turned off", Parent: "notify_contact_address_change"},
+	{Key: "notify_disk_limit", Default: "1", Title: "Disk space running out", Description: "Get an email when your account uses 85% of its disk space or 95% of its inodes.", Group: "Usage", Anchor: "disk-space-running-out"},
+	{Key: "notify_email_quota_limit", Default: "1", Title: "Mailbox almost full", Description: "Get an email when one of your email accounts uses 90% of its quota.", Group: "Usage", Anchor: "mailbox-almost-full"},
 }
 
+// readNotificationsPrefs returns every known key, a key missing from the file gets its default
 func readNotificationsPrefs(username string) []NotificationPref {
-	content, err := os.ReadFile(notificationsFilePath(username))
-	if err != nil {
-		return nil
+	values := map[string]string{}
+	if content, err := os.ReadFile(notificationsFilePath(username)); err == nil {
+		for _, line := range strings.Split(string(content), "\n") {
+			k, v, ok := strings.Cut(strings.TrimSpace(line), "=")
+			if ok && !strings.HasPrefix(k, "#") {
+				values[strings.TrimSpace(k)] = strings.TrimSpace(v)
+			}
+		}
 	}
-	var prefs []NotificationPref
-	for _, line := range strings.Split(string(content), "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
+	prefs := make([]NotificationPref, 0, len(notificationDefs))
+	for _, d := range notificationDefs {
+		v := values[d.Key]
+		if v != "0" && v != "1" {
+			v = d.Default
 		}
-		k, v, ok := strings.Cut(line, "=")
-		if !ok {
-			continue
-		}
-		key := strings.TrimSpace(k)
-		prefs = append(prefs, NotificationPref{Key: key, Value: strings.TrimSpace(v), Label: notificationLabel(key)})
+		prefs = append(prefs, NotificationPref{Key: d.Key, Value: v, Label: d.Title})
 	}
 	return prefs
 }
@@ -79,6 +82,19 @@ func alertWasDisabled(oldValues, newValues map[string]string) bool {
 		}
 	}
 	return false
+}
+
+// prefsChangedMessage is the email sent when a watched alert gets turned off, listing every alert that went off
+func prefsChangedMessage(a *appctx.App, r *http.Request, username string, oldValues, newValues map[string]string) userEmail {
+	var off []string
+	for _, d := range notificationDefs {
+		if d.Parent == "" && oldValues[d.Key] == "1" && newValues[d.Key] == "0" {
+			off = append(off, "- "+d.Title)
+		}
+	}
+	return securityEmail(a, r, "Notification preferences changed for account "+username,
+		"These email alerts were turned off for account "+username+":\n"+strings.Join(off, "\n")+"\n\nYou won't get emails for them anymore.",
+		"If you didn't turn them off, turn them back on from Account > Notifications and change your password right away.")
 }
 
 // clearNotificationPrefsCache drops the cached values so a saved change applies right away
@@ -137,9 +153,7 @@ func handleAccountNotifications(a *appctx.App, w http.ResponseWriter, r *http.Re
 		_ = logger.RecordUserAction(a.Config, username, "changed notification preferences for the account", reqip.ClientIP(r))
 
 		if weShouldNotifyUser {
-			message := "Notification preferences changed for account " + username + "\n Notification preferences have been changed for your account <b>" + username +
-				"</b>.<br><br> Review the new notification settings from <b>Account > Notifications</b> page."
-			checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_always", message)
+			checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_always", prefsChangedMessage(a, r, username, originalValues, newValues))
 		}
 
 		sess, _ := a.Sessions.Get(r, session.CookieName)
@@ -147,7 +161,8 @@ func handleAccountNotifications(a *appctx.App, w http.ResponseWriter, r *http.Re
 		_ = a.Sessions.Save(r, w, sess)
 	}
 
-	renderNotificationsPage(a, w, r, prefs)
+	email, _ := data["current_email"].(string)
+	renderNotificationsPage(a, w, r, prefs, email)
 }
 
 // RegisterNotifications wires the notification-preferences route onto mux, gated behind the "notifications" feature flag

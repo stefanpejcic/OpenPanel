@@ -3,6 +3,7 @@ package account
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"log"
 	"math/rand"
 	"net/http"
@@ -14,10 +15,41 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
 )
 
 const notifyConfigFilePath = "/etc/openpanel/openpanel/conf/openpanel.config"
+
+// userEmail is a notification for the panel user, OpenAdmin shows Details as a table with bold values and Tips under it
+type userEmail struct {
+	Subject, Text, Tips string
+	Details             []emailDetail
+}
+
+type emailDetail struct {
+	Label string `json:"label"`
+	Value string `json:"value"`
+	URL   string `json:"url,omitempty"`
+	Flag  string `json:"flag,omitempty"`
+}
+
+// securityEmail adds when, where and from what browser, so the user can tell if it was them
+func securityEmail(a *appctx.App, r *http.Request, subject, text, ifNotYou string) userEmail {
+	ip := reqip.ClientIP(r)
+	country := getCountryCode(a, r.Context(), ip)
+	// OpenAdmin shows the panel's /static/flags/<code>.png next to a 2 letter country code
+	flag := ""
+	if len(country) == 2 {
+		flag = strings.ToLower(country)
+	}
+	return userEmail{Subject: subject, Text: text, Tips: ifNotYou, Details: []emailDetail{
+		{Label: "Time", Value: time.Now().Format("2006-01-02 15:04:05 MST")},
+		{Label: "IP address", Value: ip},
+		{Label: "Country", Value: country, Flag: flag},
+		{Label: "Browser", Value: browserFromUserAgent(r.UserAgent())},
+	}}
+}
 
 // notificationsFilePath is the one key=value-per-line preferences file per user.
 func notificationsFilePath(username string) string {
@@ -38,17 +70,26 @@ func parseNotificationsFile(content string) map[string]string {
 	return prefs
 }
 
-// notificationDefaults are used for keys that older notifications.yaml files don't have
-var notificationDefaults = map[string]int{"notify_username_change": 1}
+// notificationDefault is used for keys the file doesn't have, username changes aren't on the page so they stay on
+func notificationDefault(key string) int {
+	for _, d := range notificationDefs {
+		if d.Key == key {
+			return int(d.Default[0] - '0')
+		}
+	}
+	if key == "notify_username_change" {
+		return 1
+	}
+	return 0
+}
 
 // getNotificationPreference reads one key from a user's notifications.yaml-shaped preferences file, cached for 5 minutes
 func getNotificationPreference(ctx context.Context, a *appctx.App, username, key string) int {
 	cacheKey := "get_from_file_value:" + username + ":" + key
 	v, _ := cache.Memoize(ctx, a.Cache, cacheKey, 300*time.Second, func() (int, error) {
-		path := notificationsFilePath(username)
-		content, err := os.ReadFile(path)
+		content, err := os.ReadFile(notificationsFilePath(username))
 		if err != nil {
-			return 0, nil
+			return notificationDefault(key), nil
 		}
 		prefs := parseNotificationsFile(string(content))
 		if raw, ok := prefs[key]; ok {
@@ -56,7 +97,7 @@ func getNotificationPreference(ctx context.Context, a *appctx.App, username, key
 				return n, nil
 			}
 		}
-		return notificationDefaults[key], nil
+		return notificationDefault(key), nil
 	})
 	return v
 }
@@ -76,7 +117,7 @@ func loginIPIsKnown(username, ip string) bool {
 }
 
 // notifyLogin sends the login email, for an IP seen before only when notify_account_login_for_known_netblock is on
-func notifyLogin(a *appctx.App, ctx context.Context, userID int, username, message string, knownIP bool) {
+func notifyLogin(a *appctx.App, ctx context.Context, userID int, username string, message userEmail, knownIP bool) {
 	if knownIP && getNotificationPreference(ctx, a, username, "notify_account_login_for_known_netblock") != 1 {
 		return
 	}
@@ -84,7 +125,7 @@ func notifyLogin(a *appctx.App, ctx context.Context, userID int, username, messa
 }
 
 // checkIfUserShouldBeNotified fires an async notification email if "notifications" is enabled and the user opted into key (or key is the always-on "notify_always"). username is passed by the caller rather than re-derived, since some callers (like the username-change flow) already know a value that may not match InjectData's cached current_username yet.
-func checkIfUserShouldBeNotified(a *appctx.App, ctx context.Context, userID int, username, key, message string) {
+func checkIfUserShouldBeNotified(a *appctx.App, ctx context.Context, userID int, username, key string, message userEmail) {
 	data, err := a.InjectData(ctx, userID)
 	if err != nil {
 		return
@@ -144,7 +185,7 @@ func generateRandomTokenOnce() string {
 }
 
 // notifyUserOfChange looks up the recipient email if not already known, then POSTs to the local "openadmin" service's /send_email; meant to be called via `go notifyUserOfChange(...)`
-func notifyUserOfChange(a *appctx.App, username, message, currentEmail string) {
+func notifyUserOfChange(a *appctx.App, username string, message userEmail, currentEmail string) {
 	ctx := context.Background()
 
 	if currentEmail == "" {
@@ -167,16 +208,15 @@ func notifyUserOfChange(a *appctx.App, username, message, currentEmail string) {
 	}
 
 	targetURL := protocol + "://" + domain + ":" + adminPort + "/send_email"
-	subject := message
-	if idx := strings.Index(message, "\n"); idx != -1 {
-		subject = message[:idx]
-	}
-
+	details, _ := json.Marshal(message.Details)
 	form := url.Values{
 		"transient": {token},
 		"recipient": {currentEmail},
-		"subject":   {subject},
-		"body":      {message},
+		"subject":   {message.Subject},
+		"body":      {message.Text},
+		"type":      {"user"},
+		"details":   {string(details)},
+		"tips":      {message.Tips},
 	}
 
 	client := &http.Client{Timeout: 20 * time.Second}

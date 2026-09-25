@@ -96,7 +96,19 @@ func handleTwofaSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			if twofaEnabled {
 				logAction = "enabled 2FA for account"
 			}
-			checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_twofactorauth_change", message)
+			emailMessage := securityEmail(a, r, "Two-factor authentication disabled for account "+currentUsername,
+				"Two-factor authentication was turned off. Only the password is needed to log in now.",
+				"If you didn't turn it off, change your password and turn 2FA back on right away.")
+			if twofaEnabled {
+				emailMessage = securityEmail(a, r, "Two-factor authentication enabled for account "+currentUsername,
+					"Two-factor authentication was turned on. A code from your authenticator app is now needed on every login.",
+					"If you didn't turn it on, contact your hosting provider, someone else may now control your 2FA codes.")
+			} else if otpSecret != "" {
+				emailMessage = securityEmail(a, r, "Two-factor authentication setup started for account "+currentUsername,
+					"Setup for two-factor authentication was started. 2FA stays off until the code from the authenticator app is confirmed.",
+					"If you didn't start it, change your password right away.")
+			}
+			checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_twofactorauth_change", emailMessage)
 			_ = logger.RecordUserAction(a.Config, currentUsername, logAction, reqip.ClientIP(r))
 		}
 

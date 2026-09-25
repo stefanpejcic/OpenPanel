@@ -87,7 +87,9 @@ func apiAccountUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_password_change",
-			"Password changed for account "+currentUsername+"\nPassword for account <b>"+currentUsername+"</b> has been changed via API.")
+			securityEmail(a, r, "Password changed for account "+currentUsername,
+				"The password for account "+currentUsername+" was changed through the OpenPanel API.",
+				"If you didn't change it, reset your password right away and revoke your API tokens."))
 		_ = logger.RecordUserAction(a.Config, currentUsername, "changed password via API", ip)
 		actions = append(actions, "password updated")
 	}
@@ -95,7 +97,9 @@ func apiAccountUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if newEmail != "" && newEmail != currentEmail {
 		// sent before the update so it goes to the old address, same as the Account page
 		checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_contact_address_change",
-			"Email address changed for account "+currentUsername+"\nEmail address for account <b>"+currentUsername+"</b> has been changed to: <b>"+newEmail+"</b> via API.")
+			securityEmail(a, r, "Email address changed for account "+currentUsername,
+				"The contact email address for account "+currentUsername+" was changed from "+currentEmail+" to "+newEmail+" through the OpenPanel API. This is the last notification sent to this address, new ones go to "+newEmail+".",
+				"If you didn't change it, log in and set your email address back, then change your password and revoke your API tokens."))
 		if updateErr := updateEmailByID(ctx, a, userID, newEmail); updateErr != nil {
 			writeAPIAccountJSON(w, http.StatusInternalServerError, map[string]string{"error": updateErr.Error()})
 			return
@@ -123,7 +127,9 @@ func apiAccountUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(strings.ToLower(output), "successfully") {
 			a.Cache.Delete(ctx, "get_user_details_with_plan:"+strconv.Itoa(userID))
 			checkIfUserShouldBeNotified(a, ctx, userID, newUsername, "notify_username_change",
-				"Username "+currentUsername+" changed\nUsername changed from <b>"+currentUsername+"</b> to <b>"+newUsername+"</b> via API.")
+				securityEmail(a, r, "Username changed for account "+newUsername,
+					"The username was changed from "+currentUsername+" to "+newUsername+" through the OpenPanel API. Use "+newUsername+" to log in from now on.",
+					"If you didn't change it, contact your hosting provider right away."))
 			_ = logger.RecordUserAction(a.Config, newUsername, "renamed from "+currentUsername+" to "+newUsername, ip)
 			actions = append(actions, "username changed to "+newUsername)
 		} else {

@@ -252,11 +252,9 @@ func TestRenderNotificationsPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := NotificationsPageData{
 		LayoutData: baseLayout(mgr, "/account/notifications"),
-		Notifications: []NotificationPref{
-			{Key: "notify_password_change", Value: "1", Label: " password change"},
-			{Key: "notify_account_login", Value: "0", Label: " account login"},
-		},
 	}
+	data.Notifications = []NotificationPref{{Key: "notify_password_change", Value: "1"}, {Key: "notify_account_login", Value: "0"}}
+	data.Cards = buildNotificationCards(data.Notifications)
 	w := httptest.NewRecorder()
 	if err := notificationsPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
@@ -264,6 +262,9 @@ func TestRenderNotificationsPage(t *testing.T) {
 	body := w.Body.String()
 	if !strings.Contains(body, `name="notify_password_change"`) || !strings.Contains(body, `name="notify_account_login"`) {
 		t.Error("expected both preference checkboxes in body")
+	}
+	if !strings.Contains(body, "/docs/panel/account/notifications/#password-changed") {
+		t.Error("expected docs link")
 	}
 }
 

@@ -166,7 +166,10 @@ func handlePasskeysRegisterComplete(a *appctx.App, w http.ResponseWriter, r *htt
 	}
 
 	_ = logger.RecordUserAction(a.Config, username, "registered a new passkey ("+name+")", reqip.ClientIP(r))
-	checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_twofactorauth_change", "A new passkey \""+name+"\" was added to your account.")
+	checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_twofactorauth_change", securityEmail(a, r,
+		"New passkey added to account "+username,
+		"A passkey named \""+name+"\" was added. It can be used to log in without a password.",
+		"If you didn't add it, delete it from Account > Passkeys and change your password right away."))
 
 	writeJSONPasskeys(w, http.StatusOK, map[string]bool{"success": true})
 }

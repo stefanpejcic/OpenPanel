@@ -250,18 +250,35 @@ func handleLoginTwofa(a *appctx.App, w http.ResponseWriter, r *http.Request, ses
 	completeLogin(a, w, r, sess, userID, username, "logged in with 2FA code", "2fa")
 }
 
-// loginNotifyMessage builds the "New login to OpenPanel" notification body for each login flow (password, 2FA, passkey), passed to checkIfUserShouldBeNotified
-func loginNotifyMessage(kind, ip string) string {
-	switch kind {
-	case "password":
-		return "New login to OpenPanel\n New login from IP: <a href='https://www.abuseipdb.com/check/" + ip + "' target='_blank'>" + ip + "</a>"
-	case "2fa":
-		return "New login to OpenPanel\n New 2FA login from IP " + ip
-	case "passkey":
-		return "New login to OpenPanel\n New passkey login from IP " + ip
-	default:
-		return "New login to OpenPanel\n New login from IP " + ip
+// loginNotifyMessage builds the "New login to OpenPanel" email, it needs "login from" for older OpenAdmin versions to pick the user template
+func loginNotifyMessage(a *appctx.App, r *http.Request, kind, ip string) userEmail {
+	method := map[string]string{"password": "password", "2fa": "password and 2FA code", "passkey": "passkey", "api": "API"}[kind]
+	if method == "" {
+		method = "password"
 	}
+	return securityEmail(a, r, "New login to OpenPanel",
+		"New "+method+" login from IP "+ip+".",
+		"If this wasn't you, change your password right away and turn on two-factor authentication.")
+}
+
+// browserFromUserAgent turns a User-Agent into something like "Chrome on Windows", order matters since Edge and Opera also say Chrome
+func browserFromUserAgent(ua string) string {
+	if ua == "" {
+		return "Unknown"
+	}
+	browser := "Unknown browser"
+	for _, b := range [][2]string{{"Edg/", "Edge"}, {"OPR/", "Opera"}, {"Firefox/", "Firefox"}, {"Chrome/", "Chrome"}, {"Safari/", "Safari"}, {"curl/", "curl"}} {
+		if strings.Contains(ua, b[0]) {
+			browser = b[1]
+			break
+		}
+	}
+	for _, o := range [][2]string{{"Android", "Android"}, {"iPhone", "iOS"}, {"iPad", "iPadOS"}, {"Windows", "Windows"}, {"Mac OS X", "macOS"}, {"Linux", "Linux"}} {
+		if strings.Contains(ua, o[0]) {
+			return browser + " on " + o[1]
+		}
+	}
+	return browser
 }
 
 // completeLogin establishes the session, logs/notifies, and redirects to the dashboard - shared by password, 2FA, and browser-redirect passkey login. The fetch()-based passkey endpoint needs the same work but a JSON response, hence finishLoginSession below.
@@ -286,7 +303,7 @@ func finishLoginSession(a *appctx.App, w http.ResponseWriter, r *http.Request, s
 
 	_ = logger.RecordUserAction(a.Config, username, action, ip)
 	clearFailedAttempts(ip)
-	notifyLogin(a, r.Context(), userID, username, loginNotifyMessage(notifyKind, ip), knownIP)
+	notifyLogin(a, r.Context(), userID, username, loginNotifyMessage(a, r, notifyKind, ip), knownIP)
 }
 
 // logUserLogin appends to the user's .lastlogin history file, then creates the Redis-backed session record RequireLogin validates on every later request
