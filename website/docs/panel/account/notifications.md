@@ -25,8 +25,8 @@ If you do not see the Notifications page, ask your provider to enable the [notif
 | notify_autossl_renewal_uncovered_domains       | Notify when certificate renewal fails for custom SSL| 0   |
 | notify_contact_address_change                  | Notify when email address is changed             | 1       |
 | notify_contact_address_change_notification_disabled | Notify when notifications for email address change are disabled | 1   |
-| notify_disk_limit                              | Notify when account reached disk limit                         | 1       |
-| notify_email_quota_limit                       | Notify when email accounts reach their quota limit                  | 1       |
+| notify_disk_limit                              | Notify when the account uses 85% of its disk space or 95% of its inodes. Sent once, and again only after usage drops below and crosses the limit again | 1       |
+| notify_email_quota_limit                       | Notify when an email account uses 90% of its quota. Sent once, and again only after usage drops below and crosses the limit again | 1       |
 | notify_password_change                         | Notify when password is changed                    | 1       |
 | notify_password_change_notification_disabled   | Notify when notifications for password change are disabled      | 1       |
 | notify_ssl_expiry                              | Notify when SSL certificate is expired                      | 1       |
@@ -39,7 +39,7 @@ User does not receive notifications for actions performed through the OpenAdmin 
 When a security notification (login, password, email address or 2FA change) is turned off and its matching `_notification_disabled` option is on, an email is sent to let you know the notification was disabled.
 
 :::note
-Emails are currently sent only for logins, password, email address, username and two-factor authentication changes. The SSL, disk limit and email quota options are saved but not sent yet.
+Emails are currently sent only for logins, password, email address, username and two-factor authentication changes, disk usage and email quota limits. The SSL options are saved but not sent yet.
 :::
 
 

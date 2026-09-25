@@ -719,6 +719,46 @@ MailServer uninstalled successfully.
 
 Add `--debug` to any `email-server` command to display verbose information.
 
+## Usage
+
+`opencli email-usage` refreshes `/etc/openpanel/openpanel/core/users/<USERNAME>/emails.yml`, the cached list of a user's email accounts with their disk usage and quota that OpenPanel reads. The mailserver must be running.
+
+Refresh a single user:
+
+```bash
+opencli email-usage <USERNAME>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli email-usage stefan
+Updated /etc/openpanel/openpanel/core/users/stefan/emails.yml (3 email accounts)
+```
+</details>
+
+Refresh all users:
+
+```bash
+opencli email-usage --all
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli email-usage --all
+Updated /etc/openpanel/openpanel/core/users/stefan/emails.yml (3 email accounts)
+Skipped demo: user not found in the database.
+Updated /etc/openpanel/openpanel/core/users/testuser/emails.yml (0 email accounts)
+```
+</details>
+
+Users that aren't in the database (for example suspended accounts) are skipped and their file is left unchanged.
+
+When an email account reaches 90% of its quota, the user gets an email listing those accounts if the [notifications module](/docs/admin/settings/modules/#notifications) is enabled and they have `notify_email_quota_limit` turned on. It's sent once per account, and again only after usage drops below 90% and reaches it again.
+
 ## Webmail
 
 Display current webmail domain:

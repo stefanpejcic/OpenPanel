@@ -170,6 +170,10 @@ opencli email-setup
 Description: Setup email addresses, forwarders, filters..
 Usage: opencli email-setup <COMMAND> <ATTRIBUTES>
 ------------------------
+opencli email-usage
+Description: Refresh the cached email accounts and quota usage file for users.
+Usage: opencli email-usage <USERNAME|--all>
+------------------------
 opencli email-webmail
 Description: Display or update the domain used for accessing webmail.
 Usage: opencli email-webmail [--debug] [domain <domain>]
