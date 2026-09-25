@@ -79,6 +79,7 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	ip := reqip.ClientIP(r)
+	knownIP := loginIPIsKnown(result.Username, ip)
 	if err := logUserLogin(a, r, sess, result.UserID, result.Username, ip); err != nil {
 		writeAPIJSON(w, http.StatusInternalServerError, map[string]any{"error": "internal_error"})
 		return
@@ -86,8 +87,7 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = a.Sessions.Save(r, w, sess)
 	_ = logger.RecordUserAction(a.Config, result.Username, "logged in via user API", ip)
 	clearFailedAttempts(ip)
-	checkIfUserShouldBeNotified(a, ctx, result.UserID, result.Username, "notify_account_login",
-		loginNotifyMessage("password", ip))
+	notifyLogin(a, ctx, result.UserID, result.Username, loginNotifyMessage("password", ip), knownIP)
 
 	token, signErr := mintAPIToken(a, result.UserID)
 	if signErr != nil {

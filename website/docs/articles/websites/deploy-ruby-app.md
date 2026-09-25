@@ -55,8 +55,8 @@ Create the app in **OpenPanel → Websites → Install App → Setup Ruby Applic
 | **Version** | a current Ruby version |
 | **Run Install** | ✅ runs `bundle install` |
 
-![Install Ruby Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/ruby_install-form.png#gh-light-mode-only)
-![Install Ruby Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/ruby_install-form_dark.png#gh-dark-mode-only)
+![Install Ruby Application form with the application details, domain, startup command and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/ruby_install-form.png#gh-light-mode-only)
+![Install Ruby Application form with the application details, domain, startup command and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/ruby_install-form_dark.png#gh-dark-mode-only)
 
 ---
 

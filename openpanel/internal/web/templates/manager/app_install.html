@@ -446,7 +446,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="inline-flex items-center rounded-md text-xs font-medium shadow-sm">
                 <template x-for="(p, i) in presets" :key="p.name">
                     <button type="button" @click="applyPreset(p)" x-text="p.label"
-                            :class="(i > 0 ? '-ml-px ' : '') + (isPreset(p) ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 hover:dark:bg-gray-950/50')"
+                            :class="(i > 0 ? '-ml-px ' : '') + (isPreset(p) ? 'border-black bg-black text-white dark:bg-gray-50 dark:text-gray-900' : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 hover:dark:bg-gray-950/50')"
                             :style="(i === 0 ? 'border-radius:6px 0 0 6px;' : i === presets.length - 1 ? 'border-radius:0 6px 6px 0;' : '') + (isPreset(p) ? 'z-index:1;' : '')"
                             class="relative border px-2.5 py-1 focus:outline-none"></button>
                 </template>

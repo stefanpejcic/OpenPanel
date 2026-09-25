@@ -47,8 +47,8 @@ Go to **OpenPanel → Websites → Install App → Setup Node.js Application** a
 | **Git repository** | optional | optional |
 | **CPU / Memory** | `0.5` / `0.5` GB | `1` / `2` GB (builds need memory) |
 
-![Install Node.js Application form with the application details, domain, startup file and advanced options](/img/openpanel-screenshots/applications/nodejs_install-form.png#gh-light-mode-only)
-![Install Node.js Application form with the application details, domain, startup file and advanced options](/img/openpanel-screenshots/applications/nodejs_install-form_dark.png#gh-dark-mode-only)
+![Install Node.js Application form with the application details, domain, startup file and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/nodejs_install-form.png#gh-light-mode-only)
+![Install Node.js Application form with the application details, domain, startup file and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/nodejs_install-form_dark.png#gh-dark-mode-only)
 
 Click **Start Installation**, then open your domain.
 

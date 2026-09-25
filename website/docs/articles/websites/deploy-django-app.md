@@ -124,8 +124,8 @@ Go to **OpenPanel → Websites → Install App → Setup Python Application**:
 | **Git repository** | optional, `https://` URL |
 | **CPU / Memory** | e.g. `1` core, `1` GB |
 
-![Install Python Application form with the application details, domain, startup file and advanced options](/img/openpanel-screenshots/applications/python_install-form.png#gh-light-mode-only)
-![Install Python Application form with the application details, domain, startup file and advanced options](/img/openpanel-screenshots/applications/python_install-form_dark.png#gh-dark-mode-only)
+![Install Python Application form with the application details, domain, startup file and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/python_install-form.png#gh-light-mode-only)
+![Install Python Application form with the application details, domain, startup file and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/python_install-form_dark.png#gh-dark-mode-only)
 
 **Custom Startup Command** - runs migrations, collects static files, then starts Gunicorn:
 

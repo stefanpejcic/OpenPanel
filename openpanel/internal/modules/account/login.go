@@ -273,6 +273,7 @@ func completeLogin(a *appctx.App, w http.ResponseWriter, r *http.Request, sess *
 // finishLoginSession is the common tail for all three success paths: establish the session, append to .lastlogin, log the activity, clear rate-limit state, and fire the login notification. Writes no HTTP response - callers do that themselves.
 func finishLoginSession(a *appctx.App, w http.ResponseWriter, r *http.Request, sess *sessions.Session, userID int, username, action, notifyKind string) {
 	ip := reqip.ClientIP(r)
+	knownIP := loginIPIsKnown(username, ip)
 
 	sess.Values["user_id"] = userID
 	sess.Values["user_ip"] = ip
@@ -285,7 +286,7 @@ func finishLoginSession(a *appctx.App, w http.ResponseWriter, r *http.Request, s
 
 	_ = logger.RecordUserAction(a.Config, username, action, ip)
 	clearFailedAttempts(ip)
-	checkIfUserShouldBeNotified(a, r.Context(), userID, username, "notify_account_login", loginNotifyMessage(notifyKind, ip))
+	notifyLogin(a, r.Context(), userID, username, loginNotifyMessage(notifyKind, ip), knownIP)
 }
 
 // logUserLogin appends to the user's .lastlogin history file, then creates the Redis-backed session record RequireLogin validates on every later request

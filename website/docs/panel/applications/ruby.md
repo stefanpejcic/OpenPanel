@@ -14,8 +14,8 @@ Step-by-step guide: [Deploy a Ruby / Rails app](/docs/articles/websites/deploy-r
 
 To create a new Ruby application, navigate to **OpenPanel > Websites > Install App** and click **Setup Ruby Application**.
 
-![Install Ruby Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/ruby_install-form.png#gh-light-mode-only)
-![Install Ruby Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/ruby_install-form_dark.png#gh-dark-mode-only)
+![Install Ruby Application form with the application details, domain, startup command and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/ruby_install-form.png#gh-light-mode-only)
+![Install Ruby Application form with the application details, domain, startup command and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/ruby_install-form_dark.png#gh-dark-mode-only)
 
 On the next page, you can configure the following settings:
 
@@ -27,8 +27,10 @@ On the next page, you can configure the following settings:
 * **Type** – Fixed to Ruby.
 * **Version** – Select any available Ruby version from Docker Hub's official `ruby` image tags.
 * **Run Install** – Run `bundle install` using the `Gemfile` before starting the application. Skip this if your application is already built or has no gem dependencies.
+* **Resource presets** – **Small** (0.25 CPU, 0.25 GB, 100 processes), **Medium** (0.5 CPU, 1 GB, 500 processes) or **Large** (1 CPU, 2 GB, 1000 processes) fill in the three limits below in one click. Medium is the default.
 * **CPU Cores** – Number of CPU cores allocated to the application.
 * **Memory** – Amount of memory (in GB) allocated to the application.
+* **Max processes** – The most processes the application's container can run at once.
 
 After completing the form, click **Start Installation**.
 The installation process will be displayed below the form. Once complete, you’ll be redirected to the management page where you can view all your applications.

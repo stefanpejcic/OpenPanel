@@ -61,68 +61,62 @@ To change CPU or Memory limits for a service:
 
 All limits of a service (CPU, memory and PIDs), along with its image, environment variables, volumes and networks, can also be changed from its **Edit** page:
 
-![Edit service form with the image tag, environment variables, CPU, memory and PID limits, volumes and networks](/img/openpanel-screenshots/containers/edit-form.png#gh-light-mode-only)
-![Edit service form with the image tag, environment variables, CPU, memory and PID limits, volumes and networks](/img/openpanel-screenshots/containers/edit-form_dark.png#gh-dark-mode-only)
+![Edit service form with the image, resource limits, networks, storage and environment variables](/img/openpanel-screenshots/containers/edit-form.png#gh-light-mode-only)
+![Edit service form with the image, resource limits, networks, storage and environment variables](/img/openpanel-screenshots/containers/edit-form_dark.png#gh-dark-mode-only)
 
 ## Adding New Services
 
-To add a new Docker service (container), fill in the **Add Service** form with the required details.  
+Click **New Service** on the Containers page to run any Docker image next to your websites, for example a Redis cache, a queue worker or your own app. The form is split into numbered steps:
 
-![Add service form with the name, Docker image and tag, environment variables and resource limits](/img/openpanel-screenshots/containers/new-form.png#gh-light-mode-only)
-![Add service form with the name, Docker image and tag, environment variables and resource limits](/img/openpanel-screenshots/containers/new-form_dark.png#gh-dark-mode-only)
+![Add a container form with the image and name, resource presets, networks, storage and environment variables](/img/openpanel-screenshots/containers/new-form.png#gh-light-mode-only)
+![Add a container form with the image and name, resource presets, networks, storage and environment variables](/img/openpanel-screenshots/containers/new-form_dark.png#gh-dark-mode-only)
 
-- **Service Name** – Unique name for the container.  
-  - Must start with a letter, contain only lowercase letters and digits, and be at least 3 characters long.  
-  - Example: `webapp`, `redis1`  
+1. **Image and name**
+   - **Docker image** – An image from Docker Hub such as `redis:7-alpine`, or a full address like `ghcr.io/owner/app:1.0`. Popular images are suggested as you type. Add a tag to pin the version.
+   - **Name** – Filled in from the image, and changed automatically if that name is already taken. It must start with a letter, contain only lowercase letters and digits, and be at least 3 characters long. Other services reach the container by this name, for example `redis:6379`.
 
-- **Image** – Docker image to use.  
-  - Example: `nginx:latest`, `redis:7.2`  
+2. **Resources** – Pick **Small** (0.25 CPU, 0.25 GB, 100 processes), **Medium** (0.5 CPU, 1 GB, 500 processes, the default) or **Large** (1 CPU, 2 GB, 1000 processes), or type your own values:
+   - **CPU cores** – Maximum CPU the container can use, for example `0.5` or `1`.
+   - **Memory** – Maximum memory, always in GB, for example `0.5` or `2`.
+   - **Max processes** – The most processes the container can run at once.
 
-- **Environment Variables** – Optional. Provide variables in `KEY: value` format, one per line.  
-  - Example:  
-    ```
-    REDIS_PASSWORD: secret
-    DEBUG: true
-    ```
+   These limits apply to this container only, it can't use more than your hosting plan allows.
 
-- **CPU Limit** – Maximum CPU allocation for the container. Must be a positive number.  
-  - Example: `0.5`, `1`  
+3. **Networks** – Tick one or more networks from your `docker-compose.yml`. The container can talk to every service on the networks you choose. At least one is required.
 
-- **RAM Limit** – Maximum memory allocation. Must be a number followed by `M` or `G`.  
-  - Example: `512M`, `1.5G`  
+4. **Storage (optional)**
+   - **Add volume** – Pick one of your Docker volumes, enter the path it's mounted at inside the container, and optionally mark it **Read-only**.
+   - **Give access to the Docker socket** – Only for tools that manage containers, like Portainer or Watchtower. The container can then control all your other containers. Unchecked by default.
 
-- **Volumes (optional)** – Attach storage to the container.  
-  - **Mount Docker socket** – Checkbox that mounts the host's Docker/Podman socket read-only into the container.  
-  - **Volume rows** – For each volume, select an existing Docker volume, enter the mount path inside the container, and optionally mark it **Read-only**. Click **Add** to add more rows.
+5. **Environment variables (optional)** – Add a key and value per row, or click **Paste as text** to paste them as `KEY: value` lines, one per line.
 
-- **Network** – Select the Docker network to attach the container to, from the networks already defined in your `docker-compose.yml`.  
-
-- **Healthcheck (optional)** – YAML block defining container health checks.  
-  - Example:  
+6. **Health check (optional)** – A docker compose `healthcheck` block. Click **Insert example** to get one that fits the image, for example:
     ```yaml
-    test: ["CMD", "curl", "-f", "http://localhost"]
+    test: ["CMD", "redis-cli", "ping"]
     interval: 30s
-    timeout: 10s
+    timeout: 5s
     retries: 3
-    ```  
+    ```
+   The Containers page then shows the container as healthy or unhealthy.
 
-**Validation Rules**:
+Click **Create container** and the progress of each step is shown on the page:
 
-- **Service Name** – Must be unique and follow format rules.  
-- **CPU Limit** – Must be a positive number.  
-- **RAM Limit** – Must end with `M` or `G`.  
-- **Environment Variables** – Must be in `KEY: value` format.  
-- **Healthcheck** – Must be valid YAML.  
+1. **Validating container details** – The name, image, limits and networks are checked.
+2. **Saving container to docker-compose.yml** – The service is added to your `docker-compose.yml` and its limits are saved to `.env`.
+3. **Downloading image** – The image is pulled, so starting the container later is quick.
+4. **Container created** – You're taken back to the Containers page.
 
-Each service automatically uses an **uppercase prefix** for environment variable keys.  
-CPU and RAM values are also stored as environment variables for each service.  
+If the details are invalid the step turns red with the reason, and **Back to the form** returns you to the form with everything still filled in. If only the image download fails, the container is already saved, and the error from the registry is shown so you can fix the image from its **Edit** page.
 
-For example, a service named `nginx` will have the following environment keys:
+:::info
+The new container isn't started automatically. Start it from the Containers page when you're ready.
+:::
+
+Each service gets an **uppercase prefix** for its environment variable keys, and its CPU, memory and process limits are stored as variables in `.env`. For example, a service named `nginx` gets:
 
   ```
   NGINX_CPU
   NGINX_RAM
-  ``` 
-
-> Once the form is submitted and validated, the service is added to the Docker Compose configuration and environment variables are automatically updated.
+  NGINX_PIDS
+  ```
 

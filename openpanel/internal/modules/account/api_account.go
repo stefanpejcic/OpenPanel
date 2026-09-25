@@ -86,11 +86,16 @@ func apiAccountUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			writeAPIAccountJSON(w, http.StatusBadRequest, map[string]string{"error": "Password does not meet the required strength"})
 			return
 		}
+		checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_password_change",
+			"Password changed for account "+currentUsername+"\nPassword for account <b>"+currentUsername+"</b> has been changed via API.")
 		_ = logger.RecordUserAction(a.Config, currentUsername, "changed password via API", ip)
 		actions = append(actions, "password updated")
 	}
 
 	if newEmail != "" && newEmail != currentEmail {
+		// sent before the update so it goes to the old address, same as the Account page
+		checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_contact_address_change",
+			"Email address changed for account "+currentUsername+"\nEmail address for account <b>"+currentUsername+"</b> has been changed to: <b>"+newEmail+"</b> via API.")
 		if updateErr := updateEmailByID(ctx, a, userID, newEmail); updateErr != nil {
 			writeAPIAccountJSON(w, http.StatusInternalServerError, map[string]string{"error": updateErr.Error()})
 			return
@@ -117,6 +122,8 @@ func apiAccountUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		if strings.Contains(strings.ToLower(output), "successfully") {
 			a.Cache.Delete(ctx, "get_user_details_with_plan:"+strconv.Itoa(userID))
+			checkIfUserShouldBeNotified(a, ctx, userID, newUsername, "notify_username_change",
+				"Username "+currentUsername+" changed\nUsername changed from <b>"+currentUsername+"</b> to <b>"+newUsername+"</b> via API.")
 			_ = logger.RecordUserAction(a.Config, newUsername, "renamed from "+currentUsername+" to "+newUsername, ip)
 			actions = append(actions, "username changed to "+newUsername)
 		} else {

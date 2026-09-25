@@ -16,7 +16,7 @@ If you do not see the Notifications page, ask your provider to enable the [notif
 | Value                                          | Description                                  | Default |
 |------------------------------------------------|----------------------------------------------|---------|
 | notify_account_login                           | Notify on new logins                         | 1       |
-| notify_account_login_for_known_netblock        | Notify on new login from known netblock      | 1       |
+| notify_account_login_for_known_netblock        | Also notify on logins from an IP address that's already in your login history. Turn it off to only get emails for logins from new IP addresses | 1       |
 | notify_account_login_notification_disabled     | Notify when login notifications are disabled | 1       |
 | notify_autossl_expiry                          | Notify when SSL certificate is soon expiring | 0       |
 | notify_autossl_expiry_coverage                 | Notify when SSL certificate is expired       | 0       |
@@ -34,7 +34,13 @@ If you do not see the Notifications page, ask your provider to enable the [notif
 | notify_twofactorauth_change_notification_disabled | Notify when notifications for two-factor authenticatin change are disabled | 1 |
 
 
-User does not receive notifications for actions performed through the OpenAdmin interface (such as impersonating a user, changing a password, disabling 2FA, etc.) or from API calls (e.g., from WHMCS, Blesta, FOSSBilling, ClientExec, WISECP).
+User does not receive notifications for actions performed through the OpenAdmin interface (such as impersonating a user, changing a password, disabling 2FA, etc.). Logins, password, email, username and 2FA changes made through the [OpenPanel API](/docs/panel/api/) do send the same notifications as when they're made from the panel.
+
+When a security notification (login, password, email address or 2FA change) is turned off and its matching `_notification_disabled` option is on, an email is sent to let you know the notification was disabled.
+
+:::note
+Emails are currently sent only for logins, password, email address, username and two-factor authentication changes. The SSL, disk limit and email quota options are saved but not sent yet.
+:::
 
 
 ## Email notifications

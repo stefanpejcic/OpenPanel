@@ -67,24 +67,20 @@ func apiNotificationsUpdate(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 
 	prefs := readNotificationsPrefs(username)
-	weShouldNotifyUser := false
+	originalValues := make(map[string]string, len(prefs))
+	newValues := make(map[string]string, len(prefs))
 	for i := range prefs {
-		newVal, present := body.Preferences[prefs[i].Key]
-		if !present {
-			continue
-		}
-		oldVal := prefs[i].Value
-		if newVal {
-			prefs[i].Value = "1"
-		} else {
-			prefs[i].Value = "0"
-		}
-		for _, critical := range criticalNotificationKeys {
-			if prefs[i].Key == critical && oldVal == "1" && prefs[i].Value == "0" {
-				weShouldNotifyUser = true
+		originalValues[prefs[i].Key] = prefs[i].Value
+		if newVal, present := body.Preferences[prefs[i].Key]; present {
+			if newVal {
+				prefs[i].Value = "1"
+			} else {
+				prefs[i].Value = "0"
 			}
 		}
+		newValues[prefs[i].Key] = prefs[i].Value
 	}
+	weShouldNotifyUser := alertWasDisabled(originalValues, newValues)
 
 	var sb strings.Builder
 	for _, p := range prefs {
@@ -100,6 +96,7 @@ func apiNotificationsUpdate(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	clearNotificationPrefsCache(ctx, a, username, prefs)
 	_ = logger.RecordUserAction(a.Config, username, "changed notification preferences for the account via API", reqip.ClientIP(r))
 	if weShouldNotifyUser {
 		message := "Notification preferences changed for account " + username + "\n Notification preferences have been changed for your account <b>" + username +

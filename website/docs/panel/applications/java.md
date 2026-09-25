@@ -14,8 +14,8 @@ Step-by-step guide: [Deploy a Java / Spring Boot app](/docs/articles/websites/de
 
 To create a new Java application, navigate to **OpenPanel > Websites > Install App** and click **Setup Java Application**.
 
-![Install Java Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/java_install-form.png#gh-light-mode-only)
-![Install Java Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/java_install-form_dark.png#gh-dark-mode-only)
+![Install Java Application form with the application details, domain, startup command and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/java_install-form.png#gh-light-mode-only)
+![Install Java Application form with the application details, domain, startup command and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/java_install-form_dark.png#gh-dark-mode-only)
 
 On the next page, you can configure the following settings:
 
@@ -27,8 +27,10 @@ On the next page, you can configure the following settings:
 * **Type** – Fixed to Java.
 * **Version** – Select a JDK version from Docker Hub's official `eclipse-temurin` LTS tags.
 * **Run Install** – Run `mvn install` using the project's `pom.xml` before starting the application. Skip this for a single-file app or one that's already built.
+* **Resource presets** – **Small** (0.25 CPU, 0.25 GB, 100 processes), **Medium** (0.5 CPU, 1 GB, 500 processes) or **Large** (1 CPU, 2 GB, 1000 processes) fill in the three limits below in one click. Medium is the default.
 * **CPU Cores** – Number of CPU cores allocated to the application.
 * **Memory** – Amount of memory (in GB) allocated to the application.
+* **Max processes** – The most processes the application's container can run at once.
 
 After completing the form, click **Start Installation**.
 The installation process will be displayed below the form. Once complete, you’ll be redirected to the management page where you can view all your applications.

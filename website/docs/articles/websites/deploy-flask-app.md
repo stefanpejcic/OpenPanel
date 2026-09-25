@@ -78,8 +78,8 @@ Go to **OpenPanel → Websites → Install App → Setup Python Application** an
 | **Git repository** | optional - an `https://` URL of your repository |
 | **CPU / Memory** | e.g. `1` core and `0.5` GB |
 
-![Install Python Application form with the application details, domain, startup file and advanced options](/img/openpanel-screenshots/applications/python_install-form.png#gh-light-mode-only)
-![Install Python Application form with the application details, domain, startup file and advanced options](/img/openpanel-screenshots/applications/python_install-form_dark.png#gh-dark-mode-only)
+![Install Python Application form with the application details, domain, startup file and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/python_install-form.png#gh-light-mode-only)
+![Install Python Application form with the application details, domain, startup file and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/python_install-form_dark.png#gh-dark-mode-only)
 
 Click **Start Installation**. When it's done, open `https://example.com`.
 

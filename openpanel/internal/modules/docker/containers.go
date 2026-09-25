@@ -343,7 +343,8 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			ExistingServices: existingServices, FormData: r.Form, Title: title, Editing: true,
 		}
 
-		if !imageRefRE.MatchString(image) {
+		// existing services can keep a tag set through .env like redis:${REDIS_VERSION:-8}
+		if !imageRefRE.MatchString(image) && !imageVarRE.MatchString(image) {
 			formView.Error = "Enter a valid image, for example nginx:latest or ghcr.io/owner/app:1.0."
 			renderContainerFormPage(a, w, r, formView)
 			return

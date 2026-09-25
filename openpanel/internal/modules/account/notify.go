@@ -38,6 +38,9 @@ func parseNotificationsFile(content string) map[string]string {
 	return prefs
 }
 
+// notificationDefaults are used for keys that older notifications.yaml files don't have
+var notificationDefaults = map[string]int{"notify_username_change": 1}
+
 // getNotificationPreference reads one key from a user's notifications.yaml-shaped preferences file, cached for 5 minutes
 func getNotificationPreference(ctx context.Context, a *appctx.App, username, key string) int {
 	cacheKey := "get_from_file_value:" + username + ":" + key
@@ -53,9 +56,31 @@ func getNotificationPreference(ctx context.Context, a *appctx.App, username, key
 				return n, nil
 			}
 		}
-		return 0, nil
+		return notificationDefaults[key], nil
 	})
 	return v
+}
+
+// loginIPIsKnown reports whether ip is already in the user's .lastlogin history, call it before the new login is appended
+func loginIPIsKnown(username, ip string) bool {
+	data, err := os.ReadFile("/etc/openpanel/openpanel/core/users/" + username + "/.lastlogin")
+	if err != nil || ip == "" {
+		return false
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		if strings.HasPrefix(line, "IP: "+ip+" -") {
+			return true
+		}
+	}
+	return false
+}
+
+// notifyLogin sends the login email, for an IP seen before only when notify_account_login_for_known_netblock is on
+func notifyLogin(a *appctx.App, ctx context.Context, userID int, username, message string, knownIP bool) {
+	if knownIP && getNotificationPreference(ctx, a, username, "notify_account_login_for_known_netblock") != 1 {
+		return
+	}
+	checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_account_login", message)
 }
 
 // checkIfUserShouldBeNotified fires an async notification email if "notifications" is enabled and the user opted into key (or key is the always-on "notify_always"). username is passed by the caller rather than re-derived, since some callers (like the username-change flow) already know a value that may not match InjectData's cached current_username yet.

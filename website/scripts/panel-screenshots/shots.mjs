@@ -944,16 +944,20 @@ export const pages = {
   },
   'containers/edit': {
     url: '/containers/edit/redis',
-    shots: [{ name: 'form', alt: 'Edit service form with the image tag, environment variables, CPU, memory and PID limits, volumes and networks', crop: { content: 'main', maxHeight: 1000 } }],
+    shots: [{ name: 'form', alt: 'Edit service form with the image, resource limits, networks, storage and environment variables', crop: { content: 'main', maxHeight: 1700 } }],
   },
   'containers/new': {
     url: '/containers/new',
     shots: [
       {
         name: 'form',
-        alt: 'Add service form with the name, Docker image and tag, environment variables and resource limits',
-        prepare: fillVisible(['uptime-kuma', 'louislam/uptime-kuma:1']),
-        crop: { content: 'main', maxHeight: 1000 },
+        alt: 'Add a container form with the image and name, resource presets, networks, storage and environment variables',
+        prepare: async page => {
+          await page.fill('#image', 'louislam/uptime-kuma:1');
+          await page.dispatchEvent('#image', 'input');
+          await page.waitForTimeout(300);
+        },
+        crop: { content: 'main', maxHeight: 1400 },
       },
     ],
   },
@@ -1303,7 +1307,7 @@ export const pages = {
   },
   'applications/python_install': {
     url: '/python/install',
-    shots: [{ name: 'form', alt: 'Install Python Application form with the application details, domain, startup file and advanced options', crop: 'content' }],
+    shots: [{ name: 'form', alt: 'Install Python Application form with the application details, domain, startup file and the Small, Medium and Large resource presets', crop: 'content' }],
   },
   'applications/nodejs': {
     url: '/website?domain=nodejs.tests.openpanel.org',
@@ -1314,7 +1318,7 @@ export const pages = {
   },
   'applications/nodejs_install': {
     url: '/nodejs/install',
-    shots: [{ name: 'form', alt: 'Install Node.js Application form with the application details, domain, startup file and advanced options', crop: 'content' }],
+    shots: [{ name: 'form', alt: 'Install Node.js Application form with the application details, domain, startup file and the Small, Medium and Large resource presets', crop: 'content' }],
   },
   'applications/n8n_install': {
     url: '/n8n/install',
@@ -1364,11 +1368,11 @@ export const pages = {
   },
   'applications/ruby_install': {
     url: '/ruby/install',
-    shots: [{ name: 'form', alt: 'Install Ruby Application form with the application details, domain, startup command and advanced options', crop: 'content' }],
+    shots: [{ name: 'form', alt: 'Install Ruby Application form with the application details, domain, startup command and the Small, Medium and Large resource presets', crop: 'content' }],
   },
   'applications/java_install': {
     url: '/java/install',
-    shots: [{ name: 'form', alt: 'Install Java Application form with the application details, domain, startup command and advanced options', crop: 'content' }],
+    shots: [{ name: 'form', alt: 'Install Java Application form with the application details, domain, startup command and the Small, Medium and Large resource presets', crop: 'content' }],
   },
   'applications/builder': {
     url: '/website-builder/install',

@@ -53,8 +53,8 @@ server.forward-headers-strategy=framework
 | **Run Install** | ❌ off |
 | **CPU / Memory** | `1` core, `1` GB |
 
-![Install Java Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/java_install-form.png#gh-light-mode-only)
-![Install Java Application form with the application details, domain, startup command and advanced options](/img/openpanel-screenshots/applications/java_install-form_dark.png#gh-dark-mode-only)
+![Install Java Application form with the application details, domain, startup command and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/java_install-form.png#gh-light-mode-only)
+![Install Java Application form with the application details, domain, startup command and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/java_install-form_dark.png#gh-dark-mode-only)
 
 Set `-Xmx` (maximum Java heap) to about **half to two-thirds** of the container's memory limit - the JVM also needs memory outside the heap.
 

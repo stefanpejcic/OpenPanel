@@ -1,6 +1,7 @@
 package account
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -69,6 +70,24 @@ var criticalNotificationKeys = []string{
 	"notify_twofactorauth_change_notification_disabled",
 }
 
+// alertWasDisabled is true when a watched alert like notify_password_change was switched off while its _notification_disabled key was on
+func alertWasDisabled(oldValues, newValues map[string]string) bool {
+	for _, key := range criticalNotificationKeys {
+		watched := strings.TrimSuffix(key, "_notification_disabled")
+		if oldValues[key] == "1" && oldValues[watched] == "1" && newValues[watched] == "0" {
+			return true
+		}
+	}
+	return false
+}
+
+// clearNotificationPrefsCache drops the cached values so a saved change applies right away
+func clearNotificationPrefsCache(ctx context.Context, a *appctx.App, username string, prefs []NotificationPref) {
+	for _, p := range prefs {
+		_ = a.Cache.Delete(ctx, "get_from_file_value:"+username+":"+p.Key)
+	}
+}
+
 // handleAccountNotifications views or updates a user's notification preferences.
 func handleAccountNotifications(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
@@ -103,12 +122,7 @@ func handleAccountNotifications(a *appctx.App, w http.ResponseWriter, r *http.Re
 			newValues[p.Key] = p.Value
 		}
 
-		weShouldNotifyUser := false
-		for _, key := range criticalNotificationKeys {
-			if originalValues[key] == "1" && newValues[key] == "0" {
-				weShouldNotifyUser = true
-			}
-		}
+		weShouldNotifyUser := alertWasDisabled(originalValues, newValues)
 
 		var sb strings.Builder
 		for _, p := range prefs {
@@ -119,6 +133,7 @@ func handleAccountNotifications(a *appctx.App, w http.ResponseWriter, r *http.Re
 			_ = os.WriteFile(path, []byte(sb.String()), 0o644)
 		}
 
+		clearNotificationPrefsCache(ctx, a, username, prefs)
 		_ = logger.RecordUserAction(a.Config, username, "changed notification preferences for the account", reqip.ClientIP(r))
 
 		if weShouldNotifyUser {

@@ -514,3 +514,24 @@ func TestLoginLocaleButtonShowsCurrent(t *testing.T) {
 		t.Error("unknown current locale should fall back to the Change Language label")
 	}
 }
+
+func TestAlertWasDisabled(t *testing.T) {
+	on := map[string]string{"notify_password_change": "1", "notify_password_change_notification_disabled": "1"}
+	cases := []struct {
+		name string
+		old  map[string]string
+		new  map[string]string
+		want bool
+	}{
+		{"watched alert switched off", on, map[string]string{"notify_password_change": "0", "notify_password_change_notification_disabled": "1"}, true},
+		{"both switched off together", on, map[string]string{"notify_password_change": "0", "notify_password_change_notification_disabled": "0"}, true},
+		{"only the meta key switched off", on, map[string]string{"notify_password_change": "1", "notify_password_change_notification_disabled": "0"}, false},
+		{"meta key was already off", map[string]string{"notify_password_change": "1", "notify_password_change_notification_disabled": "0"}, map[string]string{"notify_password_change": "0", "notify_password_change_notification_disabled": "0"}, false},
+		{"nothing changed", on, on, false},
+	}
+	for _, c := range cases {
+		if got := alertWasDisabled(c.old, c.new); got != c.want {
+			t.Errorf("%s: got %v, want %v", c.name, got, c.want)
+		}
+	}
+}
