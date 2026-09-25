@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"os/exec"
 	"strconv"
@@ -53,6 +54,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 
 	apiregistry.Handle(mux, a, "mysql", "GET /api/mysql/info", func(w http.ResponseWriter, r *http.Request) { apiMySQLInfo(a, w, r) })
 	apiregistry.Handle(mux, a, "mysql", "GET /api/mysql/processlist", func(w http.ResponseWriter, r *http.Request) { apiMySQLProcesslist(a, w, r) })
+	apiregistry.Handle(mux, a, "mysql", "POST /api/mysql/processlist/{id}/kill", func(w http.ResponseWriter, r *http.Request) { apiMySQLKillQuery(a, w, r) })
 
 	apiregistry.Handle(mux, a, "mysql", "GET /api/mysql/remote-access", func(w http.ResponseWriter, r *http.Request) { apiMySQLRemoteAccessStatus(a, w, r) })
 	apiregistry.Handle(mux, a, "mysql", "POST /api/mysql/remote-access", func(w http.ResponseWriter, r *http.Request) { apiMySQLRemoteAccessToggle(a, w, r) })
@@ -728,12 +730,10 @@ func apiMySQLGrant(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	privilegesSQL := strings.Join(body.Privileges, ", ")
-	for _, p := range body.Privileges {
-		if p == "ALL PRIVILEGES" {
-			privilegesSQL = "ALL PRIVILEGES"
-			break
-		}
+	privilegesSQL, ok := buildPrivilegesSQL(body.Privileges)
+	if !ok {
+		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid privilege. Allowed: " + strings.Join(mysqlPrivileges, ", ")})
+		return
 	}
 
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "REVOKE ALL PRIVILEGES ON `"+dbName+"`.* FROM '"+dbUser+"'@'"+dbHost+"'", ""); execErr != nil {
@@ -894,6 +894,31 @@ func apiMySQLProcesslist(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		})
 	}
 	writeAPIMySQLJSON(w, http.StatusOK, map[string]any{"processlist": processlist, "total": len(processlist)})
+}
+
+// apiMySQLKillQuery runs KILL QUERY on one processlist entry.
+func apiMySQLKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	currentUsername, userContext, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	id := r.PathValue("id")
+	if err := killQuery(r.Context(), userContext, id); err != nil {
+		status := http.StatusInternalServerError
+		switch {
+		case errors.Is(err, errInvalidProcessID):
+			status = http.StatusBadRequest
+		case errors.Is(err, errProcessNotFound):
+			status = http.StatusNotFound
+		case errors.Is(err, errProcessProtected):
+			status = http.StatusForbidden
+		}
+		writeAPIMySQLJSON(w, status, map[string]string{"error": mysqlAPIError(err)})
+		return
+	}
+	_ = logger.RecordUserAction(a.Config, currentUsername, "killed MySQL query "+id+" via API", reqip.ClientIP(r))
+	writeAPIMySQLJSON(w, http.StatusOK, map[string]string{"id": id, "status": "killed"})
 }
 
 // ── Remote access ────────────────────────────────────────────────────────

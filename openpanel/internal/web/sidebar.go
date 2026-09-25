@@ -175,8 +175,8 @@ func mysqlTabs(g navGate, path string) []NavLink {
 	tabs = g.add(tabs, "phpmyadmin", "/mysql/phpmyadmin", "phpMyAdmin", path == "/mysql/phpmyadmin", "_blank")
 	tabs = g.add(tabs, "remote_mysql", "/mysql/remote-mysql", "Remote Access", path == "/mysql/remote-mysql", "")
 	tabs = g.add(tabs, "mysql_processlist", "/mysql/processlist", "Running Queries", path == "/mysql/processlist", "")
-	tabs = g.add(tabs, "mysql_root_password", "/mysql/root-password", "Root Password", path == "/mysql/root-password", "")
 	tabs = g.add(tabs, "mysql_conf", "/mysql/configuration", "Configuration", path == "/mysql/configuration", "")
+	tabs = g.add(tabs, "mysql_root_password", "/mysql/root-password", "Root Password", path == "/mysql/root-password", "")
 	tabs = g.add(tabs, "change_db", "/containers/mysql", "Server Type", path == "/containers/mysql", "")
 	return tabs
 }
@@ -197,6 +197,7 @@ func mongodbTabs(g navGate, path string) []NavLink {
 	tabs = g.add(tabs, "mongodb", "/mongodb", "Databases", path == "/mongodb" || path == "/mongodb/new" || path == "/mongodb/wizard", "")
 	tabs = g.add(tabs, "mongodb", "/mongodb/users", "Users", path == "/mongodb/users" || hasAnyPrefix(path, "/mongodb/user", "/mongodb/assign", "/mongodb/remove", "/mongodb/password"), "")
 	tabs = g.add(tabs, "mongodb_import", "/mongodb/import", "Import", strings.HasPrefix(path, "/mongodb/import"), "")
+	tabs = g.add(tabs, "mongodb", "/mongodb/processlist", "Running Queries", path == "/mongodb/processlist", "")
 	return tabs
 }
 

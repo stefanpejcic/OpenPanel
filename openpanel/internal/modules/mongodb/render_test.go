@@ -117,3 +117,35 @@ func TestRenderAllPages(t *testing.T) {
 		}
 	})
 }
+
+func TestRenderProcessListPage(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	layout := baseLayout(mgr, "/mongodb/processlist")
+
+	w := httptest.NewRecorder()
+	if err := processlistPage.Render(w, 200, ProcessListPageData{LayoutData: layout}); err != nil {
+		t.Fatalf("processlist empty: %v", err)
+	}
+	if !strings.Contains(w.Body.String(), "No active processes.") {
+		t.Error("expected empty state")
+	}
+
+	w = httptest.NewRecorder()
+	data := ProcessListPageData{LayoutData: layout, ProcessList: []ProcessRow{
+		{OpID: "42", User: "app", Op: "query", NS: "app.orders", SecsRunning: "12", Command: `{"find":"orders","filter":{"$where":"sleep(100)"}}`, Killable: true},
+		{OpID: "7", Desc: "TTLMonitor", SecsRunning: "0"},
+	}}
+	if err := processlistPage.Render(w, 200, data); err != nil {
+		t.Fatalf("processlist rows: %v", err)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "app.orders") || !strings.Contains(body, "TTLMonitor") {
+		t.Error("expected both rows in body")
+	}
+	if n := strings.Count(body, `action="/mongodb/processlist/kill"`); n != 1 {
+		t.Errorf("expected kill button only on the client op, got %d", n)
+	}
+	if !strings.Contains(body, `href="/mongodb/processlist"`) {
+		t.Error("expected processlist link in the sidebar")
+	}
+}

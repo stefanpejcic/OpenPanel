@@ -197,6 +197,12 @@ func toStringCell(v any) string {
 		return t
 	case []byte:
 		return string(t)
+	case int64:
+		return strconv.FormatInt(t, 10)
+	case uint64:
+		return strconv.FormatUint(t, 10)
+	case int32:
+		return strconv.FormatInt(int64(t), 10)
 	default:
 		return ""
 	}

@@ -13836,3 +13836,35 @@ msgstr ""
 #: templates/partials/_footer.html
 msgid "Modern"
 msgstr ""
+
+#: templates/mysql/processlist.html
+msgid "Kill"
+msgstr ""
+
+#: templates/mongodb/processlist.html
+msgid "MongoDB Running Queries"
+msgstr ""
+
+#: templates/mongodb/processlist.html
+msgid "List of all operations currently running on the MongoDB server, providing insights into ongoing queries, operations, and their associated details for better performance monitoring."
+msgstr ""
+
+#: templates/mongodb/processlist.html
+msgid "Client"
+msgstr ""
+
+#: templates/mongodb/processlist.html
+msgid "Application"
+msgstr ""
+
+#: templates/mongodb/processlist.html
+msgid "Operation"
+msgstr ""
+
+#: templates/mongodb/processlist.html
+msgid "Namespace"
+msgstr ""
+
+#: templates/mongodb/processlist.html
+msgid "waiting for lock"
+msgstr ""

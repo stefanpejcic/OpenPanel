@@ -34,6 +34,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /mongodb/remove_user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemoveMongoUserFromDB(a, w, r) }))
 
 	mux.Handle("GET /mongodb/info", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesInfo(a, w, r) }))
+	mux.Handle("GET /mongodb/processlist", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleProcessList(a, w, r) }))
+	mux.Handle("POST /mongodb/processlist/kill", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleKillQuery(a, w, r) }))
 }
 
 // RegisterImport wires the mongodb_import module's routes onto mux.

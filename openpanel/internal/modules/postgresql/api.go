@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"os"
 	"os/exec"
@@ -43,6 +44,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 
 	apiregistry.Handle(mux, a, "postgresql", "GET /api/postgresql/info", func(w http.ResponseWriter, r *http.Request) { apiPsqlInfo(a, w, r) })
 	apiregistry.Handle(mux, a, "postgresql", "GET /api/postgresql/processlist", func(w http.ResponseWriter, r *http.Request) { apiPsqlProcesslist(a, w, r) })
+	apiregistry.Handle(mux, a, "postgresql", "POST /api/postgresql/processlist/{pid}/kill", func(w http.ResponseWriter, r *http.Request) { apiPsqlKillQuery(a, w, r) })
 
 	apiregistry.Handle(mux, a, "postgresql", "GET /api/postgresql/remote-access", func(w http.ResponseWriter, r *http.Request) { apiPsqlRemoteAccessStatus(a, w, r) })
 	apiregistry.Handle(mux, a, "postgresql", "POST /api/postgresql/remote-access", func(w http.ResponseWriter, r *http.Request) { apiPsqlRemoteAccessToggle(a, w, r) })
@@ -800,4 +802,29 @@ func apiPsqlUpdateConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	writeAPIPsqlJSON(w, http.StatusOK, map[string]any{"updated": true, "restarted": restarted, "configuration": newConfig})
+}
+
+// apiPsqlKillQuery runs pg_cancel_backend on one pg_stat_activity entry.
+func apiPsqlKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	currentUsername, userContext, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	pid := r.PathValue("pid")
+	if err := cancelQuery(r.Context(), userContext, pid); err != nil {
+		status := http.StatusInternalServerError
+		switch {
+		case errors.Is(err, errInvalidPID):
+			status = http.StatusBadRequest
+		case errors.Is(err, errProcessNotFound):
+			status = http.StatusNotFound
+		case errors.Is(err, errProcessProtected):
+			status = http.StatusForbidden
+		}
+		writeAPIPsqlJSON(w, status, map[string]string{"error": err.Error()})
+		return
+	}
+	_ = logger.RecordUserAction(a.Config, currentUsername, "killed PostgreSQL query "+pid+" via API", reqip.ClientIP(r))
+	writeAPIPsqlJSON(w, http.StatusOK, map[string]string{"pid": pid, "status": "killed"})
 }

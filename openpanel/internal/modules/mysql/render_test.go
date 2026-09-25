@@ -206,14 +206,20 @@ func TestRenderProcessListPage(t *testing.T) {
 		LayoutData: baseLayout(mgr, "/mysql/processlist"),
 		ProcessList: []ProcessRow{
 			{ID: "1", User: "app", Host: "localhost", DB: "app_db", Command: "Query", Time: "0", State: "", Info: "SELECT 1"},
+			{ID: "2", User: "app", Host: "localhost", DB: "app_db", Command: "Sleep", Time: "5", State: "", Info: ""},
+			{ID: "3", User: "event_scheduler", Host: "localhost", Command: "Query", Time: "0", State: "", Info: ""},
 		},
 	}
 	w := httptest.NewRecorder()
 	if err := processlistPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
-	if !strings.Contains(w.Body.String(), "SELECT 1") {
+	body := w.Body.String()
+	if !strings.Contains(body, "SELECT 1") {
 		t.Error("expected process row in body")
+	}
+	if n := strings.Count(body, `action="/mysql/processlist/kill"`); n != 1 {
+		t.Errorf("expected kill button only on the running user query, got %d", n)
 	}
 }
 

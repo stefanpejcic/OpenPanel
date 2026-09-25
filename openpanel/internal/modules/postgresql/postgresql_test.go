@@ -34,3 +34,11 @@ func TestPostgresContainerStatusDetail(t *testing.T) {
 		}
 	}
 }
+
+func TestCancelQueryRejectsBadPIDs(t *testing.T) {
+	for _, pid := range []string{"", "0", "-5", "abc", "1; SELECT 1", "99999999999"} {
+		if err := cancelQuery(t.Context(), "nobody", pid); err != errInvalidPID {
+			t.Errorf("pid %q: got %v, want errInvalidPID", pid, err)
+		}
+	}
+}

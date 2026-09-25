@@ -639,6 +639,37 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/mysql/processlist/{id}/kill:
+    post:
+      summary: Kill a running MySQL query (KILL QUERY).
+      description: Only entries whose command is Query can be killed. System threads are refused.
+      operationId: mysql_kill_query
+      tags:
+      - MySQL
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Query killed.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: Invalid process ID.
+        '403':
+          description: System threads can not be killed.
+        '404':
+          description: Process not found or no longer running a query.
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/mysql/remote-access:
     get:
       summary: Get remote access status, port, and per-user hosts.
@@ -1277,6 +1308,37 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/postgresql/processlist/{pid}/kill:
+    post:
+      summary: Cancel a running PostgreSQL query (pg_cancel_backend).
+      description: Only active client backend queries can be cancelled. The connection stays open.
+      operationId: postgresql_kill_query
+      tags:
+      - PostgreSQL
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Query cancelled.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: Invalid process ID.
+        '403':
+          description: Only user queries can be cancelled.
+        '404':
+          description: Process not found or no longer running a query.
         default:
           $ref: '#/components/responses/Error'
       security:

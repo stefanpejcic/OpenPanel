@@ -98,8 +98,8 @@ func allSections() []Section {
 			{"phpmyadmin", "/phpmyadmin/link", "bi-box-arrow-in-right", "phpMyAdmin Login Form", "_blank", false},
 			{"remote_mysql", "/mysql/remote-mysql", "bi-hdd-network", "Remote Access", "", false},
 			{"mysql_processlist", "/mysql/processlist", "bi-database-slash", "Running Queries", "", false},
-			{"mysql_root_password", "/mysql/root-password", "bi-key-fill", "Root Password", "", false},
 			{"mysql_conf", "/mysql/configuration", "bi-database-lock", "Configuration", "", false},
+			{"mysql_root_password", "/mysql/root-password", "bi-key-fill", "Root Password", "", false},
 			{"change_db", "/containers/mysql", "bi-toggle2-off", "Server Type", "", false},
 		}},
 		{Key: "postgresql", Title: "PostgreSQL", Items: []SectionItem{
@@ -116,6 +116,7 @@ func allSections() []Section {
 			{"mongodb", "/mongodb/users", "bi-people", "Users", "", false},
 			{"mongodb", "/mongodb/wizard", "bi-database-add", "Database Wizard", "", false},
 			{"mongodb_import", "/mongodb/import", "bi-database-fill-add", "Import", "", false},
+			{"mongodb", "/mongodb/processlist", "bi-database-slash", "Running Queries", "", false},
 		}},
 		{Key: "php", Title: "PHP", Items: []SectionItem{
 			{"php", "/php/domains", "bi-code-square", "Version per Domain", "", false},
@@ -237,6 +238,7 @@ func classicSections() []Section {
 			{"mongodb", "/mongodb/users", "bi-people", "Users", "", false},
 			{"mongodb", "/mongodb/wizard", "bi-database-add", "Database Wizard", "", false},
 			{"mongodb_import", "/mongodb/import", "bi-database-fill-add", "Import Database", "", false},
+			{"mongodb", "/mongodb/processlist", "bi-database-slash", "Process List", "", false},
 		}},
 		// mautic/flarum omitted: legacy code slated for removal entirely, not ported here (per user decision)
 		{Key: "websites", Title: "Websites", Items: []SectionItem{

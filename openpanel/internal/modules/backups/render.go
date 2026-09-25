@@ -102,23 +102,23 @@ func renderBackupDestinationsPage(a *appctx.App, w http.ResponseWriter, r *http.
 	meta := map[string]destinationMeta{
 		"s3": {
 			Title: layout.T.Get("S3-compatible"), Description: layout.T.Get("AWS S3, Filebase, Google Cloud Storage, MinIO, etc."),
-			DocLink: "https://openpanel.com/docs/panel/files/backups/#s3",
+			DocLink: "https://openpanel.com/docs/panel/backups/#s3",
 		},
 		"ssh": {
 			Title: layout.T.Get("SSH"), Description: layout.T.Get("Remote backups to another server using via SSH or SFTP."),
-			DocLink: "https://openpanel.com/docs/panel/files/backups/#sshsftp",
+			DocLink: "https://openpanel.com/docs/panel/backups/#sshsftp",
 		},
 		"webdav": {
 			Title: layout.T.Get("WebDAV"), Description: layout.T.Get("Remote backups using WebDAV protocol."),
-			DocLink: "https://openpanel.com/docs/panel/files/backups/#webdav",
+			DocLink: "https://openpanel.com/docs/panel/backups/#webdav",
 		},
 		"azure": {
 			Title: layout.T.Get("Azure"), Description: layout.T.Get("Remote backups to Azure Blob Storage."),
-			DocLink: "https://openpanel.com/docs/panel/files/backups/#azure", Icon: azureIcon,
+			DocLink: "https://openpanel.com/docs/panel/backups/#azure", Icon: azureIcon,
 		},
 		"dropbox": {
 			Title: layout.T.Get("Dropbox"), Description: layout.T.Get("Remote backups to Dropbox cloud storage."),
-			DocLink: "https://openpanel.com/docs/panel/files/backups/#dropbox", Icon: dropboxIcon,
+			DocLink: "https://openpanel.com/docs/panel/backups/#dropbox", Icon: dropboxIcon,
 		},
 	}
 

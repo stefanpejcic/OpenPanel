@@ -69,6 +69,11 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 			reRender("error", "At least one privilege must be selected.")
 			return
 		}
+		privilegesSQL, ok := buildPrivilegesSQL(selectedPrivs)
+		if !ok {
+			reRender("error", "Invalid privilege selected.")
+			return
+		}
 
 		injectedData, _ := a.InjectData(ctx, userID)
 		planID, _ := injectedData["hosting_plan"].(int)
@@ -81,13 +86,6 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		privilegesSQL := strings.Join(selectedPrivs, ", ")
-		for _, p := range selectedPrivs {
-			if p == "ALL PRIVILEGES" {
-				privilegesSQL = "ALL PRIVILEGES"
-				break
-			}
-		}
 		escapedPassword := escapeMySQLString(password)
 
 		docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")

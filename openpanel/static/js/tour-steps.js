@@ -931,6 +931,14 @@ window.TOUR_STEPS.push(
         align: 'start'
     },
     {
+        path: '/mongodb/processlist',
+        element: '#processlist-table',
+        title: 'Running Queries',
+        description: 'Shows currently running MongoDB operations. Click Kill to stop a slow one.',
+        side: 'top',
+        align: 'start'
+    },
+    {
         path: '/postgresql/remote-postgresql',
         element: '#remote',
         title: 'Remote Access',

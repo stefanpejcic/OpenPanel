@@ -3,16 +3,14 @@
 {{define "content"}}
 <!-- START templates/mysql/processlist.html -->
 
-<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
-    <header>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "MySQL Running Queries"}}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "List of all current processes running on the MySQL server, providing insights into ongoing queries, operations, and their associated details for better performance monitoring."}}</p>
-    </header>
-</div>
-
 <section aria-label="Processes Table" x-data="{ searchQuery: '' }">
-    <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
-        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
+<div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "MySQL Running Queries"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "List of all current processes running on the MySQL server, providing insights into ongoing queries, operations, and their associated details for better performance monitoring."}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        <div class="relative w-full sm:max-w-[250px] sm:[&>input]:h-[30px]">
             <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
             <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
@@ -20,11 +18,9 @@
                 </svg>
             </div>
         </div>
-
-        <div class="flex flex-col items-center gap-2 sm:flex-row">
-        <a href="/mysql/processlist" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Refresh Processes"}}</a>
-        </div>
+        <a href="/mysql/processlist" class="relative inline-flex w-full items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 sm:mt-0 sm:w-fit">{{.T.Get "Refresh Processes"}}</a>
     </div>
+</div>
 
    <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
@@ -39,6 +35,7 @@
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Time"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "State"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Info"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
                     </tr>
                 </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -60,16 +57,49 @@
             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Time}}</td>
             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.State}}</td>
             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Info}}</td>
+            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                {{if and (eq .Command "Query") (ne .User "system user") (ne .User "event_scheduler") (ne .Info "SHOW FULL PROCESSLIST")}}
+                <form method="POST" action="/mysql/processlist/kill">
+                    <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                    <input type="hidden" name="id" value="{{.ID}}"/>
+                    <button class="btn btn-danger p-1.5" type="button" onclick="confirmKill(this);" data-label="{{$.T.Get "Kill"}}" data-confirm="{{$.T.Get "Confirm"}}"><i class="bi bi-x-octagon"></i> {{$.T.Get "Kill"}}</button>
+                </form>
+                {{end}}
+            </td>
         </tr>
         {{end}}
         {{else}}
-        <tr><td colspan="8" class="p-4 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No active processes."}}</td></tr>
+        <tr><td colspan="9" class="p-4 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No active processes."}}</td></tr>
         {{end}}
         </tbody>
     </table>
         </div>
     </div>
 </section>
+
+<script>
+function confirmKill(button) {
+    if (button.dataset.armed) {
+        button.closest('form').submit();
+        return;
+    }
+    button.dataset.armed = '1';
+    var countdown = 5;
+    button.classList.replace('btn-danger', 'btn-dark');
+    button.innerHTML = '<i class="bi bi-x-octagon-fill"></i> ' + button.dataset.confirm + ' <span class="btn-indicator btn-indicator-mini bg-danger">' + countdown + '</span>';
+    var intervalId = setInterval(function () {
+        countdown--;
+        var indicator = button.querySelector('.btn-indicator-mini');
+        if (indicator) indicator.textContent = countdown;
+        if (countdown === 0) {
+            clearInterval(intervalId);
+            delete button.dataset.armed;
+            button.classList.replace('btn-dark', 'btn-danger');
+            button.innerHTML = '<i class="bi bi-x-octagon"></i> ' + button.dataset.label;
+        }
+    }, 1000);
+}
+</script>
 
 <!-- END templates/mysql/processlist.html -->
 {{end}}

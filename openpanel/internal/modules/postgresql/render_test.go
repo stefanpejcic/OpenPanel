@@ -119,23 +119,32 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("processlist empty", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		data := struct {
-			web.LayoutData
-			ProcesslistOutput string
-		}{layout, ""}
-		if err := processlistPage.Render(w, 200, data); err != nil {
+		if err := processlistPage.Render(w, 200, ProcessListPageData{LayoutData: layout}); err != nil {
 			t.Fatalf("processlist: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "No active processes.") {
+			t.Error("expected empty state")
 		}
 	})
 	t.Run("processlist with rows", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		row := "16384|postgres|123|||postgres|psql|127.0.0.1||54321|2026-08-05 10:00:00|2026-08-05 10:00:00|2026-08-05 10:00:00|2026-08-05 10:00:00|||active|||1|SELECT 1|client backend"
-		data := struct {
-			web.LayoutData
-			ProcesslistOutput string
-		}{layout, row}
+		data := ProcessListPageData{LayoutData: layout, ProcessList: []ProcessRow{
+			{PID: "123", DB: "postgres", User: "postgres", State: "active", Query: "SELECT a | b", BackendType: "client backend"},
+			{PID: "124", DB: "postgres", User: "postgres", State: "idle", Query: "SELECT 1", BackendType: "client backend"},
+			{PID: "50", State: "", BackendType: "autovacuum launcher"},
+		}}
 		if err := processlistPage.Render(w, 200, data); err != nil {
 			t.Fatalf("processlist: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, "SELECT a | b") {
+			t.Error("expected query with a pipe to render intact")
+		}
+		if n := strings.Count(body, `action="/postgresql/processlist/kill"`); n != 1 {
+			t.Errorf("expected kill button only on the active client query, got %d", n)
+		}
+		if !strings.Contains(body, `name="pid" value="123"`) {
+			t.Error("expected kill form for pid 123")
 		}
 	})
 	t.Run("configuration", func(t *testing.T) {

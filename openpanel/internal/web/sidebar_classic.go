@@ -142,6 +142,7 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 			NavLink{Href: "/mongodb/remove", Label: "Remove User from DB", Active: path == "/mongodb/remove"},
 		)
 		links = add(links, "mongodb_import", "/mongodb/import", "Import Database", strings.HasPrefix(path, "/mongodb/import"), "")
+		links = append(links, NavLink{Href: "/mongodb/processlist", Label: "Show Processes", Active: path == "/mongodb/processlist"})
 		open := hasAnyPrefix(path, "/mongodb", "/database")
 		groups = append(groups, NavGroup{"MongoDB", mongodbIcon, "mongodb-menu", links, open, open})
 	}

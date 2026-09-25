@@ -11,4 +11,14 @@ This interface displays all currently active PostgreSQL queries (connections) fr
 
 Checking the currently running queries is useful for identifying slow queries that slow down your application.
 
-Use the **Show Columns** dropdown to choose which columns are visible in the table (e.g. `pid`, `usename`, `client_addr`, `state`, `query`, and more). Your column selection is remembered between visits.
+Use the search box to filter by database, user or query. Click **Refresh Processes** to reload the list.
+
+## Kill a query
+
+To stop a long-running query, click **Kill** next to it. The button changes to **Confirm** with a 5 second countdown. Click it again before the countdown ends to kill the query.
+
+This runs `pg_cancel_backend`, so only the running query is cancelled and the connection stays open. The application that sent the query gets an error for that query.
+
+The **Kill** button only shows for queries that are currently running. Background workers and idle connections can not be killed.
+
+Every killed query is recorded in the account's activity log.

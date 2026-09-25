@@ -194,16 +194,19 @@ func renderImportPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbN
 	}
 }
 
-func renderProcessListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, processlistOutput string) {
+// ProcessListPageData is psql/processlist.html's template context.
+type ProcessListPageData struct {
+	web.LayoutData
+	ProcessList []ProcessRow
+}
+
+func renderProcessListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, processList []ProcessRow) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Running Queries")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := struct {
-		web.LayoutData
-		ProcesslistOutput string
-	}{layout, processlistOutput}
+	data := ProcessListPageData{LayoutData: layout, ProcessList: processList}
 	if err := processlistPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - processlist template render error: %v", err)
 	}

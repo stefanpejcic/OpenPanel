@@ -47,6 +47,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /postgresql/info", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesInfo(a, w, r) }))
 	mux.Handle("GET /json/postgresql-size", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesSizeInfo(a, w, r) }))
 	mux.Handle("GET /postgresql/processlist", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleProcessList(a, w, r) }))
+	mux.Handle("POST /postgresql/processlist/kill", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleKillQuery(a, w, r) }))
 }
 
 // RegisterConf wires the postgresql_conf module's route onto mux.

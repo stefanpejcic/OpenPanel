@@ -300,6 +300,12 @@
       "name": "Import MongoDB Database"
     },
     {
+      "description": "Show running MongoDB operations and kill slow ones.",
+      "link": "/mongodb/processlist",
+      "module": "mongodb",
+      "name": "Show MongoDB Processes"
+    },
+    {
       "description": "Manage your domain names.",
       "link": "/domains", 
       "module": "domains", 

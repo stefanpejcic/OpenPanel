@@ -5572,6 +5572,11 @@ paths:
                         is_default:
                           type: boolean
                           example: true
+                        update_available:
+                          type: boolean
+                          description: True when the installed file differs from the latest version
+                            on GitHub.
+                          example: false
                       example:
                         locale: en
                         provider: OpenPanel
@@ -5607,10 +5612,16 @@ paths:
       security:
       - bearerAuth: []
     post:
-      summary: Either installs a new locale ('locale' field) by downloading its translation files, or
-        sets the panel's default locale ('default' field); exactly one of the two fields is expected per
-        call.
-      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      summary: Installs a locale ('locale' field), updates an installed one ('update' field), deletes
+        one ('delete' field), or sets the panel's default locale ('default' field); exactly one field is
+        expected per call. Pass 'all' to 'locale' to install every available locale, or to 'update' to
+        update every locale that has an update available.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).
+
+
+        With `{"locale": "all"}` or any `update` value the response also carries `installed` and `failed`
+        arrays, and `success` is false if any locale failed to download. The default locale can''t be
+        deleted.'
       operationId: post_settings_locales
       tags:
       - Settings - Locales
@@ -5624,6 +5635,12 @@ paths:
                 locale:
                   type: string
                   example: de-DE
+                update:
+                  type: string
+                  example: ''
+                delete:
+                  type: string
+                  example: ''
                 default:
                   type: string
                   example: ''
@@ -5644,6 +5661,21 @@ paths:
                   message:
                     type: string
                     example: Locale 'de-DE' installed successfully.
+                  installed:
+                    type: array
+                    description: Only returned when locale is 'all' or for update. Locales that were installed
+                      or updated.
+                    items:
+                      type: string
+                    example:
+                    - de-de
+                    - sr-rs
+                  failed:
+                    type: array
+                    description: Only returned when locale is 'all' or for update.
+                    items:
+                      type: string
+                    example: []
                 example:
                   success: true
                   message: Locale 'de-DE' installed successfully.

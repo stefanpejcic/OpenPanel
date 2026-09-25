@@ -3,6 +3,8 @@ package mysql
 import (
 	"log"
 	"net/http"
+	"slices"
+	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -210,6 +212,27 @@ var mysqlPrivileges = []string{
 	"ALL PRIVILEGES", "ALTER", "ALTER ROUTINE", "CREATE", "CREATE ROUTINE", "CREATE TEMPORARY TABLES",
 	"CREATE VIEW", "DELETE", "DROP", "EVENT", "EXECUTE", "INDEX", "INSERT", "LOCK TABLES",
 	"REFERENCES", "SELECT", "SHOW VIEW", "TRIGGER", "UPDATE",
+}
+
+// buildPrivilegesSQL checks selected against mysqlPrivileges since the result goes straight into a GRANT
+func buildPrivilegesSQL(selected []string) (string, bool) {
+	var out []string
+	for _, p := range selected {
+		p = strings.ToUpper(strings.TrimSpace(p))
+		if !slices.Contains(mysqlPrivileges, p) {
+			return "", false
+		}
+		if !slices.Contains(out, p) {
+			out = append(out, p)
+		}
+	}
+	if len(out) == 0 {
+		return "", false
+	}
+	if slices.Contains(out, "ALL PRIVILEGES") {
+		return "ALL PRIVILEGES", true
+	}
+	return strings.Join(out, ", "), true
 }
 
 // AssignPageData is mysql/assign.html's template context.

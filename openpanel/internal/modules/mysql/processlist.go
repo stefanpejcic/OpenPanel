@@ -1,10 +1,15 @@
 package mysql
 
 import (
+	"context"
+	"errors"
 	"net/http"
+	"strconv"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 )
 
 // ProcessRow is one row of mysql/processlist.html's table.
@@ -48,4 +53,54 @@ func handleMySQLProcessList(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 
 	renderProcessListPage(a, w, r, processList)
+}
+
+var (
+	errInvalidProcessID = errors.New("invalid process ID")
+	errProcessNotFound  = errors.New("process not found or no longer running a query")
+	errProcessProtected = errors.New("system threads can not be killed")
+)
+
+// killQuery runs KILL QUERY on id, but only if it's a running query in the current processlist and not a system thread
+func killQuery(ctx context.Context, userContext, id string) error {
+	pid, err := strconv.ParseUint(id, 10, 64)
+	if err != nil || pid == 0 {
+		return errInvalidProcessID
+	}
+	rows, err := mysqlmanager.Exec(ctx, userContext, "SHOW FULL PROCESSLIST", "")
+	if err != nil {
+		return err
+	}
+	for _, row := range rows {
+		if toStringCell(row[0]) != strconv.FormatUint(pid, 10) {
+			continue
+		}
+		switch toStringCell(row[1]) {
+		case "system user", "event_scheduler":
+			return errProcessProtected
+		}
+		if toStringCell(row[4]) != "Query" {
+			return errProcessNotFound
+		}
+		_, err := mysqlmanager.Exec(ctx, userContext, "KILL QUERY "+strconv.FormatUint(pid, 10), "")
+		return err
+	}
+	return errProcessNotFound
+}
+
+// handleMySQLKillQuery kills one running query from the processlist page
+func handleMySQLKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	currentUsername, userContext, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	_ = r.ParseForm()
+	id := r.Form.Get("id")
+	if err := killQuery(r.Context(), userContext, id); err != nil {
+		flashAndRedirect(a, w, r, "error", "Error killing query "+id+": "+err.Error(), "/mysql/processlist")
+		return
+	}
+	_ = logger.RecordUserAction(a.Config, currentUsername, "killed MySQL query "+id, reqip.ClientIP(r))
+	flashAndRedirect(a, w, r, "success", "Query "+id+" killed.", "/mysql/processlist")
 }

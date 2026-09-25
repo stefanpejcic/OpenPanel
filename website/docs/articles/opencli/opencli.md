@@ -276,7 +276,7 @@ Usage: opencli proxy [set <path>|default]
 ------------------------
 opencli report
 Description: Generate a system report and send it to OpenPanel support team.
-Usage: opencli report [--public|--link|--upload] [--non-interactive]
+Usage: opencli report [--public|--link|--upload] [--non-interactive] [--user <USERNAME>]
 ------------------------
 opencli sentinel
 Description: Check system services, traffic and resource usage, and log/send custom notifications on request.

@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
 {{end}}
 
     <!-- toolbar -->
-    <div class="flex flex-col justify-between gap-2 px-4 py-6 sm:flex-row sm:items-center sm:p-6">
+    <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
         <div class="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
             <div class="relative w-full sm:w-64 [&>input]:py-1.5">
                 <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
@@ -477,7 +477,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "No cronjobs."}}</h4>
     <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">
         {{.T.Get "No cronjobs yet, to create a cron click on the button above."}}
-        <a href="https://openpanel.com/docs/panel/advanced/cronjobs/" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500">{{.T.Get "View Documentation"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg>
+        <a href="https://openpanel.com/docs/panel/cronjobs/" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500">{{.T.Get "View Documentation"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg>
         </a>
     </p>
 </div>

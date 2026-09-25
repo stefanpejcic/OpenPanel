@@ -146,3 +146,43 @@ func TestToFloatCell(t *testing.T) {
 		t.Errorf("nil: got %v, want 0", got)
 	}
 }
+
+func TestBuildPrivilegesSQL(t *testing.T) {
+	cases := []struct {
+		in     []string
+		want   string
+		wantOK bool
+	}{
+		{[]string{"SELECT", "INSERT"}, "SELECT, INSERT", true},
+		{[]string{" select ", "SELECT"}, "SELECT", true},
+		{[]string{"SELECT", "ALL PRIVILEGES"}, "ALL PRIVILEGES", true},
+		{[]string{"ALL PRIVILEGES", "ALL ON *.* TO x --"}, "", false},
+		{[]string{"SELECT ON *.* TO 'x'@'%' --"}, "", false},
+		{[]string{"SUPER"}, "", false},
+		{[]string{"GRANT OPTION"}, "", false},
+		{nil, "", false},
+	}
+	for _, c := range cases {
+		got, ok := buildPrivilegesSQL(c.in)
+		if got != c.want || ok != c.wantOK {
+			t.Errorf("%q: got (%q, %v), want (%q, %v)", c.in, got, ok, c.want, c.wantOK)
+		}
+	}
+}
+
+func TestKillQueryRejectsBadIDs(t *testing.T) {
+	for _, id := range []string{"", "0", "-1", "abc", "1; DROP DATABASE x", "1 OR 1"} {
+		if err := killQuery(t.Context(), "nobody", id); err != errInvalidProcessID {
+			t.Errorf("id %q: got %v, want errInvalidProcessID", id, err)
+		}
+	}
+}
+
+func TestToStringCellNumbers(t *testing.T) {
+	cases := map[string]any{"42": int64(42), "7": uint64(7), "3": int32(3), "abc": []byte("abc"), "": nil}
+	for want, in := range cases {
+		if got := toStringCell(in); got != want {
+			t.Errorf("toStringCell(%#v) = %q, want %q", in, got, want)
+		}
+	}
+}

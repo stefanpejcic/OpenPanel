@@ -61,12 +61,10 @@ func handleDatabasesAssign(a *appctx.App, w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		privilegesSQL := strings.Join(selectedPrivileges, ", ")
-		for _, p := range selectedPrivileges {
-			if p == "ALL PRIVILEGES" {
-				privilegesSQL = "ALL PRIVILEGES"
-				break
-			}
+		privilegesSQL, ok := buildPrivilegesSQL(selectedPrivileges)
+		if !ok {
+			flashAndRedirect(a, w, r, "error", "Invalid privilege selected.", "/mysql/assign")
+			return
 		}
 
 		if _, revokeErr := mysqlmanager.Exec(ctx, userContext, "REVOKE ALL PRIVILEGES ON `"+databaseName+"`.* FROM '"+dbUser+"'@'"+dbHost+"'", ""); revokeErr != nil {

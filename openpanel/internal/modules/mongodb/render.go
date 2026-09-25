@@ -35,6 +35,7 @@ var (
 	assignPage      = loadPage("mongodb/assign.html")
 	removePage      = loadPage("mongodb/remove.html")
 	importPage      = loadPage("mongodb/import.html")
+	processlistPage = loadPage("mongodb/processlist.html")
 )
 
 // ServiceStatusData is the container_state/health_status view-model shared by databases.html and users.html.
@@ -201,5 +202,23 @@ func renderImportPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbN
 	data := ImportPageData{LayoutData: layout, DBName: dbName}
 	if err := importPage.Render(w, status, data); err != nil {
 		log.Printf("MONGODB - import template render error: %v", err)
+	}
+}
+
+// ProcessListPageData is mongodb/processlist.html's template context.
+type ProcessListPageData struct {
+	web.LayoutData
+	ProcessList []ProcessRow
+}
+
+func renderProcessListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, processList []ProcessRow) {
+	layout, _, err := web.BuildLayoutData(a, w, r, "Running Queries")
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data := ProcessListPageData{LayoutData: layout, ProcessList: processList}
+	if err := processlistPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("MONGODB - processlist template render error: %v", err)
 	}
 }

@@ -85,6 +85,7 @@ func RegisterProcesslist(mux *http.ServeMux, a *appctx.App) {
 		return auth.RequireLogin(a, "mysql_processlist")(h)
 	}
 	mux.Handle("GET /mysql/processlist", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMySQLProcessList(a, w, r) }))
+	mux.Handle("POST /mysql/processlist/kill", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMySQLKillQuery(a, w, r) }))
 }
 
 // RegisterRootPassword wires the MySQL root-password route onto mux.
