@@ -3,7 +3,9 @@
 
 {{if .Version}}
 
-<section aria-label="PHP Settings Header" x-data="{ searchQuery: '' }">
+<script src="{{static "js/db-tuning.js"}}"></script>
+
+<section aria-label="PHP Settings Header" x-data="dbTuning('/php/php{{.Version}}/options/recommendations')" x-init="load()">
     <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1></div>
@@ -19,12 +21,14 @@
             </div>
         </div>
 
-  <form method="post">
+  <form method="post" x-ref="form">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
       <button type="submit" id="save-changes-button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Changes"}}</button>
     </div>
 </div>
 <!-- END page header -->
+
+{{template "db_tuning_banner" (dict "T" .T "Title" "Optimize PHP" "Intro" "Want to improve how your sites run on this PHP version? Click the optimize icon next to an option to see a custom recommendation." "Checking" "Checking this PHP version for possible optimizations...")}}
 
 <!-- table -->
     <div class="overflow-x-auto">
@@ -45,31 +49,38 @@
                       {{.Key}}
                     </td>
                     <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                    {{if eq .Kind "checkbox_binary"}}
-                        <input type="checkbox" id="{{.Key}}" name="{{.Key}}" value="1" {{if .Checked}}checked{{end}} class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                    {{else if eq .Kind "timezone"}}
-                        <select id="{{.Key}}" name="{{.Key}}" class="bgroup/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2">
-                            {{range .Timezones}}
-                                <option value="{{.Name}}" {{if .Selected}}selected{{end}}>{{.Name}}</option>
-                            {{end}}
-                        </select>
-                    {{else if eq .Kind "checkbox_onoff"}}
-                        <input type="checkbox" id="{{.Key}}" name="{{.Key}}" value="On" {{if .Checked}}checked{{end}} class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                    {{else if eq .Kind "unit"}}
-                        <div class="flex items-center combined-input" data-key="{{.Key}}">
-                            <input type="number" value="{{.NumberPart}}" min="0" step="any" class="numeric-part bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                            <select class="unit-part inline-flex bg-gray-100 border border-l-0 border-gray-300 text-gray-600 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                <option value="K" {{if eq .UnitPart "K"}}selected{{end}}>K</option>
-                                <option value="M" {{if eq .UnitPart "M"}}selected{{end}}>M</option>
-                                <option value="G" {{if eq .UnitPart "G"}}selected{{end}}>G</option>
+                    <div class="flex items-center gap-2">
+                      <div class="w-full">
+                        {{if eq .Kind "checkbox_binary"}}
+                            <input type="checkbox" id="{{.Key}}" name="{{.Key}}" value="1" {{if .Checked}}checked{{end}} class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                            <input type="hidden" name="{{.Key}}" value="0" />
+                        {{else if eq .Kind "timezone"}}
+                            <select id="{{.Key}}" name="{{.Key}}" class="bgroup/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2">
+                                {{range .Timezones}}
+                                    <option value="{{.Name}}" {{if .Selected}}selected{{end}}>{{.Name}}</option>
+                                {{end}}
                             </select>
-                            <input type="hidden" name="{{.Key}}" value="{{.NumberPart}}{{.UnitPart}}" class="combined-value" />
-                        </div>
-                    {{else if eq .Kind "number"}}
-                        <input type="number" min="0" name="{{.Key}}" value="{{.Value}}" step="any" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                    {{else}}
-                        <input type="text" name="{{.Key}}" value="{{.Value}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                    {{end}}
+                        {{else if eq .Kind "checkbox_onoff"}}
+                            <input type="checkbox" id="{{.Key}}" name="{{.Key}}" value="On" {{if .Checked}}checked{{end}} class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                            <input type="hidden" name="{{.Key}}" value="Off" />
+                        {{else if eq .Kind "unit"}}
+                            <div class="flex items-center combined-input" data-key="{{.Key}}">
+                                <input type="number" value="{{.NumberPart}}" min="0" step="any" class="numeric-part bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                                <select class="unit-part inline-flex bg-gray-100 border border-l-0 border-gray-300 text-gray-600 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                    <option value="K" {{if eq .UnitPart "K"}}selected{{end}}>K</option>
+                                    <option value="M" {{if eq .UnitPart "M"}}selected{{end}}>M</option>
+                                    <option value="G" {{if eq .UnitPart "G"}}selected{{end}}>G</option>
+                                </select>
+                                <input type="hidden" name="{{.Key}}" value="{{.NumberPart}}{{.UnitPart}}" class="combined-value" />
+                            </div>
+                        {{else if eq .Kind "number"}}
+                            <input type="number" min="0" name="{{.Key}}" value="{{.Value}}" step="any" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        {{else}}
+                            <input type="text" name="{{.Key}}" value="{{.Value}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        {{end}}
+                      </div>
+                      {{template "db_tuning_button" (dict "Key" .Key "T" $.T)}}
+                    </div>
                     </td>
                   </tr>
                   {{end}}
@@ -103,6 +114,8 @@
     </div>
 </form>
 <!-- END table -->
+
+{{template "db_tuning_dialog" .}}
 
 {{if .Issues}}
 <script>

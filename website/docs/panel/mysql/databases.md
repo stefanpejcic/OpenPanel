@@ -56,10 +56,28 @@ Each database row (except system databases) has a row of action buttons:
   ![Export panel for a database with the SQL or GZIP format and Browser or Files destination options](/img/openpanel-screenshots/mysql/databases-export.png#gh-light-mode-only)
   ![Export panel for a database with the SQL or GZIP format and Browser or Files destination options](/img/openpanel-screenshots/mysql/databases-export_dark.png#gh-dark-mode-only)
 
-- **Optimize** – Runs `OPTIMIZE TABLE` on every table in the database.
-- **Repair** – Runs `REPAIR TABLE` on every table in the database.
+- **Optimize** – Opens the [Optimize and Repair](#optimize-and-repair) dialog to rebuild the tables and free up unused space.
+- **Repair** – Opens the [Optimize and Repair](#optimize-and-repair) dialog to check and fix damaged tables.
 - **phpMyAdmin** – Only shown if phpMyAdmin is enabled for your account. Opens phpMyAdmin directly on this database in a new tab.
 - **Delete** – Permanently deletes the database.
+
+## Optimize and Repair
+
+Clicking **Optimize** or **Repair** opens a dialog that lists every table in the database with its storage engine and size. For Optimize it also shows how much **Unused** space each table has, and the footer shows the total. Nothing runs until you click **Optimize tables** or **Repair tables**.
+
+- **Optimize** rebuilds each table to free up unused space left behind by deleted rows and to defragment indexes. Tables are briefly locked while they are rebuilt, so run it when your site is quiet. When it finishes, the footer shows how much space was freed.
+- **Repair** checks each table for damage and fixes it. Only MyISAM, Aria and ARCHIVE tables can be repaired. InnoDB tables recover on their own, so they show **Not needed**.
+
+After it runs, each table shows a short result:
+
+| Result | Meaning |
+|---|---|
+| **OK** | The table was optimized or checked and is fine. |
+| **Rebuilt** | InnoDB doesn't support `OPTIMIZE` directly, so the table was recreated and analyzed instead, which has the same effect. |
+| **Not needed** | The table doesn't need this action, for example Repair on an InnoDB table. |
+| **Failed** | Something went wrong. Hover over the result to see the message from MySQL. |
+
+Views are not listed, since they don't store any data.
 
 ## Delete a MySQL Database
 

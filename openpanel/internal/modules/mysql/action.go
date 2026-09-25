@@ -41,7 +41,7 @@ func handleDatabaseAction(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	if r.Method == http.MethodGet {
 		tableRows, tblErr := mysqlmanager.Exec(ctx, userContext,
-			"SELECT table_name, table_rows, data_length, index_length, data_free FROM information_schema.tables WHERE table_schema = DATABASE() ORDER BY table_name", dbName)
+			"SELECT table_name, table_rows, data_length, index_length, data_free, COALESCE(engine, '') FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE' ORDER BY table_name", dbName)
 		if tblErr != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error fetching tables: " + tblErr.Error()})
 			return
@@ -51,7 +51,7 @@ func handleDatabaseAction(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			tables = append(tables, map[string]any{
 				"table": toStringCell(row[0]), "rows": mysqlmanager.ToInt(row[1]),
 				"data_length": mysqlmanager.ToInt(row[2]), "index_length": mysqlmanager.ToInt(row[3]),
-				"data_free": mysqlmanager.ToInt(row[4]),
+				"data_free": mysqlmanager.ToInt(row[4]), "engine": toStringCell(row[5]),
 			})
 		}
 		writeJSON(w, http.StatusOK, map[string]any{"database": dbName, "action": action, "tables": tables})
@@ -59,7 +59,7 @@ func handleDatabaseAction(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	tableRows, tblErr := mysqlmanager.Exec(ctx, userContext,
-		"SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() ORDER BY table_name", dbName)
+		"SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE' ORDER BY table_name", dbName)
 	if tblErr != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error fetching tables: " + tblErr.Error()})
 		return

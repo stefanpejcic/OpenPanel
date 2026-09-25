@@ -226,6 +226,14 @@ func ToInt(v any) int {
 	switch t := v.(type) {
 	case int64:
 		return int(t)
+	case uint64:
+		return int(t)
+	case int32:
+		return int(t)
+	case uint32:
+		return int(t)
+	case float64:
+		return int(t)
 	case int:
 		return t
 	case []byte:

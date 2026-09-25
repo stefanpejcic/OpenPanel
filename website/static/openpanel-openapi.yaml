@@ -4446,6 +4446,35 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/php/{version}/options/recommendations:
+    get:
+      summary: Get tuning recommendations for a PHP version's options.
+      description: Checks the PHP service (memory limit, workers, log), the domains and WordPress sites using this version and the current options, and returns suggested values with the reason for each.
+      operationId: get_php_options_recommendations
+      tags:
+      - PHP
+      parameters:
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: Invalid PHP version.
+        '404':
+          description: PHP version not installed.
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/php/{version}/extensions:
     get:
       summary: List extensions with state.

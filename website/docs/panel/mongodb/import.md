@@ -4,7 +4,7 @@ sidebar_position: 8
 
 # Import
 
-Import data into a MongoDB database using a `mongodump` archive file (`.archive` or `.archive.gz`). This feature is useful for restoring backups, migrating data, or setting up initial database structures.
+Import data into a MongoDB database using a `mongodump` archive file (`.archive` or `.archive.gz`), for example one made with **Export** on the [Databases](/docs/panel/mongodb/databases/#database-actions) page. The archive can be imported into a database with a different name than the one it was exported from. This feature is useful for restoring backups, migrating data, or setting up initial database structures.
 
 To import data into a database, navigate to **MongoDB > Import**:
 

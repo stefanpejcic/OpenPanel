@@ -236,82 +236,46 @@ window.addEventListener('load', () => {
          style="background: rgba(0,0,0,0.5);"
          @keydown.escape.window="open = false">
 
-        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl w-full h-full max-w-xl mx-4 flex flex-col"
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl w-full max-w-xl mx-4 flex flex-col"
              style="max-height: 80vh;"
-             @click.outside="open = false">
+             @click.outside="if (!running) open = false">
 
-            <!-- Header -->
-            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-start justify-between gap-4 px-5 py-4 border-b border-gray-200 dark:border-gray-700">
                 <div>
-                    <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50 capitalize"
-                        x-text="action + ' ' + i18n.database"></h2>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"
-                       x-text="database"></p>
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">
+                        <span x-text="action === 'optimize' ? i18n.optimizeTitle : i18n.repairTitle"></span>
+                        <span class="font-mono" x-text="database"></span>
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 text-wrap" x-text="action === 'optimize' ? i18n.optimizeHelp : i18n.repairHelp"></p>
                 </div>
-                <button @click="open = false"
-                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                        <path d="M12 10.586l4.95-4.95 1.414 1.414L13.414 12l4.95 4.95-1.414 1.414L12 13.414l-4.95 4.95-1.414-1.414L10.586 12 5.636 7.05l1.414-1.414L12 10.586z"/>
-                    </svg>
+                <button @click="open = false" :disabled="running" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded" :title="i18n.close">
+                    <i class="bi bi-x-lg"></i>
                 </button>
             </div>
 
-            <!-- Table list -->
             <div class="overflow-y-auto flex-1 px-5 py-3">
-                <template x-if="loading">
-                    <p class="text-sm text-gray-500 dark:text-gray-400 py-6 text-center" x-text="i18n.loading"></p>
-                </template>
-                <template x-if="!loading && tables.length === 0">
-                    <p class="text-sm text-gray-500 dark:text-gray-400 py-6 text-center" x-text="i18n.noTables"></p>
-                </template>
-                <table x-show="tables.length > 0" class="w-full text-sm" style="table-layout: fixed;">
+                <p x-show="loading" class="text-sm text-gray-500 dark:text-gray-400 py-6 text-center" x-text="i18n.loading"></p>
+                <p x-show="!loading && tables.length === 0" class="text-sm text-gray-500 dark:text-gray-400 py-6 text-center" x-text="i18n.noTables"></p>
+                <table x-show="!loading && tables.length > 0" class="w-full text-sm">
                     <thead>
-                        <tr class="border-b border-gray-200 dark:border-gray-700">
-                            <th class="text-left py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 w-1/3" x-text="i18n.table"></th>
-                            <th class="text-left py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 w-2/3" x-text="i18n.status"></th>
+                        <tr class="border-b border-gray-200 dark:border-gray-700 text-left text-xs text-gray-500 dark:text-gray-400">
+                            <th class="py-2 pr-3 font-medium" x-text="i18n.table"></th>
+                            <th class="py-2 pr-3 font-medium" x-text="i18n.engine"></th>
+                            <th class="py-2 pr-3 font-medium text-right" x-text="i18n.size"></th>
+                            <th x-show="action === 'optimize'" class="py-2 pr-3 font-medium text-right" x-text="i18n.unused"></th>
+                            <th class="py-2 font-medium" x-text="i18n.result"></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <template x-for="table in tables" :key="table">
-                            <tr class="border-b border-gray-100 dark:border-gray-800 align-top">
-                                <td class="py-2 text-gray-800 dark:text-gray-200 font-mono text-xs truncate pr-4" x-text="table"></td>
-                                <td class="py-2 align-top">
-                                    <!-- pending -->
-                                    <template x-if="!running && !done || (!results[table] && !running && !done)">
-                                        <span class="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
-                                            <span class="inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                                            <span x-text="i18n.pending"></span>
-                                        </span>
-                                    </template>
-                                    <!-- running (no result yet) -->
-                                    <template x-if="running && !results[table]">
-                                        <span class="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
-                                            <svg class="animate-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                                            </svg>
-                                            <span x-text="i18n.running"></span>
-                                        </span>
-                                    </template>
-                                    <!-- ok -->
-                                    <template x-if="results[table] && results[table].status === 'ok'">
-                                        <div class="flex flex-col gap-0.5">
-                                            <template x-for="detail in results[table].details" :key="detail.msg_type + detail.msg_text">
-                                                <span class="inline-flex items-center gap-1 text-xs font-medium"
-                                                    :class="detail.msg_type === 'status' ? 'text-green-700 dark:text-green-400' : 'text-red-500 dark:text-red-400'">
-                                                    <span class="inline-block w-2 h-2 rounded-full flex-shrink-0"
-                                                        :class="detail.msg_type === 'status' ? 'bg-emerald-500' : 'bg-red-500'"></span>
-                                                    <span x-text="detail.msg_text" class="whitespace-normal"></span>
-                                                </span>
-                                            </template>
-                                        </div>
-                                    </template>
-                                    <!-- error -->
-                                    <template x-if="results[table] && results[table].status === 'error'">
-                                        <span class="inline-flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400">
-                                            <span class="inline-block w-2 h-2 rounded-full flex-shrink-0 bg-red-500"></span>
-                                            <span x-text="results[table].error || i18n.error" class="whitespace-normal"></span>
-                                        </span>
-                                    </template>
+                        <template x-for="t in tables" :key="t.table">
+                            <tr class="border-b border-gray-100 dark:border-gray-800">
+                                <td class="py-2 pr-3 font-mono text-xs text-gray-800 dark:text-gray-200" x-text="t.table"></td>
+                                <td class="py-2 pr-3 text-xs text-gray-500 dark:text-gray-400" x-text="t.engine"></td>
+                                <td class="py-2 pr-3 text-xs text-right text-gray-500 dark:text-gray-400" x-text="size(t.data_length + t.index_length)"></td>
+                                <td x-show="action === 'optimize'" class="py-2 pr-3 text-xs text-right text-gray-500 dark:text-gray-400" x-text="t.data_free ? size(t.data_free) : '-'"></td>
+                                <td class="py-2 text-xs text-wrap">
+                                    <span x-show="running && !results[t.table]" class="text-gray-400" x-text="i18n.working"></span>
+                                    <span x-show="results[t.table]" :class="resultOf(t).failed ? 'text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'" :title="resultOf(t).detail" x-text="resultOf(t).label"></span>
                                 </td>
                             </tr>
                         </template>
@@ -319,27 +283,16 @@ window.addEventListener('load', () => {
                 </table>
             </div>
 
-            <!-- Footer -->
-            <div class="flex items-center justify-between px-5 py-4 border-t border-gray-200 dark:border-gray-700">
-                <span x-show="done" class="text-xs text-gray-500 dark:text-gray-400">
-                    <span x-text="i18n.done"></span> —
-                    <span x-text="Object.values(results).filter(r => r.status === 'error').length"></span>
-                    <span x-text="i18n.errors"></span>
-                </span>
-                <span x-show="!done"></span>
+            <div class="flex items-center justify-between gap-4 px-5 py-4 border-t border-gray-200 dark:border-gray-700">
+                <span class="text-xs text-gray-500 dark:text-gray-400" x-text="summary"></span>
                 <div class="flex gap-2">
-                    <button @click="open = false"
+                    <button @click="open = false" :disabled="running"
                             class="relative inline-flex items-center justify-center rounded border px-3 py-1.5 text-sm font-medium border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                            x-text="i18n.close"></button>
-                    <button @click="runAction"
-                            :disabled="running || loading || tables.length === 0"
-                            class="relative inline-flex items-center justify-center rounded border px-3 py-1.5 text-sm font-medium border-black bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed gap-1.5">
-                        <template x-if="running">
-                            <svg class="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                            </svg>
-                        </template>
-                        <span x-text="running ? i18n.running : (done ? i18n.runAgain : i18n.run + ' ' + action)"></span>
+                            x-text="done ? i18n.close : i18n.cancel"></button>
+                    <button x-show="!done" @click="runAction" :disabled="running || loading || tables.length === 0"
+                            class="relative inline-flex items-center justify-center gap-1.5 rounded border px-3 py-1.5 text-sm font-medium border-black bg-black text-white hover:bg-gray-800 disabled:opacity-50">
+                        <i x-show="running" class="bi bi-arrow-repeat animate-spin"></i>
+                        <span x-text="buttonLabel"></span>
                     </button>
                 </div>
             </div>
@@ -624,19 +577,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script>
 const i18n = {
-    close:    {{toJSON (.T.Get "Close")}},
-    running:  {{toJSON (.T.Get "Running..")}},
-    runAgain: {{toJSON (.T.Get "Run again")}},
-    run:      {{toJSON (.T.Get "Run")}},
-    done:     {{toJSON (.T.Get "Done")}},
-    errors:   {{toJSON (.T.Get "error(s)")}},
-    noTables: {{toJSON (.T.Get "No tables in this database.")}},
-    loading:  {{toJSON (.T.Get "Loading tables..")}},
-    pending:  {{toJSON (.T.Get "Pending")}},
-    error:    {{toJSON (.T.Get "Error")}},
-    database: {{toJSON (.T.Get "database")}},
-    table:    {{toJSON (.T.Get "Table")}},
-    status:   {{toJSON (.T.Get "Status")}},
+    close:         {{toJSON (.T.Get "Close")}},
+    cancel:        {{toJSON (.T.Get "Cancel")}},
+    loading:       {{toJSON (.T.Get "Loading tables...")}},
+    noTables:      {{toJSON (.T.Get "No tables in this database.")}},
+    table:         {{toJSON (.T.Get "Table")}},
+    engine:        {{toJSON (.T.Get "Engine")}},
+    size:          {{toJSON (.T.Get "Size")}},
+    unused:        {{toJSON (.T.Get "Unused")}},
+    result:        {{toJSON (.T.Get "Result")}},
+    working:       {{toJSON (.T.Get "Working...")}},
+    optimizeTitle: {{toJSON (.T.Get "Optimize")}},
+    repairTitle:   {{toJSON (.T.Get "Repair")}},
+    optimizeHelp:  {{toJSON (.T.Get "Rebuilds every table to free up unused space and defragment indexes. Tables are briefly locked while they are rebuilt, so run this when your site is quiet.")}},
+    repairHelp:    {{toJSON (.T.Get "Checks every table for damage and fixes it. Only MyISAM, Aria and ARCHIVE tables can be repaired, InnoDB tables recover on their own and are skipped.")}},
+    optimizeRun:   {{toJSON (.T.Get "Optimize tables")}},
+    repairRun:     {{toJSON (.T.Get "Repair tables")}},
+    optimizing:    {{toJSON (.T.Get "Optimizing...")}},
+    repairing:     {{toJSON (.T.Get "Repairing...")}},
+    ok:            {{toJSON (.T.Get "OK")}},
+    rebuilt:       {{toJSON (.T.Get "Rebuilt")}},
+    notNeeded:     {{toJSON (.T.Get "Not needed")}},
+    failed:        {{toJSON (.T.Get "Failed")}},
+    tablesCount:   {{toJSON (.T.Get "tables")}},
+    unusedTotal:   {{toJSON (.T.Get "unused")}},
+    freed:         {{toJSON (.T.Get "Freed")}},
+    doneOk:        {{toJSON (.T.Get "All tables done.")}},
+    doneFailed:    {{toJSON (.T.Get "failed, hover the result to see why.")}},
 };
 </script>
 
@@ -651,63 +618,83 @@ function dbActionModal() {
         running: false,
         done: false,
         loading: false,
+        freed: 0,
+
+        size(bytes) {
+            if (!bytes) return '0 B';
+            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+            return (bytes / Math.pow(1024, i)).toFixed(i ? 1 : 0).replace(/\.0$/, '') + ' ' + units[i];
+        },
+
+        async fetchTables() {
+            const res = await fetch(`/mysql/${this.action}/${this.database}`, { headers: { 'X-CSRF-Token': csrf_token } });
+            const data = await res.json();
+            return data.tables || [];
+        },
 
         async openModal(action, dbName) {
-            this.action = action;
-            this.database = dbName;
-            this.tables = [];
-            this.results = {};
-            this.running = false;
-            this.done = false;
-            this.loading = true;
-            this.open = true;
-
-            const res = await fetch(`/mysql/${action}/${dbName}`, {
-                headers: { 'X-CSRF-Token': csrf_token }
-            });
-            const data = await res.json();
-            this.tables = (data.tables || []).map(t => t.table);
+            Object.assign(this, { action, database: dbName, tables: [], results: {}, running: false, done: false, freed: 0, loading: true, open: true });
+            this.tables = await this.fetchTables();
             this.loading = false;
-
-            if (this.tables.length > 0) {
-                this.runAction();
-            }
         },
 
         async runAction() {
             if (this.running) return;
             this.running = true;
             this.results = {};
+            const before = this.tables.reduce((sum, t) => sum + t.data_length + t.index_length, 0);
 
             const res = await fetch(`/mysql/${this.action}/${this.database}`, {
                 method: 'POST',
-                headers: {
-                    'X-CSRF-Token': csrf_token,
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'X-CSRF-Token': csrf_token, 'Content-Type': 'application/json' }
             });
             const data = await res.json();
-
             for (const r of (data.results || [])) {
                 this.results[r.table] = r;
             }
 
+            if (this.action === 'optimize') {
+                this.tables = await this.fetchTables();
+                const after = this.tables.reduce((sum, t) => sum + t.data_length + t.index_length, 0);
+                this.freed = Math.max(before - after, 0);
+            }
             this.running = false;
             this.done = true;
         },
 
-        statusFor(table) {
-            const r = this.results[table];
-            if (!r) return 'pending';
-            return r.status === 'ok' ? 'ok' : 'error';
+        // turns MySQL's msg_type/msg_text rows into one short word per table
+        resultOf(t) {
+            const r = this.results[t.table];
+            if (!r) return { label: '', detail: '', failed: false };
+            if (r.status === 'error') return { label: i18n.failed, detail: r.error, failed: true };
+            const details = r.details || [];
+            const detail = details.map(d => d.msg_text).join('\n');
+            const text = detail.toLowerCase();
+            if (details.some(d => d.msg_type === 'error')) return { label: i18n.failed, detail, failed: true };
+            if (text.includes("doesn't support repair") || text.includes('does not support repair')) return { label: i18n.notNeeded, detail, failed: false };
+            if (text.includes('recreate + analyze')) return { label: i18n.rebuilt, detail, failed: false };
+            if (text.includes('already up to date') || text.includes('up to date')) return { label: i18n.notNeeded, detail, failed: false };
+            return { label: i18n.ok, detail, failed: false };
         },
 
-        labelFor(table) {
-            const r = this.results[table];
-            if (!r) return '—';
-            if (r.status === 'error') return r.error || 'Error';
-            const detail = (r.details || []).find(d => d.msg_type === 'status');
-            return detail ? detail.msg_text : 'OK';
+        get buttonLabel() {
+            if (this.running) return this.action === 'optimize' ? i18n.optimizing : i18n.repairing;
+            return this.action === 'optimize' ? i18n.optimizeRun : i18n.repairRun;
+        },
+
+        get summary() {
+            if (this.loading || this.tables.length === 0) return '';
+            if (!this.done) {
+                const unused = this.tables.reduce((sum, t) => sum + (t.data_free || 0), 0);
+                let text = this.tables.length + ' ' + i18n.tablesCount;
+                if (this.action === 'optimize' && unused) text += ', ' + this.size(unused) + ' ' + i18n.unusedTotal;
+                return text;
+            }
+            const failed = this.tables.filter(t => this.resultOf(t).failed).length;
+            let text = failed ? failed + ' ' + i18n.doneFailed : i18n.doneOk;
+            if (this.action === 'optimize' && this.freed) text += ' ' + i18n.freed + ' ' + this.size(this.freed) + '.';
+            return text;
         }
     }
 }

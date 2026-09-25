@@ -58,6 +58,7 @@ func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "mongodb"
 	data := DatabasesPageData{
 		LayoutData:        layout,
 		ServiceStatusData: ServiceStatusData{ContainerState: status.State, HealthStatus: status.Health},
@@ -75,6 +76,7 @@ func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "mongodb"
 	if err := newDatabasePage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
 		log.Printf("MONGODB - new database template render error: %v", err)
 	}
@@ -100,6 +102,7 @@ func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, stat
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "mongodb"
 	data := UsersPageData{
 		LayoutData:        layout,
 		ServiceStatusData: ServiceStatusData{ContainerState: status.State, HealthStatus: status.Health},
@@ -116,6 +119,7 @@ func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "mongodb"
 	if err := createUserPage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
 		log.Printf("MONGODB - create user template render error: %v", err)
 	}
@@ -133,6 +137,7 @@ func renderChangePasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "mongodb"
 	data := PasswordPageData{LayoutData: layout, DBUser: dbUser}
 	if err := passwordPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - password template render error: %v", err)
@@ -151,6 +156,7 @@ func renderWizardPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "mongodb"
 	data := WizardPageData{LayoutData: layout, Roles: mongoRoles}
 	if err := wizardPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - wizard template render error: %v", err)
@@ -169,6 +175,7 @@ func renderAssignPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "mongodb"
 	data := AssignPageData{LayoutData: layout, Roles: mongoRoles}
 	if err := assignPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - assign template render error: %v", err)
@@ -181,6 +188,7 @@ func renderRemovePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "mongodb"
 	data := AssignPageData{LayoutData: layout, Roles: mongoRoles}
 	if err := removePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - remove template render error: %v", err)
@@ -199,6 +207,7 @@ func renderImportPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbN
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "mongodb"
 	data := ImportPageData{LayoutData: layout, DBName: dbName}
 	if err := importPage.Render(w, status, data); err != nil {
 		log.Printf("MONGODB - import template render error: %v", err)
@@ -217,6 +226,7 @@ func renderProcessListPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "mongodb"
 	data := ProcessListPageData{LayoutData: layout, ProcessList: processList}
 	if err := processlistPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - processlist template render error: %v", err)

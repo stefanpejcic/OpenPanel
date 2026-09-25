@@ -18,6 +18,10 @@ import (
 func RegisterOptionsAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "php_options", "GET /api/php/{version}/options", func(w http.ResponseWriter, r *http.Request) { apiPHPOptions(a, w, r) })
 	apiregistry.Handle(mux, a, "php_options", "PUT /api/php/{version}/options", func(w http.ResponseWriter, r *http.Request) { apiPHPOptions(a, w, r) })
+	apiregistry.Handle(mux, a, "php_options", "GET /api/php/{version}/options/recommendations", func(w http.ResponseWriter, r *http.Request) {
+		r.SetPathValue("phpversion", r.PathValue("version"))
+		handlePHPOptionsRecommendations(a, w, r)
+	})
 }
 
 func apiPHPContainer(userContext, version string) string {

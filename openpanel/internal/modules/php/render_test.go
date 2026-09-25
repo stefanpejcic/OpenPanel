@@ -155,6 +155,14 @@ func TestRenderPHPOptionsPage(t *testing.T) {
 		if !strings.Contains(body, "display_errors") || !strings.Contains(body, "post_max_size") {
 			t.Error("expected option keys in body")
 		}
+		for _, want := range []string{"dbTuning('/php/php8.2/options/recommendations')", `id="db-tuning"`, "Optimize PHP", "Confirm Changes", `x-ref="form"`, `name="display_errors" value="0"`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in body", want)
+			}
+		}
+		if n := strings.Count(body, "review(&#34;"); n != 2 {
+			t.Errorf("expected an optimize button per option, got %d", n)
+		}
 	})
 }
 

@@ -62,6 +62,7 @@ func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "postgres"
 	data := DatabasesPageData{
 		LayoutData:        layout,
 		ServiceStatusData: ServiceStatusData{ContainerState: status.State, HealthStatus: status.Health},
@@ -79,6 +80,7 @@ func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "postgres"
 	if err := newDatabasePage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
 		log.Printf("POSTGRESQL - new database template render error: %v", err)
 	}
@@ -104,6 +106,7 @@ func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, stat
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "postgres"
 	data := UsersPageData{
 		LayoutData:        layout,
 		ServiceStatusData: ServiceStatusData{ContainerState: status.State, HealthStatus: status.Health},
@@ -120,6 +123,7 @@ func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "postgres"
 	if err := createUserPage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
 		log.Printf("POSTGRESQL - create user template render error: %v", err)
 	}
@@ -137,6 +141,7 @@ func renderChangePasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "postgres"
 	data := PasswordPageData{LayoutData: layout, DBUser: dbUser}
 	if err := passwordPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - password template render error: %v", err)
@@ -149,6 +154,7 @@ func renderWizardPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "postgres"
 	if err := wizardPage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
 		log.Printf("POSTGRESQL - wizard template render error: %v", err)
 	}
@@ -160,6 +166,7 @@ func renderAssignPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "postgres"
 	if err := assignPage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
 		log.Printf("POSTGRESQL - assign template render error: %v", err)
 	}
@@ -171,6 +178,7 @@ func renderRemovePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "postgres"
 	if err := removePage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
 		log.Printf("POSTGRESQL - remove template render error: %v", err)
 	}
@@ -188,6 +196,7 @@ func renderImportPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbN
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "postgres"
 	data := ImportPageData{LayoutData: layout, DBName: dbName}
 	if err := importPage.Render(w, status, data); err != nil {
 		log.Printf("POSTGRESQL - import template render error: %v", err)
@@ -206,6 +215,7 @@ func renderProcessListPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "postgres"
 	data := ProcessListPageData{LayoutData: layout, ProcessList: processList}
 	if err := processlistPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - processlist template render error: %v", err)
@@ -227,6 +237,7 @@ func renderRemotePostgresPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "postgres"
 	data := RemotePostgresPageData{
 		LayoutData: layout, ServerIP: serverIP, ContainerPort: containerPort,
 		RemotePostgreSQLDisplay: display, PostgresPort: 5432,
@@ -249,6 +260,7 @@ func renderConfigurationPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.Service = "postgres"
 	data := ConfigurationPageData{LayoutData: layout, CurrentConfig: currentConfig, DefaultKeys: defaultKeys}
 	if err := configurationPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - configuration template render error: %v", err)

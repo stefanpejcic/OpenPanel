@@ -32,7 +32,7 @@ var settingsPage = loadPage("php/settings.html")
 var infoPage = web.MustLoadPage("php/info.html")
 
 var iniEditorPage = loadPage("php/ini_editor.html")
-var optionsPage = loadPage("php/options.html")
+var optionsPage = loadPage("php/options.html", "partials/_db_tuning.html")
 var extensionsPage = loadPage("php/extensions.html")
 var phpMyAdminUnavailablePage = loadPage("mysql/phpmyadmin_unavailable.html")
 

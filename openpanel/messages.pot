@@ -13928,3 +13928,103 @@ msgstr ""
 #: templates/mysql/configuration.html
 msgid "Optimizations are general suggestions and may not result in increased database performance for all use cases."
 msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Loading tables..."
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Engine"
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Unused"
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Result"
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Rebuilds every table to free up unused space and defragment indexes. Tables are briefly locked while they are rebuilt, so run this when your site is quiet."
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Checks every table for damage and fixes it. Only MyISAM, Aria and ARCHIVE tables can be repaired, InnoDB tables recover on their own and are skipped."
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Optimize tables"
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Repair tables"
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Optimizing..."
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Repairing..."
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "OK"
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Rebuilt"
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Not needed"
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Failed"
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "tables"
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "unused"
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "Freed"
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "All tables done."
+msgstr ""
+
+#: templates/mysql/databases.html
+msgid "failed, hover the result to see why."
+msgstr ""
+
+#: templates/partials/_db_tuning.html
+msgid "Optimize PHP"
+msgstr ""
+
+#: templates/partials/_db_tuning.html
+msgid "Want to improve how your sites run on this PHP version? Click the optimize icon next to an option to see a custom recommendation."
+msgstr ""
+
+#: templates/partials/_db_tuning.html
+msgid "Checking this PHP version for possible optimizations..."
+msgstr ""
+
+#: templates/partials/_db_tuning.html
+msgid "Data:"
+msgstr ""
+
+#: templates/partials/_db_tuning.html
+msgid "Domains:"
+msgstr ""
+
+#: templates/partials/_db_tuning.html
+msgid "PHP workers:"
+msgstr ""

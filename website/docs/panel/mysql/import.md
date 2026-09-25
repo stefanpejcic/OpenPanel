@@ -4,7 +4,7 @@ sidebar_position: 8
 
 # Import
 
-Import tables into a MySQL database using a `.sql` export file. This feature is useful for restoring backups, migrating data, or setting up initial database structures.
+Import tables into a MySQL database using a `.sql` export file, for example one made with **Export** on the [Databases](/docs/panel/mysql/databases/#database-actions) page. This feature is useful for restoring backups, migrating data, or setting up initial database structures.
 
 
 To import tables into a database, navigate to **OpenPanel > MySQL > Import**:

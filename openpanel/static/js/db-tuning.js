@@ -1,4 +1,4 @@
-// dbTuning drives the optimization banner, the per setting buttons and the confirm dialog on the MySQL and PostgreSQL configuration pages
+// dbTuning drives the optimization banner, the per setting buttons and the confirm dialog on the MySQL, PostgreSQL and PHP options pages
 function dbTuning(url) {
     return {
         searchQuery: '',
@@ -31,10 +31,30 @@ function dbTuning(url) {
             this.selected = key ? this.recs.filter(r => r.key === key) : this.recs.slice();
             this.open = true;
         },
+        // fills a suggested value into whatever control the page uses for that key
+        setField(key, value) {
+            const combined = document.querySelector(`.combined-input[data-key="${CSS.escape(key)}"]`);
+            if (combined) {
+                const m = String(value).match(/^(\d+(?:\.\d+)?)\s*([KMG])?$/i);
+                if (m) {
+                    combined.querySelector('.numeric-part').value = m[1];
+                    combined.querySelector('.unit-part').value = (m[2] || 'M').toUpperCase();
+                    combined.querySelector('.numeric-part').dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                return;
+            }
+            const field = document.getElementById(key) || document.querySelector(`[name="${CSS.escape(key)}"]`);
+            if (!field) return;
+            if (field.type === 'checkbox') {
+                field.checked = ['on', '1', 'yes', 'true'].includes(String(value).toLowerCase());
+            } else {
+                field.value = value;
+            }
+            field.dispatchEvent(new Event('change', { bubbles: true }));
+        },
         applySelected() {
             this.selected.forEach(r => {
-                const input = document.getElementById(r.key);
-                if (input) input.value = r.recommended;
+                this.setField(r.key, r.recommended);
                 this.applied[r.key] = true;
             });
             this.open = false;

@@ -1,10 +1,11 @@
-{{/* shared optimization suggestions for the MySQL and PostgreSQL configuration pages, driven by static/js/db-tuning.js */}}
+{{/* shared optimization suggestions for the MySQL, PostgreSQL and PHP options pages, driven by static/js/db-tuning.js */}}
 
+{{/* db_tuning_banner takes a dict with T, Title, Intro and Checking */}}
 {{define "db_tuning_banner"}}
     <!-- recommendations banner -->
     <div id="db-tuning" class="border-b border-gray-200 dark:border-gray-800 px-6 py-4 text-sm">
         <div x-show="loading" class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-            <i class="bi bi-arrow-repeat animate-spin"></i> {{.T.Get "Checking your database for possible optimizations..."}}
+            <i class="bi bi-arrow-repeat animate-spin"></i> {{.T.Get .Checking}}
         </div>
         <div x-show="!loading && error" x-cloak class="text-gray-500 dark:text-gray-400">
             <i class="bi bi-exclamation-circle"></i> {{.T.Get "Optimization suggestions are not available right now:"}} <span x-text="error"></span>
@@ -13,8 +14,8 @@
             <div class="flex items-start gap-3">
                 <i class="bi bi-lightning-charge-fill text-lg text-yellow-500"></i>
                 <div>
-                    <p class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Optimize Database"}}</p>
-                    <p class="text-gray-500 dark:text-gray-400">{{.T.Get "Want to improve your database's performance? Click the optimize icon next to a setting to see a custom recommendation."}}</p>
+                    <p class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get .Title}}</p>
+                    <p class="text-gray-500 dark:text-gray-400">{{.T.Get .Intro}}</p>
                 </div>
             </div>
             <button type="button" @click="review()" class="relative inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
@@ -28,6 +29,10 @@
             <span x-show="facts.server" x-text="facts.server"></span>
             <span x-show="facts.memory_limit">{{.T.Get "Memory limit:"}} <span x-text="facts.memory_limit"></span><span x-show="facts.memory_used"> (<span x-text="facts.memory_used"></span> {{.T.Get "in use"}})</span></span>
             <span x-show="facts.databases">{{.T.Get "Databases:"}} <span x-text="facts.databases"></span></span>
+            <span x-show="facts.data_size">{{.T.Get "Data:"}} <span x-text="facts.data_size"></span></span>
+            <span x-show="facts.domains">{{.T.Get "Domains:"}} <span x-text="facts.domains"></span></span>
+            <span x-show="facts.wordpress">WordPress: <span x-text="facts.wordpress"></span></span>
+            <span x-show="facts.workers">{{.T.Get "PHP workers:"}} <span x-text="facts.workers"></span></span>
             <span x-show="facts.innodb_data">InnoDB: <span x-text="facts.innodb_data"></span></span>
             <span x-show="facts.myisam_data">MyISAM: <span x-text="facts.myisam_data"></span></span>
             <span x-show="facts.uptime">{{.T.Get "Uptime:"}} <span x-text="facts.uptime"></span></span>

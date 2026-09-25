@@ -26,6 +26,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/php/{phpversion}/options", requireLogin("php_options", func(w http.ResponseWriter, r *http.Request) {
 		handlePHPOptions(a, w, r, r.PathValue("phpversion"))
 	}))
+	mux.Handle("GET /php/{phpversion}/options/recommendations", requireLogin("php_options", func(w http.ResponseWriter, r *http.Request) { handlePHPOptionsRecommendations(a, w, r) }))
 
 	mux.Handle("GET /php/extensions", requireLogin("php_extensions", func(w http.ResponseWriter, r *http.Request) { handlePHPExtensionsSelect(a, w, r) }))
 	mux.Handle("/php/{phpversion}/extensions", requireLogin("php_extensions", func(w http.ResponseWriter, r *http.Request) {

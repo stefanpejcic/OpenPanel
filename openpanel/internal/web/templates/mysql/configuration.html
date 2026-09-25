@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    {{template "db_tuning_banner" .}}
+    {{template "db_tuning_banner" (dict "T" .T "Title" "Optimize Database" "Intro" "Want to improve your database's performance? Click the optimize icon next to a setting to see a custom recommendation." "Checking" "Checking your database for possible optimizations...")}}
 
     <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap">
