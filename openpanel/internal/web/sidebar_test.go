@@ -169,8 +169,25 @@ func TestBuildPageTabsBackups(t *testing.T) {
 }
 
 func TestBuildPageTabsNeedsTwoTabs(t *testing.T) {
-	if tabs := BuildPageTabs(map[string]bool{"crons": true}, nil, "/cronjobs", TabContext{}); tabs != nil {
+	if tabs := BuildPageTabs(map[string]bool{"domains": true}, nil, "/domains", TabContext{}); tabs != nil {
 		t.Errorf("expected no tab bar with a single tab, got %+v", tabs)
+	}
+}
+
+func TestBuildPageTabsServerInfo(t *testing.T) {
+	tabs := BuildPageTabs(map[string]bool{"info": true}, nil, "/server/info", TabContext{})
+	if tabLabels(tabs) != "Server,Hosting Plan,Panel" || activeTab(tabs) != "Server" || tabs[1].Href != "/server/info#plan" {
+		t.Errorf("unexpected server info tabs: %+v", tabs)
+	}
+}
+
+func TestBuildPageTabsCronjobs(t *testing.T) {
+	allowed := map[string]bool{"crons": true}
+	for path, active := range map[string]string{"/cronjobs": "Cron Jobs", "/cronjobs/new": "Cron Jobs", "/cronjobs/editor": "File Editor", "/cronjobs/logs": "Logs"} {
+		tabs := BuildPageTabs(allowed, nil, path, TabContext{})
+		if tabLabels(tabs) != "Cron Jobs,File Editor,Logs" || activeTab(tabs) != active {
+			t.Errorf("%s: tabs %s, active %s", path, tabLabels(tabs), activeTab(tabs))
+		}
 	}
 }
 

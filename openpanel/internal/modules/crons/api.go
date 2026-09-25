@@ -158,11 +158,11 @@ func apiCronsRawPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	content := *body.Content
 
 	if containsAnyPattern(content, forbiddenPatterns) {
-		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": "image= or network= are not allowed in crontab"})
+		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": "image= or network= are not allowed in the crons file"})
 		return
 	}
 	if containsAnyPattern(content, execPatterns) {
-		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": "job-run, job-local, and job-service-run are not allowed in crontab"})
+		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": "job-run, job-local, and job-service-run are not allowed in the crons file"})
 		return
 	}
 

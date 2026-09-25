@@ -959,7 +959,12 @@ export const pages = {
   },
   'containers/change': {
     url: '/containers/image/change/redis',
-    shots: [{ name: 'form', alt: 'Change image tag for redis form with the new image tag field', crop: 'content' }],
+    shots: [{ name: 'form', alt: 'Change image tag for redis with the tag dropdown open, searching the redis tags from Docker Hub for 8.8', viewportHeight: 1100, prepare: async page => {
+      await page.waitForFunction(() => { const s = [...document.querySelectorAll('#tag_button span')].find(x => x.textContent.includes('Loading')); return s && getComputedStyle(s).display === 'none'; }, null, { timeout: 20000 });
+      await page.click('#tag_button');
+      await page.fill('input[placeholder="Search or type a tag"]', '8.8');
+      await page.waitForTimeout(300);
+    }, crop: 'content' }],
   },
   'containers/logs': {
     url: '/containers/logs?container=mariadb&lines=100',
@@ -1005,11 +1010,12 @@ export const pages = {
       },
       {
         name: 'logs',
-        alt: 'Inline cron job log panel with the Job and Lines filters, Refresh button and log entries of recent runs',
+        url: '/cronjobs/logs',
+        alt: 'Logs tab of the Cron Jobs page with the Job and Lines filters, Refresh button and log entries of recent runs',
         prepare: async page => {
-          // fill the panel with clean ofelia lines (the demo's real ones are failed runs with ANSI color codes)
+          // fill the log view with clean ofelia lines (real ones on test servers are empty scheduler warnings)
           await page.evaluate(() => {
-            const el = [...document.querySelectorAll('[x-data]')].find(e => /logsOpen/.test(e.getAttribute('x-data')));
+            const el = [...document.querySelectorAll('[x-data]')].find(e => /cronLogs/.test(e.getAttribute('x-data')));
             const d = window.Alpine.$data(el);
             const cmd = 'wget -q -O - https://blog.example.com >/dev/null 2>&1';
             const run = (h, id, ms) => [
@@ -1019,11 +1025,10 @@ export const pages = {
             d.logEntries = [...run('10', '6dcdc3147ab9', 482), ...run('11', 'eee5f6c6baee', 437), ...run('12', '32f1ca9e059e', 519)];
             d.logsError = '';
             d.logsLoading = false;
-            d.logsOpen = true;
           });
           await page.waitForTimeout(600);
         },
-        crop: { from: 'main div[x-show="logsOpen"]', to: 'main div[x-show="logsOpen"]', pad: 8 },
+        crop: { content: 'main', maxHeight: 620 },
       },
       {
         name: 'edit',
@@ -1073,7 +1078,7 @@ export const pages = {
     ],
   },
   'advanced/cronjobs_editor': {
-    url: '/cronjobs?view=code',
+    url: '/cronjobs/editor',
     shots: [{ name: 'editor', alt: 'Cron jobs File Editor showing the jobs in crons.ini format', crop: { content: 'main', maxHeight: 700 } }],
   },
   'advanced/services': {
@@ -1124,10 +1129,11 @@ export const pages = {
   },
   'advanced/server_info': {
     url: '/server/info',
+    prepare: async page => { await page.waitForTimeout(1500); },
     shots: [
-      { name: 'page', alt: 'Server Information page with hostname, load, uptime, IP address, ports and operating system', crop: { from: 'main', to: 'main table tbody > tr:nth-child(11)', fromTop: true } },
-      { name: 'plan', alt: 'Hosting Plan section of the Server Information page with the plan name and its limits for CPU, memory, disk, domains, websites, databases, email and FTP', crop: { from: 'main table tbody > tr:nth-child(12)', to: 'main table tbody > tr:nth-child(27)', right: true } },
-      { name: 'panel', alt: 'Panel Information section with the panel version and the list of features enabled for the account', crop: { from: 'main table tbody > tr:nth-child(28)', to: 'main table tbody > tr:last-child', right: true } },
+      { name: 'page', alt: 'Server tab of the Server Information page with hostname, load, uptime, IP address, ports and operating system', crop: 'content' },
+      { name: 'plan', url: '/server/info#plan', alt: 'Hosting Plan tab of the Server Information page with the plan name and its limits for CPU, memory, disk, domains, websites, databases, email and FTP', prepare: async page => { await page.waitForTimeout(1500); }, crop: 'content' },
+      { name: 'panel', url: '/server/info#panel', alt: 'Panel tab of the Server Information page with the panel version and the features enabled for the account', prepare: async page => { await page.waitForTimeout(2000); }, crop: 'content' },
     ],
   },
   'dashboard/dashboard': {

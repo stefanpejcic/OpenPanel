@@ -15,6 +15,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 
 	mux.Handle("GET /cronjobs/log", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleCronjobsLog(a, w, r) }))
 	mux.Handle("GET /cronjobs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleCronjobs(a, w, r) }))
+	mux.Handle("GET /cronjobs/editor", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleCronjobsView(a, w, r, "code") }))
+	mux.Handle("GET /cronjobs/logs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleCronjobsView(a, w, r, "logs") }))
 	mux.Handle("GET /cronjobs/new", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleCronjobsNew(a, w, r) }))
 	mux.Handle("POST /cronjobs/save", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSaveCronjob(a, w, r) }))
 	mux.Handle("POST /cronjobs/edit", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEditCronjob(a, w, r) }))

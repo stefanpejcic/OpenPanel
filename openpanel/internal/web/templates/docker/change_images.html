@@ -13,7 +13,7 @@
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Change image tag for"}} {{.Service}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Select docker image tag from"}} <a href="https://hub.docker.com/" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500"> Docker Hub <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg></a></p>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Select docker image tag from"}} <a href="{{if .HubURL}}{{.HubURL}}{{else}}https://hub.docker.com/{{end}}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500"> Docker Hub <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg></a></p>
     </div>
     <div class="mt-2 gap-2 sm:mt-0 sm:flex">
     </div>
@@ -43,16 +43,36 @@
 
 
 
-                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="docroot"> {{.T.Get "New image tag:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                <div class="relative w-full mt-2">
-                    <input
-                        type="text"
-                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-                        id="new_tag"
-                        name="new_tag"
-                        value="{{.CurrentVersion}}"
-                        required
-                    />
+                <div x-data="imageTags({{toJSON .Service}}, {{toJSON .CurrentVersion}})" x-init="load()" @click.outside="open = false" @keydown.escape.window="open = false" class="relative">
+                    <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="tag_button">{{.T.Get "New image tag:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" x-show="repo" x-cloak>{{.T.Get "Tags of"}} <span class="font-mono" x-text="repo"></span> {{.T.Get "on Docker Hub, most recently updated first."}}</p>
+
+                    <button type="button" id="tag_button" @click="toggle()" class="mt-2 flex w-full items-center gap-2 rounded border px-2.5 py-2 text-left shadow-sm sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950">
+                        <span class="font-mono" x-text="selected || '{{.T.Get "Choose a tag"}}'"></span>
+                        <span x-show="selected && selected === current" class="text-xs text-gray-500 dark:text-gray-400">({{.T.Get "current"}})</span>
+                        <span x-show="loading" class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Loading tags from Docker Hub..."}}</span>
+                        <i class="bi bi-chevron-down ml-auto text-gray-400"></i>
+                    </button>
+
+                    <div x-show="open" x-cloak x-transition class="absolute z-50 mt-1 w-full rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 shadow-lg">
+                        <div class="border-b border-gray-200 dark:border-gray-800 p-2">
+                            <input type="search" x-ref="search" x-model="query" @keydown.enter.prevent="pickFirst()" autocomplete="off" placeholder="{{.T.Get "Search or type a tag"}}" class="block w-full rounded border px-2.5 py-1.5 font-mono text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950"/>
+                        </div>
+                        <ul class="max-h-64 overflow-y-auto py-1">
+                            <template x-if="customCandidate">
+                                <li @click="pick(customCandidate)" class="cursor-pointer px-3 py-2 text-sm text-gray-900 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-gray-900">{{.T.Get "Use"}} <span class="font-mono font-medium" x-text="customCandidate"></span></li>
+                            </template>
+                            <template x-for="tag in visibleTags" :key="tag">
+                                <li @click="pick(tag)" :class="tag === selected ? 'bg-gray-50 dark:bg-gray-900' : ''" class="flex cursor-pointer items-center gap-2 px-3 py-2 font-mono text-sm text-gray-900 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-gray-900">
+                                    <span x-text="tag"></span>
+                                    <span x-show="tag === current" class="font-sans text-xs text-gray-500 dark:text-gray-400">({{.T.Get "current"}})</span>
+                                </li>
+                            </template>
+                            <li x-show="!loading && !customCandidate && visibleTags.length === 0" class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400" x-text="error || '{{.T.Get "No matching tags. Type a full tag to use it."}}'"></li>
+                        </ul>
+                    </div>
+
+                    <input type="hidden" id="new_tag" name="new_tag" :value="selected" value="{{.CurrentVersion}}" required/>
                 </div>
             </div>
         </div>
@@ -137,6 +157,51 @@
 
 
 {{end}}
+
+<script>
+function imageTags(service, current) {
+    const tagRE = /^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$/;
+    return {
+        service: service, current: current, selected: current,
+        tags: [], repo: '', error: '', query: '', open: false, loading: true,
+        // the current tag first, then Docker Hub's list, narrowed by what's typed
+        get visibleTags() {
+            const all = this.current ? [this.current, ...this.tags.filter(t => t !== this.current)] : this.tags;
+            const q = this.query.trim().toLowerCase();
+            return (q ? all.filter(t => t.toLowerCase().includes(q)) : all).slice(0, 200);
+        },
+        // a typed tag that isn't in the list can still be used as is
+        get customCandidate() {
+            const q = this.query.trim();
+            if (!q || !tagRE.test(q)) return '';
+            return this.tags.includes(q) || q === this.current ? '' : q;
+        },
+        toggle() {
+            this.open = !this.open;
+            if (this.open) { this.query = ''; this.$nextTick(() => this.$refs.search.focus()); }
+        },
+        pick(tag) { this.selected = tag; this.open = false; },
+        pickFirst() {
+            const first = this.customCandidate || this.visibleTags[0];
+            if (first) this.pick(first);
+        },
+        async load() {
+            try {
+                const res = await fetch('/containers/image/tags/' + encodeURIComponent(this.service));
+                const data = await res.json();
+                this.tags = data.tags || [];
+                this.repo = data.repo || '';
+                this.error = data.error || '';
+                if (!this.current && this.tags.length) this.selected = this.tags[0];
+            } catch (e) {
+                this.error = {{toJSON (.T.Get "Could not load tags from Docker Hub.")}};
+            } finally {
+                this.loading = false;
+            }
+        }
+    };
+}
+</script>
 
 <!-- END templates/docker/change_images.html -->
 {{end}}

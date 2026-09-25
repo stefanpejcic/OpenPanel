@@ -82,6 +82,9 @@ func RegisterChangeImage(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/containers/image/change/{service}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleContainersChangeImage(a, w, r)
 	}))
+	mux.Handle("GET /containers/image/tags/{service}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		handleContainerImageTags(a, w, r)
+	}))
 }
 
 // RegisterChangeWS wires the webserver-swap routes onto mux, gated behind its own "change_ws" feature flag

@@ -218,7 +218,7 @@ type prefilledContainerForm struct {
 	PIDs        string
 	Volumes     []VolumeEntry
 	AddSocket   bool
-	Network     string
+	Networks    []string
 	Healthcheck string
 }
 
@@ -250,7 +250,7 @@ type ContainerFormPageData struct {
 	CPU                  string
 	RAM                  string
 	PIDs                 string
-	Network              string
+	Networks             []string
 	Healthcheck          string
 	AddSocket            bool
 	VolumeEntries        []VolumeEntry
@@ -295,7 +295,7 @@ func renderContainerFormPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		data.CPU = p.CPU
 		data.RAM = p.RAM
 		data.PIDs = p.PIDs
-		data.Network = p.Network
+		data.Networks = p.Networks
 		data.Healthcheck = p.Healthcheck
 		data.AddSocket = p.AddSocket
 		data.VolumeEntries = p.Volumes
@@ -306,14 +306,28 @@ func renderContainerFormPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		data.CPU = v.FormData.Get("cpu")
 		data.RAM = v.FormData.Get("ram")
 		data.PIDs = v.FormData.Get("pids")
-		data.Network = v.FormData.Get("network")
+		data.Networks = v.FormData["network"]
 		data.Healthcheck = v.FormData.Get("healthcheck")
 		data.AddSocket = v.FormData.Get("add_socket") != ""
+		names, mounts, ro := v.FormData["volume_name"], v.FormData["volume_mount"], v.FormData["volume_readonly"]
+		for i := range names {
+			e := VolumeEntry{Name: names[i]}
+			if i < len(mounts) {
+				e.Mount = mounts[i]
+			}
+			e.ReadOnly = i < len(ro) && ro[i] == "on"
+			data.VolumeEntries = append(data.VolumeEntries, e)
+		}
 	default:
 		data.CPU = "0.5"
 		data.RAM = "1G"
-		data.PIDs = "100"
+		data.PIDs = "500"
+		if len(v.Networks) > 0 {
+			data.Networks = []string{v.Networks[0]}
+		}
 	}
+	sort.Strings(data.AvailableNetworks)
+	sort.Strings(data.AvailableVolumes)
 
 	if err := containerFormPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOCKER - container_form template render error: %v", err)
@@ -496,17 +510,18 @@ type ChangeImagePageData struct {
 	web.LayoutData
 	Service            string
 	CurrentVersion     string
+	HubURL             string
 	SelectableServices []string
 }
 
 // renderChangeImagePage renders the single-service image tag-change form.
-func renderChangeImagePage(a *appctx.App, w http.ResponseWriter, r *http.Request, service, currentVersion string) {
+func renderChangeImagePage(a *appctx.App, w http.ResponseWriter, r *http.Request, service, currentVersion, hubURL string) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Change image tag for "+service)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := ChangeImagePageData{LayoutData: layout, Service: service, CurrentVersion: currentVersion}
+	data := ChangeImagePageData{LayoutData: layout, Service: service, CurrentVersion: currentVersion, HubURL: hubURL}
 	if err := changeImagePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOCKER - change_images template render error: %v", err)
 	}
@@ -523,7 +538,7 @@ func renderChangeImageSelectPage(a *appctx.App, w http.ResponseWriter, r *http.R
 	var selectable []string
 	if services, ok := composeData["services"].(map[string]any); ok {
 		for name, raw := range services {
-			if strings.HasPrefix(name, "php-") {
+			if !imageChangeable(name) {
 				continue
 			}
 			display := name

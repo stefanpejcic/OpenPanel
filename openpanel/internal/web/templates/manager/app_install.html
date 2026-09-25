@@ -261,38 +261,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
         </script>
-
-        <div class="flex items-center gap-2 px-3 py-1 rounded bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
-            <i class="bi bi-box text-gray-400 dark:text-gray-500 flex-shrink-0"></i>
-            <span class="text-xs font-mono text-gray-500 dark:text-gray-400 truncate">{{.T.Get "Service name in reverse-proxy:"}} <span id="container_name"></span></span>
-        </div>
-
-        <script>
-        function updateContainerName() {
-            const nameInput = document.getElementById('service_name');
-            const portInput = document.getElementById('port');
-            const containerNameSpan = document.getElementById('container_name');
-
-            const nameValue = nameInput.value;
-            const portValue = portInput.value;
-
-            if (!nameValue) {
-            containerNameSpan.textContent = '';
-            return;
-            }
-
-            if (portValue) {
-            containerNameSpan.textContent = `${nameValue}:${portValue}`;
-            } else {
-            containerNameSpan.textContent = nameValue;
-            }
-        }
-
-        document.getElementById('service_name').addEventListener('input', updateContainerName);
-        document.getElementById('port').addEventListener('input', updateContainerName);
-
-        updateContainerName();
-        </script>
     </div>
 
     {{if ne .Kind.AppType "n8n"}}
@@ -460,28 +428,33 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     {{end}}
 
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4" x-data="{ showAdvanced: false }">
-        <div class="flex items-center justify-between mb-2">
+    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4" x-data="{
+            cpu: '0.5', mem: '1', pids: '500',
+            presets: [
+                { name: 'small', label: {{toJSON (.T.Get "Small")}}, cpu: '0.25', mem: '0.25', pids: '100' },
+                { name: 'medium', label: {{toJSON (.T.Get "Medium")}}, cpu: '0.5', mem: '1', pids: '500' },
+                { name: 'large', label: {{toJSON (.T.Get "Large")}}, cpu: '1', mem: '2', pids: '1000' },
+            ],
+            applyPreset(p) { this.cpu = p.cpu; this.mem = p.mem; this.pids = p.pids; },
+            isPreset(p) { return String(this.cpu) === p.cpu && String(this.mem) === p.mem && String(this.pids) === p.pids; },
+        }">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div class="flex items-center gap-2.5">
                 <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">4</div>
                 <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Advanced options"}}</span>
             </div>
+            <div class="inline-flex items-center rounded-md text-xs font-medium shadow-sm">
+                <template x-for="(p, i) in presets" :key="p.name">
+                    <button type="button" @click="applyPreset(p)" x-text="p.label"
+                            :class="(i > 0 ? '-ml-px ' : '') + (isPreset(p) ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 hover:dark:bg-gray-950/50')"
+                            :style="(i === 0 ? 'border-radius:6px 0 0 6px;' : i === presets.length - 1 ? 'border-radius:0 6px 6px 0;' : '') + (isPreset(p) ? 'z-index:1;' : '')"
+                            class="relative border px-2.5 py-1 focus:outline-none"></button>
+                </template>
+            </div>
         </div>
 
-        <button type="button" id="open_advanced_options" @click="showAdvanced = !showAdvanced"
-            class="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors w-full text-left py-1">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16"
-                :class="showAdvanced ? 'rotate-180' : ''"
-                class="transition-transform duration-200">
-                <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-            </svg>
-            {{.T.Get "CPU & memory limits"}}
-            <span class="text-gray-300 dark:text-gray-600">·</span>
-            <span>{{.T.Get "optional · click to review"}}</span>
-        </button>
-
-        <div id="advanced_options" x-show="showAdvanced" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div id="advanced_options">
+            <div class="grid sm:grid-cols-3 gap-4">
                 <div>
                     <label class="flex justify-between mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="cpu_limit" x-data="{tooltip: false }">
                         <span>{{.T.Get "CPU cores"}}<span class="text-red-500">*</span></span>
@@ -493,12 +466,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-lg bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">{{.T.Get "Restrict CPU cores that the container can use."}}</div>
                         </span>
                     </label>
-                    <input type="number" name="cpu_limit" id="cpu_limit" value="1.0" step="0.01" min="0.10" max="9.99" inputmode="decimal"
+                    <input type="number" name="cpu_limit" id="cpu_limit" x-model="cpu" value="0.5" step="0.01" min="0.10" max="9.99" inputmode="decimal"
                         class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
                 </div>
                 <div>
                     <label class="flex justify-between mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="mem_limit" x-data="{tooltip: false }">
-                        <span>{{.T.Get "Memory (GB)"}}<span class="text-red-500">*</span></span>
+                        <span>{{.T.Get "Memory"}}<span class="text-red-500">*</span></span>
                         <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
   <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
@@ -507,12 +480,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-lg bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">{{.T.Get "Physical Memory (in GB) that the container can use."}}</div>
                         </span>
                     </label>
-                    <input type="number" name="mem_limit" id="mem_limit" value="1.0" step="0.01" min="0.10" max="9.99" inputmode="decimal"
-                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    <div class="flex">
+                        <input type="number" name="mem_limit" id="mem_limit" x-model="mem" value="1" step="0.01" min="0.10" max="9.99" inputmode="decimal"
+                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" style="border-top-right-radius:0;border-bottom-right-radius:0;">
+                        <span class="inline-flex items-center rounded-r border py-2 px-3 text-sm bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-800 text-gray-500 dark:text-gray-400" style="border-left-width:0">GB</span>
+                    </div>
                 </div>
                 <div>
                     <label class="flex justify-between mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="pids_limit" x-data="{tooltip: false }">
-                        <span>{{.T.Get "PIDs limit"}}<span class="text-red-500">*</span></span>
+                        <span>{{.T.Get "Max processes"}}<span class="text-red-500">*</span></span>
                         <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
   <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
@@ -521,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-lg bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">{{.T.Get "Max number of processes this application can run."}}</div>
                         </span>
                     </label>
-                    <input type="number" name="pids_limit" id="pids_limit" value="100" step="1" min="10" max="1000" inputmode="numeric"
+                    <input type="number" name="pids_limit" id="pids_limit" x-model="pids" value="500" step="1" min="10" max="1000" inputmode="numeric"
                         class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
                 </div>
             </div>

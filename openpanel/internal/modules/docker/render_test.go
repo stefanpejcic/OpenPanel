@@ -65,13 +65,16 @@ func TestRenderContainerFormPage(t *testing.T) {
 		w := httptest.NewRecorder()
 		data := ContainerFormPageData{
 			LayoutData: baseLayout(mgr, "/containers/new"), Title: "Add service",
-			AvailableNetworks: []string{"web"}, CPU: "0.5", RAM: "1G",
+			AvailableNetworks: []string{"db", "web"}, Networks: []string{"db"}, CPU: "0.5", RAM: "1G",
 		}
 		if err := containerFormPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), `value="0.5"`) {
-			t.Error("expected default CPU value in rendered form")
+		body := w.Body.String()
+		for _, want := range []string{`cpu: &#34;0.5&#34;`, `networks: [&#34;db&#34;]`, `existing: []`, `name="network" value="db"`, `name="network" value="web"`, "Create container"} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in rendered form", want)
+			}
 		}
 	})
 
@@ -94,16 +97,42 @@ func TestRenderContainerFormPage(t *testing.T) {
 		data := ContainerFormPageData{
 			LayoutData: baseLayout(mgr, "/containers/edit/myapp"), Title: "Edit service myapp",
 			Editing: true, ServiceName: "myapp", ServiceNameReadonly: true, Image: "custom/myapp:v1",
-			CPU: "1.5", RAM: "2G", VolumeEntries: []VolumeEntry{{Name: "data", Mount: "/data", ReadOnly: true}},
+			CPU: "1.5", RAM: "2G", Environment: "TZ: Europe/Belgrade", Networks: []string{"www", "db"},
+			VolumeEntries: []VolumeEntry{{Name: "data", Mount: "/data", ReadOnly: true}},
 		}
 		if err := containerFormPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		if !strings.Contains(body, "readonly") || !strings.Contains(body, `value="data"`) {
-			t.Error("expected readonly service name and prefilled volume in edit form")
+		for _, want := range []string{"readonly", `&#34;Name&#34;:&#34;data&#34;`, `&#34;ReadOnly&#34;:true`, `networks: [&#34;www&#34;,&#34;db&#34;]`, `env: &#34;TZ: Europe/Belgrade&#34;`, "Save changes"} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in edit form", want)
+			}
 		}
 	})
+}
+
+func TestSelectedNetworks(t *testing.T) {
+	got := selectedNetworks([]string{"www", " db ", "evil", "www", ""}, []string{"db", "www"})
+	if strings.Join(got, ",") != "www,db" {
+		t.Errorf("got %v", got)
+	}
+	if len(selectedNetworks(nil, []string{"db"})) != 0 {
+		t.Error("nothing submitted, nothing selected")
+	}
+}
+
+func TestImageRefRE(t *testing.T) {
+	for _, ok := range []string{"nginx", "redis:7-alpine", "ghcr.io/owner/app:1.0", "registry.local:5000/team/app", "app@sha256:abc123"} {
+		if !imageRefRE.MatchString(ok) {
+			t.Errorf("%q should be a valid image", ok)
+		}
+	}
+	for _, bad := range []string{"", " nginx", "nginx latest", "-x", "a\nb", "img\"quote"} {
+		if imageRefRE.MatchString(bad) {
+			t.Errorf("%q should be rejected", bad)
+		}
+	}
 }
 
 func TestRenderDeleteConfirmPage(t *testing.T) {
@@ -237,13 +266,17 @@ func TestRenderChangeImagePage(t *testing.T) {
 		w := httptest.NewRecorder()
 		data := ChangeImagePageData{
 			LayoutData: baseLayout(mgr, "/containers/image/change/nginx"),
-			Service:    "nginx", CurrentVersion: "1.26",
+			Service:    "nginx", CurrentVersion: "1.26", HubURL: "https://hub.docker.com/_/nginx/tags",
 		}
 		if err := changeImagePage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), `value="1.26"`) {
+		body := w.Body.String()
+		if !strings.Contains(body, `value="1.26"`) {
 			t.Error("expected current version prefilled in rendered form")
+		}
+		if !strings.Contains(body, `href="https://hub.docker.com/_/nginx/tags"`) {
+			t.Error("expected the Docker Hub link for the image")
 		}
 	})
 

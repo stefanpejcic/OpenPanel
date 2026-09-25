@@ -32,6 +32,7 @@ var (
 // CronjobsPageData is system/cronjobs.html's template context, covering both view=table and view=code
 type CronjobsPageData struct {
 	web.LayoutData
+	LogJob         string
 	View           string
 	Service        string
 	CrontabContent string
@@ -49,6 +50,19 @@ func renderCronjobsCodePage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	data := CronjobsPageData{LayoutData: layout, View: "code", Service: "cron", CrontabContent: crontabContent}
 	if err := cronjobsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("CRONS - code view template render error: %v", err)
+	}
+}
+
+// renderCronjobsLogsPage renders the Logs tab, job preselects the job filter
+func renderCronjobsLogsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, cronJobs []CronJob, job string) {
+	layout, _, err := web.BuildLayoutData(a, w, r, "CronJobs Logs")
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data := CronjobsPageData{LayoutData: layout, View: "logs", Service: "cron", CronJobs: cronJobs, LogJob: job}
+	if err := cronjobsPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("CRONS - logs view template render error: %v", err)
 	}
 }
 

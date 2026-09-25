@@ -12,10 +12,7 @@
 <div class="overflow-x-auto">
 	<div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
 		<table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
-			<tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-				<tr class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
-					<th id="server" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="2">{{.T.Get "Server Information"}}</th>
-				</tr>
+			<tbody data-tab="server" class="divide-y divide-gray-200 dark:divide-gray-800">
 				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
 					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
 						<i class="bi bi-rocket"></i> {{.T.Get "Hostname"}}
@@ -116,9 +113,8 @@
 						<ul role="list" id="nameservers" class="mt-2 space-y-2">{{.T.Get "Loading..."}}</ul>
 					</td>
 				</tr>
-				<tr class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
-					<th id="plan" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="2">{{.T.Get "Hosting Plan"}}</th>
-				</tr>
+			</tbody>
+			<tbody data-tab="plan" hidden class="divide-y divide-gray-200 dark:divide-gray-800">
 				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
 					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
 						<i class="bi bi-window-fullscreen"></i> {{.T.Get "Plan Name"}}
@@ -209,9 +205,8 @@
 					</td>
 					<td id="plan_webserver" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
 				</tr>
-				<tr class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
-					<th id="openpanel" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="2">{{.T.Get "Panel Information"}}</th>
-				</tr>
+			</tbody>
+			<tbody data-tab="panel" hidden class="divide-y divide-gray-200 dark:divide-gray-800">
 				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
 					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
 						<i class="bi bi-window-fullscreen"></i> {{.T.Get "Panel Version"}}
@@ -226,10 +221,10 @@
 					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
 						<i class="bi bi-menu-app-fill"></i> {{.T.Get "Enabled Features"}}
 					</td>
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-					<ul x-data="modules()" class="flex gap-2">
+					<td class="text-wrap p-4 text-sm text-gray-600 dark:text-gray-400">
+					<ul x-data="modules()" class="flex flex-wrap gap-x-4">
 						<template x-for="module in filteredModules()" :key="module.name">
-							<li>
+							<li class="py-1">
 								<a :href="module.help_link" target="_blank" class="text-blue-600 hover:underline">
 									<span x-text="module.name"></span>
 								</a>
@@ -361,6 +356,29 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(err => console.error('Error fetching plan:', err));
 });
+</script>
+
+<script>
+// tabs are #server, #plan and #panel on this one page, the header tab bar can't know the hash so it's marked here
+(function () {
+    var tabFor = { server: 'server', plan: 'plan', panel: 'panel', openpanel: 'panel' };
+    var on = ['border-blue-600', 'text-blue-600', 'dark:border-blue-500', 'dark:text-blue-500'];
+    var off = ['border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700', 'dark:text-gray-400', 'dark:hover:text-gray-300'];
+    function show() {
+        var tab = tabFor[location.hash.slice(1)] || 'server';
+        document.querySelectorAll('tbody[data-tab]').forEach(function (body) {
+            body.hidden = body.dataset.tab !== tab;
+        });
+        document.querySelectorAll('#page-tabs a[href^="/server/info#"]').forEach(function (link) {
+            var active = link.getAttribute('href') === '/server/info#' + tab;
+            link.classList.remove.apply(link.classList, active ? off : on);
+            link.classList.add.apply(link.classList, active ? on : off);
+            if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+        });
+    }
+    window.addEventListener('hashchange', show);
+    show();
+})();
 </script>
 
 <!-- END templates/system/server_info.html -->

@@ -1,9 +1,12 @@
 package docker
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
+	"sort"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -123,6 +126,20 @@ func validateServiceForm(serviceName, cpu, ram, pids string) string {
 	return ""
 }
 
+var imageRefRE = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._/:@-]{0,254}$`)
+
+// selectedNetworks keeps the submitted networks that exist in the compose file, in the order given, without duplicates
+func selectedNetworks(submitted, available []string) []string {
+	var out []string
+	for _, n := range submitted {
+		n = strings.TrimSpace(n)
+		if containsString(available, n) && !containsString(out, n) {
+			out = append(out, n)
+		}
+	}
+	return out
+}
+
 // handleAddContainer shows the add-service form and, on POST, validates and appends a new service to docker-compose.yml
 func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -162,7 +179,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	cpu := strings.TrimSpace(r.Form.Get("cpu"))
 	ram := strings.TrimSpace(r.Form.Get("ram"))
 	pids := strings.TrimSpace(r.Form.Get("pids"))
-	network := strings.TrimSpace(r.Form.Get("network"))
+	networks := selectedNetworks(r.Form["network"], availableNetworks)
 	healthcheck := strings.TrimSpace(r.Form.Get("healthcheck"))
 
 	formView := containerFormView{
@@ -170,31 +187,62 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		ExistingServices: existingServices, FormData: r.Form, Title: "Add service", Editing: false,
 	}
 
-	if serviceName == "" || !IsValidServiceName(serviceName) {
-		formView.Error = "Invalid service name. Must start with a letter, contain only lowercase letters and digits, and be at least 3 characters long."
+	// the page's JS asks for a stream so it can show each step, a plain form post still gets the redirect
+	stream := r.Form.Get("stream") == "1"
+	emit := func(map[string]any) {}
+	if stream {
+		w.Header().Set("Content-Type", "application/x-ndjson")
+		flusher, canFlush := w.(http.Flusher)
+		emit = func(v map[string]any) {
+			b, _ := json.Marshal(v)
+			_, _ = w.Write(append(b, '\n'))
+			if canFlush {
+				flusher.Flush()
+			}
+		}
+	}
+	fail := func(msg string) {
+		if stream {
+			emit(map[string]any{"error": msg})
+			return
+		}
+		formView.Error = msg
 		renderContainerFormPage(a, w, r, formView)
+	}
+
+	emit(map[string]any{"step": "validate", "status": "Validating container details"})
+
+	if !imageRefRE.MatchString(image) {
+		fail("Enter a valid image, for example nginx:latest or ghcr.io/owner/app:1.0.")
+		return
+	}
+	if len(networks) == 0 {
+		fail("Choose at least one network.")
+		return
+	}
+
+	if serviceName == "" || !IsValidServiceName(serviceName) {
+		fail("Invalid service name. Must start with a letter, contain only lowercase letters and digits, and be at least 3 characters long.")
 		return
 	}
 	if containsString(existingServices, serviceName) {
-		formView.Error = fmt.Sprintf("Service '%s' already exists in docker-compose.yml.", serviceName)
-		renderContainerFormPage(a, w, r, formView)
+		fail(fmt.Sprintf("Service '%s' already exists in docker-compose.yml.", serviceName))
 		return
 	}
 	if !IsValidCPULimit(cpu) {
-		formView.Error = "CPU limit must be a positive number."
-		renderContainerFormPage(a, w, r, formView)
+		fail("CPU limit must be a positive number.")
 		return
 	}
 	if !IsValidRAMLimit(ram) {
-		formView.Error = "Memory limit must be a positive number followed by 'M' or 'G' (e.g., 512M or 1.5G)."
-		renderContainerFormPage(a, w, r, formView)
+		fail("Memory limit must be a positive number followed by 'M' or 'G' (e.g., 512M or 1.5G).")
 		return
 	}
 	if !IsValidPIDsLimit(pids) {
-		formView.Error = "PIDs limit must be a positive whole number."
-		renderContainerFormPage(a, w, r, formView)
+		fail("PIDs limit must be a positive whole number.")
 		return
 	}
+
+	emit(map[string]any{"step": "save", "status": "Saving container to docker-compose.yml"})
 
 	servicePrefix := ServiceKeyPrefix(serviceName)
 	environmentVars, newEnvVars := ParseEnvVars(strings.Split(r.Form.Get("environment"), "\n"), servicePrefix)
@@ -215,7 +263,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		"deploy": map[string]any{"resources": map[string]any{"limits": map[string]any{
 			"cpus": "${" + cpuKey + ":-" + cpu + "}", "memory": "${" + ramKey + ":-" + ram + "}", "pids": "${" + pidsKey + ":-" + pids + "}",
 		}}},
-		"networks": []string{network},
+		"networks": networks,
 	}
 	if len(environmentVars) > 0 {
 		newService["environment"] = environmentVars
@@ -223,8 +271,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if healthcheck != "" {
 		hc, err := parseYAMLString(healthcheck)
 		if err != nil {
-			formView.Error = "Invalid healthcheck YAML: " + err.Error()
-			renderContainerFormPage(a, w, r, formView)
+			fail("Invalid healthcheck YAML: " + err.Error())
 			return
 		}
 		newService["healthcheck"] = hc
@@ -234,13 +281,23 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	services[serviceName] = newService
 	composeData["services"] = services
 	if err := SaveCompose(userContext, composeData); err != nil {
-		formView.Error = "Failed to save configuration: " + err.Error()
-		renderContainerFormPage(a, w, r, formView)
+		fail("Failed to save configuration: " + err.Error())
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, username, "added container "+serviceName, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", fmt.Sprintf("Container %s created successfully!", serviceName), "/containers")
+	if !stream {
+		flashAndRedirect(a, w, r, "success", fmt.Sprintf("Container %s created successfully!", serviceName), "/containers")
+		return
+	}
+
+	emit(map[string]any{"step": "pull", "status": "Downloading image " + image})
+	out, err := podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "pull", image)).CombinedOutput()
+	if err != nil {
+		emit(map[string]any{"error": "Container saved, but the image could not be downloaded: " + lastLines(string(out), 5), "saved": true})
+		return
+	}
+	emit(map[string]any{"done": true, "status": fmt.Sprintf("Container %s created successfully!", serviceName)})
 }
 
 // handleEditContainer shows the edit-service form prefilled from the existing compose definition and, on POST, saves the updated service
@@ -278,12 +335,23 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		cpu := strings.TrimSpace(r.Form.Get("cpu"))
 		ram := strings.TrimSpace(r.Form.Get("ram"))
 		pids := strings.TrimSpace(r.Form.Get("pids"))
-		network := r.Form.Get("network")
+		networks := selectedNetworks(r.Form["network"], availableNetworks)
 		healthcheck := strings.TrimSpace(r.Form.Get("healthcheck"))
 
 		formView := containerFormView{
 			Volumes: availableVolumes, Networks: availableNetworks,
 			ExistingServices: existingServices, FormData: r.Form, Title: title, Editing: true,
+		}
+
+		if !imageRefRE.MatchString(image) {
+			formView.Error = "Enter a valid image, for example nginx:latest or ghcr.io/owner/app:1.0."
+			renderContainerFormPage(a, w, r, formView)
+			return
+		}
+		if len(networks) == 0 {
+			formView.Error = "Choose at least one network."
+			renderContainerFormPage(a, w, r, formView)
+			return
 		}
 
 		if serviceName != service {
@@ -338,7 +406,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 		updatedService := map[string]any{
 			"image": image, "container_name": serviceName, "restart": "always",
-			"volumes": mappedVolumes, "networks": []string{network},
+			"volumes": mappedVolumes, "networks": networks,
 			"deploy": map[string]any{"resources": map[string]any{"limits": map[string]any{
 				"cpus": "${" + cpuKey + "}", "memory": "${" + ramKey + "}", "pids": "${" + pidsKey + "}",
 			}}},
@@ -366,18 +434,20 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	// GET: populate the form from the existing service definition.
-	envVars := map[string]string{}
+	// values live in .env behind ${SERVICE_KEY} placeholders, resolve them so saving the edit doesn't wipe them
+	env := LoadEnvFile(userContext)
+	var envLines []string
 	if envRaw, ok := svc["environment"].(map[string]any); ok {
+		keys := make([]string, 0, len(envRaw))
 		for k := range envRaw {
-			envVars[k] = ""
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			envLines = append(envLines, k+": "+ResolveEnvPlaceholder(toStr(envRaw[k]), env))
 		}
 	}
-	var envLines []string
-	for k := range envVars {
-		envLines = append(envLines, k+": ")
-	}
 
-	env := LoadEnvFile(userContext)
 	var cpu, ram, pids string
 	if deploy, ok := svc["deploy"].(map[string]any); ok {
 		if resources, ok := deploy["resources"].(map[string]any); ok {
@@ -409,9 +479,19 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	network := ""
-	if netsRaw, ok := svc["networks"].([]any); ok && len(netsRaw) > 0 {
-		network, _ = netsRaw[0].(string)
+	var networks []string
+	switch nets := svc["networks"].(type) {
+	case []any:
+		for _, n := range nets {
+			if name, ok := n.(string); ok {
+				networks = append(networks, name)
+			}
+		}
+	case map[string]any:
+		for name := range nets {
+			networks = append(networks, name)
+		}
+		sort.Strings(networks)
 	}
 
 	healthcheck := ""
@@ -425,7 +505,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		PrefilledForm: &prefilledContainerForm{
 			ServiceName: service, Image: toStr(svc["image"]), Environment: strings.Join(envLines, "\n"),
 			CPU: cpu, RAM: ram, PIDs: pids, Volumes: volumeEntries, AddSocket: addSocket,
-			Network: network, Healthcheck: healthcheck,
+			Networks: networks, Healthcheck: healthcheck,
 		},
 	})
 }
@@ -516,4 +596,13 @@ func toStr(v any) string {
 		return s
 	}
 	return fmt.Sprint(v)
+}
+
+// lastLines keeps the end of a command's output, that's where the actual error is
+func lastLines(out string, n int) string {
+	lines := strings.Split(strings.TrimSpace(out), "\n")
+	if len(lines) > n {
+		lines = lines[len(lines)-n:]
+	}
+	return strings.Join(lines, "\n")
 }

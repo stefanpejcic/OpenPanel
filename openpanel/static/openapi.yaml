@@ -3063,7 +3063,7 @@ paths:
       - bearerAuth: []
   /api/crons/raw:
     get:
-      summary: Get raw crontab.
+      summary: Get the raw crons file.
       operationId: get_crons_raw
       tags:
       - Cron Jobs
@@ -3080,7 +3080,7 @@ paths:
       security:
       - bearerAuth: []
     put:
-      summary: Save raw crontab.
+      summary: Save the raw crons file.
       operationId: put_crons_raw
       tags:
       - Cron Jobs

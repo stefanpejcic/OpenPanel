@@ -4,241 +4,434 @@
 {{define "content"}}
 <!-- START templates/docker/container_form.html -->
 
-<!-- page header -->
-<section>
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+{{$in := "relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"}}
+{{$sel := "w-full cursor-pointer truncate rounded border py-2 pl-3 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"}}
+{{$label := "flex justify-between mb-2 text-sm font-medium text-gray-900 dark:text-gray-50"}}
+{{$step := "inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50"}}
+{{$card := "rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4"}}
+{{$ghost := "relative inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded border px-3 py-1.5 text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900"}}
+
+<div x-data="containerForm({
+        editing: {{.Editing}},
+        name: {{toJSON .ServiceName}},
+        image: {{toJSON .Image}},
+        cpu: {{toJSON .CPU}},
+        ram: {{toJSON .RAM}},
+        pids: {{toJSON .PIDs}},
+        env: {{toJSON .Environment}},
+        networks: {{toJSON .Networks}},
+        volumes: {{toJSON .VolumeEntries}},
+        healthcheck: {{toJSON .Healthcheck}},
+        existing: {{if .ExistingServicesJSON}}{{.ExistingServicesJSON}}{{else}}[]{{end}},
+        availableVolumes: {{toJSON .AvailableVolumes}}
+    })">
+<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <header class="flex items-center justify-between gap-4">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{if .Editing}}{{.T.Get "Edit docker service."}}{{else}}{{.T.Get "Add a new docker service"}}{{end}}</p>
-    </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-    </div>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if .Editing}}{{.Title}}{{else}}{{.T.Get "Add a container"}}{{end}}</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-500" x-show="phase === 'form'">{{if .Editing}}{{.T.Get "Change the image, limits, networks and storage of this service. Saving restarts it with the new settings."}}{{else}}{{.T.Get "Run any Docker image next to your websites, for example a Redis cache, a queue worker or your own app."}}{{end}}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-500" x-show="phase !== 'form'" x-cloak>
+                <span x-show="phase === 'running'">{{.T.Get "Creating container"}}</span>
+                <span x-show="phase === 'done'">{{.T.Get "Container created"}}</span>
+                <span x-show="phase === 'error'">{{.T.Get "Could not create container"}}</span>
+                <span class="font-mono text-blue-500" x-text="name"></span>
+            </p>
+        </div>
+        <div x-show="phase !== 'form'" x-cloak class="relative shrink-0" style="width:3rem;height:3rem">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" stroke-width="10" class="dark:stroke-gray-700"/><circle cx="50" cy="50" r="42" fill="none" stroke="url(#ctRingGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" :stroke-dashoffset="263.9 - 263.9 * progress() / 100" style="transition: stroke-dashoffset 0.6s ease"/><defs><linearGradient id="ctRingGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs></svg>
+            <div class="absolute inset-0 flex items-center justify-center"><span class="text-xs font-bold text-gray-900 dark:text-gray-50" x-text="progress() + '%'"></span></div>
+        </div>
+    </header>
 </div>
 
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6" x-show="phase === 'form'">
+    <form class="space-y-3" method="POST" @submit="onSubmit($event)">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-
-
-  <script>
-    function suggestName() {
-      const image = document.getElementById('image').value;
-      const serviceInput = document.getElementById('service_name');
-      if (serviceInput.disabled) return; // don't suggest on edit
-
-      if (!image) return;
-      let name = image.split(":")[0].split("/").pop().toLowerCase();
-      // keep only letters and numbers at end, no dashes or underscores
-      name = name.replace(/[^a-z0-9]/g, '');
-      if (name.length < 3) {
-        name = 'app' + name; // ensure min length 3
-      } else if (!/^[a-z]/.test(name)) {
-        name = 'app' + name; // ensure starts with letter
-      }
-      // check if exists in existing_services passed as JSON
-      const existing = {{.ExistingServicesJSON}};
-      if (existing.includes(name)) {
-        // append number to make unique
-        let i = 2;
-        let newName = name + i;
-        while (existing.includes(newName)) {
-          i++;
-          newName = name + i;
-        }
-        name = newName;
-      }
-      serviceInput.value = name;
-    }
-  </script>
-
-<!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" id="installForm" action="" method="POST">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-
-
-  {{if .Error}}
-    <div class="col-span-full error">{{.Error}}</div>
-  {{end}}
-
-
-<div class="col-span-full">
-  <label for="service_name" class="text-start block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-    {{.T.Get "Name:"}}<span class="text-red-500 dark:text-red-500">*</span>
-  </label>
-  <div class="flex rounded-lg shadow-sm">
-    <input type="text"
-           class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-           name="service_name"
-           id="service_name"
-           pattern="[a-z0-9]+"
-           title="{{.T.Get "Only lowercase letters and numbers are allowed."}}"
-           oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9]/g, '')"
-           value="{{.ServiceName}}"
-           {{if .ServiceNameReadonly}}readonly{{end}}
-           required>
-  </div>
-  <p class="text-xs text-gray-500">{{.T.Get "Name is used to identify the container, and is used by other services to connect."}}</p>
-</div>
-
-
-
-  <div class="col-span-full">
-    <label for="image" class="text-start block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Docker Image and Tag:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-    <div class="flex rounded-lg shadow-sm">
-<input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" type="text" id="image" name="image" required value="{{.Image}}" onblur="suggestName()">
-    </div>
-  </div>
-
-  <div class="col-span-full">
-    <label for="environment" class="text-start block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Environment Variables (key:value, one per line, optional):"}}</label>
-    <div>
-      <textarea class="flex w-full resize-none rounded border px-3 py-1.5 shadow-sm outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-300 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="environment" name="environment" rows="5" placeholder="VAR1: value1\nVAR2: value2">{{.Environment}}</textarea>
-
-  </div>
-
-        <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6 col-span-full">
-        <div class="col-span">
-            <label for="cpu" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "CPU Limit (e.g., 0.5):"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-            <div class="flex rounded-lg shadow-sm">
-<input class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" type="text" id="cpu" name="cpu" required pattern="[0-9]+(\.[0-9]+)?" title="{{.T.Get "Numeric value"}}" value="{{.CPU}}">
-
-            </div>
+        {{if .Error}}
+        <div class="flex items-start gap-3 rounded border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-900 dark:text-red-300">
+            <i class="bi bi-exclamation-circle-fill mt-0.5"></i>
+            <p>{{.T.Get .Error}}</p>
         </div>
-
-        <div class="col-span">
-            <label for="cpu" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Memory Limit (e.g., 0.5G):"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-            <div class="flex rounded-lg shadow-sm">
-<input class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" type="text" id="ram" name="ram" required pattern="^[0-9]+[gG]$" title="{{.T.Get "Example: 1G"}}" value="{{.RAM}}">
-
-            </div>
-        </div>
-
-        <div class="col-span">
-            <label for="pids" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "PIDs Limit (e.g., 100):"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-            <div class="flex rounded-lg shadow-sm">
-<input class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" type="number" id="pids" name="pids" required min="1" step="1" title="{{.T.Get "Max number of processes this service can run"}}" value="{{if .PIDs}}{{.PIDs}}{{else}}100{{end}}">
-
-            </div>
-        </div>
-
-        </div>
-
-
-
-
-        <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6 col-span-full">
-
-  <div class="col-span-full">
-    <label for="volumes" class="text-start block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Volumes:"}}</label>
-    <div class="grid gap-2">
-      <div>
-        <label><input type="checkbox" name="add_socket" {{if .AddSocket}}checked{{end}}> {{.T.Get "Mount Docker socket"}} (<code>/run/user/${USER_ID}/podman/podman.sock:/var/run/docker.sock:ro</code>)</label>
-      </div>
-      <div id="volumes-section">
-        {{if .VolumeEntries}}
-          {{range .VolumeEntries}}
-            <div class="volume-entry">
-              <input type="text" name="volume_name" placeholder="{{$.T.Get "Volume name"}}" value="{{.Name}}" required>
-              <input type="text" name="volume_mount" placeholder="{{$.T.Get "Mount path inside container"}}" value="{{.Mount}}" required>
-              <label>
-                <input type="checkbox" name="volume_readonly" {{if .ReadOnly}}checked{{end}}> {{$.T.Get "Read-only"}}
-              </label>
-              <button type="button" onclick="removeVolume(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
-</svg></button>
-            </div>
-          {{end}}
-        {{else}}
-          <div class="volume-entry">
-          </div>
         {{end}}
-      </div>
-      <button type="button" onclick="addVolume()" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg> {{.T.Get "Add"}}</button>
 
-
-      <script>
-        function addVolume() {
-          const container = document.getElementById("volumes-section");
-          const div = document.createElement("div");
-          div.className = "volume-entry flex py-1";
-          div.innerHTML = `
-          <div class="flex w-full">
-            <select name="volume_name" required class="relative block w-full appearance-none rounded-l border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
-            {{range .AvailableVolumes}}
-              <option value="{{.}}">{{.}}</option>
-            {{end}}
-          </select>
-
-            <input type="text" class="relative block w-full appearance-none rounded-r border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" name="volume_mount" placeholder="{{.T.Get "Path inside container"}}" required>
-          </div>
-            <label hidden><input type="checkbox" name="volume_readonly"> {{.T.Get "Read-only"}}</label>
-            <button type="button" class="ml-2" onclick="removeVolume(this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
-</svg></button>
-          `;
-          container.appendChild(div);
-        }
-
-        function removeVolume(button) {
-          const entry = button.closest(".volume-entry");
-          entry.remove();
-        }
-      </script>
-
-    </div>
-  </div>
-
-
-
-  <div class="col-span-full">
-    <label for="network" class="text-start block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Networks:"}}</label>
-    <div class="flex">
-      <select name="network" id="network" required>
-        {{range .AvailableNetworks}}
-          <option value="{{.}}" {{if eq . $.Network}}selected{{end}}>{{.}}</option>
-        {{end}}
-      </select>
-    </div>
-  </div>
-
-
-
-
-  <div class="col-span-full">
-    <label for="healthcheck" class="text-start block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Healthcheck (YAML format, optional):"}}</label>
-    <textarea class="flex w-full resize-none rounded border px-3 py-1.5 shadow-sm outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-300 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="healthcheck" name="healthcheck" rows="5" placeholder='test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]&#10;interval: 10s&#10;retries: 3&#10;timeout: 10s'>{{.Healthcheck}}</textarea>
-  </div>
-
-
-
+        <!-- 1: image and name -->
+        <div class="{{$card}}">
+            <div class="flex items-center gap-2.5 mb-3">
+                <div class="{{$step}}">1</div>
+                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Image and name"}}</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="{{$label}}" for="image">
+                        <span>{{.T.Get "Docker image"}}<span class="text-red-500">*</span></span>
+                    </label>
+                    <input type="text" id="image" name="image" x-model.trim="image" @input="suggestName()" required autocomplete="off" spellcheck="false"
+                           list="popular-images" placeholder="redis:7-alpine" class="{{$in}} font-mono">
+                    <datalist id="popular-images">
+                        <option value="redis:alpine"></option>
+                        <option value="valkey/valkey:alpine"></option>
+                        <option value="memcached:alpine"></option>
+                        <option value="rabbitmq:3-management-alpine"></option>
+                        <option value="minio/minio:latest"></option>
+                        <option value="adminer:latest"></option>
+                        <option value="mailpit/mailpit:latest"></option>
+                        <option value="node:lts-alpine"></option>
+                        <option value="python:3-alpine"></option>
+                        <option value="nginx:alpine"></option>
+                    </datalist>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Image from Docker Hub, or a full address like ghcr.io/owner/app:1.0. Add a tag to pin the version."}}</p>
+                </div>
+                <div>
+                    <label class="{{$label}}" for="service_name">
+                        <span>{{.T.Get "Name"}}<span class="text-red-500">*</span></span>
+                    </label>
+                    <input type="text" id="service_name" name="service_name" x-model="name" @input="name = name.toLowerCase().replace(/[^a-z0-9]/g, ''); nameTouched = true"
+                           {{if .Editing}}readonly{{end}} required pattern="[a-z][a-z0-9]{2,}" autocomplete="off" spellcheck="false"
+                           class="{{$in}} font-mono {{if .Editing}}opacity-50{{end}}">
+                    <p class="mt-1 text-xs" :class="nameError ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'"
+                       x-text="nameError || {{toJSON (.T.Get "Other services reach this container by its name, for example redis:6379.")}}"></p>
+                </div>
+            </div>
         </div>
 
+        <!-- 2: resources -->
+        <div class="{{$card}}">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="{{$step}}">2</div>
+                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Resources"}}</span>
+                </div>
+                <div class="inline-flex items-center rounded-md text-xs font-medium shadow-sm">
+                    <template x-for="(p, i) in presets" :key="p.name">
+                        <button type="button" @click="applyPreset(p)" x-text="p.label"
+                                :class="(i > 0 ? '-ml-px ' : '') + (isPreset(p) ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 hover:dark:bg-gray-950/50')"
+                                :style="(i === 0 ? 'border-radius:6px 0 0 6px;' : i === presets.length - 1 ? 'border-radius:0 6px 6px 0;' : '') + (isPreset(p) ? 'z-index:1;' : '')"
+                                class="relative border px-2.5 py-1 focus:outline-none"></button>
+                    </template>
+                </div>
+            </div>
+            <div class="grid sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="{{$label}}" for="cpu"><span>{{.T.Get "CPU cores"}}<span class="text-red-500">*</span></span></label>
+                    <input type="number" id="cpu" name="cpu" x-model="cpu" min="0.05" step="0.05" required class="{{$in}}">
+                </div>
+                <div>
+                    <label class="{{$label}}" for="ram_amount"><span>{{.T.Get "Memory"}}<span class="text-red-500">*</span></span></label>
+                    <div class="flex">
+                        <input type="number" id="ram_amount" x-model="ramAmount" min="0.05" step="0.05" required class="{{$in}}" style="border-top-right-radius:0;border-bottom-right-radius:0;">
+                        <span class="inline-flex items-center rounded-r border py-2 px-3 text-sm bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-800 text-gray-500 dark:text-gray-400" style="border-left-width:0">GB</span>
+                    </div>
+                    <input type="hidden" name="ram" :value="ramAmount + 'G'">
+                </div>
+                <div>
+                    <label class="{{$label}}" for="pids"><span>{{.T.Get "Max processes"}}<span class="text-red-500">*</span></span></label>
+                    <input type="number" id="pids" name="pids" x-model="pids" min="1" step="1" required class="{{$in}}">
+                </div>
+            </div>
+            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Limits for this container only, it can't use more than your plan allows."}}</p>
+        </div>
 
-      </div>
+        <!-- 3: networks -->
+        <div class="{{$card}}">
+            <div class="flex items-center gap-2.5 mb-3">
+                <div class="{{$step}}">3</div>
+                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Networks"}}</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {{range .AvailableNetworks}}
+                <label class="flex cursor-pointer items-center gap-3 rounded border p-3 text-sm"
+                       :class="networks.includes({{toJSON .}}) ? 'border-indigo-500 shadow-md' : 'border-gray-200 dark:border-gray-700'">
+                    <input type="checkbox" name="network" value="{{.}}" x-model="networks">
+                    <span class="font-mono text-gray-900 dark:text-gray-50">{{.}}</span>
+                </label>
+                {{else}}
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No networks are defined for your account."}}</p>
+                {{end}}
+            </div>
+            <p class="mt-2 text-xs" :class="networks.length ? 'text-gray-500 dark:text-gray-400' : 'text-red-600 dark:text-red-400'"
+               x-text="networks.length ? {{toJSON (.T.Get "The container can talk to every service on the networks you choose.")}} : {{toJSON (.T.Get "Choose at least one network.")}}"></p>
+        </div>
 
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+        <!-- 4: storage -->
+        <div class="{{$card}}">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="{{$step}}">4</div>
+                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Storage"}}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
+                </div>
+                <button type="button" @click="addVolume()" class="{{$ghost}}" :disabled="!availableVolumes.length"><i class="bi bi-plus-lg"></i> {{.T.Get "Add volume"}}</button>
+            </div>
 
+            <template x-for="(v, i) in volumes" :key="v.id">
+                <div class="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <select name="volume_name" x-model="v.Name" required class="{{$sel}} sm:w-64">
+                        <template x-for="name in availableVolumes" :key="name">
+                            <option :value="name" :selected="name === v.Name" x-text="name"></option>
+                        </template>
+                    </select>
+                    <input type="text" name="volume_mount" x-model.trim="v.Mount" required placeholder="/data" spellcheck="false" class="{{$in}} font-mono">
+                    <input type="hidden" name="volume_readonly" :value="v.ReadOnly ? 'on' : 'off'">
+                    <label class="flex shrink-0 cursor-pointer items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300">
+                        <input type="checkbox" x-model="v.ReadOnly"> {{.T.Get "Read-only"}}
+                    </label>
+                    <button type="button" @click="volumes.splice(i, 1)" class="shrink-0 rounded p-1.5 text-gray-400 hover:text-gray-700" title="{{.T.Get "Remove"}}"><i class="bi bi-trash3"></i></button>
+                </div>
+            </template>
+            <p x-show="!volumes.length" class="text-sm text-gray-500 dark:text-gray-400">
+                <span x-show="availableVolumes.length">{{.T.Get "No volumes, data written by the container is lost when it's recreated."}}</span>
+                <span x-show="!availableVolumes.length">{{.T.Get "No volumes are defined for your account."}}</span>
+            </p>
 
+            <label class="mt-3 flex cursor-pointer items-start gap-3 rounded border border-gray-200 dark:border-gray-700 p-3 text-sm">
+                <input type="checkbox" name="add_socket" class="mt-0.5" {{if .AddSocket}}checked{{end}}>
+                <span>
+                    <span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Give access to the Docker socket"}}</span>
+                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Only for tools that manage containers, like Portainer or Watchtower. The container can then control all your other containers."}}</span>
+                </span>
+            </label>
+        </div>
 
-<div class="md:flex items-center md:justify-end md:space-x-4">
-    <a href="/containers" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">
-        {{.T.Get "Back to Containers"}}
-    </a>
-    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
-        {{.T.Get "Save"}}
-        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-        </svg>
-    </button>
-</div>
+        <!-- 5: environment -->
+        <div class="{{$card}}">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="{{$step}}">5</div>
+                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Environment variables"}}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" @click="toggleBulk()" class="{{$ghost}}" x-text="bulk ? {{toJSON (.T.Get "Use rows")}} : {{toJSON (.T.Get "Paste as text")}}"></button>
+                    <button type="button" x-show="!bulk" @click="envRows.push({ id: nextId++, key: '', value: '' })" class="{{$ghost}}"><i class="bi bi-plus-lg"></i> {{.T.Get "Add"}}</button>
+                </div>
+            </div>
 
+            <div x-show="!bulk">
+                <template x-for="(e, i) in envRows" :key="e.id">
+                    <div class="mb-2 flex items-center gap-2">
+                        <input type="text" x-model.trim="e.key" placeholder="KEY" spellcheck="false" class="{{$in}} font-mono" style="max-width: 40%;">
+                        <input type="text" x-model="e.value" placeholder="{{.T.Get "value"}}" spellcheck="false" class="{{$in}} font-mono">
+                        <button type="button" @click="envRows.splice(i, 1)" class="shrink-0 rounded p-1.5 text-gray-400 hover:text-gray-700" title="{{.T.Get "Remove"}}"><i class="bi bi-trash3"></i></button>
+                    </div>
+                </template>
+                <p x-show="!envRows.length" class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No environment variables."}}</p>
+            </div>
+            <div x-show="bulk" x-cloak>
+                <textarea x-model="bulkText" rows="6" spellcheck="false" placeholder="REDIS_PASSWORD: secret&#10;TZ: Europe/Belgrade" class="{{$in}} font-mono"></textarea>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "One variable per line, as KEY: value or KEY=value."}}</p>
+            </div>
+            <textarea name="environment" class="hidden" :value="envText()"></textarea>
+        </div>
+
+        <!-- 6: health check -->
+        <div class="{{$card}}" x-data="{ openHc: {{if .Healthcheck}}true{{else}}false{{end}} }">
+            <button type="button" @click="openHc = !openHc" class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-2.5">
+                    <span class="{{$step}}">6</span>
+                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Health check"}}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
+                </span>
+                <i class="bi text-gray-400" :class="openHc ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            </button>
+            <div x-show="openHc" x-cloak class="mt-3">
+                <textarea name="healthcheck" x-model="healthcheck" rows="6" spellcheck="false" class="{{$in}} font-mono"
+                          placeholder="test: [&#34;CMD&#34;, &#34;redis-cli&#34;, &#34;ping&#34;]&#10;interval: 30s&#10;timeout: 5s&#10;retries: 3"></textarea>
+                <div class="mt-1 flex items-center justify-between gap-2">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "In docker compose healthcheck format. The Containers page shows the container as healthy or unhealthy."}}</p>
+                    <button type="button" x-show="!healthcheck" @click="healthcheck = exampleHealthcheck()" class="shrink-0 text-xs font-medium text-blue-600 hover:underline dark:text-blue-500">{{.T.Get "Insert example"}}</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3">
+            <a href="/containers" class="{{$ghost}} py-2">{{.T.Get "Cancel"}}</a>
+            <button type="submit" :disabled="!canSubmit()" :class="!canSubmit() && 'opacity-50'" class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-center text-sm font-medium shadow-sm transition-all border-black bg-black text-white hover:bg-gray-800 gap-x-1.5 whitespace-nowrap">
+                {{if .Editing}}{{.T.Get "Save changes"}}{{else}}{{.T.Get "Create container"}}{{end}}
+            </button>
+        </div>
     </form>
 </div>
-<!-- END form -->
 
-</section>
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6" x-show="phase !== 'form'" x-cloak>
+    <div class="grid grid-cols-1 gap-2">
+        <template x-for="st in steps" :key="st.id">
+            <div class="flex items-center gap-3 rounded p-3 text-sm font-medium transition-colors"
+                 :class="{ 'bg-gray-50 dark:bg-gray-800/50 text-gray-400 dark:text-gray-500': st.state === 'pending', 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-50': st.state === 'active', 'bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400': st.state === 'done', 'bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-300': st.state === 'error' }">
+                <svg x-show="st.state === 'pending'" class="size-5 shrink-0 text-gray-300 dark:text-gray-600" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" opacity=".25"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg x-show="st.state === 'active'" class="size-5 shrink-0 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                <svg x-show="st.state === 'done'" class="size-5 shrink-0 text-emerald-500 dark:text-emerald-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"/></svg>
+                <svg x-show="st.state === 'error'" class="size-5 shrink-0 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"/></svg>
+                <span x-text="st.label"></span>
+            </div>
+        </template>
+    </div>
 
+    <div x-show="errorText" x-cloak class="mt-4 rounded border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-900 dark:text-red-300 font-mono" style="white-space:pre-line;overflow-wrap:anywhere" x-text="errorText"></div>
+
+    <div x-show="phase === 'error'" x-cloak class="mt-4 flex items-center justify-end gap-2">
+        <a x-show="saved" href="/containers" class="{{$ghost}} py-2">{{.T.Get "Go to containers"}}</a>
+        <button x-show="!saved" type="button" @click="phase = 'form'" class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800">{{.T.Get "Back to the form"}}</button>
+    </div>
+</div>
+</div>
+
+<script>
+function containerForm(init) {
+    // memory is always edited in GB, older values saved in MB are converted
+    const ramMatch = String(init.ram || '1G').trim().match(/^([\d.]+)\s*([MG])?/i);
+    const ramGB = ramMatch ? (String(ramMatch[2] || 'G').toUpperCase() === 'M' ? Math.round(parseFloat(ramMatch[1]) / 1024 * 100) / 100 : parseFloat(ramMatch[1])) : 1;
+    let nextId = 1;
+    const parseEnv = text => String(text || '').split('\n').map(line => {
+        const m = line.match(/^\s*([^:=\s]+)\s*[:=]\s?(.*)$/);
+        return m ? { id: nextId++, key: m[1], value: m[2].trim() } : null;
+    }).filter(Boolean);
+    return {
+        editing: init.editing,
+        name: init.name || '',
+        nameTouched: !!init.name,
+        image: init.image || '',
+        cpu: init.cpu || '0.5',
+        ramAmount: String(ramGB),
+        pids: init.pids || '500',
+        networks: init.networks || [],
+        volumes: (init.volumes || []).map(v => ({ id: nextId++, Name: v.Name, Mount: v.Mount, ReadOnly: v.ReadOnly })),
+        availableVolumes: init.availableVolumes || [],
+        existing: init.existing || [],
+        envRows: parseEnv(init.env),
+        bulk: false,
+        bulkText: '',
+        healthcheck: init.healthcheck || '',
+        get nextId() { return nextId; },
+        set nextId(v) { nextId = v; },
+        presets: [
+            { name: 'small', label: {{toJSON (.T.Get "Small")}}, cpu: '0.25', ram: '0.25', pids: '100' },
+            { name: 'medium', label: {{toJSON (.T.Get "Medium")}}, cpu: '0.5', ram: '1', pids: '500' },
+            { name: 'large', label: {{toJSON (.T.Get "Large")}}, cpu: '1', ram: '2', pids: '1000' },
+        ],
+        applyPreset(p) { this.cpu = p.cpu; this.ramAmount = p.ram; this.pids = p.pids; },
+        isPreset(p) { return String(this.cpu) === p.cpu && String(this.ramAmount) === p.ram && String(this.pids) === p.pids; },
+
+        // name follows the image until the user types their own
+        suggestName() {
+            if (this.editing || (this.nameTouched && this.name)) return;
+            let base = this.image.split('@')[0].split(':')[0].split('/').pop().toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (!base) { this.name = ''; return; }
+            if (base.length < 3 || !/^[a-z]/.test(base)) base = 'app' + base;
+            let candidate = base, i = 2;
+            while (this.existing.includes(candidate)) candidate = base + i++;
+            this.name = candidate;
+            this.nameTouched = false;
+        },
+        get nameError() {
+            if (this.editing || !this.name) return '';
+            if (!/^[a-z]/.test(this.name)) return {{toJSON (.T.Get "Must start with a letter.")}};
+            if (this.name.length < 3) return {{toJSON (.T.Get "Must be at least 3 characters.")}};
+            if (this.existing.includes(this.name)) return {{toJSON (.T.Get "A service with this name already exists.")}};
+            return '';
+        },
+
+        addVolume() {
+            this.volumes.push({ id: nextId++, Name: this.availableVolumes[0] || '', Mount: '', ReadOnly: false });
+        },
+
+        toggleBulk() {
+            if (this.bulk) {
+                this.envRows = parseEnv(this.bulkText);
+            } else {
+                this.bulkText = this.envRows.filter(e => e.key).map(e => e.key + ': ' + e.value).join('\n');
+            }
+            this.bulk = !this.bulk;
+        },
+        envText() {
+            const rows = this.bulk ? parseEnv(this.bulkText) : this.envRows;
+            return rows.filter(e => e.key).map(e => e.key + ': ' + e.value).join('\n');
+        },
+
+        exampleHealthcheck() {
+            const img = this.image.toLowerCase();
+            if (img.includes('redis') || img.includes('valkey')) return 'test: ["CMD", "redis-cli", "ping"]\ninterval: 30s\ntimeout: 5s\nretries: 3';
+            if (img.includes('postgres')) return 'test: ["CMD-SHELL", "pg_isready"]\ninterval: 30s\ntimeout: 5s\nretries: 3';
+            if (img.includes('mysql') || img.includes('mariadb')) return 'test: ["CMD", "mysqladmin", "ping"]\ninterval: 30s\ntimeout: 5s\nretries: 3';
+            return 'test: ["CMD-SHELL", "wget -q --spider http://localhost/ || exit 1"]\ninterval: 30s\ntimeout: 5s\nretries: 3';
+        },
+
+        canSubmit() {
+            return this.image && this.name && !this.nameError && this.networks.length > 0;
+        },
+        phase: 'form',
+        saved: false,
+        errorText: '',
+        steps: [
+            { id: 'validate', label: {{toJSON (.T.Get "Validating container details")}}, state: 'pending' },
+            { id: 'save', label: {{toJSON (.T.Get "Saving container to docker-compose.yml")}}, state: 'pending' },
+            { id: 'pull', label: {{toJSON (.T.Get "Downloading image")}}, state: 'pending' },
+            { id: 'done', label: {{toJSON (.T.Get "Container created")}}, state: 'pending' },
+        ],
+        progress() {
+            if (this.phase === 'done') return 100;
+            return Math.round(this.steps.filter(s => s.state === 'done').length / this.steps.length * 100);
+        },
+        setStep(id) {
+            const idx = this.steps.findIndex(s => s.id === id);
+            if (idx < 0) return;
+            this.steps.forEach((s, i) => { if (i < idx) s.state = 'done'; else if (i === idx) s.state = 'active'; });
+        },
+        onSubmit(event) {
+            if (!this.canSubmit()) { event.preventDefault(); return; }
+            if (this.editing) return;
+            event.preventDefault();
+            const data = new FormData(event.target);
+            data.set('stream', '1');
+            this.steps.forEach(s => s.state = 'pending');
+            this.errorText = '';
+            this.saved = false;
+            this.phase = 'running';
+            this.setStep('validate');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.runStream(data);
+        },
+        async runStream(data) {
+            const fail = msg => {
+                const active = this.steps.find(s => s.state === 'active');
+                if (active) active.state = 'error';
+                this.errorText = msg;
+                this.phase = 'error';
+            };
+            try {
+                const res = await fetch(window.location.pathname, { method: 'POST', body: data });
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let buf = '';
+                for (;;) {
+                    const { done, value } = await reader.read();
+                    if (value) buf += decoder.decode(value, { stream: true });
+                    const lines = buf.split('\n');
+                    buf = lines.pop();
+                    for (const line of lines) {
+                        if (!line.trim()) continue;
+                        let msg;
+                        try { msg = JSON.parse(line); } catch (e) { continue; }
+                        if (msg.step) this.setStep(msg.step);
+                        if (msg.error) { this.saved = !!msg.saved; fail(msg.error); return; }
+                        if (msg.done) {
+                            this.steps.forEach(s => s.state = 'done');
+                            this.phase = 'done';
+                            if (window.showToast) showToast(msg.status, 'success');
+                            setTimeout(() => { window.location.href = '/containers'; }, 1500);
+                            return;
+                        }
+                    }
+                    if (done) break;
+                }
+                fail({{toJSON (.T.Get "The server stopped responding before the container was created.")}});
+            } catch (e) {
+                fail({{toJSON (.T.Get "Connection lost while creating the container.")}});
+            }
+        }
+    };
+}
+</script>
 
 <!-- END templates/docker/container_form.html -->
 {{end}}

@@ -288,7 +288,9 @@ var sidebarAreas = []navArea{
 
 	{label: "Cron Jobs", icon: cronIcon, menuID: "crons-menu", match: func(path string) bool { return strings.HasPrefix(path, "/cronjobs") },
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
-			return g.add(nil, "crons", "/cronjobs", "Cron Jobs", strings.HasPrefix(path, "/cronjobs"), "")
+			tabs := g.add(nil, "crons", "/cronjobs", "Cron Jobs", path == "/cronjobs" || path == "/cronjobs/new", "")
+			tabs = g.add(tabs, "crons", "/cronjobs/editor", "File Editor", path == "/cronjobs/editor", "")
+			return g.add(tabs, "crons", "/cronjobs/logs", "Logs", path == "/cronjobs/logs", "")
 		}},
 
 	{label: "Cache & Search", icon: cacheIcon, menuID: "cache-menu", match: func(path string) bool { return strings.HasPrefix(path, "/cache") },
@@ -366,7 +368,10 @@ var sidebarAreas = []navArea{
 
 	{label: "Server Info", icon: infoIcon, menuID: "info-menu", match: func(path string) bool { return path == "/server/info" },
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
-			return g.add(nil, "info", "/server/info", "Server Info", path == "/server/info", "")
+			// one page switched by #hash, server_info.html marks the right tab active on load and hashchange
+			tabs := g.add(nil, "info", "/server/info#server", "Server", path == "/server/info", "")
+			tabs = g.add(tabs, "info", "/server/info#plan", "Hosting Plan", false, "")
+			return g.add(tabs, "info", "/server/info#panel", "Panel", false, "")
 		}},
 }
 

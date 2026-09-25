@@ -9,7 +9,11 @@ A cron job is a Linux command used to schedule tasks for future execution. It al
 ![Cron Jobs page listing scheduled jobs with their schedule, container, command and comment](/img/openpanel-screenshots/advanced/cronjobs-list.png#gh-light-mode-only)
 ![Cron Jobs page listing scheduled jobs with their schedule, container, command and comment](/img/openpanel-screenshots/advanced/cronjobs-list_dark.png#gh-dark-mode-only)
 
-On the CronJobs page you can view currently scheduled tasks, create new, edit or delete them.
+The Cron Jobs page has three tabs:
+
+- **Cron Jobs**: the table of scheduled jobs, where you can create new jobs and edit, delete, run or view the logs of existing ones.
+- **File Editor**: edit the file the jobs are stored in directly, see [File Editor](#file-editor).
+- **Logs**: the output of your cron jobs, see [Logs](#logs).
 
 
 ## Add
@@ -65,7 +69,7 @@ To edit an existing cronjob, click on the 'Edit' button next to it. This action 
 
 To modify the schedule for when the script is executed you can use a tool such as https://crontab.guru/.
 
-When you're done click on the 'Save' button to update the crontab file with your changes.
+When you're done click on the 'Save' button to update the crons file with your changes.
 
 ## Delete
 
@@ -87,17 +91,17 @@ This is useful for quickly checking that a job is configured correctly before re
 
 Each cron job execution is recorded in JSON format.
 
-![Inline cron job log panel with the Job and Lines filters, Refresh button and log entries of recent runs](/img/openpanel-screenshots/advanced/cronjobs-logs.png#gh-light-mode-only)
-![Inline cron job log panel with the Job and Lines filters, Refresh button and log entries of recent runs](/img/openpanel-screenshots/advanced/cronjobs-logs_dark.png#gh-dark-mode-only)
+![Logs tab of the Cron Jobs page with the Job and Lines filters, Refresh button and log entries of recent runs](/img/openpanel-screenshots/advanced/cronjobs-logs.png#gh-light-mode-only)
+![Logs tab of the Cron Jobs page with the Job and Lines filters, Refresh button and log entries of recent runs](/img/openpanel-screenshots/advanced/cronjobs-logs_dark.png#gh-dark-mode-only)
 
-To view the logs, click the *“View Logs”* button (or the per-job *“Logs”* button in a job's row). This opens an inline log panel at the top of the table, where you can filter by job name and choose how many lines to display, and refresh the results.
+To view the logs, open the **Logs** tab, or click the **Logs** button in a job's row to open it already filtered to that job. You can filter by job name, choose how many lines to display and refresh the results. A job's logs can also be linked directly, for example `/cronjobs/logs?job=whmcs-cron`.
 
 To filter logs by a specific job name (comment) directly through the API endpoint, append the following parameter to the URL:
 `?job=` followed by the job name. Example: `/cronjobs/log?job=whmcs-cron`
 
 ## File Editor
 
-The *File Editor* option allows you to edit the file where crons are stored. File format is:
+The **File Editor** tab allows you to edit the file where crons are stored. File format is:
 
 ```
 [job-exec "JOB_NAME"]
@@ -130,7 +134,7 @@ You can also set `no-overlap` for a cronjob, to avoid running the job multiple t
 ## Import / Export
 
 Cronjobs can be bulk-edited through a file, making it easy to edit multiple jobs at once or transfer them between servers.
-Simply click the *“Switch to File Editor”* button to open the editor.
+Open the **File Editor** tab, edit the jobs and click **Save Changes**.
 
 ![Cron jobs File Editor showing the jobs in crons.ini format](/img/openpanel-screenshots/advanced/cronjobs_editor-editor.png#gh-light-mode-only)
 ![Cron jobs File Editor showing the jobs in crons.ini format](/img/openpanel-screenshots/advanced/cronjobs_editor-editor_dark.png#gh-dark-mode-only)

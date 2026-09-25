@@ -177,9 +177,9 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	serviceNameUp := strings.ToUpper(serviceName)
 
 	startupFile := r.FormValue("startup_file")
-	cpuLimit := getValidatedFloat(r.FormValue("cpu_limit"), "1.0")
+	cpuLimit := getValidatedFloat(r.FormValue("cpu_limit"), "0.5")
 	memLimit := getValidatedFloat(r.FormValue("mem_limit"), "1.0")
-	pidsLimit := getValidatedInt(r.FormValue("pids_limit"), "100")
+	pidsLimit := getValidatedInt(r.FormValue("pids_limit"), "500")
 
 	var appPort int
 	if portStr := r.FormValue("port"); portStr != "" {

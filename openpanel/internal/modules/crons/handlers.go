@@ -72,18 +72,26 @@ func handleCronjobsLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, matched)
 }
 
-// handleCronjobs mirrors cronjobs(): GET /cronjobs, view=table (default) or view=code.
+// handleCronjobs is the Cron Jobs tab, ?view=code still works for API callers and old links
 func handleCronjobs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	if r.URL.Query().Get("view") == "code" {
+		if r.URL.Query().Get("output") != "json" {
+			http.Redirect(w, r, "/cronjobs/editor", http.StatusFound)
+			return
+		}
+		handleCronjobsView(a, w, r, "code")
+		return
+	}
+	handleCronjobsView(a, w, r, "table")
+}
+
+// handleCronjobsView renders one of the three tabs: table, code (File Editor) or logs
+func handleCronjobsView(a *appctx.App, w http.ResponseWriter, r *http.Request, view string) {
 	ctx := r.Context()
 	_, userContext, err := injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
-	}
-
-	view := r.URL.Query().Get("view")
-	if view == "" {
-		view = "table"
 	}
 
 	path := cronFilePath(userContext)
@@ -135,6 +143,13 @@ func handleCronjobs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		renderCronjobsTablePage(a, w, r, serviceNames, cronJobs, scheduleIssues)
+
+	case "logs":
+		content := ""
+		if data, readErr := os.ReadFile(path); readErr == nil {
+			content = string(data)
+		}
+		renderCronjobsLogsPage(a, w, r, ParseCronFile(content), r.URL.Query().Get("job"))
 
 	default:
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -202,7 +217,7 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	path := cronFilePath(userContext)
 	resolvedPath, resolveErr := filepath.Abs(path)
 	if baseErr != nil || resolveErr != nil || !strings.HasPrefix(resolvedPath, baseDir) {
-		flashAndRedirect(a, w, r, "error", "Invalid cron file path", "/cronjobs?view=code")
+		flashAndRedirect(a, w, r, "error", "Invalid cron file path", "/cronjobs/editor")
 		return
 	}
 
@@ -270,20 +285,20 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if containsAnyPattern(crontabContent, forbiddenPatterns) {
-		flashAndRedirect(a, w, r, "error", "image= or network= are not allowed in crontab.", "/cronjobs?view=code")
+		flashAndRedirect(a, w, r, "error", "image= or network= are not allowed in the crons file.", "/cronjobs/editor")
 		return
 	}
 	if containsAnyPattern(crontabContent, execPatterns) {
-		flashAndRedirect(a, w, r, "error", "job-run, job-local, and job-service-run are not allowed in crontab.", "/cronjobs?view=code")
+		flashAndRedirect(a, w, r, "error", "job-run, job-local, and job-service-run are not allowed in the crons file.", "/cronjobs/editor")
 		return
 	}
 	if errMsg := ValidateCronFileFormat(crontabContent); errMsg != "" {
-		flashAndRedirect(a, w, r, "error", "Invalid crontab format: "+errMsg, "/cronjobs?view=code")
+		flashAndRedirect(a, w, r, "error", "Invalid crons file format: "+errMsg, "/cronjobs/editor")
 		return
 	}
 
 	if writeErr := writeCronFile(resolvedPath, crontabContent, true); writeErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs?view=code")
+		flashAndRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs/editor")
 		return
 	}
 	ipAddress := reqip.ClientIP(r)
@@ -295,7 +310,7 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		docker.StartOrStopContainer(ctx, userContext, "cron", "deactivate", "")
 	}
 
-	flashAndRedirect(a, w, r, "success", "Crontab file saved successfully!", "/cronjobs?view=code")
+	flashAndRedirect(a, w, r, "success", "Crons file saved successfully!", "/cronjobs/editor")
 }
 
 // splitJobExecSections implements a zero-width lookahead split on "(?=\[job-exec )" manually, since Go's RE2 doesn't support lookahead. sections[0] is everything before the first match (possibly ""); every later section starts with "[job-exec ".

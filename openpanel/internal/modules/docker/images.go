@@ -27,13 +27,22 @@ func handleContainersChangeImage(a *appctx.App, w http.ResponseWriter, r *http.R
 	userContext, _ := injected["context"].(string)
 
 	if service != "" {
+		if !imageChangeable(service) {
+			flashAndRedirect(a, w, r, "error", "The image of "+service+" can't be changed.", "/containers/image/change")
+			return
+		}
 		if r.Method == http.MethodPost {
 			_ = r.ParseForm()
-			value := r.Form.Get("new_tag")
+			value := strings.TrimSpace(r.Form.Get("new_tag"))
+			if !imageTagRE.MatchString(value) {
+				flashAndRedirect(a, w, r, "error", "Invalid image tag.", fmt.Sprintf("/containers/image/change/%s", service))
+				return
+			}
+			envVar, _ := imageTagVar(userContext, service)
 
 			result := StartOrStopContainer(ctx, userContext, service, "deactivate", "")
 			if result.Success {
-				SetEnvValue(userContext, service+"_VERSION", value)
+				SetEnvValue(userContext, envVar, value)
 				_ = logger.RecordUserAction(a.Config, username, fmt.Sprintf("changed image tag for %s to %s", service, value), reqip.ClientIP(r))
 				flashAndRedirect(a, w, r, "success", fmt.Sprintf("Successfully changed image tag for %s to %s!", service, value), "/containers/image/change")
 				return
@@ -42,23 +51,17 @@ func handleContainersChangeImage(a *appctx.App, w http.ResponseWriter, r *http.R
 			return
 		}
 
-		var currentVersion string
-		switch {
-		case service == "phpmyadmin":
-			currentVersion, _ = GetEnvValue(userContext, "PMA_VERSION")
-		case service == userContext:
-			currentVersion, _ = GetEnvValue(userContext, "OS")
-		case service == "mariadb":
-			currentVersion, _ = GetEnvValue(userContext, "MYSQL_VERSION")
-		default:
-			currentVersion, _ = GetEnvValue(userContext, strings.ToUpper(service)+"_VERSION")
+		envVar, defaultTag := imageTagVar(userContext, service)
+		currentVersion, _ := GetEnvValue(userContext, envVar)
+		if currentVersion == "" {
+			currentVersion = defaultTag
 		}
 
 		if r.URL.Query().Get("output") == "json" {
 			writeJSON(w, []any{service, currentVersion})
 			return
 		}
-		renderChangeImagePage(a, w, r, service, currentVersion)
+		renderChangeImagePage(a, w, r, service, currentVersion, dockerHubPage(userContext, service))
 		return
 	}
 

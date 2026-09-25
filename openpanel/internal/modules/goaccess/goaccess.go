@@ -54,7 +54,7 @@ func handleDomainStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	logFilePath := "/var/log/caddy/stats/" + currentUsername + "/" + domainName + ".html"
 	content, readErr := os.ReadFile(logFilePath)
 	if readErr != nil {
-		flashAndRedirect(a, w, r, "error", "Stats file for domain "+domainName+" not found. Data is generated every 24h.", "/domains/log")
+		flashAndRedirect(a, w, r, "error", "Stats file for domain "+domainName+" not found. Data is generated every 24h.", "/domains/stats")
 		return
 	}
 

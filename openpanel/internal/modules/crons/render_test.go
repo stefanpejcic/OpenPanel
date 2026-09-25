@@ -68,7 +68,7 @@ func TestRenderCronjobsTablePage(t *testing.T) {
 func TestRenderCronjobsCodePage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := CronjobsPageData{
-		LayoutData: baseLayout(mgr, "/cronjobs?view=code"), View: "code", Service: "cron",
+		LayoutData: baseLayout(mgr, "/cronjobs/editor"), View: "code", Service: "cron",
 		CrontabContent: `[job-exec "x"]
 schedule = @daily
 container = mysql
@@ -93,5 +93,45 @@ func TestRenderCronjobsNewPage(t *testing.T) {
 	body := w.Body.String()
 	if !strings.Contains(body, "mysql") || !strings.Contains(body, "nginx-proxy") {
 		t.Error("expected container options in body")
+	}
+}
+
+func TestRenderCronjobsLogsPage(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := CronjobsPageData{
+		LayoutData: baseLayout(mgr, "/cronjobs/logs"), View: "logs", Service: "cron", LogJob: "db dump",
+		CronJobs: []CronJob{{Schedule: "@daily", Command: "mysqldump x", Container: "mysql", Comment: "db dump"}},
+	}
+	w := httptest.NewRecorder()
+	if err := cronjobsPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{`cronLogs(&#34;db dump&#34;)`, "Cron Job Logs", `<option value="db dump">`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q in body", want)
+		}
+	}
+	if strings.Contains(body, "Switch to File Editor") || strings.Contains(body, "Need Help?") {
+		t.Error("logs tab shouldn't show the editor switch or help button")
+	}
+}
+
+func TestRenderCronjobsTableHasLogLinks(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := CronjobsPageData{
+		LayoutData: baseLayout(mgr, "/cronjobs"), View: "table", Service: "cron",
+		CronJobs: []CronJob{{Schedule: "@daily", Command: "mysqldump x", Container: "mysql", Comment: "db dump"}},
+	}
+	w := httptest.NewRecorder()
+	if err := cronjobsPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	if strings.Contains(body, "Switch to File Editor") {
+		t.Error("the switch button should be gone")
+	}
+	if !strings.Contains(body, `href="/cronjobs/logs?job=db%20dump"`) {
+		t.Error("each job should link to its logs tab")
 	}
 }

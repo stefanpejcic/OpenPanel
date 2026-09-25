@@ -460,6 +460,15 @@ func apiContainerChangeImage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "new_tag is required"})
 		return
 	}
+	if !imageChangeable(service) {
+		writeAPIDockerJSON(w, http.StatusForbidden, map[string]string{"error": "The image of this service can't be changed."})
+		return
+	}
+	if !imageTagRE.MatchString(value) {
+		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid image tag."})
+		return
+	}
+	envVar, _ := imageTagVar(userContext, service)
 
 	result := StartOrStopContainer(ctx, userContext, service, "deactivate", "")
 	if !result.Success {
@@ -467,7 +476,7 @@ func apiContainerChangeImage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	SetEnvValue(userContext, service+"_VERSION", value)
+	SetEnvValue(userContext, envVar, value)
 	_ = logger.RecordUserAction(a.Config, currentUsername, fmt.Sprintf("changed image tag for %s to %s", service, value), reqip.ClientIP(r))
 	writeAPIDockerJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("Successfully changed image tag for %s to %s!", service, value), "service": service})
 }

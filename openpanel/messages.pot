@@ -119,15 +119,15 @@ msgid "Cron job created and saved successfully!"
 msgstr ""
 
 #: modules/crons.py:269
-msgid "image= or network= are not allowed in crontab."
+msgid "image= or network= are not allowed in the crons file."
 msgstr ""
 
 #: modules/crons.py:273
-msgid "job-run, job-local, and job-service-run are not allowed in crontab."
+msgid "job-run, job-local, and job-service-run are not allowed in the crons file."
 msgstr ""
 
 #: modules/crons.py:288
-msgid "Crontab file saved successfully!"
+msgid "Crons file saved successfully!"
 msgstr ""
 
 #: modules/crons.py:311
@@ -12536,12 +12536,12 @@ msgid ""
 msgstr ""
 
 #: templates/system/cronjobs.html:30
-msgid "Crontab File Editor"
+msgid "Crons File Editor"
 msgstr ""
 
 #: templates/system/cronjobs.html:31
 msgid ""
-"Editing crontab file is intended for advanced users only. If you mistyped"
+"Editing the crons file is intended for advanced users only. If you mistyped"
 " the cron entry in the file, you will not be warned as opposed to when "
 "saving cronjobs in table mode."
 msgstr ""
@@ -14111,4 +14111,62 @@ msgstr ""
 
 #: templates/php/extensions.html
 msgid "Mounted into the PHP service by OpenPanel, it can't be installed or disabled here."
+msgstr ""
+
+#: templates/docker/change_images.html
+msgid "Tags of"
+msgstr ""
+
+#: templates/docker/change_images.html
+msgid "on Docker Hub, most recently updated first."
+msgstr ""
+#: templates/docker/change_images.html
+msgid "Loading tags from Docker Hub..."
+msgstr ""
+
+#: templates/docker/change_images.html
+msgid "current"
+msgstr ""
+#: templates/docker/change_images.html
+msgid "e.g. 8.6-alpine"
+msgstr ""
+
+#: templates/docker/change_images.html
+msgid "Could not load tags from Docker Hub."
+msgstr ""
+
+#: templates/docker/change_images.html
+msgid "Choose a tag"
+msgstr ""
+
+#: templates/docker/change_images.html
+msgid "Search or type a tag"
+msgstr ""
+
+#: templates/docker/change_images.html
+msgid "Use"
+msgstr ""
+
+#: templates/docker/change_images.html
+msgid "No matching tags. Type a full tag to use it."
+msgstr ""
+
+#: templates/system/cronjobs.html
+msgid "Cron Job Logs"
+msgstr ""
+
+#: templates/system/cronjobs.html
+msgid "Output of your cron jobs, newest last. Filter by job to see what a single job did."
+msgstr ""
+
+#: templates/system/cronjobs.html
+msgid "File Editor"
+msgstr ""
+
+#: templates/system/cronjobs.html
+msgid "view mode is unknown, only code, table and logs are allowed"
+msgstr ""
+
+#: internal/web/sidebar.go
+msgid "Panel"
 msgstr ""
