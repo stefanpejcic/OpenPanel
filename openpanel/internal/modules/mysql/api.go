@@ -64,6 +64,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 
 	apiregistry.Handle(mux, a, "mysql", "GET /api/mysql/configuration", func(w http.ResponseWriter, r *http.Request) { apiMySQLGetConfig(a, w, r) })
 	apiregistry.Handle(mux, a, "mysql", "PUT /api/mysql/configuration", func(w http.ResponseWriter, r *http.Request) { apiMySQLUpdateConfig(a, w, r) })
+	apiregistry.Handle(mux, a, "mysql", "GET /api/mysql/configuration/recommendations", func(w http.ResponseWriter, r *http.Request) { handleMySQLConfigRecommendations(a, w, r) })
 }
 
 func writeAPIMySQLJSON(w http.ResponseWriter, status int, v any) {

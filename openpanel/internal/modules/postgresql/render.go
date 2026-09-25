@@ -37,7 +37,7 @@ var (
 	importPage             = loadPage("psql/import.html")
 	processlistPage        = loadPage("psql/processlist.html")
 	remotePostgresPage     = loadPage("psql/remote_psql.html")
-	configurationPage      = loadPage("psql/configuration.html")
+	configurationPage      = loadPage("psql/configuration.html", "partials/_db_tuning.html")
 )
 
 // ServiceStatusData is the container_state/health_status view-model shared by databases.html and users.html.

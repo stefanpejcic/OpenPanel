@@ -3,7 +3,11 @@
 {{define "content"}}
 <!-- START templates/psql/configuration.html -->
 
-<section aria-label="Settings" x-data="{ searchQuery: '' }">
+<script src="{{static "js/db-tuning.js"}}"></script>
+
+<section aria-label="Settings" x-data="dbTuning('/postgresql/configuration/recommendations')" x-init="load()">
+<form method="post" x-ref="form">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
     <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PostgreSQL Configuration"}}</h1>
@@ -19,14 +23,14 @@
                 </div>
             </div>
 
-            <form method="post">
-                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
                 <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Changes"}}</button>
         </div>
     </div>
 
+    {{template "db_tuning_banner" .}}
+
     <div class="overflow-x-auto">
-        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+        <div class="w-full overflow-auto whitespace-nowrap">
             <table id="postgresql-config-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
@@ -41,7 +45,10 @@
                     <tr x-show="searchQuery === '' || {{toJSON $key}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON (index $config $key)}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{$key}}</td>
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                            <input type="text" id="{{$key}}" name="{{$key}}" value="{{index $config $key}}" class="relative block w-full appearance-none rounded-l-md border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" />
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="{{$key}}" name="{{$key}}" value="{{index $config $key}}" :class="applied[{{toJSON $key}}] ? 'border-yellow-500' : 'border-gray-300 dark:border-gray-800'" class="relative block w-full appearance-none rounded-l-md border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm  text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" />
+                                {{template "db_tuning_button" (dict "Key" $key "T" $.T)}}
+                            </div>
                         </td>
                     </tr>
                     {{end}}
@@ -49,7 +56,9 @@
             </table>
         </div>
     </div>
-            </form>
+</form>
+
+    {{template "db_tuning_dialog" .}}
 </section>
 
 <!-- END templates/psql/configuration.html -->

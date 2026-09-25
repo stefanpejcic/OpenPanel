@@ -284,4 +284,12 @@ func TestRenderConfigurationPage(t *testing.T) {
 	if !strings.Contains(body, "max_connections") || !strings.Contains(body, "150") {
 		t.Error("expected config key/value in body")
 	}
+	for _, want := range []string{`id="db-tuning"`, "dbTuning('/mysql/configuration/recommendations')", "Confirm Changes", "js/db-tuning.js"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q in body", want)
+		}
+	}
+	if n := strings.Count(body, "review(&#34;"); n != 2 {
+		t.Errorf("expected an optimize button per key, got %d", n)
+	}
 }

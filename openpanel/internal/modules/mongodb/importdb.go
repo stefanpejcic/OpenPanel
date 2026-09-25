@@ -124,8 +124,8 @@ func importMongoDump(ctx context.Context, userContext, dbName, targetDir, tempFi
 		return false, runErr.Error()
 	}
 
-	restoreArgv := podmanmanager.PodmanArgv(userContext, "exec", "-i", "mongodb",
-		"mongorestore", "--drop", "--nsFrom", "*.*", "--nsTo", dbName+".*", "--archive="+containerFilePath)
+	restoreArgv := podmanmanager.PodmanArgv(userContext, "exec", "-i", "mongodb", "sh", "-c", mongoToolAuth,
+		"mongorestore", "--drop", "--nsFrom", "$db$.$coll$", "--nsTo", dbName+".$coll$", "--archive="+containerFilePath)
 	if strings.HasSuffix(filename, ".gz") {
 		restoreArgv = append(restoreArgv, "--gzip")
 	}

@@ -13868,3 +13868,63 @@ msgstr ""
 #: templates/mongodb/processlist.html
 msgid "waiting for lock"
 msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "Checking your database for possible optimizations..."
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "Optimization suggestions are not available right now:"
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "Optimize Database"
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "Want to improve your database's performance? Click the optimize icon next to a setting to see a custom recommendation."
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "Review all"
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "No optimizations found, your settings look good for the current usage."
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "in use"
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "Databases:"
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "Uptime:"
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "See optimization"
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "Confirm Changes"
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "Confirm the following changes:"
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "Previous Value"
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "New Value"
+msgstr ""
+
+#: templates/mysql/configuration.html
+msgid "Optimizations are general suggestions and may not result in increased database performance for all use cases."
+msgstr ""

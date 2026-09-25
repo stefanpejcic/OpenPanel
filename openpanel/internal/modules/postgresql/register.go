@@ -27,6 +27,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /postgresql", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabases(a, w, r) }))
 	mux.Handle("GET /postgresql/new", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesNew(a, w, r) }))
 	mux.Handle("POST /postgresql/new", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesNew(a, w, r) }))
+	mux.Handle("POST /postgresql/export", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleExportDatabase(a, w, r) }))
 	mux.Handle("POST /postgresql/delete", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeleteDatabase(a, w, r) }))
 
 	mux.Handle("GET /postgresql/users", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesUsers(a, w, r) }))
@@ -58,6 +59,7 @@ func RegisterConf(mux *http.ServeMux, a *appctx.App) {
 	}
 	mux.Handle("GET /postgresql/configuration", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEditPostgresConfig(a, w, r) }))
 	mux.Handle("POST /postgresql/configuration", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEditPostgresConfig(a, w, r) }))
+	mux.Handle("GET /postgresql/configuration/recommendations", requireLogin(func(w http.ResponseWriter, r *http.Request) { handlePgConfigRecommendations(a, w, r) }))
 }
 
 // RegisterImport wires the postgresql_import module's routes onto mux.

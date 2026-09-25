@@ -19,6 +19,7 @@ Available options on the Databases page are:
 
 - **View Databases**
 - **Create a new database**
+- **Import or export a database**
 - **Delete a MongoDB Database**
 
 System databases (`admin`, `local`, `config`) are never shown in the table and cannot be created, imported into, or deleted through OpenPanel.
@@ -31,6 +32,14 @@ To create a new MongoDB database, click on the "New Database" button and fill in
 ![Create a MongoDB Database form with the database name field](/img/openpanel-screenshots/mongodb/new_db-form_dark.png#gh-dark-mode-only)
 
 MongoDB has no explicit "create database" operation - the database is created as soon as it holds data, so a placeholder collection is created for you automatically.
+
+## Database Actions
+
+Each database row has these actions:
+
+- **Import**: only shown if the Import feature is enabled for your account. Opens the [Import](/docs/panel/mongodb/import/) page with this database pre-selected.
+- **Export**: opens a small panel where you choose the export **Format**, `Archive` (`.archive`) or `GZIP` (`.archive.gz`), and **Destination** (download to your **Browser**, or save to a **Files** path under `/var/www/html/`), then click **Export**. The export is made with `mongodump` and can be imported back on the Import page, also into a database with a different name.
+- **Delete**: permanently deletes the database.
 
 ## Delete a MongoDB Database
 

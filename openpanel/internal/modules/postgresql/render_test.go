@@ -153,6 +153,15 @@ func TestRenderAllPages(t *testing.T) {
 		if err := configurationPage.Render(w, 200, data); err != nil {
 			t.Fatalf("configuration: %v", err)
 		}
+		body := w.Body.String()
+		for _, want := range []string{`id="db-tuning"`, "dbTuning('/postgresql/configuration/recommendations')", "Confirm Changes", `x-ref="form"`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in body", want)
+			}
+		}
+		if n := strings.Count(body, "review(&#34;"); n != 2 {
+			t.Errorf("expected an optimize button per key, got %d", n)
+		}
 	})
 	t.Run("remote", func(t *testing.T) {
 		w := httptest.NewRecorder()

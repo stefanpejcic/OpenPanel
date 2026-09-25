@@ -19,6 +19,7 @@ Available options on the Databases page are:
 
 - **View Databases and assigned Users**
 - **Create a new database**
+- **Import or export a database**
 - **Delete a PostgreSQL Database**
 
 System databases (`postgres`, `template0`, `template1`) are always listed separately and cannot be deleted or imported into. Use the **Show system databases** switch to display or hide them in the table.
@@ -29,6 +30,14 @@ To create a new PostgreSQL database, click on the "New Database" button and fill
 
 ![Create PostgreSQL Database form with the database name field](/img/openpanel-screenshots/postgresql/new_db-form.png#gh-light-mode-only)
 ![Create PostgreSQL Database form with the database name field](/img/openpanel-screenshots/postgresql/new_db-form_dark.png#gh-dark-mode-only)
+
+## Database Actions
+
+Each database row has these actions:
+
+- **Import**: only shown if the Import feature is enabled for your account. Opens the [Import](/docs/panel/postgresql/import/) page with this database pre-selected.
+- **Export**: opens a small panel where you choose the export **Format**, `SQL` (`.sql`) or `GZIP` (`.sql.gz`), and **Destination** (download to your **Browser**, or save to a **Files** path under `/var/www/html/`), then click **Export**. The export is made with `pg_dump` and can be imported back on the Import page.
+- **Delete**: permanently deletes the database.
 
 ## Delete a PostgreSQL Database
 

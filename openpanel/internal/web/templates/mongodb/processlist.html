@@ -27,15 +27,15 @@
             <table id="processlist-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "ID"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "User"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Client"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Application"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Operation"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Namespace"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Time"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Command"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Actions"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "ID"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "User"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Client"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Application"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Operation"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Namespace"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Time"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Command"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -45,10 +45,10 @@
                         <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{.User}}</td>
                         <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{.Client}}</td>
                         <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{.AppName}}</td>
-                        <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{if .Op}}{{.Op}}{{else}}{{.Desc}}{{end}}{{if .WaitingForLock}} <span class="text-xs text-amber-600 dark:text-amber-400">({{$.T.Get "waiting for lock"}})</span>{{end}}</td>
+                        <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{if .Op}}{{.Op}}{{else}}{{.Desc}}{{end}}{{if .WaitingForLock}} <span class="text-xs text-yellow-700 dark:text-yellow-500">({{$.T.Get "waiting for lock"}})</span>{{end}}</td>
                         <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{.NS}}</td>
                         <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">{{.SecsRunning}}s</td>
-                        <td class="max-w-md truncate p-4 font-mono text-xs text-gray-600 dark:text-gray-400" title="{{.Command}}">{{.Command}}</td>
+                        <td class="max-w-xl truncate p-4 font-mono text-xs text-gray-600 dark:text-gray-400" title="{{.Command}}">{{.Command}}</td>
                         <td class="whitespace-nowrap p-4 text-gray-600 dark:text-gray-400">
                             {{if .Killable}}
                             <form method="POST" action="/mongodb/processlist/kill">

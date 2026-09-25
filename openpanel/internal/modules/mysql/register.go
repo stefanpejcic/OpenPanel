@@ -64,6 +64,7 @@ func RegisterConf(mux *http.ServeMux, a *appctx.App) {
 	}
 	mux.Handle("GET /mysql/configuration", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEditMySQLConfig(a, w, r) }))
 	mux.Handle("POST /mysql/configuration", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEditMySQLConfig(a, w, r) }))
+	mux.Handle("GET /mysql/configuration/recommendations", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMySQLConfigRecommendations(a, w, r) }))
 }
 
 // RegisterImport wires the database-import routes onto mux.

@@ -40,7 +40,7 @@ var (
 	processlistPage   = loadPage("mysql/processlist.html")
 	rootPasswordPage  = loadPage("mysql/root_password.html")
 	remoteMySQLPage   = loadPage("mysql/remote_mysql.html")
-	configurationPage = loadPage("mysql/configuration.html")
+	configurationPage = loadPage("mysql/configuration.html", "partials/_db_tuning.html")
 )
 
 // ServiceStatusData is the container_state/health_status view-model shared by databases.html and users.html.

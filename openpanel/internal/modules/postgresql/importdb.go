@@ -126,6 +126,10 @@ func importPostgresDump(ctx context.Context, userContext, dbName, targetDir, tem
 
 	importArgv := podmanmanager.PodmanArgv(userContext, "exec", "-i", "postgres",
 		"psql", "-U", "postgres", "-d", dbName, "-f", containerFilePath)
+	if strings.HasSuffix(filename, ".gz") {
+		importArgv = podmanmanager.PodmanArgv(userContext, "exec", "-i", "postgres",
+			"sh", "-c", `gunzip -c "$1" | psql -U postgres -d "$2"`, "sh", containerFilePath, dbName)
+	}
 	cmd := podmanmanager.Command(ctx, userContext, importArgv)
 	var stderr strings.Builder
 	cmd.Stderr = &stderr

@@ -97,7 +97,7 @@
     </div>
 
     <div class="overflow-x-auto">
-        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800 min-h-[90vh]">
             <table id="databases-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
@@ -118,17 +118,98 @@
                             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 db_size"></td>
                             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{$db.AssignedUsers}}</td>
                             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                                <div class="flex gap-2">
+                                <div class="flex gap-1 items-center">
                                     {{if $db.IsSystem}}
                                     <span class="bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">{{$.T.Get "System Database"}}</span>
                                     {{else}}
                                         {{if $.UserAllowed.postgresql_import}}
-                                        <a href="/postgresql/import/{{$db.Database}}" class="btn btn-primary" type="button"><i class="bi bi-database-fill-add mr-1"></i>{{$.T.Get "Import"}}</a>
+                                        <div x-data="{ tooltip: false }" class="relative">
+                                            <a href="/postgresql/import/{{$db.Database}}"
+                                                    @mouseenter="tooltip = true" @mouseleave="tooltip = false"
+                                                    class="btn btn-primary p-1.5">
+                                                <i class="bi bi-upload"></i>
+                                            </a>
+                                            <div x-show="tooltip" x-cloak x-transition
+                                                 class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap pointer-events-none z-10">
+                                                {{$.T.Get "Import"}}
+                                                <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                            </div>
+                                        </div>
                                         {{end}}
+                                        <div x-data="{ tooltip: false, ...exportModal({{toJSON $db.Database}}) }" class="relative">
+                                            <button @click="open = true" @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="btn btn-primary p-1.5" title="{{$.T.Get "Export"}}">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+
+                                            <div x-show="tooltip" x-cloak x-transition
+                                                 class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap pointer-events-none z-10">
+                                                {{$.T.Get "Export"}}
+                                                <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                            </div>
+
+                                            <div x-cloak x-show="open" x-transition class="absolute right-0 mt-2 w-72 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg p-3 z-50 export-section">
+                                                <div @click.outside="open = false">
+                                                    <form method="POST" action="/postgresql/export" @submit="handleSubmit">
+                                                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                                                        <input type="hidden" name="database_name" :value="database">
+                                                        <input type="hidden" name="local_path" :value="fullPath">
+
+                                                        <div class="mb-4">
+                                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{$.T.Get "Format:"}}</label>
+                                                            <div class="grid grid-cols-2 w-full rounded p-1">
+                                                                <label class="cursor-pointer">
+                                                                    <input type="radio" name="export_format" value="sql" x-model="format" class="sr-only">
+                                                                    <div :class="format === 'sql' ? 'bg-black text-white dark:bg-black dark:text-gray-50 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                                                                        class="flex items-center justify-center px-3 py-1 text-sm font-medium transition-all rounded">
+                                                                        SQL (.sql)
+                                                                    </div>
+                                                                </label>
+                                                                <label class="cursor-pointer">
+                                                                    <input type="radio" name="export_format" value="gzip" x-model="format" class="sr-only">
+                                                                    <div :class="format === 'gzip' ? 'bg-black text-white dark:bg-black dark:text-gray-50 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                                                                        class="flex items-center justify-center px-3 py-1 text-sm font-medium transition-all rounded">
+                                                                        GZIP (.sql.gz)
+                                                                    </div>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mb-4">
+                                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{$.T.Get "Destination:"}}</label>
+                                                            <div class="grid grid-cols-2 w-full rounded p-1">
+                                                                <label class="cursor-pointer">
+                                                                    <input type="radio" name="export_destination" value="browser" x-model="mode" class="sr-only">
+                                                                    <div :class="mode === 'browser' ? 'bg-black text-white dark:bg-black dark:text-gray-50 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                                                                        class="flex items-center justify-center px-3 py-1 text-sm font-medium transition-all rounded">
+                                                                        {{$.T.Get "Browser"}}
+                                                                    </div>
+                                                                </label>
+                                                                <label class="cursor-pointer">
+                                                                    <input type="radio" name="export_destination" value="files" x-model="mode" class="sr-only">
+                                                                    <div :class="mode === 'files' ? 'bg-black text-white dark:bg-black dark:text-gray-50 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                                                                        class="flex items-center justify-center px-3 py-1 text-sm font-medium transition-all rounded">
+                                                                        {{$.T.Get "Files"}}
+                                                                    </div>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div x-show="mode === 'files'" x-transition class="mb-4">
+                                                            <div class="flex mt-1">
+                                                                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-600 rounded-l text-xs">/var/www/html/</span>
+                                                                <input type="text" x-model="relativePath" placeholder="backups" class="w-full rounded-r border px-2 py-1 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
+                                                            </div>
+                                                        </div>
+
+                                                        <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-1.5 text-center text-sm font-medium w-full border-black bg-black text-white hover:bg-gray-800">{{$.T.Get "Export"}}</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <form method="POST" action="/postgresql/delete">
                                             <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
                                             <input type="hidden" name="database_name" value="{{$db.Database}}">
-                                            <button class="btn btn-danger" type="button" onclick="confirmDelete(this);"><i class="bi bi-trash3"></i> {{$.T.Get "Delete"}}</button>
+                                            <button class="btn btn-danger p-1.5" type="button" onclick="confirmDelete(this);"><i class="bi bi-trash3"></i> {{$.T.Get "Delete"}}</button>
                                         </form>
                                     {{end}}
                                 </div>
@@ -253,6 +334,35 @@ function populateDatabasesTable() {
 }
 
 populateDatabasesTable();
+</script>
+
+<script>
+function exportModal(dbName) {
+    return {
+        open: false,
+        mode: 'browser',
+        format: 'sql',
+        database: dbName,
+        basePath: '/var/www/html/',
+        relativePath: '',
+
+        get fullPath() {
+            return this.basePath + this.relativePath.replace(/^\/+/, '');
+        },
+
+        handleSubmit(event) {
+            if (this.mode === 'files') {
+                if (!this.fullPath.startsWith(this.basePath)) {
+                    event.preventDefault();
+                }
+
+                if (!this.fullPath.startsWith(this.basePath)) {
+                    event.preventDefault();
+                }
+            }
+        }
+    }
+}
 </script>
 
 <!-- END templates/psql/databases.html -->

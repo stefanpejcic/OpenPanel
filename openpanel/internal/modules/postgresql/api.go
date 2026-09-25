@@ -51,6 +51,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 
 	apiregistry.Handle(mux, a, "postgresql", "GET /api/postgresql/configuration", func(w http.ResponseWriter, r *http.Request) { apiPsqlGetConfig(a, w, r) })
 	apiregistry.Handle(mux, a, "postgresql", "PUT /api/postgresql/configuration", func(w http.ResponseWriter, r *http.Request) { apiPsqlUpdateConfig(a, w, r) })
+	apiregistry.Handle(mux, a, "postgresql", "GET /api/postgresql/configuration/recommendations", func(w http.ResponseWriter, r *http.Request) { handlePgConfigRecommendations(a, w, r) })
 }
 
 func writeAPIPsqlJSON(w http.ResponseWriter, status int, v any) {

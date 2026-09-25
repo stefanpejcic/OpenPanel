@@ -872,6 +872,27 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/mysql/configuration/recommendations:
+    get:
+      summary: Get tuning recommendations for the MySQL server configuration.
+      description: Checks the live server (memory limit, data per storage engine, status counters, connections and error log) and returns suggested values for the configurable keys, with the reason for each and the facts they are based on.
+      operationId: get_mysql_configuration_recommendations
+      tags:
+      - MySQL
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '503':
+          description: The database service could not be reached.
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/mysql/databases/{db_name}/import:
     post:
       summary: Import a SQL dump into the database (multipart/form-data, field name 'file').
@@ -1433,6 +1454,27 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/postgresql/configuration/recommendations:
+    get:
+      summary: Get tuning recommendations for the PostgreSQL server configuration.
+      description: Checks the live server (memory and CPU limits, data size, statistics, connections and log) and returns suggested values for the configurable keys, with the reason for each and the facts they are based on.
+      operationId: get_postgresql_configuration_recommendations
+      tags:
+      - PostgreSQL
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '503':
+          description: The database service could not be reached.
         default:
           $ref: '#/components/responses/Error'
       security:

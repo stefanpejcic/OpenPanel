@@ -16,6 +16,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /mongodb", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabases(a, w, r) }))
 	mux.Handle("GET /mongodb/new", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesNew(a, w, r) }))
 	mux.Handle("POST /mongodb/new", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesNew(a, w, r) }))
+	mux.Handle("POST /mongodb/export", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleExportDatabase(a, w, r) }))
 	mux.Handle("POST /mongodb/delete", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeleteDatabase(a, w, r) }))
 
 	mux.Handle("GET /mongodb/users", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesUsers(a, w, r) }))
