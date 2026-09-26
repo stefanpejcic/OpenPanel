@@ -9,6 +9,21 @@ Manage the languages available to OpenPanel users.
 ![Languages page listing locales with their provider, install status, default and Set as Default buttons](/img/openadmin-screenshots/settings/locales-list.png#gh-light-mode-only)
 ![Languages page listing locales with their provider, install status, default and Set as Default buttons](/img/openadmin-screenshots/settings/locales-list_dark.png#gh-dark-mode-only)
 
+## Bulk Actions
+
+Tick the checkbox of one or more locales, or the checkbox in the table header to select all locales shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two locales selected with the bulk actions bar offering Install, Update and Delete](/img/openadmin-screenshots/settings/locales-bulk.png#gh-light-mode-only)
+![Two locales selected with the bulk actions bar offering Install, Update and Delete](/img/openadmin-screenshots/settings/locales-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Install** | Downloads and installs the selected locales. |
+| **Update** | Downloads the latest translations for the selected locales that have an update. |
+| **Delete** | Deletes the selected locales, the default locale can't be deleted. |
+
+Click an action, confirm it, and it runs on the selected locales one after another. When it's done the page reloads with a notice listing the locales it worked for, or which ones failed and why.
+
 ## Install Locale
 
 By default, only the **EN** locale is installed. To enable other locales, they must be installed first.

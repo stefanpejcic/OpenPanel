@@ -30,3 +30,17 @@ Under the page title, **Last check** shows when [`opencli sentinel`](/docs/artic
 Click the bell icon next to the search box to pause email/webhook alerts for a set time (10 min up to 1 day) — see [Pause Notifications](/docs/admin/settings/notifications#pause-notifications).
 
 To manage notification settings, click the **Edit Settings** button on the Notifications page or navigate to: [Settings > Notifications](/docs/admin/settings/notifications).
+
+## Bulk Actions
+
+Tick the checkbox of one or more notifications, or the checkbox in the table header to select all notifications shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two notifications selected with the bulk actions bar offering Mark as read and Delete](/img/openadmin-screenshots/002_notifications-bulk.png#gh-light-mode-only)
+![Two notifications selected with the bulk actions bar offering Mark as read and Delete](/img/openadmin-screenshots/002_notifications-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Mark as read** | Marks the selected unread notifications as read. |
+| **Delete** | Deletes the selected notifications. |
+
+Click an action, confirm it, and it runs on the selected notifications one after another. When it's done the page reloads with a notice listing the notifications it worked for, or which ones failed and why.

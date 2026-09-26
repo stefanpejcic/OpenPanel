@@ -22,8 +22,8 @@ The interface displays a table of existing reseller users with the following col
 
 - **Username**  
 
-![Resellers page with the reseller table columns and the Enable Resellers button](/img/openadmin-screenshots/accounts/resellers-list.png#gh-light-mode-only)
-![Resellers page with the reseller table columns and the Enable Resellers button](/img/openadmin-screenshots/accounts/resellers-list_dark.png#gh-dark-mode-only)
+![Resellers page listing reseller accounts with their status, plans, limits and actions](/img/openadmin-screenshots/accounts/resellers-list.png#gh-light-mode-only)
+![Resellers page listing reseller accounts with their status, plans, limits and actions](/img/openadmin-screenshots/accounts/resellers-list_dark.png#gh-dark-mode-only)
   The unique identifier of the reseller user.
 
 - **Status**  
@@ -66,6 +66,21 @@ To create a new reseller, click **Create New**, set a username and password, and
 Reseller users have access only to the features and account management tools assigned to them by the root administrator. They cannot exceed the limits defined in their reseller settings (Max Accounts, Max Disk Usage, and the Hosting Plans made available to them).
 
 ---
+
+## Bulk Actions
+
+Tick the checkbox of one or more resellers, or the checkbox in the table header to select all resellers shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two resellers selected with the bulk actions bar offering Suspend, Unsuspend and Delete](/img/openadmin-screenshots/accounts/resellers-bulk.png#gh-light-mode-only)
+![Two resellers selected with the bulk actions bar offering Suspend, Unsuspend and Delete](/img/openadmin-screenshots/accounts/resellers-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Suspend** | Suspends the selected resellers, they can't log in until unsuspended. |
+| **Unsuspend** | Unsuspends the selected resellers. |
+| **Delete** | Permanently deletes the selected reseller accounts. |
+
+Click an action, confirm it, and it runs on the selected resellers one after another. When it's done the page reloads with a notice listing the resellers it worked for, or which ones failed and why.
 
 ## Reseller Account
 

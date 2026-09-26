@@ -46,6 +46,23 @@ opencli admin list
   </TabItem>
 </Tabs>
 
+## Bulk Actions
+
+Tick the checkbox of one or more administrators, or the checkbox in the table header to select all administrators shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two administrators selected with the bulk actions bar offering Suspend, Unsuspend and Delete](/img/openadmin-screenshots/accounts/administrators-bulk.png#gh-light-mode-only)
+![Two administrators selected with the bulk actions bar offering Suspend, Unsuspend and Delete](/img/openadmin-screenshots/accounts/administrators-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Suspend** | Suspends the selected administrators, they can't log in until unsuspended. |
+| **Unsuspend** | Unsuspends the selected administrators. |
+| **Delete** | Permanently deletes the selected administrators. |
+
+Super Admins and your own account have no checkbox, they can't be suspended or deleted from here.
+
+Click an action, confirm it, and it runs on the selected administrators one after another. When it's done the page reloads with a notice listing the administrators it worked for, or which ones failed and why.
+
 ## Reset Admin Password
 
 

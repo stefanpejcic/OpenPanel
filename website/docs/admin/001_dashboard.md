@@ -78,7 +78,7 @@ The **Resource Usage** widget displays a chart of CPU % and RAM % usage over the
 
 ## Tasks
 
-The **Tasks** widget lists background tasks that are currently running on the server. Click **View all** to open the full list of tasks.
+The **Tasks** widget lists background tasks that are currently running on the server. Click **View all** to open the full list of tasks, where you can tick running tasks and **Kill** them all at once from the bulk actions bar.
 
 ![Tasks widget with the currently running background tasks and the View all link](/img/openadmin-screenshots/001_dashboard-tasks.png#gh-light-mode-only)
 ![Tasks widget with the currently running background tasks and the View all link](/img/openadmin-screenshots/001_dashboard-tasks_dark.png#gh-dark-mode-only)

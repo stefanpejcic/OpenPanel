@@ -69,6 +69,25 @@ opencli plan-list --json
   </TabItem>
 </Tabs>
 
+## Bulk Actions
+
+Tick the checkbox of one or more plans, or the checkbox in the table header to select all plans shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two hosting plans selected with the bulk actions bar offering Update and Delete](/img/openadmin-screenshots/plans/hosting_plans-bulk.png#gh-light-mode-only)
+![Two hosting plans selected with the bulk actions bar offering Update and Delete](/img/openadmin-screenshots/plans/hosting_plans-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Update** | Sets one limit on all selected plans: pick the limit (disk, inodes, CPU, memory, port speed, domains, websites, databases, email accounts, max email quota, max emails per hour, FTP accounts or feature set) and enter the new value. The other limits of each plan stay as they are, and users on the plans get the new limit too. |
+| **Delete** | Deletes the selected plans. Plans that still have users on them are skipped, move their users to another plan first. |
+
+![Update step of the bulk actions bar with the limit to change set to CPU (cores) and the new value](/img/openadmin-screenshots/plans/hosting_plans-bulk-update.png#gh-light-mode-only)
+![Update step of the bulk actions bar with the limit to change set to CPU (cores) and the new value](/img/openadmin-screenshots/plans/hosting_plans-bulk-update_dark.png#gh-dark-mode-only)
+
+Values are checked the same way as on the Edit plan page: limits are whole numbers of 0 or more, and the max email quota is a number followed by K, M, G or T, like `1G`.
+
+Click an action, confirm it, and it runs on the selected plans one after another. When it's done the page reloads with a notice listing the plans it worked for, or which ones failed and why.
+
 ## Create a plan
 
 <Tabs>

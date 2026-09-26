@@ -25,7 +25,27 @@ The table includes the following information:
 ![Actions menu of an email account with Change Password, Set Quota, Restrictions and Delete Account](/img/openadmin-screenshots/emails/emails-menu.png#gh-light-mode-only)
 ![Actions menu of an email account with Change Password, Set Quota, Restrictions and Delete Account](/img/openadmin-screenshots/emails/emails-menu_dark.png#gh-dark-mode-only)
 
-Accounts can be selected using the checkboxes in the table to perform the same actions (**Set Password**, **Set Quota**, **Restrict**, **Delete**) on multiple accounts at once. A search box is also available to filter the list by email address.
+A search box is also available to filter the list by email address.
+
+## Bulk Actions
+
+Tick the checkbox of one or more email accounts, or the checkbox in the table header to select all email accounts shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two email accounts selected with the bulk actions bar offering Change password, Set quota, Remove quota, Restrict sending, Restrict receiving, Allow sending, Allow receiving and Delete](/img/openadmin-screenshots/emails/emails-bulk.png#gh-light-mode-only)
+![Two email accounts selected with the bulk actions bar offering Change password, Set quota, Remove quota, Restrict sending, Restrict receiving, Allow sending, Allow receiving and Delete](/img/openadmin-screenshots/emails/emails-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Change password** | Sets the password you enter for all selected accounts. |
+| **Set quota** | Sets the mailbox quota you enter, a number with K, M, G or T like `512M` or `2G`. |
+| **Remove quota** | Removes the mailbox quota limit. |
+| **Restrict sending** | Blocks the selected accounts from sending mail. |
+| **Restrict receiving** | Blocks the selected accounts from receiving mail. |
+| **Allow sending** | Removes the sending restriction. |
+| **Allow receiving** | Removes the receiving restriction. |
+| **Delete** | Permanently deletes the selected accounts and their mail. |
+
+Click an action, confirm it, and it runs on the selected email accounts one after another. When it's done the page reloads with a notice listing the email accounts it worked for, or which ones failed and why.
 
 This section is useful for monitoring email resource usage and offering users easy access to their inbox.
 

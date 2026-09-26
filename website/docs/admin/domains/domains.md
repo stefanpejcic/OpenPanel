@@ -67,6 +67,29 @@ my.openpanel.com
   </TabItem>
 </Tabs>
 
+## Bulk Actions
+
+Tick the checkbox of one or more domains, or the checkbox in the table header to select all domains shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two domains selected with the bulk actions bar offering Change PHP version, Enable HSTS, Disable HSTS, Enable WAF, Disable WAF, Suspend, Unsuspend and Delete](/img/openadmin-screenshots/domains/domains-bulk.png#gh-light-mode-only)
+![Two domains selected with the bulk actions bar offering Change PHP version, Enable HSTS, Disable HSTS, Enable WAF, Disable WAF, Suspend, Unsuspend and Delete](/img/openadmin-screenshots/domains/domains-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Change PHP version** | Sets the PHP version you pick from the versions installed for the domains' owners. A domain whose owner doesn't have that version is skipped with an error. |
+| **Enable HSTS** | Turns on HSTS for the selected domains. |
+| **Disable HSTS** | Turns off HSTS for the selected domains. |
+| **Enable WAF** | Turns on the CorazaWAF for the selected domains. |
+| **Disable WAF** | Turns off the CorazaWAF for the selected domains. |
+| **Suspend** | Suspends the selected domains. |
+| **Unsuspend** | Unsuspends the selected domains. |
+| **Delete** | Deletes the selected domains with their DNS zones, SSL and web server configuration, the files are kept. |
+
+![Change PHP version step of the bulk actions bar with a dropdown of the installed PHP versions](/img/openadmin-screenshots/domains/domains-bulk-php.png#gh-light-mode-only)
+![Change PHP version step of the bulk actions bar with a dropdown of the installed PHP versions](/img/openadmin-screenshots/domains/domains-bulk-php_dark.png#gh-dark-mode-only)
+
+Click an action, confirm it, and it runs on the selected domains one after another. When it's done the page reloads with a notice listing the domains it worked for, or which ones failed and why.
+
 ## Add domain
 
 

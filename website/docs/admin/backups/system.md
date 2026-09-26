@@ -18,8 +18,21 @@ Lists every archive in the configured destination directory, with:
 
 **Run Backup Now** creates a new backup immediately (in the background, with a progress toast).
 
-![System Backups page on the Backups tab with the Run Backup Now button](/img/openadmin-screenshots/backups/system-backups.png#gh-light-mode-only)
-![System Backups page on the Backups tab with the Run Backup Now button](/img/openadmin-screenshots/backups/system-backups_dark.png#gh-dark-mode-only)
+![System Backups page on the Backups tab with the Run Backup Now button and the list of backup archives](/img/openadmin-screenshots/backups/system-backups.png#gh-light-mode-only)
+![System Backups page on the Backups tab with the Run Backup Now button and the list of backup archives](/img/openadmin-screenshots/backups/system-backups_dark.png#gh-dark-mode-only)
+
+#### Bulk Actions
+
+Tick the checkbox of one or more backups, or the checkbox in the table header to select all backups shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two system backup archives selected with the bulk actions bar offering Delete](/img/openadmin-screenshots/backups/system-bulk.png#gh-light-mode-only)
+![Two system backup archives selected with the bulk actions bar offering Delete](/img/openadmin-screenshots/backups/system-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Delete** | Permanently deletes the selected backup archives. |
+
+Click an action, confirm it, and it runs on the selected backups one after another. When it's done the page reloads with a notice listing the backups it worked for, or which ones failed and why.
 
 ### Runs
 

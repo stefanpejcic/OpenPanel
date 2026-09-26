@@ -67,6 +67,34 @@ curl -X GET http://PANEL:2087/api/users -H "Authorization: Bearer JWT_TOKEN_HERE
 </Tabs>
 
 
+## Bulk Actions
+
+Tick the checkbox of one or more users, or the checkbox in the table header to select all users shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Generate backup and Delete](/img/openadmin-screenshots/accounts/users-bulk.png#gh-light-mode-only)
+![Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Generate backup and Delete](/img/openadmin-screenshots/accounts/users-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Suspend** | Suspends the selected users, their websites stop working until they are unsuspended. |
+| **Unsuspend** | Unsuspends the selected users. |
+| **Change plan** | Moves the selected users to the hosting plan you pick, resellers only see their allowed plans. |
+| **Change password** | Sets the password you enter (at least 8 characters) for all selected users. |
+| **Change email** | Sets the email address you enter for all selected users. |
+| **Change IP** | Moves the selected users to a dedicated IP address of the server, or back to the shared IP. |
+| **Disable 2FA** | Turns off two-factor authentication, users without 2FA are skipped. |
+| **Generate backup** | Starts a full account backup for each selected user in the background, the same as **Export > Generate full account backup**. |
+| **Delete** | Permanently deletes the selected users with all their websites, databases, emails and files. |
+
+Only the action that fits a user runs on it: suspended users are skipped by **Suspend** and active ones by **Unsuspend**.
+
+Actions that need a value, like **Change plan**, ask for it in the bar before you confirm:
+
+![Change plan step of the bulk actions bar with a dropdown of hosting plans for two selected users](/img/openadmin-screenshots/accounts/users-bulk-plan.png#gh-light-mode-only)
+![Change plan step of the bulk actions bar with a dropdown of hosting plans for two selected users](/img/openadmin-screenshots/accounts/users-bulk-plan_dark.png#gh-dark-mode-only)
+
+Click an action, confirm it, and it runs on the selected users one after another. When it's done the page reloads with a notice listing the users it worked for, or which ones failed and why.
+
 ## Create Users
 
 
@@ -173,6 +201,24 @@ An 'Edit Services' button also lets Administrators edit the raw service configur
 
 ![Services tab listing the user containers with their CPU and memory usage, PIDs and actions](/img/openadmin-screenshots/accounts/users-services.png#gh-light-mode-only)
 ![Services tab listing the user containers with their CPU and memory usage, PIDs and actions](/img/openadmin-screenshots/accounts/users-services_dark.png#gh-dark-mode-only)
+
+#### Bulk Actions
+
+Tick the checkbox of one or more services, or the checkbox in the table header to select all services shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two services of a user selected with the bulk actions bar offering Start, Stop, Restart, Edit CPU, Edit RAM and Edit PIDs](/img/openadmin-screenshots/accounts/users-services-bulk.png#gh-light-mode-only)
+![Two services of a user selected with the bulk actions bar offering Start, Stop, Restart, Edit CPU, Edit RAM and Edit PIDs](/img/openadmin-screenshots/accounts/users-services-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Start** | Starts the selected services. |
+| **Stop** | Stops the selected services. |
+| **Restart** | Restarts the selected services. |
+| **Edit CPU** | Sets the CPU limit (cores) you enter, `0` means unlimited. |
+| **Edit RAM** | Sets the memory limit in GB you enter, `0` means unlimited. |
+| **Edit PIDs** | Sets the max number of processes you enter, `0` means unlimited. |
+
+Click an action, confirm it, and it runs on the selected services one after another. When it's done the page reloads with a notice listing the services it worked for, or which ones failed and why.
 
 ### Storage
 

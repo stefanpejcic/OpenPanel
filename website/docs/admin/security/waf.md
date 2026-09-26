@@ -41,3 +41,18 @@ The rule set table includes the following columns:
 
 Properly configuring WAF rules helps maintain a balance between strong protection and minimizing false positives.
 
+### Bulk Actions
+
+Tick the checkbox of one or more rule sets, or the checkbox in the table header to select all rule sets shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two WAF rule sets selected with the bulk actions bar offering Enable and Disable](/img/openadmin-screenshots/security/waf-bulk.png#gh-light-mode-only)
+![Two WAF rule sets selected with the bulk actions bar offering Enable and Disable](/img/openadmin-screenshots/security/waf-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Enable** | Enables the selected rule sets. |
+| **Disable** | Disables the selected rule sets. |
+
+Restart Caddy afterwards to apply the changes.
+
+Click an action, confirm it, and it runs on the selected rule sets one after another. When it's done the page reloads with a notice listing the rule sets it worked for, or which ones failed and why.

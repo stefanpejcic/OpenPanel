@@ -20,6 +20,23 @@ This table provides key details for each service:
 * **Monitoring** – Shows whether the service is actively being monitored and logged.
 * **Action** – Options to start, stop, or restart the service.
 
+## Bulk Actions
+
+Tick the checkbox of one or more services, or the checkbox in the table header to select all services shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two services selected with the bulk actions bar offering Start, Stop and Restart](/img/openadmin-screenshots/services/status-bulk.png#gh-light-mode-only)
+![Two services selected with the bulk actions bar offering Start, Stop and Restart](/img/openadmin-screenshots/services/status-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Start** | Starts the selected services, running ones are skipped. |
+| **Stop** | Stops the selected services, stopped ones are skipped. |
+| **Restart** | Restarts the selected services. |
+
+OpenAdmin itself (`admin`) can only be started from here, stopping or restarting it would end the request that runs the bulk action.
+
+Click an action, confirm it, and it runs on the selected services one after another. When it's done the page reloads with a notice listing the services it worked for, or which ones failed and why.
+
 ## Edit Services
 
 You can customize which services appear and are manageable from this section by clicking the **Edit Services** button.

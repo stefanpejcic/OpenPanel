@@ -6,7 +6,7 @@ export const OUT_DIR = '../../static/img/openadmin-screenshots';
 // below 1200px the admin header's resource bar is pinned to the bottom of the screen
 export const VIEWPORT_WIDTH = 1280;
 
-import { rename, all, click, fill, fillVisible, selectFirst, maskIPs, hideNotices, hideText, markCard, tab, markSection, markSectionId, clickAlpine } from './helpers.mjs';
+import { rename, all, click, fill, fillVisible, selectFirst, maskIPs, hideNotices, hideText, markCard, tab, markSection, markSectionId, clickAlpine, bulkSelect, onlyRows, fitBulkBar, firstRows } from './helpers.mjs';
 
 // demo host names and addresses -> example ones
 const DEMO_NAMES = {
@@ -19,6 +19,23 @@ const DEMO_NAMES = {
   'dsffds@': 'support@',
   'newone@': 'john@',
   'example.test.rs': 'example.com',
+  'sfdddfdf@': 'support@',
+  'shop.test.rs': 'shop.example.com',
+  // bulk action fixtures on the test server
+  bulkuser: 'maria',
+  'bulk@example.com': 'maria@example.com',
+  'stefan@test.rs': 'john@example.com',
+  stefan: 'administrator',
+  tmpuser1: 'olivia',
+  'tmp1@example.com': 'olivia@example.com',
+  bulkadmin1: 'support_admin',
+  bulkadmin2: 'billing_admin',
+  bulkres1: 'webagency',
+  bulkres2: 'hostpro',
+  bulkplan1: 'Starter plan',
+  bulkplan2: 'Business plan',
+  'Bulk test': 'Small sites',
+  ecstatic_hofstadter9: 'owner',
   'root@stefan': 'root@server',
   'website-builder.tests.openpanel.org': 'portfolio.example.com',
   'redirect.tests.openpanel.org': 'old.example.com',
@@ -61,6 +78,28 @@ const maskSecrets = async page => {
     });
   });
 };
+
+// rows selected with the bulk actions bar put back under the table, same as the panel's bulkShot in shots.mjs
+// action opens that action's confirm step, field picks what to change on inputs like the plan Update, value fills the input
+const bulkShot = (table, keys, alt, { name = 'bulk', keep, rows, wait, action, field, value } = {}) => ({
+  name,
+  alt,
+  prepare: all(
+    ...(wait ? [async page => { await page.waitForTimeout(wait); }] : []),
+    ...(keep ? [onlyRows(table, keep)] : []),
+    ...(rows ? [firstRows(table, rows)] : []),
+    bulkSelect(keys),
+    ...(action ? [click(`[data-bulk-action="${action}"]`)] : []),
+    ...(field ? [async page => { await page.selectOption('#bulk-actions-bar select[aria-label="What to change"]', field); await page.waitForTimeout(300); }] : []),
+    ...(value != null ? [async page => {
+      const el = page.locator(`[data-bulk-input="${action}"]`);
+      if ((await el.evaluate(e => e.tagName)) === 'SELECT') await el.selectOption(value);
+      else await el.fill(value);
+    }] : []),
+    fitBulkBar(table),
+  ),
+  crop: { from: `${table} thead`, to: '#bulk-actions-bar' },
+});
 
 export const globalPrepare = all(rename(DEMO_NAMES, 'body'), maskIPs('main'), hideNotices, maskSecrets);
 
@@ -634,5 +673,116 @@ export const pages = {
   'advanced/ssh_server': {
     url: '/server/ssh',
     shots: [{ name: 'keys', alt: 'SSH Access Authorized Keys tab listing an authorized public key with its Remove button and the field to add a new key', prepare: clickAlpine("tab = 'keys'", 1200), crop: 'content' }],
+  },
+  // bulk actions are new in 2.0.12, until the demo has them these retake the table shots on a test server:
+  // ADMIN_URL=https://host:2087 node shoot.mjs --admin accounts/users_server ...
+  'accounts/users_server': {
+    as: 'accounts/users',
+    url: '/users',
+    shots: [
+      { name: 'list', alt: 'Users page listing OpenPanel accounts with their status, plan, limits, usage and the Impersonate button', crop: 'content' },
+      bulkShot('#exiting_users', ['testinguser', 'bulkuser'], 'Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Generate backup and Delete'),
+      bulkShot('#exiting_users', ['testinguser', 'bulkuser'], 'Change plan step of the bulk actions bar with a dropdown of hosting plans for two selected users', { name: 'bulk-plan', action: 'plan' }),
+      { name: 'services', url: '/users/testinguser#services', alt: 'Services tab listing the user containers with their CPU and memory usage, PIDs and actions', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'services'"] table tbody tr:nth-of-type(6)`, fromTop: true } },
+      { ...bulkShot('#user_services_table', ['apache', 'cron'], 'Two services of a user selected with the bulk actions bar offering Start, Stop, Restart, Edit CPU, Edit RAM and Edit PIDs', { name: 'services-bulk', rows: 6, wait: 2500 }), url: '/users/testinguser#services' },
+    ],
+  },
+  'accounts/administrators_server': {
+    as: 'accounts/administrators',
+    url: '/administrators',
+    shots: [
+      { name: 'list', alt: 'Administrators page listing OpenAdmin users with their status, role, 2FA, passkeys and last login', crop: 'content' },
+      bulkShot('#exiting_users', ['bulkadmin1', 'bulkadmin2'], 'Two administrators selected with the bulk actions bar offering Suspend, Unsuspend and Delete'),
+    ],
+  },
+  'accounts/resellers_server': {
+    as: 'accounts/resellers',
+    url: '/resellers',
+    shots: [
+      { name: 'list', alt: 'Resellers page listing reseller accounts with their status, plans, limits and actions', crop: 'content' },
+      bulkShot('#exiting_users', ['bulkres1', 'bulkres2'], 'Two resellers selected with the bulk actions bar offering Suspend, Unsuspend and Delete'),
+    ],
+  },
+  'plans/hosting_plans_server': {
+    as: 'plans/hosting_plans',
+    url: '/plans',
+    shots: [
+      { name: 'list', alt: 'User Packages page listing hosting plans with their memory, CPU, disk, inodes, port speed and other limits', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
+      bulkShot('#exiting_users', ['bulkplan1', 'bulkplan2'], 'Two hosting plans selected with the bulk actions bar offering Update and Delete'),
+      bulkShot('#exiting_users', ['bulkplan1', 'bulkplan2'], 'Update step of the bulk actions bar with the limit to change set to CPU (cores) and the new value', { name: 'bulk-update', action: 'update', field: 'cpu', value: '2' }),
+    ],
+  },
+  'domains/domains_server': {
+    as: 'domains/domains',
+    url: '/domains',
+    shots: [
+      { name: 'list', alt: 'Domains page listing all domains with their status, PHP version, webserver, SSL, WAF and owner', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
+      bulkShot('#domains_table', ['example.test.rs', 'shop.test.rs'], 'Two domains selected with the bulk actions bar offering Change PHP version, Enable HSTS, Disable HSTS, Enable WAF, Disable WAF, Suspend, Unsuspend and Delete'),
+      bulkShot('#domains_table', ['example.test.rs', 'shop.test.rs'], 'Change PHP version step of the bulk actions bar with a dropdown of the installed PHP versions', { name: 'bulk-php', action: 'php' }),
+    ],
+  },
+  'services/status_server': {
+    as: 'services/status',
+    url: '/services',
+    shots: [
+      { name: 'list', alt: 'Services page listing system services with their status, version, real name, type, port, monitoring and actions', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(12)', fromTop: true } },
+      bulkShot('#exiting_users', ['docker:openpanel_dns', 'system:cron'], 'Two services selected with the bulk actions bar offering Start, Stop and Restart', { rows: 6 }),
+    ],
+  },
+  'advanced/processes_server': {
+    as: 'advanced/processes',
+    url: '/server/processes',
+    shots: [
+      { name: 'list', alt: 'Process Manager listing system processes with a checkbox, PID, owner, priority, CPU and memory usage, command, and Trace and Kill links', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(14)', fromTop: true } },
+      bulkShot('#processes_table', 2, 'Two processes selected with the bulk actions bar offering Kill', { rows: 6 }),
+    ],
+  },
+  '002_notifications_server': {
+    as: '002_notifications',
+    url: '/notifications',
+    shots: [
+      { name: 'list', alt: 'Notifications page listing recorded system alerts with the time, notification and details, and the Edit Settings, Pause notifications, Acknowledge All and Delete All buttons', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(10)', fromTop: true } },
+      bulkShot('#notifications_table', 2, 'Two notifications selected with the bulk actions bar offering Mark as read and Delete', { rows: 6 }),
+    ],
+  },
+  'backups/system_server': {
+    as: 'backups/system',
+    url: '/backups/system#backups',
+    shots: [
+      { name: 'backups', alt: 'System Backups page on the Backups tab with the Run Backup Now button and the list of backup archives', crop: 'content' },
+      bulkShot('#system_backups_table', 2, 'Two system backup archives selected with the bulk actions bar offering Delete'),
+    ],
+  },
+  'security/waf_server': {
+    as: 'security/waf',
+    url: '/security/waf/rules',
+    shots: [
+      { name: 'rules', alt: 'WAF rule sets page listing each rule set with its number of rules, status and the View and Disable actions', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(10)', fromTop: true } },
+      bulkShot('#waf_sets', ['REQUEST-911-METHOD-ENFORCEMENT', 'REQUEST-913-SCANNER-DETECTION'], 'Two WAF rule sets selected with the bulk actions bar offering Enable and Disable', { rows: 6 }),
+    ],
+  },
+  'settings/locales_server': {
+    as: 'settings/locales',
+    url: '/settings/locales',
+    shots: [
+      { name: 'list', alt: 'Languages page listing locales with their provider, install status, default and Set as Default buttons', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(12)', fromTop: true } },
+      bulkShot('#tour-locales-table', ['de-de', 'es-es'], 'Two locales selected with the bulk actions bar offering Install, Update and Delete', { rows: 6 }),
+    ],
+  },
+  'emails/emails_server': {
+    as: 'emails/emails',
+    url: '/emails/accounts',
+    shots: [
+      { name: 'list', alt: 'Emails page listing email accounts with their quota usage, webmail button and actions menu', prepare: async page => { await page.waitForTimeout(1500); }, crop: 'content' },
+      bulkShot('#email_accounts_table', ['info@example.test.rs', 'sales@example.test.rs'], 'Two email accounts selected with the bulk actions bar offering Change password, Set quota, Remove quota, Restrict sending, Restrict receiving, Allow sending, Allow receiving and Delete', { wait: 1500 }),
+    ],
+  },
+  'advanced/crons_server': {
+    as: 'advanced/crons',
+    url: '/server/crons',
+    shots: [
+      { name: 'page', alt: 'Scheduler page listing OpenPanel system jobs with their cron schedule fields and command', crop: { content: 'main', maxHeight: 1000 } },
+      bulkShot('#crons_table', 2, 'Two cron jobs selected with the bulk actions bar offering Change schedule, Disable, Logging on and Logging off', { rows: 6 }),
+    ],
   },
 };

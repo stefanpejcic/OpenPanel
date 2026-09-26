@@ -114,7 +114,8 @@ for (const key of keys) {
       if (shot.prepare) await shot.prepare(page);
       if (def.prepare) await def.prepare(page);
       await globalPrepare(page);
-      const out = join(OUT_DIR, `${key}-${shot.name}${dark ? '_dark' : ''}.png`);
+      // as: a second entry for the same docs page, like one shot on another server, writes the same files
+      const out = join(OUT_DIR, `${def.as || key}-${shot.name}${dark ? '_dark' : ''}.png`);
       mkdirSync(dirname(out), { recursive: true });
       const clip = shot.crop ? await cropBox(page, shot.crop) : undefined;
       await page.screenshot({ path: out, clip, animations: 'disabled', caret: 'hide' });
