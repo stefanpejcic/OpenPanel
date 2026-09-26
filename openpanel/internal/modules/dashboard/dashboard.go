@@ -548,6 +548,10 @@ func stripQuotes(s string) string {
 
 // getDatabaseCount is cached 1h. Connects to the user's own MySQL instance via mysqlmanager (not the panel's own DB) - returns 0 on any failure (container not running, socket not found, ...).
 func getDatabaseCount(a *appctx.App, ctx context.Context, username, userContext string) int {
+	// a new account's MySQL/MariaDB isn't running until first used, don't make the dashboard wait for it or cache the 0
+	if !mysqlmanager.SocketExists(userContext) {
+		return 0
+	}
 	count, _ := cache.Memoize(ctx, a.Cache, "get_database_count:"+username, time.Hour, func() (int, error) {
 		query := "SELECT COUNT(*) AS total FROM information_schema.schemata WHERE schema_name NOT IN (" +
 			restrictedDatabasesSQL(a.Config) + ")"

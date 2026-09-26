@@ -78,6 +78,16 @@ func mycnfCredentials(userContext string) (user, password string, err error) {
 	return opts["user"], opts["password"], nil
 }
 
+// SocketExists reports whether the user's mysqld socket is there, i.e. their MySQL/MariaDB container has started
+func SocketExists(userContext string) bool {
+	_, err := os.Stat(socketPathFor(userContext))
+	return err == nil
+}
+
+func socketPathFor(userContext string) string {
+	return fmt.Sprintf("/home/%s/sockets/mysqld/mysqld.sock", userContext)
+}
+
 // waitForSocket waits for a freshly-started mysqld to create its socket
 func waitForSocket(socketPath string) error {
 	deadline := time.Now().Add(socketWaitTimeout)
@@ -98,7 +108,7 @@ func openPool(userContext string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	socketPath := fmt.Sprintf("/home/%s/sockets/mysqld/mysqld.sock", userContext)
+	socketPath := socketPathFor(userContext)
 	if err := waitForSocket(socketPath); err != nil {
 		return nil, err
 	}
@@ -162,13 +172,15 @@ func InvalidatePool(userContext string) {
 // getConnection gets the pool, pings it, and transparently reopens once if that fails - covers a restarted mysqld container without the caller needing to know
 func getConnection(ctx context.Context, userContext string) (*sql.DB, error) {
 	db, err := getPool(userContext)
-	if err == nil {
-		pingCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-		pingErr := db.PingContext(pingCtx)
-		cancel()
-		if pingErr == nil {
-			return db, nil
-		}
+	if err != nil {
+		// opening already waited socketWaitTimeout for the socket, opening again would just wait that long a second time
+		return nil, err
+	}
+	pingCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	pingErr := db.PingContext(pingCtx)
+	cancel()
+	if pingErr == nil {
+		return db, nil
 	}
 
 	InvalidatePool(userContext)
