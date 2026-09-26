@@ -37,6 +37,22 @@ To remove an existing DNS record, click the delete button next to it. The button
 ![Delete button of a DNS record turned into a Confirm button after the first click](/img/openpanel-screenshots/domains/dns_sections-delete.png#gh-light-mode-only)
 ![Delete button of a DNS record turned into a Confirm button after the first click](/img/openpanel-screenshots/domains/dns_sections-delete_dark.png#gh-dark-mode-only)
 
+## Bulk Actions
+
+Tick the checkbox of one or more records, or the checkbox in the table header to select every record shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two DNS records selected with the bulk actions bar offering Update TTL and Delete](/img/openpanel-screenshots/domains/dns-bulk.png#gh-light-mode-only)
+![Two DNS records selected with the bulk actions bar offering Update TTL and Delete](/img/openpanel-screenshots/domains/dns-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Update TTL** | Sets the TTL, in seconds (at least 60), of the selected records. |
+| **Delete** | Deletes the selected records. |
+
+All selected records are changed in one edit of the zone file, then the zone is reloaded once. If the zone changed since you opened the page, reload it and select the records again.
+
+Click an action, confirm it, and it runs on the selected records one after another. When it's done the page reloads with a notice listing the records it worked for, or which ones failed and why.
+
 ## Export Zone
 To export a DNS zone, click on the 'Export Zone' button. The zone file will be downloaded immediately.
 

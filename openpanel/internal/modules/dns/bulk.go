@@ -48,19 +48,19 @@ func handleDNSBulk(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
-	req, ok := web.DecodeBulkRequest(w, r)
+	req, ok := web.DecodeBulkRequest(a, w, r)
 	if !ok {
 		return
 	}
 	act, found := web.FindBulkAction(dnsBulkActions(web.RequestTranslator(a, r)), req.Action)
 	if !found {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Unknown bulk action"})
+		web.BulkError(a, w, r, "Unknown bulk action.")
 		return
 	}
 	ttl := strings.TrimSpace(req.Value)
 	if req.Action == "ttl" {
 		if n, convErr := strconv.Atoi(ttl); convErr != nil || n < 60 {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "TTL must be a whole number of at least 60 seconds."})
+			web.BulkError(a, w, r, "TTL must be a whole number of at least 60 seconds.")
 			return
 		}
 	}
@@ -68,7 +68,7 @@ func handleDNSBulk(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	path := zoneFilePath(domain)
 	content, readErr := os.ReadFile(path)
 	if readErr != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Zone file not found."})
+		web.BulkError(a, w, r, "Zone file not found.")
 		return
 	}
 	lines := readLinesKeepEnds(string(content))
@@ -99,7 +99,9 @@ func handleDNSBulk(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	// bottom-up so removing one record doesn't shift the lines of the next
-	sort.Slice(targets, func(x, y int) bool { return rows[req.Items[targets[x]]].LineNumber > rows[req.Items[targets[y]]].LineNumber })
+	sort.Slice(targets, func(x, y int) bool {
+		return rows[req.Items[targets[x]]].LineNumber > rows[req.Items[targets[y]]].LineNumber
+	})
 	for _, i := range targets {
 		row := rows[req.Items[i]]
 		if req.Action == "delete" {

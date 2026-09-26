@@ -5,7 +5,7 @@ export const STATE_PATH = process.env.PANEL_URL ? `.auth/state_${new URL(process
 export const OUT_DIR = '../../static/img/openpanel-screenshots';
 export const VIEWPORT_WIDTH = 1100;
 
-import { rename, all, click, fill, fillVisible, selectFirst, maskIPs, hideNotices, hideOnboarding, hideText, markCard, tab, markSection, bulkSelect } from './helpers.mjs';
+import { rename, all, click, fill, fillVisible, selectFirst, maskIPs, hideNotices, hideOnboarding, hideText, markCard, tab, markSection, bulkSelect, onlyRows, fitBulkBar, firstRows } from './helpers.mjs';
 
 // readable names for the demo's random mysql users and databases
 const MYSQL_USERS = { u1pd6u5s: 'wp_blog_user', stefan: 'shop_admin' };
@@ -16,6 +16,9 @@ const PASSWORD = 'hT9#vQ2m!Lx7pR4z';
 const DEMO_IP = { '185.241.214.25': '203.0.113.10' };
 // demo domains -> example domains, most specific first
 const DOMAINS = {
+  // the test server that has the bulk actions before the demo does
+  'example.tEst.rs': 'example.com',
+  'example.test.rs': 'example.com',
   'wp.demo.openpanel.org': 'blog.example.com',
   'website-builder.tests.openpanel.org': 'portfolio.example.com',
   'redirect.tests.openpanel.org': 'old.example.com',
@@ -51,7 +54,7 @@ const mysqlFixtures = async page => {
     document.querySelectorAll('#databases-table tbody tr').forEach((row, i) => {
       const [db, user, size] = names[i] || [];
       if (!db) return;
-      const [dbCell, userCell] = row.querySelectorAll('td:not(.db_size_cell)');
+      const [dbCell, userCell] = [...row.querySelectorAll('td:not(.db_size_cell)')].filter(td => !td.querySelector('.bulk-select-box'));
       const dbText = [...dbCell.childNodes].find(n => n.nodeType === 3 && n.textContent.trim());
       if (dbText) dbText.textContent = db;
       else dbCell.firstElementChild.textContent = db;
@@ -63,9 +66,30 @@ const mysqlFixtures = async page => {
   });
 };
 
+// rows selected with the bulk actions bar open under the table, optionally on an action's confirm step
+const bulkShot = (table, keys, alt, { action, value, name = 'bulk', keep } = {}) => ({
+  name,
+  alt,
+  prepare: all(
+    ...(keep ? [onlyRows(table, keep)] : []),
+    bulkSelect(keys),
+    ...(action ? [click(`[data-bulk-action="${action}"]`)] : []),
+    ...(value != null ? [fill({ [`[data-bulk-input="${action}"]`]: value })] : []),
+    fitBulkBar(table),
+  ),
+  crop: { from: `${table} thead`, to: '#bulk-actions-bar' },
+});
+
+// token prefixes are real secrets on the test server
+const maskTokens = async page => {
+  await page.evaluate(() => document.querySelectorAll('#mcp-tokens-table td.font-mono').forEach((td, i) => { td.textContent = ['op_mcp_Xk29fQ…', 'op_mcp_Rw81hT…'][i % 2]; }));
+};
+
 export const pages = {
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs mysql/databases
   'mysql/databases': {
     url: '/mysql',
+    before: onlyRows('#databases-table', ['wp_blog', 'shop_db']),
     prepare: mysqlFixtures,
     shots: [
       {
@@ -115,6 +139,7 @@ export const pages = {
         },
         crop: { from: '#databases-table thead', to: '#databases-table tbody tr:first-child', pad: 0 },
       },
+      bulkShot('#databases-table', ['wp_blog', 'shop_db'], 'Two databases selected with the bulk actions bar offering Export, Optimize, Repair, Assign user, Remove user and Delete', { keep: ['wp_blog', 'shop_db'] }),
     ],
   },
   'mysql/new_db': {
@@ -128,8 +153,10 @@ export const pages = {
       },
     ],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs mysql/users
   'mysql/users': {
     url: '/mysql/users',
+    before: onlyRows('#users-table', ['wp_blog_user', 'shop_admin']),
     prepare: rename(MYSQL_USERS, '#users-table'),
     shots: [
       {
@@ -143,6 +170,7 @@ export const pages = {
         prepare: click('#users-table tbody tr:first-of-type button.btn-danger', 300),
         crop: { from: '#users-table thead', to: '#users-table tbody tr:first-of-type' },
       },
+      bulkShot('#users-table', ['wp_blog_user', 'shop_admin'], 'Two database users selected with the bulk actions bar offering Change password, Add to database, Remove from database and Delete', { keep: ['wp_blog_user', 'shop_admin'] }),
     ],
   },
   'mysql/new_user': {
@@ -258,10 +286,21 @@ export const pages = {
       },
     ],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs mysql/processlist
   'mysql/processlist': {
     url: '/mysql/processlist',
     shots: [
       { name: 'list', alt: 'MySQL Processes table with the Refresh Processes button and the currently running queries', crop: 'content' },
+      bulkShot('#processlist-table', 2, 'Two running queries selected with the bulk actions bar offering Kill'),
+    ],
+  },
+  // needs remote access enabled and a user with two allowed hosts, bulk actions are new in 2.0.12:
+  // PANEL_URL=https://host:2083 node shoot.mjs mysql/remote_access
+  'mysql/remote_access': {
+    url: '/mysql/remote-mysql',
+    before: onlyRows('#remote-access-table', ['wp_blog_user@203', 'wp_blog_user@198']),
+    shots: [
+      bulkShot('#remote-access-table', 2, 'Two allowed hosts of a user selected in the remote access list with the bulk actions bar offering Remove access', { keep: ['wp_blog_user@203', 'wp_blog_user@198'] }),
     ],
   },
   'mysql/remote': {
@@ -309,8 +348,10 @@ export const pages = {
       },
     ],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs postgresql/databases
   'postgresql/databases': {
     url: '/postgresql',
+    before: onlyRows('#databases-table', ['wp_blog', 'shop_db']),
     prepare: rename(PG_NAMES),
     shots: [
       { name: 'list', alt: 'PostgreSQL Databases page listing databases with their size, assigned users and actions', crop: 'content' },
@@ -320,12 +361,14 @@ export const pages = {
         prepare: click('#databases-table tbody tr:first-of-type button.btn-danger', 300),
         crop: { from: '#databases-table thead', to: '#databases-table tbody tr:first-of-type' },
       },
+      bulkShot('#databases-table', ['wp_blog', 'shop_db'], 'Two PostgreSQL databases selected with the bulk actions bar offering Export, Assign user, Remove user and Delete', { keep: ['wp_blog', 'shop_db'] }),
     ],
   },
   'postgresql/new_db': {
     url: '/postgresql/new',
     shots: [{ name: 'form', alt: 'Create PostgreSQL Database form with the database name field', prepare: fillVisible(['shop_db']), crop: 'content' }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs postgresql/users
   'postgresql/users': {
     url: '/postgresql/users',
     prepare: rename(PG_NAMES),
@@ -337,6 +380,7 @@ export const pages = {
         prepare: click('#users-table tbody tr:first-of-type button.btn-danger', 300),
         crop: { from: '#users-table thead', to: '#users-table tbody tr:first-of-type' },
       },
+      bulkShot('#users-table', ['wp_blog_user', 'shop_admin'], 'Two PostgreSQL users selected with the bulk actions bar offering Change password, Add to database, Remove from database and Delete'),
     ],
   },
   'postgresql/new_user': {
@@ -380,9 +424,13 @@ export const pages = {
     url: '/postgresql/import',
     shots: [{ name: 'form', alt: 'Import into PostgreSQL Database form with a database dropdown and a file picker', prepare: all(selectFirst(), rename(PG_NAMES)), crop: 'content' }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs postgresql/processlist
   'postgresql/processlist': {
     url: '/postgresql/processlist',
-    shots: [{ name: 'list', alt: 'PostgreSQL Processes table listing the active backend processes', crop: 'content' }],
+    shots: [
+      { name: 'list', alt: 'PostgreSQL Processes table listing the active backend processes', crop: 'content' },
+      { ...bulkShot('#processlist-table', 2, 'Two running queries selected with the bulk actions bar offering Kill'), before: firstRows('#processlist-table', 9) },
+    ],
   },
   'postgresql/remote': {
     url: '/postgresql/remote-postgresql',
@@ -420,10 +468,14 @@ export const pages = {
     url: '/account/passkeys',
     shots: [{ name: 'page', alt: 'Passkeys page with the Add a passkey button and the list of registered passkeys', crop: 'content' }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs account/sessions
   'account/sessions': {
     url: '/account/sessions',
     prepare: maskIPs(),
-    shots: [{ name: 'list', alt: 'Active Sessions table with the IP address, creation time, online status and a Terminate action for each session', crop: 'content' }],
+    shots: [
+      { name: 'list', alt: 'Active Sessions table with the IP address, creation time, online status and a Terminate action for each session', crop: 'content' },
+      { ...bulkShot('#sessions-table', 2, 'Two sessions selected with the bulk actions bar offering Terminate'), before: firstRows('#sessions-table', 4) },
+    ],
   },
   'account/login-history': {
     url: '/account/login-history',
@@ -483,9 +535,14 @@ export const pages = {
       { name: 'mailbox', alt: 'Mailbox almost full card with the Email me switch and a Learn more link', prepare: markCard('Mailbox almost full'), crop: { from: '[data-shot=card]', pad: 12 } },
     ],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs account/favorites
   'account/favorites': {
     url: '/account/favorites',
-    shots: [{ name: 'list', alt: 'Favorites table listing saved pages with their title, link and a Delete action', crop: 'content' }],
+    before: rename({ 'Kontrolna tabla': 'Dashboard' }),
+    shots: [
+      { name: 'list', alt: 'Favorites table listing saved pages with their title, link and a Delete action', crop: 'content' },
+      { ...bulkShot('#favorites-table', ['cronjobs', 'mysql'], 'Two favorites selected with the bulk actions bar offering Delete'), before: rename({ 'Kontrolna tabla': 'Dashboard' }) },
+    ],
   },
   'account/language': {
     url: '/account/language',
@@ -498,11 +555,16 @@ export const pages = {
     },
     shots: [{ name: 'page', alt: 'API Reference page with the interactive OpenPanel API documentation and the Download spec button', crop: { content: 'main', maxHeight: 900 } }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs account/mcp
   'account/mcp': {
     url: '/account/mcp',
     prepare: rename(DEMO_HOST),
-    shots: [{ name: 'page', alt: 'MCP page with the token generator and connection snippets for Claude Code and Claude Desktop', crop: 'content' }],
+    shots: [
+      { name: 'page', alt: 'MCP page with the token generator and connection snippets for Claude Code and Claude Desktop', crop: 'content' },
+      { ...bulkShot('#mcp-tokens-table', 2, 'Two MCP tokens selected with the bulk actions bar offering Revoke'), before: maskTokens },
+    ],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs domains/domains
   'domains/domains': {
     url: '/domains',
     shots: [
@@ -523,6 +585,7 @@ export const pages = {
         },
         crop: { from: 'main table thead', to: '#dropdownHover-0', pad: 12 },
       },
+      bulkShot('#domains-table', ['example.test.rs'], 'A domain selected with the bulk actions bar offering Suspend, Unsuspend, Change PHP version, Redirect to, Remove redirect, Enable WAF, Disable WAF and Delete'),
     ],
   },
   'domains/new': {
@@ -539,14 +602,16 @@ export const pages = {
       },
     ],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs domains/dns
   'domains/dns': {
-    url: '/domains/edit-dns-zone/wp.tests.openpanel.org',
+    url: '/domains/edit-dns-zone/example.test.rs',
     shots: [
       {
         name: 'list',
         alt: 'DNS zone editor listing A, MX, CNAME and TXT records with Edit and Delete buttons',
         crop: { from: 'main', to: 'main table tbody tr:nth-of-type(9)', fromTop: true },
       },
+      { ...bulkShot('#filemanager_table', 2, 'Two DNS records selected with the bulk actions bar offering Update TTL and Delete'), before: firstRows('#filemanager_table', 6) },
     ],
   },
   'domains/ssl': {
@@ -629,8 +694,10 @@ export const pages = {
     url: '/domains/delete?domain=to-be-removed.com',
     shots: [{ name: 'form', alt: 'Delete domain confirmation page with the Delete Domain button', crop: 'content' }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs emails/emails
   'emails/emails': {
     url: '/emails',
+    before: onlyRows('#email-accounts', ['info@', 'sales@', 'john@']),
     shots: [
       { name: 'list', alt: 'Email Accounts page listing mailboxes with their storage usage and the Webmail, Manage and Connect Devices buttons', crop: 'content' },
       {
@@ -638,6 +705,7 @@ export const pages = {
         alt: 'Webmail, Manage and Connect Devices buttons in the row of an email account',
         crop: { from: 'main table thead', to: 'main table tbody tr:first-of-type' },
       },
+      bulkShot('#email-accounts', ['info@example.test.rs', 'sales@example.test.rs'], 'Two email accounts selected with the bulk actions bar offering suspend and unsuspend of incoming and outgoing email, Change quota, Change password and Delete', { keep: ['info@', 'sales@', 'john@'] }),
     ],
   },
   'emails/new': {
@@ -663,9 +731,13 @@ export const pages = {
     prepare: rename(MAIL_HOST),
     shots: [{ name: 'page', alt: 'Connect Devices page with the username, incoming and outgoing servers and the IMAP and SMTP ports', crop: 'content' }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs emails/aliases
   'emails/aliases': {
     url: '/emails/aliases',
-    shots: [{ name: 'list', alt: 'Aliases page listing alias addresses and the addresses they deliver to', crop: 'content' }],
+    shots: [
+      { name: 'list', alt: 'Aliases page listing alias addresses and the addresses they deliver to', crop: 'content' },
+      bulkShot('#aliases-table', 2, 'Two aliases selected with the bulk actions bar offering Add destination and Delete'),
+    ],
   },
   'emails/aliases_new': {
     url: '/emails/aliases/new',
@@ -810,9 +882,13 @@ export const pages = {
     url: '/files.trash',
     shots: [{ name: 'list', alt: 'Trash page listing deleted files with Restore and Delete actions', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs files/ftp
   'files/ftp': {
     url: '/ftp',
-    shots: [{ name: 'list', alt: 'FTP Accounts page with the FTP server and port, and a table of accounts with their path and configuration downloads', crop: 'content' }],
+    shots: [
+      { name: 'list', alt: 'FTP Accounts page with the FTP server and port, and a table of accounts with their path and configuration downloads', crop: 'content' },
+      bulkShot('#ftp-table', 2, 'Two FTP accounts selected with the bulk actions bar offering Change password, Change path and Delete'),
+    ],
   },
   'files/ftp_new': {
     url: '/ftp/new',
@@ -864,13 +940,21 @@ export const pages = {
     url: '/malware-scanner',
     shots: [{ name: 'form', alt: 'ClamAV Scanner page with the directory to scan and the Start Scan button', crop: 'content' }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs files/quarantine
   'files/quarantine': {
     url: '/malware-scanner/quarantine',
-    shots: [{ name: 'list', alt: 'Quarantine page listing files that ClamAV flagged as malicious', crop: 'content' }],
+    shots: [
+      { name: 'list', alt: 'Quarantine page listing files that ClamAV flagged as malicious', crop: 'content' },
+      bulkShot('#quarantine-table', 2, 'Two quarantined files selected with the bulk actions bar offering Restore, Mark safe and Delete'),
+    ],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs php/domains
   'php/domains': {
     url: '/php/domains',
-    shots: [{ name: 'list', alt: 'PHP version for domains page listing each domain with its current PHP version and a dropdown to change it', crop: 'content' }],
+    shots: [
+      { name: 'list', alt: 'PHP version for domains page listing each domain with its current PHP version and a dropdown to change it', crop: 'content' },
+      bulkShot('#php-domains-table', ['example.test.rs'], 'A domain selected with the bulk actions bar offering Change version and Reset to default'),
+    ],
   },
   'php/default': {
     url: '/php/default',
@@ -1023,6 +1107,7 @@ export const pages = {
     url: '/containers/webserver',
     shots: [{ name: 'page', alt: 'Web Server Type page with a card for each available web server, the current one marked, and the Switch button', crop: 'content' }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs advanced/cronjobs
   'advanced/cronjobs': {
     url: '/cronjobs',
     shots: [
@@ -1084,6 +1169,7 @@ export const pages = {
         prepare: click('main table tbody tr:first-of-type button:has-text("Delete")', 300),
         crop: { from: 'main table thead', to: 'main table tbody tr:first-of-type', pad: 8 },
       },
+      bulkShot('#cronjobs-table', 2, 'Two cron jobs selected with the bulk actions bar offering Run now, Change schedule, Change container, No overlap on, No overlap off and Delete'),
     ],
   },
   'advanced/cronjobs_new': {
@@ -1135,17 +1221,25 @@ export const pages = {
     url: '/security/ip-blocker',
     shots: [{ name: 'form', alt: 'IP Blocker page with a text area for IP addresses and CIDR ranges to block', prepare: async page => { await page.locator('main textarea').first().fill('198.51.100.23\n203.0.113.0/24').catch(() => {}); }, crop: { content: 'main', maxHeight: 560 } }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs advanced/process_manager
   'advanced/process_manager': {
     url: '/process-manager',
-    shots: [{ name: 'list', alt: 'Process Manager listing processes per container with their user, PID, CPU, time and command', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(12)', fromTop: true } }],
+    shots: [
+      { name: 'list', alt: 'Process Manager listing processes per container with their user, PID, CPU, time and command', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(12)', fromTop: true } },
+      { ...bulkShot('#process-manager-table', 2, 'Two processes selected with the bulk actions bar offering Kill'), before: firstRows('#process-manager-table', 8) },
+    ],
   },
   'advanced/webserver_settings': {
     url: '/server/webserver_conf',
     shots: [{ name: 'editor', alt: 'Web server configuration editor with the Restore Default and Save Changes buttons', crop: { content: 'main', maxHeight: 700 } }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs advanced/waf
   'advanced/waf': {
     url: '/server/waf',
-    shots: [{ name: 'list', alt: 'WAF page listing domains with a toggle to enable the firewall and Manage Rules and View Logs buttons', crop: 'content' }],
+    shots: [
+      { name: 'list', alt: 'WAF page listing domains with a toggle to enable the firewall and Manage Rules and View Logs buttons', crop: 'content' },
+      bulkShot('#waf-domains-table', ['example.test.rs'], 'A domain selected with the bulk actions bar offering Enable WAF and Disable WAF'),
+    ],
   },
   'advanced/waf_domain': {
     url: '/server/waf/wp.tests.openpanel.org',
@@ -1480,6 +1574,7 @@ export const pages = {
     url: '/tinyphotogallery/install',
     shots: [{ name: 'form', alt: 'Install TinyPhotoGallery form with the site details, domain and location, and admin credentials', crop: 'content' }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs applications/wp_manager
   'applications/wp_manager': {
     url: '/wordpress',
     shots: [
@@ -1487,6 +1582,7 @@ export const pages = {
       { name: 'sets', alt: 'Themes and Plugins buttons for managing the sets that are installed on every new WordPress site', crop: { from: 'main div:has(> a:text-is("Themes"))', pad: 3 } },
       { name: 'refresh', alt: 'Refresh Data button on the WordPress Manager page', crop: { from: '#refreshData', pad: 3 } },
       { name: 'view', alt: 'Switch to Table view button on the WordPress Manager page', crop: { from: 'main a:has-text("Switch to Table view")', pad: 3 } },
+      { ...bulkShot('#sites-table', 2, 'Two WordPress sites selected in the table view with the bulk actions bar offering Update, Backup, Detach and Uninstall'), url: '/wordpress?view=table' },
     ],
   },
   'domains/dns_sections': {
@@ -1721,8 +1817,10 @@ export const pages = {
     ],
   },
   // MongoDB isn't running on the demo, these need PANEL_URL of a server where it is
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs mongodb/databases
   'mongodb/databases': {
     url: '/mongodb',
+    before: onlyRows('#databases-table', ['shop_db']),
     prepare: rename(MONGO_NAMES),
     shots: [
       { name: 'list', alt: 'MongoDB Databases page listing databases with their size and the Delete button', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
@@ -1732,14 +1830,17 @@ export const pages = {
         prepare: async page => { await page.locator('main table tbody tr:first-of-type button:has-text("Delete")').click(); await page.waitForTimeout(300); await page.mouse.move(0, 0); },
         crop: { from: 'main table thead', to: 'main table tbody tr:first-of-type', pad: 8 },
       },
+      bulkShot('#databases-table', ['shop_db'], 'A MongoDB database selected with the bulk actions bar offering Export, Assign user, Remove user and Delete', { keep: ['shop_db'] }),
     ],
   },
   'mongodb/new_db': {
     url: '/mongodb/new',
     shots: [{ name: 'form', alt: 'Create a MongoDB Database form with the database name field', prepare: fillVisible(['shop_db']), crop: { from: 'main', to: 'main button:has-text("Create Database")', fromTop: true, pad: 32 } }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs mongodb/users
   'mongodb/users': {
     url: '/mongodb/users',
+    before: onlyRows('#users-table', ['shop_admin']),
     prepare: rename(MONGO_NAMES),
     shots: [
       { name: 'list', alt: 'MongoDB Users page listing users with their roles and the Change Password and Delete buttons', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
@@ -1749,6 +1850,15 @@ export const pages = {
         prepare: async page => { await page.locator('main table tbody tr:last-of-type button:has-text("Delete")').click(); await page.waitForTimeout(300); await page.mouse.move(0, 0); },
         crop: { from: 'main table thead', to: 'main table tbody tr:last-of-type', pad: 8 },
       },
+      bulkShot('#users-table', ['shop_admin'], 'A MongoDB user selected with the bulk actions bar offering Change password, Add to database, Remove from database and Delete', { keep: ['shop_admin'] }),
+    ],
+  },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs mongodb/processlist
+  'mongodb/processlist': {
+    url: '/mongodb/processlist',
+    shots: [
+      { name: 'list', alt: 'MongoDB Running Queries table listing the current operations with their user, namespace, running time and a Kill button', crop: 'content' },
+      bulkShot('#processlist-table', 1, 'A running operation selected with the bulk actions bar offering Kill'),
     ],
   },
   'mongodb/new_user': {

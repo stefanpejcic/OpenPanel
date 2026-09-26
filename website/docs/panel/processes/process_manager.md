@@ -56,6 +56,19 @@ Each row in the table provides:
 
 ---
 
+## Bulk Actions
+
+Tick the checkbox of one or more processes, or the checkbox in the table header to select every process shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two processes selected with the bulk actions bar offering Kill](/img/openpanel-screenshots/advanced/process_manager-bulk.png#gh-light-mode-only)
+![Two processes selected with the bulk actions bar offering Kill](/img/openpanel-screenshots/advanced/process_manager-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Kill** | Kills the selected processes. |
+
+Click an action, confirm it, and it runs on the selected processes one after another. When it's done the page reloads with a notice listing the processes it worked for, or which ones failed and why.
+
 ## Kill Process Behavior
 
 When you click **Terminate**, the following happens:

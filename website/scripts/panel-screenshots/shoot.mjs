@@ -108,6 +108,9 @@ for (const key of keys) {
       // shot setup first, some pages look rows up by their real names while loading data
       // park the mouse first so a hover set up in prepare() survives
       await page.mouse.move(0, 0);
+      // before: page-wide setup the shot's own steps depend on, like dropping rows that aren't fixtures
+      if (def.before) await def.before(page);
+      if (shot.before) await shot.before(page);
       if (shot.prepare) await shot.prepare(page);
       if (def.prepare) await def.prepare(page);
       await globalPrepare(page);

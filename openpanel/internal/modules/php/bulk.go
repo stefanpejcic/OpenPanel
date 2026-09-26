@@ -38,6 +38,8 @@ func phpDomainsBulkActions(t i18n.Translator, installed []string) []web.BulkActi
 type VersionSwitcher struct {
 	Default string
 	current map[string]string
+	a       *appctx.App
+	r       *http.Request
 }
 
 func NewVersionSwitcher(a *appctx.App, r *http.Request, userContext string) *VersionSwitcher {
@@ -48,7 +50,7 @@ func NewVersionSwitcher(a *appctx.App, r *http.Request, userContext string) *Ver
 	for _, row := range rows {
 		current[row.DomainURL] = row.PHPVersion
 	}
-	return &VersionSwitcher{Default: webserver.GetEnvFileValue(userContext, "DEFAULT_PHP_VERSION"), current: current}
+	return &VersionSwitcher{Default: webserver.GetEnvFileValue(userContext, "DEFAULT_PHP_VERSION"), current: current, a: a, r: r}
 }
 
 // Route switches domain to newVersion through the per-row POST /php/domains
@@ -60,7 +62,7 @@ func (v *VersionSwitcher) Route(domain, newVersion string) (*web.BulkCall, web.B
 	case old == "/":
 		return web.Skip("This domain doesn't use PHP.")
 	case newVersion == old:
-		return nil, web.BulkResult{OK: true, Message: "Already on PHP " + old + "."}
+		return nil, web.BulkResult{OK: true, Message: web.Tr(v.a, v.r, "Already on PHP %(version)s.", "version", old)}
 	}
 	return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/php/domains", Form: url.Values{
 		"domain_url": {domain}, "old_php_version": {old}, "new_php_version": {newVersion}, "redirect_to": {"/php/domains"},

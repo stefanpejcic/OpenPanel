@@ -72,6 +72,19 @@ Once connected, just ask Claude in plain language, e.g.:
 
 Every action Claude takes runs through the exact same `/api/` endpoints and permission checks as the panel UI and REST API: Claude only ever operates within your account and your plan's enabled features. If a request fails with a permission error, it usually means that feature isn't enabled on your plan. With a read-only token, anything beyond looking things up will be blocked instead.
 
+## Bulk Actions
+
+Tick the checkbox of one or more tokens, or the checkbox in the table header to select every token shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two MCP tokens selected with the bulk actions bar offering Revoke](/img/openpanel-screenshots/account/mcp-bulk.png#gh-light-mode-only)
+![Two MCP tokens selected with the bulk actions bar offering Revoke](/img/openpanel-screenshots/account/mcp-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Revoke** | Revokes the selected tokens. MCP clients using them stop working immediately. |
+
+Click an action, confirm it, and it runs on the selected tokens one after another. When it's done the page reloads with a notice listing the tokens it worked for, or which ones failed and why.
+
 ## Troubleshooting
 
 | Symptom | Likely cause |

@@ -67,6 +67,21 @@ Go to **OpenPanel > Files > FTP Accounts** and click **Delete** next to the acco
 ![Delete button of an FTP account turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/files/ftp_actions-delete.png#gh-light-mode-only)
 ![Delete button of an FTP account turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/files/ftp_actions-delete_dark.png#gh-dark-mode-only)
 
+## Bulk Actions
+
+Tick the checkbox of one or more accounts, or the checkbox in the table header to select every account shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two FTP accounts selected with the bulk actions bar offering Change password, Change path and Delete](/img/openpanel-screenshots/files/ftp-bulk.png#gh-light-mode-only)
+![Two FTP accounts selected with the bulk actions bar offering Change password, Change path and Delete](/img/openpanel-screenshots/files/ftp-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Change password** | Sets the same new password on the selected accounts. |
+| **Change path** | Sets the home folder of the selected accounts, inside `/var/www/html/`. |
+| **Delete** | Deletes the selected accounts. Their files are kept. |
+
+Click an action, confirm it, and it runs on the selected accounts one after another. When it's done the page reloads with a notice listing the accounts it worked for, or which ones failed and why.
+
 ## Download Client Configuration
 
 On the FTP accounts page you can download a ready-to-import configuration file for:

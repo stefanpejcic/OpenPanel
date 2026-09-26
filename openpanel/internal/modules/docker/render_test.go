@@ -74,8 +74,8 @@ func TestValidateBulkLimit(t *testing.T) {
 		{"stop", "", true},
 	}
 	for _, c := range cases {
-		if got := validateBulkLimit(c.action, c.value, 4, 8) == ""; got != c.ok {
-			t.Errorf("validateBulkLimit(%q, %q) ok=%v, want %v", c.action, c.value, got, c.ok)
+		if msg, _ := validateBulkLimit(c.action, c.value, 4, 8); (msg == "") != c.ok {
+			t.Errorf("validateBulkLimit(%q, %q) = %q, want ok=%v", c.action, c.value, msg, c.ok)
 		}
 	}
 }

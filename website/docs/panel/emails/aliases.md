@@ -40,3 +40,17 @@ Click **Manage** next to any alias to open its detail page. From there you can:
 
 ![Manage alias page listing its destination addresses with Remove buttons and a field to add a destination](/img/openpanel-screenshots/emails/aliases_manage-page.png#gh-light-mode-only)
 ![Manage alias page listing its destination addresses with Remove buttons and a field to add a destination](/img/openpanel-screenshots/emails/aliases_manage-page_dark.png#gh-dark-mode-only)
+
+## Bulk Actions
+
+Tick the checkbox of one or more aliases, or the checkbox in the table header to select every alias shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two aliases selected with the bulk actions bar offering Add destination and Delete](/img/openpanel-screenshots/emails/aliases-bulk.png#gh-light-mode-only)
+![Two aliases selected with the bulk actions bar offering Add destination and Delete](/img/openpanel-screenshots/emails/aliases-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Add destination** | Also delivers the selected aliases to the email address you enter. |
+| **Delete** | Deletes the selected aliases. |
+
+Click an action, confirm it, and it runs on the selected aliases one after another. When it's done the page reloads with a notice listing the aliases it worked for, or which ones failed and why.

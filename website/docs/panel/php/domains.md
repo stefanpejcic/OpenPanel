@@ -18,3 +18,19 @@ If you are using OpenLitespeed or Litespeed as webserver, PHP version can not be
 :::
 
 Step-by-step guide: [How to change the PHP version per domain](/docs/articles/websites/change-php-version-per-domain/)
+
+## Bulk Actions
+
+Tick the checkbox of one or more domains, or the checkbox in the table header to select every domain shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![A domain selected with the bulk actions bar offering Change version and Reset to default](/img/openpanel-screenshots/php/domains-bulk.png#gh-light-mode-only)
+![A domain selected with the bulk actions bar offering Change version and Reset to default](/img/openpanel-screenshots/php/domains-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Change version** | Switches the selected domains to the PHP version you pick. |
+| **Reset to default** | Switches the selected domains to your default PHP version. |
+
+Domains already on that version are left as they are.
+
+Click an action, confirm it, and it runs on the selected domains one after another. When it's done the page reloads with a notice listing the domains it worked for, or which ones failed and why.

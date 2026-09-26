@@ -87,15 +87,16 @@ function bulkActions(cfg) {
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf_token },
                 body: JSON.stringify({ action: action, value: String(this.bulkValue), items: this.bulkPending })
             })
-                .then(response => {
-                    if (!response.ok) throw new Error('HTTP ' + response.status);
-                    return response.json();
-                })
+                .then(response => response.json().catch(() => ({})).then(data => {
+                    // the server's own (translated) reason, like a CPU limit above the plan
+                    if (!response.ok) throw new Error(data.error || '');
+                    return data;
+                }))
                 // the server flashes a summary banner, so just reload to show it
                 .then(() => window.location.reload())
                 .catch(error => {
                     console.error('Bulk action error:', error);
-                    showToast(cfg.messages.error, 'error');
+                    showToast(error.message || cfg.messages.error, 'error');
                     this.bulkRunning = false;
                     this.bulkConfirming = null;
                 });

@@ -8,7 +8,6 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -42,7 +41,7 @@ func cronBulkActions(t i18n.Translator, containers []string) []web.BulkAction {
 }
 
 // runCronJobOnce runs one job to the end like the Run button, but without streaming the output
-func runCronJobOnce(a *appctx.App, userContext string, job CronJob) web.BulkResult {
+func runCronJobOnce(a *appctx.App, r *http.Request, userContext string, job CronJob) web.BulkResult {
 	ctx, cancel := context.WithTimeout(context.Background(), cronRunTimeout(a))
 	defer cancel()
 	argv := podmanmanager.PodmanArgv(userContext, "exec", job.Container, "sh", "-c", job.Command)
@@ -56,13 +55,13 @@ func runCronJobOnce(a *appctx.App, userContext string, job CronJob) web.BulkResu
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			code = exitErr.ExitCode()
 		}
-		msg := "Exit code " + strconv.Itoa(code)
+		msg := web.Tr(a, r, "Exit code %(code)s.", "code", code)
 		if lastLine != "" {
-			msg += ": " + lastLine
+			msg = web.Tr(a, r, "Exit code %(code)s: %(output)s", "code", code, "output", lastLine)
 		}
 		return web.BulkResult{Item: job.Comment, Message: msg}
 	}
-	return web.BulkResult{Item: job.Comment, OK: true, Message: "Exit code 0."}
+	return web.BulkResult{Item: job.Comment, OK: true, Message: web.Tr(a, r, "Exit code %(code)s.", "code", 0)}
 }
 
 func handleCronjobsBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, r *http.Request) {
@@ -88,7 +87,7 @@ func handleCronjobsBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, 
 		}
 		if action == "run" {
 			_ = logger.RecordUserAction(a.Config, username, "manually ran cron job "+job.Comment, reqip.ClientIP(r))
-			return nil, runCronJobOnce(a, userContext, job)
+			return nil, runCronJobOnce(a, r, userContext, job)
 		}
 		if action == "delete" {
 			return web.Call(web.BulkCall{Label: job.Comment, Method: http.MethodPost, Path: "/cronjobs/delete", Form: url.Values{

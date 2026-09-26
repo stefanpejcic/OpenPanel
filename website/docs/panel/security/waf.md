@@ -9,6 +9,20 @@ The Web Application Firewall (WAF) interface allows OpenPanel users to toggle Co
 ![WAF page listing domains with a toggle to enable the firewall and Manage Rules and View Logs buttons](/img/openpanel-screenshots/advanced/waf-list.png#gh-light-mode-only)
 ![WAF page listing domains with a toggle to enable the firewall and Manage Rules and View Logs buttons](/img/openpanel-screenshots/advanced/waf-list_dark.png#gh-dark-mode-only)
 
+## Bulk Actions
+
+Tick the checkbox of one or more domains, or the checkbox in the table header to select every domain shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![A domain selected with the bulk actions bar offering Enable WAF and Disable WAF](/img/openpanel-screenshots/advanced/waf-bulk.png#gh-light-mode-only)
+![A domain selected with the bulk actions bar offering Enable WAF and Disable WAF](/img/openpanel-screenshots/advanced/waf-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Enable WAF** | Turns on the firewall for the selected domains. |
+| **Disable WAF** | Turns off the firewall for the selected domains. |
+
+Click an action, confirm it, and it runs on the selected domains one after another. When it's done the page reloads with a notice listing the domains it worked for, or which ones failed and why.
+
 ## Manage domain
 
 Clicking the **Manage Rules** button next to a domain opens the rule management page where you can disable individual rules for that domain.

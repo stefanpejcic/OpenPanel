@@ -63,3 +63,21 @@ To delete a PostgreSQL user, click the **Delete** button next to the user in the
 :::info
 Built-in PostgreSQL roles (such as `postgres` and the predefined `pg_*` roles) are marked as **System User** and cannot be edited or deleted.
 :::
+
+## Bulk Actions
+
+Tick the checkbox of one or more users, or the checkbox in the table header to select every user shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two PostgreSQL users selected with the bulk actions bar offering Change password, Add to database, Remove from database and Delete](/img/openpanel-screenshots/postgresql/users-bulk.png#gh-light-mode-only)
+![Two PostgreSQL users selected with the bulk actions bar offering Change password, Add to database, Remove from database and Delete](/img/openpanel-screenshots/postgresql/users-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Change password** | Sets the same new password on the selected users. |
+| **Add to database** | Gives the selected users all privileges on the database you pick. |
+| **Remove from database** | Removes the selected users from the database you pick. |
+| **Delete** | Permanently deletes the selected users. |
+
+System users can't be selected.
+
+Click an action, confirm it, and it runs on the selected users one after another. When it's done the page reloads with a notice listing the users it worked for, or which ones failed and why.

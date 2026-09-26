@@ -114,6 +114,21 @@ System usernames (e.g. `root`, `mysql`, `phpmyadmin`) cannot be added, edited, o
 
 ---
 
+## Bulk Actions
+
+Tick the checkbox of one or more hosts, or the checkbox in the table header to select every host shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two allowed hosts of a user selected in the remote access list with the bulk actions bar offering Remove access](/img/openpanel-screenshots/mysql/remote_access-bulk.png#gh-light-mode-only)
+![Two allowed hosts of a user selected in the remote access list with the bulk actions bar offering Remove access](/img/openpanel-screenshots/mysql/remote_access-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Remove access** | Removes remote access for the selected user and host pairs. |
+
+Each allowed host of a user has its own checkbox, the checkbox in the **Allowed From** header selects all of them.
+
+Click an action, confirm it, and it runs on the selected hosts one after another. When it's done the page reloads with a notice listing the hosts it worked for, or which ones failed and why.
+
 ## Disable remote MySQL access
 
 If you wish to disable access, simply click on the "Disable Remote Database Access" button, and it will immediately deactivate remote access in your MySQL configuration. Please be aware that this action will also necessitate a MySQL service restart to apply the new setting.

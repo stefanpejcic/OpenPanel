@@ -51,6 +51,12 @@ Click **Start Installation** and you’re done.
 ![Install WordPress form with site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/wp_install-form.png#gh-light-mode-only)
 ![Install WordPress form with site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/wp_install-form_dark.png#gh-dark-mode-only)
 
+:::info
+New WordPress sites get **high-performance database keys** during installation: the same keys the [Index WP MySQL For Speed](https://wordpress.org/plugins/index-wp-mysql-for-speed/) plugin adds, applied directly to the database without installing the plugin. They make lookups on posts, post meta, options, comments and users faster as the site grows. Your content isn't changed, only the table indexes.
+
+A later WordPress core database upgrade can add some of the standard keys back next to them. That doesn't break anything, and you can install the plugin yourself if you want it to keep managing the keys.
+:::
+
 📘 Read the full guide: [How to Install WordPress® With OpenPanel](/docs/articles/websites/how-to-install-wordpress-with-openpanel/#install-wordpress-via-wp-manager)
 
 ### Scanning (Importing) Installations
@@ -80,6 +86,24 @@ For example, you might set up a default combo like:
 Every time you install a new site — boom, it’s ready with your preferred setup.
 
 📘 Read the full guide: [WordPress Plugin & Theme Sets in OpenPanel](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
+
+### Bulk Actions
+
+Tick the checkbox of one or more sites, or the checkbox in the table header to select every site shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two WordPress sites selected in the table view with the bulk actions bar offering Update, Backup, Detach and Uninstall](/img/openpanel-screenshots/applications/wp_manager-bulk.png#gh-light-mode-only)
+![Two WordPress sites selected in the table view with the bulk actions bar offering Update, Backup, Detach and Uninstall](/img/openpanel-screenshots/applications/wp_manager-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Update** | Updates WordPress core on the selected sites. |
+| **Backup** | Backs up the files and database of the selected sites. |
+| **Detach** | Removes the selected sites from WordPress Manager, their files and databases are kept. |
+| **Uninstall** | Permanently deletes the selected sites, including their files and databases. |
+
+Bulk actions are in the **Table view**, click **Switch to Table view** if the sites are shown as cards.
+
+Click an action, confirm it, and it runs on the selected sites one after another. When it's done the page reloads with a notice listing the sites it worked for, or which ones failed and why.
 
 ### Refresh Website Data
 

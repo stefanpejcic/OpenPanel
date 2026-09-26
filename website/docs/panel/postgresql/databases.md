@@ -39,6 +39,24 @@ Each database row has these actions:
 - **Export**: opens a small panel where you choose the export **Format**, `SQL` (`.sql`) or `GZIP` (`.sql.gz`), and **Destination** (download to your **Browser**, or save to a **Files** path under `/var/www/html/`), then click **Export**. The export is made with `pg_dump` and can be imported back on the Import page.
 - **Delete**: permanently deletes the database.
 
+## Bulk Actions
+
+Tick the checkbox of one or more databases, or the checkbox in the table header to select every database shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two PostgreSQL databases selected with the bulk actions bar offering Export, Assign user, Remove user and Delete](/img/openpanel-screenshots/postgresql/databases-bulk.png#gh-light-mode-only)
+![Two PostgreSQL databases selected with the bulk actions bar offering Export, Assign user, Remove user and Delete](/img/openpanel-screenshots/postgresql/databases-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Export** | Exports each selected database as a `.sql.gz` file to the folder you enter under `/var/www/html`. |
+| **Assign user** | Gives the user you pick all privileges on the selected databases. |
+| **Remove user** | Removes the user you pick from the selected databases. |
+| **Delete** | Permanently deletes the selected databases. |
+
+System databases can't be selected.
+
+Click an action, confirm it, and it runs on the selected databases one after another. When it's done the page reloads with a notice listing the databases it worked for, or which ones failed and why.
+
 ## Delete a PostgreSQL Database
 
 To delete an existing PostgreSQL database, click on the "Delete" button next to the database name in the table.

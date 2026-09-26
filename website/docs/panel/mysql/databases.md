@@ -79,6 +79,26 @@ After it runs, each table shows a short result:
 
 Views are not listed, since they don't store any data.
 
+## Bulk Actions
+
+Tick the checkbox of one or more databases, or the checkbox in the table header to select every database shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two databases selected with the bulk actions bar offering Export, Optimize, Repair, Assign user, Remove user and Delete](/img/openpanel-screenshots/mysql/databases-bulk.png#gh-light-mode-only)
+![Two databases selected with the bulk actions bar offering Export, Optimize, Repair, Assign user, Remove user and Delete](/img/openpanel-screenshots/mysql/databases-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Export** | Exports each selected database as a `.sql.gz` file to the folder you enter under `/var/www/html`. |
+| **Optimize** | Optimizes all tables in the selected databases. |
+| **Repair** | Repairs all tables in the selected databases. |
+| **Assign user** | Gives the user you pick all privileges on the selected databases. |
+| **Remove user** | Removes the user you pick from the selected databases. |
+| **Delete** | Permanently deletes the selected databases. |
+
+System databases can't be selected.
+
+Click an action, confirm it, and it runs on the selected databases one after another. When it's done the page reloads with a notice listing the databases it worked for, or which ones failed and why.
+
 ## Delete a MySQL Database
 
 To delete an existing MySQL database, click on the "Delete" button next to the database name in the table.

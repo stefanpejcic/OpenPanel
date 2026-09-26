@@ -14170,3 +14170,559 @@ msgstr ""
 #: internal/web/sidebar.go
 msgid "Panel"
 msgstr ""
+
+#: internal/web/bulk.go:140
+#, python-format
+msgid "%(action_title)s: %(failed)s of %(total)s selected item(s) failed."
+msgstr ""
+
+#: internal/web/bulk.go:138
+#, python-format
+msgid "%(action_title)s: completed successfully for all %(total)s selected item(s)."
+msgstr ""
+
+#: internal/modules/docker/bulk.go:31
+msgid "0 = unlimited"
+msgstr ""
+
+#: internal/modules/crons/bulk.go:35
+msgid "6 fields, seconds first"
+msgstr ""
+
+#: internal/web/bulk.go:366
+msgid "A value is required for this action."
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:52
+msgid "Add to database"
+msgstr ""
+
+#: internal/modules/crons/bulk.go:38
+msgid "Allow the selected cron jobs to run while the previous run is still going?"
+msgstr ""
+
+#: internal/modules/php/bulk.go:65
+#, python-format
+msgid "Already on PHP %(version)s."
+msgstr ""
+
+#: internal/modules/emails/bulk.go:26
+msgid "Also deliver the selected aliases to:"
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:43
+msgid "Assign user"
+msgstr ""
+
+#: internal/modules/wordpress/bulk.go:17
+msgid "Back up the files and database of the selected sites?"
+msgstr ""
+
+#: internal/modules/wordpress/bulk.go:17
+msgid "Backup"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:135
+msgid "Built-in containers can't be deleted."
+msgstr ""
+
+#: internal/modules/docker/bulk.go:54
+#, python-format
+msgid "CPU limit can't be more than the %(cores)s cores on your plan."
+msgstr ""
+
+#: internal/modules/domains/bulk.go:19
+msgid "Change PHP version"
+msgstr ""
+
+#: internal/modules/crons/bulk.go:36
+msgid "Change container"
+msgstr ""
+
+#: internal/modules/ftp/ftp.go:489
+msgid "Change password"
+msgstr ""
+
+#: internal/modules/ftp/ftp.go:490
+msgid "Change path"
+msgstr ""
+
+#: internal/modules/emails/bulk.go:17
+msgid "Change quota"
+msgstr ""
+
+#: internal/modules/crons/bulk.go:34
+msgid "Change schedule"
+msgstr ""
+
+#: internal/web/templates/manager/sites.html:478
+msgid "Clear"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:116
+msgid "Container not found."
+msgstr ""
+
+#: internal/modules/docker/bulk.go:109
+msgid "Could not read docker-compose.yml."
+msgstr ""
+
+#: internal/modules/crons/bulk.go:86
+msgid "Cron job not found, reload the page."
+msgstr ""
+
+#: internal/modules/dns/bulk.go:31
+msgid "Delete the selected DNS records?"
+msgstr ""
+
+#: internal/modules/ftp/ftp.go:491
+msgid "Delete the selected FTP accounts? Their files are kept."
+msgstr ""
+
+#: internal/modules/emails/bulk.go:27
+msgid "Delete the selected aliases?"
+msgstr ""
+
+#: internal/modules/crons/bulk.go:39
+msgid "Delete the selected cron jobs?"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:140
+msgid "Deleted."
+msgstr ""
+
+#: internal/modules/wordpress/bulk.go:18
+msgid "Detach the selected sites from WordPress Manager? Files and databases are kept."
+msgstr ""
+
+#: internal/modules/waf/register.go:37
+msgid "Disable WAF"
+msgstr ""
+
+#: internal/modules/waf/register.go:37
+msgid "Disable the firewall for the selected domains?"
+msgstr ""
+
+#: internal/modules/websites/bulk.go:238
+msgid "Done."
+msgstr ""
+
+#: internal/modules/docker/bulk.go:30
+msgid "Edit CPU"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:34
+msgid "Edit PIDs"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:32
+msgid "Edit RAM"
+msgstr ""
+
+#: internal/modules/waf/register.go:36
+msgid "Enable WAF"
+msgstr ""
+
+#: internal/modules/waf/register.go:36
+msgid "Enable the firewall for the selected domains?"
+msgstr ""
+
+#: internal/web/templates/manager/sites.html:113
+msgid "Error occurred during bulk action."
+msgstr ""
+
+#: internal/modules/dns/bulk.go:117
+msgid "Error saving the zone file."
+msgstr ""
+
+#: internal/modules/crons/bulk.go:58
+#, python-format
+msgid "Exit code %(code)s."
+msgstr ""
+
+#: internal/modules/crons/bulk.go:60
+#, python-format
+msgid "Exit code %(code)s: %(output)s"
+msgstr ""
+
+#: internal/modules/mongodb/bulk.go:23
+msgid "Export the selected databases as .archive.gz files to this folder:"
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:39
+msgid "Export the selected databases as .sql.gz files to this folder:"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:138
+msgid "Failed to update docker-compose.yml."
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:52
+msgid "Give the selected users all privileges on:"
+msgstr ""
+
+#: internal/modules/mongodb/bulk.go:34
+msgid "Give the selected users read and write access to:"
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:43
+msgid "Give this user all privileges on the selected databases:"
+msgstr ""
+
+#: internal/modules/mongodb/bulk.go:25
+msgid "Give this user read and write access to the selected databases:"
+msgstr ""
+
+#: internal/modules/mysql/register.go:132
+msgid "Invalid entry."
+msgstr ""
+
+#: internal/modules/malwarescan/bulk.go:25
+msgid "Invalid file."
+msgstr ""
+
+#: internal/modules/processmanager/register.go:23
+msgid "Invalid process."
+msgstr ""
+
+#: internal/web/bulk.go:81
+msgid "Invalid request body."
+msgstr ""
+
+#: internal/modules/mongodb/register.go:65
+msgid "Kill the selected operations?"
+msgstr ""
+
+#: internal/modules/processmanager/register.go:32
+msgid "Kill the selected processes?"
+msgstr ""
+
+#: internal/modules/mysql/register.go:141
+msgid "Kill the selected queries?"
+msgstr ""
+
+#: internal/modules/emails/bulk.go:14
+msgid "Let the selected accounts receive emails again?"
+msgstr ""
+
+#: internal/modules/emails/bulk.go:16
+msgid "Let the selected accounts send emails again?"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:51
+msgid "Limit must be 0 or a positive number."
+msgstr ""
+
+#: internal/modules/malwarescan/bulk.go:16
+msgid "Mark safe"
+msgstr ""
+
+#: internal/modules/malwarescan/bulk.go:16
+msgid "Mark the selected files as safe and restore them? Future scans will skip them."
+msgstr ""
+
+#: internal/modules/docker/bulk.go:57
+#, python-format
+msgid "Memory limit can't be more than the %(gb)s GB on your plan."
+msgstr ""
+
+#: internal/modules/dns/bulk.go:29
+msgid "New TTL in seconds for the selected records:"
+msgstr ""
+
+#: internal/modules/ftp/ftp.go:490
+msgid "New home folder for the selected FTP accounts:"
+msgstr ""
+
+#: internal/modules/emails/bulk.go:17
+msgid "New mailbox size (GB) for the selected accounts:"
+msgstr ""
+
+#: internal/modules/crons/bulk.go:34
+msgid "New schedule for the selected cron jobs:"
+msgstr ""
+
+#: internal/modules/crons/bulk.go:38
+msgid "No overlap off"
+msgstr ""
+
+#: internal/modules/crons/bulk.go:37
+msgid "No overlap on"
+msgstr ""
+
+#: internal/modules/domains/bulk.go:54
+msgid "No redirect set."
+msgstr ""
+
+#: internal/web/templates/partials/_bulk.html:5
+msgid "None of the selected items support this action."
+msgstr ""
+
+#: internal/web/bulk.go:252
+msgid "Not authenticated."
+msgstr ""
+
+#: internal/web/bulk.go:85
+msgid "Nothing selected."
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:41
+msgid "Optimize all tables in the selected databases?"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:62
+msgid "PIDs limit must be 0 or a positive whole number."
+msgstr ""
+
+#: internal/modules/docker/bulk.go:36
+msgid "Permanently delete the selected containers and their images? This cannot be undone."
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:45
+msgid "Permanently delete the selected databases? This cannot be undone."
+msgstr ""
+
+#: internal/modules/domains/bulk.go:26
+msgid "Permanently delete the selected domains, including their websites, files and DNS zones? This cannot be undone."
+msgstr ""
+
+#: internal/modules/emails/bulk.go:20
+msgid "Permanently delete the selected email accounts and all their emails? This cannot be undone."
+msgstr ""
+
+#: internal/modules/malwarescan/bulk.go:17
+msgid "Permanently delete the selected files? This cannot be undone."
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:54
+msgid "Permanently delete the selected users? This cannot be undone."
+msgstr ""
+
+#: internal/modules/dns/bulk.go:91
+msgid "Record changed since the page loaded, reload and try again."
+msgstr ""
+
+#: internal/modules/dns/bulk.go:93
+msgid "Record not found."
+msgstr ""
+
+#: internal/modules/domains/bulk.go:21
+msgid "Redirect the selected domains to:"
+msgstr ""
+
+#: internal/modules/domains/bulk.go:21
+msgid "Redirect to"
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:110
+msgid "Remove access"
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:53
+msgid "Remove from database"
+msgstr ""
+
+#: internal/modules/domains/bulk.go:23
+msgid "Remove redirect"
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:110
+msgid "Remove remote access for the selected user and host pairs?"
+msgstr ""
+
+#: internal/modules/domains/bulk.go:23
+msgid "Remove the redirect from the selected domains?"
+msgstr ""
+
+#: internal/modules/account/favorites.go:252
+msgid "Remove the selected pages from favorites?"
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:53
+msgid "Remove the selected users from:"
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:44
+msgid "Remove this user from the selected databases:"
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:44
+msgid "Remove user"
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:42
+msgid "Repair all tables in the selected databases?"
+msgstr ""
+
+#: internal/modules/php/bulk.go:33
+msgid "Reset to default"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:29
+msgid "Restart the selected containers?"
+msgstr ""
+
+#: internal/modules/malwarescan/bulk.go:15
+msgid "Restore the selected files to their original location?"
+msgstr ""
+
+#: internal/modules/account/mcp.go:140
+msgid "Revoke the selected tokens? MCP clients using them stop working immediately."
+msgstr ""
+
+#: internal/modules/crons/bulk.go:33
+msgid "Run now"
+msgstr ""
+
+#: internal/modules/crons/bulk.go:36
+msgid "Run the selected cron jobs in:"
+msgstr ""
+
+#: internal/modules/crons/bulk.go:33
+msgid "Run the selected cron jobs now, one after another?"
+msgstr ""
+
+#: internal/web/templates/partials/_bulk.html:84
+msgid "Running..."
+msgstr ""
+
+#: internal/modules/docker/bulk.go:30
+msgid "Set the CPU limit for the selected containers:"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:34
+msgid "Set the max processes for the selected containers:"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:32
+msgid "Set the memory limit (GB) for the selected containers:"
+msgstr ""
+
+#: internal/modules/ftp/ftp.go:489
+msgid "Set this password for the selected FTP accounts:"
+msgstr ""
+
+#: internal/modules/emails/bulk.go:19
+msgid "Set this password for the selected accounts:"
+msgstr ""
+
+#: internal/modules/mysql/bulk.go:51
+msgid "Set this password for the selected users:"
+msgstr ""
+
+#: internal/modules/wordpress/bulk.go:65
+msgid "Site not found."
+msgstr ""
+
+#: internal/modules/crons/bulk.go:37
+msgid "Skip a run of the selected cron jobs while the previous one is still running?"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:27
+msgid "Start the selected containers?"
+msgstr ""
+
+#: internal/modules/emails/bulk.go:13
+msgid "Stop the selected accounts from receiving emails?"
+msgstr ""
+
+#: internal/modules/emails/bulk.go:15
+msgid "Stop the selected accounts from sending emails?"
+msgstr ""
+
+#: internal/modules/docker/bulk.go:28
+msgid "Stop the selected containers?"
+msgstr ""
+
+#: internal/modules/emails/bulk.go:13
+msgid "Suspend incoming"
+msgstr ""
+
+#: internal/modules/emails/bulk.go:15
+msgid "Suspend outgoing"
+msgstr ""
+
+#: internal/modules/domains/bulk.go:17
+msgid "Suspend the selected domains? Visitors will see a suspended page."
+msgstr ""
+
+#: internal/modules/php/bulk.go:33
+msgid "Switch the selected domains to the default PHP version?"
+msgstr ""
+
+#: internal/modules/php/bulk.go:32
+msgid "Switch the selected domains to:"
+msgstr ""
+
+#: internal/modules/dns/bulk.go:63
+msgid "TTL must be a whole number of at least 60 seconds."
+msgstr ""
+
+#: internal/modules/account/sessions.go:144
+msgid "Terminate the selected sessions? Anyone using them will be logged out."
+msgstr ""
+
+#: internal/modules/php/bulk.go:63
+msgid "This domain doesn't use PHP."
+msgstr ""
+
+#: internal/modules/account/sessions.go:135
+msgid "This is your current session."
+msgstr ""
+
+#: internal/modules/dns/bulk.go:95
+msgid "This record has no TTL field to change."
+msgstr ""
+
+#: internal/web/templates/user/active_sessions.html:82
+msgid "This session"
+msgstr ""
+
+#: internal/modules/wordpress/bulk.go:19
+msgid "Uninstall the selected sites, including their files and databases? This cannot be undone."
+msgstr ""
+
+#: internal/modules/docker/bulk.go:98
+msgid "Unknown bulk action."
+msgstr ""
+
+#: internal/modules/crons/bulk.go:107
+msgid "Unknown container."
+msgstr ""
+
+#: internal/modules/emails/bulk.go:14
+msgid "Unsuspend incoming"
+msgstr ""
+
+#: internal/modules/emails/bulk.go:16
+msgid "Unsuspend outgoing"
+msgstr ""
+
+#: internal/modules/domains/bulk.go:18
+msgid "Unsuspend the selected domains?"
+msgstr ""
+
+#: internal/modules/dns/bulk.go:29
+msgid "Update TTL"
+msgstr ""
+
+#: internal/modules/wordpress/bulk.go:16
+msgid "Update WordPress core on the selected sites?"
+msgstr ""
+
+#: internal/web/templates/partials/_bulk.html:57
+msgid "selected item(s) don't support this action and will be skipped."
+msgstr ""
+
+#: internal/modules/wordpress/dbkeys.go:45
+msgid "Adding high-performance database keys"
+msgstr ""
+
+#: internal/modules/wordpress/dbkeys.go:42
+msgid "Skipped high-performance database keys, unusual table prefix."
+msgstr ""
+
+#: internal/modules/wordpress/dbkeys.go:49
+#, python-format
+msgid "Could not add high-performance keys to %(table)s: %(error)s"
+msgstr ""

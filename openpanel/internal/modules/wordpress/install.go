@@ -334,6 +334,8 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		_ = podmanmanager.Command(ctx, userContext, evalArgv).Run()
 	}
 
+	addHighPerformanceKeys(a, r, userContext, dbName, prefix, emit)
+
 	emit(map[string]any{"status": "Enabling auto-login from SiteManager"})
 
 	emit(map[string]any{"status": "Checking for server-wide or user provided themes and plugins sets to be installed"})

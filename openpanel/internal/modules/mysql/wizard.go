@@ -52,7 +52,7 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 			flashAndRerender("error", "Database name is required.")
 			return
 		case !validators.IsValidIdentifier(databaseName):
-			flashAndRerender("error", "Name "+databaseName+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+")
+			flashAndRerender("error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "database_name", databaseName))
 			return
 		case isRestrictedDatabase(databaseName):
 			flashAndRerender("error", "This is a system database that can not be used.")
@@ -61,7 +61,7 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 			flashAndRerender("error", "User name is required.")
 			return
 		case !validators.IsValidIdentifier(dbUser):
-			flashAndRerender("error", "Name "+dbUser+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+")
+			flashAndRerender("error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "db_user", dbUser))
 			return
 		case !validators.IsValidHost(dbHost):
 			flashAndRerender("error", "Invalid host format.")

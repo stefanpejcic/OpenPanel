@@ -75,14 +75,14 @@ type BulkResult struct {
 }
 
 // DecodeBulkRequest reads the JSON body and writes a 400 itself when it's unusable
-func DecodeBulkRequest(w http.ResponseWriter, r *http.Request) (BulkRequest, bool) {
+func DecodeBulkRequest(a *appctx.App, w http.ResponseWriter, r *http.Request) (BulkRequest, bool) {
 	var req BulkRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeBulkJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
+		BulkError(a, w, r, "Invalid request body.")
 		return req, false
 	}
 	if len(req.Items) == 0 {
-		writeBulkJSON(w, http.StatusBadRequest, map[string]string{"error": "Nothing selected"})
+		BulkError(a, w, r, "Nothing selected.")
 		return req, false
 	}
 	return req, true
@@ -140,7 +140,7 @@ func BulkFlashMessage(a *appctx.App, r *http.Request, actionLabel string, result
 	msg := Tr(a, r, "%(action_title)s: %(failed)s of %(total)s selected item(s) failed.", "action_title", actionLabel, "failed", strconv.Itoa(len(failed)), "total", total)
 	for _, res := range failed {
 		// flashes render as HTML and items can be user-named
-		msg += " " + html.EscapeString(res.Item) + " (" + html.EscapeString(res.Message) + ")."
+		msg += " " + html.EscapeString(res.Item) + " (" + html.EscapeString(Tr(a, r, res.Message)) + ")."
 	}
 	return msg
 }
@@ -157,6 +157,11 @@ func bulkItemList(results []BulkResult) string {
 		names = append(names, html.EscapeString(res.Item))
 	}
 	return strings.Join(names, ", ") + "."
+}
+
+// BulkError rejects the whole request with a translated message the bulk bar shows as a toast, kv fills its %(name)s placeholders
+func BulkError(a *appctx.App, w http.ResponseWriter, r *http.Request, msg string, kv ...any) {
+	writeBulkJSON(w, http.StatusBadRequest, map[string]string{"error": Tr(a, r, msg, kv...)})
 }
 
 func writeBulkJSON(w http.ResponseWriter, status int, v any) {
@@ -344,13 +349,13 @@ func Call(call BulkCall) (*BulkCall, BulkResult) { return &call, BulkResult{} }
 
 // ServeBulkDispatch is a complete POST /<page>/bulk handler: validate the action, then replay each item through its single-item route on h
 func ServeBulkDispatch(a *appctx.App, h http.Handler, w http.ResponseWriter, r *http.Request, actions []BulkAction, route BulkRoute) {
-	req, ok := DecodeBulkRequest(w, r)
+	req, ok := DecodeBulkRequest(a, w, r)
 	if !ok {
 		return
 	}
 	act, found := FindBulkAction(actions, req.Action)
 	if !found {
-		writeBulkJSON(w, http.StatusBadRequest, map[string]string{"error": "Unknown bulk action"})
+		BulkError(a, w, r, "Unknown bulk action.")
 		return
 	}
 	// passwords keep their spaces
@@ -358,7 +363,7 @@ func ServeBulkDispatch(a *appctx.App, h http.Handler, w http.ResponseWriter, r *
 		req.Value = strings.TrimSpace(req.Value)
 	}
 	if act.Input != nil && req.Value == "" {
-		writeBulkJSON(w, http.StatusBadRequest, map[string]string{"error": "A value is required for this action"})
+		BulkError(a, w, r, "A value is required for this action.")
 		return
 	}
 	results := RunBulk(req.Items, func(item string) BulkResult {

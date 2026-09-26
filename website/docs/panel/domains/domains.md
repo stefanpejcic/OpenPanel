@@ -35,6 +35,30 @@ Depending on the features enabled on your server, the following actions are avai
 
 In addition, if the **Redirects** feature is enabled, a dedicated **Redirect** column lets you create, edit, or delete a redirect directly from the table without opening the dropdown menu.
 
+## Bulk Actions
+
+Tick the checkbox of one or more domains, or the checkbox in the table header to select every domain shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![A domain selected with the bulk actions bar offering Suspend, Unsuspend, Change PHP version, Redirect to, Remove redirect, Enable WAF, Disable WAF and Delete](/img/openpanel-screenshots/domains/domains-bulk.png#gh-light-mode-only)
+![A domain selected with the bulk actions bar offering Suspend, Unsuspend, Change PHP version, Redirect to, Remove redirect, Enable WAF, Disable WAF and Delete](/img/openpanel-screenshots/domains/domains-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Suspend** | Suspends the selected domains, visitors see a suspended page. |
+| **Unsuspend** | Makes the selected domains available again. |
+| **Change PHP version** | Switches the selected domains to the PHP version you pick. |
+| **Redirect to** | Redirects the selected domains to the URL you enter, starting with `http://` or `https://`. |
+| **Remove redirect** | Removes the redirect from the selected domains. |
+| **Enable WAF** | Turns on the firewall for the selected domains. |
+| **Disable WAF** | Turns off the firewall for the selected domains. |
+| **Delete** | Permanently deletes the selected domains, including their websites, files and DNS zones. |
+
+:::info
+Actions only show when your plan includes that feature, for example **Suspend** and **Unsuspend** need domain suspension, and **Change PHP version** needs PHP. Selected domains that don't support an action, like a domain that is already suspended, are skipped.
+:::
+
+Click an action, confirm it, and it runs on the selected domains one after another. When it's done the page reloads with a notice listing the domains it worked for, or which ones failed and why.
+
 ## Create a New Domain
 
 To add a new domain:

@@ -171,9 +171,64 @@ export const clickAlpine = (expr, wait = 1200) => async page => {
 
 // tick the bulk-select checkboxes of these rows (shared partials/_bulk.html markup)
 export const bulkSelect = (keys, wait = 400) => async page => {
-  for (const k of keys) await page.locator(`input.bulk-select-box[value="${k}"]`).check();
+  // a number ticks the first N rows that can run bulk actions
+  if (typeof keys === 'number') {
+    const boxes = page.locator('input.bulk-select-box:not([data-bulk-skip="*"])');
+    // a DOM click, the fixed bar that appears after the first one covers the bottom rows
+    for (let i = 0; i < keys; i++) await boxes.nth(i).evaluate(el => el.click());
+  } else {
+    for (const k of keys) await page.locator(`input.bulk-select-box[value="${k}"]`).evaluate(el => el.click());
+  }
   // check() scrolls rows into view, go back up so the crop starts at the table
   await page.evaluate(() => document.querySelectorAll('*').forEach(el => { if (el.scrollTop) el.scrollTop = 0; }));
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(wait);
+};
+
+// drop the table rows whose bulk checkbox isn't one of keep, so a shared test server only shows the fixtures
+export const onlyRows = (table, keep) => async page => {
+  await page.evaluate(([table, keep]) => {
+    document.querySelectorAll(`${table} tbody input.bulk-select-box`).forEach(cb => { const tr = cb.closest('tr'); if (tr) tr.dataset.hadBox = ''; });
+    document.querySelectorAll(`${table} tbody input.bulk-select-box`).forEach(cb => {
+      if (keep.some(k => cb.value === k || cb.value.startsWith(k))) return;
+      const row = cb.closest('tr');
+      // rows like remote access hold one checkbox per host, drop just that host's line
+      if (row && row.querySelectorAll('input.bulk-select-box').length > 1) cb.parentElement.remove();
+      else (row || cb.parentElement).remove();
+    });
+    document.querySelectorAll(`${table} tbody tr`).forEach(tr => {
+      if (tr.dataset.hadBox !== undefined && !tr.querySelector('input.bulk-select-box')) tr.remove();
+    });
+    // the "Total ...: N" badge above the table still counts the dropped rows
+    const left = document.querySelectorAll(`${table} tbody input.bulk-select-box`).length;
+    const header = document.querySelector('main');
+    for (const el of header.querySelectorAll('span, p')) {
+      if (/^Total [a-z ]+:/i.test(el.textContent.trim())) {
+        const badge = el.querySelector('span');
+        if (badge && /^\d+$/.test(badge.textContent.trim())) badge.textContent = String(left);
+      }
+    }
+  }, [table, keep]);
+};
+
+// the bulk bar is fixed to the bottom of the window, for a shot put it back in the flow right under the table
+export const fitBulkBar = () => async page => {
+  await page.evaluate(() => {
+    const bar = document.getElementById('bulk-actions-bar');
+    bar.style.position = 'static';
+    bar.style.left = bar.style.right = '';
+    // the spacer that keeps the fixed bar off the last rows
+    const spacer = bar.previousElementSibling;
+    if (spacer && spacer.getAttribute('aria-hidden') === 'true') spacer.style.display = 'none';
+    // tall wrappers like min-h-[90vh] would leave a gap between the table and the bar
+    bar.parentElement.querySelectorAll('[class*="min-h-"]').forEach(el => { el.style.minHeight = '0'; });
+  });
+  await page.waitForTimeout(300);
+};
+
+// keep only the first n rows of a long table
+export const firstRows = (table, n) => async page => {
+  await page.evaluate(([table, n]) => {
+    [...document.querySelectorAll(`${table} tbody tr`)].slice(n).forEach(tr => tr.remove());
+  }, [table, n]);
 };

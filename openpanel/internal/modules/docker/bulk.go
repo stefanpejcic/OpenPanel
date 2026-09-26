@@ -32,7 +32,7 @@ func containerBulkActions(t i18n.Translator, totalCPU, totalRAM int) []web.BulkA
 		{Key: "ram", Label: t.Get("Edit RAM"), Confirm: t.Get("Set the memory limit (GB) for the selected containers:"),
 			Input: &web.BulkInput{Type: "number", Min: "0", Max: ramMax, Step: ".01", Placeholder: "GB", Hint: t.Get("0 = unlimited")}},
 		{Key: "pids", Label: t.Get("Edit PIDs"), Confirm: t.Get("Set the max processes for the selected containers:"),
-			Input: &web.BulkInput{Type: "number", Min: "0", Step: "1", Placeholder: "PIDs", Hint: t.Get("0 = unlimited")}},
+			Input: &web.BulkInput{Type: "number", Min: "0", Step: "1", Placeholder: t.Get("PIDs"), Hint: t.Get("0 = unlimited")}},
 		{Key: "delete", Label: t.Get("Delete"), Confirm: t.Get("Permanently delete the selected containers and their images? This cannot be undone."), Danger: true},
 	}
 }
@@ -42,27 +42,27 @@ func canDeleteService(service string) bool {
 	return !coreServices[service] && !UndeletableServices[service] && !strings.HasPrefix(service, "php-fpm-")
 }
 
-// validateBulkLimit checks the cpu/ram/pids value once, before touching any container
-func validateBulkLimit(action, value string, totalCPU, totalRAM int) string {
+// validateBulkLimit checks the cpu/ram/pids value once, before touching any container, returning a msgid and its placeholder values
+func validateBulkLimit(action, value string, totalCPU, totalRAM int) (string, []any) {
 	switch action {
 	case "cpu", "ram":
 		val, err := strconv.ParseFloat(value, 64)
 		if err != nil || val < 0 {
-			return "Limit must be 0 or a positive number."
+			return "Limit must be 0 or a positive number.", nil
 		}
 		if action == "cpu" && totalCPU > 0 && val > float64(totalCPU) {
-			return fmt.Sprintf("CPU limit can't be more than the %d cores on your plan.", totalCPU)
+			return "CPU limit can't be more than the %(cores)s cores on your plan.", []any{"cores", totalCPU}
 		}
 		if action == "ram" && totalRAM > 0 && val > float64(totalRAM) {
-			return fmt.Sprintf("Memory limit can't be more than the %d GB on your plan.", totalRAM)
+			return "Memory limit can't be more than the %(gb)s GB on your plan.", []any{"gb", totalRAM}
 		}
 	case "pids":
 		val, err := strconv.Atoi(value)
 		if err != nil || val < 0 {
-			return "PIDs limit must be 0 or a positive whole number."
+			return "PIDs limit must be 0 or a positive whole number.", nil
 		}
 	}
-	return ""
+	return "", nil
 }
 
 // handleContainersBulk runs start/stop/restart/cpu/ram/pids/delete over the selected services, one by one
@@ -78,11 +78,11 @@ func handleContainersBulk(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	userContext, _ := injected["context"].(string)
 	planID, _ := injected["hosting_plan"].(int)
 	if username == "" {
-		writeJSONError(w, http.StatusUnauthorized, "User not authenticated")
+		writeJSONError(w, http.StatusUnauthorized, web.Tr(a, r, "User not authenticated"))
 		return
 	}
 
-	req, ok := web.DecodeBulkRequest(w, r)
+	req, ok := web.DecodeBulkRequest(a, w, r)
 	if !ok {
 		return
 	}
@@ -95,18 +95,18 @@ func handleContainersBulk(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 	}
 	if label == "" {
-		writeJSONError(w, http.StatusBadRequest, "Unknown bulk action")
+		web.BulkError(a, w, r, "Unknown bulk action.")
 		return
 	}
 	value := strings.TrimSpace(req.Value)
-	if msg := validateBulkLimit(req.Action, value, totalCPU, totalRAM); msg != "" {
-		writeJSONError(w, http.StatusBadRequest, msg)
+	if msg, kv := validateBulkLimit(req.Action, value, totalCPU, totalRAM); msg != "" {
+		web.BulkError(a, w, r, msg, kv...)
 		return
 	}
 
 	composeData, loadErr := LoadCompose(userContext)
 	if loadErr != nil {
-		writeJSONError(w, http.StatusInternalServerError, "Could not read docker-compose.yml")
+		writeJSONError(w, http.StatusInternalServerError, web.Tr(a, r, "Could not read docker-compose.yml."))
 		return
 	}
 

@@ -140,3 +140,21 @@ Open the **File Editor** tab, edit the jobs and click **Save Changes**.
 ![Cron jobs File Editor showing the jobs in crons.ini format](/img/openpanel-screenshots/advanced/cronjobs_editor-editor_dark.png#gh-dark-mode-only)
 
 See also: [Restart a service automatically with a cron job](/docs/articles/containers/restart-service-with-cron/)
+
+## Bulk Actions
+
+Tick the checkbox of one or more cron jobs, or the checkbox in the table header to select every cron job shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two cron jobs selected with the bulk actions bar offering Run now, Change schedule, Change container, No overlap on, No overlap off and Delete](/img/openpanel-screenshots/advanced/cronjobs-bulk.png#gh-light-mode-only)
+![Two cron jobs selected with the bulk actions bar offering Run now, Change schedule, Change container, No overlap on, No overlap off and Delete](/img/openpanel-screenshots/advanced/cronjobs-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Run now** | Runs the selected jobs one after another and reports each exit code. |
+| **Change schedule** | Sets the schedule you enter, with 6 fields (seconds first) or a descriptor like `@hourly`. |
+| **Change container** | Runs the selected jobs in the container you pick. |
+| **No overlap on** | Skips a run while the previous run of the same job is still going. |
+| **No overlap off** | Lets a job run even while its previous run is still going. |
+| **Delete** | Deletes the selected jobs. |
+
+Click an action, confirm it, and it runs on the selected cron jobs one after another. When it's done the page reloads with a notice listing the cron jobs it worked for, or which ones failed and why.

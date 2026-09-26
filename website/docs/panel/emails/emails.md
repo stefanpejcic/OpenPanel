@@ -51,6 +51,25 @@ Clicking **Manage** for an account opens the management screen where you can:
 
 ---
 
+## Bulk Actions
+
+Tick the checkbox of one or more accounts, or the checkbox in the table header to select every account shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+
+![Two email accounts selected with the bulk actions bar offering suspend and unsuspend of incoming and outgoing email, Change quota, Change password and Delete](/img/openpanel-screenshots/emails/emails-bulk.png#gh-light-mode-only)
+![Two email accounts selected with the bulk actions bar offering suspend and unsuspend of incoming and outgoing email, Change quota, Change password and Delete](/img/openpanel-screenshots/emails/emails-bulk_dark.png#gh-dark-mode-only)
+
+| Action | What it does |
+|---|---|
+| **Suspend incoming** | Stops the selected accounts from receiving emails. |
+| **Unsuspend incoming** | Lets them receive emails again. |
+| **Suspend outgoing** | Stops the selected accounts from sending emails. |
+| **Unsuspend outgoing** | Lets them send emails again. |
+| **Change quota** | Sets the mailbox size in GB, `0` is unlimited. It can't be more than your plan allows. |
+| **Change password** | Sets the same new password on the selected accounts. |
+| **Delete** | Permanently deletes the selected accounts and all their emails. |
+
+Click an action, confirm it, and it runs on the selected accounts one after another. When it's done the page reloads with a notice listing the accounts it worked for, or which ones failed and why.
+
 ## Connect Devices
 
 Click **Connect Devices** to view the email server settings for that account.
