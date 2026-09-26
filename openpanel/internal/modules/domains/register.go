@@ -17,6 +17,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /domains", requireLogin("domains", func(w http.ResponseWriter, r *http.Request) { handleDomainsPage(a, w, r) }))
 	mux.Handle("/domains/new", requireLogin("domains", func(w http.ResponseWriter, r *http.Request) { handleDomainsNew(a, w, r) }))
 	mux.Handle("/domains/delete", requireLogin("domains", func(w http.ResponseWriter, r *http.Request) { handleDeleteDomain(a, w, r) }))
+	mux.Handle("POST /domains/bulk", requireLogin("domains", func(w http.ResponseWriter, r *http.Request) { handleDomainsBulk(a, mux, w, r) }))
 
 	mux.Handle("/domains/suspend", requireLogin("domain_suspend", func(w http.ResponseWriter, r *http.Request) { handleSuspendDomain(a, w, r) }))
 	mux.Handle("/domains/unsuspend", requireLogin("domain_suspend", func(w http.ResponseWriter, r *http.Request) { handleUnsuspendDomain(a, w, r) }))

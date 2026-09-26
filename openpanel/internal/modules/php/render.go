@@ -156,6 +156,7 @@ func renderPHPSettingsPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 	sortedAvailable := append([]string(nil), availableVersions...)
 	sortVersionsDesc(sortedAvailable)
+	layout.BulkActions = phpDomainsBulkActions(layout.T, sortedAvailable)
 	data := PHPSettingsPageData{
 		LayoutData: layout, Domains: rows, VersionCounts: counts,
 		OutdatedDomains: outdatedDomains, AvailablePHPVersions: sortedAvailable,

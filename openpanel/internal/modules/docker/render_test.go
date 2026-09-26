@@ -42,6 +42,7 @@ func TestRenderContainersPage(t *testing.T) {
 			{Service: "myapp", DisplayName: "myapp", Image: "custom/myapp:v1", ImageTrusted: false, CPUValue: "1.5", RAMGB: "2", ShowManage: true},
 		},
 	}
+	data.BulkActions = containerBulkActions(data.T, data.TotalCPU, data.TotalRAM)
 	w := httptest.NewRecorder()
 	if err := containersPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
@@ -54,6 +55,36 @@ func TestRenderContainersPage(t *testing.T) {
 	}
 	if strings.Contains(body, "/containers/edit/nginx") {
 		t.Error("core service nginx should not show an Edit link")
+	}
+	for _, want := range []string{`value="nginx" data-bulk-skip="delete"`, `value="myapp" data-bulk-skip=""`, `data-bulk-action="pids"`, `data-bulk-input="cpu"`, `max="4"`, "js/bulk-actions.js"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("rendered containers page missing bulk markup %q", want)
+		}
+	}
+}
+
+func TestValidateBulkLimit(t *testing.T) {
+	cases := []struct {
+		action, value string
+		ok            bool
+	}{
+		{"cpu", "0", true}, {"cpu", "2.5", true}, {"cpu", "5", false}, {"cpu", "-1", false}, {"cpu", "abc", false},
+		{"ram", "8", true}, {"ram", "9", false},
+		{"pids", "0", true}, {"pids", "200", true}, {"pids", "1.5", false},
+		{"stop", "", true},
+	}
+	for _, c := range cases {
+		if got := validateBulkLimit(c.action, c.value, 4, 8) == ""; got != c.ok {
+			t.Errorf("validateBulkLimit(%q, %q) ok=%v, want %v", c.action, c.value, got, c.ok)
+		}
+	}
+}
+
+func TestCanDeleteService(t *testing.T) {
+	for svc, want := range map[string]bool{"myapp": true, "nginx": false, "docker-proxy": false, "php-fpm-8.3": false, "backup": false} {
+		if got := canDeleteService(svc); got != want {
+			t.Errorf("canDeleteService(%q) = %v, want %v", svc, got, want)
+		}
 	}
 }
 

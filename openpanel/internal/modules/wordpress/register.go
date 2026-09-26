@@ -17,6 +17,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/wordpress/install", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleInstallPage(a, w, r)
 	})))
+	mux.Handle("POST /wordpress/bulk", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleWordPressBulk(a, mux, w, r)
+	})))
 
 	mux.Handle("GET /wordpress/backup/get_dates/{selected_domain...}", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleGetBackupDates(a, w, r)

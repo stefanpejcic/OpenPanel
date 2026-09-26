@@ -41,6 +41,7 @@ func renderFTPAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.BulkActions = ftpBulkActions(layout.T)
 	data := FTPAccountsPageData{LayoutData: layout, ServerIP: serverIP, DedicatedIP: dedicatedIP, FTPHost: ftpHost, FTPPort: ftpPort, Accounts: accounts}
 	if err := ftpAccountsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("FTP - accounts template render error: %v", err)

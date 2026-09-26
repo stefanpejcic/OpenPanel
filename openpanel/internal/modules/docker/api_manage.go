@@ -276,30 +276,7 @@ func apiContainerDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	svc, _ := svcRaw.(map[string]any)
-	containerName := service
-	if cn, ok := svc["container_name"].(string); ok && cn != "" {
-		containerName = cn
-	}
-	imageName, _ := svc["image"].(string)
-
-	StartOrStopContainer(ctx, userContext, containerName, "deactivate", "")
-	if imageName != "" {
-		removeImage(ctx, userContext, imageName)
-	}
-
-	env := LoadEnvFile(userContext)
-	prefix := strings.ToUpper(service) + "_"
-	for k := range env {
-		if strings.HasPrefix(k, prefix) {
-			delete(env, k)
-		}
-	}
-	_ = SaveEnvFile(userContext, env)
-
-	delete(services, service)
-	composeData["services"] = services
-	_ = SaveCompose(userContext, composeData)
+	_ = removeService(ctx, userContext, composeData, service, svcRaw)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted container "+service, reqip.ClientIP(r))
 	writeAPIDockerJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("Service '%s' deleted successfully.", service)})

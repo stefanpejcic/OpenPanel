@@ -182,6 +182,7 @@ func renderFavoritesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.BulkActions = favoritesBulkActions(layout.T)
 	data := FavoritesPageData{LayoutData: layout, Favorites: favorites}
 	if err := favoritesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - favorites template render error: %v", err)
@@ -200,6 +201,7 @@ func renderActiveSessionsPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.BulkActions = sessionsBulkActions(layout.T)
 	data := ActiveSessionsPageData{LayoutData: layout, Sessions: sessionsList}
 	if err := activeSessionsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - active sessions template render error: %v", err)
@@ -269,6 +271,7 @@ func renderMCPPage(a *appctx.App, w http.ResponseWriter, r *http.Request, tokens
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.BulkActions = mcpBulkActions(layout.T)
 	data := MCPPageData{LayoutData: layout, Tokens: tokens, MCPURL: mcpURL, NewToken: newToken}
 	if err := mcpPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - mcp template render error: %v", err)

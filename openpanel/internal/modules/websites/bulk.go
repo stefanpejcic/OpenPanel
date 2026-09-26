@@ -43,7 +43,7 @@ var cmsRemoveTypes = map[string]bool{
 	"tinyphotogallery": true, "tinyfilemanager": true, "ojs": true,
 }
 
-// cmsBackupTypes covers every type with a working GET /<type>/backup/run route - same set as cmsRemoveTypes, all 11 modules have backups.go.
+// cmsBackupTypes covers every type with a working POST /<type>/backup/run route - same set as cmsRemoveTypes, all 11 modules have backups.go.
 var cmsBackupTypes = cmsRemoveTypes
 
 // cmsUpdateTypes covers every type with a real one-click "Update now" CLI flow - Joomla/OpenCart/PrestaShop are browser-link-only by design, and PM2 apps (nodejs/python/ruby) require a version/requirements form, not a simple bulk update.
@@ -126,7 +126,7 @@ func dispatchBulkItem(a *appctx.App, mux *http.ServeMux, r *http.Request, action
 			return bulkResult{SiteName: item.SiteName, OK: false, Message: "Backups are not available for this site type."}
 		}
 		q := url.Values{"docroot": {item.Docroot}, "backup_database": {"true"}, "backup_files": {"true"}}
-		return internalDispatch(mux, r, item.SiteName, "GET", "/"+typeLower+"/backup/run/"+item.SiteName, nil, q)
+		return internalDispatch(mux, r, item.SiteName, "POST", "/"+typeLower+"/backup/run/"+item.SiteName, nil, q)
 
 	default:
 		return bulkResult{SiteName: item.SiteName, OK: false, Message: "Unknown bulk action."}
@@ -169,7 +169,7 @@ func bulkFlashMessage(a *appctx.App, r *http.Request, action string, results []b
 
 	msg := web.Tr(a, r, "%(action_title)s: %(failed)s of %(total)s selected site(s) failed.", "action_title", actionTitle, "failed", itoa(len(failed)), "total", itoa(len(results)))
 	for _, res := range failed {
-		msg += " " + res.SiteName + " (" + res.Message + ")."
+		msg += " " + res.SiteName + " (" + web.Tr(a, r, res.Message) + ")."
 	}
 	return msg
 }

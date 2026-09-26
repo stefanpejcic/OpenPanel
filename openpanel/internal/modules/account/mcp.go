@@ -2,12 +2,14 @@ package account
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -126,4 +128,15 @@ func RegisterMCP(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /account/mcp", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMCPSettings(a, w, r) }))
 	mux.Handle("POST /account/mcp/create", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMCPCreateToken(a, w, r) }))
 	mux.Handle("POST /account/mcp/{id}/revoke", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMCPRevokeToken(a, w, r) }))
+	mux.Handle("POST /account/mcp/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		web.ServeBulkDispatch(a, mux, w, r, mcpBulkActions(web.RequestTranslator(a, r)), func(_, _, id string) (*web.BulkCall, web.BulkResult) {
+			return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/account/mcp/" + url.PathEscape(id) + "/revoke"})
+		})
+	}))
+}
+
+func mcpBulkActions(t i18n.Translator) []web.BulkAction {
+	return []web.BulkAction{
+		{Key: "revoke", Label: t.Get("Revoke"), Confirm: t.Get("Revoke the selected tokens? MCP clients using them stop working immediately."), Danger: true},
+	}
 }

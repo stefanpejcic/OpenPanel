@@ -7,6 +7,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAccounts wires the email account routes onto mux.
@@ -24,6 +25,9 @@ func RegisterAccounts(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /emails/edit/{email}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEmails(a, w, r) }))
 	mux.Handle("POST /emails/edit/{email}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEmails(a, w, r) }))
 	mux.Handle("DELETE /emails/edit/{email}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEmails(a, w, r) }))
+	mux.Handle("POST /emails/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		web.ServeBulkDispatch(a, mux, w, r, accountsBulkActions(web.RequestTranslator(a, r)), accountsBulkRoute)
+	}))
 
 	mux.Handle("GET /emails/delete", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEmailsDelete(a, w, r) }))
 	mux.Handle("GET /emails/delete/{address}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEmailsDelete(a, w, r) }))
@@ -46,6 +50,9 @@ func RegisterAliases(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /emails/aliases/{email}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleAliasDetail(a, w, r) }))
 	mux.Handle("POST /emails/aliases/{email}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleAliasDetail(a, w, r) }))
 	mux.Handle("DELETE /emails/aliases/{email}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleAliasDetail(a, w, r) }))
+	mux.Handle("POST /emails/aliases/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		web.ServeBulkDispatch(a, mux, w, r, aliasesBulkActions(web.RequestTranslator(a, r)), aliasesBulkRoute)
+	}))
 }
 
 // RegisterDefault wires the default (catch-all) alias routes onto mux.

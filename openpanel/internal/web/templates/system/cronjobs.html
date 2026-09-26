@@ -149,11 +149,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 {{if .CronJobs}}
+{{template "bulk_open" (dict "T" .T "Table" "#cronjobs-table" "Endpoint" "/cronjobs/bulk")}}
    <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
             <table id="cronjobs-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                        {{template "bulk_head_checkbox" .}}
                         <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
                             {{template "sort_header" (dict "Label" (.T.Get "Schedule") "Key" "schedule" "Type" "string")}}
                         </th>
@@ -179,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
         {{$item := .}}
 
 <tr x-data="{ editing: false }" x-show="searchQuery === '' || {{toJSON $item.Container}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $item.Command}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $item.Schedule}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $item.Comment}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+{{template "bulk_row_checkbox" (dict "T" $.T "Key" $item.Key "Label" $item.Comment)}}
 
                 <form id="editForm" method="post" action="/cronjobs/edit">
     <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
@@ -346,6 +349,8 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
     </div>
 
+{{template "bulk_bar" .}}
+</div>
 
 {{else}}
 <!-- no crons table -->

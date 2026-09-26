@@ -33,9 +33,11 @@
     {{end}}
 
     {{if .Tokens}}
-    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+    {{template "bulk_open" (dict "T" .T "Table" "#mcp-tokens-table" "Endpoint" "/account/mcp/bulk")}}
+    <table id="mcp-tokens-table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:text-gray-400">
             <tr>
+                {{template "bulk_head_checkbox" .}}
                 <th scope="col" class="px-4 py-3">{{.T.Get "Name"}}</th>
                 <th scope="col" class="px-4 py-3">{{.T.Get "Token"}}</th>
                 <th scope="col" class="px-4 py-3">{{.T.Get "Scope"}}</th>
@@ -49,6 +51,7 @@
             {{$root := .}}
             {{range .Tokens}}
             <tr class="border-b border-gray-200 dark:border-gray-800">
+                {{template "bulk_row_checkbox" (dict "T" $root.T "Key" (toString .ID) "Label" .Name)}}
                 <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{.Name}}</td>
                 <td class="px-4 py-3 font-mono">{{.TokenPrefix}}&hellip;</td>
                 <td class="px-4 py-3">
@@ -71,6 +74,8 @@
             {{end}}
         </tbody>
     </table>
+    {{template "bulk_bar" .}}
+    </div>
     {{else}}
     <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No MCP tokens yet."}}</p>
     {{end}}

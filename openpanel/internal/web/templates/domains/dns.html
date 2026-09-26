@@ -97,11 +97,13 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
     </div>
 
+    {{template "bulk_open" (dict "T" .T "Table" "#filemanager_table" "Endpoint" (printf "/domains/dns/bulk/%s" .Domain))}}
     <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
             <table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800" id="filemanager_table">
                 <thead class="">
                     <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                        {{template "bulk_head_checkbox" .}}
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Name"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "TTL"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Type"}}</th>
@@ -115,6 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <form method="POST" action="/domains/dns/add-record/">
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
+            <td></td>
             <td class="px-6 py-4">
                                 <input type="text" name="Name" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" placeholder="" aria-label="{{.T.Get "Name"}}" required pattern="^[A-Za-z0-9.@_-]+$" title="{{.T.Get "Only letters, numbers, and the characters . @ _ - are allowed."}}">
                             </td>
@@ -348,6 +351,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             {{range .Rows}}
                     <tr x-show="searchQuery === '' || '{{.Name}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.TTL}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Type}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.DisplayValue}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+{{template "bulk_row_checkbox" (dict "T" $.T "Key" .BulkKey "Label" (printf "%s %s" .Name .Type))}}
 
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
                                 <div class="flex" style="align-content: space-between;">
@@ -377,6 +381,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 </tbody>
             </table>
         </div>
+    </div>
+    {{template "bulk_bar" .}}
     </div>
 </section>
 
@@ -441,6 +447,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                 }
 
+              // the record cells, without the bulk selection checkbox cell
+              function dnsCells(row) {
+                  return Array.from(row.children).filter(td => !td.querySelector('input.bulk-select-box'));
+              }
+
               document.addEventListener('click', function(e) {
                   var editButton = e.target.closest('.edit-button');
                   if (!editButton) return;
@@ -453,11 +464,11 @@ document.addEventListener('DOMContentLoaded', function () {
                   row.dataset.originalLine = line;
                   row.dataset.endLineNumber = endLineNumber;
 
-                  var existingField1 = row.children[0].textContent.trim().replace(/\.$/, '');
-                  var existingField2 = row.children[1].textContent;
-                  var existingField3 = row.children[2].textContent;
+                  var existingField1 = dnsCells(row)[0].textContent.trim().replace(/\.$/, '');
+                  var existingField2 = dnsCells(row)[1].textContent;
+                  var existingField3 = dnsCells(row)[2].textContent;
                   var existingPriority = '';
-                  var existingField4 = row.children[3].textContent.trim().replace(/\.$/, '');
+                  var existingField4 = dnsCells(row)[3].textContent.trim().replace(/\.$/, '');
 
                   if(existingField3 === 'MX') {
                     let priorityMatch = existingField4.match(/^(\d+)\s+/);
@@ -465,7 +476,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     existingField4 = existingField4.replace(/^(\d+)\s+/, '');
                   }
 
-                  row.innerHTML = `
+                  var bulkCell = row.querySelector('input.bulk-select-box') ? row.firstElementChild.outerHTML : '';
+                  row.innerHTML = bulkCell + `
                       <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"><input type="text" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" name="field1" value='${existingField1}'></td>
                       <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"><input type="number" min="0" max="65535" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2"  name="field2" value='${existingField2}'></td>
                       <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
@@ -512,10 +524,10 @@ document.addEventListener('DOMContentLoaded', function () {
               if (originalLineArray && originalLineArray.length >= 4) {
                 showToast({{toJSON (.T.Get "Edit Cancelled.")}}, 'info');
 
-                  row.children[0].innerHTML = '<strong>' + originalLineArray[0] + '</strong>';
-                  row.children[1].textContent = originalLineArray[1];
-                  row.children[2].textContent = originalLineArray[3];
-                  row.children[3].innerHTML = originalLineArray.slice(4).join(' ');
+                  dnsCells(row)[0].innerHTML = '<strong>' + originalLineArray[0] + '</strong>';
+                  dnsCells(row)[1].textContent = originalLineArray[1];
+                  dnsCells(row)[2].textContent = originalLineArray[3];
+                  dnsCells(row)[3].innerHTML = originalLineArray.slice(4).join(' ');
 
                   row.querySelectorAll('.save-button, .cancel-button').forEach(el => el.style.display = 'none');
                   row.querySelectorAll('.edit-button, .delete-button').forEach(el => el.style.display = '');
@@ -555,8 +567,8 @@ document.addEventListener('click', function(e) {
       document.querySelectorAll('.domain_row').forEach(function(otherRow) {
           var otherSaveButton = otherRow.querySelector('.save-button');
           if (otherSaveButton && otherSaveButton.dataset.lineNumber == lineNumber) return;
-          var existingField1 = otherRow.children[0].textContent.trim();
-          var existingField3 = otherRow.children[2].textContent.trim();
+          var existingField1 = dnsCells(otherRow)[0].textContent.trim();
+          var existingField3 = dnsCells(otherRow)[2].textContent.trim();
           if (existingField3 === 'CNAME' && existingField1 === updatedField1) {
               duplicateFound = true;
           }

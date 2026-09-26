@@ -15,6 +15,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 
 	mux.Handle("/php/default", requireLogin("php", func(w http.ResponseWriter, r *http.Request) { handleDefaultPHPVersion(a, w, r) }))
 	mux.Handle("/php/domains", requireLogin("php", func(w http.ResponseWriter, r *http.Request) { handlePHPDomains(a, w, r) }))
+	mux.Handle("POST /php/domains/bulk", requireLogin("php", func(w http.ResponseWriter, r *http.Request) { handlePHPDomainsBulk(a, mux, w, r) }))
 	mux.Handle("GET /php/{phpversion}/info", requireLogin("php", func(w http.ResponseWriter, r *http.Request) { handlePHPInfo(a, w, r) }))
 
 	mux.Handle("/php/php_ini_editor", requireLogin("php_ini", func(w http.ResponseWriter, r *http.Request) { handlePHPIniEditor(a, w, r, "") }))

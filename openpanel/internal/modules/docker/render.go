@@ -185,6 +185,7 @@ func renderContainersPage(a *appctx.App, w http.ResponseWriter, r *http.Request,
 		return
 	}
 
+	layout.BulkActions = containerBulkActions(layout.T, totalCPU, totalRAM)
 	data := ContainersPageData{LayoutData: layout, TotalCPU: totalCPU, TotalRAM: totalRAM}
 	if services, ok := dockerData["services"].(map[string]any); ok {
 		data.Rows = buildContainerRows(services)

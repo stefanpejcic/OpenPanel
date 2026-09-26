@@ -5,7 +5,7 @@ export const STATE_PATH = process.env.PANEL_URL ? `.auth/state_${new URL(process
 export const OUT_DIR = '../../static/img/openpanel-screenshots';
 export const VIEWPORT_WIDTH = 1100;
 
-import { rename, all, click, fill, fillVisible, selectFirst, maskIPs, hideNotices, hideOnboarding, hideText, markCard, tab, markSection } from './helpers.mjs';
+import { rename, all, click, fill, fillVisible, selectFirst, maskIPs, hideNotices, hideOnboarding, hideText, markCard, tab, markSection, bulkSelect } from './helpers.mjs';
 
 // readable names for the demo's random mysql users and databases
 const MYSQL_USERS = { u1pd6u5s: 'wp_blog_user', stefan: 'shop_admin' };
@@ -951,10 +951,33 @@ export const pages = {
     url: '/cache/varnish',
     shots: [{ name: 'page', alt: 'Varnish page with the service status and a per-domain toggle to enable the Varnish cache', crop: 'content' }],
   },
+  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs containers/containers
   'containers/containers': {
     url: '/containers',
     shots: [
-      { name: 'list', alt: 'Containers page listing services with their image, CPU and memory usage, PIDs and status', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(9)', fromTop: true } },
+      { name: 'list', alt: 'Containers page listing services with a checkbox, their image, CPU and memory usage, PIDs and status', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(9)', fromTop: true } },
+      {
+        name: 'bulk',
+        alt: 'Three containers selected with the bulk actions bar at the bottom offering Start, Stop, Restart, Edit CPU, Edit RAM, Edit PIDs and Delete',
+        viewportHeight: 760,
+        prepare: all(bulkSelect(['backup', 'cron', 'elasticsearch'])),
+        crop: { from: '#containers-table thead', to: '#bulk-actions-bar' },
+      },
+      {
+        name: 'bulk-cpu',
+        alt: 'Bulk actions bar asking for the new CPU limit of the three selected containers, with Cancel and Confirm buttons',
+        viewportHeight: 760,
+        prepare: all(bulkSelect(['backup', 'cron', 'elasticsearch']), click('[data-bulk-action="cpu"]'), fill({ '[data-bulk-input="cpu"]': '0.5' })),
+        crop: { from: '#bulk-actions-bar', to: '#bulk-actions-bar' },
+      },
+      {
+        name: 'bulk-delete',
+        alt: 'Bulk delete confirmation in red for one custom container, noting that the selected built-in container will be skipped',
+        viewportHeight: 760,
+        // needs a container you added yourself, e.g. uptimekuma from the containers/new example
+        prepare: all(bulkSelect(['memcached', 'uptimekuma']), click('[data-bulk-action="delete"]')),
+        crop: { from: '#bulk-actions-bar', to: '#bulk-actions-bar' },
+      },
     ],
   },
   'containers/edit': {

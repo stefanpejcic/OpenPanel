@@ -112,6 +112,7 @@ func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, c
 		rows[i] = parseEmailListRow(line)
 	}
 	toastID, toastMsg := emailQuotaToast(rows)
+	layout.BulkActions = accountsBulkActions(layout.T)
 	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg}
 	if err := accountsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("EMAILS - accounts template render error: %v", err)
@@ -228,6 +229,7 @@ func renderAliasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, al
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.BulkActions = aliasesBulkActions(layout.T)
 	data := AliasesPageData{LayoutData: layout, AliasList: aliasList, Domains: domains}
 	if err := aliasesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("EMAILS - aliases template render error: %v", err)

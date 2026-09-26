@@ -71,10 +71,14 @@ type DatabasesPageData struct {
 }
 
 func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, mysqlVersion string, databases []DatabaseRow, unit string, showAll bool, dbToastID, dbToastMessage string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Databases")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Databases")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
+	}
+	if len(databases) > 0 {
+		userContext, _ := injectedData["context"].(string)
+		layout.BulkActions = databasesBulkActions(layout.T, mysqlUserOptions(r.Context(), userContext))
 	}
 	data := DatabasesPageData{
 		LayoutData: layout, ServiceStatusData: serviceStatusData(status),
@@ -114,10 +118,14 @@ type UsersPageData struct {
 }
 
 func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, mysqlVersion string, users []string, showAll bool) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Database Users")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Database Users")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
+	}
+	if len(users) > 0 {
+		userContext, _ := injectedData["context"].(string)
+		layout.BulkActions = usersBulkActions(layout.T, mysqlDatabaseOptions(r.Context(), userContext))
 	}
 	data := UsersPageData{
 		LayoutData: layout, ServiceStatusData: serviceStatusData(status),
@@ -298,6 +306,7 @@ func renderProcessListPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.BulkActions = processlistBulkActions(layout.T)
 	data := ProcessListPageData{LayoutData: layout, ProcessList: processList}
 	if err := processlistPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MYSQL - processlist template render error: %v", err)
@@ -339,6 +348,7 @@ func renderRemoteMySQLPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.BulkActions = remoteAccessBulkActions(layout.T)
 	data := RemoteMySQLPageData{
 		LayoutData: layout, Service: mysqlVersion, ServerIP: serverIP, ContainerPort: containerPort,
 		RemoteMySQLDisplay: remoteMySQLDisplay, MySQLPort: mysqlPort, UserAccess: userAccess,

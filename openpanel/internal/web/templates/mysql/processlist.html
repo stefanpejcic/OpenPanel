@@ -22,11 +22,13 @@
     </div>
 </div>
 
+{{template "bulk_open" (dict "T" .T "Table" "#processlist-table" "Endpoint" "/mysql/processlist/bulk")}}
    <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
             <table id="processlist-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+{{template "bulk_head_checkbox" .}}
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "ID"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "User"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Host"}}</th>
@@ -49,6 +51,7 @@
             || {{toJSON .State}}.toLowerCase().includes(searchQuery.toLowerCase())
             || {{toJSON .Info}}.toLowerCase().includes(searchQuery.toLowerCase())"
             class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+{{$skip := ""}}{{if not (and (eq .Command "Query") (ne .User "system user") (ne .User "event_scheduler") (ne .Info "SHOW FULL PROCESSLIST"))}}{{$skip = "*"}}{{end}}{{template "bulk_row_checkbox" (dict "T" $.T "Key" (toString .ID) "Label" (toString .ID) "Skip" $skip)}}
             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.ID}}</td>
             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.User}}</td>
             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Host}}</td>
@@ -69,12 +72,14 @@
         </tr>
         {{end}}
         {{else}}
-        <tr><td colspan="9" class="p-4 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No active processes."}}</td></tr>
+        <tr><td colspan="10" class="p-4 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No active processes."}}</td></tr>
         {{end}}
         </tbody>
     </table>
         </div>
     </div>
+{{template "bulk_bar" .}}
+</div>
 </section>
 
 <script>

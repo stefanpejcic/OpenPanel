@@ -63,7 +63,15 @@ func renderBackupSettingsPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := BackupSettingsPageData{LayoutData: layout, Error: errMsg, Target: target, Values: values, Settings: settings}
+	// errMsg doubles as a sentinel in backups.go, so only translate it for display
+	displayErr := map[string]string{
+		"no backup target configured":        layout.T.Get("No backup target is configured."),
+		"multiple backup targets configured": layout.T.Get("Multiple backup targets are configured."),
+	}[errMsg]
+	if displayErr == "" {
+		displayErr = errMsg
+	}
+	data := BackupSettingsPageData{LayoutData: layout, Error: displayErr, Target: target, Values: values, Settings: settings}
 	if err := backupSettingsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("BACKUPS - settings template render error: %v", err)
 	}

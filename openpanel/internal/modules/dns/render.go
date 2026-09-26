@@ -64,6 +64,7 @@ func renderDNSTablePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.BulkActions = dnsBulkActions(layout.T)
 	data := DNSPageData{
 		LayoutData: layout, Domain: domain, ViewMode: "table", Rows: rows,
 		Serial: serial, Issues: issues, TotalRecords: len(rows),

@@ -92,6 +92,8 @@ var funcMap = template.FuncMap{
 	},
 }
 
+const bulkPartial = "partials/_bulk.html"
+
 // Page is a parsed, ready-to-execute template set for one route.
 type Page struct {
 	tmpl *template.Template
@@ -99,9 +101,16 @@ type Page struct {
 
 // MustLoadPage parses files (relative to web/templates/) into a single template set - by convention the layout file among them defines a top-level {{define "layout"}} that Render executes. Panics on a parse error, since a broken template is a startup-time bug, not a runtime condition to recover from.
 func MustLoadPage(files ...string) *Page {
-	paths := make([]string, len(files))
-	for i, f := range files {
-		paths[i] = "templates/" + f
+	paths := make([]string, 0, len(files)+1)
+	hasBase, hasBulk := false, false
+	for _, f := range files {
+		paths = append(paths, "templates/"+f)
+		hasBase = hasBase || f == "base.html"
+		hasBulk = hasBulk || f == bulkPartial
+	}
+	// every panel page can use the bulk selection partial without listing it
+	if hasBase && !hasBulk {
+		paths = append(paths, "templates/"+bulkPartial)
 	}
 	t := template.Must(template.New("layout").Funcs(funcMap).ParseFS(templateFS, paths...))
 	return &Page{tmpl: t}

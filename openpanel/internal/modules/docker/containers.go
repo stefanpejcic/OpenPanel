@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -540,37 +541,42 @@ func handleDeleteContainer(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	if r.Method == http.MethodPost {
-		svc, _ := svcRaw.(map[string]any)
-		containerName := service
-		if cn, ok := svc["container_name"].(string); ok && cn != "" {
-			containerName = cn
-		}
-		imageName, _ := svc["image"].(string)
-
-		StartOrStopContainer(ctx, userContext, containerName, "deactivate", "")
-		if imageName != "" {
-			removeImage(ctx, userContext, imageName)
-		}
-
-		env := LoadEnvFile(userContext)
-		prefix := strings.ToUpper(service) + "_"
-		for k := range env {
-			if strings.HasPrefix(k, prefix) {
-				delete(env, k)
-			}
-		}
-		_ = SaveEnvFile(userContext, env)
-
-		delete(services, service)
-		composeData["services"] = services
-		_ = SaveCompose(userContext, composeData)
-
+		removeService(ctx, userContext, composeData, service, svcRaw)
 		_ = logger.RecordUserAction(a.Config, username, "deleted container "+service, reqip.ClientIP(r))
 		http.Redirect(w, r, "/containers/new", http.StatusFound)
 		return
 	}
 
 	renderDeleteConfirmPage(a, w, r, service)
+}
+
+// removeService stops a service, drops its image and .env keys, and removes it from the compose file
+func removeService(ctx context.Context, userContext string, composeData map[string]any, service string, svcRaw any) error {
+	svc, _ := svcRaw.(map[string]any)
+	containerName := service
+	if cn, ok := svc["container_name"].(string); ok && cn != "" {
+		containerName = cn
+	}
+	imageName, _ := svc["image"].(string)
+
+	StartOrStopContainer(ctx, userContext, containerName, "deactivate", "")
+	if imageName != "" {
+		removeImage(ctx, userContext, imageName)
+	}
+
+	env := LoadEnvFile(userContext)
+	prefix := ServiceKeyPrefix(service) + "_"
+	for k := range env {
+		if strings.HasPrefix(k, prefix) {
+			delete(env, k)
+		}
+	}
+	_ = SaveEnvFile(userContext, env)
+
+	services := servicesRaw(composeData)
+	delete(services, service)
+	composeData["services"] = services
+	return SaveCompose(userContext, composeData)
 }
 
 func serviceNames(composeData map[string]any) []string {

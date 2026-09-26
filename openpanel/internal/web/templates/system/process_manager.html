@@ -73,11 +73,13 @@
         </div>
     </div>
 
+{{template "bulk_open" (dict "T" .T "Table" "#process-manager-table" "Endpoint" "/process-manager/bulk")}}
    <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
             <table id="process-manager-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+{{template "bulk_head_checkbox" .}}
 
     <div id="tooltip-Container" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
         {{.T.Get "Service (Container name) in which the process is running."}}
@@ -207,12 +209,13 @@
 
     {{if not .ProcessData}}
         <tr>
-            <td colspan="10" class="p-6 text-center">{{.T.Get "No processes"}}</td>
+            <td colspan="11" class="p-6 text-center">{{.T.Get "No processes"}}</td>
         </tr>
     {{else}}
         {{$userAllowed := .UserAllowed}}
         {{range .ProcessData}}
 <tr x-show="searchQuery === '' || '{{.Container}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.PID}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.CMD}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-gray-50 hover:dark:bg-gray-900">
+{{template "bulk_row_checkbox" (dict "T" $.T "Key" (printf "%s/%v" .Container .PID) "Label" (printf "%s %v" .Container .PID))}}
                 <td x-show="columns.container" class="whitespace-nowrap p-0 text-sm font-medium text-gray-900 dark:text-gray-50" data-sort-col="container">
                     <a href="/{{if index $userAllowed "services"}}services/{{.Container}}{{else if index $userAllowed "docker"}}containers{{else}}#{{end}}">{{.Container}}</a>
                 </td>
@@ -247,6 +250,8 @@
     </table>
         </div>
     </div>
+{{template "bulk_bar" .}}
+</div>
 </section>
 
 

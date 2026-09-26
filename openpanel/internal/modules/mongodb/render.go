@@ -53,10 +53,15 @@ type DatabasesPageData struct {
 }
 
 func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, databases []DatabaseRow) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "MongoDB Databases")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "MongoDB Databases")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
+	}
+	if len(databases) > 0 {
+		userContext, _ := injectedData["context"].(string)
+		_, users, _ := ComputeDatabaseAndUserNames(r.Context(), userContext)
+		layout.BulkActions = databasesBulkActions(layout.T, users)
 	}
 	layout.Service = "mongodb"
 	data := DatabasesPageData{
@@ -97,10 +102,15 @@ type UsersPageData struct {
 }
 
 func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, users []UserRow) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "MongoDB Users")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "MongoDB Users")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
+	}
+	if len(users) > 0 {
+		userContext, _ := injectedData["context"].(string)
+		databases, _, _ := ComputeDatabaseAndUserNames(r.Context(), userContext)
+		layout.BulkActions = usersBulkActions(layout.T, databases)
 	}
 	layout.Service = "mongodb"
 	data := UsersPageData{
@@ -227,6 +237,7 @@ func renderProcessListPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 	layout.Service = "mongodb"
+	layout.BulkActions = processlistBulkActions(layout.T)
 	data := ProcessListPageData{LayoutData: layout, ProcessList: processList}
 	if err := processlistPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - processlist template render error: %v", err)

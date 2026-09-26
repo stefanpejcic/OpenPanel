@@ -168,3 +168,12 @@ export const clickAlpine = (expr, wait = 1200) => async page => {
   await page.evaluate(expr => [...document.querySelectorAll('[\\@click]')].find(e => e.getAttribute('@click').startsWith(expr)).click(), expr);
   await page.waitForTimeout(wait);
 };
+
+// tick the bulk-select checkboxes of these rows (shared partials/_bulk.html markup)
+export const bulkSelect = (keys, wait = 400) => async page => {
+  for (const k of keys) await page.locator(`input.bulk-select-box[value="${k}"]`).check();
+  // check() scrolls rows into view, go back up so the crop starts at the table
+  await page.evaluate(() => document.querySelectorAll('*').forEach(el => { if (el.scrollTop) el.scrollTop = 0; }));
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(wait);
+};

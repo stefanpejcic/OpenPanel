@@ -293,9 +293,9 @@ func handleManageContainer(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	msg := response.Message
-	if msg == "" {
-		msg = "Error occurred!"
+	msg := web.Tr(a, r, "Error occurred!")
+	if response.Message != "" {
+		msg = web.Tr(a, r, response.Message)
 	}
 	flashAndRedirect(a, w, r, "error", msg, "/containers")
 }

@@ -43,6 +43,7 @@ func renderListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domai
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.BulkActions = wordpressBulkActions(layout.T)
 	data := ListPageData{LayoutData: layout, Domains: domains, Sites: sites, ViewMode: viewMode}
 	if err := listPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WORDPRESS - list template render error: %v", err)

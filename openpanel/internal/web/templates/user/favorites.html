@@ -40,11 +40,13 @@
 
     </div>
 
+    {{template "bulk_open" (dict "T" .T "Table" "#favorites-table" "Endpoint" "/account/favorites/bulk")}}
     <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
             <table id="favorites-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr>
+                        {{template "bulk_head_checkbox" .}}
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">#</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
                             <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
@@ -70,13 +72,14 @@
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
                     {{if not .Favorites}}
                     <tr>
-                        <td colspan="4" class="p-6 text-center">{{.T.Get "No favorites yet."}}</td>
+                        <td colspan="5" class="p-6 text-center">{{.T.Get "No favorites yet."}}</td>
                     </tr>
                     {{else}}
                     {{$root := .}}
                     {{range $i, $favorite := .Favorites}}
                     <tr x-show="searchQuery === '' || '{{$favorite.Name}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{$favorite.Link}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
 
+                {{template "bulk_row_checkbox" (dict "T" $root.T "Key" $favorite.Link "Label" $favorite.Name)}}
                 <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{add $i 1}}</td>
                 <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="title" data-sort-value="{{$favorite.Name}}"><span class="punycode">{{$favorite.Name}}</span></td>
                 <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="link" data-sort-value="{{$favorite.Link}}"><a href="{{if hasPrefix $favorite.Link "/"}}{{$favorite.Link}}{{else}}/{{$favorite.Link}}{{end}}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">{{$favorite.Link}}</a></td>
@@ -87,6 +90,8 @@
                 </tbody>
            </table>
         </div>
+    </div>
+    {{template "bulk_bar" .}}
     </div>
 </section>
 <!-- END domains table -->

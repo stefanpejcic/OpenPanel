@@ -86,11 +86,13 @@
 
 {{if eq .ViewMode "table"}}
 
+{{template "bulk_open" (dict "T" .T "Table" "#sites-table" "Endpoint" "/wordpress/bulk")}}
    <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap">
             <table id="sites-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+{{template "bulk_head_checkbox" .}}
                         <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
                             <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
                                 <span>{{.T.Get "Domain"}}</span>
@@ -117,6 +119,7 @@
         <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
     {{range $i, $site := .Sites}}
 <tr x-show="searchQuery === '' || {{toJSON $site.SiteName}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $site.AdminEmail}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+{{template "bulk_row_checkbox" (dict "T" $.T "Key" $site.SiteName "Label" $site.SiteName)}}
 
             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="domain" data-sort-value="{{$site.SiteName}}"><a class="punycode no_link domain_link" href="http://{{$site.SiteName}}" target="_blank"><img src="/json/favicon/{{$site.SiteName}}" alt="{{$site.SiteName}} Favicon" style="width:16px; height:16px; margin-right:5px;">
  {{$site.SiteName}} <i class="bi bi-box-arrow-up-right"></i></a></td>
@@ -151,6 +154,8 @@
             </table>
         </div>
     </div>
+{{template "bulk_bar" .}}
+</div>
 
 {{else if eq .ViewMode "cards"}}
 

@@ -96,51 +96,56 @@
 
                 </div>
             </div>
+{{template "bulk_open" (dict "T" .T "Table" "#domains-table" "Endpoint" "/domains/bulk")}}
             <div class="relative">
                 <table id="domains-table" class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
 
 
                 <thead class="">
                     <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
-                        <th x-show="columns.domain" scope="col" class="whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Domain Name") "Key" "domain" "Type" "string")}}</th>
+{{template "bulk_head_checkbox" .}}
+                        <th x-show="columns.domain" scope="col" class="border-b border-gray-200 dark:border-gray-800 whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Domain Name") "Key" "domain" "Type" "string")}}</th>
 
-                        <th x-show="columns.link" scope="col" class="whitespace-nowrap px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Link"}}</th>
+                        <th x-show="columns.link" scope="col" class="border-b border-gray-200 dark:border-gray-800 whitespace-nowrap px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Link"}}</th>
 
-                        <th x-show="columns.type" scope="col" class="whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Type") "Key" "type" "Type" "string")}}</th>
+                        <th x-show="columns.type" scope="col" class="border-b border-gray-200 dark:border-gray-800 whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Type") "Key" "type" "Type" "string")}}</th>
 
 
-                        <th x-show="columns.status" scope="col" class="whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Status") "Key" "status" "Type" "string")}}</th>
+                        <th x-show="columns.status" scope="col" class="border-b border-gray-200 dark:border-gray-800 whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Status") "Key" "status" "Type" "string")}}</th>
 
                         {{if .UserAllowed.docroot}}
-                        <th x-show="columns.docroot" scope="col" class="whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Document Root") "Key" "docroot" "Type" "string")}}</th>
+                        <th x-show="columns.docroot" scope="col" class="border-b border-gray-200 dark:border-gray-800 whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Document Root") "Key" "docroot" "Type" "string")}}</th>
                         {{end}}
 
-                        <th x-show="columns.php" scope="col" class="whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "PHP Version") "Key" "php" "Type" "string")}}</th>
+                        <th x-show="columns.php" scope="col" class="border-b border-gray-200 dark:border-gray-800 whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "PHP Version") "Key" "php" "Type" "string")}}</th>
 
-                        <th x-show="columns.site_count" scope="col" class="whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Websites") "Key" "site_count" "Type" "number")}}</th>
+                        <th x-show="columns.site_count" scope="col" class="border-b border-gray-200 dark:border-gray-800 whitespace-nowrap px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Websites") "Key" "site_count" "Type" "number")}}</th>
 
 
                         {{if .UserAllowed.redirects}}
-                        <th x-show="columns.redirect" scope="col" class="whitespace-nowrap px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Redirect"}}</th>
+                        <th x-show="columns.redirect" scope="col" class="border-b border-gray-200 dark:border-gray-800 whitespace-nowrap px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Redirect"}}</th>
                         {{end}}
 
                         {{if .UserAllowed.ssl}}
-                        <th x-show="columns.ssl"  scope="col" class="whitespace-nowrap px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "SSL"}}</th>
+                        <th x-show="columns.ssl"  scope="col" class="border-b border-gray-200 dark:border-gray-800 whitespace-nowrap px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "SSL"}}</th>
                         {{end}}
 
-                        <th id="tour-domains-actions" x-show="columns.actions"  scope="col" class="whitespace-nowrap px-4 py-3.5 text-sm text-end font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Actions"}}</th>
+                        <th id="tour-domains-actions" x-show="columns.actions"  scope="col" class="border-b border-gray-200 dark:border-gray-800 whitespace-nowrap px-4 py-3.5 text-sm text-end font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Actions"}}</th>
                     </tr>
                 </thead>
                     <tbody x-ref="tbody" class="divide-y divide-gray-200 dark:divide-gray-800">
                     {{if not .Domains}}
                     <tr>
-                        <td colspan="12" class="p-6 text-center">{{.T.Get "No domains yet."}} <a href="/domains/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Add your first domain"}}</a></td>
+                        <td colspan="13" class="p-6 text-center">{{.T.Get "No domains yet."}} <a href="/domains/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Add your first domain"}}</a></td>
                     </tr>
 
                     {{else}}
                         {{$root := .}}
                         {{range $i, $domain := .Domains}}
                             <tr x-show="searchQuery === '' || '{{$domain.DomainURL}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="user-row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+{{$skip := ""}}{{if hasSuffix $domain.DomainURL ".onion"}}{{$skip = "suspend,unsuspend"}}{{else if eq $domain.Status "Suspended"}}{{$skip = "suspend"}}{{else if eq $domain.Status "Not Suspended"}}{{$skip = "unsuspend"}}{{end}}
+{{if not $domain.RedirectURL}}{{$skip = printf "%s,unredirect" $skip}}{{end}}
+{{template "bulk_row_checkbox" (dict "T" $root.T "Key" $domain.DomainURL "Label" $domain.DomainURL "Skip" $skip)}}
 
                                     <td x-show="columns.domain" class="p-4 text-sm relative whitespace-nowrap py-1 font-medium text-gray-900 dark:text-gray-50 first:w-10 text-left select-text" data-sort-col="domain" data-sort-value="{{$domain.DomainURL}}">
         <span class="punycode">{{$domain.DomainURL}}</span>
@@ -339,6 +344,8 @@
 
                 <div class="fixed inset-x-0 bottom-8 mx-auto flex w-fit items-center"></div>
             </div>
+{{template "bulk_bar" .}}
+</div>
             <div class="px-6 py-2 flex items-center justify-between">
                 <div></div>
                 <div class="hidden text-sm tabular-nums text-gray-500">{{.T.Get "0 of"}} {{len .Domains}} {{.T.Get "row(s) selected."}}</div>

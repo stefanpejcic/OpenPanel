@@ -13,8 +13,10 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // Favorite is one entry of a user's favorites.json.
@@ -238,4 +240,15 @@ func RegisterFavorites(mux *http.ServeMux, a *appctx.App) {
 	}
 	mux.Handle("/json/favorites", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleJSONFavorites(a, w, r) }))
 	mux.Handle("/account/favorites", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleFavoritesPage(a, w, r) }))
+	mux.Handle("POST /account/favorites/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		web.ServeBulkDispatch(a, mux, w, r, favoritesBulkActions(web.RequestTranslator(a, r)), func(_, _, link string) (*web.BulkCall, web.BulkResult) {
+			return web.Call(web.BulkCall{Method: http.MethodDelete, Path: "/json/favorites", JSON: map[string]string{"link": link}})
+		})
+	}))
+}
+
+func favoritesBulkActions(t i18n.Translator) []web.BulkAction {
+	return []web.BulkAction{
+		{Key: "delete", Label: t.Get("Delete"), Confirm: t.Get("Remove the selected pages from favorites?"), Danger: true},
+	}
 }

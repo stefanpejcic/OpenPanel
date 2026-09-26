@@ -18,6 +18,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 
 	mux.Handle("POST /domains/dns/update-record/{row_id}/{domain}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleUpdateDNSRecord(a, w, r) }))
 	mux.Handle("POST /domains/dns/delete-record/{rowId}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeleteDNSRecord(a, w, r) }))
+	mux.Handle("POST /domains/dns/bulk/{domain}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDNSBulk(a, w, r) }))
 	mux.Handle("POST /domains/dns/add-record/", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleAddDNSRecord(a, w, r) }))
 
 	mux.Handle("POST /domains/save-dns-zone/{domain}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSaveDNSZone(a, w, r) }))

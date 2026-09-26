@@ -27,6 +27,9 @@ func RequestTranslator(a *appctx.App, r *http.Request) i18n.Translator {
 
 // Tr translates msg into the request's locale and fills its %(name)s placeholders from name/value pairs
 func Tr(a *appctx.App, r *http.Request, msg string, kv ...any) string {
+	if msg == "" {
+		return "" // gettext hands back the catalog header for an empty msgid
+	}
 	pairs := make([]string, len(kv))
 	for i, v := range kv {
 		pairs[i] = fmt.Sprint(v)

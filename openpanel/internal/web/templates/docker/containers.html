@@ -22,6 +22,7 @@
 
 
 <script src="{{static "js/data-table.js"}}"></script>
+{{template "bulk_open" (dict "T" .T "Table" "#containers-table" "Endpoint" "/containers/bulk")}}
 <div x-data="createTableController({
         storageKey: 'containersColumnsVisibility',
         columns: {
@@ -83,6 +84,7 @@
             <table id="containers-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                        {{template "bulk_head_checkbox" .}}
 
                         <th x-show="columns.name" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
                             {{.T.Get "Name"}}
@@ -123,6 +125,8 @@
             </table>
         </div>
     </div>
+</div>
+{{template "bulk_bar" .}}
 </div>
 </section>
 
@@ -325,7 +329,10 @@ document.addEventListener('DOMContentLoaded', () => {
 {{$t := .T}}
 <tr x-show="searchQuery === '' || '{{$row.DisplayName}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{$row.Service}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{$row.Image}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
 
-    <td x-show="columns.name">
+    {{$skip := ""}}{{if not $row.ShowManage}}{{$skip = "delete"}}{{end}}
+    {{template "bulk_row_checkbox" (dict "Key" $row.Service "Label" $row.DisplayName "Skip" $skip "T" $t)}}
+
+    <td x-show="columns.name" class="py-2 pl-2 pr-4">
         <div class="flex flex-col gap-1">
             <span class="font-medium text-gray-900 dark:text-gray-50">{{$row.DisplayName}}</span>
             <div class="flex items-center gap-1 text-xs">

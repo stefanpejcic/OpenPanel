@@ -17,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 const sharedPMAContainer = "phpmyadmin"
@@ -144,7 +145,7 @@ func handlePHPMyAdminRedirect(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	log.Printf("PHPMYADMIN - DEBUG - redirect request from %s: user=%s context=%s ua=%q", reqip.ClientIP(r), currentUsername, userContext, r.UserAgent())
 
 	if !isPMAContainerRunning(ctx) {
-		renderPHPMyAdminUnavailablePage(a, w, r, "Please contact support.", http.StatusServiceUnavailable)
+		renderPHPMyAdminUnavailablePage(a, w, r, web.Tr(a, r, "Please contact support."), http.StatusServiceUnavailable)
 		return
 	}
 
@@ -153,7 +154,7 @@ func handlePHPMyAdminRedirect(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	token, tokenErr := ensureUserToken(ctx, a, userContext)
 	if tokenErr != nil {
 		log.Printf("PHPMYADMIN - DEBUG - ensureUserToken failed for context=%s: %v", userContext, tokenErr)
-		renderPHPMyAdminUnavailablePage(a, w, r, "Failed to generate autologin token.", http.StatusInternalServerError)
+		renderPHPMyAdminUnavailablePage(a, w, r, web.Tr(a, r, "Failed to generate autologin token."), http.StatusInternalServerError)
 		return
 	}
 	log.Printf("PHPMYADMIN - DEBUG - wrote token for context=%s", userContext)

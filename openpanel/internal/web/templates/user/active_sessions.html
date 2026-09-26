@@ -37,11 +37,13 @@
 
     </div>
 
+   {{template "bulk_open" (dict "T" .T "Table" "#sessions-table" "Endpoint" "/account/sessions/bulk")}}
    <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
             <table id="sessions-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+                        {{template "bulk_head_checkbox" .}}
                         <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
                             <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
                                 <span>{{.T.Get "IP Address"}}</span>
@@ -73,9 +75,11 @@
                     {{range .Sessions}}
                     <tr x-show="searchQuery === '' || '{{.IPAddress}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
 
+                        {{$skip := ""}}{{if .Current}}{{$skip = "terminate"}}{{end}}
+                        {{template "bulk_row_checkbox" (dict "T" $root.T "Key" .SessionToken "Label" .IPAddress "Skip" $skip)}}
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="ip" data-sort-value="{{.IPAddress}}">
                             <div class="ps-3">
-                                <div class="text-base font-semibold">{{.IPAddress}}</div>
+                                <div class="text-base font-semibold">{{.IPAddress}}{{if .Current}} <span class="ms-1 rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-gray-700 dark:text-white">{{$root.T.Get "This session"}}</span>{{end}}</div>
                                 {{if index $root.UserAllowed "activity"}}
                                 <div class="font-normal text-gray-500">
                                     <a href="/account/activity?search={{.IPAddress}}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">{{$root.T.Get "View activity logs"}}</a>
@@ -106,6 +110,8 @@
                 </tbody>
             </table>
         </div>
+    </div>
+    {{template "bulk_bar" .}}
     </div>
 </section>
 

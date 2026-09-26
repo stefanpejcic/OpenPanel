@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
@@ -31,6 +33,19 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/ftp/connections", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleListFTPConnections(a, w, r) }))
 	mux.Handle("/ftp/new", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleAddFTPAccount(a, w, r) }))
 	mux.Handle("POST /ftp/delete", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeleteFTPAccount(a, w, r) }))
+	mux.Handle("POST /ftp/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		web.ServeBulkDispatch(a, mux, w, r, ftpBulkActions(web.RequestTranslator(a, r)), func(action, value, account string) (*web.BulkCall, web.BulkResult) {
+			switch action {
+			case "password":
+				return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/ftp/password/" + url.PathEscape(account), Form: url.Values{"new_password": {value}}})
+			case "path":
+				return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/ftp/path/" + url.PathEscape(account), Form: url.Values{"username": {account}, "new_path": {value}}})
+			case "delete":
+				return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/ftp/delete", Form: url.Values{"username": {account}}})
+			}
+			return web.Skip("Unknown bulk action.")
+		})
+	}))
 	mux.Handle("/ftp/password/{username}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleChangeFTPPassword(a, w, r, r.PathValue("username"))
 	}))
@@ -467,4 +482,12 @@ func domainOptions(list []appctx.Domain) []domainOption {
 		opts[i] = domainOption{DomainURL: d.DomainURL, Docroot: d.Docroot}
 	}
 	return opts
+}
+
+func ftpBulkActions(t i18n.Translator) []web.BulkAction {
+	return []web.BulkAction{
+		{Key: "password", Label: t.Get("Change password"), Confirm: t.Get("Set this password for the selected FTP accounts:"), Input: &web.BulkInput{Type: "password", Placeholder: t.Get("New password")}},
+		{Key: "path", Label: t.Get("Change path"), Confirm: t.Get("New home folder for the selected FTP accounts:"), Input: &web.BulkInput{Type: "text", Default: "/var/www/html/", Placeholder: "/var/www/html/"}},
+		{Key: "delete", Label: t.Get("Delete"), Confirm: t.Get("Delete the selected FTP accounts? Their files are kept."), Danger: true},
+	}
 }

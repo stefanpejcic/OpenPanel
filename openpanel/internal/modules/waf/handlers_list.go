@@ -1,7 +1,6 @@
 package waf
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -131,12 +130,12 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	case 1:
 		issues = append(issues, WAFIssue{
 			ID: "waf-disabled:" + disabledDomains[0], Severity: "warning",
-			Message: "WAF is disabled for " + disabledDomains[0] + ".",
+			Message: web.Tr(a, r, "WAF is disabled for %(domain)s.", "domain", disabledDomains[0]),
 		})
 	default:
 		issues = append(issues, WAFIssue{
 			ID: "waf-disabled-summary", Severity: "warning",
-			Message: fmt.Sprintf("WAF is disabled for %d domains.", len(disabledDomains)),
+			Message: web.Tr(a, r, "WAF is disabled for %(count)s domains.", "count", len(disabledDomains)),
 		})
 	}
 

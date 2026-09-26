@@ -3,6 +3,7 @@ package account
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -11,9 +12,11 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // ActiveSession is one row of the /account/sessions table.
@@ -22,6 +25,7 @@ type ActiveSession struct {
 	IPAddress    string
 	CreatedAt    string
 	ExpiresIn    string
+	Current      bool
 }
 
 // handleActiveSessions lists this account's currently active sessions.
@@ -59,6 +63,7 @@ func handleActiveSessions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 		sessionsList = append(sessionsList, ActiveSession{
 			SessionToken: token, IPAddress: ip, CreatedAt: createdAt, ExpiresIn: expiresIn,
+			Current: token == auth.SessionToken(r),
 		})
 	}
 
@@ -123,4 +128,19 @@ func RegisterSessions(mux *http.ServeMux, a *appctx.App) {
 	}
 	mux.Handle("GET /account/sessions", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleActiveSessions(a, w, r) }))
 	mux.Handle("POST /account/sessions/terminate/{session_token}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTerminateSession(a, w, r) }))
+	mux.Handle("POST /account/sessions/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		web.ServeBulkDispatch(a, mux, w, r, sessionsBulkActions(web.RequestTranslator(a, r)), func(_, _, token string) (*web.BulkCall, web.BulkResult) {
+			// ending your own session halfway through would log you out
+			if token == auth.SessionToken(r) {
+				return web.Skip("This is your current session.")
+			}
+			return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/account/sessions/terminate/" + url.PathEscape(token)})
+		})
+	}))
+}
+
+func sessionsBulkActions(t i18n.Translator) []web.BulkAction {
+	return []web.BulkAction{
+		{Key: "terminate", Label: t.Get("Terminate"), Confirm: t.Get("Terminate the selected sessions? Anyone using them will be logged out."), Danger: true},
+	}
 }

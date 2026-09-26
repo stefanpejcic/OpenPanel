@@ -168,12 +168,13 @@
                         </form>
                     </div>
 
+                    {{template "bulk_open" (dict "T" .T "Table" "#remote-access-table" "Endpoint" "/mysql/remote-mysql/access/bulk")}}
                     <div class="overflow-x-auto rounded border border-gray-200 dark:border-gray-900">
-                        <table class="w-full caption-bottom">
+                        <table id="remote-access-table" class="w-full caption-bottom">
                             <thead>
                                 <tr class="whitespace-nowrap border-b text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
                                     <th class="px-4 py-3">{{.T.Get "Username"}}</th>
-                                    <th class="px-4 py-3">{{.T.Get "Allowed From"}}</th>
+                                    <th class="px-4 py-3"><span class="inline-flex items-center gap-2">{{template "bulk_head_input" .}} {{.T.Get "Allowed From"}}</span></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -187,6 +188,9 @@
                                                 {{range $entry.Hosts}}
                                                 {{$host := .}}
                                                 <div class="flex items-center gap-2" x-data="{ editing: false }">
+                                                    <input type="checkbox" class="bulk-select-box h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
+                                                        value="{{$entry.Username}}@{{$host}}" data-bulk-skip=""
+                                                        :checked="!!bulkSelected[{{toJSON (printf "%s@%s" $entry.Username $host)}}]" @change="bulkToggle($event.target)" aria-label="{{$.T.Get "Select"}} {{$entry.Username}}@{{$host}}">
                                                     <span class="bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300" x-show="!editing">{{$host}}</span>
 
                                                     <form method="POST" action="/mysql/remote-mysql/access/edit" class="flex items-center gap-2" x-show="editing">
@@ -219,6 +223,8 @@
                                 {{end}}
                             </tbody>
                         </table>
+                    </div>
+                    {{template "bulk_bar" .}}
                     </div>
                 </div>
             </div>

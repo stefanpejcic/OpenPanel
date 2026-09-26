@@ -38,6 +38,7 @@ func renderProcessManagerPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.BulkActions = processBulkActions(layout.T)
 	data := ProcessManagerPageData{LayoutData: layout, ProcessData: processes}
 	if err := processManagerPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("PROCESSMANAGER - template render error: %v", err)

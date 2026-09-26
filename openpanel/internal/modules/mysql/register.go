@@ -2,11 +2,15 @@ package mysql
 
 import (
 	"net/http"
+	"net/url"
+	"strings"
 	"sync"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var initOnce sync.Once
@@ -31,6 +35,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /mysql/new", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesNew(a, w, r) }))
 	mux.Handle("POST /mysql/new", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesNew(a, w, r) }))
 	mux.Handle("POST /mysql/delete", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeleteDatabase(a, w, r) }))
+	mux.Handle("POST /mysql/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesBulk(a, mux, w, r) }))
+	mux.Handle("POST /mysql/users/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleUsersBulk(a, mux, w, r) }))
 
 	mux.Handle("GET /mysql/users", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesUsers(a, w, r) }))
 	mux.Handle("GET /mysql/user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesUser(a, w, r) }))
@@ -87,6 +93,11 @@ func RegisterProcesslist(mux *http.ServeMux, a *appctx.App) {
 	}
 	mux.Handle("GET /mysql/processlist", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMySQLProcessList(a, w, r) }))
 	mux.Handle("POST /mysql/processlist/kill", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMySQLKillQuery(a, w, r) }))
+	mux.Handle("POST /mysql/processlist/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		web.ServeBulkDispatch(a, mux, w, r, processlistBulkActions(web.RequestTranslator(a, r)), func(_, _, id string) (*web.BulkCall, web.BulkResult) {
+			return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/mysql/processlist/kill", Form: url.Values{"id": {id}}})
+		})
+	}))
 }
 
 // RegisterRootPassword wires the MySQL root-password route onto mux.
@@ -113,4 +124,20 @@ func RegisterRemote(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /mysql/remote-mysql/access/add", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemoteMySQLAccessAdd(a, w, r) }))
 	mux.Handle("POST /mysql/remote-mysql/access/edit", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemoteMySQLAccessEdit(a, w, r) }))
 	mux.Handle("POST /mysql/remote-mysql/access/delete", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemoteMySQLAccessDelete(a, w, r) }))
+	mux.Handle("POST /mysql/remote-mysql/access/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		web.ServeBulkDispatch(a, mux, w, r, remoteAccessBulkActions(web.RequestTranslator(a, r)), func(_, _, entry string) (*web.BulkCall, web.BulkResult) {
+			// usernames are [a-zA-Z0-9_]+, so the first @ splits user from host
+			user, host, ok := strings.Cut(entry, "@")
+			if !ok {
+				return web.Skip("Invalid entry.")
+			}
+			return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/mysql/remote-mysql/access/delete", Form: url.Values{"db_user": {user}, "db_host": {host}}})
+		})
+	}))
+}
+
+func processlistBulkActions(t i18n.Translator) []web.BulkAction {
+	return []web.BulkAction{
+		{Key: "kill", Label: t.Get("Kill"), Confirm: t.Get("Kill the selected queries?"), Danger: true},
+	}
 }

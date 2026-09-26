@@ -29,11 +29,13 @@
 </div>
 
 
+{{template "bulk_open" (dict "T" .T "Table" "#email-accounts" "Endpoint" "/emails/bulk")}}
     <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
             <table id="email-accounts" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+{{template "bulk_head_checkbox" .}}
                         <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Account @ Domain") "Key" "address" "Type" "string")}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Storage Used") "Key" "quota" "Type" "number")}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm text-right font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Options"}}</th>
@@ -43,13 +45,14 @@
 
                 {{if not .Rows}}
                     <tr>
-                        <td colspan="3" class="p-6 text-center">{{.T.Get "No emails yet."}} <a href="/emails/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Add your first email"}}</a></td>
+                        <td colspan="4" class="p-6 text-center">{{.T.Get "No emails yet."}} <a href="/emails/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Add your first email"}}</a></td>
                     </tr>
 
                 {{else}}
                 {{range .Rows}}
                 {{$row := .}}
                     <tr x-show="searchQuery === '' || {{toJSON $row.Address}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+{{template "bulk_row_checkbox" (dict "T" $.T "Key" $row.Address "Label" $row.Address)}}
 
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="address" data-sort-value="{{$row.Address}}"><span class="punycode">{{$row.Address}}</span></td>
 
@@ -87,6 +90,8 @@
             </table>
         </div>
     </div>
+{{template "bulk_bar" .}}
+</div>
 </section>
 <!-- END emails table -->
 

@@ -2,10 +2,13 @@ package postgresql
 
 import (
 	"net/http"
+	"net/url"
 	"sync"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var initOnce sync.Once
@@ -29,6 +32,8 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /postgresql/new", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesNew(a, w, r) }))
 	mux.Handle("POST /postgresql/export", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleExportDatabase(a, w, r) }))
 	mux.Handle("POST /postgresql/delete", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeleteDatabase(a, w, r) }))
+	mux.Handle("POST /postgresql/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleBulk(a, mux, w, r, false) }))
+	mux.Handle("POST /postgresql/users/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleBulk(a, mux, w, r, true) }))
 
 	mux.Handle("GET /postgresql/users", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesUsers(a, w, r) }))
 	mux.Handle("GET /postgresql/user", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesUser(a, w, r) }))
@@ -49,6 +54,11 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /json/postgresql-size", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDatabasesSizeInfo(a, w, r) }))
 	mux.Handle("GET /postgresql/processlist", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleProcessList(a, w, r) }))
 	mux.Handle("POST /postgresql/processlist/kill", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleKillQuery(a, w, r) }))
+	mux.Handle("POST /postgresql/processlist/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		web.ServeBulkDispatch(a, mux, w, r, processlistBulkActions(web.RequestTranslator(a, r)), func(_, _, id string) (*web.BulkCall, web.BulkResult) {
+			return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/postgresql/processlist/kill", Form: url.Values{"pid": {id}}})
+		})
+	}))
 }
 
 // RegisterConf wires the postgresql_conf module's route onto mux.
@@ -82,4 +92,10 @@ func RegisterRemote(mux *http.ServeMux, a *appctx.App) {
 	}
 	mux.Handle("GET /postgresql/remote-postgresql", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemotePostgres(a, w, r) }))
 	mux.Handle("POST /postgresql/remote-postgresql", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRemotePostgres(a, w, r) }))
+}
+
+func processlistBulkActions(t i18n.Translator) []web.BulkAction {
+	return []web.BulkAction{
+		{Key: "kill", Label: t.Get("Kill"), Confirm: t.Get("Kill the selected queries?"), Danger: true},
+	}
 }

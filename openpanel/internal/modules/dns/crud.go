@@ -240,7 +240,12 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", openErr.Error()), redirectTarget)
 		return
 	}
-	_, writeErr := f.WriteString(newRecord + "\n")
+	// a zone ending without a newline would glue the record onto its last line
+	prefix := ""
+	if existing, _ := os.ReadFile(path); len(existing) > 0 && existing[len(existing)-1] != '\n' {
+		prefix = "\n"
+	}
+	_, writeErr := f.WriteString(prefix + newRecord + "\n")
 	_ = f.Close()
 	if writeErr != nil {
 		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", writeErr.Error()), redirectTarget)

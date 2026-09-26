@@ -72,6 +72,7 @@ func renderCronjobsTablePage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.BulkActions = cronBulkActions(layout.T, services)
 	data := CronjobsPageData{
 		LayoutData: layout, View: "table", Service: "cron", Services: services, CronJobs: cronJobs,
 		ScheduleIssues: scheduleIssues,

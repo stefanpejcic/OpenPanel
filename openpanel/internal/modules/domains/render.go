@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -74,11 +75,13 @@ func buildPageEntries(current, total int) []PageEntry {
 }
 
 func renderDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, rows []DomainRow, totalPages, currentPage, startLine, endLine, totalDomains int) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Domains")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Domains")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	userContext, _ := injectedData["context"].(string)
+	layout.BulkActions = web.AllowedBulkActions(a, r, domainsBulkActions(layout.T, php.InstalledVersionsSorted(r, a, userContext)))
 	data := DomainsPageData{
 		LayoutData: layout, Domains: rows, TotalPages: totalPages, CurrentPage: currentPage,
 		StartLineNumber: startLine, EndLineNumber: endLine, TotalDomains: totalDomains,

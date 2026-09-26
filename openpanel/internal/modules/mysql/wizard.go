@@ -42,37 +42,37 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 		password := r.Form.Get("password")
 		selectedPrivs := r.Form["privileges"]
 
-		reRender := func(category, message string) {
+		flashAndRerender := func(category, message string) {
 			flashSess(a, w, r, category, message)
 			renderWizardForm(a, w, r, mysqlVersion, databaseName, dbUser)
 		}
 
 		switch {
 		case databaseName == "":
-			reRender("error", "Database name is required.")
+			flashAndRerender("error", "Database name is required.")
 			return
 		case !validators.IsValidIdentifier(databaseName):
-			reRender("error", "Name "+databaseName+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+")
+			flashAndRerender("error", "Name "+databaseName+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+")
 			return
 		case isRestrictedDatabase(databaseName):
-			reRender("error", "This is a system database that can not be used.")
+			flashAndRerender("error", "This is a system database that can not be used.")
 			return
 		case dbUser == "":
-			reRender("error", "User name is required.")
+			flashAndRerender("error", "User name is required.")
 			return
 		case !validators.IsValidIdentifier(dbUser):
-			reRender("error", "Name "+dbUser+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+")
+			flashAndRerender("error", "Name "+dbUser+" is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+")
 			return
 		case !validators.IsValidHost(dbHost):
-			reRender("error", "Invalid host format.")
+			flashAndRerender("error", "Invalid host format.")
 			return
 		case len(selectedPrivs) == 0:
-			reRender("error", "At least one privilege must be selected.")
+			flashAndRerender("error", "At least one privilege must be selected.")
 			return
 		}
 		privilegesSQL, ok := buildPrivilegesSQL(selectedPrivs)
 		if !ok {
-			reRender("error", "Invalid privilege selected.")
+			flashAndRerender("error", "Invalid privilege selected.")
 			return
 		}
 
@@ -83,7 +83,7 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 		invalidateDatabaseCount(ctx, a, currentUsername)
 		dbUsage := getDatabaseCount(ctx, a, currentUsername, userContext)
 		if dbLimit != 0 && dbUsage >= dbLimit {
-			reRender("error", "Error creating database: '"+databaseName+"' - You have reached the maximum number of databases allowed."+plan.UpgradeMessage())
+			flashAndRerender("error", web.Tr(a, r, "Error creating database: '%(database_name)s' - You have reached the maximum number of databases allowed.%(upgrade_message)s", "database_name", databaseName, "upgrade_message", plan.UpgradeMessage()))
 			return
 		}
 
@@ -99,7 +99,7 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 		}
 		for _, q := range queries {
 			if _, execErr := mysqlmanager.Exec(ctx, userContext, q, ""); execErr != nil {
-				reRender("error", execErr.Error())
+				flashAndRerender("error", execErr.Error())
 				return
 			}
 		}

@@ -57,10 +57,15 @@ type DatabasesPageData struct {
 }
 
 func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, databases []DatabaseRow, unit string, showAll bool) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "PostgreSQL Databases")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "PostgreSQL Databases")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
+	}
+	if len(databases) > 0 {
+		userContext, _ := injectedData["context"].(string)
+		_, users, _ := ComputeDatabaseAndUserNames(r.Context(), userContext)
+		layout.BulkActions = databasesBulkActions(layout.T, users)
 	}
 	layout.Service = "postgres"
 	data := DatabasesPageData{
@@ -101,10 +106,15 @@ type UsersPageData struct {
 }
 
 func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, users []UserRow, showAll bool) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "PostgreSQL Users")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "PostgreSQL Users")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
+	}
+	if len(users) > 0 {
+		userContext, _ := injectedData["context"].(string)
+		databases, _, _ := ComputeDatabaseAndUserNames(r.Context(), userContext)
+		layout.BulkActions = usersBulkActions(layout.T, databases)
 	}
 	layout.Service = "postgres"
 	data := UsersPageData{
@@ -216,6 +226,7 @@ func renderProcessListPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 	layout.Service = "postgres"
+	layout.BulkActions = processlistBulkActions(layout.T)
 	data := ProcessListPageData{LayoutData: layout, ProcessList: processList}
 	if err := processlistPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - processlist template render error: %v", err)

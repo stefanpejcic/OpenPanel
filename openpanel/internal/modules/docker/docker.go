@@ -38,6 +38,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /containers/status", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleContainersStatus(a, w, r)
 	}))
+	mux.Handle("POST /containers/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		handleContainersBulk(a, w, r)
+	}))
 	for _, action := range []string{"start", "stop", "restart", "cpu", "ram", "pids"} {
 		action := action
 		mux.Handle("POST /containers/"+action+"/{container_name}", requireLogin(func(w http.ResponseWriter, r *http.Request) {

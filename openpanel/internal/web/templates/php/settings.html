@@ -65,11 +65,13 @@ document.addEventListener('DOMContentLoaded', function () {
 <!-- END version counters -->
 
 <!-- domains table -->
+{{template "bulk_open" (dict "T" .T "Table" "#php-domains-table" "Endpoint" "/php/domains/bulk")}}
 <div class="overflow-x-auto">
     <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
         <table id="php-domains-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
             <thead class="">
                 <tr class="bg-gray-50 dark:bg-gray-900 sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
+                    {{template "bulk_head_checkbox" .}}
                     <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Domain"}}</th>
                     <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Current PHP Version"}}</th>
                     <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Change version"}}</th>
@@ -78,13 +80,15 @@ document.addEventListener('DOMContentLoaded', function () {
             <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
                 {{if not .Domains}}
                 <tr>
-                    <td colspan="3" class="p-6 text-center">{{.T.Get "No domains yet."}}</td>
+                    <td colspan="4" class="p-6 text-center">{{.T.Get "No domains yet."}}</td>
                 </tr>
                 {{else}}
                 {{$csrf := .CSRFToken}}
                 {{$available := .AvailablePHPVersions}}
                 {{range .Domains}}
                 <tr x-show="searchQuery === '' || '{{.DomainURL}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.PHPVersion}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                    {{$skip := ""}}{{if eq .PHPVersion "/"}}{{$skip = "version,default"}}{{end}}
+                    {{template "bulk_row_checkbox" (dict "T" $.T "Key" .DomainURL "Label" .DomainURL "Skip" $skip)}}
                     <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
                         <span class="punycode">{{.DomainURL}}</span>
                     </td>
@@ -140,6 +144,8 @@ document.addEventListener('DOMContentLoaded', function () {
             </tbody>
         </table>
     </div>
+</div>
+{{template "bulk_bar" .}}
 </div>
 </section>
 

@@ -65,11 +65,13 @@
 
     </div>
 
+{{template "bulk_open" (dict "T" .T "Table" "#users-table" "Endpoint" "/mysql/users/bulk")}}
    <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
             <table id="users-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+{{template "bulk_head_checkbox" .}}
                         <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
                             {{template "sort_header" (dict "Label" (.T.Get "Username") "Key" "username" "Type" "string")}}
                         </th>
@@ -85,6 +87,7 @@
             {{range .Users}}
             {{$user := .}}
             <tr x-show="searchQuery === '' || {{toJSON $user}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+{{$skip := ""}}{{if isSystemMySQLUser $user}}{{$skip = "*"}}{{end}}{{template "bulk_row_checkbox" (dict "T" $.T "Key" $user "Label" $user "Skip" $skip)}}
                                 <td class="p-4 text-sm relative whitespace-nowrap font-medium text-gray-900 dark:text-gray-50 text-left select-text" data-sort-col="username">{{$user}}</td>
                                 <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
 
@@ -146,12 +149,12 @@
             </script>
         {{else}}
         <tr>
-            <td colspan="2" class="p-6 text-center">{{.T.Get "No users yet."}} <a href="/mysql/user" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Create your first user"}}</a></td>
+            <td colspan="3" class="p-6 text-center">{{.T.Get "No users yet."}} <a href="/mysql/user" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Create your first user"}}</a></td>
         </tr>
         {{end}}
         {{else}}
         <tr>
-            <td colspan="2" class="p-6 text-center">
+            <td colspan="3" class="p-6 text-center">
                 {{$.T.Get .StatusDetail}}
                 <br>
                 <span id="refresh-message"></span>
@@ -160,7 +163,7 @@
         {{end}}
     {{else}}
         <tr>
-            <td colspan="2" class="p-6 text-center">
+            <td colspan="3" class="p-6 text-center">
                 {{$.T.Get .StatusDetail}}
                 <br>
                 <span id="refresh-message"></span>
@@ -186,6 +189,8 @@
             </table>
         </div>
     </div>
+{{template "bulk_bar" .}}
+</div>
 </section>
 
 <script src="/static/js/table-sort.js"></script>

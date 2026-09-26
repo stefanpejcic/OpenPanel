@@ -223,3 +223,29 @@ func TestSetEnvValueRestrictedKey(t *testing.T) {
 		t.Error("expected an error message when setting a restricted key")
 	}
 }
+
+func TestSaveEnvFileKeepsCommentsAndOrder(t *testing.T) {
+	dir := t.TempDir()
+	old := homeDirOverride
+	homeDirOverride = dir
+	defer func() { homeDirOverride = old }()
+
+	in := "# REDIS\nREDIS_CPU=\"0.1\"\nMONGODB_VERSION=8.0\n#PROXY_HTTP_PORT=\"1:80\"\n\n# MY APP\nMY_APP_CPU=\"1\"\nMY_APP_RAM=\"1G\"\n"
+	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte(in), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	env := LoadEnvFile("u")
+	delete(env, "MY_APP_CPU")
+	delete(env, "MY_APP_RAM")
+	env["REDIS_CPU"] = "0.2"
+	env["B_NEW"] = "x"
+	env["A_NEW"] = "y"
+	if err := SaveEnvFile("u", env); err != nil {
+		t.Fatal(err)
+	}
+	got, _ := os.ReadFile(filepath.Join(dir, ".env"))
+	want := "# REDIS\nREDIS_CPU=\"0.2\"\nMONGODB_VERSION=8.0\n#PROXY_HTTP_PORT=\"1:80\"\n\n# MY APP\nA_NEW=\"y\"\nB_NEW=\"x\"\n"
+	if string(got) != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+}

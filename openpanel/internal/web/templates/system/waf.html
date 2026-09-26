@@ -45,11 +45,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     </div>
 
+{{template "bulk_open" (dict "T" .T "Table" "#waf-domains-table" "Endpoint" "/server/waf/bulk")}}
    <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
             <table id="waf-domains-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+{{template "bulk_head_checkbox" .}}
                         <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
                             <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
                                 <span>{{.T.Get "Domain Name"}}</span>
@@ -80,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
                     {{if not .Domains}}
                     <tr>
-                        <td colspan="3" class="p-6 text-center">{{.T.Get "No domains yet."}}</td>
+                        <td colspan="4" class="p-6 text-center">{{.T.Get "No domains yet."}}</td>
                     </tr>
                     {{else}}
                     {{$modsecStatus := .ModsecStatus}}
@@ -88,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     {{range .Domains}}
                     {{$status := index $modsecStatus .DomainURL}}
                     <tr x-show="searchQuery === '' || '{{.DomainURL}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+{{template "bulk_row_checkbox" (dict "T" $.T "Key" .DomainURL "Label" .DomainURL)}}
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 punycode" data-sort-col="domain" data-sort-value="{{.DomainURL}}">
                             {{.DomainURL}}
                         </td>
@@ -128,6 +131,8 @@ document.addEventListener('DOMContentLoaded', function () {
             </table>
         </div>
     </div>
+{{template "bulk_bar" .}}
+</div>
 </section>
 
 

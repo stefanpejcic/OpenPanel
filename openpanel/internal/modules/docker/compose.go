@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -117,14 +118,45 @@ func LoadEnvFile(userContext string) map[string]string {
 	return env
 }
 
-// SaveEnvFile writes key->value pairs back to /home/<context>/.env, one KEY="value" per line. Line order isn't guaranteed (Go maps don't preserve insertion order), but callers look values up by name, not position, so it doesn't matter functionally.
+// SaveEnvFile writes env as the full contents of /home/<context>/.env, updating existing lines in place so comments and order survive, and appending new keys sorted
 func SaveEnvFile(userContext string, env map[string]string) error {
-	var b strings.Builder
-	for k, v := range env {
-		safeValue := strings.ReplaceAll(v, `"`, `\"`)
-		b.WriteString(k + `="` + safeValue + "\"\n")
+	path := homePath(userContext, ".env")
+	existing, _ := os.ReadFile(path)
+	line := func(k string) string { return k + `="` + strings.ReplaceAll(env[k], `"`, `\"`) + `"` }
+
+	var out []string
+	written := map[string]bool{}
+	if len(existing) > 0 {
+		for _, l := range strings.Split(strings.TrimRight(string(existing), "\n"), "\n") {
+			k, v, ok := strings.Cut(l, "=")
+			key := strings.TrimSpace(k)
+			if !ok || strings.HasPrefix(key, "#") {
+				out = append(out, l)
+				continue
+			}
+			if _, keep := env[key]; !keep || written[key] {
+				continue
+			}
+			written[key] = true
+			// leave untouched lines as they were, e.g. unquoted values
+			if strings.Trim(strings.TrimSpace(v), `"`) == env[key] {
+				out = append(out, l)
+			} else {
+				out = append(out, line(key))
+			}
+		}
 	}
-	return os.WriteFile(homePath(userContext, ".env"), []byte(b.String()), 0o644)
+	var added []string
+	for k := range env {
+		if !written[k] && !strings.HasPrefix(k, "#") {
+			added = append(added, k)
+		}
+	}
+	sort.Strings(added)
+	for _, k := range added {
+		out = append(out, line(k))
+	}
+	return os.WriteFile(path, []byte(strings.Join(out, "\n")+"\n"), 0o644)
 }
 
 // GetEnvValue looks up a single KEY=value from /home/<context>/.env. The bool return distinguishes "key not found" from "key present with an empty value" - "" is a valid value.

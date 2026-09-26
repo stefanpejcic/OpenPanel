@@ -266,3 +266,17 @@ func TestServiceNamesFromComposeMissing(t *testing.T) {
 		t.Error("expected ok=false when services key is missing")
 	}
 }
+
+func TestCronJobKey(t *testing.T) {
+	a := CronJob{Comment: "backup", Schedule: "0 0 * * * *", Container: "php-fpm-8.3", Command: "php run.php"}
+	b := a
+	b.Command = "php other.php"
+	if a.Key() == b.Key() || len(a.Key()) != 16 {
+		t.Errorf("keys should differ and be 16 hex chars: %q %q", a.Key(), b.Key())
+	}
+	c := a
+	c.NoOverlap = true
+	if a.Key() != c.Key() {
+		t.Error("toggling no-overlap must not change the key, the bulk edit looks jobs up by it")
+	}
+}

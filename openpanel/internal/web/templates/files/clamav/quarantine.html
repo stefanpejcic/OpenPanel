@@ -52,11 +52,13 @@
 
 <!-- files table -->
 <section aria-label="Quarantined Files">
+    {{template "bulk_open" (dict "T" .T "Table" "#quarantine-table" "Endpoint" "/malware-scanner/quarantine/bulk")}}
     <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-            <table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+            <table id="quarantine-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
+                        {{template "bulk_head_checkbox" .}}
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "File"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Reason"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm text-right font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
@@ -65,6 +67,7 @@
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
                     {{range .QuarantineFiles}}
                     <tr x-show="searchQuery === '' || {{toJSON .DisplayPath}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                        {{template "bulk_row_checkbox" (dict "T" $.T "Key" .RelPath "Label" .DisplayPath)}}
 
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.DisplayPath}}</td>
 
@@ -89,6 +92,8 @@
                 </tbody>
             </table>
         </div>
+    </div>
+    {{template "bulk_bar" .}}
     </div>
 </section>
 <!-- END files table -->

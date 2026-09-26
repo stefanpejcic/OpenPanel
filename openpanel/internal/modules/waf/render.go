@@ -45,6 +45,7 @@ func renderWAFListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	layout.BulkActions = wafBulkActions(layout.T)
 	data := WAFListPageData{LayoutData: layout, Domains: domains, ModsecStatus: modsecStatus, Issues: issues}
 	if err := wafListPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WAF - list template render error: %v", err)

@@ -81,6 +81,8 @@ type LayoutData struct {
 	// FilemanagerView is the resolved filemanager button style ("classic" or "modern"), read server-side on every page (not just /files) so the account menu's style toggle (only shown on /files) highlights the active choice with no flicker
 	FilemanagerView string
 
+	BulkActions []BulkAction // buttons for partials/_bulk.html, set by pages that have bulk selection
+
 	T i18n.Translator
 }
 

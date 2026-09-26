@@ -50,11 +50,13 @@
         </div>
     </div>
 
+{{template "bulk_open" (dict "T" .T "Table" "#users-table" "Endpoint" "/postgresql/users/bulk")}}
     <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
             <table id="users-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
                 <thead class="">
                     <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+{{template "bulk_head_checkbox" .}}
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Username"}}</th>
                         <th scope="col" class="w-10 whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
                     </tr>
@@ -64,6 +66,7 @@
                     {{range .Users}}
                     {{$user := .}}
                     <tr x-show="searchQuery === '' || {{toJSON $user.Name}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+{{$skip := ""}}{{if $user.IsSystem}}{{$skip = "*"}}{{end}}{{template "bulk_row_checkbox" (dict "T" $.T "Key" $user.Name "Label" $user.Name "Skip" $skip)}}
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{$user.Name}}</td>
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
                             <div class="flex gap-2">
@@ -85,6 +88,8 @@
             </table>
         </div>
     </div>
+{{template "bulk_bar" .}}
+</div>
 </section>
 
 <script>
