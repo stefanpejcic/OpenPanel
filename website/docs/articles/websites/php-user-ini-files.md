@@ -6,6 +6,10 @@ sidebar_label: "PHP settings per website (folder)"
 
 Using `.user.ini` files, you can set different PHP limits for each website or folder.
 
+:::warning
+`.user.ini` files work with the **Apache**, **Nginx** and **OpenResty** web servers. They are not supported with **OpenLiteSpeed**, which runs PHP through its own LiteSpeed PHP (LSAPI) and ignores `.user.ini` files and `php_value` lines in `.htaccess`. On OpenLiteSpeed, change the limits for the whole PHP version in [PHP > Options](/docs/panel/php/options/) instead, or switch to another web server.
+:::
+
 ## Creating a `.user.ini` file
 
 For example, to set custom PHP limits only for a specific website, such as `example.net`:
@@ -23,7 +27,7 @@ For example, to set custom PHP limits only for a specific website, such as `exam
 
 Finally, open your website and confirm the changes:
 
-* For any PHP site, you can check via `phpinfo()`.
+* For any PHP site on Apache, Nginx or OpenResty, you can check via `phpinfo()`.
 * For WordPress, go to **Tools > Site Health** and verify the new limits are applied.
 
 ---
