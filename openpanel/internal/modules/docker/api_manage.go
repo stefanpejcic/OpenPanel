@@ -350,6 +350,7 @@ func apiContainerSwitchMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 
 	SetEnvValue(userContext, "MYSQL_TYPE", targetService)
+	runServiceSwitchHooks(ctx, userContext, mysqlType, targetService)
 	_ = a.Cache.Delete(ctx, "get_mysql_version:"+userContext)
 	removeImage(ctx, userContext, mysqlType)
 	mysqlmanager.InvalidatePool(userContext)
@@ -409,6 +410,7 @@ func apiContainerSwitchWebserver(a *appctx.App, w http.ResponseWriter, r *http.R
 	}
 
 	SetEnvValue(userContext, "WEB_SERVER", newWebserver)
+	runServiceSwitchHooks(ctx, userContext, webserver, newWebserver)
 	removeImage(ctx, userContext, webserver)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "switched webserver type to: "+newWebserver, reqip.ClientIP(r))
 	writeAPIDockerJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("Successfully switched to %s!", newWebserver)})

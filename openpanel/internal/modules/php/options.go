@@ -131,13 +131,13 @@ func updatePHPConfigFile(ctx context.Context, userContext, version string, keyOr
 	}
 }
 
-// availableTimezones lists the IANA timezones available for the date.timezone option - the Go stdlib has no bundled zone list, so this walks /usr/share/zoneinfo and filters out the non-zone metadata files it also contains
+// AvailableTimezones lists the IANA timezones available for the date.timezone option - the Go stdlib has no bundled zone list, so this walks /usr/share/zoneinfo and filters out the non-zone metadata files it also contains
 var timezoneSkipNames = map[string]bool{
 	"posixrules": true, "Factory": true, "iso3166.tab": true, "zone.tab": true,
 	"zone1970.tab": true, "leapseconds": true, "tzdata.zi": true, "leap-seconds.list": true,
 }
 
-func availableTimezones() []string {
+func AvailableTimezones() []string {
 	const root = "/usr/share/zoneinfo"
 	var zones []string
 	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
@@ -282,7 +282,7 @@ func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, ver
 		return
 	}
 
-	timezones := availableTimezones()
+	timezones := AvailableTimezones()
 
 	if r.URL.Query().Get("output") == "json" {
 		writeJSON(w, http.StatusOK, map[string]any{

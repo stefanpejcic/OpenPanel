@@ -135,6 +135,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 			}
 
 			SetEnvValue(userContext, "MYSQL_TYPE", targetService)
+			runServiceSwitchHooks(ctx, userContext, mysqlType, targetService)
 			_ = a.Cache.Delete(ctx, "get_mysql_version:"+userContext)
 			removeImage(ctx, userContext, mysqlType)
 			mysqlmanager.InvalidatePool(userContext)
@@ -241,6 +242,7 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 			}
 
 			SetEnvValue(userContext, "WEB_SERVER", newWebserver)
+			runServiceSwitchHooks(ctx, userContext, webserver, newWebserver)
 			removeImage(ctx, userContext, webserver)
 
 			if varnishRunning {

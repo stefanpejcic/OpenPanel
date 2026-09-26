@@ -6,44 +6,72 @@ sidebar_position: 11
 
 A cron job is a Linux command used to schedule tasks for future execution. It allows you to automate repetitive tasks, such as sending notifications or running scripts at specific intervals.
 
-![Cron Jobs page listing scheduled jobs with their schedule, container, command and comment](/img/openpanel-screenshots/advanced/cronjobs-list.png#gh-light-mode-only)
-![Cron Jobs page listing scheduled jobs with their schedule, container, command and comment](/img/openpanel-screenshots/advanced/cronjobs-list_dark.png#gh-dark-mode-only)
+![Cron Jobs page with the summary cards and the table of jobs with their on/off switch, schedule, container, command and comment](/img/openpanel-screenshots/advanced/cronjobs-list.png#gh-light-mode-only)
+![Cron Jobs page with the summary cards and the table of jobs with their on/off switch, schedule, container, command and comment](/img/openpanel-screenshots/advanced/cronjobs-list_dark.png#gh-dark-mode-only)
 
 The Cron Jobs page has three tabs:
 
-- **Cron Jobs**: the table of scheduled jobs, where you can create new jobs and edit, delete, run or view the logs of existing ones.
+- **Cron Jobs**: the table of scheduled jobs, where you can create new jobs and edit, run, view the logs of or delete existing ones with the icons in the **Actions** column.
 - **File Editor**: edit the file the jobs are stored in directly, see [File Editor](#file-editor).
 - **Logs**: the output of your cron jobs, see [Logs](#logs).
+
+## Summary
+
+Above the table, a summary shows at a glance how your cron jobs are doing:
+
+![Summary above the cron jobs table with the active jobs, jobs that failed on their last run, the next run with its time and job, and the cron time zone](/img/openpanel-screenshots/advanced/cronjobs-summary.png#gh-light-mode-only)
+![Summary above the cron jobs table with the active jobs, jobs that failed on their last run, the next run with its time and job, and the cron time zone](/img/openpanel-screenshots/advanced/cronjobs-summary_dark.png#gh-dark-mode-only)
+
+- **Active**: how many jobs are enabled, out of all jobs.
+- **Failed on last run**: how many enabled jobs ended with an error the last time they ran, read from the cron logs. It turns red when it's above zero.
+- **Next run**: how long until the next job runs, with its time and name next to the label.
+- **Cron time zone**: the time zone the schedules run in, see below.
+
+### Cron time zone
+
+Schedules run in the time zone of the cron service, UTC by default. To change it, hover over **Cron time zone** and click the pencil icon, pick a time zone from the list and click **Save**.
+
+![Cron time zone in the summary opened for editing, with the time zone dropdown and the Save and Cancel buttons](/img/openpanel-screenshots/advanced/cronjobs-timezone.png#gh-light-mode-only)
+![Cron time zone in the summary opened for editing, with the time zone dropdown and the Save and Cancel buttons](/img/openpanel-screenshots/advanced/cronjobs-timezone_dark.png#gh-dark-mode-only)
+
+OpenPanel sets `TZ` on the cron service in your `docker-compose.yml` and restarts it, so from then on `0 0 3 * * *` means 03:00 in that time zone. The next run in the summary is shown in the same zone. The same setting is available through the API: `GET /api/crons/timezone` returns the current zone and `PUT /api/crons/timezone` with `{"timezone": "Europe/Belgrade"}` changes it.
+
+## Enable / Disable
+
+The **Status** column has a switch for each job: on means the job runs on its schedule, off means it's disabled. Click the switch to turn the job off or on.
+
+![Status column of the cron jobs table with the switch on for active jobs and off for a job that is disabled](/img/openpanel-screenshots/advanced/cronjobs-toggle.png#gh-light-mode-only)
+![Status column of the cron jobs table with the switch on for active jobs and off for a job that is disabled](/img/openpanel-screenshots/advanced/cronjobs-toggle_dark.png#gh-dark-mode-only)
+
+A disabled job stays in the list with its schedule, command and comment, it just doesn't run. In the [File Editor](#file-editor) its lines are commented out with `#`:
+
+```
+#[job-exec "log-rotate"]
+#schedule = @hourly
+#container = apache
+#command = date
+```
+
+Editing a disabled job keeps it disabled. When no job is enabled, the cron service is stopped until you enable or add one.
 
 
 ## Add
 
-To create a new cronjob click on the 'Create New' button and in the new form set the script to be executed, choose a container to execute the script and the desired schedule.
+To create a new cron job click the **Create New** button and fill in the form:
 
-![Create Cron Job form with the container, schedule, common schedules, command and comment fields](/img/openpanel-screenshots/advanced/cronjobs_new-form.png#gh-light-mode-only)
-![Create Cron Job form with the container, schedule, common schedules, command and comment fields](/img/openpanel-screenshots/advanced/cronjobs_new-form_dark.png#gh-dark-mode-only)
+![Create Cron Job form with a PHP command, the container of the default PHP version picked for it, the schedule options from 1 min to Custom, comment and No overlap fields](/img/openpanel-screenshots/advanced/cronjobs_new-form.png#gh-light-mode-only)
+![Create Cron Job form with a PHP command, the container of the default PHP version picked for it, the schedule options from 1 min to Custom, comment and No overlap fields](/img/openpanel-screenshots/advanced/cronjobs_new-form_dark.png#gh-dark-mode-only)
 
-The first field allows you to choose the container which is going to be running the script.
+1. **Command**: the script or command to run, for example `php /var/www/html/blog.example.com/wp-cron.php`.
+2. **Select Container**: the container the command runs in. Only the web server and database type you currently use are listed. When the command starts with `php`, `wp`, `composer` or `artisan`, the container of your default PHP version is picked for you, and for `mysql`, `mysqldump` or `mariadb-dump` your database container. You can still pick another one.
+3. **Schedule**: pick how often it runs: **1 min**, **5 min**, **30 min**, **Hourly**, **Daily** (the default), **Weekly** or **Monthly**. Pick **Custom** to enter your own cron expression.
+4. **Comment**: an optional name for the job, shown in the table and used to filter its logs.
+5. **No overlap**: skip a run while the previous run of this job is still going.
 
-![Select Container dropdown of the Create Cron Job form](/img/openpanel-screenshots/advanced/cronjobs_new-container.png#gh-light-mode-only)
-![Select Container dropdown of the Create Cron Job form](/img/openpanel-screenshots/advanced/cronjobs_new-container_dark.png#gh-dark-mode-only)
+![Schedule options with Custom picked and the cron expression field below them](/img/openpanel-screenshots/advanced/cronjobs_new-custom.png#gh-light-mode-only)
+![Schedule options with Custom picked and the cron expression field below them](/img/openpanel-screenshots/advanced/cronjobs_new-custom_dark.png#gh-dark-mode-only)
 
-The second field allows you to set a predefined (common) schedule:
-
-- Every 30 Seconds
-- Every Minute
-- Every 5 Minutes
-- Every 30 Minutes
-- Hourly
-- Daily
-- Weekly
-- Monthly
-- Yearly
-
-![Common schedules dropdown set to Hourly, which fills in @hourly as the schedule](/img/openpanel-screenshots/advanced/cronjobs_new-common.png#gh-light-mode-only)
-![Common schedules dropdown set to Hourly, which fills in @hourly as the schedule](/img/openpanel-screenshots/advanced/cronjobs_new-common_dark.png#gh-dark-mode-only)
-
-you can also set a standard cron expression representing set of times, using **6** space-separated fields:
+With **Custom**, you can set a standard cron expression representing set of times, using **6** space-separated fields:
 
 | Field name   | Mandatory? | Allowed values      | Allowed special characters |
 | ------------ | ---------- | ----------------- | ------------------------- |
@@ -58,29 +86,29 @@ you can also set a standard cron expression representing set of times, using **6
 There are 6 fields instead of the usual 5 found in standard Unix cron. This is because OpenPanel cron jobs also support scheduling by seconds.
 :::
 
-For more information, check [CRON_Expression_Format](https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format)
+An expression that isn't valid, like a minute of `99`, is refused when you save. For more information, check [CRON_Expression_Format](https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format)
 
 ## Edit
 
-To edit an existing cronjob, click on the 'Edit' button next to it. This action will allow you to edit that specific cron job.
+To edit an existing cron job, click the pencil icon in its **Actions** column. The row turns into editable fields.
 
 ![A cron job row in edit mode with editable schedule, container, command and comment fields](/img/openpanel-screenshots/advanced/cronjobs-edit.png#gh-light-mode-only)
 ![A cron job row in edit mode with editable schedule, container, command and comment fields](/img/openpanel-screenshots/advanced/cronjobs-edit_dark.png#gh-dark-mode-only)
 
 To modify the schedule for when the script is executed you can use a tool such as https://crontab.guru/.
 
-When you're done click on the 'Save' button to update the crons file with your changes.
+When you're done click the check mark icon to save your changes to the crons file.
 
 ## Delete
 
-To delete a cronjob, click on the 'Delete' button next to it. The button then switches to a 'Confirm' state with a 5 second countdown - click it again within that window to actually remove the job. If you don't click again, it reverts back to 'Delete' and nothing is removed.
+To delete a cron job, click the trash icon in its **Actions** column. The icon turns red with a 5 second countdown: click it again within that time to remove the job. If you don't, it goes back to normal and nothing is removed.
 
-![Delete button of a cron job turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/advanced/cronjobs-delete.png#gh-light-mode-only)
-![Delete button of a cron job turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/advanced/cronjobs-delete_dark.png#gh-dark-mode-only)
+![Delete icon of a cron job turned red with a 5 second countdown after the first click](/img/openpanel-screenshots/advanced/cronjobs-delete.png#gh-light-mode-only)
+![Delete icon of a cron job turned red with a 5 second countdown after the first click](/img/openpanel-screenshots/advanced/cronjobs-delete_dark.png#gh-dark-mode-only)
 
 ## Run Now
 
-To test a cron job without waiting for its schedule, click the 'Run' button next to it. This opens a modal that executes the job's command inside its configured container right away and streams the output live as it runs, followed by the exit code once it finishes.
+To test a cron job without waiting for its schedule, click the play icon in its **Actions** column. This opens a modal that executes the job's command inside its configured container right away and streams the output live as it runs, followed by the exit code once it finishes.
 
 ![Run now dialog of a cron job showing the command output and Finished successfully](/img/openpanel-screenshots/advanced/cronjobs-run.png#gh-light-mode-only)
 ![Run now dialog of a cron job showing the command output and Finished successfully](/img/openpanel-screenshots/advanced/cronjobs-run_dark.png#gh-dark-mode-only)
@@ -91,10 +119,10 @@ This is useful for quickly checking that a job is configured correctly before re
 
 Each cron job execution is recorded in JSON format.
 
-![Logs tab of the Cron Jobs page with the Job and Lines filters, Refresh button and log entries of recent runs](/img/openpanel-screenshots/advanced/cronjobs-logs.png#gh-light-mode-only)
-![Logs tab of the Cron Jobs page with the Job and Lines filters, Refresh button and log entries of recent runs](/img/openpanel-screenshots/advanced/cronjobs-logs_dark.png#gh-dark-mode-only)
+![Logs tab of the Cron Jobs page with the Job and Lines filters and Refresh button in the page header, and log entries of recent runs](/img/openpanel-screenshots/advanced/cronjobs-logs.png#gh-light-mode-only)
+![Logs tab of the Cron Jobs page with the Job and Lines filters and Refresh button in the page header, and log entries of recent runs](/img/openpanel-screenshots/advanced/cronjobs-logs_dark.png#gh-dark-mode-only)
 
-To view the logs, open the **Logs** tab, or click the **Logs** button in a job's row to open it already filtered to that job. You can filter by job name, choose how many lines to display and refresh the results. A job's logs can also be linked directly, for example `/cronjobs/logs?job=whmcs-cron`.
+To view the logs, open the **Logs** tab, or click the logs icon in a job's row to open it already filtered to that job. The **Job** and **Lines** filters and the **Refresh** button are in the page header: filter by job name, choose how many lines to display and refresh the results. A job's logs can also be linked directly, for example `/cronjobs/logs?job=whmcs-cron`.
 
 To filter logs by a specific job name (comment) directly through the API endpoint, append the following parameter to the URL:
 `?job=` followed by the job name. Example: `/cronjobs/log?job=whmcs-cron`
@@ -143,13 +171,15 @@ See also: [Restart a service automatically with a cron job](/docs/articles/conta
 
 ## Bulk Actions
 
-Tick the checkbox of one or more cron jobs, or the checkbox in the table header to select every cron job shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+Tick the checkbox of one or more cron jobs, or the checkbox in the table header to select all cron jobs shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
-![Two cron jobs selected with the bulk actions bar offering Run now, Change schedule, Change container, No overlap on, No overlap off and Delete](/img/openpanel-screenshots/advanced/cronjobs-bulk.png#gh-light-mode-only)
-![Two cron jobs selected with the bulk actions bar offering Run now, Change schedule, Change container, No overlap on, No overlap off and Delete](/img/openpanel-screenshots/advanced/cronjobs-bulk_dark.png#gh-dark-mode-only)
+![Two cron jobs selected with the bulk actions bar offering Enable, Disable, Run now, Change schedule, Change container, No overlap on, No overlap off and Delete](/img/openpanel-screenshots/advanced/cronjobs-bulk.png#gh-light-mode-only)
+![Two cron jobs selected with the bulk actions bar offering Enable, Disable, Run now, Change schedule, Change container, No overlap on, No overlap off and Delete](/img/openpanel-screenshots/advanced/cronjobs-bulk_dark.png#gh-dark-mode-only)
 
 | Action | What it does |
 |---|---|
+| **Enable** | Turns the selected jobs on, enabled jobs are skipped. |
+| **Disable** | Turns the selected jobs off without deleting them, disabled jobs are skipped. |
 | **Run now** | Runs the selected jobs one after another and reports each exit code. |
 | **Change schedule** | Sets the schedule you enter, with 6 fields (seconds first) or a descriptor like `@hourly`. |
 | **Change container** | Runs the selected jobs in the container you pick. |

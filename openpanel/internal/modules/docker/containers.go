@@ -36,6 +36,25 @@ var webserverHideFilters = map[string][]string{
 	"openresty":     {"apache", "nginx", "openlitespeed", "litespeed"},
 }
 
+// ServiceSwitchHooks run after the web server or MySQL type changes, other modules add theirs, e.g. cron jobs move to the new container
+var ServiceSwitchHooks []func(ctx context.Context, userContext, from, to string)
+
+func runServiceSwitchHooks(ctx context.Context, userContext, from, to string) {
+	if from == "" || from == to {
+		return
+	}
+	for _, hook := range ServiceSwitchHooks {
+		hook(ctx, userContext, from, to)
+	}
+}
+
+// FilterUserServices is filterContainerServices with the user's current WEB_SERVER and MYSQL_TYPE from their .env
+func FilterUserServices(userContext string, services map[string]any) map[string]any {
+	webserver, _ := GetEnvValue(userContext, "WEB_SERVER")
+	mysqlType, _ := GetEnvValue(userContext, "MYSQL_TYPE")
+	return filterContainerServices(services, webserver, mysqlType)
+}
+
 // filterContainerServices drops every OTHER webserver's service (per webserverHideFilters) and the inactive MySQL/MariaDB variant, using exact name matches - not strings.Contains, which would make "openlitespeed" hide itself since it contains "litespeed"
 func filterContainerServices(services map[string]any, webserver, mysqlType string) map[string]any {
 	filtered := map[string]any{}

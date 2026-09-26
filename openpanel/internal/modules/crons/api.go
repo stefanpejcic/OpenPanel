@@ -11,7 +11,6 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
@@ -24,6 +23,8 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "crons", "DELETE /api/crons", func(w http.ResponseWriter, r *http.Request) { apiCronsDelete(a, w, r) })
 	apiregistry.Handle(mux, a, "crons", "GET /api/crons/raw", func(w http.ResponseWriter, r *http.Request) { apiCronsRawGet(a, w, r) })
 	apiregistry.Handle(mux, a, "crons", "PUT /api/crons/raw", func(w http.ResponseWriter, r *http.Request) { apiCronsRawPut(a, w, r) })
+	apiregistry.Handle(mux, a, "crons", "GET /api/crons/timezone", func(w http.ResponseWriter, r *http.Request) { apiCronTimeZoneGet(a, w, r) })
+	apiregistry.Handle(mux, a, "crons", "PUT /api/crons/timezone", func(w http.ResponseWriter, r *http.Request) { apiCronTimeZonePut(a, w, r) })
 	apiregistry.Handle(mux, a, "crons", "GET /api/crons/log", func(w http.ResponseWriter, r *http.Request) { apiCronsLog(a, w, r) })
 }
 
@@ -55,10 +56,7 @@ func apiCronsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	path := cronFilePath(userContext)
 	info, statErr := os.Stat(path)
 	if statErr != nil {
-		var serviceNames []string
-		if compose, composeErr := podmanmanager.LoadComposeConfig(ctx, userContext); composeErr == nil {
-			serviceNames, _ = serviceNamesFromCompose(compose)
-		}
+		serviceNames := cronContainers(ctx, userContext)
 		writeAPICronsJSON(w, http.StatusOK, map[string]any{"jobs": []crJob{}, "containers": serviceNames})
 		return
 	}
@@ -75,10 +73,7 @@ func apiCronsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	jobs := ParseCronFile(string(content))
 
-	var serviceNames []string
-	if compose, composeErr := podmanmanager.LoadComposeConfig(ctx, userContext); composeErr == nil {
-		serviceNames, _ = serviceNamesFromCompose(compose)
-	}
+	serviceNames := cronContainers(ctx, userContext)
 
 	type scheduleIssue struct {
 		Comment string `json:"comment"`
@@ -103,12 +98,13 @@ type crJob struct {
 	Container string `json:"container"`
 	Command   string `json:"command"`
 	NoOverlap bool   `json:"no_overlap"`
+	Disabled  bool   `json:"disabled"`
 }
 
 func toAPIJobs(jobs []CronJob) []crJob {
 	out := make([]crJob, 0, len(jobs))
 	for _, j := range jobs {
-		out = append(out, crJob{Comment: j.Comment, Schedule: j.Schedule, Container: j.Container, Command: j.Command, NoOverlap: j.NoOverlap})
+		out = append(out, crJob{Comment: j.Comment, Schedule: j.Schedule, Container: j.Container, Command: j.Command, NoOverlap: j.NoOverlap, Disabled: j.Disabled})
 	}
 	return out
 }
@@ -321,37 +317,24 @@ func apiCronsEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sections := splitJobExecSections(string(content))
 	updatedComment := comment
 	if updatedComment == "" {
 		updatedComment = originalComment
 	}
-	updatedSection := "[job-exec \"" + updatedComment + "\"]\n" +
-		"schedule = " + schedule + "\n" +
-		"container = " + container + "\n" +
-		"command = " + command
-	if body.NoOverlap {
-		updatedSection += "\nno-overlap"
-	}
-	updatedSection += "\n\n"
-
-	updated := false
-	for i, section := range sections {
-		if strings.Contains(section, `[job-exec "`+originalComment+`"]`) &&
-			strings.Contains(section, "schedule = "+originalSchedule) &&
-			strings.Contains(section, "container = "+originalContainer) &&
-			strings.Contains(section, "command = "+originalCommand) {
-			sections[i] = updatedSection
-			updated = true
-			break
+	// a disabled job stays disabled after an edit
+	newContent, updated := rewriteCronJob(string(content), func(j *CronJob) (bool, bool) {
+		if !sameCronJob(*j, originalComment, originalSchedule, originalContainer, originalCommand) {
+			return false, true
 		}
-	}
+		*j = CronJob{Comment: updatedComment, Schedule: schedule, Container: container, Command: command, NoOverlap: body.NoOverlap, Disabled: j.Disabled}
+		return true, true
+	})
 	if !updated {
 		writeAPICronsJSON(w, http.StatusNotFound, map[string]string{"error": "Cron job not found — check original_* fields match exactly"})
 		return
 	}
 
-	if writeErr := os.WriteFile(path, []byte(strings.Join(sections, "")), 0o644); writeErr != nil {
+	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 		writeAPICronsJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error saving cron job: " + writeErr.Error()})
 		return
 	}
@@ -397,46 +380,12 @@ func apiCronsDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPICronsJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error deleting cron job: " + readErr.Error()})
 		return
 	}
-	lines := readLinesKeepEnds(string(content))
+	newContent, _ := rewriteCronJob(string(content), func(j *CronJob) (bool, bool) {
+		return sameCronJob(*j, comment, schedule, container, command), false
+	})
+	newLines := strings.Split(newContent, "\n")
 
-	sectionMatches := func(section []string) bool {
-		if len(section) == 0 || !strings.HasPrefix(section[0], "[job-exec") {
-			return false
-		}
-		headerComment, ok := sectionHeaderComment(section[0])
-		if !ok {
-			return false
-		}
-		sectionStr := strings.Join(section, "")
-		return headerComment == comment &&
-			strings.Contains(sectionStr, "schedule = "+schedule) &&
-			strings.Contains(sectionStr, "command = "+command) &&
-			strings.Contains(sectionStr, "container = "+container)
-	}
-
-	var newLines []string
-	var currentSection []string
-	isMatchingSection := false
-	for _, line := range lines {
-		if strings.HasPrefix(line, "[job-exec") {
-			if len(currentSection) > 0 {
-				if !isMatchingSection {
-					newLines = append(newLines, currentSection...)
-				}
-				currentSection = nil
-				isMatchingSection = false
-			}
-		}
-		currentSection = append(currentSection, line)
-		if strings.TrimSpace(line) == "" {
-			isMatchingSection = sectionMatches(currentSection)
-		}
-	}
-	if len(currentSection) > 0 && !sectionMatches(currentSection) {
-		newLines = append(newLines, currentSection...)
-	}
-
-	if writeErr := os.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
+	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 		writeAPICronsJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error deleting cron job: " + writeErr.Error()})
 		return
 	}

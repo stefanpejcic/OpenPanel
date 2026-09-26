@@ -1111,7 +1111,20 @@ export const pages = {
   'advanced/cronjobs': {
     url: '/cronjobs',
     shots: [
-      { name: 'list', alt: 'Cron Jobs page listing scheduled jobs with their schedule, container, command and comment', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
+      { name: 'list', alt: 'Cron Jobs page with the summary cards and the table of jobs with their on/off switch, schedule, container, command and comment', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
+      { name: 'summary', alt: 'Summary above the cron jobs table with the active jobs, jobs that failed on their last run, the next run with its time and job, and the cron time zone', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: '[x-data^="cronSummary"]', pad: 12 } },
+      {
+        name: 'timezone',
+        alt: 'Cron time zone in the summary opened for editing, with the time zone dropdown and the Save and Cancel buttons',
+        prepare: async page => {
+          const cell = page.locator('[x-data^="{ editing: false, hover"]');
+          await cell.hover();
+          await cell.locator('button[title]').click();
+          await page.waitForTimeout(400);
+        },
+        crop: { from: '[x-data^="{ editing: false, hover"]', pad: 12 },
+      },
+      { name: 'toggle', alt: 'Status column of the cron jobs table with the switch on for active jobs and off for a job that is disabled', crop: { from: 'main table thead th:nth-of-type(2)', to: 'main table tbody tr:last-of-type td:nth-of-type(2)', pad: 12 } },
       {
         name: 'run',
         alt: 'Run now dialog of a cron job showing the command output and Finished successfully',
@@ -1138,7 +1151,7 @@ export const pages = {
       {
         name: 'logs',
         url: '/cronjobs/logs',
-        alt: 'Logs tab of the Cron Jobs page with the Job and Lines filters, Refresh button and log entries of recent runs',
+        alt: 'Logs tab of the Cron Jobs page with the Job and Lines filters and Refresh button in the page header, and log entries of recent runs',
         prepare: async page => {
           // fill the log view with clean ofelia lines (real ones on test servers are empty scheduler warnings)
           await page.evaluate(() => {
@@ -1160,16 +1173,18 @@ export const pages = {
       {
         name: 'edit',
         alt: 'A cron job row in edit mode with editable schedule, container, command and comment fields',
-        prepare: click('main table tbody tr:first-of-type button:has-text("Edit")', 500),
+        prepare: click('main table tbody tr:first-of-type button[title="Edit"]', 500),
+        // the row in edit mode is wider than the default viewport
+        viewportWidth: 1600,
         crop: { from: 'main table thead', to: 'main table tbody tr:first-of-type', pad: 8 },
       },
       {
         name: 'delete',
-        alt: 'Delete button of a cron job turned into a Confirm button with a countdown after the first click',
-        prepare: click('main table tbody tr:first-of-type button:has-text("Delete")', 300),
+        alt: 'Delete icon of a cron job turned red with a 5 second countdown after the first click',
+        prepare: click('main table tbody tr:first-of-type button[onclick^="confirmDelete"]', 300),
         crop: { from: 'main table thead', to: 'main table tbody tr:first-of-type', pad: 8 },
       },
-      bulkShot('#cronjobs-table', 2, 'Two cron jobs selected with the bulk actions bar offering Run now, Change schedule, Change container, No overlap on, No overlap off and Delete'),
+      bulkShot('#cronjobs-table', 2, 'Two cron jobs selected with the bulk actions bar offering Enable, Disable, Run now, Change schedule, Change container, No overlap on, No overlap off and Delete'),
     ],
   },
   'advanced/cronjobs_new': {
@@ -1177,31 +1192,23 @@ export const pages = {
     shots: [
       {
         name: 'form',
-        alt: 'Create Cron Job form with the container, schedule, common schedules, command and comment fields',
+        alt: 'Create Cron Job form with a PHP command, the container of the default PHP version picked for it, the schedule options from 1 min to Custom, comment and No overlap fields',
         prepare: async page => {
-          await page.locator('main select').first().selectOption({ label: 'php-fpm-8.4' }).catch(() => {});
-          await page.locator('main input[name=schedule], main input[placeholder*="@daily"]').first().fill('0 3 * * *').catch(() => {});
-          await page.locator('main input[name=command], main input[placeholder*="php /var/www"]').first().fill('php /var/www/html/blog.example.com/wp-cron.php').catch(() => {});
-          await page.locator('main input[name=comment], main input[placeholder=optional]').first().fill('wp-cron').catch(() => {});
+          // typing sends input events, so the form picks the PHP container on its own
+          await page.locator('#command').pressSequentially('php /var/www/html/blog.example.com/wp-cron.php', { delay: 5 });
+          await page.fill('#comment', 'wp-cron');
         },
         crop: 'content',
       },
       {
-        name: 'container',
-        alt: 'Select Container dropdown of the Create Cron Job form',
-        prepare: async page => { await page.locator('main select').first().selectOption({ label: 'php-fpm-8.4' }).catch(() => {}); },
-        crop: { from: 'main label:has-text("Select Container")', to: 'main select >> nth=0', pad: 16 },
-      },
-      {
-        name: 'common',
-        alt: 'Common schedules dropdown set to Hourly, which fills in @hourly as the schedule',
+        name: 'custom',
+        alt: 'Schedule options with Custom picked and the cron expression field below them',
         prepare: async page => {
-          const sel = page.locator('main select').nth(1);
-          const opts = await sel.locator('option').evaluateAll(os => os.map(o => o.value).filter(Boolean));
-          if (opts.length) await sel.selectOption(opts[Math.min(5, opts.length - 1)]);
+          await page.locator('main [role=radio]').last().click();
+          await page.fill('#schedule', '0 30 2 * * 1-5');
           await page.waitForTimeout(300);
         },
-        crop: { from: 'main label:has-text("Schedule")', to: 'main select >> nth=1', pad: 16 },
+        crop: { from: 'main [role=radiogroup]', to: '#schedule', pad: 36 },
       },
     ],
   },

@@ -9,10 +9,10 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -103,6 +103,10 @@ func handleCronjobsView(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 		return
 	}
 
+	if data, readErr := os.ReadFile(path); readErr != nil || !hasCronJobs(strings.Split(string(data), "\n")) {
+		stopIdleCron(ctx, userContext)
+	}
+
 	switch view {
 	case "code":
 		content := ""
@@ -122,10 +126,7 @@ func handleCronjobsView(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 		}
 		cronJobs := ParseCronFile(content)
 
-		var serviceNames []string
-		if compose, composeErr := podmanmanager.LoadComposeConfig(ctx, userContext); composeErr == nil {
-			serviceNames, _ = serviceNamesFromCompose(compose)
-		}
+		serviceNames := cronContainers(ctx, userContext)
 
 		if r.URL.Query().Get("output") == "json" {
 			writeJSON(w, http.StatusOK, cronJobs)
@@ -143,7 +144,7 @@ func handleCronjobsView(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 			}
 		}
 
-		renderCronjobsTablePage(a, w, r, serviceNames, cronJobs, scheduleIssues)
+		renderCronjobsTablePage(a, w, r, serviceNames, cronJobs, scheduleIssues, cronTimeZone(userContext))
 
 	case "logs":
 		content := ""
@@ -166,17 +167,21 @@ func handleCronjobsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var serviceNames []string
-	if compose, composeErr := podmanmanager.LoadComposeConfig(ctx, userContext); composeErr == nil {
-		serviceNames, _ = serviceNamesFromCompose(compose)
-	}
+	serviceNames := cronContainers(ctx, userContext)
 
 	if r.URL.Query().Get("output") == "json" {
 		writeJSON(w, http.StatusOK, serviceNames)
 		return
 	}
 
-	renderCronjobsNewPage(a, w, r, serviceNames)
+	phpContainer, dbContainer := "", ""
+	if v, ok := docker.GetEnvValue(userContext, "DEFAULT_PHP_VERSION"); ok && containsString(serviceNames, "php-fpm-"+v) {
+		phpContainer = "php-fpm-" + v
+	}
+	if v, ok := docker.GetEnvValue(userContext, "MYSQL_TYPE"); ok && containsString(serviceNames, v) {
+		dbContainer = v
+	}
+	renderCronjobsNewPage(a, w, r, serviceNames, phpContainer, dbContainer)
 }
 
 // writeCronFile mirrors write_cron_file().
@@ -194,6 +199,13 @@ func writeCronFile(path, content string, truncate bool) error {
 	defer f.Close()
 	_, err = f.WriteString(strings.TrimSpace(content) + "\n\n")
 	return err
+}
+
+// stopIdleCron stops the cron container when there's no enabled job, ofelia exits on an empty schedule and the restart policy would keep bringing it back
+func stopIdleCron(ctx context.Context, userContext string) {
+	if docker.IsServiceRunning(ctx, userContext, "cron") {
+		docker.StartOrStopContainer(ctx, userContext, "cron", "deactivate", "")
+	}
 }
 
 // restartOrActivateCron mirrors the repeated "activate if not running, else restart" block in save_cronjob(), edit_cronjob(), and delete_cronjob()
@@ -240,6 +252,10 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		if strings.Contains(schedule, "\n") || strings.Contains(command, "\n") || strings.Contains(container, "\n") || strings.Contains(comment, "\n") {
 			flashAndRedirect(a, w, r, "error", "Invalid characters in input.", "/cronjobs/new")
+			return
+		}
+		if _, parseErr := nextCronRuns(schedule, time.Now(), 1, time.UTC); parseErr != nil {
+			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Invalid schedule: %(error)s", "error", parseErr.Error()), "/cronjobs/new")
 			return
 		}
 		if containsAnyPattern(command, forbiddenPatterns) {
@@ -314,32 +330,6 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	flashAndRedirect(a, w, r, "success", "Crons file saved successfully!", "/cronjobs/editor")
 }
 
-// splitJobExecSections implements a zero-width lookahead split on "(?=\[job-exec )" manually, since Go's RE2 doesn't support lookahead. sections[0] is everything before the first match (possibly ""); every later section starts with "[job-exec ".
-func splitJobExecSections(content string) []string {
-	const marker = "[job-exec "
-	var indices []int
-	start := 0
-	for {
-		idx := strings.Index(content[start:], marker)
-		if idx == -1 {
-			break
-		}
-		indices = append(indices, start+idx)
-		start += idx + len(marker)
-	}
-	if len(indices) == 0 {
-		return []string{content}
-	}
-	sections := make([]string, 0, len(indices)+1)
-	prev := 0
-	for _, idx := range indices {
-		sections = append(sections, content[prev:idx])
-		prev = idx
-	}
-	sections = append(sections, content[prev:])
-	return sections
-}
-
 // handleEditCronjob mirrors edit_cronjob().
 func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -386,38 +376,25 @@ func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sections := splitJobExecSections(string(content))
 	updatedComment := comment
 	if updatedComment == "" {
 		updatedComment = originalComment
 	}
-	updatedSection := "[job-exec \"" + updatedComment + "\"]\n" +
-		"schedule = " + schedule + "\n" +
-		"container = " + container + "\n" +
-		"command = " + command
-	if r.Form.Get("no_overlap") != "" {
-		updatedSection += "\nno-overlap"
-	}
-	updatedSection += "\n\n"
-
-	updated := false
-	for i, section := range sections {
-		if strings.Contains(section, `[job-exec "`+originalComment+`"]`) &&
-			strings.Contains(section, "schedule = "+originalSchedule) &&
-			strings.Contains(section, "container = "+originalContainer) &&
-			strings.Contains(section, "command = "+originalCommand) {
-			sections[i] = updatedSection
-			updated = true
-			break
+	// a disabled job stays disabled after an edit
+	newContent, updated := rewriteCronJob(string(content), func(j *CronJob) (bool, bool) {
+		if !sameCronJob(*j, originalComment, originalSchedule, originalContainer, originalCommand) {
+			return false, true
 		}
-	}
+		*j = CronJob{Comment: updatedComment, Schedule: schedule, Container: container, Command: command, NoOverlap: r.Form.Get("no_overlap") != "", Disabled: j.Disabled}
+		return true, true
+	})
 
 	if !updated {
 		flashAndRedirect(a, w, r, "error", "Cron job not found.", "/cronjobs")
 		return
 	}
 
-	if writeErr := os.WriteFile(resolvedPath, []byte(strings.Join(sections, "")), 0o644); writeErr != nil {
+	if writeErr := os.WriteFile(resolvedPath, []byte(newContent), 0o644); writeErr != nil {
 		flashAndRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs")
 		return
 	}
@@ -427,34 +404,6 @@ func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	restartOrActivateCron(ctx, userContext)
 
 	flashAndRedirect(a, w, r, "success", "Cron job was successfully edited.", "/cronjobs")
-}
-
-// readLinesKeepEnds splits content into lines, each keeping its trailing '\n'
-func readLinesKeepEnds(content string) []string {
-	if content == "" {
-		return nil
-	}
-	var lines []string
-	start := 0
-	for i := 0; i < len(content); i++ {
-		if content[i] == '\n' {
-			lines = append(lines, content[start:i+1])
-			start = i + 1
-		}
-	}
-	if start < len(content) {
-		lines = append(lines, content[start:])
-	}
-	return lines
-}
-
-// sectionHeaderComment mirrors section[0].split('"')[1] - the quoted name inside a [job-exec "name"] header line.
-func sectionHeaderComment(headerLine string) (string, bool) {
-	parts := strings.Split(headerLine, `"`)
-	if len(parts) < 2 {
-		return "", false
-	}
-	return parts[1], true
 }
 
 // handleDeleteCronjob mirrors delete_cronjob().
@@ -483,50 +432,12 @@ func handleDeleteCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		flashAndRedirect(a, w, r, "error", "Error deleting cron job.", "/cronjobs")
 		return
 	}
-	lines := readLinesKeepEnds(string(content))
+	newContent, _ := rewriteCronJob(string(content), func(j *CronJob) (bool, bool) {
+		return sameCronJob(*j, comment, schedule, container, command), false
+	})
+	newLines := strings.Split(newContent, "\n")
 
-	sectionMatches := func(section []string) bool {
-		if len(section) == 0 || !strings.HasPrefix(section[0], "[job-exec") {
-			return false
-		}
-		headerComment, ok := sectionHeaderComment(section[0])
-		if !ok {
-			return false
-		}
-		sectionStr := strings.Join(section, "")
-		return headerComment == comment &&
-			strings.Contains(sectionStr, "schedule = "+schedule) &&
-			strings.Contains(sectionStr, "command = "+command) &&
-			strings.Contains(sectionStr, "container = "+container)
-	}
-
-	var newLines []string
-	var currentSection []string
-	isMatchingSection := false
-
-	for _, line := range lines {
-		if strings.HasPrefix(line, "[job-exec") {
-			if len(currentSection) > 0 {
-				if !isMatchingSection {
-					newLines = append(newLines, currentSection...)
-				}
-				currentSection = nil
-				isMatchingSection = false
-			}
-		}
-
-		currentSection = append(currentSection, line)
-
-		if strings.TrimSpace(line) == "" {
-			isMatchingSection = sectionMatches(currentSection)
-		}
-	}
-
-	if len(currentSection) > 0 && !sectionMatches(currentSection) {
-		newLines = append(newLines, currentSection...)
-	}
-
-	if writeErr := os.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
+	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 		flashAndRedirect(a, w, r, "error", "Error deleting cron job.", "/cronjobs")
 		return
 	}

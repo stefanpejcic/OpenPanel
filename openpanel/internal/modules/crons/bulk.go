@@ -30,6 +30,8 @@ func cronBulkActions(t i18n.Translator, containers []string) []web.BulkAction {
 		options = append(options, web.BulkOption{Value: c, Label: c})
 	}
 	return []web.BulkAction{
+		{Key: "enable", Label: t.Get("Enable"), Confirm: t.Get("Enable the selected cron jobs?")},
+		{Key: "disable", Label: t.Get("Disable"), Confirm: t.Get("Disable the selected cron jobs? They stay in the list but don't run until enabled.")},
 		{Key: "run", Label: t.Get("Run now"), Confirm: t.Get("Run the selected cron jobs now, one after another?")},
 		{Key: "schedule", Label: t.Get("Change schedule"), Confirm: t.Get("New schedule for the selected cron jobs:"),
 			Input: &web.BulkInput{Type: "text", Placeholder: "0 */5 * * * *", Hint: t.Get("6 fields, seconds first")}},
@@ -75,10 +77,7 @@ func handleCronjobsBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, 
 	for _, j := range ParseCronFile(string(content)) {
 		jobs[j.Key()] = j
 	}
-	var containers []string
-	if compose, composeErr := podmanmanager.LoadComposeConfig(r.Context(), userContext); composeErr == nil {
-		containers, _ = serviceNamesFromCompose(compose)
-	}
+	containers := cronContainers(r.Context(), userContext)
 
 	web.ServeBulkDispatch(a, mux, w, r, cronBulkActions(web.RequestTranslator(a, r), containers), func(action, value, key string) (*web.BulkCall, web.BulkResult) {
 		job, ok := jobs[key]
@@ -88,6 +87,13 @@ func handleCronjobsBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, 
 		if action == "run" {
 			_ = logger.RecordUserAction(a.Config, username, "manually ran cron job "+job.Comment, reqip.ClientIP(r))
 			return nil, runCronJobOnce(a, r, userContext, job)
+		}
+		if action == "enable" || action == "disable" {
+			enabled := "0"
+			if action == "enable" {
+				enabled = "1"
+			}
+			return web.Call(web.BulkCall{Label: job.Comment, Method: http.MethodPost, Path: "/cronjobs/toggle", Form: url.Values{"key": {key}, "enabled": {enabled}}})
 		}
 		if action == "delete" {
 			return web.Call(web.BulkCall{Label: job.Comment, Method: http.MethodPost, Path: "/cronjobs/delete", Form: url.Values{

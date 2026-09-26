@@ -3108,6 +3108,58 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/crons/timezone:
+    get:
+      summary: Get the cron time zone.
+      description: The time zone the cron service runs schedules in, from its TZ, the server zone when /etc/localtime is mounted, or UTC.
+      operationId: get_crons_timezone
+      tags:
+      - Cron Jobs
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  timezone:
+                    type: string
+                    example: Europe/Belgrade
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    put:
+      summary: Set the cron time zone.
+      description: Sets TZ on the cron service in docker-compose.yml and recreates the service when a job is enabled.
+      operationId: put_crons_timezone
+      tags:
+      - Cron Jobs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timezone:
+                  type: string
+                  example: Europe/Belgrade
+              example:
+                timezone: Europe/Belgrade
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/crons/log:
     get:
       summary: Tail cron log.

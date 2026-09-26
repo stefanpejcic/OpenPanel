@@ -2,16 +2,20 @@
 package crons
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
 var excludedServicesForCrons = map[string]bool{"cron": true, "docker-proxy": true}
@@ -116,6 +120,7 @@ type CronJob struct {
 	Container string
 	Command   string
 	NoOverlap bool
+	Disabled  bool // the block is commented out with #, cron skips it
 }
 
 // ScheduleIssue is one entry of cronjobs.html's health_toast() issues list (one per invalid-schedule cron job, matching cron_schedule_issues)
@@ -159,11 +164,15 @@ func splitKV(line string) (key, val string, ok bool) {
 func ParseCronFile(content string) []CronJob {
 	var jobs []CronJob
 	for _, block := range splitCronBlocks(content) {
+		disabled := false
+		if plain, ok := uncommentBlock(block); ok {
+			block, disabled = plain, true
+		}
 		headerMatch := cronJobHeaderRE.FindStringSubmatch(block)
 		if headerMatch == nil {
 			continue
 		}
-		job := CronJob{Comment: strings.TrimSpace(headerMatch[1])}
+		job := CronJob{Comment: strings.TrimSpace(headerMatch[1]), Disabled: disabled}
 		for _, rawLine := range strings.Split(block, "\n") {
 			line := strings.TrimSpace(rawLine)
 			if line == "no-overlap" {
@@ -186,6 +195,61 @@ func ParseCronFile(content string) []CronJob {
 		jobs = append(jobs, job)
 	}
 	return jobs
+}
+
+// uncommentBlock strips the # from every line of a disabled job's block, ok is false when any line isn't commented
+func uncommentBlock(block string) (string, bool) {
+	lines := strings.Split(block, "\n")
+	for i, line := range lines {
+		line = strings.TrimSpace(line)
+		if !strings.HasPrefix(line, "#") {
+			return block, false
+		}
+		lines[i] = strings.TrimSpace(strings.TrimPrefix(line, "#"))
+	}
+	return strings.Join(lines, "\n"), true
+}
+
+// cronBlock is the crons.ini block for j, every line commented out when it's disabled
+func cronBlock(j CronJob) string {
+	lines := []string{`[job-exec "` + j.Comment + `"]`, "schedule = " + j.Schedule, "container = " + j.Container, "command = " + j.Command}
+	if j.NoOverlap {
+		lines = append(lines, "no-overlap")
+	}
+	if j.Disabled {
+		for i := range lines {
+			lines[i] = "#" + lines[i]
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
+// rewriteCronJob runs change on each job until it reports a match, keep=false deletes that job, blocks that aren't jobs are left as they are
+func rewriteCronJob(content string, change func(j *CronJob) (matched, keep bool)) (string, bool) {
+	var out []string
+	done := false
+	for _, block := range splitCronBlocks(content) {
+		if jobs := ParseCronFile(block); !done && len(jobs) == 1 {
+			j := jobs[0]
+			if matched, keep := change(&j); matched {
+				done = true
+				if keep {
+					out = append(out, cronBlock(j))
+				}
+				continue
+			}
+		}
+		out = append(out, block)
+	}
+	if len(out) == 0 {
+		return "", done
+	}
+	return strings.Join(out, "\n\n") + "\n\n", done
+}
+
+// sameCronJob matches the original_* fields the edit and delete forms send
+func sameCronJob(j CronJob, comment, schedule, container, command string) bool {
+	return j.Comment == comment && j.Schedule == schedule && j.Container == container && j.Command == command
 }
 
 // uniqueCronComment returns base unchanged if no job in existing already uses it, otherwise appends "-1", "-2", etc. until it finds one that's free - used when a new job's comment defaults to the container name, so several jobs on the same container don't collide (e.g. "apache", "apache-1", "apache-2")
@@ -216,6 +280,10 @@ func uniqueCronComment(existing []CronJob, base string) string {
 // with exactly one blank line separating each block. Returns "" if well-formed (or empty), otherwise a message describing the first problem found.
 func ValidateCronFileFormat(content string) string {
 	for i, block := range splitCronBlocks(content) {
+		// a disabled job is checked like an enabled one
+		if plain, ok := uncommentBlock(block); ok {
+			block = plain
+		}
 		lines := strings.Split(block, "\n")
 		for li := range lines {
 			lines[li] = strings.TrimSpace(lines[li])
@@ -254,8 +322,8 @@ func ValidateCronFileFormat(content string) string {
 	return ""
 }
 
-// serviceNames mirrors the containers = load_compose_config(context)["services"] keys-minus-excluded pattern shared by cronjobs()/cronjobs_new()
-func serviceNamesFromCompose(compose map[string]any) ([]string, bool) {
+// serviceNamesFromCompose lists the compose services a job can run in, filter trims them to the user's current web server and database type
+func serviceNamesFromCompose(compose map[string]any, filter func(map[string]any) map[string]any) ([]string, bool) {
 	servicesRaw, ok := compose["services"]
 	if !ok {
 		return nil, false
@@ -264,11 +332,27 @@ func serviceNamesFromCompose(compose map[string]any) ([]string, bool) {
 	if !ok {
 		return nil, false
 	}
+	if filter != nil {
+		services = filter(services)
+	}
 	names := make([]string, 0, len(services))
 	for name := range services {
 		if !excludedServicesForCrons[name] {
 			names = append(names, name)
 		}
 	}
+	sort.Strings(names)
 	return names, true
+}
+
+// cronContainers is the container list for the new and edit forms and the bulk bar
+func cronContainers(ctx context.Context, userContext string) []string {
+	compose, err := podmanmanager.LoadComposeConfig(ctx, userContext)
+	if err != nil {
+		return nil
+	}
+	names, _ := serviceNamesFromCompose(compose, func(services map[string]any) map[string]any {
+		return docker.FilterUserServices(userContext, services)
+	})
+	return names
 }

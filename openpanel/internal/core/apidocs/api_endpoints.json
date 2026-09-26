@@ -747,6 +747,19 @@
       },
       {
         "method": "GET",
+        "path": "/api/crons/timezone",
+        "description": "Get the time zone the cron service runs schedules in."
+      },
+      {
+        "method": "PUT",
+        "path": "/api/crons/timezone",
+        "description": "Set the cron time zone and recreate the cron service.",
+        "body": {
+          "timezone": "Europe/Belgrade"
+        }
+      },
+      {
+        "method": "GET",
         "path": "/api/crons/log",
         "description": "Tail cron log.",
         "params": "?job=<filter>&lines=100"

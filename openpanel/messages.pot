@@ -14726,3 +14726,95 @@ msgstr ""
 #, python-format
 msgid "Could not add high-performance keys to %(table)s: %(error)s"
 msgstr ""
+
+#: internal/modules/crons
+msgid "Cron job %(name)s disabled."
+msgstr ""
+
+#: internal/modules/crons
+msgid "Cron job %(name)s enabled."
+msgstr ""
+
+#: internal/modules/crons
+msgid "Enable the selected cron jobs?"
+msgstr ""
+
+#: internal/modules/crons
+msgid "Disable the selected cron jobs? They stay in the list but don't run until enabled."
+msgstr ""
+
+#: internal/modules/crons
+msgid "no active jobs scheduled"
+msgstr ""
+
+#: internal/modules/crons
+msgid "Click to enable"
+msgstr ""
+
+#: internal/modules/crons
+msgid "Click to disable"
+msgstr ""
+
+#: internal/web/templates/system/cronjobs_new.html
+msgid "Custom schedule"
+msgstr ""
+
+#: internal/web/templates/system/cronjobs_new.html
+msgid "6 fields, seconds first: second minute hour day month weekday, or a descriptor like @every 2h."
+msgstr ""
+
+#: internal/web/templates/system/cronjobs_new.html
+msgid "1 min"
+msgstr ""
+
+#: internal/web/templates/system/cronjobs_new.html
+msgid "5 min"
+msgstr ""
+
+#: internal/web/templates/system/cronjobs_new.html
+msgid "30 min"
+msgstr ""
+
+#: internal/modules/crons/handlers.go
+msgid "Invalid schedule: %(error)s"
+msgstr ""
+
+#: internal/modules/crons/timezone.go
+msgid "Cron time zone"
+msgstr ""
+
+#: internal/modules/crons/timezone.go
+msgid "Change time zone"
+msgstr ""
+
+#: internal/modules/crons/timezone.go
+msgid "Cron time zone set to %(tz)s."
+msgstr ""
+
+#: internal/modules/crons/timezone.go
+msgid "Unknown time zone."
+msgstr ""
+
+#: internal/modules/crons/timezone.go
+msgid "The cron service isn't in docker-compose.yml."
+msgstr ""
+
+#: internal/modules/crons/timezone.go
+msgid "Could not set TZ in docker-compose.yml."
+msgstr ""
+
+#: internal/web/templates/system/cronjobs_new.html
+msgid "Picked the container of your default PHP version for this PHP command."
+msgstr ""
+
+#: internal/web/templates/system/cronjobs_new.html
+msgid "Picked your database container for this MySQL command."
+msgstr ""
+
+#: internal/web/templates/system/cronjobs.html
+msgid "Failed on last run"
+msgstr ""
+
+#: internal/web/templates/system/cronjobs.html
+msgid "Next run"
+msgstr ""

@@ -190,65 +190,13 @@ command = curl https://openpanel.com/enterprise
 	}
 }
 
-func TestSplitJobExecSections(t *testing.T) {
-	content := `[job-exec "a"]
-x = 1
-
-[job-exec "b"]
-y = 2
-`
-	sections := splitJobExecSections(content)
-	if len(sections) != 3 {
-		t.Fatalf("got %d sections, want 3: %q", len(sections), sections)
-	}
-	if sections[0] != "" {
-		t.Errorf("sections[0] = %q, want empty (nothing before first match)", sections[0])
-	}
-	if sections[1] != "[job-exec \"a\"]\nx = 1\n\n" {
-		t.Errorf("sections[1] = %q", sections[1])
-	}
-	if sections[2] != "[job-exec \"b\"]\ny = 2\n" {
-		t.Errorf("sections[2] = %q", sections[2])
-	}
-}
-
-func TestSplitJobExecSectionsNoMatch(t *testing.T) {
-	sections := splitJobExecSections("no jobs here")
-	if len(sections) != 1 || sections[0] != "no jobs here" {
-		t.Errorf("sections = %v", sections)
-	}
-}
-
-func TestReadLinesKeepEnds(t *testing.T) {
-	lines := readLinesKeepEnds("a\nb\nc")
-	if len(lines) != 3 || lines[0] != "a\n" || lines[1] != "b\n" || lines[2] != "c" {
-		t.Errorf("lines = %q", lines)
-	}
-	if lines := readLinesKeepEnds(""); lines != nil {
-		t.Errorf("empty input: got %v, want nil", lines)
-	}
-	if lines := readLinesKeepEnds("a\nb\n"); len(lines) != 2 || lines[1] != "b\n" {
-		t.Errorf("trailing newline: got %q", lines)
-	}
-}
-
-func TestSectionHeaderComment(t *testing.T) {
-	got, ok := sectionHeaderComment(`[job-exec "backup-db"]`)
-	if !ok || got != "backup-db" {
-		t.Errorf("got %q, %v", got, ok)
-	}
-	if _, ok := sectionHeaderComment("no quotes here"); ok {
-		t.Error("expected ok=false for a line with no quotes")
-	}
-}
-
 func TestServiceNamesFromCompose(t *testing.T) {
 	compose := map[string]any{
 		"services": map[string]any{
 			"mysql": map[string]any{}, "nginx-proxy": map[string]any{}, "cron": map[string]any{}, "docker-proxy": map[string]any{},
 		},
 	}
-	names, ok := serviceNamesFromCompose(compose)
+	names, ok := serviceNamesFromCompose(compose, nil)
 	if !ok {
 		t.Fatal("expected ok=true")
 	}
@@ -262,7 +210,7 @@ func TestServiceNamesFromCompose(t *testing.T) {
 }
 
 func TestServiceNamesFromComposeMissing(t *testing.T) {
-	if _, ok := serviceNamesFromCompose(map[string]any{}); ok {
+	if _, ok := serviceNamesFromCompose(map[string]any{}, nil); ok {
 		t.Error("expected ok=false when services key is missing")
 	}
 }
