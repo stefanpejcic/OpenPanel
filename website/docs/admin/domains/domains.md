@@ -98,6 +98,8 @@ Click an action, confirm it, and it runs on the selected domains one after anoth
 
   Click on 'Add Domain' button, insert the domain and select the user to add it, then click on 'Add Domain'.
 
+  With an **Enterprise** license the form also has a **Docroot** field next to the username. It starts as `/var/www/html/` and fills in `/var/www/html/<domain>` as you type the domain, so you only need to change it for a custom folder, for example `/var/www/html/shop/public`. The docroot must start with `/var/www/html/`, can only contain letters, numbers, dots, dashes, underscores and slashes, and can't contain `..`. On Community edition the docroot is always `/var/www/html/<domain>`.
+
 ![Add Domain form with the domain name and the user to add it to](/img/openadmin-screenshots/domains/domains-add.png#gh-light-mode-only)
 ![Add Domain form with the domain name and the user to add it to](/img/openadmin-screenshots/domains/domains-add_dark.png#gh-dark-mode-only)
 
@@ -105,11 +107,13 @@ Click an action, confirm it, and it runs on the selected domains one after anoth
   </TabItem>
   <TabItem value="CLI-domain-new" label="With OpenCLI">
     
-To create a new plan run the following command:
+To add a new domain run the following command:
 
 ```bash
-opencli domains-add <DOMAIN_NAME> <USERNAME> [--debug]
+opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot /var/www/html/<FOLDER>] [--debug]
 ```
+
+Without `--docroot`, the domain uses `/var/www/html/<DOMAIN_NAME>`.
 
 Example:
 ```bash
