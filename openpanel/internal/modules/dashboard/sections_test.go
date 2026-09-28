@@ -13,14 +13,14 @@ func testTranslator(t *testing.T) i18n.Translator {
 }
 
 func TestBuildDashboardSectionsEmpty(t *testing.T) {
-	sections := buildDashboardSections(testTranslator(t), map[string]bool{}, nil, "classic")
+	sections := buildDashboardSections(testTranslator(t), map[string]bool{}, nil, "classic", nil)
 	if len(sections) != 0 {
 		t.Errorf("expected no sections for an empty allowed set, got %d: %+v", len(sections), sections)
 	}
 }
 
 func TestBuildDashboardSectionsFilesOnly(t *testing.T) {
-	sections := buildDashboardSections(testTranslator(t), map[string]bool{"filemanager": true}, nil, "classic")
+	sections := buildDashboardSections(testTranslator(t), map[string]bool{"filemanager": true}, nil, "classic", nil)
 	if len(sections) != 1 || sections[0].Key != "files" {
 		t.Fatalf("expected exactly one 'files' section, got %+v", sections)
 	}
@@ -37,7 +37,7 @@ func TestBuildDashboardSectionsFilesOnly(t *testing.T) {
 
 func TestBuildDashboardSectionsPreservesOrder(t *testing.T) {
 	allowed := map[string]bool{"docker": true, "filemanager": true, "account": true}
-	sections := buildDashboardSections(testTranslator(t), allowed, nil, "classic")
+	sections := buildDashboardSections(testTranslator(t), allowed, nil, "classic", nil)
 
 	var keys []string
 	for _, s := range sections {
@@ -55,7 +55,7 @@ func TestBuildDashboardSectionsPreservesOrder(t *testing.T) {
 }
 
 func TestBuildDashboardSectionsTargetBlank(t *testing.T) {
-	sections := buildDashboardSections(testTranslator(t), map[string]bool{"phpmyadmin": true}, nil, "classic")
+	sections := buildDashboardSections(testTranslator(t), map[string]bool{"phpmyadmin": true}, nil, "classic", nil)
 	if len(sections) != 1 {
 		t.Fatalf("expected one section, got %+v", sections)
 	}
@@ -76,7 +76,7 @@ func TestBuildDashboardSectionsMatchSidebarOrder(t *testing.T) {
 	}
 
 	var titles, labels []string
-	for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, "modern") {
+	for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, "modern", nil) {
 		titles = append(titles, s.Title)
 	}
 	for _, item := range web.BuildSidebarNav(allowed, nil, "/dashboard") {
@@ -88,9 +88,27 @@ func TestBuildDashboardSectionsMatchSidebarOrder(t *testing.T) {
 		t.Errorf("dashboard sections %v don't match the sidebar %v", titles, labels)
 	}
 
-	for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, "modern") {
+	for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, "modern", nil) {
 		if len(s.Items) < 2 {
 			t.Errorf("section %q has a single icon, it should join a neighbouring section", s.Title)
+		}
+	}
+}
+
+func TestBuildDashboardSectionsAppKeys(t *testing.T) {
+	allowed := map[string]bool{"wordpress": true, "n8n": true, "nodejs": true, "joomla": true, "websites": true}
+	keys := parseAppKeys("wordpress n8n,nodejs bogus python")
+	for _, style := range []string{"classic", "modern"} {
+		var got []string
+		for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, style, keys) {
+			if s.Key == "websites" {
+				for _, item := range s.Items {
+					got = append(got, item.Key)
+				}
+			}
+		}
+		if strings.Join(got, " ") != "wordpress n8n nodejs" {
+			t.Errorf("%s: expected configured apps in order, got %v", style, got)
 		}
 	}
 }

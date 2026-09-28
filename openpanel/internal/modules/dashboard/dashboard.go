@@ -48,7 +48,11 @@ var dashboardPage = web.MustLoadPage(
 )
 
 // Register wires the dashboard routes onto mux. "dashboard" is always in EnabledModules (mainModules forces it), so this registers unconditionally like the always-on account routes, not through the enabled_modules dispatch table.
+// dashboardAppKeys is read once at startup, openadmin flags a restart after the setting changes
+var dashboardAppKeys []string
+
 func Register(mux *http.ServeMux, a *appctx.App) {
+	dashboardAppKeys = parseAppKeys(a.Config.Get("applications_dashboard_items", ""))
 	mux.Handle("/json/resource_usage", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleResourceUsage(a, w, r)
 	})))
@@ -200,7 +204,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 	return DashboardPageData{
 		LayoutData:            layout,
-		Sections:              buildDashboardSections(t, userAllowed, upsellAllowed, menuStyle),
+		Sections:              buildDashboardSections(t, userAllowed, upsellAllowed, menuStyle, dashboardAppKeys),
 		TourShow:              d.TourShow,
 		OnboardingShow:        d.OnboardingShow,
 		CustomMessage:         template.HTML(d.CustomMessage), //nolint:gosec // matches Jinja's `custom_message|safe`: admin-authored HTML from a local file, not user input

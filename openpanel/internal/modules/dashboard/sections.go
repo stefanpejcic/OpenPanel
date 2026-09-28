@@ -1,6 +1,10 @@
 package dashboard
 
-import "gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
+import (
+	"strings"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
+)
 
 // SectionItem mirrors one icon-link dict in dashboard.html's `sections` Jinja literal (e.g. {"key": "filemanager", "href": "/files", ...})
 type SectionItem struct {
@@ -22,10 +26,17 @@ type Section struct {
 }
 
 // buildDashboardSections builds the dashboard's section/item list, keeping only items whose key is in allowed (or in upsellAllowed, marked Disabled), for dashboard.html's {{range .Sections}}. Section order matches this slice's literal order. Titles/Labels are run through t.Get so the icon grid picks up the same catalog as the sidebar, instead of staying hardcoded English.
-func buildDashboardSections(t i18n.Translator, allowed, upsellAllowed map[string]bool, menuStyle string) []Section {
+func buildDashboardSections(t i18n.Translator, allowed, upsellAllowed map[string]bool, menuStyle string, appKeys []string) []Section {
 	all := classicSections()
 	if menuStyle == "modern" {
 		all = allSections()
+	}
+	if len(appKeys) > 0 {
+		for i := range all {
+			if all[i].Key == "websites" {
+				all[i].Items = websitesItems(all[i].Items, appKeys)
+			}
+		}
 	}
 
 	result := make([]Section, 0, len(all))
@@ -304,4 +315,53 @@ func classicSections() []Section {
 			{"logout", "/logout", "bi-door-open", "Log out", "", false},
 		}},
 	}
+}
+
+// appItems are the apps an admin can pin to the Websites section via applications_dashboard_items, keyed by module name
+var appItems = map[string]SectionItem{
+	"joomla":           {"joomla", "/joomla/install", "bi-grid-3x3-gap", "Joomla", "", false},
+	"drupal":           {"drupal", "/drupal/install", "bi-droplet", "Drupal", "", false},
+	"website_builder":  {"website_builder", "/website-builder/install", "bi-brush", "Website Builder", "", false},
+	"prestashop":       {"prestashop", "/prestashop/install", "bi-cart", "PrestaShop", "", false},
+	"opencart":         {"opencart", "/opencart/install", "bi-cart3", "OpenCart", "", false},
+	"phpbb":            {"phpbb", "/phpbb/install", "bi-chat-square-text", "phpBB", "", false},
+	"flarum":           {"flarum", "/flarum/install", "bi-chat-dots", "Flarum", "", false},
+	"mediawiki":        {"mediawiki", "/mediawiki/install", "bi-book", "MediaWiki", "", false},
+	"dokuwiki":         {"dokuwiki", "/dokuwiki/install", "bi-journal-text", "DokuWiki", "", false},
+	"sofawiki":         {"sofawiki", "/sofawiki/install", "bi-journal", "SofaWiki", "", false},
+	"matomo":           {"matomo", "/matomo/install", "bi-bar-chart-line", "Matomo", "", false},
+	"nextcloud":        {"nextcloud", "/nextcloud/install", "bi-cloud", "Nextcloud", "", false},
+	"tinyphotogallery": {"tinyphotogallery", "/tinyphotogallery/install", "bi-images", "TinyPhotoGallery", "", false},
+	"tinyfilemanager":  {"tinyfilemanager", "/tinyfilemanager/install", "bi-folder2-open", "TinyFileManager", "", false},
+	"moodle":           {"moodle", "/moodle/install", "bi-mortarboard", "Moodle", "", false},
+	"ojs":              {"ojs", "/ojs/install", "bi-journal-bookmark", "OJS", "", false},
+	"nodejs":           {"nodejs", "/nodejs/install", "bi-filetype-js", "Node.js", "", false},
+	"python":           {"python", "/python/install", "bi-filetype-py", "Python", "", false},
+	"ruby":             {"ruby", "/ruby/install", "bi-filetype-rb", "Ruby", "", false},
+	"java":             {"java", "/java/install", "bi-filetype-java", "Java", "", false},
+	"n8n":              {"n8n", "/n8n/install", "bi-diagram-3", "n8n", "", false},
+	"php":              {"php", "/php/install", "bi-filetype-php", "PHP", "", false},
+	"docker":           {"docker", "/containers/new", "bi-box-seam", "Docker", "", false},
+}
+
+// websitesItems swaps the Websites section items for the admin's list, reusing the section's own sites/wordpress/autoinstaller entries so their labels match the menu style
+func websitesItems(defaults []SectionItem, appKeys []string) []SectionItem {
+	byKey := map[string]SectionItem{}
+	for _, item := range defaults {
+		byKey[item.Key] = item
+	}
+	var items []SectionItem
+	for _, key := range appKeys {
+		if item, ok := byKey[key]; ok {
+			items = append(items, item)
+		} else if item, ok := appItems[key]; ok {
+			items = append(items, item)
+		}
+	}
+	return items
+}
+
+// parseAppKeys reads applications_dashboard_items, accepting spaces or commas as separators
+func parseAppKeys(raw string) []string {
+	return strings.FieldsFunc(raw, func(r rune) bool { return r == ' ' || r == ',' })
 }
