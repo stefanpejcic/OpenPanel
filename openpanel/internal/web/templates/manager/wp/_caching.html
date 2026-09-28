@@ -180,14 +180,19 @@ function wpCaching() {
                     <strong class="text-lg font-semibold" x-text="lastMeasured" :title="m ? new Date(m.measured_at * 1000).toLocaleString() : ''"></strong>
                     <span class="text-xs text-gray-400" x-text="m && m.via_varnish && m.direct_ms > m.cached_ms ? {{toJSON (.T.Get "saves")}} + ' ' + ms(m.direct_ms - m.cached_ms) + ' ms ' + {{toJSON (.T.Get "per visit")}} : '-'"></span>
                     <div class="mt-auto">
-                        <svg class="h-8 w-full overflow-visible" viewBox="0 0 100 32" preserveAspectRatio="none" role="img" aria-label="{{.T.Get "Response time of the last measurements"}}">
-                            <line x1="0" y1="31" x2="100" y2="31" stroke="currentColor" class="text-white/10" stroke-width="1" vector-effect="non-scaling-stroke"></line>
-                            <polyline :points="spark.direct" fill="none" stroke="currentColor" class="text-gray-500" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
-                            <polyline :points="spark.cached" fill="none" stroke="currentColor" class="text-green-400" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
-                            <template x-for="(pt, i) in spark.points" :key="i">
-                                <rect :x="pt.x - pt.w / 2" y="0" :width="pt.w" height="32" fill="transparent"><title x-text="pt.label"></title></rect>
-                            </template>
-                        </svg>
+                        <div class="relative">
+                            <svg class="h-8 w-full overflow-visible" viewBox="0 0 100 32" preserveAspectRatio="none" role="img" aria-label="{{.T.Get "Response time of the last measurements"}}">
+                                <line x1="0" y1="31" x2="100" y2="31" stroke="currentColor" class="text-white/10" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                                <polyline :points="spark.direct" fill="none" stroke="currentColor" class="text-gray-500" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+                                <polyline :points="spark.cached" fill="none" stroke="currentColor" class="text-green-400" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+                            </svg>
+                            <!-- hover areas live outside the svg, alpine can't loop a template inside svg -->
+                            <div class="absolute inset-0 flex">
+                                <template x-for="(pt, i) in spark.points" :key="i">
+                                    <span class="h-full flex-1" :title="pt.label"></span>
+                                </template>
+                            </div>
+                        </div>
                         <div class="mt-1 flex flex-wrap gap-x-3 text-[10px] text-gray-400">
                             <span class="flex items-center gap-1"><span class="inline-block h-0.5 w-3 rounded-full bg-green-400"></span>{{.T.Get "cache"}}</span>
                             <span class="flex items-center gap-1"><span class="inline-block h-0.5 w-3 rounded-full bg-gray-500"></span>{{.T.Get "no cache"}}</span>

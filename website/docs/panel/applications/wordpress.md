@@ -181,13 +181,6 @@ Scans the site's WordPress core, plugin, and theme versions for known vulnerabil
 ![WP Vulnerabilities section of the Security tab with the number of detected vulnerabilities, the last check time and the Scan for vulnerabilities button](/img/openpanel-screenshots/applications/wordpress-vulnerabilities.png#gh-light-mode-only)
 ![WP Vulnerabilities section of the Security tab with the number of detected vulnerabilities, the last check time and the Scan for vulnerabilities button](/img/openpanel-screenshots/applications/wordpress-vulnerabilities_dark.png#gh-dark-mode-only)
 
-### Cache
-
-Cache widget displays the current [wp cache type](https://developer.wordpress.org/cli/commands/cache/type/) on your website and an option to purge the cache.
-
-![Cache card with the cache type and the Clear Cache button](/img/openpanel-screenshots/applications/wordpress-cache.png#gh-light-mode-only)
-![Cache card with the cache type and the Clear Cache button](/img/openpanel-screenshots/applications/wordpress-cache_dark.png#gh-dark-mode-only)
-
 ### Firewall
 
 If CorazaWAF is enabled on the server, and your account has access to the WAF feature, you will see a *Firewall* widget displaying current status for the domain, an option to change it and number of denied/challenged requests in the last hour.
@@ -222,6 +215,36 @@ Available options:
 
 ![Options tab with the site URL, site name, email, registration, SEO visibility and pingback settings](/img/openpanel-screenshots/applications/wordpress-options.png#gh-light-mode-only)
 ![Options tab with the site URL, site name, email, registration, SEO visibility and pingback settings](/img/openpanel-screenshots/applications/wordpress-options_dark.png#gh-dark-mode-only)
+
+### Cache
+
+The *Cache* tab shows how fast the site's home page loads with and without caching, and lets you turn each cache level on or off for this site.
+
+**Home page response time**
+
+Click *Measure now* (or *Measure again*) to time the home page. The requests are made on the server itself, so they skip the network, Caddy and the WAF:
+
+- **With cache**: the page as your visitors get it now, from Varnish when the page cache is on, otherwise from the webserver with OPcache and Redis as set below.
+- **No cache at all**: the page rendered in a separate PHP process with OPcache off and Redis disabled. It runs next to your site, so visitors are not affected.
+
+Each measurement takes a few seconds, the shown time is the median of several requests. The tiles next to it show:
+
+- **Pages from cache**: share of recent page requests to this site that Varnish answered from cache.
+- **Queries from Redis**: share of object cache lookups answered from Redis in the last hour, plus the number of keys and memory this site uses.
+- **Last measurement**: when the site was last measured, how much time the cache saves per visit, and a trend of the last 10 measurements.
+
+**Cache levels**
+
+- **Page cache (Varnish)**: serves ready-made pages without touching PHP. Admin area, logged-in users, cart and checkout always stay dynamic. Turning it on starts Varnish for your account if it isn't running yet. *Lifetime* sets how long a page stays in the cache for this domain (1 minute to 1 day, default 1 hour).
+- **Object cache (Redis)**: answers repeated database queries from your private Redis. Turning it on starts Redis if needed, and installs, activates and configures the free [Redis Object Cache](https://wordpress.org/plugins/redis-cache/) plugin. Turning it off disables the plugin.
+- **OPcache**: keeps compiled WordPress and plugin code in memory. The switch turns it off or on for this site only, the memory usage shown covers all your sites on the same PHP version. Not available on OpenLiteSpeed.
+
+*Purge all* clears this site's pages from Varnish and its keys from Redis.
+
+Varnish and Redis controls are only available if they are included in your hosting plan.
+
+![Cache tab with the home page response time with and without cache, cache hit tiles, and the Varnish, Redis and OPcache cache levels](/img/openpanel-screenshots/applications/wordpress-caching.png#gh-light-mode-only)
+![Cache tab with the home page response time with and without cache, cache hit tiles, and the Varnish, Redis and OPcache cache levels](/img/openpanel-screenshots/applications/wordpress-caching_dark.png#gh-dark-mode-only)
 
 ### Maintenance mode
 
