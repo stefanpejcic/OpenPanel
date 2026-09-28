@@ -196,7 +196,8 @@ func loadFeaturesFromFile(path string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	var lines []string
+	// non-nil even when empty, so an emptied feature set doesn't fall back to default.txt
+	lines := []string{}
 	for _, line := range strings.Split(string(data), "\n") {
 		if trimmed := strings.TrimSpace(line); trimmed != "" {
 			lines = append(lines, trimmed)

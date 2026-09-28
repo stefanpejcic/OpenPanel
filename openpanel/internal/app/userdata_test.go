@@ -41,6 +41,20 @@ func TestLoadFeaturesFromFile(t *testing.T) {
 	}
 }
 
+func TestLoadFeaturesFromFileEmpty(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "features.txt")
+	if err := os.WriteFile(path, []byte("\n  \n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got, err := loadFeaturesFromFile(path)
+	if err != nil {
+		t.Fatalf("loadFeaturesFromFile: %v", err)
+	}
+	if got == nil || len(got) != 0 {
+		t.Errorf("empty file should give a non-nil empty list, got %#v", got)
+	}
+}
+
 func TestLoadFeaturesFromFileMissing(t *testing.T) {
 	_, err := loadFeaturesFromFile(filepath.Join(t.TempDir(), "does-not-exist.txt"))
 	if err == nil {
