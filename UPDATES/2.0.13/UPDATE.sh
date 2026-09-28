@@ -10,3 +10,6 @@ if [ -f "$OPENPANEL_CONFIG" ] && ! grep -q "^applications_dashboard_items=" "$OP
         printf '\n[PANEL]\napplications_dashboard_items=websites wordpress autoinstaller\n' >> "$OPENPANEL_CONFIG"
     fi
 fi
+
+# weakpass check uses the Weakpass top 1M list from 2.0.13, drop the old cached English dictionary
+rm -f /tmp/weakpass_dictionary.txt

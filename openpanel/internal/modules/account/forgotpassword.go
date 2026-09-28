@@ -357,8 +357,8 @@ func handleResetPasswordToken(a *appctx.App, w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		if !updatePasswordByID(ctx, a, sess, userID, password) {
-			errMsg := t.Get("Password does not meet the required strength")
+		if reason := updatePasswordByID(ctx, a, sess, userID, password); reason != "" {
+			errMsg := t.Get(reason)
 			data := basePageData(a, r, t)
 			data.Title = errMsg
 			data.Locales = localeOptions(a.I18n.AvailableLocales(ctx))

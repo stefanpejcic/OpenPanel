@@ -82,8 +82,8 @@ func apiAccountUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	if newPassword != "" {
 		sess := &sessions.Session{Values: map[interface{}]interface{}{}}
-		if !updatePasswordByID(ctx, a, sess, userID, newPassword) {
-			writeAPIAccountJSON(w, http.StatusBadRequest, map[string]string{"error": "Password does not meet the required strength"})
+		if errMsg := updatePasswordByID(ctx, a, sess, userID, newPassword); errMsg != "" {
+			writeAPIAccountJSON(w, http.StatusBadRequest, map[string]string{"error": errMsg})
 			return
 		}
 		checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_password_change",

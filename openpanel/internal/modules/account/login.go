@@ -42,6 +42,7 @@ var validAutologinUsername = regexp.MustCompile(`^[A-Za-z0-9_.-]+$`)
 // Register wires /login, /login_autologin and /logout onto mux; always available regardless of which optional modules are enabled
 func Register(mux *http.ServeMux, a *appctx.App) {
 	limiter := newLoginRateLimiter(a)
+	warmWeakpassList()
 
 	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {

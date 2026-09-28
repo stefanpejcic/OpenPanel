@@ -55,22 +55,26 @@ func clearSessionValues(sess *sessions.Session) {
 	}
 }
 
-// updatePasswordByID rejects a weak password, otherwise hashes it, saves it, and clears every Redis session for the user, including the caller's own current one
-func updatePasswordByID(ctx context.Context, a *appctx.App, sess *sessions.Session, userID int, newPassword string) bool {
+// updatePasswordByID rejects a weak or common password, otherwise hashes it, saves it, and clears every Redis session for the user, including the caller's own current one. Returns an untranslated error message, empty on success.
+func updatePasswordByID(ctx context.Context, a *appctx.App, sess *sessions.Session, userID int, newPassword string) string {
 	threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
 	if !validators.IsPasswordStrongEnough(newPassword, threshold) {
 		log.Printf("ACCOUNT - Rejected password update for user ID %d: does not meet the required strength", userID)
-		return false
+		return errPasswordWeak
+	}
+	if isCommonPassword(ctx, newPassword) {
+		log.Printf("ACCOUNT - Rejected password update for user ID %d: password is in the common passwords list", userID)
+		return errPasswordCommon
 	}
 
 	hashed, err := werkzeugpw.GeneratePasswordHash(newPassword)
 	if err != nil {
-		return false
+		return errPasswordSave
 	}
 
 	if _, err := a.DB.ExecContext(ctx, "UPDATE users SET password = ? WHERE id = ?", hashed, userID); err != nil {
 		log.Printf("ACCOUNT - Failed to update password for user ID %d: %v", userID, err)
-		return false
+		return errPasswordSave
 	}
 
 	clearUserSessions(ctx, a, userID)
@@ -78,8 +82,14 @@ func updatePasswordByID(ctx context.Context, a *appctx.App, sess *sessions.Sessi
 		clearSessionValues(sess)
 	}
 
-	return true
+	return ""
 }
+
+const (
+	errPasswordWeak   = "Password does not meet the required strength"
+	errPasswordCommon = "Password is too common, please choose a different one"
+	errPasswordSave   = "Failed to update password"
+)
 
 func notifySentinelPasswordChange(username string) {
 	cmd := exec.Command("opencli", "sentinel", "--action=user_password",
@@ -112,8 +122,8 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 		ip := reqip.ClientIP(r)
 
 		if newPassword != "" && newPassword == confirmPassword {
-			if !updatePasswordByID(ctx, a, sess, userID, newPassword) {
-				flash.Add(sess, "error", "Password does not meet the required strength.")
+			if errMsg := updatePasswordByID(ctx, a, sess, userID, newPassword); errMsg != "" {
+				flash.Add(sess, "error", errMsg+".")
 			} else {
 				message := securityEmail(a, r, "Password changed for account "+currentUsername,
 					"The password for account "+currentUsername+" was changed from the OpenPanel interface. All other sessions stay logged in until they expire.",
