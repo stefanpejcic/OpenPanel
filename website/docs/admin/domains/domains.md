@@ -100,8 +100,8 @@ Click an action, confirm it, and it runs on the selected domains one after anoth
 
   With an **Enterprise** license the form also has a **Docroot** field next to the username. It starts as `/var/www/html/` and fills in `/var/www/html/<domain>` as you type the domain, so you only need to change it for a custom folder, for example `/var/www/html/shop/public`. The docroot must start with `/var/www/html/`, can only contain letters, numbers, dots, dashes, underscores and slashes, and can't contain `..`. On Community edition the docroot is always `/var/www/html/<domain>`.
 
-![Add Domain form with the domain name and the user to add it to](/img/openadmin-screenshots/domains/domains-add.png#gh-light-mode-only)
-![Add Domain form with the domain name and the user to add it to](/img/openadmin-screenshots/domains/domains-add_dark.png#gh-dark-mode-only)
+![Add Domain form with the domain name, the user to add it to and the docroot](/img/openadmin-screenshots/domains/domains-add.png#gh-light-mode-only)
+![Add Domain form with the domain name, the user to add it to and the docroot](/img/openadmin-screenshots/domains/domains-add_dark.png#gh-dark-mode-only)
 
 
   </TabItem>
@@ -141,6 +141,36 @@ Domain pejcci.rs added successfully
 ```
   </TabItem>
 </Tabs>
+
+## Bulk add domains
+
+To add several domains at once, click on 'Add Domain' and then on **Adding more than one domain?** next to the submit button. The form turns into a text area where you enter one domain per line:
+
+```
+<DOMAIN>|<USERNAME>|<DOCROOT>|<PHP_VERSION>
+```
+
+The docroot and PHP version are optional, and spaces can be used instead of `|`. For example:
+
+```
+mycoffeeshop.com|john
+bakery.rs|john|/var/www/html/bakery/public
+blog.bakery.rs|john|/var/www/html/bakery/blog|8.3
+teashop.net stefan 8.4
+```
+
+- A docroot starts with `/` and a PHP version looks like `8.3`, so you can leave out either one, for example `domain.com|john|8.3`.
+- A custom docroot requires an **Enterprise** license, with the same rules as the single [Add domain](#add-domain) form. Without a docroot the domain uses `/var/www/html/<DOMAIN>`.
+- Empty lines and lines starting with `#` are skipped. Up to 500 domains can be added at once.
+
+![Bulk add domains form with one domain per line](/img/openadmin-screenshots/domains/domains-bulk-add.png#gh-light-mode-only)
+![Bulk add domains form with one domain per line](/img/openadmin-screenshots/domains/domains-bulk-add_dark.png#gh-dark-mode-only)
+
+The list is checked when you leave the text area and again on the server before anything is added: every line with a problem is listed with its line number, along with users that don't exist or are suspended, and domains that appear twice. If any line is wrong, no domains are added.
+
+When the list is valid, the domains are added one after another and the form shows the progress. When all of them are added the page reloads. If some fail (for example because the domain already exists on the server), the form lists each failed line with the error and the rest are still added.
+
+Click **Adding just one domain?** to go back to the single domain form.
 
 ## Domain actions
 
