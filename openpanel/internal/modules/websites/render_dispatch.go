@@ -558,7 +558,7 @@ func renderWPSinglePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 	}
 }
 
-var wpSinglePage = loadPage("manager/wp/single.html", "manager/wp/_shared.html")
+var wpSinglePage = loadPage("manager/wp/single.html", "manager/wp/_shared.html", "manager/wp/_caching.html")
 
 var pythonNodeAppsPage = loadPage("manager/python_node_apps.html")
 

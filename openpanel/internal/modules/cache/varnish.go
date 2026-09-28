@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"math"
 	"net/http"
 	"os"
@@ -32,7 +33,12 @@ func RegisterVarnish(mux *http.ServeMux, a *appctx.App) {
 // getVarnishStats caches parsed varnishstat output for 5s, keyed per userContext - a single shared cache key would let two different hosting accounts' varnish containers serve each other's cached stats
 func getVarnishStats(ctx context.Context, a *appctx.App, userContext string) map[string]float64 {
 	stats, _ := cache.Memoize(ctx, a.Cache, "varnish_stats:"+userContext, 5*time.Second, func() (map[string]float64, error) {
-		return computeVarnishStats(ctx, userContext), nil
+		stats := computeVarnishStats(ctx, userContext)
+		// don't cache a failed read, right after a restart it would show zeros
+		if len(stats) == 0 {
+			return stats, errors.New("no varnish stats")
+		}
+		return stats, nil
 	})
 	return stats
 }
@@ -112,6 +118,63 @@ func handleVarnishStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// StartVarnish moves the webserver behind varnish and starts it, rolling back on failure - webserverFailed tells which step broke
+func StartVarnish(opCtx context.Context, userContext string) (webserverFailed bool, errMsg string) {
+	const service = "varnish"
+	webserver, _ := docker.GetEnvValue(userContext, "WEB_SERVER")
+	_ = docker.ToggleProxyHTTPPort(userContext, "on")
+	_ = docker.SwapAllWebserversComposePort(userContext, "on")
+	// not docker.ComposeContainer(webserver, "stop") - see ForceRemoveContainer's doc comment for why "podman-compose down" isn't safe here (it cascades through depends_on and takes php-fpm down with it)
+	docker.ForceRemoveContainer(opCtx, userContext, webserver)
+
+	// the webserver has to come up BEFORE varnish, not after: varnish's VCL resolves the webserver's container-network hostname at startup, and if that name isn't registered yet the VCL compile fails and it exits ("Backend host could not be resolved", exit code 2). It recovers via restart:unless-stopped once the webserver is up, but a crash-looping container responds slowly to a later `podman rm -f` (~10s stall), long enough to blow past the request and abandon the webserver recreation mid-flight.
+	if !restartWebserverAfterVarnishToggle(opCtx, userContext, webserver).Success {
+		_ = docker.SwapAllWebserversComposePort(userContext, "off")
+		restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
+		_ = docker.ToggleProxyHTTPPort(userContext, "off")
+		return true, "could not bring " + webserver + " back up with the Varnish proxy port"
+	}
+
+	// checks the actual running state rather than sniffing the activate command's stdout for "started" - real podman-compose output doesn't reliably contain it (see the identical fix in php/extensions.go). Polls instead of checking once: varnish's entrypoint rewrites its VCL before exec'ing varnishd, and the image may still need pulling on a first run, both can take a few seconds longer than `podman-compose up` takes to return - a single immediate check misreported that as a start failure (issue #1091).
+	result := docker.StartOrStopContainer(opCtx, userContext, service, "activate", "run")
+	if !result.Success || !docker.WaitForServiceRunning(opCtx, userContext, service) {
+		_ = docker.SwapAllWebserversComposePort(userContext, "off")
+		restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
+		_ = docker.ToggleProxyHTTPPort(userContext, "off")
+		if result.Message == "" {
+			result.Message = "container did not reach a running state"
+		}
+		return false, result.Message
+	}
+	return false, ""
+}
+
+// DomainVarnishStatus reads the domain's caddy file: "On" when traffic goes through varnish, "Off" when straight to the webserver
+func DomainVarnishStatus(domain string) string {
+	content, err := os.ReadFile("/etc/openpanel/caddy/domains/" + domain + ".conf")
+	if err != nil {
+		return "Unknown"
+	}
+	for _, line := range strings.Split(string(content), "\n") {
+		stripped := strings.TrimSpace(line)
+		if strings.Contains(stripped, "reverse_proxy https://") && !strings.HasPrefix(stripped, "#") {
+			return "Off"
+		}
+	}
+	return "On"
+}
+
+// VarnishHitStats returns the account-wide varnish hit ratio plus raw hit/miss/object counters
+func VarnishHitStats(ctx context.Context, a *appctx.App, userContext string) (hitRatio, hits, misses, objects float64) {
+	flat := getVarnishStats(ctx, a, userContext)
+	hits, misses = flat["MAIN.cache_hit"], flat["MAIN.cache_miss"]
+	total := hits + misses + flat["MAIN.cache_hitpass"] + flat["MAIN.cache_hitmiss"]
+	if total > 0 {
+		hitRatio = round4(hits / total)
+	}
+	return hitRatio, hits, misses, flat["MAIN.n_object"]
+}
+
 func round4(v float64) float64 { return math.Round(v*10000) / 10000 }
 
 // handleVarnish serves the varnish page and handles its enable/disable/per-domain-toggle form actions
@@ -140,32 +203,12 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		switch action {
 		case "enable":
 			if !docker.IsServiceRunning(ctx, userContext, service) {
-				_ = docker.ToggleProxyHTTPPort(userContext, "on")
-				_ = docker.SwapAllWebserversComposePort(userContext, "on")
-				// not docker.ComposeContainer(webserver, "stop") - see ForceRemoveContainer's doc comment for why "podman-compose down" isn't safe here (it cascades through depends_on and takes php-fpm down with it)
-				docker.ForceRemoveContainer(opCtx, userContext, webserver)
-
-				// the webserver has to come up BEFORE varnish, not after: varnish's VCL resolves the webserver's container-network hostname at startup, and if that name isn't registered yet the VCL compile fails and it exits ("Backend host could not be resolved", exit code 2). It recovers via restart:unless-stopped once the webserver is up, but a crash-looping container responds slowly to a later `podman rm -f` (~10s stall), long enough to blow past the request and abandon the webserver recreation mid-flight.
-				if !restartWebserverAfterVarnishToggle(opCtx, userContext, webserver).Success {
-					_ = docker.SwapAllWebserversComposePort(userContext, "off")
-					restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
-					_ = docker.ToggleProxyHTTPPort(userContext, "off")
-					msg := web.Tr(a, r, "Failed to start %(webserver)s: could not bring it back up with the Varnish proxy port", "webserver", webserver)
-					if outputJSON {
-						writeJSON(w, http.StatusInternalServerError, map[string]string{"error": msg})
-						return
+				webserverFailed, errMsg := StartVarnish(opCtx, userContext)
+				if errMsg != "" {
+					msg := web.Tr(a, r, "Failed to start %(service)s: %(message)s", "service", service, "message", errMsg)
+					if webserverFailed {
+						msg = web.Tr(a, r, "Failed to start %(webserver)s: could not bring it back up with the Varnish proxy port", "webserver", webserver)
 					}
-					flashAndRedirect(a, w, r, "error", msg, "/cache/varnish")
-					return
-				}
-
-				// checks the actual running state rather than sniffing the activate command's stdout for "started" - real podman-compose output doesn't reliably contain it (see the identical fix in php/extensions.go). Polls instead of checking once: varnish's entrypoint rewrites its VCL before exec'ing varnishd, and the image may still need pulling on a first run, both can take a few seconds longer than `podman-compose up` takes to return - a single immediate check misreported that as a start failure (issue #1091).
-				result := docker.StartOrStopContainer(opCtx, userContext, service, "activate", "run")
-				if !result.Success || !docker.WaitForServiceRunning(opCtx, userContext, service) {
-					_ = docker.SwapAllWebserversComposePort(userContext, "off")
-					restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
-					_ = docker.ToggleProxyHTTPPort(userContext, "off")
-					msg := web.Tr(a, r, "Failed to start %(service)s: %(message)s", "service", service, "message", result.Message)
 					if outputJSON {
 						writeJSON(w, http.StatusInternalServerError, map[string]string{"error": msg})
 						return
@@ -226,24 +269,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domains, _ := a.AllDomainsForUser(ctx, userID)
 	varnishStatus := make(map[string]string, len(domains))
 	for _, d := range domains {
-		content, readErr := os.ReadFile("/etc/openpanel/caddy/domains/" + d.DomainURL + ".conf")
-		if readErr != nil {
-			varnishStatus[d.DomainURL] = "Unknown"
-			continue
-		}
-		hasUncommentedHTTPS := false
-		for _, line := range strings.Split(string(content), "\n") {
-			stripped := strings.TrimSpace(line)
-			if strings.Contains(stripped, "reverse_proxy https://") && !strings.HasPrefix(stripped, "#") {
-				hasUncommentedHTTPS = true
-				break
-			}
-		}
-		if hasUncommentedHTTPS {
-			varnishStatus[d.DomainURL] = "Off"
-		} else {
-			varnishStatus[d.DomainURL] = "On"
-		}
+		varnishStatus[d.DomainURL] = DomainVarnishStatus(d.DomainURL)
 	}
 
 	status := docker.GetContainerStatus(ctx, userContext, service)

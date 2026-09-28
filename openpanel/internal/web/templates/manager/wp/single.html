@@ -138,12 +138,15 @@
     <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
 
 <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3"
-     x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
+     x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard',
+               showPanel(t) { document.querySelectorAll('#wp-tab-content > [role=tabpanel]').forEach(p => p.classList.toggle('hidden', p.id !== t)); } }"
+     x-init="$watch('activeTab', t => showPanel(t));
+             if (document.readyState !== 'complete') window.addEventListener('load', () => setTimeout(() => showPanel(activeTab), 0));">
 
     <!-- tabs -->
     <div class="border-b border-gray-200 dark:border-gray-700">
         <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist"
-            class="grid grid-cols-9 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+            class="grid grid-cols-10 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
 
             <li role="presentation">
                 <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
@@ -151,7 +154,7 @@
                    :class="activeTab === 'dashboard' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M2 10h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1m9-9h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m0 9a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1zm0-10a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM2 9a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2zm7 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2zM0 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.354.854a.5.5 0 1 0-.708-.708L3 3.793l-.646-.647a.5.5 0 1 0-.708.708l1 1a.5.5 0 0 0 .708 0z"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Overview"}}</span>
+                    <span class="hidden md:block min-w-0 truncate" title="{{.T.Get "Overview"}}">{{.T.Get "Overview"}}</span>
                 </a>
             </li>
 
@@ -161,7 +164,17 @@
                    :class="activeTab === 'settings' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M0 10.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H3V1.5a.5.5 0 0 0-1 0V10H.5a.5.5 0 0 0-.5.5M2.5 12a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5m3-6.5A.5.5 0 0 0 6 6h1.5v8.5a.5.5 0 0 0 1 0V6H10a.5.5 0 0 0 0-1H6a.5.5 0 0 0-.5.5M8 1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2A.5.5 0 0 0 8 1m3 9.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H14V1.5a.5.5 0 0 0-1 0V10h-1.5a.5.5 0 0 0-.5.5m2.5 1.5a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Options"}}</span>
+                    <span class="hidden md:block min-w-0 truncate" title="{{.T.Get "Options"}}">{{.T.Get "Options"}}</span>
+                </a>
+            </li>
+
+            <li role="presentation">
+                <a href="#" id="caching-tab" data-tabs-target="#caching" role="tab" aria-controls="caching" aria-selected="false"
+                   @click="activeTab = 'caching'"
+                   :class="activeTab === 'caching' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641zM6.374 1 4.168 8.5H7.5a.5.5 0 0 1 .478.647L6.78 13.04 11.478 7H8a.5.5 0 0 1-.474-.658L9.306 1z"/></svg>
+                    <span class="hidden md:block min-w-0 truncate" title="{{.T.Get "Cache"}}">{{.T.Get "Cache"}}</span>
                 </a>
             </li>
 
@@ -171,7 +184,7 @@
                    :class="activeTab === 'maintenance' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5m5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Maintenance"}}</span>
+                    <span class="hidden md:block min-w-0 truncate" title="{{.T.Get "Maintenance"}}">{{.T.Get "Maintenance"}}</span>
                 </a>
             </li>
 
@@ -181,7 +194,7 @@
                    :class="activeTab === 'security' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 14.933a1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Security"}}</span>
+                    <span class="hidden md:block min-w-0 truncate" title="{{.T.Get "Security"}}">{{.T.Get "Security"}}</span>
                 </a>
             </li>
 
@@ -191,7 +204,7 @@
                    :class="activeTab === 'updates' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a7 7 0 1 1 2.898 5.673c-.167-.121-.216-.406-.002-.62l1.8-1.8a3.5 3.5 0 0 0 4.572-.328l1.414-1.415a.5.5 0 0 0 0-.707l-.707-.707 1.559-1.563a.5.5 0 1 0-.708-.706l-1.559 1.562-1.414-1.414 1.56-1.562a.5.5 0 1 0-.707-.706l-1.56 1.56-.707-.706a.5.5 0 0 0-.707 0L5.318 5.975a3.5 3.5 0 0 0-.328 4.571l-1.8 1.8c-.58.58-.62 1.6.121 2.137A8 8 0 1 0 0 8a.5.5 0 0 0 1 0"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Updates"}}</span>
+                    <span class="hidden md:block min-w-0 truncate" title="{{.T.Get "Updates"}}">{{.T.Get "Updates"}}</span>
                 </a>
             </li>
 
@@ -201,7 +214,7 @@
                    :class="activeTab === 'debugging' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Debugging"}}</span>
+                    <span class="hidden md:block min-w-0 truncate" title="{{.T.Get "Debugging"}}">{{.T.Get "Debugging"}}</span>
                 </a>
             </li>
 
@@ -211,7 +224,7 @@
                    :class="activeTab === 'backups' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Backups"}}</span>
+                    <span class="hidden md:block min-w-0 truncate" title="{{.T.Get "Backups"}}">{{.T.Get "Backups"}}</span>
                 </a>
             </li>
 
@@ -221,7 +234,7 @@
                    :class="activeTab === 'clone' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Clone"}}</span>
+                    <span class="hidden md:block min-w-0 truncate" title="{{.T.Get "Clone"}}">{{.T.Get "Clone"}}</span>
                 </a>
             </li>
 
@@ -231,7 +244,7 @@
                    :class="activeTab === 'remove' ? 'bg-white text-red-600 shadow-sm dark:bg-gray-900 dark:text-red-400' : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
                    class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Remove"}}</span>
+                    <span class="hidden md:block min-w-0 truncate" title="{{.T.Get "Remove"}}">{{.T.Get "Remove"}}</span>
                 </a>
             </li>
 
@@ -1006,6 +1019,12 @@
 
         </div>
         <!-- END SECURITY -->
+
+        <!-- CACHING -->
+        <div class="hidden p-4 rounded" id="caching" role="tabpanel" aria-labelledby="caching-tab">
+            {{template "wp_caching" .}}
+        </div>
+        <!-- END CACHING -->
 
         <!-- MAINTENANCE -->
         <div class="hidden p-4 rounded" id="maintenance" role="tabpanel" aria-labelledby="maintenance-tab">
@@ -1857,7 +1876,6 @@
         {{template "pagespeed_panel" .}}
         {{template "visitors" .}}
         {{template "waf_panel" .}}
-        {{template "wp_cache" .}}
     </div>
     <!-- END right sidebar -->
 

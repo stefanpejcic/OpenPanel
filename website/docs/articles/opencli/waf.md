@@ -21,6 +21,10 @@ CorazaWAF is ENABLED
 ## Enable
 To enable the WAF and ensure it is used for new domains, run:
 
+Response body inspection is turned off (`SecResponseBodyAccess Off` in `/etc/openpanel/caddy/coraza_rules.conf`), since buffering every HTML page for the CRS data-leakage checks adds around 230 ms per page.
+
+This also disables OWASP CRS rulesets for stacks OpenPanel doesn't use or rarely hosts, by renaming them to `.conf.disabled`: `REQUEST-944-APPLICATION-ATTACK-JAVA`, `RESPONSE-952-DATA-LEAKAGES-JAVA`, `RESPONSE-954-DATA-LEAKAGES-IIS` and `RESPONSE-956-DATA-LEAKAGES-RUBY`. They can be re-enabled from OpenAdmin > Security > CorazaWAF.
+
 ```bash
 opencli waf enable
 ```
@@ -34,6 +38,11 @@ Downloading Coraza rules..
 ...
 Downloading OWASP CRS..
 Cloning into '/etc/openpanel/caddy/coreruleset'...
+Disabling rulesets not used by the stack..
+- Disabled ruleset REQUEST-944-APPLICATION-ATTACK-JAVA
+- Disabled ruleset RESPONSE-952-DATA-LEAKAGES-JAVA
+- Disabled ruleset RESPONSE-954-DATA-LEAKAGES-IIS
+- Disabled ruleset RESPONSE-956-DATA-LEAKAGES-RUBY
 Enabling WAF module..
 Setting container image 'openpanel/caddy-coraza'..
 Restarting Web Server to use the new image with CorazaWAF..
@@ -147,12 +156,17 @@ Update OWASP CRS:
 opencli waf update
 ```
 
+Rulesets disabled with a `.conf.disabled` file stay disabled after the update, even if the update brings back the original file.
+
 <details>
   <summary>Example output</summary>
 
 ```bash
 # opencli waf update
+- Excluding disabled ruleset rules/REQUEST-944-APPLICATION-ATTACK-JAVA.conf
+...
 Updating OWASP CRS..
+- Kept ruleset RESPONSE-952-DATA-LEAKAGES-JAVA.conf disabled
 Update successful.
 ```
 </details>

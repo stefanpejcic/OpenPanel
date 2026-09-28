@@ -1,0 +1,301 @@
+{{define "wp_caching"}}
+<!-- START templates/manager/wp/_caching.html -->
+<script>
+function wpCaching() {
+    const domain = {{toJSON .CurrentDomain}};
+    const t = {
+        failed: {{toJSON (.T.Get "Request failed.")}},
+        justNow: {{toJSON (.T.Get "just now")}},
+        minAgo: {{toJSON (.T.Get "min ago")}},
+        hAgo: {{toJSON (.T.Get "h ago")}},
+        dAgo: {{toJSON (.T.Get "d ago")}},
+        measuring: {{toJSON (.T.Get "Measuring response time, this takes a few seconds..")}},
+        purged: {{toJSON (.T.Get "Purging caches..")}},
+    };
+    return {
+        loaded: false,
+        loading: false,
+        clock: null,
+        s: {
+            varnish: { allowed: true, service_running: false, enabled: false, ttl: 3600, hit_ratio: 0, objects: 0 },
+            redis: { allowed: true, service_running: false, enabled: false, hit_ratio: 0, used_memory: 0, memory_limit: 0, site_keys: 0 },
+            opcache: { available: true, global_enabled: true, enabled: false, hit_rate: 0, used_memory: 0, total_memory: 0, cached_scripts: 0, php_version: '', error: '' },
+        },
+        m: null,
+        busy: { varnish: false, ttl: false, redis: false, opcache: false, purge: false, measure: false },
+        ttl: 3600,
+        now: Date.now(),
+
+        load() {
+            if (this.loading) return;
+            this.startClock();
+            this.loading = true;
+            fetch('/website/cache?domain=' + encodeURIComponent(domain), { headers: { 'X-CSRF-Token': csrf_token } })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.error) { showToast(d.error, 'error'); return; }
+                    this.apply(d);
+                    this.loaded = true;
+                })
+                .catch(e => showToast(String(e), 'error'))
+                .finally(() => { this.loading = false; });
+        },
+
+        startClock() {
+            if (this.clock) return;
+            this.clock = setInterval(() => { this.now = Date.now(); }, 30000);
+        },
+
+        apply(d) {
+            this.s = d;
+            this.ttl = d.varnish.ttl;
+            if (d.measurement) this.m = d.measurement;
+        },
+
+        post(action, params, key) {
+            this.busy[key] = true;
+            const body = new URLSearchParams(Object.assign({ domain: domain, csrf_token: csrf_token }, params));
+            return fetch('/website/cache/' + action, { method: 'POST', headers: { 'X-CSRF-Token': csrf_token }, body: body })
+                .then(r => r.json().then(d => ({ ok: r.ok, d: d })))
+                .then(({ ok, d }) => {
+                    if (!ok || d.error) { showToast(d.error || t.failed, 'error'); return null; }
+                    if (d.status) this.apply(d.status);
+                    if (d.message) showToast(d.message, 'success');
+                    return d;
+                })
+                .catch(e => { showToast(String(e), 'error'); return null; })
+                .finally(() => { this.busy[key] = false; });
+        },
+
+        toggleVarnish() {
+            this.post('varnish', { state: this.s.varnish.enabled ? 'off' : 'on' }, 'varnish');
+        },
+        setTTL() { this.post('varnish-ttl', { ttl: this.ttl }, 'ttl'); },
+        toggleRedis() { this.post('redis', { state: this.s.redis.enabled ? 'off' : 'on' }, 'redis'); },
+        toggleOpcache() { this.post('opcache', { state: this.s.opcache.enabled ? 'off' : 'on' }, 'opcache'); },
+        purge() { this.post('purge', {}, 'purge').then(d => { if (d) this.load(); }); },
+        measure() {
+            showToast(t.measuring, 'info');
+            this.post('measure', {}, 'measure').then(d => { if (d && d.measurement) this.m = d.measurement; });
+        },
+
+        pct(v) { return Math.round((v || 0) * 100) + '%'; },
+        num(v) { return Math.round(v || 0).toLocaleString(); },
+        get varnishHas() { return this.loaded && this.s.varnish.service_running && (this.s.varnish.hits + this.s.varnish.misses) > 0; },
+        get redisHas() { return this.loaded && this.s.redis.service_running && (this.s.redis.hits + this.s.redis.misses) > 0; },
+        get spark() {
+            const h = (this.m && this.m.history) || [];
+            if (!h.length) return { cached: '', direct: '', points: [] };
+            const max = Math.max(...h.map(p => p.direct_ms), 1);
+            const step = h.length > 1 ? 100 / (h.length - 1) : 0;
+            const x = i => h.length > 1 ? i * step : 50;
+            const y = v => 31 - (v / max) * 28;
+            const line = key => h.map((p, i) => x(i).toFixed(1) + ',' + y(p[key]).toFixed(1)).join(' ');
+            return {
+                cached: line('cached_ms'),
+                direct: line('direct_ms'),
+                points: h.map((p, i) => ({ x: x(i), w: h.length > 1 ? step : 100, label: new Date(p.measured_at * 1000).toLocaleString() + ': ' + this.ms(p.cached_ms) + ' / ' + this.ms(p.direct_ms) + ' ms' })),
+            };
+        },
+        mb(bytes) { return ((bytes || 0) / 1048576).toFixed(1) + ' MB'; },
+        ratio(used, total) { return total > 0 ? Math.min(100, used / total * 100) : 0; },
+        ms(v) { return v >= 100 ? Math.round(v) : (Math.round(v * 10) / 10); },
+        get speedup() { return this.m && this.m.cached_ms > 0 ? this.m.direct_ms / this.m.cached_ms : 0; },
+        get cachedBar() { return this.m && this.m.direct_ms > 0 ? Math.max(2, Math.min(100, this.m.cached_ms / this.m.direct_ms * 100)) : 0; },
+        get lastMeasured() {
+            if (!this.m) return '-';
+            const sec = Math.max(0, Math.floor(this.now / 1000 - this.m.measured_at));
+            if (sec < 60) return t.justNow;
+            if (sec < 3600) return Math.floor(sec / 60) + ' ' + t.minAgo;
+            if (sec < 86400) return Math.floor(sec / 3600) + ' ' + t.hAgo;
+            return Math.floor(sec / 86400) + ' ' + t.dAgo;
+        },
+    };
+}
+</script>
+
+<div x-data="wpCaching()" x-effect="if (activeTab === 'caching' && !loaded) load()">
+
+    <div class="flex flex-col gap-4">
+
+        <!-- response time -->
+        <section class="grid grid-cols-2 gap-5 rounded border border-gray-800 bg-gray-900 p-5 text-white" aria-label="{{.T.Get "Home page speed"}}">
+            <div class="flex flex-col gap-4">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-medium text-gray-300">{{.T.Get "Home page response time"}}</span>
+                <span :class="speedup >= 1.5 ? '' : 'invisible'" class="rounded-full bg-green-500/15 px-2 py-0.5 text-xs font-semibold text-green-300" x-text="(speedup >= 10 ? Math.round(speedup) : speedup.toFixed(1)) + '× ' + {{toJSON (.T.Get "faster")}}"></span>
+            </div>
+
+            <div class="flex items-baseline gap-1" aria-live="polite">
+                <span class="text-5xl font-semibold tabular-nums" :class="m ? '' : 'text-gray-600'" x-text="m ? ms(m.cached_ms) : '--'"></span>
+                <span class="text-lg text-gray-400">ms</span>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <div>
+                    <div class="mb-1 flex justify-between gap-2 text-xs text-gray-300">
+                        <span x-text="m && !m.via_varnish ? {{toJSON (.T.Get "Current setup (OPcache + Redis)")}} : {{toJSON (.T.Get "With cache")}}"></span>
+                        <span class="font-mono" x-text="m ? ms(m.cached_ms) + ' ms' : '-- ms'"></span>
+                    </div>
+                    <div class="h-2 w-full rounded-full bg-white/10"><div class="h-2 rounded-full bg-green-400 transition-all" :style="'width:' + cachedBar + '%'"></div></div>
+                </div>
+                <div>
+                    <div class="mb-1 flex justify-between gap-2 text-xs text-gray-400">
+                        <span title="{{.T.Get "Rendered in a separate PHP process with OPcache off and Redis disabled, visitors are not affected."}}">{{.T.Get "No cache at all"}}</span>
+                        <span class="font-mono" x-text="m ? ms(m.direct_ms) + ' ms' : '-- ms'"></span>
+                    </div>
+                    <div class="h-2 w-full rounded-full bg-white/10"><div class="h-2 rounded-full bg-gray-500 transition-all" :style="'width:' + (m ? 100 : 0) + '%'"></div></div>
+                </div>
+            </div>
+
+            <div class="min-h-10 text-xs text-gray-400">
+                <p x-show="!m">{{.T.Get "Not measured yet. Run a test to compare your site with and without any caching."}}</p>
+                <p x-show="m && !m.via_varnish">{{.T.Get "Page cache is off for this site, the first bar is your site through the webserver with OPcache and Redis. Turn on the page cache to serve ready-made HTML."}}</p>
+                <p x-show="m && (m.cached_code !== 200 || m.direct_code !== 200)" class="text-yellow-300" x-text="{{toJSON (.T.Get "Home page answered with HTTP")}} + ' ' + (m ? (m.cached_code !== 200 ? m.cached_code : m.direct_code) : '') + ', ' + {{toJSON (.T.Get "numbers may not reflect a normal page load.")}}"></p>
+            </div>
+            </div>
+
+            <div class="flex flex-col gap-4">
+            <div class="grid flex-1 grid-cols-3 gap-2">
+                <div class="flex flex-col gap-2 rounded bg-white/5 p-4" :title="loaded && s.varnish.service_running ? {{toJSON (.T.Get "Recent page requests to this site. All your sites:")}} + ' ' + pct(s.varnish.account_hit_ratio) : ''">
+                    <span class="text-xs text-gray-400">{{.T.Get "Pages from cache"}}</span>
+                    <strong class="text-3xl font-semibold tabular-nums" x-text="varnishHas ? pct(s.varnish.hit_ratio) : '-'"></strong>
+                    <span class="h-1 w-full rounded-full bg-white/10"><span class="block h-1 rounded-full bg-green-400 transition-all" :style="'width:' + (varnishHas ? s.varnish.hit_ratio * 100 : 0) + '%'"></span></span>
+                    <span class="mt-auto text-xs leading-snug text-gray-400">
+                        <span class="block" x-text="varnishHas ? num(s.varnish.hits) + ' ' + {{toJSON (.T.Get "hits")}} + ' · ' + num(s.varnish.misses) + ' ' + {{toJSON (.T.Get "misses")}} : (loaded && s.varnish.service_running ? {{toJSON (.T.Get "No recent visits")}} : '-')"></span>
+                        <span class="block" x-text="varnishHas ? {{toJSON (.T.Get "recent page requests")}} : ''"></span>
+                    </span>
+                </div>
+                <div class="flex flex-col gap-2 rounded bg-white/5 p-4" :title="loaded && s.redis.service_running ? {{toJSON (.T.Get "Redis memory for all your sites:")}} + ' ' + mb(s.redis.used_memory) + (s.redis.memory_limit ? ' / ' + mb(s.redis.memory_limit) : '') : ''">
+                    <span class="text-xs text-gray-400">{{.T.Get "Queries from Redis"}}</span>
+                    <strong class="text-3xl font-semibold tabular-nums" x-text="redisHas ? pct(s.redis.hit_ratio) : '-'"></strong>
+                    <span class="h-1 w-full rounded-full bg-white/10"><span class="block h-1 rounded-full bg-green-400 transition-all" :style="'width:' + (redisHas ? s.redis.hit_ratio * 100 : 0) + '%'"></span></span>
+                    <span class="mt-auto text-xs leading-snug text-gray-400">
+                        <span class="block" x-text="redisHas ? num(s.redis.hits) + ' ' + {{toJSON (.T.Get "hits")}} + ' · ' + num(s.redis.misses) + ' ' + {{toJSON (.T.Get "misses")}} + (s.redis.site_metrics ? ' (1h)' : ' (' + {{toJSON (.T.Get "all sites")}} + ')') : (loaded && s.redis.service_running ? {{toJSON (.T.Get "Not used by this site")}} : '-')"></span>
+                        <span class="block" x-text="loaded && s.redis.service_running && s.redis.site_keys ? num(s.redis.site_keys) + ' ' + {{toJSON (.T.Get "keys")}} + ' · ' + mb(s.redis.site_bytes) : ''"></span>
+                    </span>
+                </div>
+                <div class="flex flex-col gap-2 rounded bg-white/5 p-4">
+                    <span class="text-xs text-gray-400">{{.T.Get "Last measurement"}}</span>
+                    <strong class="text-lg font-semibold" x-text="lastMeasured" :title="m ? new Date(m.measured_at * 1000).toLocaleString() : ''"></strong>
+                    <span class="text-xs text-gray-400" x-text="m && m.via_varnish && m.direct_ms > m.cached_ms ? {{toJSON (.T.Get "saves")}} + ' ' + ms(m.direct_ms - m.cached_ms) + ' ms ' + {{toJSON (.T.Get "per visit")}} : '-'"></span>
+                    <div class="mt-auto">
+                        <svg class="h-8 w-full overflow-visible" viewBox="0 0 100 32" preserveAspectRatio="none" role="img" aria-label="{{.T.Get "Response time of the last measurements"}}">
+                            <line x1="0" y1="31" x2="100" y2="31" stroke="currentColor" class="text-white/10" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                            <polyline :points="spark.direct" fill="none" stroke="currentColor" class="text-gray-500" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+                            <polyline :points="spark.cached" fill="none" stroke="currentColor" class="text-green-400" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+                            <template x-for="(pt, i) in spark.points" :key="i">
+                                <rect :x="pt.x - pt.w / 2" y="0" :width="pt.w" height="32" fill="transparent"><title x-text="pt.label"></title></rect>
+                            </template>
+                        </svg>
+                        <div class="mt-1 flex flex-wrap gap-x-3 text-[10px] text-gray-400">
+                            <span class="flex items-center gap-1"><span class="inline-block h-0.5 w-3 rounded-full bg-green-400"></span>{{.T.Get "cache"}}</span>
+                            <span class="flex items-center gap-1"><span class="inline-block h-0.5 w-3 rounded-full bg-gray-500"></span>{{.T.Get "no cache"}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" @click="measure()" :disabled="busy.measure"
+                    class="inline-flex items-center justify-center gap-2 rounded bg-white px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 disabled:opacity-60">
+                <svg x-show="!busy.measure" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"></path></svg>
+                <svg x-show="busy.measure" class="size-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" class="opacity-75" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+                <span x-text="busy.measure ? {{toJSON (.T.Get "Measuring..")}} : (m ? {{toJSON (.T.Get "Measure again")}} : {{toJSON (.T.Get "Measure now")}})"></span>
+            </button>
+
+            </div>
+        </section>
+
+        <!-- cache levels -->
+        <section class="rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+            <div class="flex items-center justify-between gap-2 p-4">
+                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Cache levels"}}</h2>
+                <button type="button" @click="purge()" :disabled="!loaded || busy.purge"
+                        class="inline-flex items-center gap-1.5 rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-900 shadow-sm hover:bg-gray-50 disabled:opacity-60 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" :class="busy.purge && 'animate-spin'"><path d="M20 11a8 8 0 0 0-14.9-3M4 4v4h4M4 13a8 8 0 0 0 14.9 3M20 20v-4h-4"></path></svg>
+                    {{.T.Get "Purge all"}}
+                </button>
+            </div>
+
+            <!-- 1. varnish -->
+            <div class="flex flex-col gap-3 border-t border-gray-200 p-4 dark:border-gray-800 sm:flex-row sm:items-center sm:gap-4">
+                <span class="flex size-9 shrink-0 items-center justify-center rounded bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" title="Varnish"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13a8 8 0 0 1 7 7a6 6 0 0 0 3 -5a9 9 0 0 0 6 -8a3 3 0 0 0 -3 -3a9 9 0 0 0 -8 6a6 6 0 0 0 -5 3"/><path d="M7 14a6 6 0 0 0 -3 6a6 6 0 0 0 6 -3"/><path d="M14 9a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></svg></span>
+                <div class="flex min-w-0 flex-1 flex-col gap-1">
+                    <span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Page cache"}} <span class="text-gray-400">·</span> Varnish</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Varnish serves ready-made pages without touching PHP. Admin area, logged-in users, cart and checkout always stay dynamic."}}</span>
+                    <span x-show="loaded && !s.varnish.allowed" class="text-xs text-yellow-600 dark:text-yellow-400">{{.T.Get "Varnish is not included in your plan."}}</span>
+                    <label x-show="s.varnish.allowed" class="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Lifetime"}}
+                        <select x-model.number="ttl" @change="setTTL()" :disabled="!loaded || busy.ttl"
+                                class="rounded border border-gray-300 bg-white py-1 pl-2 pr-8 text-xs text-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50">
+                            <option value="60">{{.T.Get "1 minute"}}</option>
+                            <option value="300">{{.T.Get "5 minutes"}}</option>
+                            <option value="900">{{.T.Get "15 minutes"}}</option>
+                            <option value="1800">{{.T.Get "30 minutes"}}</option>
+                            <option value="3600">{{.T.Get "1 hour"}}</option>
+                            <option value="21600">{{.T.Get "6 hours"}}</option>
+                            <option value="86400">{{.T.Get "1 day"}}</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="flex w-full flex-col gap-1 sm:w-44" x-show="s.varnish.allowed">
+                    <span class="text-xs text-gray-500 dark:text-gray-400" x-text="!loaded ? '...' : !s.varnish.service_running ? {{toJSON (.T.Get "Varnish is not running")}} : varnishHas ? pct(s.varnish.hit_ratio) + ' ' + {{toJSON (.T.Get "from cache")}} + ' · ' + num(s.varnish.hits + s.varnish.misses) + ' ' + {{toJSON (.T.Get "requests")}} : {{toJSON (.T.Get "No recent visits")}}"
+                          title="{{.T.Get "Recent page requests to this site."}}"></span>
+                    <span class="h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-800"><span class="block h-1.5 rounded-full bg-blue-500" :style="'width:' + (varnishHas ? s.varnish.hit_ratio * 100 : 0) + '%'"></span></span>
+                </div>
+                <button type="button" role="switch" :aria-checked="s.varnish.enabled.toString()" aria-label="{{.T.Get "Page cache on"}}"
+                        @click="toggleVarnish()" :disabled="!loaded || busy.varnish || !s.varnish.allowed"
+                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                        :class="s.varnish.enabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'">
+                    <span class="pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform" :class="s.varnish.enabled ? 'translate-x-5' : 'translate-x-0'"></span>
+                </button>
+            </div>
+
+            <!-- 2. redis -->
+            <div class="flex flex-col gap-3 border-t border-gray-200 p-4 dark:border-gray-800 sm:flex-row sm:items-center sm:gap-4">
+                <span class="flex size-9 shrink-0 items-center justify-center rounded bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" title="Redis"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l-8 4l8 4l8 -4l-8 -4"/><path d="M4 12l8 4l8 -4"/><path d="M4 16l8 4l8 -4"/></svg></span>
+                <div class="flex min-w-0 flex-1 flex-col gap-1">
+                    <span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Object cache"}} <span class="text-gray-400">·</span> Redis</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Repeated database queries are answered from your private Redis instead of MySQL. Turning it on installs and configures the free Redis Object Cache plugin."}}</span>
+                    <span x-show="loaded && !s.redis.allowed" class="text-xs text-yellow-600 dark:text-yellow-400">{{.T.Get "Redis is not included in your plan."}}</span>
+                    <span x-show="loaded && s.redis.allowed && s.redis.enabled && !s.redis.service_running" class="text-xs text-yellow-600 dark:text-yellow-400">{{.T.Get "Redis service is stopped, the site falls back to the database."}}</span>
+                </div>
+                <div class="flex w-full flex-col gap-1 sm:w-44" x-show="s.redis.allowed">
+                    <span class="text-xs text-gray-500 dark:text-gray-400" x-text="!loaded ? '...' : !s.redis.service_running ? {{toJSON (.T.Get "Redis is not running")}} : (redisHas ? pct(s.redis.hit_ratio) + ' · ' : '') + mb(s.redis.site_bytes) + ' ' + {{toJSON (.T.Get "for this site")}}"
+                          :title="num(s.redis.site_keys) + ' ' + {{toJSON (.T.Get "keys for this site. Redis memory for all your sites:")}} + ' ' + mb(s.redis.used_memory) + (s.redis.memory_limit ? ' / ' + mb(s.redis.memory_limit) : '')"></span>
+                    <span class="h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-800"><span class="block h-1.5 rounded-full bg-blue-500" :style="'width:' + (redisHas ? s.redis.hit_ratio * 100 : 0) + '%'"></span></span>
+                </div>
+                <button type="button" role="switch" :aria-checked="s.redis.enabled.toString()" aria-label="{{.T.Get "Object cache on"}}"
+                        @click="toggleRedis()" :disabled="!loaded || busy.redis || !s.redis.allowed"
+                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                        :class="s.redis.enabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'">
+                    <span class="pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform" :class="s.redis.enabled ? 'translate-x-5' : 'translate-x-0'"></span>
+                </button>
+            </div>
+
+            <!-- 3. opcache -->
+            <div class="flex flex-col gap-3 border-t border-gray-200 p-4 dark:border-gray-800 sm:flex-row sm:items-center sm:gap-4">
+                <span class="flex size-9 shrink-0 items-center justify-center rounded bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" title="PHP"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12a10 9 0 1 0 20 0a10 9 0 1 0 -20 0"/><path d="M5.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"/><path d="M15.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"/><path d="M12 7.5l-1 5.5"/><path d="M11.6 10h2.4l-.5 3"/></svg></span>
+                <div class="flex min-w-0 flex-1 flex-col gap-1">
+                    <span class="font-medium text-gray-900 dark:text-gray-50">OPcache <span class="text-gray-400">·</span> <span x-text="{{toJSON (.T.Get "precompiled PHP")}} + (s.opcache.php_version ? ' ' + s.opcache.php_version : '')"></span></span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "WordPress and plugin code stays in memory already compiled, so PHP doesn't recompile it on every visit."}}</span>
+                    <span x-show="s.opcache.error" class="text-xs text-yellow-600 dark:text-yellow-400" x-text="s.opcache.error"></span>
+                    <span x-show="loaded && s.opcache.available && !s.opcache.global_enabled" class="text-xs text-yellow-600 dark:text-yellow-400">{{.T.Get "OPcache is turned off in the PHP settings for this PHP version."}}{{if .UserAllowed.php_ini}} <a href="/php" class="underline">{{.T.Get "PHP settings"}}</a>{{end}}</span>
+                </div>
+                <div class="flex w-full flex-col gap-1 sm:w-44" x-show="s.opcache.available">
+                    <span class="text-xs text-gray-500 dark:text-gray-400" x-text="!loaded ? '...' : pct(s.opcache.hit_rate) + ' · ' + mb(s.opcache.used_memory) + ' ' + {{toJSON (.T.Get "of")}} + ' ' + mb(s.opcache.total_memory)"
+                          :title="s.opcache.cached_scripts + ' ' + {{toJSON (.T.Get "scripts cached. Numbers cover all your sites on this PHP version.")}}"></span>
+                    <span class="h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-800"><span class="block h-1.5 rounded-full bg-blue-500" :style="'width:' + ratio(s.opcache.used_memory, s.opcache.total_memory) + '%'"></span></span>
+                </div>
+                <button type="button" role="switch" :aria-checked="s.opcache.enabled.toString()" aria-label="{{.T.Get "OPcache on"}}"
+                        @click="toggleOpcache()" :disabled="!loaded || busy.opcache || !s.opcache.available || !s.opcache.global_enabled"
+                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                        :class="s.opcache.enabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'">
+                    <span class="pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform" :class="s.opcache.enabled ? 'translate-x-5' : 'translate-x-0'"></span>
+                </button>
+            </div>
+        </section>
+
+    </div>
+</div>
+<!-- END templates/manager/wp/_caching.html -->
+{{end}}

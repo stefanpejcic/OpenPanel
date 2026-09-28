@@ -30,6 +30,13 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 		handleWebsiteDispatch(a, w, r)
 	})))
 
+	mux.Handle("GET /website/cache", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleWPCacheStatus(a, w, r)
+	})))
+	mux.Handle("POST /website/cache/{action}", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleWPCacheAction(a, w, r)
+	})))
+
 	mux.Handle("GET /json/favicon/{domain...}", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleFavicon(a, w, r)
 	})))

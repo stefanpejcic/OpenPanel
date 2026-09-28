@@ -13,3 +13,14 @@ fi
 
 # weakpass check uses the Weakpass top 1M list from 2.0.13, drop the old cached English dictionary
 rm -f /tmp/weakpass_dictionary.txt
+
+# waf buffered every html response for the leak checks, adding ~230ms per page, off from 2.0.13
+CORAZA_RULES="/etc/openpanel/caddy/coraza_rules.conf"
+if [ -f "$CORAZA_RULES" ] && grep -q "^SecResponseBodyAccess On" "$CORAZA_RULES"; then
+    echo "Disabling SecResponseBodyAccess in $CORAZA_RULES..."
+    sed -i 's/^SecResponseBodyAccess On/SecResponseBodyAccess Off/' "$CORAZA_RULES"
+    if podman ps --format '{{.Names}}' | grep -qx caddy; then
+        echo "Reloading Caddy..."
+        podman exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1
+    fi
+fi
