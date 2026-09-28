@@ -20,29 +20,23 @@ Resellers are managed from **Accounts > Resellers**. Reseller logins do not see 
 
 The interface displays a table of existing reseller users with the following columns:
 
-- **Username**  
+![Resellers page listing reseller accounts with their status, security, activity, limits and actions](/img/openadmin-screenshots/accounts/resellers-list.png#gh-light-mode-only)
+![Resellers page listing reseller accounts with their status, security, activity, limits and actions](/img/openadmin-screenshots/accounts/resellers-list_dark.png#gh-dark-mode-only)
 
-![Resellers page listing reseller accounts with their status, plans, limits and actions](/img/openadmin-screenshots/accounts/resellers-list.png#gh-light-mode-only)
-![Resellers page listing reseller accounts with their status, plans, limits and actions](/img/openadmin-screenshots/accounts/resellers-list_dark.png#gh-dark-mode-only)
+- **Username**  
   The unique identifier of the reseller user.
 
 - **Status**  
   Indicates whether the reseller account is active or suspended.
 
-- **2FA**  
-  Whether the reseller has Two-Factor Authentication enabled.
+- **Security**  
+  A green **2FA** badge when the reseller has Two-Factor Authentication enabled and a green **Passkeys** badge when they have a passkey registered; the one that isn't set up is shown in grey. Empty when the reseller has neither.
 
-- **Passkeys**  
-  Whether the reseller has a passkey registered.
-
-- **Last Login IP**  
-  The IP address from which the reseller last accessed the panel.
-
-- **Last Login Time**  
-  Timestamp of the last successful login by the reseller.
+- **Activity**  
+  The last change the reseller made, linking to their [Activity Log](/docs/admin/accounts/activity), with the IP address and time of their last login below it. Hover the action to see when it happened.
 
 - **Accounts**  
-  The number of user accounts currently managed by the reseller, shown as current/maximum (for example `3/10`). The current count links to the reseller's users on the Users page, and the maximum links to the reseller's Edit Plans & Limits page.
+  The number of user accounts currently managed by the reseller, shown as current/maximum (for example `3/10`, or `3/∞` when there is no limit). The current count links to the reseller's users on the Users page, and the maximum links to the reseller's Edit Plans & Limits page.
 
 - **Storage**  
   A progress bar showing how much of the reseller's disk usage allowance is currently used.
@@ -50,16 +44,21 @@ The interface displays a table of existing reseller users with the following col
 - **Hosting Plans**  
   The number of hosting plans available to the reseller for assigning to their users.
 
+Click the arrows next to a column name to sort the table by that column.
+
 Each row also has an Edit menu with the available actions:
 
 - **Edit Plans & Limits** - set the reseller's Max Accounts, Max Disk Usage (in blocks), and the hosting plans they're allowed to assign to their users.
 - **Rename** - change the reseller's username.
 - **Change Password** - set a new password for the reseller.
+- **Activity Log** - open the reseller's [Activity Log](/docs/admin/accounts/activity).
 - **Disable 2FA** / **Disable Passkeys** - shown only when enabled for that reseller; lets the Super Admin remove it.
 - **Suspend** / **Unsuspend** - temporarily disable the reseller's access.
 - **Delete** - permanently remove the reseller account.
 
 To create a new reseller, click **Create New**, set a username and password, and click **Create**.
+
+Resellers can be turned off for the whole server with the **Disable Resellers** button next to **Create New**, and turned back on with **Enable Resellers**. While reseller accounts exist the **Disable Resellers** button is greyed out, hover it to see how many reseller accounts have to be deleted first.
 
 ---
 
@@ -88,6 +87,10 @@ When a Reseller logs in, they see a **Reseller Account** page (`/account`) inste
 
 - **Change Password** – Set a new password for their own login.
 - **Branding** – Set a custom **Logo URL** shown instead of the default OpenPanel logo on every account they own (does not apply to the login page).
+- **My Activity Log** – The button in the top right opens their own [Activity Log](/docs/admin/accounts/activity). Resellers can only see their own log, not the logs of other resellers or administrators.
+
+![Reseller Account page with the My Activity Log button, Change Password and Branding](/img/openadmin-screenshots/accounts/resellers-account.png#gh-light-mode-only)
+![Reseller Account page with the My Activity Log button, Change Password and Branding](/img/openadmin-screenshots/accounts/resellers-account_dark.png#gh-dark-mode-only)
 
 Resellers also have their own **Two-Factor Authentication** and **Passkeys** pages under Security, scoped to their own login only.
 

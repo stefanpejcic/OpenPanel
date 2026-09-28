@@ -22,6 +22,7 @@ type SectionItem struct {
 type Section struct {
 	Key   string
 	Title string
+	Icon  string // only set on modern sections, shown next to the title
 	Items []SectionItem
 }
 
@@ -52,7 +53,7 @@ func buildDashboardSections(t i18n.Translator, allowed, upsellAllowed map[string
 			}
 		}
 		if len(items) > 0 {
-			result = append(result, Section{Key: s.Key, Title: t.Get(s.Title), Items: items})
+			result = append(result, Section{Key: s.Key, Title: t.Get(s.Title), Icon: s.Icon, Items: items})
 		}
 	}
 	return result
@@ -61,7 +62,7 @@ func buildDashboardSections(t i18n.Translator, allowed, upsellAllowed map[string
 // allSections is the modern (menu_style=modern) dashboard: sections and icons follow the sidebar's areas and tab order, single-page areas (Cron Jobs, Server Info) join a neighbouring section instead of standing alone, keys stay the old ones where a section survived so saved orders and custom_dashboard_section.json's before_<key> keep working
 func allSections() []Section {
 	return []Section{
-		{Key: "domains", Title: "Domains", Items: []SectionItem{
+		{Key: "domains", Title: "Domains", Icon: "bi-globe", Items: []SectionItem{
 			{"domains", "/domains", "bi-globe", "Domains", "", false},
 			{"dns", "/domains/edit-dns-zone", "bi-file-text", "DNS Zone Editor", "", false},
 			{"dynamic_dns", "/domains/dynamic-dns", "bi-arrow-repeat", "Dynamic DNS", "", false},
@@ -69,12 +70,12 @@ func allSections() []Section {
 			{"redirects", "/domains/redirect", "bi-link-45deg", "Redirects", "", false},
 		}},
 		// mautic/flarum omitted: legacy code slated for removal entirely, not ported here (per user decision)
-		{Key: "websites", Title: "Websites", Items: []SectionItem{
+		{Key: "websites", Title: "Websites", Icon: "bi-window-stack", Items: []SectionItem{
 			{"websites", "/sites", "bi-app-indicator", "Sites", "", false},
 			{"wordpress", "/wordpress", "bi-wordpress", "WordPress", "", false},
 			{"autoinstaller", "/auto-installer", "bi-download", "Install App", "", false},
 		}},
-		{Key: "emails", Title: "Email", Items: []SectionItem{
+		{Key: "emails", Title: "Email", Icon: "bi-envelope", Items: []SectionItem{
 			{"emails", "/emails", "bi-envelope", "Email Accounts", "", false},
 			{"email_aliases", "/emails/aliases", "bi-at", "Aliases", "", false},
 			{"email_default", "/emails/default", "bi-envelope-at", "Catch-all Address", "", false},
@@ -84,7 +85,7 @@ func allSections() []Section {
 			{"email_export", "/emails/export", "bi-envelope-arrow-down", "Export", "", false},
 			{"webmail", "/webmail/", "bi-box-arrow-up-right", "Webmail", "_blank", false},
 		}},
-		{Key: "files", Title: "Files", Items: []SectionItem{
+		{Key: "files", Title: "Files", Icon: "bi-folder", Items: []SectionItem{
 			{"filemanager", "/files", "bi-folder-fill", "File Manager", "", false},
 			{"filemanager", "/file-manager/upload?method=upload", "bi-upload", "Upload", "", false},
 			{"filemanager", "/file-manager/upload?method=download", "bi-download", "Download from URL", "", false},
@@ -93,14 +94,14 @@ func allSections() []Section {
 			{"ftp", "/ftp/connections", "bi-folder-symlink", "FTP Connections", "", false},
 			{"fix_permissions", "/fix-permissions", "bi-file-binary-fill", "Fix Permissions", "", false},
 		}},
-		{Key: "backups", Title: "Backups", Items: []SectionItem{
+		{Key: "backups", Title: "Backups", Icon: "bi-cloud-check", Items: []SectionItem{
 			{"backups", "/backups", "bi-folder-check", "Backups", "", false},
 			{"backups", "/backups/list", "bi-arrow-counterclockwise", "Restore", "", false},
 			{"backups", "/backups/settings", "bi-gear", "Configuration", "", false},
 			{"backups", "/backups/destination", "bi-cloud-upload", "Destination", "", false},
 			{"backup_wizard", "/backup-wizard", "bi-cloud-arrow-down", "Backup Wizard", "", false},
 		}},
-		{Key: "mysql", Title: "MySQL", Items: []SectionItem{
+		{Key: "mysql", Title: "MySQL", Icon: "bi-database", Items: []SectionItem{
 			{"mysql", "/mysql", "bi-database", "Databases", "", false},
 			{"mysql", "/mysql/users", "bi-people", "Users", "", false},
 			{"mysql", "/mysql/wizard", "bi-database-add", "Database Wizard", "", false},
@@ -113,7 +114,7 @@ func allSections() []Section {
 			{"mysql_root_password", "/mysql/root-password", "bi-key-fill", "Root Password", "", false},
 			{"change_db", "/containers/mysql", "bi-toggle2-off", "Server Type", "", false},
 		}},
-		{Key: "postgresql", Title: "PostgreSQL", Items: []SectionItem{
+		{Key: "postgresql", Title: "PostgreSQL", Icon: "bi-database", Items: []SectionItem{
 			{"postgresql", "/postgresql", "bi-database", "Databases", "", false},
 			{"postgresql", "/postgresql/users", "bi-people", "Users", "", false},
 			{"postgresql", "/postgresql/wizard", "bi-database-add", "Database Wizard", "", false},
@@ -122,21 +123,21 @@ func allSections() []Section {
 			{"postgresql", "/postgresql/processlist", "bi-database-slash", "Running Queries", "", false},
 			{"postgresql_conf", "/postgresql/configuration", "bi-database-lock", "Configuration", "", false},
 		}},
-		{Key: "mongodb", Title: "MongoDB", Items: []SectionItem{
+		{Key: "mongodb", Title: "MongoDB", Icon: "bi-database", Items: []SectionItem{
 			{"mongodb", "/mongodb", "bi-database", "Databases", "", false},
 			{"mongodb", "/mongodb/users", "bi-people", "Users", "", false},
 			{"mongodb", "/mongodb/wizard", "bi-database-add", "Database Wizard", "", false},
 			{"mongodb_import", "/mongodb/import", "bi-database-fill-add", "Import", "", false},
 			{"mongodb", "/mongodb/processlist", "bi-database-slash", "Running Queries", "", false},
 		}},
-		{Key: "php", Title: "PHP", Items: []SectionItem{
+		{Key: "php", Title: "PHP", Icon: "bi-filetype-php", Items: []SectionItem{
 			{"php", "/php/domains", "bi-code-square", "Version per Domain", "", false},
 			{"php", "/php/default", "bi-filetype-php", "Default Version", "", false},
 			{"php_options", "/php/options", "bi-toggles", "Options", "", false},
 			{"php_extensions", "/php/extensions", "bi-puzzle", "Extensions", "", false},
 			{"php_ini", "/php/php_ini_editor", "bi-filetype-php", "php.ini Editor", "", false},
 		}},
-		{Key: "cache", Title: "Cache & Search", Items: []SectionItem{
+		{Key: "cache", Title: "Cache & Search", Icon: "bi-lightning-charge", Items: []SectionItem{
 			{"redis", "/cache/redis", "bi-database-fill-lock", "Redis", "", false},
 			{"valkey", "/cache/valkey", "bi-database-fill-lock", "Valkey", "", false},
 			{"memcached", "/cache/memcached", "bi-hdd-network-fill", "Memcached", "", false},
@@ -144,12 +145,12 @@ func allSections() []Section {
 			{"opensearch", "/cache/opensearch", "bi-search", "OpenSearch", "", false},
 			{"elasticsearch", "/cache/elasticsearch", "bi-search-heart", "Elasticsearch", "", false},
 		}},
-		{Key: "webserver", Title: "Web Server Config", Items: []SectionItem{
+		{Key: "webserver", Title: "Web Server Config", Icon: "bi-hdd-network", Items: []SectionItem{
 			{"webserver_conf", "/server/webserver_conf", "bi-hdd-network", "Server Settings", "", false},
 			{"edit_vhost", "/domains/vhosts", "bi-file-text", "Domain VHosts", "", false},
 			{"change_ws", "/containers/webserver", "bi-toggle2-on", "Web Server Type", "", false},
 		}},
-		{Key: "docker", Title: "Containers", Items: []SectionItem{
+		{Key: "docker", Title: "Containers", Icon: "bi-boxes", Items: []SectionItem{
 			{"docker", "/containers", "bi-boxes", "Containers", "", false},
 			{"terminal", "/containers/terminal", "bi-terminal", "Terminal", "", false},
 			{"docker", "/containers/logs", "bi-file-binary", "Logs", "", false},
@@ -157,7 +158,7 @@ func allSections() []Section {
 			{"crons", "/cronjobs", "bi-calendar2-week", "Cron Jobs", "", false},
 			{"timezone", "/server/timezone", "bi-clock", "Change TimeZone", "", false},
 		}},
-		{Key: "account", Title: "Account", Items: []SectionItem{
+		{Key: "account", Title: "Account", Icon: "bi-person-circle", Items: []SectionItem{
 			{"account", "/account", "bi-person-gear", "Login Details", "", false},
 			{"locale", "/account/language", "bi-translate", "Language", "", false},
 			{"notifications", "/account/notifications", "bi-bell", "Notifications", "", false},
@@ -166,7 +167,7 @@ func allSections() []Section {
 			{"mcp", "/account/mcp", "bi-robot", "AI Assistant (MCP)", "", false},
 			{"logout", "/logout", "bi-door-open", "Log out", "", false},
 		}},
-		{Key: "advanced", Title: "Statistics", Items: []SectionItem{
+		{Key: "advanced", Title: "Statistics", Icon: "bi-bar-chart", Items: []SectionItem{
 			{"usage", "/server/usage", "bi-speedometer2", "Resource Usage", "", false},
 			{"usage", "/server/usage/history", "bi-speedometer2", "Resource Usage History", "", false},
 			{"disk_usage", "/disk-usage/", "bi-folder-plus", "Disk Usage", "", false},
@@ -175,11 +176,11 @@ func allSections() []Section {
 			{"domain_logs", "/domains/log", "bi-file-text", "Access Logs", "", false},
 			{"info", "/server/info", "bi-info-square", "Server Info", "", false},
 		}},
-		{Key: "processes", Title: "Processes & Services", Items: []SectionItem{
+		{Key: "processes", Title: "Processes & Services", Icon: "bi-cpu", Items: []SectionItem{
 			{"services", "/services", "bi-hdd-stack", "Services", "", false},
 			{"process_manager", "/process-manager", "bi-cpu", "Processes", "", false},
 		}},
-		{Key: "security", Title: "Security", Items: []SectionItem{
+		{Key: "security", Title: "Security", Icon: "bi-shield-lock", Items: []SectionItem{
 			{"waf", "/server/waf", "bi-shield-lock", "Web Firewall", "", false},
 			{"waf", "/server/waf/log", "bi-shield-exclamation", "Web Firewall Logs", "", false},
 			{"ip_blocker", "/security/ip-blocker", "bi-ban", "IP Blocker", "", false},

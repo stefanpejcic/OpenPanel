@@ -26,12 +26,20 @@ The admin panel has three user roles:
   
   Manage administrative users with access to the OpenAdmin interface via **Accounts > Administrators**.
   
-  For each admin user, the table shows: Username, Status, Role, 2FA (whether two-factor authentication is enabled), Passkeys (whether a passkey is registered), Last Login IP, Last Login Time, and an Edit menu with the available actions for that user.
+  For each admin user, the table shows:
+
+  - **Username** and **Status** (active or suspended).
+  - **Role** - Super Admin or Admin.
+  - **Security** - a green **2FA** badge when two-factor authentication is enabled and a green **Passkeys** badge when a passkey is registered, the one that isn't set up is grey. Empty when the admin has neither.
+  - **Activity** - the last change the admin made, linking to their [Activity Log](/docs/admin/accounts/activity), with the IP address and time of their last login below it.
+  - **Edit** - a menu with the available actions for that user.
+
+  Click the arrows next to a column name to sort the table by that column.
 
   Reseller users are not listed on this page - they are managed separately under **Accounts > Resellers**.
 
-![Administrators page listing OpenAdmin users with their status, role, 2FA, passkeys and last login](/img/openadmin-screenshots/accounts/administrators-list.png#gh-light-mode-only)
-![Administrators page listing OpenAdmin users with their status, role, 2FA, passkeys and last login](/img/openadmin-screenshots/accounts/administrators-list_dark.png#gh-dark-mode-only)
+![Administrators page listing OpenAdmin users with their status, role, security and activity](/img/openadmin-screenshots/accounts/administrators-list.png#gh-light-mode-only)
+![Administrators page listing OpenAdmin users with their status, role, security and activity](/img/openadmin-screenshots/accounts/administrators-list_dark.png#gh-dark-mode-only)
 
   </TabItem>
 
@@ -63,6 +71,13 @@ Super Admins and your own account have no checkbox, they can't be suspended or d
 
 Click an action, confirm it, and it runs on the selected administrators one after another. When it's done the page reloads with a notice listing the administrators it worked for, or which ones failed and why.
 
+## Activity Log
+
+Every change an administrator makes in OpenAdmin is recorded in their own activity log. Open it from the **Activity** column or from **Activity Log** in the Edit menu, see [Activity Log](/docs/admin/accounts/activity) for what is recorded.
+
+![Activity Log page of an administrator with the date, IP address and action of each change](/img/openadmin-screenshots/accounts/administrators-activity.png#gh-light-mode-only)
+![Activity Log page of an administrator with the date, IP address and action of each change](/img/openadmin-screenshots/accounts/administrators-activity_dark.png#gh-dark-mode-only)
+
 ## Reset Admin Password
 
 
@@ -71,8 +86,8 @@ Click an action, confirm it, and it runs on the selected administrators one afte
 
 To reset an admin's password, open the Edit menu for that user on the **Accounts > Administrators** page, select **Change Password**, then set the new password and click **Change Password**.
 
-![Edit menu of an administrator with the Rename and Change Password options](/img/openadmin-screenshots/accounts/administrators-menu.png#gh-light-mode-only)
-![Edit menu of an administrator with the Rename and Change Password options](/img/openadmin-screenshots/accounts/administrators-menu_dark.png#gh-dark-mode-only)
+![Edit menu of an administrator with the Rename, Change Password, Activity Log, Suspend and Delete options](/img/openadmin-screenshots/accounts/administrators-menu.png#gh-light-mode-only)
+![Edit menu of an administrator with the Rename, Change Password, Activity Log, Suspend and Delete options](/img/openadmin-screenshots/accounts/administrators-menu_dark.png#gh-dark-mode-only)
 
 ![Change Password form for an administrator](/img/openadmin-screenshots/accounts/administrators-password.png#gh-light-mode-only)
 ![Change Password form for an administrator](/img/openadmin-screenshots/accounts/administrators-password_dark.png#gh-dark-mode-only)

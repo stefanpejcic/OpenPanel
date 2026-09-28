@@ -69,25 +69,89 @@
 {{end}}
 {{end}}
 
+{{define "modern_section"}}
+{{if .Section.Items}}
+        <div
+          data-section-id="{{.Section.Key}}"
+          x-data='{
+            open: (function() {
+              const s = localStorage.getItem("section_state_" + {{toJSON .Section.Key}});
+              return s === null ? true : s === "true";
+            })(),
+            toggleOpen() {
+              this.open = !this.open;
+              localStorage.setItem("section_state_" + {{toJSON .Section.Key}}, this.open);
+            }
+          }'
+          class="overflow-hidden rounded-lg bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800"
+        >
+          <div class="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-200 dark:border-gray-800 cursor-move active:cursor-grabbing" id="section-title-{{.Section.Key}}">
+            <h2 class="flex items-center gap-3 text-base font-semibold text-gray-900 dark:text-gray-50">
+              {{if .Section.Icon}}<span class="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300" aria-hidden="true"><i class="bi {{.Section.Icon}}"></i></span>{{end}}
+              {{.Section.Title}}
+            </h2>
+
+            <button type="button" @click="toggleOpen" class="flex items-center rounded-lg px-1.5 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50" :aria-expanded="open" :aria-controls="'section-icons-{{.Section.Key}}'">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="open" x-cloak><path fill-rule="evenodd" d="M5.23 12.21a.75.75 0 0 0 1.06.02L10 8.94l3.71 3.29a.75.75 0 1 0 1-1.12l-4.25-3.75a.75.75 0 0 0-1 0L5.21 11.1a.75.75 0 0 0 .02 1.06z" clip-rule="evenodd"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="!open" x-cloak><path fill-rule="evenodd" d="M14.77 7.79a.75.75 0 0 0-1.06-.02L10 11.06 6.29 7.77a.75.75 0 1 0-1 1.12l4.25 3.75a.75.75 0 0 0 1 0l4.25-3.75a.75.75 0 0 0-.02-1.06z" clip-rule="evenodd"/></svg>
+              <span x-text="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" class="sr-only"></span>
+            </button>
+          </div>
+
+          <div id="section-icons-{{.Section.Key}}" class="grid grid-cols-2 gap-1 p-2" x-show="open" x-collapse>
+            {{$upsellPlanName := .UpsellPlanName}}
+            {{$upsellURL := .UpsellURL}}
+            {{range .Section.Items}}
+              {{if .Disabled}}
+                <a title="{{if $upsellPlanName}}{{$.T.Get "Upgrade to"}} {{$upsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
+                   {{if $upsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}
+                   class="flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 opacity-50 grayscale cursor-not-allowed">
+                  <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200" aria-hidden="true"><i class="bi {{.Icon}}"></i></span>
+                  <span class="leading-tight">{{.Label}}</span>
+                </a>
+              {{else}}
+                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" class="flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-50">
+                  <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200" aria-hidden="true"><i class="bi {{.Icon}}"></i></span>
+                  <span class="leading-tight">{{.Label}}</span>
+                </a>
+              {{end}}
+            {{end}}
+          </div>
+        </div>
+{{end}}
+{{end}}
+
 {{define "content"}}
 <!-- START templates/dashboard/dashboard.html -->
 
 <script src="{{static "vendor/sortablejs/Sortable.min.js"}}"></script>
 <style>.cursor-move { cursor: move; } .cursor-grabbing:active { cursor: grab; } .\-left-4 { left:0!important;}</style>
+{{if eq .MenuStyle "modern"}}
+<!-- utilities missing from dist/output.css -->
+<style>
+.px-1\.5 { padding-left: .375rem; padding-right: .375rem; } .py-1\.5 { padding-top: .375rem; padding-bottom: .375rem; }
+@media (min-width: 80rem) { .xl\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+{{end}}
 
 <div class="p-6 grid sm:flex grid-cols-1 gap-4 sm:grid-cols-2 md:gap-4 xl:grid-cols-4 bg-gray-50 dark:bg-gray-950">
   <div class="flex flex-col space-y-4 xl:col-span-3 w-full">
 
     {{template "custommessage" .}}
 
-    <div id="dashboard-sortable-area" class="flex flex-col space-y-4">
-      {{$root := .}}
+    {{$root := .}}
+    {{$modern := eq .MenuStyle "modern"}}
+    <div id="dashboard-sortable-area" class="{{if $modern}}grid grid-cols-1 xl:grid-cols-2 gap-4 items-start{{else}}flex flex-col space-y-4{{end}}">
       {{range .Sections}}
         <div id="wrapper-{{.Key}}" data-id="{{.Key}}">
           {{if eq $root.CustomSectionPosition (printf "before_%s" .Key)}}
             {{template "customsection" $root}}
           {{end}}
+          {{if $modern}}
+          {{template "modern_section" (dict "Section" . "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
+          {{else}}
           {{template "icon_section" (dict "Section" . "UserAllowedJSON" $root.UserAllowedJSON "IconView" $root.DashboardIconView "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
+          {{end}}
         </div>
       {{end}}
     </div>
@@ -114,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ghostClass: 'opacity-50',
         filter: 'button',
         preventOnFilter: false,
-        direction: 'vertical',
+        {{if ne .MenuStyle "modern"}}direction: 'vertical',{{end}}
         fallbackOnBody: true,
         swapThreshold: 0.65,
 
