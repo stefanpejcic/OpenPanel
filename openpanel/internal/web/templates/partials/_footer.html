@@ -38,6 +38,16 @@
 
                 {{if eq .RequestPath "/dashboard"}}
                 <div role="group">
+                    <span role="menuitem" id="tour-dashboard-layout" class="flex justify-between group/DropdownMenuItem relative select-none items-center rounded py-1.5 pl-2 pr-1 outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50">
+                        <span>{{.T.Get "Layout"}}:</span>
+                        <span class="flex gap-2 items-center">
+                            <button type="button" @click="setDashboardLocked(!$store.dashboardLocked.value)" :title="$store.dashboardLocked.value ? '{{.T.Get "Unlock layout"}}' : '{{.T.Get "Lock layout"}}'" :class="$store.dashboardLocked.value ? 'bg-slate-700 text-white' : 'bg-slate-200 text-slate-800 dark:bg-gray-800 dark:text-gray-400'" class="px-1.5 p-1 rounded-lg cursor-pointer"><i class="bi" :class="$store.dashboardLocked.value ? 'bi-lock-fill' : 'bi-unlock'"></i></button>
+                            <button type="button" @click="resetDashboardLayout()" title="{{.T.Get "Reset layout"}}" class="px-1.5 p-1 rounded-lg cursor-pointer bg-slate-200 text-slate-800 dark:bg-gray-800 dark:text-gray-400"><i class="bi bi-arrow-counterclockwise"></i></button>
+                        </span>
+                    </span>
+                </div>
+                <div role="separator" aria-orientation="horizontal" class="-mx-1 my-1 h-px border-t border-gray-200 dark:border-gray-800"></div>
+                <div role="group">
                     <span role="menuitem" id="tour-icons-position" class="flex justify-between group/DropdownMenuItem relative select-none items-center rounded py-1.5 pl-2 pr-1 outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50">
                         <span>{{.T.Get "Icons position"}}:</span>
                         <span class="flex gap-2 items-center">

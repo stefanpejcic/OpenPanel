@@ -1283,11 +1283,23 @@ export const pages = {
     url: '/dashboard',
     prepare: hideOnboarding,
     shots: [
-      { name: 'window', alt: 'OpenPanel dashboard with the sidebar, feature shortcuts grouped by section, and the 2FA, Information and Usage widgets', viewportHeight: 820 },
+      // wide enough for the modern dashboard's two section columns
+      { name: 'window', alt: 'OpenPanel dashboard with the sidebar, feature shortcuts in two columns of sections, and the 2FA, Information and Usage widgets', viewportWidth: 1440, viewportHeight: 820 },
       { name: 'twofa', alt: 'Two-Factor Authentication widget showing 2FA as disabled with the Click to Enable button', prepare: all(hideOnboarding, markCard('Two-Factor Authentication')), crop: { from: '[data-shot=card]', pad: 12 } },
       { name: 'information', alt: 'Information widget with the username, plan, IP address and last login IP address', prepare: all(hideOnboarding, markCard('Information')), crop: { from: '[data-shot=card]', pad: 12 } },
       { name: 'usage', alt: 'Usage widget with bars for websites, domains, databases, email and FTP accounts, storage, inodes, CPU and memory', prepare: all(hideOnboarding, markCard('Usage')), crop: { from: '[data-shot=card]', pad: 12 } },
       { name: 'howto', alt: 'General How-to widget with links to knowledge base articles', prepare: all(hideOnboarding, markCard('General How-to')), crop: { from: '[data-shot=card]', pad: 12 } },
+      {
+        name: 'layout',
+        alt: 'User menu with the Layout row, showing the lock and reset buttons',
+        prepare: async page => {
+          await hideOnboarding(page);
+          await page.locator('button[aria-label="User settings"]').click();
+          await page.waitForTimeout(400);
+        },
+        viewportHeight: 820,
+        crop: { from: '#popup-menu > div', clamp: false, pad: 8 },
+      },
       {
         name: 'favorites',
         alt: 'Star icon in the top-right corner of the page header, used to add the current page to favorites',

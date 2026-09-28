@@ -13,8 +13,27 @@ The OpenPanel dashboard interface is divided in two sections:
 
 When your hosting provider offers an upgrade plan, the dashboard also has an [**Upgrade now**](/docs/panel/dashboard/upgrade/) tab that compares your plan with the upgrade plan.
 
-![OpenPanel dashboard with the sidebar, feature shortcuts grouped by section, and the 2FA, Information and Usage widgets](/img/openpanel-screenshots/dashboard/dashboard-window.png#gh-light-mode-only)
-![OpenPanel dashboard with the sidebar, feature shortcuts grouped by section, and the 2FA, Information and Usage widgets](/img/openpanel-screenshots/dashboard/dashboard-window_dark.png#gh-dark-mode-only)
+![OpenPanel dashboard with the sidebar, feature shortcuts in two columns of sections, and the 2FA, Information and Usage widgets](/img/openpanel-screenshots/dashboard/dashboard-window.png#gh-light-mode-only)
+![OpenPanel dashboard with the sidebar, feature shortcuts in two columns of sections, and the 2FA, Information and Usage widgets](/img/openpanel-screenshots/dashboard/dashboard-window_dark.png#gh-dark-mode-only)
+
+With the [Modern menu style](/docs/panel/dashboard/menu-style/), each section has an icon next to its title, and on wide screens the sections are shown in two columns.
+
+## Customize the layout
+
+You can rearrange the feature sections to suit how you work:
+
+- **Reorder**: drag a section by its title to move it.
+- **Collapse**: click the arrow on the right of a section's title to hide or show its icons.
+
+To lock or reset the layout, click your profile at the bottom of the sidebar and use the buttons next to **Layout**:
+
+- **Lock** (padlock icon): stops sections from being dragged, so you can't move them by accident, for example while scrolling on a phone. Click it again to unlock.
+- **Reset** (circular arrow icon): puts every section back in its original order and expands any collapsed sections, then reloads the page.
+
+![User menu with the Layout row, showing the lock and reset buttons](/img/openpanel-screenshots/dashboard/dashboard-layout.png#gh-light-mode-only)
+![User menu with the Layout row, showing the lock and reset buttons](/img/openpanel-screenshots/dashboard/dashboard-layout_dark.png#gh-dark-mode-only)
+
+The section order, collapsed sections and lock are saved in your browser, so they apply only on that browser and are cleared if you clear its site data.
 
 ## Two-Factor Authentication
 

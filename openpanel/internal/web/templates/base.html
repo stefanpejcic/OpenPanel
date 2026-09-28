@@ -113,6 +113,27 @@
         }
     </script>
     <script>
+        // dashboard lock/reset live in localStorage, same as the saved section order
+        document.addEventListener('alpine:init', () => {
+            let locked = false;
+            try { locked = localStorage.getItem('dashboard_locked') === 'true'; } catch (e) {}
+            Alpine.store('dashboardLocked', { value: locked });
+        });
+        function setDashboardLocked(v) {
+            Alpine.store('dashboardLocked').value = v;
+            try { localStorage.setItem('dashboard_locked', v); } catch (e) {}
+            window.dispatchEvent(new CustomEvent('dashboard-lock', { detail: v }));
+        }
+        function resetDashboardLayout() {
+            try {
+                Object.keys(localStorage)
+                    .filter(k => k === 'dashboard_section_order' || k.startsWith('section_state_'))
+                    .forEach(k => localStorage.removeItem(k));
+            } catch (e) {}
+            window.location.reload();
+        }
+    </script>
+    <script>
         // Global store for the filemanager's button style ("classic" vs
         // "modern") - initialized from the server-resolved value (see
         // web.ReadFilemanagerView) so the account menu's style toggle (only

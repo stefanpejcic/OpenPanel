@@ -83,7 +83,7 @@
               localStorage.setItem("section_state_" + {{toJSON .Section.Key}}, this.open);
             }
           }'
-          class="overflow-hidden rounded-lg bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800"
+          class="overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800"
         >
           <div class="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-200 dark:border-gray-800 cursor-move active:cursor-grabbing" id="section-title-{{.Section.Key}}">
             <h2 class="flex items-center gap-3 text-base font-semibold text-gray-900 dark:text-gray-50">
@@ -125,7 +125,7 @@
 <!-- START templates/dashboard/dashboard.html -->
 
 <script src="{{static "vendor/sortablejs/Sortable.min.js"}}"></script>
-<style>.cursor-move { cursor: move; } .cursor-grabbing:active { cursor: grab; } .\-left-4 { left:0!important;}</style>
+<style>.cursor-move { cursor: move; } .cursor-grabbing:active { cursor: grab; } .\-left-4 { left:0!important;} .dashboard-locked .cursor-move { cursor: default; }</style>
 {{if eq .MenuStyle "modern"}}
 <!-- utilities missing from dist/output.css -->
 <style>
@@ -172,7 +172,12 @@
 document.addEventListener('DOMContentLoaded', function() {
     const sortableContainer = document.getElementById('dashboard-sortable-area');
 
+    let locked = false;
+    try { locked = localStorage.getItem('dashboard_locked') === 'true'; } catch (e) {}
+    sortableContainer.classList.toggle('dashboard-locked', locked);
+
     const sortable = Sortable.create(sortableContainer, {
+        disabled: locked,
         animation: 150,
         handle: '[id^="section-title-"]',
         ghostClass: 'opacity-50',
@@ -186,6 +191,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const order = sortable.toArray();
             localStorage.setItem('dashboard_section_order', JSON.stringify(order));
         }
+    });
+
+    window.addEventListener('dashboard-lock', function(e) {
+        sortable.option('disabled', e.detail);
+        sortableContainer.classList.toggle('dashboard-locked', e.detail);
     });
 
     const savedOrder = JSON.parse(localStorage.getItem('dashboard_section_order'));

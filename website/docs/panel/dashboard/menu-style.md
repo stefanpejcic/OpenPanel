@@ -19,7 +19,7 @@ In the Modern menu:
 - The breadcrumbs at the top of the page follow the same structure, for example **Databases > MySQL > Users**.
 - Pages that manage a single service, like MySQL, Redis or the web server, have **Terminal** and **Logs** tabs that open that service's terminal and logs without leaving the page's area.
 - Tabs that open in a new browser tab, like **phpMyAdmin** and **Webmail**, are marked with an arrow icon.
-- The dashboard sections are listed in the same order as the sidebar.
+- The dashboard sections are listed in the same order as the sidebar, each with its own icon, and on wide screens they're shown in two columns.
 
 ## Change the menu style
 
