@@ -3,20 +3,36 @@
 {{define "content"}}
 <!-- START templates/manager/autoinstaller.html -->
 
-<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+<section aria-label="Install App" x-data="{ searchQuery: '', match(el) { const q = this.searchQuery.trim().toLowerCase(); if (!q) return true; return [...el.querySelectorAll('dt, dd')].some(n => n.textContent.toLowerCase().includes(q)); }, sectionMatch(el) { return [...el.querySelectorAll('[data-app]')].some(c => this.match(c)); } }">
+<div class="flex flex-col border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
     <header>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Install App"}}</h1>
         <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Quickly install a variety of applications such as"}}
 {{if .UserAllowed.wordpress}}WordPress, {{end}}{{if .UserAllowed.drupal}}Drupal, {{end}}{{if .UserAllowed.joomla}}Joomla, {{end}}{{if .UserAllowed.python}}Python, {{end}}{{if .UserAllowed.nodejs}}Node.js, {{end}}{{.T.Get "and others."}}</p>
     </header>
+    <div class="mt-2 sm:mt-0 sm:ml-4">
+        <div class="relative w-full sm:w-64">
+            <input
+                id="apps-search-input"
+                x-model="searchQuery"
+                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
+                placeholder="{{.T.Get "Search"}}"
+                type="search"
+            />
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path></svg>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="m-6">
-    <div class="mb-6">
+    <p x-show="!sectionMatch($root)" x-cloak class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "No apps match your search."}}</p>
+    <div class="mb-6" x-show="sectionMatch($el)">
         <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">{{.T.Get "CMS"}}</h2>
         <dl class="grid gap-4 md:gap-4 lg:grid-cols-3">
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.wordpress}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.wordpress}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.wordpress}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "wordpress"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -48,7 +64,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.joomla}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.joomla}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.joomla}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "joomla"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -80,7 +96,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.drupal}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.drupal}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.drupal}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "drupal"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -112,7 +128,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.website_builder}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.website_builder}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.website_builder}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "website_builder"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -147,12 +163,12 @@
         </div>
         </dl>
     </div>
-    <div class="mb-6 mt-8">
+    <div class="mb-6 mt-8" x-show="sectionMatch($el)">
         <div class="mb-4 w-full border-b border-gray-200 dark:border-gray-800"></div>
         <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">{{.T.Get "E-commerce"}}</h2>
         <dl class="grid gap-4 md:gap-4 lg:grid-cols-3">
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.prestashop}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.prestashop}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.prestashop}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "prestashop"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -184,7 +200,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.opencart}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.opencart}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.opencart}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "opencart"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -217,12 +233,12 @@
         </div>
         </dl>
     </div>
-    <div class="mb-6 mt-8">
+    <div class="mb-6 mt-8" x-show="sectionMatch($el)">
         <div class="mb-4 w-full border-b border-gray-200 dark:border-gray-800"></div>
         <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">{{.T.Get "Forums"}}</h2>
         <dl class="grid gap-4 md:gap-4 lg:grid-cols-3">
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.phpbb}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.phpbb}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.phpbb}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "phpbb"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -254,7 +270,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.flarum}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.flarum}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.flarum}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "flarum"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -302,12 +318,12 @@
         </div>
         </dl>
     </div>
-    <div class="mb-6 mt-8">
+    <div class="mb-6 mt-8" x-show="sectionMatch($el)">
         <div class="mb-4 w-full border-b border-gray-200 dark:border-gray-800"></div>
         <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">{{.T.Get "Wikis"}}</h2>
         <dl class="grid gap-4 md:gap-4 lg:grid-cols-3">
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.mediawiki}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.mediawiki}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.mediawiki}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "mediawiki"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -339,7 +355,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.dokuwiki}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.dokuwiki}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.dokuwiki}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "dokuwiki"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -371,7 +387,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.sofawiki}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.sofawiki}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.sofawiki}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "sofawiki"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -404,12 +420,12 @@
         </div>
         </dl>
     </div>
-    <div class="mb-6 mt-8">
+    <div class="mb-6 mt-8" x-show="sectionMatch($el)">
         <div class="mb-4 w-full border-b border-gray-200 dark:border-gray-800"></div>
         <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">{{.T.Get "Marketing & Analytics"}}</h2>
         <dl class="grid gap-4 md:gap-4 lg:grid-cols-3">
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.matomo}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.matomo}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.matomo}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "matomo"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -442,12 +458,12 @@
         </div>
         </dl>
     </div>
-    <div class="mb-6 mt-8">
+    <div class="mb-6 mt-8" x-show="sectionMatch($el)">
         <div class="mb-4 w-full border-b border-gray-200 dark:border-gray-800"></div>
         <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">{{.T.Get "File Management"}}</h2>
         <dl class="grid gap-4 md:gap-4 lg:grid-cols-3">
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.nextcloud}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.nextcloud}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.nextcloud}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "nextcloud"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -479,7 +495,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.tinyphotogallery}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.tinyphotogallery}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.tinyphotogallery}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "tinyphotogallery"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -511,7 +527,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.tinyfilemanager}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.tinyfilemanager}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.tinyfilemanager}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "tinyfilemanager"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -544,12 +560,12 @@
         </div>
         </dl>
     </div>
-    <div class="mb-6 mt-8">
+    <div class="mb-6 mt-8" x-show="sectionMatch($el)">
         <div class="mb-4 w-full border-b border-gray-200 dark:border-gray-800"></div>
         <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">{{.T.Get "Education"}}</h2>
         <dl class="grid gap-4 md:gap-4 lg:grid-cols-3">
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.moodle}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.moodle}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.moodle}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "moodle"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -581,7 +597,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.ojs}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.ojs}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.ojs}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "ojs"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -614,12 +630,12 @@
         </div>
         </dl>
     </div>
-    <div class="mb-6 mt-8">
+    <div class="mb-6 mt-8" x-show="sectionMatch($el)">
         <div class="mb-4 w-full border-b border-gray-200 dark:border-gray-800"></div>
         <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">{{.T.Get "Developer Runtimes"}}</h2>
         <dl class="grid gap-4 md:gap-4 lg:grid-cols-3">
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.nodejs}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.nodejs}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.nodejs}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "nodejs"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -651,7 +667,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.python}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.python}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.python}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "python"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -683,7 +699,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.ruby}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.ruby}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.ruby}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "ruby"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -715,7 +731,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.java}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.java}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.java}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "java"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -747,7 +763,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.n8n}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.n8n}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.n8n}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "n8n"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -779,7 +795,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.php}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.php}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.php}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "php"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -811,7 +827,7 @@
             </div>
         </div>
 
-        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.docker}} opacity-50 grayscale{{end}}">
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0{{if not .UserAllowed.docker}} opacity-50 grayscale{{end}}" data-app x-show="match($el)">
         {{if not .UserAllowed.docker}}
         <div class="pointer-events-auto absolute inset-0 z-10 flex items-center justify-center bg-black/70 p-4 text-center text-xs font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             {{if index .UpsellAllowed "docker"}}{{.T.Get "This app is not included in your plan."}}&nbsp;<a href="{{.UpsellURL}}" class="pointer-events-auto underline">{{.T.Get "Upgrade to"}} {{.UpsellPlanName}}</a>{{else}}{{.T.Get "This app is disabled on your plan. Contact your administrator to enable it."}}{{end}}
@@ -845,6 +861,7 @@
         </dl>
     </div>
 </div>
+</section>
 
 <!-- END templates/manager/autoinstaller.html -->
 {{end}}
