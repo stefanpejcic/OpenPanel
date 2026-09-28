@@ -220,6 +220,124 @@ Domain unsuspended successfully.
 ```
 </details>
 
+## Test
+
+Test why a website is slow: times the home page through every layer, checks resource limits and settings, and shows the biggest issue with a fix. Run it as root on the server.
+
+```bash
+opencli domains-test <DOMAIN_NAME>[/SUBFOLDER] [RUNS]
+```
+
+It measures:
+
+- **Public DNS**: the domain's A record from public DNS, and the page over that IP, as visitors get it.
+- **Caddy + WAF**, **Varnish**, **webserver**, **php-fpm**: the page from each layer on the server itself, skipping the ones in front of it.
+- **PHP, no cache at all**: the page rendered in a separate PHP process with OPcache and Redis off, without affecting visitors.
+- **Test files**: a temporary `.txt` (no PHP) and `.php` (no database) file in the docroot, removed when the test ends.
+- **Database** (WordPress sites): connection time, a simple query, autoloaded options size, active plugins and transients.
+- **Containers**: CPU throttling during the test, memory usage and out-of-memory kills against each container's limits, and PHP-FPM `pm.max_children` warnings.
+- **Server and settings**: load, memory and disk, Varnish, OPcache, Redis object cache, `WP_DEBUG`/`SAVEQUERIES` and WAF response body inspection.
+
+`RUNS` is the number of measured requests per test, default 5, after one warm-up request. Local tests exclude connection and TLS setup so the layers compare fairly.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-test example.com
+Site         example.com  (user stefan, apache, php-fpm-8.3, mariadb)
+Docroot      /var/www/html/example.com
+Varnish      container: running, domain: on
+WAF          yes, response body inspection: on
+Runs         1 warm-up + 5 measured per test, median time to first byte (local tests without connect/TLS setup)
+
+Home page (/) through each layer
+  Public DNS -> 203.0.113.10 (https)       236.4 ms   HTTP 200   what visitors get, incl. TLS handshake
+  Caddy + WAF (127.0.0.1, https)           224.1 ms   HTTP 200   skips DNS and network
+  Varnish (127.0.0.1:32785)                  2.2 ms   HTTP 200   page cache, skips caddy/WAF
+  apache (127.0.0.1:32786)                 102.2 ms   HTTP 200   skips caddy/WAF and varnish
+  php-fpm (php-fpm-8.3:9000)                92.4 ms   HTTP 200   FastCGI directly, skips the webserver
+  PHP, no cache at all                     429.2 ms   HTTP 200   separate process, OPcache off, Redis off
+
+Test files (removed afterwards)
+  .txt through Caddy + WAF                   3.2 ms   HTTP 200   no PHP at all
+  .txt from apache                           0.5 ms   HTTP 200   no PHP, no caddy
+  .php (no database) through Caddy           3.4 ms   HTTP 200   PHP without connecting to the database
+  .php (no database) from apache             1.9 ms   HTTP 200   PHP without database, no caddy
+
+Database
+  connect to mariadb                         1.2 ms
+  SELECT 1                                  0.14 ms
+  autoloaded options                        0.43 ms   41 KB in 119 rows
+  active plugins                                  1
+  transients in wp_options                        3
+
+Containers
+  container        cpu      throttled  memory                 notes
+  apache           0.5      0 ms       17/512 MB (3%)
+  php-fpm-8.3      1.0      0 ms       178/1024 MB (17%)
+  mariadb          1.0      0 ms       186/1024 MB (18%)
+  varnish          0.25     0 ms       136/512 MB (26%)
+  redis            0.1      0 ms       32/102 MB (31%)
+
+Server
+  load (1 min) / CPU cores             0.41 / 4
+  memory available                     7334 of 8937 MB
+  disk used (/)                        27%
+
+Settings
+  page cache (Varnish)                 yes
+  OPcache (PHP 8.3 / this site)        on / on
+  Redis object cache                   yes
+
+======================================================================
+Diagnosis for example.com
+======================================================================
+
+Biggest issue: Caddy + WAF add 222 ms to every page. The WAF buffers and inspects every HTML response (SecResponseBodyAccess On in /etc/openpanel/caddy/coraza_rules.conf), which is the usual cause.
+  Impact: about 222 ms per request
+  Fix: Turn off response body inspection for all domains, request protection stays on:
+       sed -i 's/^SecResponseBodyAccess On/SecResponseBodyAccess Off/' /etc/openpanel/caddy/coraza_rules.conf && podman restart caddy
+       (a caddy reload is not enough, the WAF only rereads that file on restart)
+```
+</details>
+
+Test a site installed in a subfolder:
+
+```bash
+opencli domains-test example.com/blog
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-test example.com/blog
+Site         example.com/blog  (user stefan, apache, php-fpm-8.3, mariadb)
+Docroot      /var/www/html/example.com/blog
+...
+======================================================================
+Diagnosis for example.com/blog
+======================================================================
+No problems found. Visitors get the page in 5.9 ms.
+```
+</details>
+
+Domain that is not on the server:
+
+```bash
+opencli domains-test example.org
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-test example.org
+Domain example.org is not hosted on this server.
+```
+</details>
+
 ## Delete
 
 Delete a domain name:

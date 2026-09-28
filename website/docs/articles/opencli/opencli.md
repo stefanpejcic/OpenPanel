@@ -130,6 +130,10 @@ opencli domains-suspend
 Description: Suspend a domain name
 Usage: opencli domains-suspend <DOMAIN-NAME> [--comment="<COMMENT>"]
 ------------------------
+opencli domains-test
+Description: Test a website speed through every layer (DNS, Caddy/WAF, Varnish, webserver, PHP, database), check limits and settings, and show the biggest issue with a fix.
+Usage: opencli domains-test <DOMAIN_NAME>[/SUBFOLDER] [RUNS]
+------------------------
 opencli domains-unsuspend
 Description: Unsuspend a domain name
 Usage: opencli domains-unsuspend <DOMAIN-NAME>
