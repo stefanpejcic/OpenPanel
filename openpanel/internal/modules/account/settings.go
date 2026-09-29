@@ -95,7 +95,9 @@ func notifySentinelPasswordChange(username string) {
 	cmd := exec.Command("opencli", "sentinel", "--action=user_password",
 		"--title", "User account password change",
 		"--message", "Password for user account '"+username+"' has been changed.")
-	_ = cmd.Start()
+	if err := cmd.Start(); err == nil {
+		go func() { _ = cmd.Wait() }() // reap, avoid a zombie process
+	}
 }
 
 // handleAccountSettings implements email/password/username self-service, mounted at both /settings and /account

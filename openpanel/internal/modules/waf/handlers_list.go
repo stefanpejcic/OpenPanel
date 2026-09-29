@@ -38,12 +38,14 @@ func wafStatusForDomain(domainName string) string {
 	}
 }
 
-// notifySentinel fires off `opencli sentinel` without waiting for it to exit, so cmd.Start() is used deliberately instead of cmd.Run() - the caller shouldn't block on this notification
+// notifySentinel fires off `opencli sentinel` without blocking the caller, Wait runs in a goroutine so the finished child doesn't stay a zombie
 func notifySentinel(domainName, statusText string) {
 	cmd := exec.Command("opencli", "sentinel", "--action=waf_domain",
 		"--title", "WAF "+statusText+" for domain",
 		"--message", "CorazaWAF has been "+statusText+" for domain '"+domainName+"'.")
-	_ = cmd.Start()
+	if err := cmd.Start(); err == nil {
+		go func() { _ = cmd.Wait() }()
+	}
 }
 
 // handleWAFList handles the per-domain enable/disable toggle (POST) and the domain list/single domain status lookup (GET) - a POST here does not redirect, it flashes and falls straight through to the GET rendering below in the same response
