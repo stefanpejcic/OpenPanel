@@ -17,13 +17,22 @@ OpenPanel has a single user role named **User** that can only manage their docke
   
   The Users page displays a table with user information and buttons to manage it.
   
-  ![Users page listing OpenPanel accounts with their status, plan, limits, usage and the Impersonate button](/img/openadmin-screenshots/accounts/users-list.png#gh-light-mode-only)
-  ![Users page listing OpenPanel accounts with their status, plan, limits, usage and the Impersonate button](/img/openadmin-screenshots/accounts/users-list_dark.png#gh-dark-mode-only)
-  
+  ![Users page listing OpenPanel accounts with their status, plan, memory, CPU, disk and inodes usage and the Impersonate button](/img/openadmin-screenshots/accounts/users-list.png#gh-light-mode-only)
+  ![Users page listing OpenPanel accounts with their status, plan, memory, CPU, disk and inodes usage and the Impersonate button](/img/openadmin-screenshots/accounts/users-list_dark.png#gh-dark-mode-only)
+
+  The **Memory**, **CPU**, **Disk** and **Inodes** columns show the user's current usage as a percentage of their plan limit. Hover over a ring to see the exact usage and limit, click the Memory or CPU ring to open the user's processes, or the Disk ring to open their Storage tab. A **?** means there is no disk usage data for that user yet.
+
+  The **Created** column shows how long ago the account was created, like *5d ago* or *3mo ago*. Hover over it to see the exact date and time.
+
+  Click the arrows next to a column name to sort the table by that column. Sorting works for Username, Email, 2FA, Passkeys, Package, Domains, Memory, CPU, Disk, Inodes, Context, Created and Owner. The usage columns sort by the percentage shown in the ring.
+
   Additional columns can be displayed using the 'Show Columns' button.
 
-  ![Show Columns menu of the Users table with a toggle for each column](/img/openadmin-screenshots/accounts/users-columns.png#gh-light-mode-only)
-  ![Show Columns menu of the Users table with a toggle for each column](/img/openadmin-screenshots/accounts/users-columns_dark.png#gh-dark-mode-only)
+  ![Show Columns menu of the Users table with a toggle for each column, including 2FA and Passkeys](/img/openadmin-screenshots/accounts/users-columns.png#gh-light-mode-only)
+  ![Show Columns menu of the Users table with a toggle for each column, including 2FA and Passkeys](/img/openadmin-screenshots/accounts/users-columns_dark.png#gh-dark-mode-only)
+
+  - **2FA** – whether the user has two-factor authentication enabled.
+  - **Passkeys** – how many passkeys the user has registered, empty if they have none.
 
   Suspended users are highlighted in red.
 
@@ -71,8 +80,8 @@ curl -X GET http://PANEL:2087/api/users -H "Authorization: Bearer JWT_TOKEN_HERE
 
 Tick the checkbox of one or more users, or the checkbox in the table header to select all users shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
-![Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Generate backup and Delete](/img/openadmin-screenshots/accounts/users-bulk.png#gh-light-mode-only)
-![Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Generate backup and Delete](/img/openadmin-screenshots/accounts/users-bulk_dark.png#gh-dark-mode-only)
+![Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Delete Passkeys, Generate backup and Delete](/img/openadmin-screenshots/accounts/users-bulk.png#gh-light-mode-only)
+![Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Delete Passkeys, Generate backup and Delete](/img/openadmin-screenshots/accounts/users-bulk_dark.png#gh-dark-mode-only)
 
 | Action | What it does |
 |---|---|
@@ -83,6 +92,7 @@ Tick the checkbox of one or more users, or the checkbox in the table header to s
 | **Change email** | Sets the email address you enter for all selected users. |
 | **Change IP** | Moves the selected users to a dedicated IP address of the server, or back to the shared IP. |
 | **Disable 2FA** | Turns off two-factor authentication, users without 2FA are skipped. |
+| **Delete Passkeys** | Deletes all passkeys of the selected users, they have to register them again to log in with a passkey. Users without passkeys are skipped. |
 | **Generate backup** | Starts a full account backup for each selected user in the background, the same as **Export > Generate full account backup**. |
 | **Delete** | Permanently deletes the selected users with all their websites, databases, emails and files. |
 

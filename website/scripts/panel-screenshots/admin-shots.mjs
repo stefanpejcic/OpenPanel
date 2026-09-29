@@ -18,6 +18,8 @@ const DEMO_NAMES = {
   'assaasas@': 'sales@',
   'dsffds@': 'support@',
   'newone@': 'john@',
+  'ftpdemo@static.test.rs': 'ftpuser@example.com',
+  'static-custom-root': 'example.com',
   'example.test.rs': 'example.com',
   'sfdddfdf@': 'support@',
   'shop.test.rs': 'shop.example.com',
@@ -107,10 +109,10 @@ export const pages = {
   'accounts/users': {
     url: '/users',
     shots: [
-      { name: 'list', alt: 'Users page listing OpenPanel accounts with their status, plan, limits, usage and the Impersonate button', crop: 'content' },
+      { name: 'list', alt: 'Users page listing OpenPanel accounts with their status, plan, memory, CPU, disk and inodes usage and the Impersonate button', crop: 'content' },
       {
         name: 'columns',
-        alt: 'Show Columns menu of the Users table with a toggle for each column',
+        alt: 'Show Columns menu of the Users table with a toggle for each column, including 2FA and Passkeys',
         prepare: click('#dropdownToggleButton', 600),
         crop: { from: '#dropdownToggleButton', to: '#dropdownToggle', pad: 12 },
       },
@@ -680,8 +682,14 @@ export const pages = {
     as: 'accounts/users',
     url: '/users',
     shots: [
-      { name: 'list', alt: 'Users page listing OpenPanel accounts with their status, plan, limits, usage and the Impersonate button', crop: 'content' },
-      bulkShot('#exiting_users', ['testinguser', 'bulkuser'], 'Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Generate backup and Delete'),
+      { name: 'list', alt: 'Users page listing OpenPanel accounts with their status, plan, memory, CPU, disk and inodes usage and the Impersonate button', crop: 'content' },
+      {
+        name: 'columns',
+        alt: 'Show Columns menu of the Users table with a toggle for each column, including 2FA and Passkeys',
+        prepare: click('#dropdownToggleButton', 600),
+        crop: { from: '#dropdownToggleButton', to: '#dropdownToggle', pad: 12 },
+      },
+      bulkShot('#exiting_users', ['testinguser', 'bulkuser'], 'Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Delete Passkeys, Generate backup and Delete'),
       bulkShot('#exiting_users', ['testinguser', 'bulkuser'], 'Change plan step of the bulk actions bar with a dropdown of hosting plans for two selected users', { name: 'bulk-plan', action: 'plan' }),
       { name: 'services', url: '/users/testinguser#services', alt: 'Services tab listing the user containers with their CPU and memory usage, PIDs and actions', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'services'"] table tbody tr:nth-of-type(6)`, fromTop: true } },
       { ...bulkShot('#user_services_table', ['apache', 'cron'], 'Two services of a user selected with the bulk actions bar offering Start, Stop, Restart, Edit CPU, Edit RAM and Edit PIDs', { name: 'services-bulk', rows: 6, wait: 2500 }), url: '/users/testinguser#services' },
@@ -720,6 +728,12 @@ export const pages = {
       bulkShot('#domains_table', ['example.test.rs', 'shop.test.rs'], 'Two domains selected with the bulk actions bar offering Change PHP version, Enable HSTS, Disable HSTS, Enable WAF, Disable WAF, Suspend, Unsuspend and Delete'),
       bulkShot('#domains_table', ['example.test.rs', 'shop.test.rs'], 'Change PHP version step of the bulk actions bar with a dropdown of the installed PHP versions', { name: 'bulk-php', action: 'php' }),
     ],
+  },
+  // FTP owners of user@domain accounts come from the domain lookup, the demo doesn't have that yet
+  'services/ftp_server': {
+    as: 'services/ftp',
+    url: '/services/ftp',
+    shots: [{ name: 'accounts', alt: 'FTP page on the Accounts tab with the FTP service status and the table of FTP accounts with their owner', crop: 'content' }],
   },
   'services/status_server': {
     as: 'services/status',
