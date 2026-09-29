@@ -113,7 +113,10 @@ execute_command() {
     log_command "$command"
     run_hook "pre"  "$command" "$@"
     bash ${debug_flag:+"$debug_flag"} "$binary_path" "$@"
+    local status=$?
     run_hook "post" "$command" "$@"
+    # pass the command's exit code through, the post hook used to swallow it
+    return "$status"
 }
 
 generate_commands() {
