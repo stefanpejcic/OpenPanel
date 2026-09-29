@@ -689,6 +689,12 @@ export const pages = {
         prepare: click('#dropdownToggleButton', 600),
         crop: { from: '#dropdownToggleButton', to: '#dropdownToggle', pad: 12 },
       },
+      {
+        name: 'filters',
+        alt: 'Users page with the Package filter open, listing All packages and each hosting plan in use',
+        prepare: click('#planFilterButton', 600),
+        crop: { from: 'main input[type=search], main input[placeholder^="Search"]', to: '#planFilter', pad: 16, right: true },
+      },
       bulkShot('#exiting_users', ['testinguser', 'bulkuser'], 'Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Delete Passkeys, Generate backup and Delete'),
       bulkShot('#exiting_users', ['testinguser', 'bulkuser'], 'Change plan step of the bulk actions bar with a dropdown of hosting plans for two selected users', { name: 'bulk-plan', action: 'plan' }),
       { name: 'services', url: '/users/testinguser#services', alt: 'Services tab listing the user containers with their CPU and memory usage, PIDs and actions', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'services'"] table tbody tr:nth-of-type(6)`, fromTop: true } },

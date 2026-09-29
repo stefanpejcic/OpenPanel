@@ -24,6 +24,17 @@ OpenPanel has a single user role named **User** that can only manage their docke
 
   The **Created** column shows how long ago the account was created, like *5d ago* or *3mo ago*. Hover over it to see the exact date and time.
 
+  Use the filters above the table to narrow down the list:
+
+  - **Status** – show active users, suspended users, or both.
+  - **Package** – show only users on the selected hosting plan. The list includes every plan that has at least one user.
+  - **Owner** (Enterprise license only, not shown to resellers) – show only users owned by the selected reseller, or users with no reseller.
+
+  ![Users page with the Package filter open, listing All packages and each hosting plan in use](/img/openadmin-screenshots/accounts/users-filters.png#gh-light-mode-only)
+  ![Users page with the Package filter open, listing All packages and each hosting plan in use](/img/openadmin-screenshots/accounts/users-filters_dark.png#gh-dark-mode-only)
+
+  Filters work together with the search box, and **Showing X of Y** below the table counts the users that match. The selected Package and Owner are kept in the page address (for example `/users?plan=Standard+plan`), so a filtered list can be bookmarked or shared. The user count on the **Hosting Plans** page links to the Users page with that plan already selected.
+
   Click the arrows next to a column name to sort the table by that column. Sorting works for Username, Email, 2FA, Passkeys, Package, Domains, Memory, CPU, Disk, Inodes, Context, Created and Owner. The usage columns sort by the percentage shown in the ring.
 
   Additional columns can be displayed using the 'Show Columns' button.
