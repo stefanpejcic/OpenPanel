@@ -7,7 +7,7 @@ sidebar_position: 10
 The Custom Code section, accessible via OpenAdmin > Settings > Custom Code, allows you to inject and manage custom code that extends or modifies the behavior and appearance of the OpenPanel UI.
 
 :::info
-Custom CSS, Custom JS, Code in Header, Code in Footer, and Custom Section below require an active **Enterprise** license (and a non-reseller account) to edit. The remaining options on this page (WordPress Plugins/Themes Sets, After Update, Before Startup) are available on all license types.
+Custom CSS, Custom JS, Code in Header, Code in Footer, Custom Section, and Welcome Email below require an active **Enterprise** license (and a non-reseller account) to edit. The remaining options on this page (WordPress Plugins/Themes Sets, After Update, Before Startup) are available on all license types.
 :::
 
 :::info
@@ -146,6 +146,28 @@ Example:
 }
 
 ```
+
+## Welcome Email
+
+HTML message that is placed straight into a new mailbox when the user ticks **Send a welcome email with instructions to set up a mail client** on *OpenPanel > Emails > New*. It is saved into the inbox on the server with `doveadm`, so it is never sent over the internet and doesn't go to any external address.
+
+Click **Restore Default** to load the [default template](https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/custom_code/welcome.html) into the editor, then click Save.
+
+These placeholders are replaced when the message is created:
+
+| Placeholder | Replaced with |
+|---|---|
+| `{{EMAIL}}` | the new email address, also used as the username |
+| `{{DOMAIN}}` | the domain of the email address |
+| `{{MAIL_HOST}}` | the mail server hostname, same as *Emails > Connect Devices* in OpenPanel |
+| `{{IMAP_PORT}}` | `993` if the hostname has an SSL certificate, otherwise `143` |
+| `{{SMTP_PORT}}` | `465` if the hostname has an SSL certificate, otherwise `587` |
+| `{{SECURITY}}` | `SSL/TLS` or `STARTTLS` |
+| `{{WEBMAIL_URL}}` | the webmail link |
+
+If the file is empty or missing, no welcome message is added and the email account is still created.
+
+Stored in `/etc/openpanel/openpanel/custom_code/welcome.html` file.
 
 ## WordPress Plugins Set
 
