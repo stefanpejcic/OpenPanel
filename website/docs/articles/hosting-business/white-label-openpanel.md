@@ -44,8 +44,6 @@ See [OpenPanel settings - Branding](/docs/admin/settings/openpanel/#branding).
 |---|---|
 | **Custom CSS / JS** - colors, fonts, hiding elements, chat widgets | [Custom Code](/docs/admin/settings/custom_code/) |
 | **Color scheme** | [Set a custom color scheme](/docs/articles/dev-experience/customizing-openpanel-user-interface/#set-a-custom-color-scheme) |
-| **Login page** | [Customize the login page](/docs/articles/dev-experience/customizing-openpanel-user-interface/#customize-login-page) |
-| **Any page template** | [Edit any page template](/docs/articles/dev-experience/customizing-openpanel-user-interface/#edit-any-page-template) · [Create a custom template](/docs/articles/dev-experience/create-custom-openpanel-template/) |
 | **Dashboard links section** - links to your client area, status page, support | [Add a custom section to the dashboard](/docs/articles/dev-experience/add-custom-icons-in-openpanel-dashboard/) |
 | **Announcements** for all customers | [Show a custom message](/docs/articles/accounts/how-to-add-custom-message-in-openpanel/) |
 | **Onboarding steps** for new customers | [Custom onboarding steps](/docs/articles/dev-experience/add-custom-steps-to-onboarding-wizard/) |
