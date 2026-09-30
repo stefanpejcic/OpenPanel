@@ -195,7 +195,7 @@ func TestBuildPageTabsWebsitesAndEmail(t *testing.T) {
 	allowed := map[string]bool{"emails": true, "email_aliases": true, "webmail": true, "wordpress": true, "autoinstaller": true}
 
 	tabs := BuildPageTabs(allowed, nil, "/emails/aliases", TabContext{})
-	if tabLabels(tabs) != "Accounts,Aliases,Delete Accounts,Webmail" || activeTab(tabs) != "Aliases" {
+	if tabLabels(tabs) != "Accounts,Aliases,Webmail" || activeTab(tabs) != "Aliases" {
 		t.Errorf("unexpected email tabs: %+v", tabs)
 	}
 

@@ -6,12 +6,6 @@
         "name": "Email Deliverability"
     },
     {
-        "description": "Delete Email Accounts.",
-        "link": "/emails/delete",
-        "module": "emails",
-        "name": "Delete Email Accounts"
-    },
-    {
         "description": "Manage Sieve email filters.",
         "link": "/emails/filter",
         "module": "email_filters",

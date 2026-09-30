@@ -123,6 +123,27 @@ While an OpenPanel update is running, Sentinel skips all checks, so it doesn't a
 Additional flags:
 
 - `--startup` - run the actions performed after a server reboot: start stopped containers for root and all users and send the reboot notification.
+
+  User containers are started in stages so 50+ accounts don't all hit the disk at once after a reboot: up to half the CPU cores worth of users at a time (min 2, max 8), 2 seconds apart, and the next user waits (up to 60s) while IO pressure is above 40% or load is above 2x the cores. Regular 5-minute runs skip the user container check until the staged start is done.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel --startup
+root: starting openpanel_mysql (was: exited)
+root: starting openpanel (was: exited)
+root: starting caddy (was: exited)
+...
+50 users to start, staged (max 4 at a time, 2s apart, waiting on high IO/load)
+[1/50] stefan: starting containers
+stefan: starting nginx (was: exited)
+stefan: starting mysql (was: exited)
+[2/50] john: starting containers
+john: starting apache (was: exited)
+...
+```
+</details>
 - `--report` - send the *Daily Usage Report* email (if email alerts are enabled).
 - `--action=<name> --title=<title> --message=<message>` - log a custom notification to OpenAdmin > Notifications (and email/webhook) if notifications are enabled for that action.
 

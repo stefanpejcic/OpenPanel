@@ -190,7 +190,7 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 		var links []NavLink
 		if allowed["emails"] {
 			links = append(links,
-				NavLink{Href: "/emails", Label: "Email Accounts", Active: path == "/emails"},
+				NavLink{Href: "/emails", Label: "Email Accounts", Active: path == "/emails" || strings.HasPrefix(path, "/emails/delete")},
 				NavLink{Href: "/emails/new", Label: "Create New Account", Active: strings.HasPrefix(path, "/emails/new")},
 			)
 		} else if upsellAllowed["emails"] {
@@ -205,7 +205,6 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 		links = add(links, "email_default", "/emails/default", "Default Address", strings.HasPrefix(path, "/emails/default"), "")
 		links = add(links, "email_import", "/emails/import", "Address Importer", strings.HasPrefix(path, "/emails/import"), "")
 		links = add(links, "email_deliverability", "/emails/deliverability", "Email Deliverability", strings.HasPrefix(path, "/emails/deliverability"), "")
-		links = add(links, "emails", "/emails/delete", "Delete Accounts", strings.HasPrefix(path, "/emails/delete"), "")
 		open := strings.HasPrefix(path, "/email")
 		groups = append(groups, NavGroup{"Emails", emailIcon, "emails-menu", links, open, open})
 	}
