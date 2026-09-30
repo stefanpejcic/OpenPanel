@@ -21,6 +21,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/server/waf/log", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleWAFLog(a, w, r) }))
 	// "/server/waf/log/{domain_name...}" also covers the bare "/server/waf/log/" case (domain_name resolves to ""), so a single route handles both the domain-scoped and the all-domains log view
 	mux.Handle("/server/waf/log/{domain_name...}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleWAFLog(a, w, r) }))
+	mux.Handle("POST /server/waf/{domain}/disable-rule", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleWAFDisableRule(a, w, r) }))
 	mux.Handle("/server/waf/{domain}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleWAFDomain(a, w, r) }))
 	mux.Handle("/server/waf", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleWAFList(a, w, r) }))
 	mux.Handle("POST /server/waf/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {

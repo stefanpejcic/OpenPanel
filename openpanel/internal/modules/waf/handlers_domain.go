@@ -20,7 +20,7 @@ import (
 var ruleIDRE = regexp.MustCompile(`^\d+$`)
 
 // reloadCaddy mirrors the `podman exec caddy caddy reload --config /etc/caddy/Caddyfile` call every WAF config change makes to apply it
-func reloadCaddy(ctx context.Context) error {
+var reloadCaddy = func(ctx context.Context) error {
 	return exec.CommandContext(ctx, "podman", "exec", "caddy", "caddy", "reload", "--config", "/etc/caddy/Caddyfile").Run()
 }
 

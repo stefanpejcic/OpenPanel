@@ -84,6 +84,7 @@
                         <template x-for="col in columnList" :key="col">
                             <th x-show="columns[col]" x-text="col" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50"></th>
                         </template>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Disable rule"}}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -92,6 +93,18 @@
                                 <template x-for="col in columnList" :key="col">
                                     <td x-show="columns[col]" x-text="getValue(log, col)" class="px-2 py-1"></td>
                                 </template>
+                                <td class="px-2 py-1">
+                                    <div class="flex flex-wrap gap-1">
+                                        <template x-for="rule in log._rules" :key="rule.id">
+                                            <button type="button" @click="disableRule(rule)" :disabled="disabled.includes(rule.id) || busy === rule.id" :title="rule.msg"
+                                                class="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-xs font-medium border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-50 hover:border-red-300 hover:text-red-700 dark:hover:bg-red-500/10 disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:border-gray-300 disabled:hover:text-gray-700">
+                                                <i class="bi" :class="disabled.includes(rule.id) ? 'bi-check2' : 'bi-slash-circle'"></i>
+                                                <span x-text="rule.id"></span>
+                                                <span x-show="disabled.includes(rule.id)">{{.T.Get "disabled"}}</span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </td>
                     </tr>
                     </template>
                 </tbody>
@@ -135,6 +148,7 @@
 
 <script type="text/javascript">
 window.jsonLogs = {{toJSON .JSONLogs}};
+window.wafDisabledRules = {{toJSON .DisabledRules}} || [];
 
 function logsTable() {
     return {
@@ -153,6 +167,33 @@ function logsTable() {
             'messages.severity'
         ],
         logs: [],
+        disabled: window.wafDisabledRules,
+        busy: '',
+        // 949/959 add up the score and block, 980 only reports it, disabling those would turn blocking off for the domain
+        isScoringRule(id) { return /^(949|959|980)/.test(id); },
+        async disableRule(rule) {
+            if (this.disabled.includes(rule.id)) return;
+            const q = {{toJSON (.T.Get "Disable WAF rule")}} + ' ' + rule.id + (rule.msg ? ' (' + rule.msg + ')' : '') + ' ' + {{toJSON (.T.Get "for")}} + ' ' + {{toJSON .DomainName}} + '?\n\n' + {{toJSON (.T.Get "The firewall will stop checking requests against this rule on the whole domain. You can enable it again on the domain's WAF page.")}};
+            if (!confirm(q)) return;
+            this.busy = rule.id;
+            const body = new FormData();
+            body.append('rule_id', rule.id);
+            body.append('csrf_token', csrf_token);
+            try {
+                const res = await fetch('/server/waf/' + encodeURIComponent({{toJSON .DomainName}}) + '/disable-rule', { method: 'POST', body, headers: { 'X-CSRF-Token': csrf_token } });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok || res.status === 207) {
+                    this.disabled.push(rule.id);
+                    showToast(data.warning || ({{toJSON (.T.Get "Rule")}} + ' ' + rule.id + ' ' + {{toJSON (.T.Get "disabled for")}} + ' ' + {{toJSON .DomainName}}), data.warning ? 'warning' : 'success');
+                } else {
+                    showToast(data.error || data.message || ({{toJSON (.T.Get "Could not disable rule")}} + ' ' + rule.id), 'error');
+                }
+            } catch (e) {
+                showToast({{toJSON (.T.Get "Could not disable rule")}} + ' ' + rule.id, 'error');
+            } finally {
+                this.busy = '';
+            }
+        },
         init() {
             const flatten = (obj, prefix = '') => {
                 let result = {};
@@ -176,6 +217,16 @@ function logsTable() {
 
             this.logs = window.jsonLogs.map(l => {
                 let flattened = flatten(l.transaction);
+
+                // rules that matched, minus the scoring ones, non-enumerable so they don't show up as a column
+                const rules = [];
+                (l.messages || []).forEach(m => {
+                    const em = m.error_message || '';
+                    const id = (em.match(/\[id "(\d+)"\]/) || [])[1];
+                    if (!id || this.isScoringRule(id) || rules.some(r => r.id === id)) return;
+                    rules.push({ id, msg: (em.match(/\[msg "([^"]+)"\]/) || [])[1] || '' });
+                });
+                Object.defineProperty(flattened, '_rules', { value: rules, enumerable: false });
 
                 // parse rule IDs/msg/severity out of error_message strings
                 if (l.messages && l.messages.length > 0) {

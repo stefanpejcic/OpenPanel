@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -124,6 +125,7 @@ type WAFLogsPageData struct {
 	TotalAllowedLinesForShowAll int
 	Domains                     []appctx.Domain
 	PageEntries                 []PageEntry
+	DisabledRules               []string
 }
 
 func renderWAFLogSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain) {
@@ -149,6 +151,9 @@ func renderWAFLogPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dom
 		CurrentPage: currentPage, ItemsPerPage: itemsPerPage, TotalPages: totalPages,
 		TotalLines: totalLines, TotalAllowedLinesForShowAll: totalAllowedForShowAll,
 		PageEntries: buildLogPageEntries(currentPage, totalPages),
+	}
+	if content, err := os.ReadFile(domainConfigPath(domainName)); err == nil {
+		data.DisabledRules, _ = parseWAFRemovals(string(content))
 	}
 	if err := wafLogsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WAF - logs template render error: %v", err)

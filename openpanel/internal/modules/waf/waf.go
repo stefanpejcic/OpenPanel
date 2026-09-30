@@ -81,8 +81,11 @@ func firstPathSegment(s string) string {
 	return s
 }
 
+// caddyDomainsDir holds the per-domain Caddy configs, swapped in tests
+var caddyDomainsDir = "/etc/openpanel/caddy/domains/"
+
 func domainConfigPath(domainName string) string {
-	return "/etc/openpanel/caddy/domains/" + domainName + ".conf"
+	return caddyDomainsDir + domainName + ".conf"
 }
 
 func wafLogPath(domainName string) string {
