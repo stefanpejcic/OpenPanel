@@ -280,7 +280,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		"--admin-password="+adminPassword,
 		"--admin-email="+adminEmail,
 		"--db-type=mysqli",
-		"--db-host="+mysqlVersion,
+		"--db-host="+mysql.AppDBHost(userContext, mysqlVersion),
 		"--db-user="+dbUser,
 		"--db-pass="+dbPassword,
 		"--db-name="+dbName,

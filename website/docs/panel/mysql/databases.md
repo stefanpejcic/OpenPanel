@@ -30,12 +30,11 @@ The **New Database** and **Database Wizard** buttons are disabled while the data
 
 ## Connection info
 
-Hover over the **mysql** or **mariadb** badge next to the page title to see the connection details for your databases.
+When connecting to a database from **PHP** applications (for example in `wp-config.php` or a Laravel `.env` file), use `localhost` as the database host. PHP reaches the database through a Unix socket shared between the database and PHP containers, so no port is needed.
 
-When connecting to a database from your applications (for example in `wp-config.php` or a `.env` file), always use the service name shown there, `mysql` or `mariadb`, as the database host, with port `3306`. Never use `localhost` or `127.0.0.1`: the database runs in its own container, so it can't be reached on those addresses.
+Non-PHP applications (Node.js, Python, Ruby, Java...) run in their own containers, so they connect with the service name, `mysql` or `mariadb`, on port `3306`. That also still works from PHP, and it's what accounts created before the socket was added need to use.
 
-![MariaDB badge next to the Databases title hovered, with the tooltip showing the server name and port to connect with](/img/openpanel-screenshots/mysql/databases-connection.png#gh-light-mode-only)
-![MariaDB badge next to the Databases title hovered, with the tooltip showing the server name and port to connect with](/img/openpanel-screenshots/mysql/databases-connection_dark.png#gh-dark-mode-only)
+Never use `127.0.0.1`. More examples: [Connecting to MySQL from applications](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/).
 
 ## Create a MySQL Database
 

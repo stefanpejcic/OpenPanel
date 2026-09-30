@@ -69,7 +69,7 @@ APP_DEBUG=false
 APP_URL=https://example.com
 
 DB_CONNECTION=mysql
-DB_HOST=mysql          # use "mariadb" for MariaDB
+DB_HOST=localhost      # unix socket, on older accounts use "mysql" or "mariadb"
 DB_PORT=3306
 DB_DATABASE=user_myapp
 DB_USERNAME=user_myapp
@@ -84,7 +84,7 @@ SESSION_DRIVER=redis
 ```
 
 :::warning
-Never use `localhost` or `127.0.0.1` as `DB_HOST` or `REDIS_HOST` - each service runs in its own container and is reached by its service name. See [connecting to MySQL from applications](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/).
+`DB_HOST=localhost` connects through the MySQL/MariaDB Unix socket shared with the PHP container. Never use `127.0.0.1`, and never use `localhost` for `REDIS_HOST` - Redis runs in its own container and is reached by its service name. See [connecting to MySQL from applications](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/).
 :::
 
 For PostgreSQL use `DB_CONNECTION=pgsql`, `DB_HOST=postgres`, `DB_PORT=5432`.
@@ -163,7 +163,7 @@ After deploying new code, restart workers with `php artisan queue:restart` so th
 |---|---|
 | **500 error** with a blank page | Temporarily set `APP_DEBUG=true`, or check `storage/logs/laravel.log`. |
 | **404** on every route except `/` | The document root isn't `public/`, or `.htaccess` is missing on Apache. |
-| `SQLSTATE[HY000] [2002] Connection refused` | `DB_HOST` must be `mysql` / `mariadb`, not `127.0.0.1`. Run `php artisan config:clear`. |
+| `SQLSTATE[HY000] [2002] Connection refused` or `No such file or directory` | `DB_HOST` must be `localhost` (or `mysql` / `mariadb` on older accounts), not `127.0.0.1`. Run `php artisan config:clear`. |
 | `Class "..." not found` | Run **Composer install** and `php artisan optimize:clear`. |
 | Missing PHP extension (e.g. `intl`, `gd`) | See [How to install a PHP extension](/docs/articles/websites/how-to-install-php-extensions-in-openpanel/). |
 | Mixed content / `http://` links behind HTTPS | Set `APP_URL=https://...` and trust proxies (`$middleware->trustProxies(at: '*')` in `bootstrap/app.php`). |

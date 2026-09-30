@@ -16,7 +16,7 @@ Containers can be assigned to one of three networks:
 * **`www`** – containers that need webserver or caching access
 * **`no network`** – containers with no access to other containers
 
-Communication between containers in the same network can be done using container names as hostnames. For example, PHP containers can connect to MySQL simply by using `mysql` or `mariadb` as the hostname.
+Communication between containers in the same network can be done using container names as hostnames. For example, PHP containers can connect to MySQL simply by using `mysql` or `mariadb` as the hostname. PHP can also use `localhost`, which goes through the MySQL Unix socket shared with the PHP containers instead of the network, see [Connecting to MySQL from applications](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/).
 
 ---
 

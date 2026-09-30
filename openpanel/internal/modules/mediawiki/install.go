@@ -292,7 +292,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	installArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "php"),
 		installPath+"/maintenance/install.php",
 		"--dbtype=mysql",
-		"--dbserver="+mysqlVersion,
+		"--dbserver="+mysql.AppDBHost(userContext, mysqlVersion),
 		"--dbname="+dbName,
 		"--dbuser="+dbUser,
 		"--dbpass="+dbPassword,

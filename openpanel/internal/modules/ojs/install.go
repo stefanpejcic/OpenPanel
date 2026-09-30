@@ -375,7 +375,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Running OJS CLI installer (tools/install.php)"})
-	answers := buildOJSInstallAnswers(filesContainerPath, adminUser, adminPassword, adminEmail, mysqlVersion, dbUser, dbPassword, dbName, "oai:"+selectedDomain)
+	answers := buildOJSInstallAnswers(filesContainerPath, adminUser, adminPassword, adminEmail, mysql.AppDBHost(userContext, mysqlVersion), dbUser, dbPassword, dbName, "oai:"+selectedDomain)
 	out, runErr := runOJSInstaller(ctx, userContext, phpContainer, approotContainerPath, answers)
 	if runErr != nil {
 		emit(map[string]any{"error": "OJS CLI installer failed: " + strings.TrimSpace(out)})

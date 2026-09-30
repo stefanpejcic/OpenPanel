@@ -11,10 +11,11 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 )
 
 // this file adds a universal "scan for existing installations" + "detach" feature covering every CMS type this panel can install, living in the websites package (which already owns /sites) rather than as per-CMS routes since scan/detach just need filesystem detection + a DB row
-// mirrors wordpress/manage.go's handleScanWordPress/handleDetachWordPress pattern as a parallel, more general implementation (that file stays as-is for the WP-only /wordpress list page) - unlike WordPress's wp-cli-mediated version this also needs a DB-host repair+connectivity-check step, since a config file found on disk may have its DB host set to 'localhost'/'127.0.0.1' which won't resolve from the separate mysql/mariadb container, so each detector rewrites it to the real container hostname and verifies connectivity via information_schema before importing
+// mirrors wordpress/manage.go's handleScanWordPress/handleDetachWordPress pattern as a parallel, more general implementation (that file stays as-is for the WP-only /wordpress list page) - unlike WordPress's wp-cli-mediated version this also needs a DB-host repair+connectivity-check step, since a config file found on disk may have its DB host set to 'localhost'/'127.0.0.1', so each detector rewrites it to localhost (unix socket) or the mysql/mariadb container name, whichever the user's PHP can reach and verifies connectivity via information_schema before importing
 // every extractX/getXVersion helper below duplicates the equivalent function elsewhere in websites.go (or is freshly written) rather than calling into the joomla/opencart/etc packages, since those packages don't import websites and vice versa, to avoid import cycles
 
 var scanSkipDirs = map[string]bool{"node_modules": true, ".git": true, "backups": true, "cache": true, "tmp": true, "var": true, "storage": true, "data": true}
@@ -130,36 +131,37 @@ func handleSitesScan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	const wwwBaseDirectory = "/var/www/html/"
 	baseDirectory := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
-	mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
+	// localhost if the user's PHP containers have the mysql socket, otherwise the mysql/mariadb container name
+	dbHost := mysql.AppDBHost(userContext, webserver.GetEnvFileValue(userContext, "MYSQL_TYPE"))
 
 	outcome := &scanOutcome{}
 
 	if allowed["wordpress"] {
-		scanWordPress(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion, outcome)
+		scanWordPress(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, dbHost, outcome)
 	}
 	if allowed["joomla"] {
-		scanJoomla(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion, outcome)
+		scanJoomla(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, dbHost, outcome)
 	}
 	if allowed["opencart"] {
-		scanOpenCart(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion, outcome)
+		scanOpenCart(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, dbHost, outcome)
 	}
 	if allowed["nextcloud"] {
-		scanNextcloud(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion, outcome)
+		scanNextcloud(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, dbHost, outcome)
 	}
 	if allowed["prestashop"] {
-		scanPrestashop(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion, outcome)
+		scanPrestashop(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, dbHost, outcome)
 	}
 	if allowed["drupal"] {
-		scanDrupal(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion, outcome)
+		scanDrupal(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, dbHost, outcome)
 	}
 	if allowed["matomo"] {
-		scanMatomo(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion, outcome)
+		scanMatomo(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, dbHost, outcome)
 	}
 	if allowed["moodle"] {
-		scanMoodle(ctx, a, userID, userContext, baseDirectory, mysqlVersion, outcome)
+		scanMoodle(ctx, a, userID, userContext, baseDirectory, dbHost, outcome)
 	}
 	if allowed["mediawiki"] {
-		scanMediaWiki(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion, outcome)
+		scanMediaWiki(ctx, a, userID, userContext, baseDirectory, wwwBaseDirectory, dbHost, outcome)
 	}
 
 	if len(outcome.found) > 0 {

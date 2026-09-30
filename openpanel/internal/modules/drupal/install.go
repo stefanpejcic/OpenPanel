@@ -268,7 +268,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	invalidateMySQLCaches(ctx, a, userContext, currentUsername)
 
 	emit(map[string]any{"status": "Running drush site:install"})
-	dbURL := "mysql://" + dbUser + ":" + dbPassword + "@" + mysqlVersion + "/" + dbName
+	dbURL := "mysql://" + dbUser + ":" + dbPassword + "@" + mysql.AppDBHost(userContext, mysqlVersion) + "/" + dbName
 	// absolute path, not "vendor/bin/drush" - podman exec's cwd is the container's default workdir, not installPath, so a relative path resolves wrong for subdirectory/non-root installs
 	drushArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, installPath+"/vendor/bin/drush"),
 		"site:install", "standard",

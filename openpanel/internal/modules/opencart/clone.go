@@ -10,6 +10,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 )
 
 // mirrors wordpress/manage.go's handleCloneWordPress in shape (file copy, DB create+dump, config rewrite, sites insert), sharing everything but docroot copy and config rewrite with every other CMS via internal/core/cmsclone; OpenCart hardcodes its URL and filesystem path in two files, config.php and admin/config.php, so only HTTP_SERVER/HTTP_CATALOG and DIR_OPENCART need rewriting since every other DIR_* constant derives from DIR_OPENCART, and oc_setting stores no url-related key so no DB-side fix is needed; cmsclone.ValidDocroot accepts the real absolute "/var/www/html/..." form used everywhere here, unlike wordpress's own validateDocroot which would reject it
@@ -129,7 +130,7 @@ func handleOpenCartClone(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			strContent = cloneOCHTTPServerRE.ReplaceAllString(strContent, "define('HTTP_SERVER', '"+escapePHPSingleQuoted(newHTTPServer)+"');")
 		}
 		strContent = cloneOCDirOpenCartRE.ReplaceAllString(strContent, "define('DIR_OPENCART', '"+escapePHPSingleQuoted(newDirOpenCart)+"');")
-		strContent = cloneOCDBHostnameRE.ReplaceAllString(strContent, "define('DB_HOSTNAME', 'mariadb');")
+		strContent = cloneOCDBHostnameRE.ReplaceAllString(strContent, "define('DB_HOSTNAME', '"+mysql.AppDBHost(userContext, mysqlVersion)+"');")
 		strContent = cloneOCDBUsernameRE.ReplaceAllString(strContent, "define('DB_USERNAME', '"+escapePHPSingleQuoted(dstDBUser)+"');")
 		strContent = cloneOCDBPasswordRE.ReplaceAllString(strContent, "define('DB_PASSWORD', '"+escapePHPSingleQuoted(dstDBUserPassword)+"');")
 		strContent = cloneOCDBDatabaseRE.ReplaceAllString(strContent, "define('DB_DATABASE', '"+escapePHPSingleQuoted(dstDB)+"');")

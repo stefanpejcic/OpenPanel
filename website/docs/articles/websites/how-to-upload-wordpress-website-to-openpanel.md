@@ -82,7 +82,7 @@ Before uploading, ensure your backup is archived (`.zip`, `.tar` or `.tar.gz`). 
    define('DB_NAME', 'your_database_name');
    define('DB_USER', 'your_database_user');
    define('DB_PASSWORD', 'your_database_password');
-   define('DB_HOST', 'mysql'); // mariadb or mysql - depending on your current setting
+   define('DB_HOST', 'localhost'); // on older accounts use mysql or mariadb
    ```
    ![example wp config ph](/img/docs-content/3NtJLhdS-edit-wp-config-file.png)
 3. Save changes.

@@ -10,7 +10,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 )
 
-// this file holds the eight walkers handleSitesScan (scan.go) calls, one per CMS type - each mirrors wordpress/manage.go's walkForWPConfig + handleScanWordPress shape: walk the user's html_data volume for that type's marker config file, skip anything already tracked, extract the DB name/host, repair the host if it's empty/localhost/127.0.0.1, verify connectivity, then insert (see scan.go for why the host-repair step is needed here but not by WordPress's original wp-cli-mediated scan)
+// this file holds the eight walkers handleSitesScan (scan.go) calls, one per CMS type - each mirrors wordpress/manage.go's walkForWPConfig + handleScanWordPress shape: walk the user's html_data volume for that type's marker config file, skip anything already tracked, extract the DB name/host, repair the host if it's empty/localhost/127.0.0.1 (localhost is kept when the user's PHP can reach the mysql socket), verify connectivity, then insert (see scan.go for why the host-repair step is needed here but not by WordPress's original wp-cli-mediated scan)
 
 // ---------------------- WordPress ---------------------- //
 
@@ -19,7 +19,7 @@ var (
 	scanWPDBNameRE = regexp.MustCompile(`define\(\s*'DB_NAME'\s*,\s*'([^']*)'\s*\)`)
 )
 
-func scanWordPress(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion string, outcome *scanOutcome) {
+func scanWordPress(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
 	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
@@ -53,7 +53,7 @@ func scanWordPress(ctx context.Context, a *appctx.App, userID int, userContext, 
 		}
 		dbName := nameMatch[1]
 
-		if _, ok := scanRepairHostInFile(configFile, text, scanWPDBHostRE, "define('DB_HOST', '"+mysqlVersion+"')"); !ok {
+		if _, ok := scanRepairHostInFile(configFile, text, scanWPDBHostRE, "define('DB_HOST', '"+dbHost+"')"); !ok {
 			outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in wp-config.php)")
 			return nil
 		}
@@ -80,7 +80,7 @@ var (
 	scanJoomlaDBNameRE = regexp.MustCompile(`\$db\s*=\s*'([^']*)'`)
 )
 
-func scanJoomla(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion string, outcome *scanOutcome) {
+func scanJoomla(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
 	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
@@ -113,7 +113,7 @@ func scanJoomla(ctx context.Context, a *appctx.App, userID int, userContext, bas
 		}
 		dbName := nameMatch[1]
 
-		if _, ok := scanRepairHostInFile(path, text, scanJoomlaHostRE, "$$host = '"+mysqlVersion+"'"); !ok {
+		if _, ok := scanRepairHostInFile(path, text, scanJoomlaHostRE, "$$host = '"+dbHost+"'"); !ok {
 			outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in configuration.php)")
 			return nil
 		}
@@ -155,7 +155,7 @@ var (
 	scanOCDBDatabaseRE = regexp.MustCompile(`define\('DB_DATABASE',\s*'([^']*)'\)`)
 )
 
-func scanOpenCart(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion string, outcome *scanOutcome) {
+func scanOpenCart(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
 	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
@@ -192,13 +192,13 @@ func scanOpenCart(ctx context.Context, a *appctx.App, userID int, userContext, b
 		}
 		dbName := nameMatch[1]
 
-		if _, ok := scanRepairHostInFile(path, text, scanOCDBHostnameRE, "define('DB_HOSTNAME', '"+mysqlVersion+"')"); !ok {
+		if _, ok := scanRepairHostInFile(path, text, scanOCDBHostnameRE, "define('DB_HOSTNAME', '"+dbHost+"')"); !ok {
 			outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in config.php)")
 			return nil
 		}
 		adminConfigPath := filepath.Join(root, "admin", "config.php")
 		adminContent, _ := os.ReadFile(adminConfigPath)
-		if _, ok := scanRepairHostInFile(adminConfigPath, string(adminContent), scanOCDBHostnameRE, "define('DB_HOSTNAME', '"+mysqlVersion+"')"); !ok {
+		if _, ok := scanRepairHostInFile(adminConfigPath, string(adminContent), scanOCDBHostnameRE, "define('DB_HOSTNAME', '"+dbHost+"')"); !ok {
 			outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in admin/config.php)")
 			return nil
 		}
@@ -225,7 +225,7 @@ var (
 	scanNCDBNameRE = regexp.MustCompile(`'dbname'\s*=>\s*'([^']*)'`)
 )
 
-func scanNextcloud(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion string, outcome *scanOutcome) {
+func scanNextcloud(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
 	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
@@ -258,7 +258,7 @@ func scanNextcloud(ctx context.Context, a *appctx.App, userID int, userContext, 
 		}
 		dbName := nameMatch[1]
 
-		if _, ok := scanRepairHostInFile(path, text, scanNCDBHostRE, "'dbhost' => '"+mysqlVersion+"'"); !ok {
+		if _, ok := scanRepairHostInFile(path, text, scanNCDBHostRE, "'dbhost' => '"+dbHost+"'"); !ok {
 			outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in config/config.php)")
 			return nil
 		}
@@ -285,7 +285,7 @@ var (
 	scanPSDBNameRE = regexp.MustCompile(`'database_name'\s*=>\s*'([^']*)'`)
 )
 
-func scanPrestashop(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion string, outcome *scanOutcome) {
+func scanPrestashop(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
 	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
@@ -322,7 +322,7 @@ func scanPrestashop(ctx context.Context, a *appctx.App, userID int, userContext,
 		}
 		dbName := nameMatch[1]
 
-		if _, ok := scanRepairHostInFile(path, text, scanPSDBHostRE, "'database_host' => '"+mysqlVersion+"'"); !ok {
+		if _, ok := scanRepairHostInFile(path, text, scanPSDBHostRE, "'database_host' => '"+dbHost+"'"); !ok {
 			outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in app/config/parameters.php)")
 			return nil
 		}
@@ -366,7 +366,7 @@ func stripPHPCommentLinesForScan(content string) string {
 	return strings.Join(codeLines, "\n")
 }
 
-func scanDrupal(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion string, outcome *scanOutcome) {
+func scanDrupal(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
 	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
@@ -413,8 +413,8 @@ func scanDrupal(ctx context.Context, a *appctx.App, userID int, userContext, bas
 		if hostMatch != nil {
 			host = hostMatch[1]
 		}
-		if host == "" || host == "localhost" || host == "127.0.0.1" {
-			newContent := scanDrupalDBHostRE.ReplaceAllString(fullText, "'host' => '"+mysqlVersion+"'")
+		if host != dbHost && (host == "" || host == "localhost" || host == "127.0.0.1") {
+			newContent := scanDrupalDBHostRE.ReplaceAllString(fullText, "'host' => '"+dbHost+"'")
 			if newContent != fullText {
 				if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 					outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in sites/default/settings.php)")
@@ -466,7 +466,7 @@ var (
 	scanMatomoVerRE    = regexp.MustCompile(`VERSION\s*=\s*'([^']*)'`)
 )
 
-func scanMatomo(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion string, outcome *scanOutcome) {
+func scanMatomo(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
 	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
@@ -499,7 +499,7 @@ func scanMatomo(ctx context.Context, a *appctx.App, userID int, userContext, bas
 		}
 		dbName := nameMatch[1]
 
-		if _, ok := scanRepairHostInFile(path, text, scanMatomoDBHostRE, `host = "`+mysqlVersion+`"`); !ok {
+		if _, ok := scanRepairHostInFile(path, text, scanMatomoDBHostRE, `host = "`+dbHost+`"`); !ok {
 			outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in config/config.ini.php)")
 			return nil
 		}
@@ -530,7 +530,7 @@ var (
 )
 
 // scanMoodle differs from every other detector: Moodle's config.php doesn't live under any domain's docroot (docroot is a symlink to <approot>/public, see the moodle package), so instead of walking under each domain's directory, this walks the whole html_data root for any config.php with the "$CFG->dbhost" marker and derives the domain from the config's own $CFG->wwwroot rather than the file's path - generalizes to both this panel's "<slug>_moodleapp" convention and a hypothetical migrated Moodle layout placed directly under a domain's docroot.
-func scanMoodle(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, mysqlVersion string, outcome *scanOutcome) {
+func scanMoodle(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, dbHost string, outcome *scanOutcome) {
 	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
@@ -570,7 +570,7 @@ func scanMoodle(ctx context.Context, a *appctx.App, userID int, userContext, bas
 		}
 		dbName := nameMatch[1]
 
-		if _, ok := scanRepairHostInFile(path, text, scanMoodleDBHostRE, "CFG->dbhost = '"+mysqlVersion+"'"); !ok {
+		if _, ok := scanRepairHostInFile(path, text, scanMoodleDBHostRE, "CFG->dbhost = '"+dbHost+"'"); !ok {
 			outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in config.php)")
 			return nil
 		}
@@ -615,7 +615,7 @@ var (
 	scanMediaWikiDBNameRE = regexp.MustCompile(`\$wgDBname\s*=\s*"([^"]*)"`)
 )
 
-func scanMediaWiki(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, mysqlVersion string, outcome *scanOutcome) {
+func scanMediaWiki(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
 	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
@@ -648,7 +648,7 @@ func scanMediaWiki(ctx context.Context, a *appctx.App, userID int, userContext, 
 		}
 		dbName := nameMatch[1]
 
-		if _, ok := scanRepairHostInFile(path, text, scanMediaWikiHostRE, `$$wgDBserver = "`+mysqlVersion+`"`); !ok {
+		if _, ok := scanRepairHostInFile(path, text, scanMediaWikiHostRE, `$$wgDBserver = "`+dbHost+`"`); !ok {
 			outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in LocalSettings.php)")
 			return nil
 		}

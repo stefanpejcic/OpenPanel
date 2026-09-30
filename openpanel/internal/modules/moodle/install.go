@@ -346,7 +346,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		"--wwwroot=https://"+selectedDomain,
 		"--dataroot="+datarootContainerPath,
 		"--dbtype="+dbType,
-		"--dbhost="+mysqlVersion,
+		"--dbhost="+mysql.AppDBHost(userContext, mysqlVersion),
 		"--dbname="+dbName,
 		"--dbuser="+dbUser,
 		"--dbpass="+dbPassword,

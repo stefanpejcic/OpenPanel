@@ -4,29 +4,36 @@ sidebar_label: "Connecting to MySQL Server from Applications in OpenPanel"
 
 # How to Connect to MySQL from PHP Applications (Hostname, Port, Credentials)
 
-OpenPanel runs each user service inside its own container and uses local networks to isolate them. This means that applications do not connect to the database via `localhost` or `127.0.0.1`, but instead through container hostnames.
+OpenPanel runs each user service inside its own container. The MySQL/MariaDB container shares its Unix socket with the PHP containers (PHP-FPM and OpenLiteSpeed) of the same user, so PHP applications can connect to the database on `localhost` just like on a regular server. Other applications (Node.js, Python, Ruby, Java...) run in their own containers and connect through the container hostname instead.
 
 For more information about networks: [Network Isolation in OpenPanel](/docs/articles/containers/network-isolation-openpanel/)
 
-To connect from your **PHP**, **Node.js**, or **Python** application to a MySQL/MariaDB database, you must use:
+| Application | Hostname | Port |
+|---|---|---|
+| **PHP** (WordPress, Joomla, Laravel, custom PHP...) | `localhost` | not needed, it uses the Unix socket |
+| **Node.js, Python, Ruby, Java** and other non-PHP apps | `mysql` (for MySQL) or `mariadb` (for MariaDB) | `3306` |
 
-* **Hostname:** `mysql` (for MySQL) or `mariadb` (for MariaDB)
-* **Port:** `3306` (default)
-* **Username/Password:** created for the database from OpenPanel UI
+**Username/Password:** created for the database from OpenPanel UI.
 
-⚠️ **Important:** Never use `localhost` or `127.0.0.1` as the database host. These will not work because containers are isolated.
+:::info
+`mysql` / `mariadb` as the hostname keeps working for PHP apps too, so existing sites don't need to be changed.
+
+On accounts created before the Unix socket was added, `localhost` is not available in PHP yet, use `mysql` or `mariadb` there. Websites installed from OpenPanel pick the right host for the account automatically.
+:::
+
+⚠️ **Important:** Never use `127.0.0.1` as the database host. It connects over TCP inside the PHP container itself, where no database is listening.
 
 ---
 
 ## Example: WordPress
 
-When setting up WordPress inside OpenPanel, use the following database configuration:
+When setting up WordPress inside OpenPanel, use the following database configuration in `wp-config.php`:
 
-```ini
-DB_HOST=mysql
+```php
+define( 'DB_HOST', 'localhost' );
 ```
 
-Here, `DB_HOST` is set to `mysql`, so WordPress can reach the MySQL container. If you are using MariaDB, then replace `mysql` with `mariadb`.
+WordPress connects to the database through the Unix socket shared with the PHP container. On older accounts use `mysql` or `mariadb` instead.
 
 ---
 
@@ -36,7 +43,7 @@ In a custom PHP app, you can connect like this:
 
 ```php
 <?php
-$host = "mysql";       // or "mariadb"
+$host = "localhost";   // or "mysql" / "mariadb"
 $db   = "my_database";
 $user = "my_user";
 $pass = "my_password";
@@ -50,6 +57,8 @@ try {
     echo "Connection failed: " . $e->getMessage();
 }
 ```
+
+With `localhost`, PHP connects through the `/var/run/mysqld/mysqld.sock` socket, which is set as the default in `php.ini` (`mysqli.default_socket` and `pdo_mysql.default_socket`).
 
 ---
 
@@ -101,6 +110,6 @@ print("Connected to:", cursor.fetchone())
 
 ✅ **Summary:**
 
-* Use `mysql` or `mariadb` as the hostname.
-* Never use `localhost` or `127.0.0.1`.
-* Works across PHP, WordPress, Node.js, Python, and any other app in [the `db` network](/docs/articles/containers/network-isolation-openpanel/).
+* PHP apps: use `localhost` (or `mysql` / `mariadb` on older accounts).
+* Node.js, Python and other non-PHP apps: use `mysql` or `mariadb` on port `3306`, they reach the database through [the `db` network](/docs/articles/containers/network-isolation-openpanel/).
+* Never use `127.0.0.1`.

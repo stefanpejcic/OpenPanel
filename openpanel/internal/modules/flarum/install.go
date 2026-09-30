@@ -269,7 +269,7 @@ printf '%s\n' '<?php' 'chdir(__DIR__ . "/public"); require __DIR__ . "/public/in
 	emit(map[string]any{"status": "Running Flarum installer"})
 	baseURL := "https://" + selectedDomain
 	out, runErr = runFlarumInstaller(ctx, userContext, phpContainer, installPath, flarumInstallParams{
-		dbHost: mysqlVersion, dbPort: 3306, dbName: dbName, dbUser: dbUser, dbPassword: dbPassword,
+		dbHost: mysql.AppDBHost(userContext, mysqlVersion), dbPort: 3306, dbName: dbName, dbUser: dbUser, dbPassword: dbPassword,
 		baseURL: baseURL, forumTitle: forumTitle,
 		adminUsername: adminUsername, adminPassword: adminPassword, adminEmail: adminEmail,
 	})

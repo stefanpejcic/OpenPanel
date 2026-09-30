@@ -32,7 +32,7 @@ Use the **Table/Grid** toggle and column sort headers (Type, Site Name, Created,
 
 ## Scanning for Existing Installations
 
-If an application was installed manually (outside Site Manager), click **Scan** to detect it. The scan looks for installation files across every supported application type on disk, repairs the database host in the detected config if it still points to `localhost` instead of the actual database container, verifies the database connection, and imports any installation it finds as a new Site Manager entry.
+If an application was installed manually (outside Site Manager), click **Scan** to detect it. The scan looks for installation files across every supported application type on disk, repairs the database host in the detected config if it's empty, `localhost` or `127.0.0.1` (it becomes `localhost`, which PHP reaches through the MySQL socket, or the database container name on older accounts that don't have the socket yet), verifies the database connection, and imports any installation it finds as a new Site Manager entry.
 
 ![Scan button in Site Manager and the confirmation box that explains the scan, with Start Scan and Cancel buttons](/img/openpanel-screenshots/applications/sites-scan.png#gh-light-mode-only)
 ![Scan button in Site Manager and the confirmation box that explains the scan, with Start Scan and Cancel buttons](/img/openpanel-screenshots/applications/sites-scan_dark.png#gh-dark-mode-only)

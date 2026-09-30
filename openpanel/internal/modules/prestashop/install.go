@@ -322,7 +322,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		installPath+"/install/index_cli.php",
 		"--domain="+dom.DomainURL,
 		"--base_uri="+baseURI,
-		"--db_server="+mysqlVersion,
+		"--db_server="+mysql.AppDBHost(userContext, mysqlVersion),
 		"--db_name="+dbName,
 		"--db_user="+dbUser,
 		"--db_password="+dbPassword,

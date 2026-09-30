@@ -267,7 +267,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	emit(map[string]any{"status": "Running phpBB installer"})
 	out, runErr = runPhpbbInstaller(ctx, userContext, phpContainer, installPath, phpbbInstallParams{
-		dbHost: mysqlVersion, dbName: dbName, dbUser: dbUser, dbPassword: dbPassword,
+		dbHost: mysql.AppDBHost(userContext, mysqlVersion), dbName: dbName, dbUser: dbUser, dbPassword: dbPassword,
 		boardName: boardName, boardDescription: boardDescription,
 		adminUsername: adminUsername, adminPassword: adminPassword, adminEmail: adminEmail,
 		serverName: selectedDomain,

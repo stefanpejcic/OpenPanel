@@ -6,17 +6,19 @@ If your website/application is alerting you that there was an error establishing
 
 ## Check the configuration file for errors
 
-OpenPanel runs each user service inside its own container and uses local networks to isolate them. This means that applications do not connect to the database via `localhost` or `127.0.0.1`, but instead through container hostnames.
+OpenPanel runs each user service inside its own container. PHP applications reach the database through a Unix socket shared between the MySQL/MariaDB and PHP containers, so the database host in their config should be:
 
-You can check the database connection parameters such as hostname and port on OpenPanel > MySQL/Databases by hovering the container name at the top of the page:
+* `localhost` - the default for PHP apps, connects through the socket
+* `mysql` or `mariadb` - the database container name, works too, and is required on accounts created before the socket was added
+* never `127.0.0.1` - that connects over TCP inside the PHP container, where no database is listening
 
-![hostnameport.png](/img/docs-content/d1L3xNbm-hostnameport.png)
+Non-PHP apps (Node.js, Python...) always use `mysql` or `mariadb` on port `3306`. More details: [Connecting to MySQL from applications](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/).
 
-Now compare these parameters with those inside the websites configuration file, in this example we are editing the wp-config.php file of a WordPress installation using File Manager:
+Compare this with the website's configuration file, in this example we are editing the wp-config.php file of a WordPress installation using File Manager:
 
 ![configbad.png](/img/docs-content/W3QCPtHW-configbad.png)
 
-Since localhost was set inside the file the connection is failing, to fix the issue we replace localhost with the correct hostname (mariadb in our case) and click save at the top right corner of the editor:
+If the host is `127.0.0.1`, or `localhost` on an older account, the connection fails. To fix it, set the host to `localhost` (or to the database container name, `mariadb` in our case) and click save at the top right corner of the editor:
 
 ![configfixed.png](/img/docs-content/d1zpKDx5-configfixed.png)
 

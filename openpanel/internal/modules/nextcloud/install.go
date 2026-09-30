@@ -303,7 +303,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	occArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "php"),
 		installPath+"/occ", "maintenance:install",
 		"--database", "mysql",
-		"--database-host", mysqlVersion,
+		"--database-host", mysql.AppDBHost(userContext, mysqlVersion),
 		"--database-name", dbName,
 		"--database-user", dbUser,
 		"--database-pass", dbPassword,
