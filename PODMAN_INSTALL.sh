@@ -698,13 +698,8 @@ setup_compose() {
     [[ "$OS_ID" == "almalinux" ]] && sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml
     if [[ "$OS_ID" == "debian" ]]; then
         run apt install -y apparmor apparmor-utils
-    
-        [[ "$OS_VERSION_ID" == "12" ]] && \
-            sed -i '/^[[:space:]]*openpanel_network:[[:space:]]*$/{N;s/openpanel_network:\n[[:space:]]*ipv4_address:[[:space:]]*[0-9.]*/- openpanel_network/}' /root/docker-compose.yml
-    
-        if [[ "$OS_VERSION_ID" == "13" ]]; then
-            grep -q "skip-ssl" "$mysql_cnf" || echo "skip-ssl = true" >> "$mysql_cnf"
-        fi
+        [[ "$OS_VERSION_ID" == "12" ]] && sed -i '/^[[:space:]]*openpanel_network:[[:space:]]*$/{N;s/openpanel_network:\n[[:space:]]*ipv4_address:[[:space:]]*[0-9.]*/- openpanel_network/}' /root/docker-compose.yml
+        [[ "$OS_VERSION_ID" == "13" ]] && grep -q "skip-ssl" "$mysql_cnf" || echo "skip-ssl = true" >> "$mysql_cnf"
     fi
 
     [[ "$REPAIR" == true ]] && {
