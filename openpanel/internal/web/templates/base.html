@@ -21,6 +21,7 @@
 
     <!-- SIDEBAR CLOSE / OPEN -->
     <style>[x-cloak] { display: none !important;}</style>
+    <style>@media (max-width:639px){#toast-container{left:50%;bottom:1rem;transform:translateX(-50%);width:calc(100% - 2rem);max-width:28rem}}</style>
     <script>(function(){const sidebarState=sessionStorage.getItem('sidebarOpen');const isMobile=window.innerWidth<768;let isOpen=sidebarState===null?!isMobile:sidebarState==='true';if(isOpen){document.documentElement.classList.add('sidebar-open');}else{document.documentElement.classList.remove('sidebar-open');}})();</script>
     <style>@font-face{font-family:'Inter';font-style:normal;font-weight:700;font-display:swap;src:url('{{static "vendor/fonts/inter/inter-700-latin.woff2"}}') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}</style>
     <style>#sidebar{display:none;width:16rem}#main_header,#no_margin_for_iframe{margin-left:0;transition:margin .2s ease-in-out}.sidebar-open #sidebar{display:block}.sidebar-open #main_header,.sidebar-open #no_margin_for_iframe{margin-left:16rem} html.sidebar-open button[onclick="toggleSidebar()"] {cursor: w-resize;} html:not(.sidebar-open) button[onclick="toggleSidebar()"] {cursor: e-resize;}</style>
