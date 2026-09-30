@@ -233,7 +233,8 @@ main() {
 
     # help
     case "$1" in help|-h|--help) generate_commands; exit 0 ;; esac
-    case "$2" in help|-h|--help) generate_commands "$1"; exit 0 ;; esac
+    # only when it's the sole arg, server-migrate uses -h for the host
+    [[ $# -eq 2 ]] && case "$2" in help|-h|--help) generate_commands "$1"; exit 0 ;; esac
 
     # run
     local command="$1"; shift
