@@ -235,7 +235,7 @@ func handleOJSRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		dumpArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, dumpCmd, "-u", "root", dbName, "--result-file=/tmp/dumps/database.sql")
+		dumpArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, dumpCmd, "-u", "root", "--single-transaction", dbName, "--result-file=/tmp/dumps/database.sql")
 		if _, runErr := podmanmanager.Command(ctx, userContext, dumpArgv).Output(); runErr != nil {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": dumpCmd + " failed: " + runErr.Error()})
 			return

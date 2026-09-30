@@ -45,7 +45,7 @@ func TestSendGzip(t *testing.T) {
 }
 
 func TestSendFailsBeforeHeaders(t *testing.T) {
-	for _, cmd := range []*exec.Cmd{exec.Command("false"), exec.Command("true"), exec.Command("/nonexistent-dump")} {
+	for _, cmd := range []*exec.Cmd{exec.Command("false"), exec.Command("true"), exec.Command("/nonexistent-dump"), exec.Command("sh", "-c", "echo header; exit 2")} {
 		w := httptest.NewRecorder()
 		if err := Send(w, cmd, "db.sql", "application/sql", false); err == nil {
 			t.Errorf("%v: expected error", cmd.Args)
@@ -62,5 +62,5 @@ func TestSendAbortsOnMidStreamFailure(t *testing.T) {
 			t.Errorf("expected ErrAbortHandler panic, got %v", r)
 		}
 	}()
-	_ = Send(httptest.NewRecorder(), exec.Command("sh", "-c", "echo partial; exit 1"), "db.sql", "application/sql", false)
+	_ = Send(httptest.NewRecorder(), exec.Command("sh", "-c", "head -c 200000 /dev/zero; exit 1"), "db.sql", "application/sql", false)
 }

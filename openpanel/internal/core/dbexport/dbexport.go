@@ -3,6 +3,7 @@ package dbexport
 
 import (
 	"bufio"
+	"bytes"
 	"compress/gzip"
 	"errors"
 	"io"
@@ -20,6 +21,8 @@ import (
 // WebRoot is the only folder users can export into, as they see it
 const WebRoot = "/var/www/html"
 
+const peekSize = 64 << 10
+
 var (
 	ErrPathRequired = errors.New("Destination path is required for folder export.")
 	ErrPathOutside  = errors.New("Invalid export path. Must be inside /var/www/html/")
@@ -36,22 +39,23 @@ func Send(w http.ResponseWriter, cmd *exec.Cmd, filename, contentType string, gz
 	if err := cmd.Start(); err != nil {
 		return err
 	}
-	// wait for the first byte so a dump that fails right away (bad db, engine down) is reported before headers go out
-	br := bufio.NewReaderSize(out, 64<<10)
-	if _, err := br.Peek(1); err != nil {
+	// hold back the first chunk so a dump that dies early is still reported before headers go out, since mariadb-dump prints its header before checking the db exists
+	br := bufio.NewReaderSize(out, peekSize)
+	head, peekErr := br.Peek(peekSize)
+	if peekErr != nil {
+		// the whole dump fit in head, so check the exit code before sending anything
 		if waitErr := cmd.Wait(); waitErr != nil {
 			return waitErr
 		}
-		return ErrDumpFailed
+		if len(head) == 0 {
+			return ErrDumpFailed
+		}
+		setDownloadHeaders(w, filename, contentType, gz)
+		_, _ = copyDump(w, bytes.NewReader(head), gz)
+		return nil
 	}
 
-	if gz {
-		filename += ".gz"
-		contentType = "application/gzip"
-	}
-	w.Header().Set("Content-Type", contentType)
-	w.Header().Set("Content-Disposition", `attachment; filename="`+filename+`"`)
-
+	setDownloadHeaders(w, filename, contentType, gz)
 	_, copyErr := copyDump(w, br, gz)
 	if copyErr != nil {
 		_ = cmd.Process.Kill()
@@ -61,6 +65,15 @@ func Send(w http.ResponseWriter, cmd *exec.Cmd, filename, contentType string, gz
 		panic(http.ErrAbortHandler)
 	}
 	return nil
+}
+
+func setDownloadHeaders(w http.ResponseWriter, filename, contentType string, gz bool) {
+	if gz {
+		filename += ".gz"
+		contentType = "application/gzip"
+	}
+	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Content-Disposition", `attachment; filename="`+filename+`"`)
 }
 
 // hostDir maps a /var/www/html path to the user's html volume on the host

@@ -381,6 +381,9 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if maxEmailQuota != "0" {
 			args = append(args, "--wait")
 		}
+		if r.Form.Get("send_welcome") != "" {
+			args = append(args, "--send-welcome")
+		}
 
 		cmd := exec.CommandContext(ctx, "opencli", args...)
 		var stderrBuf strings.Builder

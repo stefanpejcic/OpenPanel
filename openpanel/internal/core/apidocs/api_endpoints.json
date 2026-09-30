@@ -510,11 +510,12 @@
       {
         "method": "POST",
         "path": "/api/emails",
-        "description": "Create mailbox (optional gb + format for a custom quota).",
+        "description": "Create mailbox (optional gb + format for a custom quota, send_welcome to drop a mail client setup guide into the new mailbox).",
         "body": {
           "domain": "b.com",
           "username": "a",
-          "password": "p"
+          "password": "p",
+          "send_welcome": true
         }
       },
       {

@@ -120,11 +120,12 @@ func apiEmailsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userDomains := domainSet(domains)
 
 	var body struct {
-		Domain   string `json:"domain"`
-		Username string `json:"username"`
-		Password string `json:"password"`
-		GB       string `json:"gb"`
-		Format   string `json:"format"`
+		Domain      string `json:"domain"`
+		Username    string `json:"username"`
+		Password    string `json:"password"`
+		GB          string `json:"gb"`
+		Format      string `json:"format"`
+		SendWelcome bool   `json:"send_welcome"`
 	}
 	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
 		_ = r.ParseForm()
@@ -133,6 +134,7 @@ func apiEmailsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		body.Password = r.Form.Get("password")
 		body.GB = r.Form.Get("gb")
 		body.Format = r.Form.Get("format")
+		body.SendWelcome, _ = strconv.ParseBool(r.Form.Get("send_welcome"))
 	}
 	domain := strings.TrimSpace(body.Domain)
 	username := strings.TrimSpace(body.Username)
@@ -169,6 +171,9 @@ func apiEmailsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	args := []string{"email-setup", "email", "add", email, password}
 	if maxEmailQuota != "0" {
 		args = append(args, "--wait")
+	}
+	if body.SendWelcome {
+		args = append(args, "--send-welcome")
 	}
 
 	cmd := exec.CommandContext(ctx, "opencli", args...)

@@ -278,7 +278,7 @@ func handleMediaWikiRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		dumpArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, dumpCmd, "-u", "root", dbName)
+		dumpArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, dumpCmd, "-u", "root", "--single-transaction", dbName)
 		dumpArgv = append(dumpArgv, tables...)
 		dumpArgv = append(dumpArgv, "--result-file=/tmp/dumps/database.sql")
 		if _, runErr := podmanmanager.Command(ctx, userContext, dumpArgv).Output(); runErr != nil {
