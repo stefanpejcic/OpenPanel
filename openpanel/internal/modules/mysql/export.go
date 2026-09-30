@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -60,23 +61,25 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	argv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, dumpCmd, "-u", "root", databaseName)
-	dumpOutput, dumpErr := podmanmanager.Command(ctx, userContext, argv).Output()
-	if dumpErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to export database %(database_name)s.", "database_name", databaseName), "/mysql")
-		return
-	}
+	dump := podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, dumpCmd, "-u", "root", "--single-transaction", databaseName))
+	failedMsg := web.Tr(a, r, "Failed to export database %(database_name)s.", "database_name", databaseName)
 
 	switch exportDestination {
 	case "browser":
+		if sendErr := dbexport.Send(w, dump, databaseName+".sql", "application/sql", exportFormat == "gzip"); sendErr != nil {
+			flashAndRedirect(a, w, r, "error", failedMsg, "/mysql")
+			return
+		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "exported MYSQL database "+databaseName+" to browser", reqip.ClientIP(r))
-		dbexport.Send(w, databaseName+".sql", "application/sql", dumpOutput, exportFormat == "gzip")
 		return
 
 	case "files":
 		localPath := strings.TrimSpace(r.Form.Get("local_path"))
-		displayFile, saveErr := dbexport.SaveToFiles(userContext, localPath, databaseName, ".sql", dumpOutput, exportFormat == "gzip")
-		if saveErr != nil {
+		displayFile, saveErr := dbexport.SaveToFiles(dump, userContext, localPath, databaseName, ".sql", exportFormat == "gzip")
+		if errors.Is(saveErr, dbexport.ErrDumpFailed) {
+			flashAndRedirect(a, w, r, "error", failedMsg, "/mysql")
+			return
+		} else if saveErr != nil {
 			flashAndRedirect(a, w, r, "error", saveErr.Error(), "/mysql")
 			return
 		}

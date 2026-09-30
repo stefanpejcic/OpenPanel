@@ -111,6 +111,7 @@ func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, c
 	for i, line := range currentEmailsList {
 		rows[i] = parseEmailListRow(line)
 	}
+	annotateEmailRows(rows)
 	toastID, toastMsg := emailQuotaToast(rows)
 	layout.BulkActions = accountsBulkActions(layout.T)
 	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg}

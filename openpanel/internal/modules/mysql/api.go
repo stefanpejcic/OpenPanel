@@ -1,8 +1,6 @@
 package mysql
 
 import (
-	"bytes"
-	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -13,6 +11,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/dbexport"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -400,28 +399,12 @@ func apiMySQLExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		dumpCmd = "mariadb-dump"
 	}
 
-	argv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, dumpCmd, "-u", "root", dbName)
-	dumpOutput, dumpErr := podmanmanager.Command(ctx, userContext, argv).Output()
-	if dumpErr != nil {
+	dump := podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, dumpCmd, "-u", "root", "--single-transaction", dbName))
+	if sendErr := dbexport.Send(w, dump, dbName+".sql", "application/sql", format == "gzip"); sendErr != nil {
 		writeAPIMySQLJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to export database '" + dbName + "'."})
 		return
 	}
-
 	_ = logger.RecordUserAction(a.Config, currentUsername, "exported MySQL database "+dbName+" via API", reqip.ClientIP(r))
-
-	if format == "gzip" {
-		var buf bytes.Buffer
-		gz := gzip.NewWriter(&buf)
-		_, _ = gz.Write(dumpOutput)
-		_ = gz.Close()
-		w.Header().Set("Content-Type", "application/gzip")
-		w.Header().Set("Content-Disposition", `attachment; filename="`+dbName+`.sql.gz"`)
-		_, _ = w.Write(buf.Bytes())
-		return
-	}
-	w.Header().Set("Content-Type", "application/sql")
-	w.Header().Set("Content-Disposition", `attachment; filename="`+dbName+`.sql"`)
-	_, _ = w.Write(dumpOutput)
 }
 
 // apiMySQLDatabasesSize returns per-database disk usage (data_length + index_length, summed across every table) in a configurable unit - the API equivalent of GET /json/mysql-size, distinct from GET /api/mysql/databases (names + assigned users, no size) and GET /api/mysql/databases/{db_name}/tables (per-table size for one db)

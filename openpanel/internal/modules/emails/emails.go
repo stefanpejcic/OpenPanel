@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -440,6 +441,9 @@ type EmailListRow struct {
 	PercentVal   int
 	CappedVal    int
 	BarColor     string
+	Suspended    bool
+	HasFilter    bool
+	NearQuota    bool
 }
 
 // parseEmailListRow mirrors accounts.html's per-row quota parsing.
@@ -481,7 +485,43 @@ func parseEmailListRow(entry string) EmailListRow {
 		barColor = "bg-red-500"
 	}
 
-	return EmailListRow{Address: address, QuotaDisplay: quota, PercentVal: percentVal, CappedVal: cappedVal, BarColor: barColor}
+	return EmailListRow{Address: address, QuotaDisplay: quota, PercentVal: percentVal, CappedVal: cappedVal, BarColor: barColor, NearQuota: percentVal > 80}
+}
+
+const dmsConfigDir = "/usr/local/mail/openmail/docker-data/dms/config"
+
+// readRestrictedAddresses returns the addresses listed in a postfix access file (lines like "user@domain REJECT")
+func readRestrictedAddresses(path string) map[string]bool {
+	set := map[string]bool{}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return set
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) == 0 || strings.HasPrefix(fields[0], "#") {
+			continue
+		}
+		set[strings.ToLower(fields[0])] = true
+	}
+	return set
+}
+
+// annotateEmailRows fills in the suspended and has-filter flags used by the accounts page filters
+func annotateEmailRows(rows []EmailListRow) {
+	send := readRestrictedAddresses(filepath.Join(dmsConfigDir, "postfix-send-access.cf"))
+	receive := readRestrictedAddresses(filepath.Join(dmsConfigDir, "postfix-receive-access.cf"))
+	for i := range rows {
+		addr := strings.ToLower(rows[i].Address)
+		rows[i].Suspended = send[addr] || receive[addr]
+		user, domain, ok := strings.Cut(rows[i].Address, "@")
+		if !ok || strings.Contains(user, "/") || strings.Contains(domain, "/") || strings.Contains(rows[i].Address, "..") {
+			continue
+		}
+		if fi, err := os.Stat(filepath.Join(baseMailPath, domain, user, "home", ".dovecot.sieve")); err == nil && fi.Size() > 0 {
+			rows[i].HasFilter = true
+		}
+	}
 }
 
 // SingleEmailQuota is single_account.html's parsed quota-line view-model.

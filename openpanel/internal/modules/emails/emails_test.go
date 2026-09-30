@@ -1,6 +1,8 @@
 package emails
 
 import (
+	"os"
+	"path/filepath"
 	"strconv"
 	"testing"
 )
@@ -188,5 +190,28 @@ func TestAddressesOf(t *testing.T) {
 	got := addressesOf(lines)
 	if len(got) != 2 || got[0] != "a@b.com" || got[1] != "c@d.com" {
 		t.Errorf("addressesOf = %v", got)
+	}
+}
+
+func TestReadRestrictedAddresses(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "postfix-send-access.cf")
+	if err := os.WriteFile(path, []byte("# comment\nInfo@Demo.rs\t\tREJECT\n\nsales@demo.rs REJECT\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	set := readRestrictedAddresses(path)
+	if !set["info@demo.rs"] || !set["sales@demo.rs"] || len(set) != 2 {
+		t.Fatalf("unexpected set: %v", set)
+	}
+	if len(readRestrictedAddresses(filepath.Join(t.TempDir(), "missing"))) != 0 {
+		t.Fatal("missing file should give empty set")
+	}
+}
+
+func TestParseEmailListRowNearQuota(t *testing.T) {
+	if !parseEmailListRow("* a@b.com ( 0 / 2.0G ) [85%]").NearQuota {
+		t.Fatal("85% should be near quota")
+	}
+	if parseEmailListRow("* a@b.com ( 0 / 2.0G ) [80%]").NearQuota {
+		t.Fatal("80% should not be near quota")
 	}
 }

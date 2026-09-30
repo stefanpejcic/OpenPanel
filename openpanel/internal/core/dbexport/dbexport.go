@@ -2,9 +2,10 @@
 package dbexport
 
 import (
-	"bytes"
+	"bufio"
 	"compress/gzip"
 	"errors"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -22,22 +23,44 @@ const WebRoot = "/var/www/html"
 var (
 	ErrPathRequired = errors.New("Destination path is required for folder export.")
 	ErrPathOutside  = errors.New("Invalid export path. Must be inside /var/www/html/")
+	// ErrDumpFailed means the dump command itself failed, so callers can show their own "failed to export" message
+	ErrDumpFailed = errors.New("dump command failed")
 )
 
-// Send writes data as a file download, gzipping it first when asked
-func Send(w http.ResponseWriter, filename, contentType string, data []byte, gz bool) {
+// Send runs cmd and streams its stdout to the browser as a download, gzipping on the fly; an error means nothing was sent yet
+func Send(w http.ResponseWriter, cmd *exec.Cmd, filename, contentType string, gz bool) error {
+	out, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	// wait for the first byte so a dump that fails right away (bad db, engine down) is reported before headers go out
+	br := bufio.NewReaderSize(out, 64<<10)
+	if _, err := br.Peek(1); err != nil {
+		if waitErr := cmd.Wait(); waitErr != nil {
+			return waitErr
+		}
+		return ErrDumpFailed
+	}
+
 	if gz {
-		var buf bytes.Buffer
-		zw := gzip.NewWriter(&buf)
-		_, _ = zw.Write(data)
-		_ = zw.Close()
-		data = buf.Bytes()
 		filename += ".gz"
 		contentType = "application/gzip"
 	}
 	w.Header().Set("Content-Type", contentType)
 	w.Header().Set("Content-Disposition", `attachment; filename="`+filename+`"`)
-	_, _ = w.Write(data)
+
+	_, copyErr := copyDump(w, br, gz)
+	if copyErr != nil {
+		_ = cmd.Process.Kill()
+	}
+	if waitErr := cmd.Wait(); copyErr != nil || waitErr != nil {
+		// headers are already out, so drop the connection to make the browser mark the download as failed instead of saving a truncated file
+		panic(http.ErrAbortHandler)
+	}
+	return nil
 }
 
 // hostDir maps a /var/www/html path to the user's html volume on the host
@@ -56,8 +79,8 @@ func hostDir(userContext, localPath string) (string, error) {
 	return filepath.Join("/home/"+userContext+"/docker-data/volumes/"+userContext+"_html_data/_data/", rel), nil
 }
 
-// SaveToFiles writes data to <localPath>/<base>_<timestamp><ext>[.gz], owned by the user, and returns the path as the user sees it
-func SaveToFiles(userContext, localPath, base, ext string, data []byte, gz bool) (string, error) {
+// SaveToFiles runs cmd and streams its stdout to <localPath>/<base>_<timestamp><ext>[.gz], owned by the user, and returns the path as the user sees it
+func SaveToFiles(cmd *exec.Cmd, userContext, localPath, base, ext string, gz bool) (string, error) {
 	dir, err := hostDir(userContext, localPath)
 	if err != nil {
 		return "", err
@@ -72,11 +95,38 @@ func SaveToFiles(userContext, localPath, base, ext string, data []byte, gz bool)
 	}
 	dest := filepath.Join(dir, name)
 	display := filepath.Join(localPath, name)
+	writeErr := errors.New("Failed to write export to " + display + " - try export to browser instead.")
 
-	if err := writeFile(dest, data, gz); err != nil {
-		_ = os.Remove(dest)
-		return "", errors.New("Failed to write export to " + display + " - try export to browser instead.")
+	f, err := os.Create(dest)
+	if err != nil {
+		return "", writeErr
 	}
+	defer f.Close()
+
+	out, err := cmd.StdoutPipe()
+	if err != nil {
+		_ = os.Remove(dest)
+		return "", ErrDumpFailed
+	}
+	if err := cmd.Start(); err != nil {
+		_ = os.Remove(dest)
+		return "", ErrDumpFailed
+	}
+	n, copyErr := copyDump(f, out, gz)
+	if copyErr != nil {
+		_ = cmd.Process.Kill()
+	}
+	waitErr := cmd.Wait()
+	closeErr := f.Close()
+	switch {
+	case waitErr != nil || (copyErr == nil && n == 0):
+		_ = os.Remove(dest)
+		return "", ErrDumpFailed
+	case copyErr != nil || closeErr != nil:
+		_ = os.Remove(dest)
+		return "", writeErr
+	}
+
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
 		id := strconv.Itoa(uid)
 		_ = exec.Command("chown", id+":"+id, dest).Run()
@@ -84,20 +134,15 @@ func SaveToFiles(userContext, localPath, base, ext string, data []byte, gz bool)
 	return display, nil
 }
 
-func writeFile(path string, data []byte, gz bool) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
+// copyDump copies src into dst, through gzip when asked, and returns how many raw bytes it read
+func copyDump(dst io.Writer, src io.Reader, gz bool) (int64, error) {
 	if !gz {
-		_, err = f.Write(data)
-		return err
+		return io.Copy(dst, src)
 	}
-	zw := gzip.NewWriter(f)
-	if _, err := zw.Write(data); err != nil {
-		_ = zw.Close()
-		return err
+	zw := gzip.NewWriter(dst)
+	n, err := io.Copy(zw, src)
+	if closeErr := zw.Close(); err == nil {
+		err = closeErr
 	}
-	return zw.Close()
+	return n, err
 }

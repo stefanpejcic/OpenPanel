@@ -1,6 +1,7 @@
 package mongodb
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -56,21 +57,24 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		args = append(args, "--gzip")
 		ext = ".archive.gz"
 	}
-	dump, dumpErr := podmanmanager.Command(r.Context(), userContext, podmanmanager.PodmanArgv(userContext, args...)).Output()
-	if dumpErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to export database %(database_name)s.", "database_name", databaseName), "/mongodb")
-		return
-	}
+	dump := podmanmanager.Command(r.Context(), userContext, podmanmanager.PodmanArgv(userContext, args...))
+	failedMsg := web.Tr(a, r, "Failed to export database %(database_name)s.", "database_name", databaseName)
 
 	if destination == "browser" {
+		if sendErr := dbexport.Send(w, dump, databaseName+ext, "application/octet-stream", false); sendErr != nil {
+			flashAndRedirect(a, w, r, "error", failedMsg, "/mongodb")
+			return
+		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "exported MongoDB database "+databaseName+" to browser", reqip.ClientIP(r))
-		dbexport.Send(w, databaseName+ext, "application/octet-stream", dump, false)
 		return
 	}
 
 	localPath := strings.TrimSpace(r.Form.Get("local_path"))
-	displayFile, saveErr := dbexport.SaveToFiles(userContext, localPath, databaseName, ext, dump, false)
-	if saveErr != nil {
+	displayFile, saveErr := dbexport.SaveToFiles(dump, userContext, localPath, databaseName, ext, false)
+	if errors.Is(saveErr, dbexport.ErrDumpFailed) {
+		flashAndRedirect(a, w, r, "error", failedMsg, "/mongodb")
+		return
+	} else if saveErr != nil {
 		flashAndRedirect(a, w, r, "error", saveErr.Error(), "/mongodb")
 		return
 	}

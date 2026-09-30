@@ -1,6 +1,7 @@
 package postgresql
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -47,21 +48,24 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	argv := podmanmanager.PodmanArgv(userContext, "exec", "postgres", "pg_dump", "-U", "postgres", "--no-owner", "--no-privileges", databaseName)
-	dump, dumpErr := podmanmanager.Command(r.Context(), userContext, argv).Output()
-	if dumpErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to export database %(database_name)s.", "database_name", databaseName), "/postgresql")
-		return
-	}
+	dump := podmanmanager.Command(r.Context(), userContext, argv)
+	failedMsg := web.Tr(a, r, "Failed to export database %(database_name)s.", "database_name", databaseName)
 
 	if destination == "browser" {
+		if sendErr := dbexport.Send(w, dump, databaseName+".sql", "application/sql", format == "gzip"); sendErr != nil {
+			flashAndRedirect(a, w, r, "error", failedMsg, "/postgresql")
+			return
+		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "exported PostgreSQL database "+databaseName+" to browser", reqip.ClientIP(r))
-		dbexport.Send(w, databaseName+".sql", "application/sql", dump, format == "gzip")
 		return
 	}
 
 	localPath := strings.TrimSpace(r.Form.Get("local_path"))
-	displayFile, saveErr := dbexport.SaveToFiles(userContext, localPath, databaseName, ".sql", dump, format == "gzip")
-	if saveErr != nil {
+	displayFile, saveErr := dbexport.SaveToFiles(dump, userContext, localPath, databaseName, ".sql", format == "gzip")
+	if errors.Is(saveErr, dbexport.ErrDumpFailed) {
+		flashAndRedirect(a, w, r, "error", failedMsg, "/postgresql")
+		return
+	} else if saveErr != nil {
 		flashAndRedirect(a, w, r, "error", saveErr.Error(), "/postgresql")
 		return
 	}

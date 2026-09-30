@@ -3,7 +3,9 @@ package dbexport
 import (
 	"compress/gzip"
 	"io"
+	"net/http"
 	"net/http/httptest"
+	"os/exec"
 	"testing"
 )
 
@@ -27,7 +29,9 @@ func TestHostDirStaysInWebRoot(t *testing.T) {
 
 func TestSendGzip(t *testing.T) {
 	w := httptest.NewRecorder()
-	Send(w, "db.sql", "application/sql", []byte("SELECT 1;"), true)
+	if err := Send(w, exec.Command("printf", "SELECT 1;"), "db.sql", "application/sql", true); err != nil {
+		t.Fatal(err)
+	}
 	if got := w.Header().Get("Content-Disposition"); got != `attachment; filename="db.sql.gz"` {
 		t.Errorf("disposition %q", got)
 	}
@@ -38,4 +42,25 @@ func TestSendGzip(t *testing.T) {
 	if b, _ := io.ReadAll(zr); string(b) != "SELECT 1;" {
 		t.Errorf("got %q", b)
 	}
+}
+
+func TestSendFailsBeforeHeaders(t *testing.T) {
+	for _, cmd := range []*exec.Cmd{exec.Command("false"), exec.Command("true"), exec.Command("/nonexistent-dump")} {
+		w := httptest.NewRecorder()
+		if err := Send(w, cmd, "db.sql", "application/sql", false); err == nil {
+			t.Errorf("%v: expected error", cmd.Args)
+		}
+		if w.Header().Get("Content-Disposition") != "" || w.Body.Len() != 0 {
+			t.Errorf("%v: nothing should be sent on early failure", cmd.Args)
+		}
+	}
+}
+
+func TestSendAbortsOnMidStreamFailure(t *testing.T) {
+	defer func() {
+		if r := recover(); r != http.ErrAbortHandler {
+			t.Errorf("expected ErrAbortHandler panic, got %v", r)
+		}
+	}()
+	_ = Send(httptest.NewRecorder(), exec.Command("sh", "-c", "echo partial; exit 1"), "db.sql", "application/sql", false)
 }
