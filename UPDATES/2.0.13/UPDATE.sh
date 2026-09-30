@@ -24,3 +24,29 @@ if [ -f "$CORAZA_RULES" ] && grep -q "^SecResponseBodyAccess On" "$CORAZA_RULES"
         podman exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1
     fi
 fi
+
+# php containers share the mysql socket from 2.0.13 so apps can use localhost, patch the templates new users are created from
+COMPOSE_TEMPLATE="/etc/openpanel/docker/compose/1.0/docker-compose.yml"
+if [ -f "$COMPOSE_TEMPLATE" ]; then
+    echo "Adding mysql socket mount to php-fpm services in $COMPOSE_TEMPLATE..."
+    cp "$COMPOSE_TEMPLATE" "${COMPOSE_TEMPLATE}.bak-2.0.13"
+    awk '
+        /^  [A-Za-z0-9_.-]+:[[:space:]]*$/ { fpm = ($1 ~ /^php-fpm-/); added = 0 }
+        { line = $0; sub(/[[:space:]]+$/, "", line) }
+        fpm && line ~ /- \.\/sockets\/mysqld:\/var\/run\/mysqld$/ { if (added) next; added = 1 }
+        { print }
+        fpm && !added && line ~ /^[[:space:]]*- html_data:\/var\/www\/html\/$/ {
+            match($0, /^[[:space:]]*/); print substr($0, 1, RLENGTH) "- ./sockets/mysqld:/var/run/mysqld"; added = 1
+        }
+    ' "${COMPOSE_TEMPLATE}.bak-2.0.13" > "$COMPOSE_TEMPLATE"
+fi
+
+# only fills the empty defaults, a socket path set by the admin is left alone
+for ini in /etc/openpanel/php/ini/*.ini; do
+    [ -f "$ini" ] || continue
+    sed -i -E \
+        -e 's|^(pdo_mysql\.default_socket)[[:space:]]*=[[:space:]]*\r?$|\1 = /var/run/mysqld/mysqld.sock|' \
+        -e 's|^(mysqli\.default_socket)[[:space:]]*=[[:space:]]*\r?$|\1 = /var/run/mysqld/mysqld.sock|' \
+        -e 's|^(mysql\.default_socket)[[:space:]]*=[[:space:]]*\r?$|\1 = /var/run/mysqld/mysqld.sock|' \
+        "$ini"
+done

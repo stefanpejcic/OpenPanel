@@ -225,7 +225,7 @@ Domain unsuspended successfully.
 Test why a website is slow: times the home page through every layer, checks resource limits and settings, and shows the biggest issue with a fix. Run it as root on the server.
 
 ```bash
-opencli domains-test <DOMAIN_NAME>[/SUBFOLDER] [RUNS]
+opencli domains-test <DOMAIN_NAME>[/SUBFOLDER] [RUNS] [--load <N|auto>]
 ```
 
 It measures:
@@ -335,6 +335,62 @@ opencli domains-test example.org
 ```bash
 # opencli domains-test example.org
 Domain example.org is not hosted on this server.
+```
+</details>
+
+### Load test
+
+Add `--load` to stress the site instead of timing it, and find out how many visitors it can handle and which limit stops it:
+
+```bash
+opencli domains-test example.com --load auto   # double the concurrent connections until the site breaks
+opencli domains-test example.com --load 100    # 100 concurrent connections
+```
+
+The load is sent from the server itself straight to Varnish (when the page cache is on for the domain) or to the webserver, so Caddy, the WAF and DNS are skipped and their limits don't count. Each step sends requests for about 5 seconds, and the whole test stops after 60 seconds, showing how much it completed in that time.
+
+`--load auto` stops when more than 5% of requests fail, or when response times collapse (p95 over 10x the first step, and at least 3 seconds). At the end it shows:
+
+- **Handled**: the most concurrent connections that were still answered without errors, and the requests per second at that point.
+- **Peak** and **Saturated**: the highest requests per second, and from how many connections on adding more only made visitors wait longer.
+- **Broke at**: where and why it failed.
+- **Recovery**: how long the site kept struggling after the test, while requests queued during the test were still being processed.
+- **Limits reached**: container CPU throttling, memory and out-of-memory kills, process limits, PHP-FPM `pm.max_children`, nginx/OpenResty `worker_connections`, Apache `MaxRequestWorkers` and MySQL/MariaDB `max_connections`, each with the setting to raise.
+
+:::warning
+A load test really overloads the site, visitors will get slow responses or errors while it runs and for a short while after it. Run it outside peak hours.
+:::
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-test sock3.test.rs/wpb --load auto
+Load test    sock3.test.rs/wpb  (user sock3nginx, nginx, php-fpm-8.5, mariadb)
+Target       nginx (127.0.0.1:32822), local so caddy, the WAF and DNS are skipped
+Mode         auto, doubling concurrent connections until errors or response times collapse
+
+  conns  requests errors  req/s     p50 ms    p95 ms    p99 ms    throttled
+  1      20       0.0%    8.6       113       137       137
+  2      43       0.0%    11.6      178       196       196       php-fpm-8.5
+  4      58       0.0%    10.8      387       426       465       php-fpm-8.5
+  8      54       0.0%    10.4      753       1115      1196      php-fpm-8.5
+  16     64       0.0%    9.5       1372      2598      3012      php-fpm-8.5
+  32     128      0.0%    9.7       3023      4216      4399      php-fpm-8.5
+
+======================================================================
+Load test result for sock3.test.rs/wpb
+======================================================================
+Handled:   16 concurrent connections at 9.5 req/s (p95 2598 ms, under 5% errors)
+Peak:      11.6 req/s at 2 concurrent connections
+Saturated: from 4 connections on throughput stopped growing, more connections only queue up
+Broke at:  32 concurrent connections, response times collapsed, p95 went from 137 ms to 4216 ms
+
+Limits reached:
+  1. php-fpm-8.5 hit its CPU limit (1.0 CPU) and was paused for 66010 ms.
+     Fix: Raise PHP_FPM_8_5_CPU in /home/sock3nginx/.env (now 1.0) and recreate the container, or raise the CPU in the hosting plan.
+  2. php-fpm-8.5 ran out of PHP workers (pm.max_children = 20), requests queued.
+     Fix: pm.max_children is tuned from the container memory, raise PHP_FPM_8_5_RAM in /home/sock3nginx/.env and recreate php-fpm-8.5, or turn on the page cache so fewer requests reach PHP.
 ```
 </details>
 
