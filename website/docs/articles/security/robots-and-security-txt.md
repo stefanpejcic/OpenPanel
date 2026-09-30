@@ -12,17 +12,17 @@ Both **OpenPanel** and **OpenAdmin** ship with a default `robots.txt` (blocks al
 
 | App | Served at | Override directory | Takes effect |
 |---|---|---|---|
-| OpenPanel | `https://yourpanel:2083/robots.txt`, `/security.txt` | `/etc/openpanel/openpanel/static/` | After restarting the `openpanel` service |
+| OpenPanel | `https://yourpanel:2083/robots.txt`, `/security.txt` | `/etc/openpanel/openpanel/custom_code/` | After restarting the `openpanel` service |
 | OpenAdmin | `https://yourserver:2087/robots.txt`, `/security.txt` | `/usr/local/admin/` | Immediately, no restart |
 
 ---
 
 ## OpenPanel
 
-Create the file at `/etc/openpanel/openpanel/static/robots.txt` and/or `/etc/openpanel/openpanel/static/security.txt`:
+Create the file at `/etc/openpanel/openpanel/custom_code/robots.txt` and/or `/etc/openpanel/openpanel/custom_code/security.txt`:
 
 ```bash
-nano /etc/openpanel/openpanel/static/robots.txt
+nano /etc/openpanel/openpanel/custom_code/robots.txt
 ```
 
 The override is only checked once, at startup, so restart the service to apply it:
@@ -31,7 +31,7 @@ The override is only checked once, at startup, so restart the service to apply i
 cd /root && podman-compose up -d openpanel
 ```
 
-The same directory also holds the CSS/JS overrides — `css/custom.css` and `js/custom.js` under `/etc/openpanel/openpanel/static/` — if you're customizing one you may want the others too; see [Branding & White-Label](/docs/articles/dev-experience/customizing-openpanel-user-interface#set-a-custom-color-scheme).
+The same directory also holds the custom code from **OpenAdmin > Settings > Custom Code** (`custom.css`, `custom.js`, `in_header.html`, `in_footer.html`) — if you're customizing one you may want the others too; see [Branding & White-Label](/docs/articles/dev-experience/customizing-openpanel-user-interface#set-a-custom-color-scheme).
 
 ## OpenAdmin
 

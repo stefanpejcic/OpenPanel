@@ -44,7 +44,8 @@
     <!-- dark mode follows the saved theme, or the device setting if none is saved, same as base.html -->
     <script>if(localStorage.getItem('color-theme')==='dark'||(!('color-theme' in localStorage)&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}</script>
 
-    <!-- Custom code in header: deferred until the custom_code admin feature is ported -->
+    <!-- Custom code in header -->
+    {{customHeader}}
 
     <!-- Custom CSS code -->
     <link rel="stylesheet" href="{{static "css/custom.css"}}">
@@ -196,7 +197,8 @@
 
   </body>
 
-  <!-- Custom code in footer: deferred until the custom_code admin feature is ported -->
+  <!-- Custom code in footer -->
+    {{customFooter}}
 
     <!-- The Jinja original guards this with {% if url_for(...) %}, which is
          always truthy (url_for() always returns a URL string regardless of

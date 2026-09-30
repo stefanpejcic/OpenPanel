@@ -20,6 +20,9 @@ var templateFS embed.FS
 // funcMap holds only stateless helpers - anything request-scoped (the translator, CSRF token, flashes) is passed as template data instead, see internal/core/i18n's Translator doc comment for why.
 var funcMap = template.FuncMap{
 	"static": func(path string) string { return "/static/" + path },
+	// admin custom code from in_header.html/in_footer.html, loaded at startup
+	"customHeader": func() template.HTML { return customHeaderHTML },
+	"customFooter": func() template.HTML { return customFooterHTML },
 	// firstUpper returns the first character of s, uppercased - used for the letter-avatar initial
 	"firstUpper": func(s string) string {
 		for _, r := range s {

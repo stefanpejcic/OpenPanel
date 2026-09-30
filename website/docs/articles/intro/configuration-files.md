@@ -16,7 +16,6 @@ Manually editing these files can break the panel or be overwritten during update
 | `/etc/openpanel/openpanel/secret.key` | OpenPanel, OpenAdmin | raw text (hex) | Signing key for session cookies/CSRF, also reused as the Dovecot master-password source |
 | `/etc/openpanel/openpanel/default_locale` | OpenPanel | text | Default UI locale |
 | `/etc/openpanel/openpanel/translations/` | OpenPanel, OpenAdmin | dir | Translation catalogs |
-| `/etc/openpanel/openpanel/static/` | OpenPanel | dir | Override dir for `css/custom.css`, `js/custom.js`, `robots.txt`, `security.txt` |
 | `/etc/openpanel/openpanel/features/default.txt`, `<plan>.txt` | OpenPanel, OpenAdmin | text list | Feature flags available per plan |
 | `/etc/openpanel/openpanel/quota_report.json` | OpenPanel, OpenAdmin | JSON | Cached disk/quota usage report |
 | `/etc/openpanel/openpanel/conf/custom_dashboard_section.json` | OpenPanel, OpenAdmin | JSON | Admin-injected custom dashboard content |
@@ -24,7 +23,8 @@ Manually editing these files can break the panel or be overwritten during update
 | `/etc/openpanel/openpanel/conf/domain_restriction.txt` | OpenAdmin, opencli | text list | Domains forbidden from being added by users |
 | `/etc/openpanel/openpanel/conf/blacklist_useragents.txt` | OpenAdmin, opencli | text list | Blocked user-agents (bot/scraper blocking) |
 | `/etc/openpanel/openpanel/conf/public_suffix_list.dat` | opencli | text | Public suffix (TLD) list, used for DNS zone-apex handling |
-| `/etc/openpanel/openpanel/custom_code/custom.css`, `custom.js`, `in_header.html`, `in_footer.html` | OpenPanel, OpenAdmin | CSS/JS/HTML | User-editable custom code injected into the panel UI |
+| `/etc/openpanel/openpanel/custom_code/custom.css`, `custom.js`, `in_header.html`, `in_footer.html` | OpenPanel, OpenAdmin | CSS/JS/HTML | User-editable custom code injected into the panel UI (Enterprise), read on `openpanel` restart |
+| `/etc/openpanel/openpanel/custom_code/robots.txt`, `security.txt` | OpenPanel | text | Overrides for the panel's default `robots.txt` / `security.txt` |
 | `/etc/openpanel/openpanel/service/pagespeed.api` | OpenPanel, OpenAdmin | text | PageSpeed Insights API key |
 | `/etc/openpanel/openpanel/service/service.config.py` | (system) | Python config | systemd/service config, fetched during updates |
 | `/etc/openpanel/skeleton/` | opencli | dir | Template files copied into every new user's account directory |

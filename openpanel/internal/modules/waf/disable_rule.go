@@ -62,7 +62,7 @@ func disableRuleForDomain(ctx context.Context, domain, ruleID string) (alreadyDi
 	return false, nil
 }
 
-// handleWAFDisableRule handles POST /server/waf/{domain}/disable-rule, the "Disable" button on the WAF log page
+// handleWAFDisableRule handles POST /server/waf/disable-rule/{domain}, the "Disable" button on the WAF log page
 func handleWAFDisableRule(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domain := firstPathSegment(r.PathValue("domain"))
 	userID, _ := auth.UserID(r)

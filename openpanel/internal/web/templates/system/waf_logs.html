@@ -180,7 +180,7 @@ function logsTable() {
             body.append('rule_id', rule.id);
             body.append('csrf_token', csrf_token);
             try {
-                const res = await fetch('/server/waf/' + encodeURIComponent({{toJSON .DomainName}}) + '/disable-rule', { method: 'POST', body, headers: { 'X-CSRF-Token': csrf_token } });
+                const res = await fetch('/server/waf/disable-rule/' + encodeURIComponent({{toJSON .DomainName}}), { method: 'POST', body, headers: { 'X-CSRF-Token': csrf_token } });
                 const data = await res.json().catch(() => ({}));
                 if (res.ok || res.status === 207) {
                     this.disabled.push(rule.id);

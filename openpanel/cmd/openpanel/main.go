@@ -27,8 +27,8 @@ const (
 	// also tlsCertPaths' fallback (startup.go) when `opencli port` can't be read
 	defaultAdminPort  = "2083"
 	defaultListenAddr = ":" + defaultAdminPort
-	// where an admin can drop replacement static files (custom.css/js, robots.txt, security.txt); empty disables overrides
-	defaultStaticOverrideDir = "/etc/openpanel/openpanel/static"
+	// where OpenAdmin saves custom code (custom.css/js, in_header/in_footer.html), robots.txt and security.txt can go here too
+	defaultStaticOverrideDir = "/etc/openpanel/openpanel/custom_code"
 )
 
 var licenseErrorPage = web.MustLoadPage("system/license_error.html")
@@ -66,11 +66,16 @@ func main() {
 	if err != nil {
 		log.Fatalf("BOOTSTRAP - failed to load embedded static assets: %v", err)
 	}
-	staticAssets, err := web.NewStaticAssets(staticFS, staticOverrideDir)
+	// custom code is Enterprise only, same as the old compose mounts
+	customCode := strings.HasPrefix(a.LicenseKey, "enterprise")
+	staticAssets, err := web.NewStaticAssets(staticFS, staticOverrideDir, customCode)
 	if err != nil {
 		log.Fatalf("BOOTSTRAP - failed to load embedded static assets: %v", err)
 	}
 	a.CustomCSS, a.CustomJS = staticAssets.CustomCSS, staticAssets.CustomJS
+	if customCode {
+		web.LoadCustomCode(staticOverrideDir)
+	}
 	log.Printf("BOOTSTRAP - static assets embedded (override dir %s: custom_css=%v custom_js=%v)",
 		staticOverrideDir, a.CustomCSS, a.CustomJS)
 	mux.Handle("GET /static/", http.StripPrefix("/static/", staticAssets.Handler()))

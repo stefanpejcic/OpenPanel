@@ -8,8 +8,11 @@ import (
 	"strings"
 )
 
-// overridablePaths is the small set of static files admins can edit in place on disk (custom CSS/JS), plus robots.txt/security.txt which admins commonly replace - everything else under static/ is served from the embedded binary only, it's vendored third-party JS/CSS, not meant to be edited.
-var overridablePaths = []string{"css/custom.css", "js/custom.js", "robots.txt", "security.txt"}
+// overridablePaths maps a served static path to its file name in the override dir, everything else is embedded only
+var overridablePaths = map[string]string{"css/custom.css": "custom.css", "js/custom.js": "custom.js", "robots.txt": "robots.txt", "security.txt": "security.txt"}
+
+// customCodePaths are only overridden when custom code is enabled (Enterprise)
+var customCodePaths = map[string]bool{"css/custom.css": true, "js/custom.js": true}
 
 // StaticAssets serves static/ from the embedded binary, preferring an on-disk copy for the paths in overridablePaths when one exists there - checked once at startup and cached, not per-request.
 type StaticAssets struct {
@@ -19,11 +22,14 @@ type StaticAssets struct {
 }
 
 // NewStaticAssets builds a StaticAssets serving fsys (already rooted at the static content root, e.g. fs.Sub(assets.Static, "static")) with disk overrides read from overrideDir - overrideDir may be "" to disable overrides entirely.
-func NewStaticAssets(fsys fs.FS, overrideDir string) (*StaticAssets, error) {
+func NewStaticAssets(fsys fs.FS, overrideDir string, customCode bool) (*StaticAssets, error) {
 	overrides := map[string]string{}
 	if overrideDir != "" {
-		for _, rel := range overridablePaths {
-			diskPath := filepath.Join(overrideDir, rel)
+		for rel, name := range overridablePaths {
+			if customCodePaths[rel] && !customCode {
+				continue
+			}
+			diskPath := filepath.Join(overrideDir, name)
 			if info, err := os.Stat(diskPath); err == nil && info.Size() > 1 {
 				overrides[rel] = diskPath
 			}

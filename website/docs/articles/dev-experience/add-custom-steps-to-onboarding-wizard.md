@@ -22,7 +22,7 @@ Your step appears right before the final "Finish" screen, after Security.
 Edit (or create) the custom JS override file:
 
 ```bash
-nano /etc/openpanel/openpanel/static/js/custom.js
+nano /etc/openpanel/openpanel/custom_code/custom.js
 ```
 
 This file is always loaded by the OpenPanel interface, so anything you put there runs on every page - not just onboarding. If the file didn't already exist, restart the `openpanel` container once so it picks up the new override:

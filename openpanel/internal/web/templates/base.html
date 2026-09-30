@@ -291,7 +291,8 @@
         });
     </script>
 
-    <!-- Custom code in header: deferred until the custom_code admin feature is ported -->
+    <!-- Custom code in header -->
+    {{customHeader}}
 
     {{if .CustomCSS}}
     <!-- Custom CSS code -->
@@ -782,7 +783,8 @@ document.addEventListener('submit', (e) => {
         {{template "servicejs" .}}
     {{end}}
 
-    <!-- Custom code in footer: deferred until the custom_code admin feature is ported -->
+    <!-- Custom code in footer -->
+    {{customFooter}}
 
     {{if .CustomJS}}
     <!-- Custom JS code -->
