@@ -1190,3 +1190,110 @@ Owner of 'example.com': stefan | docroot: /var/www/html/example.com
 ```
 </details>
 
+
+
+## Cloudflare
+
+Restrict access to Cloudflare-only IPs for domains or check the current configuration status.
+
+To check status for a domain:
+
+```bash
+opencli domains-cloudflare status <DOMAIN_NAME>
+
+```
+
+```bash
+# opencli domains-cloudflare status example.com
+Cloudflare-only mode for example.com is ENABLED.
+
+```
+
+To check status for all domains:
+
+```bash
+opencli domains-cloudflare status --all
+
+```
+
+```bash
+# opencli domains-cloudflare status --all
+Cloudflare-only status for all domains:
+----------------------------------------
+  example.com: ENABLED
+  mysite.org: DISABLED
+----------------------------------------
+Summary: 1 enabled, 1 disabled out of 2 domain(s).
+
+```
+
+To enable Cloudflare-only access for a single domain:
+
+```bash
+opencli domains-cloudflare enable <DOMAIN_NAME>
+
+```
+
+```bash
+# opencli domains-cloudflare enable example.com
+Enabled: /etc/openpanel/caddy/domains/example.com.conf
+Reloading Caddy to apply the setting...
+SUCCESS: Caddy reloaded successfully.
+
+```
+
+To enable Cloudflare-only access globally for all (current and new) domains:
+
+```bash
+opencli domains-cloudflare enable --all [-y]
+
+```
+
+```bash
+# opencli domains-cloudflare enable --all -y
+Enabled: /etc/openpanel/caddy/domains/example.com.conf
+Enabled: /etc/openpanel/caddy/domains/mysite.org.conf
+Total domains enabled: 2
+Enabled: /etc/openpanel/caddy/templates/domain.conf
+Updating list of Cloudflare IP ranges...
+Retrieved 15 IPv4 Cloudflare ranges:
+  ...
+Retrieved 7 IPv6 Cloudflare ranges:
+  ...
+Updated: /etc/openpanel/caddy/templates/cloudflare.only
+Reloading Caddy to apply the setting...
+SUCCESS: Caddy reloaded successfully.
+
+```
+
+To disable Cloudflare-only access for a single domain:
+
+```bash
+opencli domains-cloudflare disable <DOMAIN_NAME>
+
+```
+
+```bash
+# opencli domains-cloudflare disable example.com
+Disabled: /etc/openpanel/caddy/domains/example.com.conf
+Reloading Caddy to apply the setting...
+SUCCESS: Caddy reloaded successfully.
+
+```
+
+To disable Cloudflare-only access globally for all (current and new) domains:
+
+```bash
+opencli domains-cloudflare disable --all [-y]
+
+```
+
+```bash
+# opencli domains-cloudflare disable --all -y
+Disabled: /etc/openpanel/caddy/domains/example.com.conf
+Disabled: /etc/openpanel/caddy/domains/mysite.org.conf
+Total domains disabled: 2
+Reloading Caddy to apply the setting...
+SUCCESS: Caddy reloaded successfully.
+
+```
