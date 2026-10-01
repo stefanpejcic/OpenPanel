@@ -38,7 +38,7 @@
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Started"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Source"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Directory"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Files scanned"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Files"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Result"}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-right text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"></th>
                     </tr>
@@ -48,18 +48,18 @@
                     <tr class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
                             {{.StartedAt}}
-                            {{if .FinishedAt}}<span class="block text-xs text-gray-400 dark:text-gray-600">{{$.T.Get "finished"}} {{.FinishedAt}}</span>{{end}}
+                            {{with .Duration}}<span class="block text-xs text-gray-400 dark:text-gray-600">{{$.T.Get "took"}} {{.}}</span>{{end}}
                         </td>
                         <td class="whitespace-nowrap p-4 text-sm">
                             {{if eq .Source "cron"}}
-                            <span class="bg-purple-100 text-purple-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-purple-900/40 dark:text-purple-300">{{$.T.Get "Scheduled"}}</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300">{{$.T.Get "Scheduled"}}</span>
                             {{else if eq .Source "api"}}
                             <span class="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">API</span>
                             {{else}}
-                            <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-blue-900/40 dark:text-blue-300">{{$.T.Get "Manual"}}</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{{$.T.Get "Manual"}}</span>
                             {{end}}
                         </td>
-                        <td class="p-4 text-sm text-gray-600 dark:text-gray-400 break-all">{{.Path}}</td>
+                        <td style="word-break: break-all;" class="p-4 text-sm text-gray-600 dark:text-gray-400">{{.Path}}</td>
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Scanned}}</td>
                         <td class="whitespace-nowrap p-4 text-sm">
                             {{if eq .Status "failed"}}
@@ -67,9 +67,9 @@
                             {{else if .Infected}}
                             <span class="bg-red-100 text-red-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-red-900/40 dark:text-red-400">{{.Infected}} {{$.T.Get "infected"}}</span>
                             {{else}}
-                            <span class="bg-green-100 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-green-900/40 dark:text-green-400">{{$.T.Get "Clean"}}</span>
+                            <span class="bg-green-100 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-400">{{$.T.Get "Clean"}}</span>
                             {{end}}
-                            {{if .Errors}}<span class="ml-1 bg-yellow-100 text-yellow-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-yellow-900/40 dark:text-yellow-300">{{.Errors}} {{$.T.Get "errors"}}</span>{{end}}
+                            {{if .Errors}}<span class="ml-1 bg-yellow-100 text-yellow-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">{{.Errors}} {{$.T.Get "errors"}}</span>{{end}}
                             {{if eq .Status "aborted"}}<span class="ml-1 bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">{{$.T.Get "Stopped early"}}</span>{{end}}
                         </td>
                         <td class="whitespace-nowrap p-4 text-sm text-right">
@@ -85,8 +85,14 @@
                         <td colspan="6" class="px-4 pb-4 sm:px-6">
                             {{if .Message}}<p class="mb-2 text-sm text-red-600 dark:text-red-400">{{.Message}}</p>{{end}}
                             {{if .Findings}}
-                            <pre class="fs-xs m-0 p-2 border rounded dark:border-gray-800 text-gray-700 dark:text-gray-300" style="max-height: 20rem; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{range .Findings}}{{.Path}} - {{.Result}}
-{{end}}</pre>
+                            <ul style="max-height: 20rem;" class="overflow-y-auto divide-y divide-gray-200 rounded border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                                {{range .Findings}}
+                                <li class="px-3 py-2 text-xs">
+                                    <span style="word-break: break-all;" class="block font-mono text-gray-900 dark:text-gray-50">{{.Path}}</span>
+                                    <span class="block mt-0.5 {{if hasPrefix .Result "Malware detected"}}text-red-700 dark:text-red-400{{else}}text-yellow-700 dark:text-yellow-300{{end}}">{{.Result}}</span>
+                                </li>
+                                {{end}}
+                            </ul>
                             {{if .Truncated}}<p class="mt-1 text-xs text-gray-400 dark:text-gray-600">{{$.T.Get "Only the first 500 files are listed."}}</p>{{end}}
                             {{end}}
                         </td>

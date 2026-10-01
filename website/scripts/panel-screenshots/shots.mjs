@@ -996,7 +996,7 @@ export const pages = {
   'files/malware_logs': {
     url: '/malware-scanner/logs',
     shots: [
-      { name: 'list', alt: 'Scan Logs page listing past scans with their date, source, directory, files scanned and result', prepare: async page => { await page.evaluate(() => [...document.querySelectorAll('#scan-logs-table > tbody')].slice(6).forEach(b => b.remove())); }, crop: 'content' },
+      { name: 'list', alt: 'Scan Logs page listing past scans with their date, source, directory, number of files and result', prepare: async page => { await page.evaluate(() => [...document.querySelectorAll('#scan-logs-table > tbody')].slice(6).forEach(b => b.remove())); }, crop: 'content' },
       {
         name: 'details',
         alt: 'Details of a scan listing the infected files and the malware found in each',

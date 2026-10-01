@@ -103,7 +103,7 @@
               <circle cx="24" cy="24" fill="#5A8A6E" r="2.6"></circle>
             </svg>
         </div>
-        <p class="min-w-0 break-all text-sm text-gray-600 dark:text-gray-400">
+        <p style="word-break: break-all;" class="min-w-0 text-sm text-gray-600 dark:text-gray-400">
             <span id="scan-progress-count">0</span> {{.T.Get "files scanned"}} &mdash;
             <span id="scan-progress-current"></span>
         </p>
@@ -134,11 +134,13 @@
     let scanLineBuffer = '';
     let scannedCount = 0;
     let malwareCount = 0;
+    let scanError = '';
 
     function resetScanUI() {
         scanLineBuffer = '';
         scannedCount = 0;
         malwareCount = 0;
+        scanError = '';
         document.getElementById('scan-results').textContent = '';
         document.getElementById('scan-progress-count').textContent = '0';
         document.getElementById('scan-progress-current').textContent = '';
@@ -168,6 +170,12 @@
             return;
         }
 
+        if (line.startsWith('Error: ')) {
+            scanError = line.slice(7);
+            appendScanResult(i18n.scanFailed + scanError);
+            return;
+        }
+
         scannedCount++;
         document.getElementById('scan-progress-count').textContent = scannedCount;
         document.getElementById('scan-progress-current').textContent = line;
@@ -184,6 +192,11 @@
         document.getElementById('scan-radar').style.display = 'none';
         document.getElementById('scan-progress').style.display = 'none';
         const msg = document.getElementById('scan-complete-message');
+        if (scanError) {
+            msg.style.display = 'none';
+            if (typeof showToast === 'function') showToast(i18n.scanFailed + scanError, 'error');
+            return;
+        }
         const summary = `${i18n.scanComplete} ${scannedCount} ${i18n.filesScanned}`;
         msg.textContent = summary;
         msg.style.display = 'block';
