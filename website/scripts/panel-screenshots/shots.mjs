@@ -7,6 +7,15 @@ export const VIEWPORT_WIDTH = 1100;
 
 import { rename, all, click, fill, fillVisible, selectFirst, maskIPs, hideNotices, hideOnboarding, hideText, markCard, tab, markSection, bulkSelect, onlyRows, fitBulkBar, firstRows } from './helpers.mjs';
 
+// the rule exceptions section is collapsed until a domain has some
+const wafExceptions = values => async page => {
+  await page.evaluate(() => { document.querySelector('main details:has(#removed_rules)').open = true; });
+  await fill(values)(page);
+  await page.evaluate(() => document.activeElement.blur());
+  // opening it makes the page taller than the viewport shoot.mjs already set
+  await page.setViewportSize({ width: page.viewportSize().width, height: await page.evaluate(() => document.documentElement.scrollHeight) });
+};
+
 // readable names for the demo's random mysql users and databases
 const MYSQL_USERS = { u1pd6u5s: 'wp_blog_user', stefan: 'shop_admin' };
 const MYSQL_DBS = { bd37zzjy: 'wp_blog', stefan: 'shop_db' };
@@ -1270,8 +1279,8 @@ export const pages = {
       { name: 'level', alt: 'Protection level options Compatibility, Standard and Strict, with Standard selected', crop: { from: 'main h2:text-is("Protection level")', to: 'main label:has(input[name=waf_level]) >> nth=-1', pad: 24, right: true } },
       { name: 'recent', alt: 'Recent blocked requests grouped by reason, like SQL injection and cross-site scripting, with Disable rule buttons and a table of the latest requests', crop: { from: 'main h2:text-is("Recent blocked requests")', to: 'main table >> nth=0', pad: 24, right: true } },
       { name: 'profiles', alt: 'App profiles with a recommendation to turn on the WordPress profile and a switch for each profile', crop: { from: 'main h2:text-is("App profiles")', to: 'main p:has-text("Only turn on profiles")', pad: 24, right: true } },
-      { name: 'ids', alt: 'Disabled IDs field of the WAF settings with rule IDs 942100 and 920350', prepare: fill({ '#removed_rules': '942100 920350', '#removed_tags': '' }), crop: { from: 'main h3:text-is("Disabled IDs")', to: '#removed_rules', pad: 24, right: true } },
-      { name: 'tags', alt: 'Disabled Tags field of the WAF settings with the attack-sqli tag', prepare: fill({ '#removed_rules': '', '#removed_tags': 'attack-sqli' }), crop: { from: 'main h3:text-is("Disabled Tags")', to: '#removed_tags', pad: 24, right: true } },
+      { name: 'ids', alt: 'Disabled IDs field of the WAF settings with rule IDs 942100 and 920350', prepare: wafExceptions({ '#removed_rules': '942100 920350', '#removed_tags': '' }), crop: { from: 'main div.grid:has(#removed_rules)', pad: 24, right: true } },
+      { name: 'tags', alt: 'Disabled Tags field of the WAF settings with the attack-sqli tag', prepare: wafExceptions({ '#removed_rules': '', '#removed_tags': 'attack-sqli' }), crop: { from: 'main div.grid:has(#removed_tags)', pad: 24, right: true } },
     ],
   },
   // same docs page, a domain in monitor only mode
