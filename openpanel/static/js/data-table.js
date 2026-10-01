@@ -17,6 +17,12 @@ function createTableController({ storageKey, storage = 'local', columns = {}, tr
                 this.$watch('searchQuery', () => {
                     this.$nextTick(() => this.updateCount());
                 });
+                // pages can mix in their own filters object, rows hidden by it shouldn't count
+                if (this.filters) {
+                    this.$watch('filters', () => {
+                        this.$nextTick(() => this.updateCount());
+                    });
+                }
             }
 
             this.$watch('columns', () => {
@@ -25,7 +31,9 @@ function createTableController({ storageKey, storage = 'local', columns = {}, tr
         },
 
         updateCount() {
-            this.count = [...this.$refs.tbody.querySelectorAll('tr.user-row')]
+            // the bulk wrapper is its own x-data, so a tbody inside it isn't in our $refs
+            const tbody = this.$refs.tbody || this.$root.querySelector('[x-ref="tbody"]');
+            this.count = [...tbody.querySelectorAll('tr.user-row')]
                 .filter(row => row.offsetParent !== null).length;
         },
 
@@ -37,7 +45,8 @@ function createTableController({ storageKey, storage = 'local', columns = {}, tr
             const saved = store.getItem(storageKey);
             if (saved) {
                 try {
-                    this.columns = JSON.parse(saved);
+                    // merge so columns added after the user saved their prefs still get their default
+                    this.columns = { ...this.columns, ...JSON.parse(saved) };
                 } catch (e) {
                     console.warn(`Failed to parse ${storageKey} from ${storage}Storage`, e);
                 }

@@ -3,8 +3,10 @@ package domains
 import (
 	"log"
 	"net/http"
+	"sort"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -50,6 +52,46 @@ type DomainsPageData struct {
 	PrevPage        int
 	NextPage        int
 	PageEntries     []PageEntry
+	Filters         []DomainFilter
+}
+
+// DomainFilter is one filter dropdown next to Show Columns on the domains list
+type DomainFilter struct {
+	Key     string
+	Label   string
+	Options []FilterOption
+}
+
+type FilterOption struct {
+	Value string
+	Label string
+}
+
+func buildDomainFilters(t i18n.Translator, allowed map[string]bool, rows []DomainRow) []DomainFilter {
+	all := FilterOption{Value: "all", Label: t.Get("All")}
+	filters := []DomainFilter{
+		{Key: "status", Label: t.Get("Status"), Options: []FilterOption{all, {"active", t.Get("Active")}, {"suspended", t.Get("Suspended")}}},
+	}
+
+	php := DomainFilter{Key: "php", Label: t.Get("PHP Version"), Options: []FilterOption{all}}
+	seen := map[string]bool{}
+	for _, r := range rows {
+		if r.PHPVersion != "" && !seen[r.PHPVersion] {
+			seen[r.PHPVersion] = true
+			php.Options = append(php.Options, FilterOption{r.PHPVersion, r.PHPVersion})
+		}
+	}
+	sort.Slice(php.Options[1:], func(i, j int) bool { return php.Options[i+1].Value < php.Options[j+1].Value })
+	filters = append(filters, php)
+
+	if allowed["ssl"] {
+		filters = append(filters, DomainFilter{Key: "ssl", Label: t.Get("SSL"), Options: []FilterOption{all, {"auto", t.Get("AutoSSL")}, {"custom", t.Get("Custom SSL")}}})
+	}
+	filters = append(filters, DomainFilter{Key: "type", Label: t.Get("Type"), Options: []FilterOption{all, {"domain", t.Get("Domain")}, {"subdomain", t.Get("Subdomain")}}})
+	if allowed["redirects"] {
+		filters = append(filters, DomainFilter{Key: "redirect", Label: t.Get("Redirect"), Options: []FilterOption{all, {"yes", t.Get("With redirect")}, {"no", t.Get("No redirect")}}})
+	}
+	return filters
 }
 
 // PageEntry is one rendered pagination control: either a page number link or an ellipsis
@@ -87,6 +129,7 @@ func renderDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, ro
 		StartLineNumber: startLine, EndLineNumber: endLine, TotalDomains: totalDomains,
 		PrevPage: currentPage - 1, NextPage: currentPage + 1,
 		PageEntries: buildPageEntries(currentPage, totalPages),
+		Filters:     buildDomainFilters(layout.T, layout.UserAllowed, rows),
 	}
 	if err := domainsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - domains template render error: %v", err)

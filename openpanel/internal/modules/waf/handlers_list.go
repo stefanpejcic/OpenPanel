@@ -25,7 +25,8 @@ type WAFIssue struct {
 	LinkLabel string `json:"link_label,omitempty"`
 }
 
-func wafStatusForDomain(domainName string) string {
+// StatusForDomain is the domain's SecRuleEngine value, "Not Found" when it has no conf
+func StatusForDomain(domainName string) string {
 	content, err := os.ReadFile(domainConfigPath(domainName))
 	if err != nil {
 		return "Not Found"
@@ -99,8 +100,12 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		_ = a.Sessions.Save(r, w, sess)
 		// toggle on the domain's own WAF page should land back there, not on the list
-		if r.Form.Get("return_to") == "domain" {
+		switch r.Form.Get("return_to") {
+		case "domain":
 			http.Redirect(w, r, "/server/waf/"+domainName, http.StatusFound)
+			return
+		case "domains":
+			http.Redirect(w, r, "/domains", http.StatusFound)
 			return
 		}
 	}
@@ -111,7 +116,7 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "You do not own this domain.", http.StatusForbidden)
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]string{requestedDomain: wafStatusForDomain(requestedDomain)})
+		writeJSON(w, http.StatusOK, map[string]string{requestedDomain: StatusForDomain(requestedDomain)})
 		return
 	}
 

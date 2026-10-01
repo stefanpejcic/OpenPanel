@@ -42,7 +42,7 @@ func apiWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domains, _ := a.AllDomainsForUser(r.Context(), userID)
 	result := make(map[string]string, len(domains))
 	for _, d := range domains {
-		result[d.DomainURL] = wafStatusForDomain(d.DomainURL)
+		result[d.DomainURL] = StatusForDomain(d.DomainURL)
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"domains": result})
 }

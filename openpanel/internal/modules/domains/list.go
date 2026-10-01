@@ -7,6 +7,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/waf"
 )
 
 // DomainRow is the per-row shape the domains list page renders.
@@ -21,7 +22,11 @@ type DomainRow struct {
 	DNS            bool
 	IsSubdomain    bool
 	HTTPS          string
+	SSL            SSLCertInfo
 	Status         string
+	WAF            string
+	// values the filter dropdowns match against, keyed like DomainFilter.Key
+	Filter map[string]string
 }
 
 // handleDomainsPage lists all domains for this account, paginated.
@@ -50,6 +55,9 @@ func handleDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		row.IsSubdomain = subdomainURLs[d.DomainURL]
 		status := isRewriteCondEnabled(ctx, a, d.DomainURL)
 		row.HTTPS, row.Status, row.SuspendComment = status.HTTPS, status.Suspended, status.SuspendComment
+		row.SSL = readSSLCertInfo(d.DomainURL, row.HTTPS)
+		row.WAF = waf.StatusForDomain(d.DomainURL)
+		row.Filter = rowFilterValues(row)
 		rows = append(rows, row)
 	}
 
@@ -76,6 +84,23 @@ func handleDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	totalPages := (totalDomains + perPage - 1) / perPage
 
 	renderDomainsPage(a, w, r, paginated, totalPages, page, startIndex+1, endIndex, totalDomains)
+}
+
+func rowFilterValues(row DomainRow) map[string]string {
+	f := map[string]string{"status": "active", "php": row.PHPVersion, "ssl": "auto", "type": "domain", "redirect": "no"}
+	if row.Status == "Suspended" {
+		f["status"] = "suspended"
+	}
+	if row.HTTPS == "Custom" {
+		f["ssl"] = "custom"
+	}
+	if row.IsSubdomain {
+		f["type"] = "subdomain"
+	}
+	if row.RedirectURL != "" {
+		f["redirect"] = "yes"
+	}
+	return f
 }
 
 // subdomainURLSet reduces domain categorization to just the set of URLs classified as subdomains - the list page only needs is_subdomain, not the full main/sub split
