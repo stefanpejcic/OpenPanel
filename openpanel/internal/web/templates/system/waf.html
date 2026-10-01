@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </td>
 
                         <td class="whitespace-nowrap p-4 text-sm tabular-nums" data-sort-col="blocks" data-sort-value="{{$row.Blocks}}">
-                            {{if $row.Blocks}}<a href="/server/waf/log/{{.DomainURL}}" class="font-medium text-red-600 hover:underline dark:text-red-400">{{$row.Blocks}}</a>{{else}}<span class="text-gray-400 dark:text-gray-600">0</span>{{end}}
+                            {{if $row.Blocks}}<a href="/server/waf/{{.DomainURL}}" class="font-medium text-red-600 hover:underline dark:text-red-400">{{$row.Blocks}}</a>{{else}}<span class="text-gray-400 dark:text-gray-600">0</span>{{end}}
                         </td>
 
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="level" data-sort-value="{{$row.LevelStrength}}">
