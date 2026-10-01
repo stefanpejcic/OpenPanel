@@ -753,6 +753,8 @@ function openPicker(action, items) {
             const res = await fetch('/json/folders/' + path.split('/').map(encodeURIComponent).join('/'));
             if (!res.ok) throw new Error();
             folders = (await res.json()).folders || [];
+            // the malware scanner's quarantine is not a place to put files
+            if (!path) folders = folders.filter(f => f.name !== '.quarantine');
         } catch (e) {
             destInput.style.borderColor = '#ef4444';
             showToast(FM.i18n.folderNotFound, 'error');

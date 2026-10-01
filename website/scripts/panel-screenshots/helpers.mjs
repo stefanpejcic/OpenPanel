@@ -81,6 +81,8 @@ export const hideNotices = async page => {
   await page.evaluate(() => {
     for (const btn of document.querySelectorAll('button')) {
       if (btn.textContent.trim() !== 'Close') continue;
+      // a shot about a toast marks it with data-keep so it survives
+      if (btn.closest('[data-keep]')) continue;
       let box = btn.parentElement;
       for (let i = 0; i < 4 && box && !/^\s*(Error|Warning|Notice)/.test(box.innerText); i++) box = box.parentElement;
       if (box && /^\s*(Error|Warning|Notice)/.test(box.innerText)) box.style.display = 'none';

@@ -159,6 +159,21 @@ const pickerReady = async page => {
 
 const PICKER_CROP = { from: '#fmPickerModal > div', pad: 0, clamp: false };
 
+// a quarantine row with its inline confirmation open for one action
+const quarantineAction = (name, button, alt) => ({
+  name,
+  alt,
+  prepare: async page => {
+    await page.locator(`#quarantine-table tbody tr:first-of-type button:text-is("${button}")`).click();
+    await page.waitForTimeout(400);
+    // focusing the confirm button scrolls the table sideways, bring the path back into view
+    await page.evaluate(() => document.querySelectorAll('main .overflow-x-auto, main .overflow-auto').forEach(e => (e.scrollLeft = 0)));
+  },
+  // the table with its Actions column only fits a wider window
+  viewportWidth: 1440,
+  crop: { from: '#quarantine-table thead', to: '#quarantine-table tbody tr:nth-of-type(2)', pad: 8 },
+});
+
 export const pages = {
   // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs mysql/databases
   'mysql/databases': {
@@ -1075,6 +1090,8 @@ export const pages = {
   // scan logs are new in 2.0.14, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs files/malware files/quarantine files/malware_logs
   'files/malware': {
     url: '/malware-scanner',
+    // the weekly quarantine reminder has its own shot below, keep it out of these
+    init: () => localStorage.setItem('malwareQuarantineToastAt', String(Date.now())),
     shots: [
       { name: 'form', alt: 'ClamAV Scanner page with the directory to scan and the Start Scan button', crop: 'content' },
       {
@@ -1088,6 +1105,23 @@ export const pages = {
           await page.waitForTimeout(300);
         },
         crop: { from: '#scan-progress', pad: 12 },
+      },
+    ],
+  },
+  // the reminder toast only shows when the user has quarantined files: PANEL_URL=https://host:2083 node shoot.mjs files/malware_reminder
+  'files/malware_reminder': {
+    url: '/malware-scanner',
+    as: 'files/malware',
+    shots: [
+      {
+        name: 'reminder',
+        alt: 'Warning toast saying how many files are in quarantine, with a Review button that opens the Quarantine page',
+        prepare: async page => {
+          await page.waitForSelector('#toast-container > *:visible', { timeout: 10000 });
+          await page.evaluate(() => document.getElementById('toast-container').setAttribute('data-keep', ''));
+          await page.waitForTimeout(600);
+        },
+        crop: { from: '#toast-container > *:visible', pad: 12, clamp: false },
       },
     ],
   },
@@ -1108,12 +1142,15 @@ export const pages = {
       },
     ],
   },
-  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs files/quarantine
+  // inline confirmations are new in 2.0.14, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs files/quarantine
   'files/quarantine': {
     url: '/malware-scanner/quarantine',
     shots: [
-      { name: 'list', alt: 'Quarantine page listing files that ClamAV flagged as malicious', crop: 'content' },
+      { name: 'list', alt: 'Quarantine page listing files that ClamAV flagged as malicious with their original location, the malware found, and sortable File and Reason columns', viewportWidth: 1440, crop: 'content' },
       bulkShot('#quarantine-table', 2, 'Two quarantined files selected with the bulk actions bar offering Restore, Mark safe and Delete'),
+      quarantineAction('restore', 'Restore', 'Quarantined file about to be restored, its path shown in blue with a restore icon and the Restore and Cancel buttons in its row'),
+      quarantineAction('safe', 'Mark as safe', 'Quarantined file about to be marked as safe, its path shown in green with the Mark as safe and Cancel buttons in its row'),
+      quarantineAction('delete', 'Delete', 'Quarantined file about to be deleted, its path crossed out in red with the Delete permanently and Cancel buttons in its row'),
     ],
   },
   // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs php/domains

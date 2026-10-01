@@ -195,6 +195,10 @@ To change permissions, select the files or folders and click on the **Permission
 
 If at least one selected item is a folder, a **Recursive** checkbox is shown next to the buttons. Check it to apply the permission value to the folder and everything inside it, instead of just the folder itself.
 
+## Quarantine Folder
+
+If the Malware Scanner is enabled for your account, files it detects are moved to the `.quarantine` folder. Opening that folder in the File Manager takes you to the [Quarantine](/docs/panel/security/malware-scanner#quarantine) page instead, where you can restore, mark as safe or delete them. The folder is also left out of the folder browser in the Copy, Move, Compress and Extract dialogs.
+
 ## Empty Folder
 
 If a folder is empty, you will see the 'No items found.' message and the menu with file options will be hidden. Only the options to create a new file, folder, or upload files will be available.
