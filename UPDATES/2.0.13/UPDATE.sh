@@ -3,6 +3,18 @@
 # install waf profiles
 opencli waf plugins install
 
+# cloudflare
+CF_SNIPPET="/etc/openpanel/caddy/templates/cloudflare.only"
+CADDYFILE="/etc/openpanel/caddy/Caddyfile"
+if [ ! -f "$CF_SNIPPET" ]; then
+    wget --timeout=15 --tries=3 -q -O "$CF_SNIPPET" https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/main/caddy/templates/cloudflare.only
+fi
+if [ -f "$CF_SNIPPET" ] && [ -f "$CADDYFILE" ] && ! grep -q "templates/cloudflare.only" "$CADDYFILE"; then
+    echo "Adding cloudflare-only import to $CADDYFILE..."
+    awk '/^# import all sites/ { print "# import cloudflare only IP addresses"; print "import /etc/openpanel/caddy/templates/cloudflare.only"; print "" } { print }' "$CADDYFILE" > "$CADDYFILE.tmp" && cat "$CADDYFILE.tmp" > "$CADDYFILE" && rm -f "$CADDYFILE.tmp"
+    podman ps --format '{{.Names}}' | grep -qx caddy && podman exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1
+fi
+
 # apps shown in the Websites section on the OpenPanel dashboard, new in 2.0.13
 OPENPANEL_CONFIG="/etc/openpanel/openpanel/conf/openpanel.config"
 if [ -f "$OPENPANEL_CONFIG" ] && ! grep -q "^applications_dashboard_items=" "$OPENPANEL_CONFIG"; then
