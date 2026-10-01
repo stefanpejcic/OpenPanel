@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         </div>
 
+            <div class="hidden sm:flex items-center gap-2">
             <div class="relative" @click.outside="statusOpen = false">
                 <button type="button" @click="statusOpen = !statusOpen" :style="statusFilter !== 'all' && 'border-style: solid'" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 cursor-pointer">
                     <span class="w-full text-left sm:w-fit" x-text="{all: {{toJSON (.T.Get "Status")}}, On: {{toJSON (.T.Get "On")}}, DetectionOnly: {{toJSON (.T.Get "Monitor only")}}, Off: {{toJSON (.T.Get "Off")}}}[statusFilter]">{{.T.Get "Status"}}</span>
@@ -151,6 +152,71 @@ document.addEventListener('DOMContentLoaded', function () {
                     </ul>
                 </div>
             </div>
+            </div>
+<style>@media (min-width: 640px) { .waf-filters-mobile { display: none; } }</style>
+<div class="waf-filters-mobile relative" x-data="{ mobileOpen: false }" @click.outside="mobileOpen = false">
+    <button type="button" @click="mobileOpen = !mobileOpen" :style="[statusFilter, levelFilter, profileFilter].filter(f => f !== 'all').length && 'border-style: solid'" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 cursor-pointer">
+        <span class="w-full text-left">{{.T.Get "Filters"}} <span x-show="[statusFilter, levelFilter, profileFilter].filter(f => f !== 'all').length" x-text="'(' + ([statusFilter, levelFilter, profileFilter].filter(f => f !== 'all').length) + ')'"></span></span>
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 text-gray-500"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg>
+    </button>
+    <div x-show="mobileOpen" x-cloak class="absolute left-0 right-0 mt-1 z-20 p-2 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 rounded-lg">
+        <div class="">
+            <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500">{{.T.Get "Status"}}</p>
+            <div class="flex flex-wrap gap-x-4">
+                <label class="flex items-center py-1 px-1 cursor-pointer">
+                    <input type="radio" name="waf-mfilter-status" value="all" x-model="statusFilter" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                    <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "All"}}</span>
+                </label>
+                <label class="flex items-center py-1 px-1 cursor-pointer">
+                    <input type="radio" name="waf-mfilter-status" value="On" x-model="statusFilter" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                    <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "On"}}</span>
+                </label>
+                <label class="flex items-center py-1 px-1 cursor-pointer">
+                    <input type="radio" name="waf-mfilter-status" value="DetectionOnly" x-model="statusFilter" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                    <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Monitor only"}}</span>
+                </label>
+                <label class="flex items-center py-1 px-1 cursor-pointer">
+                    <input type="radio" name="waf-mfilter-status" value="Off" x-model="statusFilter" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                    <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Off"}}</span>
+                </label>
+            </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-800">
+            <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500">{{.T.Get "Level"}}</p>
+            <div class="flex flex-wrap gap-x-4">
+                <label class="flex items-center py-1 px-1 cursor-pointer">
+                    <input type="radio" name="waf-mfilter-level" value="all" x-model="levelFilter" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                    <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "All"}}</span>
+                </label>
+{{range .LevelOptions}}
+                <label class="flex items-center py-1 px-1 cursor-pointer">
+                    <input type="radio" name="waf-mfilter-level" value="{{.Key}}" x-model="levelFilter" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                    <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Name}}</span>
+                </label>
+{{end}}
+            </div>
+        </div>
+        <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-800">
+            <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500">{{.T.Get "Profile"}}</p>
+            <div class="flex flex-wrap gap-x-4">
+                <label class="flex items-center py-1 px-1 cursor-pointer">
+                    <input type="radio" name="waf-mfilter-profile" value="all" x-model="profileFilter" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                    <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "All"}}</span>
+                </label>
+                <label class="flex items-center py-1 px-1 cursor-pointer">
+                    <input type="radio" name="waf-mfilter-profile" value="none" x-model="profileFilter" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                    <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "None"}}</span>
+                </label>
+{{range .ProfileOptions}}
+                <label class="flex items-center py-1 px-1 cursor-pointer">
+                    <input type="radio" name="waf-mfilter-profile" value="{{.Key}}" x-model="profileFilter" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                    <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Name}}</span>
+                </label>
+{{end}}
+            </div>
+        </div>
+    </div>
+</div>
         </div>
 
         <div class="flex flex-col items-center gap-2 sm:flex-row">

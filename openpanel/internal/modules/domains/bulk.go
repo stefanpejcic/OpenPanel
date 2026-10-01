@@ -3,6 +3,7 @@ package domains
 import (
 	"net/http"
 	"net/url"
+	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -21,8 +22,10 @@ func domainsBulkActions(t i18n.Translator, phpVersions []string) []web.BulkActio
 		{Key: "redirect", Label: t.Get("Redirect to"), Confirm: t.Get("Redirect the selected domains to:"), Feature: "redirects",
 			Input: &web.BulkInput{Type: "url", Placeholder: "https://example.com"}},
 		{Key: "unredirect", Label: t.Get("Remove redirect"), Confirm: t.Get("Remove the redirect from the selected domains?"), Feature: "redirects"},
-		{Key: "waf_enable", Label: t.Get("Enable WAF"), Confirm: t.Get("Enable the firewall for the selected domains?"), Feature: "waf"},
-		{Key: "waf_disable", Label: t.Get("Disable WAF"), Confirm: t.Get("Disable the firewall for the selected domains?"), Feature: "waf"},
+		{Key: "waf", Label: t.Get("WAF"), Confirm: t.Get("Set the firewall for the selected domains to:"), Feature: "waf",
+			Input: &web.BulkInput{Type: "select", Options: []web.BulkOption{{Value: "On", Label: t.Get("On")}, {Value: "Off", Label: t.Get("Off")}}}},
+		{Key: "cloudflare", Label: t.Get("Cloudflare"), Confirm: t.Get("Cloudflare-only access for the selected domains, restricted domains not proxied through Cloudflare return 403 to visitors:"),
+			Input: &web.BulkInput{Type: "select", Options: []web.BulkOption{{Value: "enable", Label: t.Get("Restrict to Cloudflare")}, {Value: "disable", Label: t.Get("Unrestrict")}}}},
 		{Key: "delete", Label: t.Get("Delete"), Confirm: t.Get("Permanently delete the selected domains, including their websites, files and DNS zones? This cannot be undone."), Danger: true},
 	}
 }
@@ -55,9 +58,15 @@ func handleDomainsBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, r
 			}
 			form.Set("redirect_url", current)
 			return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/domains/redirect/delete", Form: form})
-		case "waf_enable", "waf_disable":
-			form.Set("modsec_action", map[string]string{"waf_enable": "On", "waf_disable": "Off"}[action])
+		case "waf":
+			form.Set("modsec_action", value)
 			return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/server/waf", Form: form})
+		case "cloudflare":
+			if strings.HasSuffix(domain, ".onion") {
+				return web.Skip("Not available for .onion domains.")
+			}
+			form.Set("cloudflare_action", value)
+			return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/domains/cloudflare", Form: form})
 		case "php":
 			if switcher == nil {
 				switcher = php.NewVersionSwitcher(a, r, userContext)

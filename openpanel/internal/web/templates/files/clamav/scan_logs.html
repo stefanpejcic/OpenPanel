@@ -9,7 +9,7 @@
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Scan Logs"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Past malware scans started from this page or run automatically by the server, and what they found."}}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Past malware scans started from this page, the API or run automatically by the server, and what they found."}}</p>
     </div>
     <div class="mt-2 gap-2 sm:mt-0 sm:flex">
         <a href="/malware-scanner/quarantine" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "View Quarantine"}}</a>
@@ -53,6 +53,8 @@
                         <td class="whitespace-nowrap p-4 text-sm">
                             {{if eq .Source "cron"}}
                             <span class="bg-purple-100 text-purple-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-purple-900/40 dark:text-purple-300">{{$.T.Get "Scheduled"}}</span>
+                            {{else if eq .Source "api"}}
+                            <span class="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">API</span>
                             {{else}}
                             <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-blue-900/40 dark:text-blue-300">{{$.T.Get "Manual"}}</span>
                             {{end}}

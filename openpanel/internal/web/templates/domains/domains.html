@@ -42,6 +42,7 @@
     }), {
         filters: { status: 'all', php: 'all', ssl: 'all', type: 'all', redirect: 'all' },
         filterOpen: '',
+        activeFilters() { return Object.values(this.filters).filter(f => f !== 'all').length; },
         matchesFilters(v) { return Object.entries(this.filters).every(([k, f]) => f === 'all' || v[k] === f); }
     })" x-init="init()" x-cloak>
     <div class="">
@@ -94,7 +95,31 @@
             </div>
         </div>
 
-{{range .Filters}}{{template "domain_filter" .}}{{end}}
+{{if .Filters}}
+<div class="hidden sm:flex items-center gap-2">{{range .Filters}}{{template "domain_filter" .}}{{end}}</div>
+<style>@media (min-width: 640px) { .domains-filters-mobile { display: none; } }</style>
+<div class="domains-filters-mobile relative" @click.outside="if (filterOpen === 'mobile') filterOpen = ''">
+    <button type="button" @click="filterOpen = filterOpen === 'mobile' ? '' : 'mobile'" :style="activeFilters() && 'border-style: solid'" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 cursor-pointer">
+        <span class="w-full text-left">{{.T.Get "Filters"}} <span x-show="activeFilters()" x-text="'(' + activeFilters() + ')'"></span></span>
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 text-gray-500"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg>
+    </button>
+    <div x-show="filterOpen === 'mobile'" x-cloak class="absolute left-0 right-0 mt-1 z-20 p-2 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 rounded-lg">
+{{range $i, $f := .Filters}}
+        <div class="{{if $i}}mt-2 pt-2 border-t border-gray-200 dark:border-gray-800{{end}}">
+            <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500">{{$f.Label}}</p>
+            <div class="flex flex-wrap gap-x-4">
+{{range $f.Options}}
+                <label class="flex items-center py-1 px-1 cursor-pointer">
+                    <input type="radio" name="domain-mfilter-{{$f.Key}}" value="{{.Value}}" x-model="filters.{{$f.Key}}" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                    <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Label}}</span>
+                </label>
+{{end}}
+            </div>
+        </div>
+{{end}}
+    </div>
+</div>
+{{end}}
 
                 </div>
                 <div class="flex items-center gap-2">
@@ -158,10 +183,11 @@
                             <tr x-show="(searchQuery === '' || '{{$domain.DomainURL}}'.toLowerCase().includes(searchQuery.toLowerCase())) && matchesFilters({{toJSON $domain.Filter}})" class="user-row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
 {{$skip := ""}}{{if hasSuffix $domain.DomainURL ".onion"}}{{$skip = "suspend,unsuspend"}}{{else if eq $domain.Status "Suspended"}}{{$skip = "suspend"}}{{else if eq $domain.Status "Not Suspended"}}{{$skip = "unsuspend"}}{{end}}
 {{if not $domain.RedirectURL}}{{$skip = printf "%s,unredirect" $skip}}{{end}}
+{{if hasSuffix $domain.DomainURL ".onion"}}{{$skip = printf "%s,cloudflare" $skip}}{{end}}
 {{template "bulk_row_checkbox" (dict "T" $root.T "Key" $domain.DomainURL "Label" $domain.DomainURL "Skip" $skip)}}
 
                                     <td x-show="columns.domain" class="p-4 text-sm relative whitespace-nowrap py-1 font-medium text-gray-900 dark:text-gray-50 first:w-10 text-left select-text" data-sort-col="domain" data-sort-value="{{$domain.DomainURL}}">
-        <span class="punycode">{{$domain.DomainURL}}</span>
+        <span class="punycode">{{$domain.DomainURL}}</span>{{if $domain.Cloudflare}} <span title="{{$root.T.Get "Restricted to Cloudflare IPs only"}}" class="inline-flex align-middle"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#F38020" aria-label="Cloudflare" class="size-4"><path d="M16.5088 16.8447c.1475-.5068.0908-.9707-.1553-1.3154-.2246-.3164-.6045-.499-1.0615-.5205l-8.6592-.1123a.1559.1559 0 0 1-.1333-.0713c-.0283-.042-.0351-.0986-.021-.1553.0278-.084.1123-.1484.2036-.1562l8.7359-.1123c1.0351-.0489 2.1601-.8868 2.5537-1.9136l.499-1.3013c.0215-.0561.0293-.1128.0147-.168-.5625-2.5463-2.835-4.4453-5.5499-4.4453-2.5039 0-4.6284 1.6177-5.3876 3.8614-.4927-.3658-1.1187-.5625-1.794-.499-1.2026.119-2.1665 1.083-2.2861 2.2856-.0283.31-.0069.6128.0635.894C1.5683 13.171 0 14.7754 0 16.752c0 .1748.0142.3515.0352.5273.0141.083.0844.1475.1689.1475h15.9814c.0909 0 .1758-.0645.2032-.1553l.12-.4268zm2.7568-5.5634c-.0771 0-.1611 0-.2383.0112-.0566 0-.1054.0415-.127.0976l-.3378 1.1744c-.1475.5068-.0918.9707.1543 1.3164.2256.3164.6055.498 1.0625.5195l1.8437.1133c.0557 0 .1055.0263.1329.0703.0283.043.0351.1074.0214.1562-.0283.084-.1132.1485-.204.1553l-1.921.1123c-1.041.0488-2.1582.8867-2.5527 1.914l-.1406.3585c-.0283.0713.0215.1416.0986.1416h6.5977c.0771 0 .1474-.0489.169-.126.1122-.4082.1757-.837.1757-1.2803 0-2.6025-2.125-4.727-4.7344-4.727"/></svg></span>{{end}}
                                     </td>
 
                                     <td x-show="columns.link" class="p-4 text-sm relative whitespace-nowrap py-1 text-gray-600 dark:text-gray-400 first:w-10 text-left"><a class="domain_link inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400" href="http://{{$domain.DomainURL}}" target="_blank">http://<span class="punycode">{{$domain.DomainURL}}</span>/ <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a> </td>
@@ -301,13 +327,12 @@
                                     <input type="hidden" name="return_to" value="domains">
                                     <input type="hidden" name="modsec_action" :value="enabled ? 'On' : 'Off'">
                                     <span class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                        <button type="submit" role="switch" :aria-checked="enabled" aria-label="{{$root.T.Get "WAF"}}" :disabled="busy"
+                                        <button type="submit" role="switch" :aria-checked="enabled" aria-label="{{$root.T.Get "WAF"}}" :disabled="busy" title="{{if eq $domain.WAF "DetectionOnly"}}{{$root.T.Get "Monitor only"}}{{else if $wafOn}}{{$root.T.Get "On"}}{{else}}{{$root.T.Get "Off"}}{{end}}"
                                             @click.prevent="busy = true; enabled = !enabled; $nextTick(() => $el.form.submit())"
                                             :class="enabled ? 'bg-indigo-600 dark:bg-indigo-600' : 'bg-gray-200 dark:bg-gray-800'"
                                             class="relative isolate inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full p-0.5 shadow-inner ring-1 ring-inset ring-black/5 transition-all dark:ring-gray-800 disabled:cursor-not-allowed disabled:opacity-60 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500">
                                             <span :class="enabled ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-all duration-150 ease-in-out dark:bg-gray-50"></span>
                                         </button>
-                                        {{if eq $domain.WAF "DetectionOnly"}}<span x-show="enabled">{{$root.T.Get "Monitor only"}}</span>{{else}}<span x-show="enabled">{{$root.T.Get "On"}}</span>{{end}}<span x-show="!enabled" x-cloak>{{$root.T.Get "Off"}}</span>
                                     </span>
                                 </form>
                                 </td>
@@ -337,6 +362,14 @@
             <a href="/server/waf/{{$domain.DomainURL}}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-shield-check"></i> {{$root.T.Get "Manage WAF"}}</a>
             </li>
             {{end}}
+            <li>
+            <form method="post" action="/domains/cloudflare">
+                <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
+                <input type="hidden" name="domain_name" value="{{$domain.DomainURL}}">
+                <input type="hidden" name="cloudflare_action" value="{{if $domain.Cloudflare}}disable{{else}}enable{{end}}">
+                <button type="submit" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-cloud"></i> {{if $domain.Cloudflare}}{{$root.T.Get "Remove Cloudflare restriction"}}{{else}}{{$root.T.Get "Restrict to Cloudflare"}}{{end}}</button>
+            </form>
+            </li>
             {{if $root.UserAllowed.docroot}}
             <li>
             <a href="/domains/docroot?domain_name={{$domain.DomainURL}}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"><i class="bi bi-folder"></i> {{$root.T.Get "Change docroot"}}</a>

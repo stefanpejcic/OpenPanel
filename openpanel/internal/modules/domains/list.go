@@ -21,6 +21,7 @@ type DomainRow struct {
 	SuspendComment string
 	DNS            bool
 	IsSubdomain    bool
+	Cloudflare     bool
 	HTTPS          string
 	SSL            SSLCertInfo
 	Status         string
@@ -55,6 +56,7 @@ func handleDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		row.IsSubdomain = subdomainURLs[d.DomainURL]
 		status := isRewriteCondEnabled(ctx, a, d.DomainURL)
 		row.HTTPS, row.Status, row.SuspendComment = status.HTTPS, status.Suspended, status.SuspendComment
+		row.Cloudflare = status.Cloudflare
 		row.SSL = readSSLCertInfo(d.DomainURL, row.HTTPS)
 		row.WAF = waf.StatusForDomain(d.DomainURL)
 		row.Filter = rowFilterValues(row)

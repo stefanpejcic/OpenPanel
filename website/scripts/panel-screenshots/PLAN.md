@@ -97,7 +97,7 @@ Legend: ✅ route exists · ⚠️ route missing or differs · — no screenshot
 | files/disk_usage | `/disk-usage/` | ✅ page · detail: chart |
 | files/inodes_explorer | `/inodes-explorer/` | ✅ page · detail: chart |
 | files/fix_permissions | `/fix-permissions` | ✅ page |
-| files/malware-scanner | `/malware-scanner`, `/malware-scanner/quarantine` | ✅ page · quarantine |
+| files/malware-scanner | `/malware-scanner`, `/malware-scanner/quarantine`, `/malware-scanner/logs` | ✅ page · scanning · quarantine · logs |
 
 ### MySQL
 | Doc page | Route | Shots |

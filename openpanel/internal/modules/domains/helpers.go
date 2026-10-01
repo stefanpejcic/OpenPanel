@@ -73,6 +73,7 @@ type SSLStatus struct {
 	HTTPS          string // "Unknown" | "Automatic" | "Custom"
 	Suspended      string // "Not Suspended" | "Suspended"
 	SuspendComment string
+	Cloudflare     bool // conf imports the cloudflare-only snippet
 }
 
 // isRewriteCondEnabled reads a domain's SSL/suspend status from its Caddy config, cached 30s
@@ -100,6 +101,9 @@ func computeRewriteCondEnabled(domainURL string) SSLStatus {
 
 		if lineNum == 0 && strings.HasPrefix(line, "# comment:") {
 			status.SuspendComment = strings.TrimSpace(strings.SplitN(line, ":", 2)[1])
+		}
+		if cloudflareOnlyRE.MatchString(line) {
+			status.Cloudflare = true
 		}
 		if strings.Contains(line, "on_demand") {
 			onDemandFound = true

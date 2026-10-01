@@ -5493,6 +5493,25 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/malware-scanner/logs:
+    get:
+      summary: List past malware scans.
+      description: Scans from the panel, the API and cron, newest first. The last 50 are kept.
+      operationId: malware_scanner_logs
+      tags:
+      - Malware Scanner
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/malware-scanner/scan:
     post:
       summary: Run ClamAV scan.

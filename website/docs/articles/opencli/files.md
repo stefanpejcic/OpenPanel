@@ -222,6 +222,8 @@ Scans a user's website files (`html_data` volume) with ClamAV. Infected files ar
 
 Requires the ClamAV service (`clamav` container) to be running.
 
+Each scan is saved to `/etc/openpanel/openpanel/core/users/<USERNAME>/malware_scans.jsonl` and shows up as *Scheduled* on the user's Malware Scanner > Scan Logs page (last 50 scans are kept).
+
 Scan files for a single user:
 ```bash
 opencli files-malware_scan <USERNAME>

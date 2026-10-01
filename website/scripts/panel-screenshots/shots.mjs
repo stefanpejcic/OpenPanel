@@ -955,9 +955,41 @@ export const pages = {
     url: '/fix-permissions',
     shots: [{ name: 'form', alt: 'Fix Permissions page with the directory field and the Fix Permissions button', crop: 'content' }],
   },
+  // scan logs are new in 2.0.14, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs files/malware files/quarantine files/malware_logs
   'files/malware': {
     url: '/malware-scanner',
-    shots: [{ name: 'form', alt: 'ClamAV Scanner page with the directory to scan and the Start Scan button', crop: 'content' }],
+    shots: [
+      { name: 'form', alt: 'ClamAV Scanner page with the directory to scan and the Start Scan button', crop: 'content' },
+      {
+        name: 'scanning',
+        alt: 'Scan in progress with the radar spinner, the number of files scanned and the file being checked',
+        prepare: async page => {
+          await page.locator('#start-scan-btn').click();
+          await page.waitForFunction(() => Number(document.getElementById('scan-progress-count').textContent) > 20, null, { timeout: 30000 }).catch(() => {});
+          // freeze the progress line so the shot doesn't catch it mid-update
+          await page.evaluate(() => { window.handleScanLine = () => {}; });
+          await page.waitForTimeout(300);
+        },
+        crop: { from: '#scan-progress', pad: 12 },
+      },
+    ],
+  },
+  // needs a scan with findings, e.g. drop an EICAR test file into the user's site and run `opencli files-malware_scan <user>`
+  'files/malware_logs': {
+    url: '/malware-scanner/logs',
+    shots: [
+      { name: 'list', alt: 'Scan Logs page listing past scans with their date, source, directory, files scanned and result', prepare: async page => { await page.evaluate(() => [...document.querySelectorAll('#scan-logs-table > tbody')].slice(6).forEach(b => b.remove())); }, crop: 'content' },
+      {
+        name: 'details',
+        alt: 'Details of a scan listing the infected files and the malware found in each',
+        prepare: async page => {
+          await page.locator('#scan-logs-table tbody:has(button) button').first().click();
+          await page.waitForTimeout(400);
+          await page.evaluate(() => document.querySelector('#scan-logs-table tbody:has(button)').setAttribute('data-shot', 'scan'));
+        },
+        crop: { from: '[data-shot=scan]', pad: 12 },
+      },
+    ],
   },
   // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs files/quarantine
   'files/quarantine': {
