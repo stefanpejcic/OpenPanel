@@ -9,7 +9,8 @@ least once, so we don't yell at the user before they've finished typing.
 Positive (green) and neutral "here's what's needed" hints can show earlier,
 since those aren't accusatory.
 
-Opt out of a single field with data-no-live-validate.
+Opt out of a single field with data-no-live-validate, or keep the border
+colors but drop the hint text with data-no-live-hint.
 
 Password fields are always skipped: pages that need password UX (strength
 meter, confirm-match, generate/toggle) implement it themselves (see the
@@ -78,6 +79,7 @@ or fight that.
     }
 
     function renderMessage(host, status, message) {
+        if (!host) return;
         host.innerHTML = '';
         if (!message) return;
         const p = document.createElement('p');
@@ -87,7 +89,7 @@ or fight that.
     }
 
     function evaluate(el) {
-        const host = hintHost(el);
+        const host = el.hasAttribute('data-no-live-hint') ? null : hintHost(el);
         const value = el.value;
         const touched = el.dataset.ivTouched === '1';
 

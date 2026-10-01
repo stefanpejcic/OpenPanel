@@ -276,5 +276,20 @@ window.addEventListener("load", inputScanDomain);
 
 </script>
 
+{{if .QuarantineNote}}
+<script>
+// remind about quarantined files at most once a week per browser
+document.addEventListener('DOMContentLoaded', function () {
+    var key = 'malwareQuarantineToastAt';
+    try {
+        var last = parseInt(localStorage.getItem(key) || '0', 10);
+        if (Date.now() - last < 7 * 24 * 60 * 60 * 1000) return;
+        localStorage.setItem(key, String(Date.now()));
+    } catch (e) {}
+    showToast('{{.QuarantineNote}}', 'warning', true, { label: '{{.T.Get "Review"}}', href: '/malware-scanner/quarantine' });
+});
+</script>
+{{end}}
+
 <!-- END templates/files/clamav/scanner.html -->
 {{end}}

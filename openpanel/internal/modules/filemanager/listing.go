@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
@@ -69,6 +70,12 @@ func handleFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPa
 
 // handleFiles serves the main file-manager listing page.
 func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathParam string) {
+	// the malware scanner has its own page for quarantined files
+	if p := strings.Trim(pathParam, "/"); (p == ".quarantine" || strings.HasPrefix(p, ".quarantine/")) && userAllows(a, r, "malware_scan") {
+		http.Redirect(w, r, "/malware-scanner/quarantine", http.StatusFound)
+		return
+	}
+
 	ctx := r.Context()
 	user, err := currentUser(ctx, a, r)
 	if err != nil {

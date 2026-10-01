@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -86,6 +87,17 @@ func currentUser(ctx context.Context, a *appctx.App, r *http.Request) (injectedU
 	username, _ := injected["current_username"].(string)
 	userContext, _ := injected["context"].(string)
 	return injectedUser{Username: username, Context: userContext}, nil
+}
+
+// userAllows reports whether the logged-in user's plan includes feature
+func userAllows(a *appctx.App, r *http.Request, feature string) bool {
+	userID, _ := auth.UserID(r)
+	injected, err := a.InjectData(r.Context(), userID)
+	if err != nil {
+		return false
+	}
+	allowed, _ := injected["user_allowed"].([]string)
+	return slices.Contains(allowed, feature)
 }
 
 func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {

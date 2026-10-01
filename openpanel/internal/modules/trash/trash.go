@@ -30,6 +30,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("DELETE /file-manager/deleteTrash", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeleteTrash(a, w, r) }))
 	mux.Handle("POST /files.trash/deleteall", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDeleteAll(a, w, r) }))
 	mux.Handle("POST /files.trash/restoreall", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRestoreAll(a, w, r) }))
+	mux.Handle("GET /json/trash-size", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTrashSize(a, w, r) }))
 }
 
 func injected(a *appctx.App, r *http.Request) (username, userContext string, err error) {

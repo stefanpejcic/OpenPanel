@@ -19,7 +19,7 @@
             links: false,
             name: true,
             owner: false,
-            permissions: true,
+            permissions: false,
             size: true,
             type: false
         }
@@ -32,8 +32,9 @@
          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Trash"}}</h1>
       </div>
 
-      <p class="text-sm text-gray-500 dark:text-gray-500">
-      </p>
+      {{if .PurgeNote}}
+      <p class="text-sm text-gray-500 dark:text-gray-500">{{.PurgeNote}}</p>
+      {{end}}
 
    </div>
    <!-- START new and upload buttons -->
@@ -44,16 +45,16 @@
          <i class="md:hidden bi bi-hand-index"></i>
          </button>
       {{if .Rows}}
-      <button class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="restoreAllButton" data-drawer-target="restoreAllDrawer" data-drawer-show="restoreAllDrawer" data-drawer-placement="right" aria-controls="restoreAllDrawer">
+      <button class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="restoreAllButton">
       <i class="bi bi-arrow-90deg-left"></i> {{.T.Get "Restore All"}}
       </button>
-      <button class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="restoreButton" data-drawer-target="restoreDrawer" data-drawer-show="restoreDrawer" data-drawer-placement="right" aria-controls="restoreDrawer" disabled="true">
+      <button class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="restoreButton" disabled="true">
       <i class="bi bi-arrow-bar-left"></i> {{.T.Get "Restore"}}
       </button>
-      <button class="relative inline-flex items-center justify-center whitespace-nowrap border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400" id="deleteAllButton" data-drawer-target="deleteAllDrawer" data-drawer-show="deleteAllDrawer" data-drawer-placement="right" aria-controls="deleteAllDrawer">
+      <button class="relative inline-flex items-center justify-center whitespace-nowrap border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400" id="deleteAllButton">
       <i class="bi bi-recycle"></i> {{.T.Get "Delete All"}}
       </button>
-      <button class="relative inline-flex items-center justify-center whitespace-nowrap border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400" id="deleteTrashButton" data-drawer-target="deleteTrashDrawer" data-drawer-show="deleteTrashDrawer" data-drawer-placement="right" aria-controls="deleteTrashDrawer" disabled="true">
+      <button class="relative inline-flex items-center justify-center whitespace-nowrap border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400" id="deleteTrashButton" disabled="true">
       <i class="bi bi-trash2"></i> {{.T.Get "Delete"}}
       </button>
       {{end}}
@@ -67,7 +68,6 @@
             <div id="dropdownToggle" class="z-50 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 divide-y divide-gray-100 rounded-lg shadow-sm w-42 dark:divide-gray-600 hidden">
                 <ul class="p-2 space-y-1" aria-labelledby="dropdownToggleButton">
 
-                    {{template "column_toggle" (dict "Key" "name" "Label" (.T.Get "Name"))}}
                     {{template "column_toggle" (dict "Key" "deletion_date" "Label" (.T.Get "Deletion Date"))}}
                     {{template "column_toggle" (dict "Key" "original_path" "Label" (.T.Get "Original Path"))}}
                     {{template "column_toggle" (dict "Key" "date" "Label" (.T.Get "Date"))}}
@@ -95,10 +95,6 @@
 {{else}}
 
     {{template "table_trash" .}}
-    {{template "restoreAll_trash" .}}
-    {{template "deleteAll_trash" .}}
-    {{template "restore_trash" .}}
-    {{template "deleteTrash_trash" .}}
     {{template "inline_js_trash" .}}
 
 {{end}}

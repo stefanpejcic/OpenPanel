@@ -60,8 +60,8 @@
                 <thead class="">
                     <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
                         {{template "bulk_head_checkbox" .}}
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "File"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Reason"}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "File") "Key" "file" "Type" "string")}}</th>
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Reason") "Key" "reason" "Type" "string")}}</th>
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm text-right font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
                     </tr>
                 </thead>
@@ -70,9 +70,9 @@
                     <tr x-show="searchQuery === '' || {{toJSON .DisplayPath}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
                         {{template "bulk_row_checkbox" (dict "T" $.T "Key" .RelPath "Label" .DisplayPath)}}
 
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.DisplayPath}}</td>
+                        <td class="q-path whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="file">{{.DisplayPath}}</td>
 
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="reason" data-sort-value="{{.Signature}}">
                             {{if .Signature}}
                             <span class="bg-red-100 text-red-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-red-900/40 dark:text-red-400">{{.Signature}}</span>
                             {{if .QuarantinedAt}}<span class="ml-1 text-xs text-gray-400 dark:text-gray-600">{{.QuarantinedAt}}</span>{{end}}
@@ -83,9 +83,9 @@
 
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
                             <div class="text-end space-x-2">
-                                <button type="button" class="relative inline-flex items-center justify-center rounded border px-2.5 py-1.5 text-center text-xs font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 border-gray-300 bg-white text-gray-700 hover:bg-gray-50" onclick="restoreQuarantinedFile({{toJSON .RelPath}}, {{toJSON .Dir}}, {{toJSON .FileName}})">{{$.T.Get "Restore"}}</button>
-                                <button type="button" class="relative inline-flex items-center justify-center rounded border px-2.5 py-1.5 text-center text-xs font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 border-gray-300 bg-white text-gray-700 hover:bg-gray-50" onclick="markQuarantinedFileSafe({{toJSON .RelPath}}, {{toJSON .FileName}})">{{$.T.Get "Mark as safe"}}</button>
-                                <button type="button" class="relative inline-flex items-center justify-center rounded border px-2.5 py-1.5 text-center text-xs font-medium shadow-sm border-red-300 bg-white text-red-700 hover:bg-red-50 dark:border-red-900 dark:bg-gray-950 dark:text-red-400 dark:hover:bg-red-900/20" onclick="deleteQuarantinedFile({{toJSON .RelPath}}, {{toJSON .Dir}}, {{toJSON .FileName}})">{{$.T.Get "Delete"}}</button>
+                                <button type="button" class="relative inline-flex items-center justify-center rounded border px-2.5 py-1.5 text-center text-xs font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 border-gray-300 bg-white text-gray-700 hover:bg-gray-50" onclick="quarantineConfirm(this, 'restore', () => restoreQuarantinedFile({{toJSON .RelPath}}, {{toJSON .Dir}}, {{toJSON .FileName}}))">{{$.T.Get "Restore"}}</button>
+                                <button type="button" class="relative inline-flex items-center justify-center rounded border px-2.5 py-1.5 text-center text-xs font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 border-gray-300 bg-white text-gray-700 hover:bg-gray-50" onclick="quarantineConfirm(this, 'safe', () => markQuarantinedFileSafe({{toJSON .RelPath}}, {{toJSON .FileName}}))">{{$.T.Get "Mark as safe"}}</button>
+                                <button type="button" class="relative inline-flex items-center justify-center rounded border px-2.5 py-1.5 text-center text-xs font-medium shadow-sm border-red-300 bg-white text-red-700 hover:bg-red-50 dark:border-red-900 dark:bg-gray-950 dark:text-red-400 dark:hover:bg-red-900/20" onclick="quarantineConfirm(this, 'delete', () => deleteQuarantinedFile({{toJSON .RelPath}}, {{toJSON .Dir}}, {{toJSON .FileName}}))">{{$.T.Get "Delete"}}</button>
                             </div>
                         </td>
                     </tr>
@@ -101,6 +101,7 @@
 
 {{end}}
 
+<script src="/static/js/table-sort.js"></script>
 <script>
 // Restore/Delete reuse the existing File Manager routes - a quarantined
 // file's RelPath mirrors its original relative path under html_data (see
@@ -115,45 +116,95 @@ function reloadAfter(ms) {
     setTimeout(() => location.reload(), ms);
 }
 
-function restoreQuarantinedFile(relPath, dir, fileName) {
-    if (!confirm('{{.T.Get "Restore"}} "' + fileName + '" {{.T.Get "to its original location?"}}')) return;
-    fetch(`/file-manager/move?item_name=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(quarantinePathParam(dir))}&item_type=file&destination_path=${encodeURIComponent(dir)}`, {
-        method: 'POST', headers: { 'X-CSRF-Token': csrf_token }
-    })
+// inline confirmation in the row, like the File Manager: delete crosses the path out, mark safe turns it green
+let closeQuarantineConfirm = null;
+const quarantineModes = {
+    restore: { color: '#2563eb', icon: 'bi-arrow-counterclockwise', label: '{{.T.Get "Restore"}}', btn: 'border-black bg-black hover:bg-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60' },
+    safe: { color: '#16a34a', icon: 'bi-shield-check', label: '{{.T.Get "Mark as safe"}}', btn: 'border-transparent bg-green-500', style: 'background:#16a34a;' },
+    delete: { color: '#dc2626', icon: 'bi-trash', label: '{{.T.Get "Delete permanently"}}', btn: 'border-transparent bg-red-600 hover:bg-red-700', strike: true },
+};
+
+function quarantineConfirm(btn, action, run) {
+    if (closeQuarantineConfirm) closeQuarantineConfirm();
+    const mode = quarantineModes[action];
+    const row = btn.closest('tr');
+    const actions = btn.closest('div');
+    const path = row.querySelector('.q-path');
+    const original = path.innerHTML;
+
+    path.style.color = mode.color;
+    if (mode.strike) path.style.textDecoration = 'line-through';
+    if (action === 'restore') path.insertAdjacentHTML('afterbegin', '<i class="bi bi-arrow-counterclockwise mr-1"></i>');
+
+    const bar = document.createElement('span');
+    bar.className = 'inline-flex items-center gap-2';
+    bar.innerHTML =
+        `<button type="button" data-act="ok" class="inline-flex items-center gap-1 rounded border px-2.5 py-1.5 text-xs font-medium text-white shadow-sm cursor-pointer ${mode.btn}" style="${mode.style || ''}"><i class="bi ${mode.icon}"></i> ${mode.label}</button>` +
+        `<button type="button" data-act="cancel" class="inline-flex items-center gap-1 rounded border px-2.5 py-1.5 text-xs font-medium shadow-sm border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 cursor-pointer"><i class="bi bi-x-lg"></i> {{.T.Get "Cancel"}}</button>`;
+    const buttons = Array.from(actions.children);
+    buttons.forEach(b => b.style.display = 'none');
+    actions.appendChild(bar);
+
+    function close() {
+        bar.remove();
+        buttons.forEach(b => b.style.display = '');
+        path.innerHTML = original;
+        path.style.color = '';
+        path.style.textDecoration = '';
+        document.removeEventListener('click', onOutside, true);
+        document.removeEventListener('keydown', onKey);
+        closeQuarantineConfirm = null;
+    }
+    function onOutside(e) { if (!bar.contains(e.target)) close(); }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+
+    bar.querySelector('[data-act="cancel"]').addEventListener('click', close);
+    bar.querySelector('[data-act="ok"]').addEventListener('click', () => {
+        bar.querySelectorAll('button').forEach(b => b.disabled = true);
+        document.removeEventListener('click', onOutside, true);
+        run();
+    });
+    setTimeout(() => document.addEventListener('click', onOutside, true), 0);
+    document.addEventListener('keydown', onKey);
+    bar.querySelector('[data-act="ok"]').focus();
+    closeQuarantineConfirm = close;
+}
+
+function quarantineRequest(url, method, okMsg, failMsg) {
+    fetch(url, { method, headers: { 'X-CSRF-Token': csrf_token } })
     .then(r => r.json())
     .then(data => {
-        if (data.success) { showToast('{{.T.Get "File restored."}}', 'success'); reloadAfter(800); }
-        else { showToast(data.error || '{{.T.Get "Restore failed"}}', 'error'); }
+        if (data.success) { showToast(okMsg, 'success'); reloadAfter(800); }
+        else { showToast(data.error || failMsg, 'error'); if (closeQuarantineConfirm) closeQuarantineConfirm(); }
     })
-    .catch(e => showToast(e.message, 'error'));
+    .catch(e => { showToast(e.message, 'error'); if (closeQuarantineConfirm) closeQuarantineConfirm(); });
+}
+
+function restoreQuarantinedFile(relPath, dir, fileName) {
+    quarantineRequest(`/file-manager/move?item_name=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(quarantinePathParam(dir))}&item_type=file&destination_path=${encodeURIComponent(dir)}`,
+        'POST', '{{.T.Get "File restored."}}', '{{.T.Get "Restore failed"}}');
 }
 
 function deleteQuarantinedFile(relPath, dir, fileName) {
-    if (!confirm('{{.T.Get "Permanently delete"}} "' + fileName + '"? {{.T.Get "This cannot be undone."}}')) return;
-    fetch(`/file-manager/delete?filename=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(quarantinePathParam(dir))}&item_type=file&mode=permanent`, {
-        method: 'DELETE', headers: { 'X-CSRF-Token': csrf_token }
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) { showToast('{{.T.Get "File deleted."}}', 'success'); reloadAfter(800); }
-        else { showToast(data.error || '{{.T.Get "Delete failed"}}', 'error'); }
-    })
-    .catch(e => showToast(e.message, 'error'));
+    quarantineRequest(`/file-manager/delete?filename=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(quarantinePathParam(dir))}&item_type=file&mode=permanent`,
+        'DELETE', '{{.T.Get "File deleted."}}', '{{.T.Get "Delete failed"}}');
 }
 
 function markQuarantinedFileSafe(relPath, fileName) {
-    if (!confirm('{{.T.Get "Mark"}} "' + fileName + '" {{.T.Get "as safe and restore it? It will be skipped by future scans."}}')) return;
-    fetch(`/malware-scanner/quarantine/mark-safe?file=${encodeURIComponent(relPath)}`, {
-        method: 'POST', headers: { 'X-CSRF-Token': csrf_token }
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) { showToast('{{.T.Get "Marked as safe and restored."}}', 'success'); reloadAfter(800); }
-        else { showToast(data.error || '{{.T.Get "Failed"}}', 'error'); }
-    })
-    .catch(e => showToast(e.message, 'error'));
+    quarantineRequest(`/malware-scanner/quarantine/mark-safe?file=${encodeURIComponent(relPath)}`,
+        'POST', '{{.T.Get "Marked as safe and restored."}}', '{{.T.Get "Failed"}}');
 }
 </script>
 
 <!-- END templates/files/clamav/quarantine.html -->
+{{end}}
+
+{{define "sort_header"}}
+<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+    <span>{{.Label}}</span>
+    <div class="-space-y-2">
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+    </div>
+</div>
 {{end}}

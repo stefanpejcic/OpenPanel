@@ -114,6 +114,51 @@ const maskTokens = async page => {
   await page.evaluate(() => document.querySelectorAll('#mcp-tokens-table td.font-mono').forEach((td, i) => { td.textContent = ['op_mcp_Xk29fQ…', 'op_mcp_Rw81hT…'][i % 2]; }));
 };
 
+// file manager fixtures: keep a few tidy rows and give the odd test files readable names
+const FM_KEEP = ['wp.tests.openpanel.org', 'php.tests.openpanel.org', 'files.tests.openpanel.org', 'backups', 'index.php', 'index.html', '20MB.zip', 'mtr_output.txt'];
+const FM_NAMES = { '20MB.zip': 'site-backup.zip', 'mtr_output.txt': 'notes.txt' };
+const fmFixture = async page => {
+  await page.evaluate(([keep, names]) => {
+    document.querySelectorAll('#filemanager_table tbody tr.clickable-row').forEach(tr => {
+      const name = tr.dataset.file;
+      if (!keep.includes(name)) return tr.remove();
+      if (!names[name]) return;
+      tr.dataset.file = names[name];
+      tr.querySelectorAll('td:first-child h6, td:first-child h6 a').forEach(el => {
+        if (el.firstElementChild) return;
+        el.textContent = el.textContent.replace(name, names[name]);
+      });
+    });
+  }, [FM_KEEP, FM_NAMES]);
+};
+
+// select rows by (fixture) name, the first with a plain click and the rest with ctrl
+const fmSelect = (...files) => async page => {
+  for (const [i, f] of files.entries()) {
+    await page.locator(`tr[data-file="${f}"]`).click(i ? { modifiers: ['Control'] } : {});
+  }
+  await page.waitForTimeout(300);
+};
+
+const fmAction = id => async page => {
+  await page.evaluate(id => document.getElementById(id).click(), id);
+  await page.waitForTimeout(500);
+};
+
+// the picker lists real folders, so drop the ones that aren't fixtures once it has loaded
+const pickerReady = async page => {
+  await page.waitForFunction(() => document.querySelector('#fmPickerList button[data-path]') || document.querySelector('#fmPickerList li:only-child'), null, { timeout: 10000 });
+  await page.waitForTimeout(300);
+  await page.evaluate(keep => {
+    document.querySelectorAll('#fmPickerList button[data-path]').forEach(b => {
+      const p = b.dataset.path;
+      if (p && !p.includes('/') && !keep.includes(p)) b.closest('li').remove();
+    });
+  }, FM_KEEP);
+};
+
+const PICKER_CROP = { from: '#fmPickerModal > div', pad: 0, clamp: false };
+
 export const pages = {
   // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs mysql/databases
   'mysql/databases': {
@@ -840,25 +885,54 @@ export const pages = {
   },
   'files/files': {
     url: '/files',
+    // these UX changes are new in 2.0.14, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs files/files files/files_more files/files_drop files/files_modern
+    before: fmFixture,
     shots: [
       { name: 'list', alt: 'File Manager listing the folders and files in /var/www/html with their size, modification date and permissions', crop: 'content' },
       {
         name: 'new-file',
-        alt: 'New File drawer with the file name field',
-        prepare: all(click('main button:has-text("New File")', 600), async page => { await page.locator('#newfiDrawer input:visible').first().fill('robots.txt').catch(() => {}); }),
-        viewportHeight: 620,
-        crop: { from: '#newfiDrawer', clamp: false },
+        alt: 'New file row at the top of the table with the file name typed in, the Open in File Editor checkbox, and the Create and Cancel buttons',
+        prepare: async page => {
+          await page.locator('#newFileButton').click();
+          await page.locator('#filename').fill('robots.txt');
+          await page.waitForTimeout(300);
+        },
+        crop: { from: 'main table thead', to: 'tr[data-file="index.php"]', pad: 8 },
       },
       {
         name: 'new-folder',
-        alt: 'New Folder drawer with the folder name field',
-        prepare: all(click('main button:has-text("New Folder")', 600), async page => { await page.locator('#newfoDrawer input:visible').first().fill('images').catch(() => {}); }),
-        viewportHeight: 620,
-        crop: { from: '#newfoDrawer', clamp: false },
+        alt: 'New folder row at the top of the table with the folder name typed in and the Create and Cancel buttons',
+        prepare: async page => {
+          await page.locator('#newFolderButton').click();
+          await page.locator('#foldername').fill('images');
+          await page.waitForTimeout(300);
+        },
+        crop: { from: 'main table thead', to: 'tr[data-file="index.php"]', pad: 8 },
+      },
+      {
+        name: 'upload',
+        alt: 'Upload area opened above the file list with two dropped files listed by name and size, waiting for the Upload button to be clicked',
+        prepare: async page => {
+          // a fake drop with in-memory files, the page only lists them and waits for confirmation
+          await page.evaluate(() => {
+            const dt = new DataTransfer();
+            dt.items.add(new File(['x'.repeat(48213)], 'logo.png', { type: 'image/png' }));
+            dt.items.add(new File(['x'.repeat(1843)], 'contact.html', { type: 'text/html' }));
+            document.body.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
+          });
+          await page.waitForTimeout(500);
+        },
+        crop: { from: 'main', to: '#upload_files_form', fromTop: true, pad: 24 },
+      },
+      {
+        name: 'buttons',
+        alt: 'File Manager toolbar with Select all, View, Edit, Download, Rename, Copy, Move, Compress, Extract, Permissions and Delete buttons',
+        prepare: fmSelect('index.php'),
+        crop: { from: '#mainButtons', pad: 8 },
       },
       {
         name: 'context-menu',
-        alt: 'Right-click menu on a file with Copy, Move, Rename, Download, View, Edit, Permissions, Compress and Delete',
+        alt: 'Right-click menu on a file with View, Edit, Download, Rename, Copy, Move, Compress, Permissions and Delete',
         prepare: async page => {
           await page.locator('tr[data-file="index.php"]').click({ button: 'right' });
           await page.waitForTimeout(500);
@@ -867,39 +941,33 @@ export const pages = {
       },
       {
         name: 'rename',
-        alt: 'Rename drawer with the new name field for the selected file',
-        prepare: async page => {
-          await page.locator('tr[data-file="index.php"]').click();
-          await page.waitForTimeout(400);
-          await page.evaluate(() => document.getElementById('renameButton').click());
-          await page.waitForTimeout(600);
-        },
-        viewportHeight: 520,
-        crop: { from: '#renameDrawer', clamp: false },
+        alt: 'Name of the selected file turned into an input with Save and Cancel buttons for renaming it in place',
+        prepare: all(fmSelect('index.php'), fmAction('renameButton')),
+        crop: { from: 'main table thead', to: 'tr[data-file="index.php"]', pad: 8 },
       },
       {
         name: 'permissions',
-        alt: 'Change file permissions drawer with the octal permission value for the selected file',
-        prepare: async page => {
-          await page.locator('tr[data-file="index.php"]').click();
-          await page.waitForTimeout(400);
-          await page.evaluate(() => document.getElementById('permButton').click());
-          await page.waitForTimeout(600);
-        },
-        viewportHeight: 520,
-        crop: { from: '#permDrawer', clamp: false },
+        alt: 'Permissions of three selected items being edited in place, the first row has the octal input with Save and Cancel and the other rows show the typed value',
+        prepare: all(fmSelect('index.php', 'site-backup.zip', 'notes.txt'), fmAction('permButton'), async page => {
+          await page.locator('.fm-inline-input').fill('');
+          await page.locator('.fm-inline-input').pressSequentially('640', { delay: 40 });
+          await page.waitForTimeout(300);
+        }),
+        crop: { from: 'main table thead', to: 'tr[data-file="notes.txt"]', pad: 8 },
       },
       {
         name: 'compress',
-        alt: 'Compress items drawer listing the selected files and the archive path and extension',
-        prepare: async page => {
-          await page.locator('tr[data-file="index.php"]').click();
-          await page.waitForTimeout(400);
-          await page.evaluate(() => document.getElementById('compressButton').click());
-          await page.waitForTimeout(600);
-        },
-        viewportHeight: 520,
-        crop: { from: '#compressDrawer', clamp: false },
+        alt: 'Compress dialog with the archive name and format, a folder browser to pick where the archive is saved, and the Compress button',
+        prepare: all(fmSelect('index.php', 'notes.txt'), fmAction('compressButton'), pickerReady),
+        crop: PICKER_CROP,
+      },
+      {
+        name: 'extract',
+        alt: 'Extract dialog for an archive with the folder browser, the destination path and the option to extract into a new folder',
+        prepare: all(fmSelect('site-backup.zip'), fmAction('extractButton'), pickerReady, async page => {
+          await page.locator('#fmPickerSubfolder').check();
+        }),
+        crop: PICKER_CROP,
       },
     ],
   },
@@ -917,7 +985,38 @@ export const pages = {
   },
   'files/trash': {
     url: '/files.trash',
-    shots: [{ name: 'list', alt: 'Trash page listing deleted files with Restore and Delete actions', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } }],
+    // inline restore/delete are new in 2.0.14, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs files/trash
+    // readable names for the test server's leftover trash items
+    prepare: rename({ radofol_11u8yy: 'old-theme', radozip_11u8yy: 'backup-2025.zip', 'smoke2.txt': 'notes.txt', claude_smoke_dir: 'docs' }, 'main'),
+    shots: [
+      { name: 'list', alt: 'Trash page listing deleted files with their deletion date and original path, and the Restore All, Restore, Delete All and Delete buttons', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
+      {
+        name: 'restore',
+        alt: 'Two trash items being restored, their rows greyed out except the name and an arrow pointing to the original path, with the Restore and Cancel buttons',
+        prepare: async page => {
+          const rows = page.locator('main table tbody tr.clickable-row');
+          await rows.nth(0).click();
+          await rows.nth(1).click({ modifiers: ['Control'] });
+          await page.waitForTimeout(300);
+          await page.evaluate(() => document.getElementById('restoreButton').click());
+          await page.waitForTimeout(400);
+        },
+        crop: { from: 'main table thead', to: 'main table tbody tr:last-of-type', pad: 8 },
+      },
+      {
+        name: 'delete',
+        alt: 'Two trash items crossed out in red with the Delete permanently and Cancel buttons',
+        prepare: async page => {
+          const rows = page.locator('main table tbody tr.clickable-row');
+          await rows.nth(0).click();
+          await rows.nth(1).click({ modifiers: ['Control'] });
+          await page.waitForTimeout(300);
+          await page.evaluate(() => document.getElementById('deleteTrashButton').click());
+          await page.waitForTimeout(400);
+        },
+        crop: { from: 'main table thead', to: 'main table tbody tr:last-of-type', pad: 8 },
+      },
+    ],
   },
   // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs files/ftp
   'files/ftp': {
@@ -1772,6 +1871,8 @@ export const pages = {
           // no real file is dragged, the page only needs the dragenter events to show the drop area
           await page.evaluate(() => {
             const dt = new DataTransfer();
+            // the page only reacts to drags that carry files
+            dt.items.add(new File(['x'], 'logo.png', { type: 'image/png' }));
             document.dispatchEvent(new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer: dt }));
             const area = document.getElementById('dropArea') || document.querySelector('label[for="fileUpload"]');
             area?.dispatchEvent(new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer: dt }));
@@ -1805,45 +1906,29 @@ export const pages = {
   },
   'files/files_more': {
     url: '/files',
+    before: fmFixture,
     shots: [
       {
         name: 'delete',
-        alt: 'Delete drawer listing the selected files with the Delete button',
-        prepare: async page => {
-          await page.locator('tr[data-file="index.php"]').click();
-          await page.locator('tr[data-file="index.html"]').click({ modifiers: ['Control'] });
-          await page.waitForTimeout(300);
-          await page.evaluate(() => document.getElementById('deleteButton').click());
-          await page.waitForTimeout(800);
-        },
-        viewportHeight: 620,
-        crop: { from: '#deleteDrawer', clamp: false },
+        alt: 'Two selected files crossed out in the table, the first with the Skip the trash option and the Delete and Cancel buttons',
+        prepare: all(fmSelect('index.php', 'notes.txt'), fmAction('deleteButton')),
+        crop: { from: 'main table thead', to: 'tr[data-file="notes.txt"]', pad: 8 },
       },
       {
         name: 'copy',
-        alt: 'Copy drawer listing the selected files with the destination folder picker and the Copy button',
-        prepare: async page => {
-          await page.locator('tr[data-file="index.php"]').click();
-          await page.locator('tr[data-file="index.html"]').click({ modifiers: ['Control'] });
-          await page.waitForTimeout(300);
-          await page.evaluate(() => document.getElementById('copyButton').click());
-          await page.waitForTimeout(800);
-        },
-        viewportHeight: 620,
-        crop: { from: '#copyDrawer', clamp: false },
+        alt: 'Copy dialog for two selected files with a folder browser, the destination path and the Copy here button',
+        prepare: all(fmSelect('index.php', 'notes.txt'), fmAction('copyButton'), pickerReady),
+        crop: PICKER_CROP,
       },
       {
         name: 'move',
-        alt: 'Move drawer listing the selected files with the destination folder picker and the Move button',
-        prepare: async page => {
-          await page.locator('tr[data-file="index.php"]').click();
-          await page.locator('tr[data-file="index.html"]').click({ modifiers: ['Control'] });
-          await page.waitForTimeout(300);
-          await page.evaluate(() => document.getElementById('moveButton').click());
-          await page.waitForTimeout(800);
-        },
-        viewportHeight: 620,
-        crop: { from: '#moveDrawer', clamp: false },
+        alt: 'Move dialog opened inside a website folder, with the breadcrumb, its subfolders, the destination path and the Move here button',
+        prepare: all(fmSelect('index.php', 'notes.txt'), fmAction('moveButton'), pickerReady, async page => {
+          await page.locator('#fmPickerList button[data-path="files.tests.openpanel.org"]').click();
+          await page.waitForFunction(() => document.getElementById('fmPickerDest').value === '/files.tests.openpanel.org', null, { timeout: 10000 });
+          await page.waitForTimeout(400);
+        }),
+        crop: PICKER_CROP,
       },
       {
         name: 'search',
@@ -1865,6 +1950,7 @@ export const pages = {
   },
   'files/files_modern': {
     url: '/files?view=modern',
+    before: fmFixture,
     shots: [
       {
         name: 'modern',

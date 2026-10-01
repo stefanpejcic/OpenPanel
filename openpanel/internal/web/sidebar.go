@@ -243,8 +243,9 @@ var sidebarAreas = []navArea{
 	{label: "Files", icon: filesIcon, menuID: "files-menu", match: isFilesPath,
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			var tabs []NavLink
-			tabs = g.add(tabs, "filemanager", "/files", "File Manager", strings.HasPrefix(path, "/files") && !strings.HasPrefix(path, "/files.trash") || hasAnyPrefix(path, "/file-manager/view-file", "/file-manager/edit-file"), "")
-			tabs = g.add(tabs, "filemanager", "/file-manager/upload?method=upload", "Upload", strings.HasPrefix(path, "/file-manager/upload") && !strings.HasSuffix(path, "?method=download"), "")
+			// uploads start from the File Manager toolbar now, so the upload page counts as File Manager
+			isUpload := strings.HasPrefix(path, "/file-manager/upload") && !strings.HasSuffix(path, "?method=download")
+			tabs = g.add(tabs, "filemanager", "/files", "File Manager", strings.HasPrefix(path, "/files") && !strings.HasPrefix(path, "/files.trash") || hasAnyPrefix(path, "/file-manager/view-file", "/file-manager/edit-file") || isUpload, "")
 			tabs = g.add(tabs, "filemanager", "/file-manager/upload?method=download", "Download from URL", strings.HasPrefix(path, "/file-manager/upload") && strings.HasSuffix(path, "?method=download"), "")
 			tabs = g.add(tabs, "trash", "/files.trash", "Trash", strings.HasPrefix(path, "/files.trash"), "")
 			tabs = g.add(tabs, "ftp", "/ftp", "FTP Accounts", strings.HasPrefix(path, "/ftp"), "")

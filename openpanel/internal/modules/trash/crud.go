@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -301,4 +302,32 @@ func resolveOrSelf(p string) string {
 		return resolved
 	}
 	return p
+}
+
+// handleTrashSize is the trash page's "Calculate" link, /json/directory-size only reaches the website files volume
+func handleTrashSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	itemName := filepath.Base(r.URL.Query().Get("name"))
+	if itemName == "" || itemName == "." || itemName == "/" || itemName == ".." {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid folder name."})
+		return
+	}
+
+	_, userContext, err := injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	target := filepath.Join("/home/"+userContext+"/.local/share/Trash", itemName)
+	if info, statErr := os.Lstat(target); statErr != nil || !info.IsDir() {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Folder does not exist in Trash."})
+		return
+	}
+
+	out, runErr := exec.CommandContext(r.Context(), "du", "-sh", target).Output()
+	if runErr != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not calculate the folder size."})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"size": strings.SplitN(string(out), "\t", 2)[0]})
 }

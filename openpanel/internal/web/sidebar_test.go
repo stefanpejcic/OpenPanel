@@ -35,8 +35,8 @@ func findItem(items []NavItem, label string) *NavItem {
 func TestNavPathAndUploadDownloadActiveState(t *testing.T) {
 	allowed := map[string]bool{"filemanager": true}
 	cases := map[string]string{
-		"/file-manager/upload":                 "Upload",
-		"/file-manager/upload?method=upload":   "Upload",
+		"/file-manager/upload":                 "File Manager",
+		"/file-manager/upload?method=upload":   "File Manager",
 		"/file-manager/upload?method=download": "Download from URL",
 	}
 	for url, want := range cases {

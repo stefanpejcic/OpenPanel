@@ -3,6 +3,7 @@ package trash
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -52,6 +53,8 @@ type TrashPageData struct {
 	Directories []Row
 	Files       []Row
 	Rows        []Row
+	// PurgeNote is shown under the heading when autopurge_trash is set to a number of days
+	PurgeNote string
 }
 
 func renderTrashPage(a *appctx.App, w http.ResponseWriter, r *http.Request, title, pathParam string, filesInfo []Entry) {
@@ -62,7 +65,14 @@ func renderTrashPage(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 	}
 
 	data := TrashPageData{LayoutData: layout, Title: title, PathParam: pathParam}
+	if days, convErr := strconv.Atoi(strings.TrimSpace(a.Config.Get("autopurge_trash", ""))); convErr == nil && days > 0 {
+		data.PurgeNote = web.Tr(a, r, "Items in the trash are automatically deleted after %(days)s days.", "days", strconv.Itoa(days))
+	}
 	for _, info := range filesInfo {
+		// .trash_restore is the trash's own bookkeeping, not something the user put there
+		if info.Name == ".trash_restore" {
+			continue
+		}
 		row := toRow(info)
 		if info.Type == "directory" {
 			data.Directories = append(data.Directories, row)

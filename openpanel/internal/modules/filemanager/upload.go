@@ -46,6 +46,8 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
+		// the /files drop zone posts via XHR and wants errors back inline instead of a flash
+		wantsJSON := strings.Contains(r.Header.Get("Accept"), "application/json")
 		pathParam = r.URL.Query().Get("path_param")
 		if pp := r.FormValue("path_param"); pp != "" {
 			pathParam = pp
@@ -58,7 +60,7 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		pathParam = r.Form.Get("path_param")
 
 		files := r.MultipartForm.File["files"]
-		if len(files) == 0 {
+		if len(files) == 0 && !wantsJSON {
 			flashOnlySession(a, r, w, "error", "No files were uploaded")
 		}
 
@@ -116,6 +118,19 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			}
 
 			_ = logger.RecordUserAction(a.Config, user.Username, "uploaded a new file via File Manager", reqip.ClientIP(r))
+		}
+
+		if wantsJSON {
+			if allSuccess && len(errs) == 0 && len(files) > 0 {
+				flashOnlySession(a, r, w, "success", "Files uploaded successfully.")
+				writeJSON(w, http.StatusOK, map[string]any{"success": true})
+			} else {
+				if len(files) == 0 {
+					errs = append(errs, "No files were uploaded")
+				}
+				writeJSON(w, http.StatusOK, map[string]any{"success": false, "errors": errs})
+			}
+			return
 		}
 
 		if allSuccess {
