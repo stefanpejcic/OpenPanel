@@ -58,7 +58,7 @@ Legend: ✅ route exists · ⚠️ route missing or differs · — no screenshot
 ### Domains
 | Doc page | Route | Shots |
 |---|---|---|
-| domains/domains | `/domains` | ✅ page · detail: row actions |
+| domains/domains | `/domains` | ✅ page · detail: filters · cloudflare icon · row actions · bulk · bulk cloudflare |
 | domains/new | `/domains/new` | ✅ page (form) |
 | domains/dns | `/domains/edit-dns-zone/{domain}` | ✅ page · detail: edit record · create record · advanced editor |
 | domains/ssl | `/domains/ssl` | ✅ page · detail: custom SSL form |

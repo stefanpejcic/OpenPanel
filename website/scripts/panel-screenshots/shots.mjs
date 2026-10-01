@@ -28,6 +28,7 @@ const DOMAINS = {
   // the test server that has the bulk actions before the demo does
   'example.tEst.rs': 'example.com',
   'example.test.rs': 'example.com',
+  'matomo.test.rs': 'example.org',
   'wp.demo.openpanel.org': 'blog.example.com',
   'website-builder.tests.openpanel.org': 'portfolio.example.com',
   'redirect.tests.openpanel.org': 'old.example.com',
@@ -93,6 +94,15 @@ const bulkShot = (table, keys, alt, { action, value, name = 'bulk', keep } = {})
   ),
   crop: { from: `${table} thead`, to: '#bulk-actions-bar' },
 });
+
+// turn off table columns through the page's Alpine controller, so wide tables fit the shot width
+const hideColumns = keys => async page => {
+  await page.evaluate(keys => {
+    const data = window.Alpine.$data(document.querySelector('[x-data*="createTableController"]'));
+    for (const k of keys) data.columns[k] = false;
+  }, keys);
+  await page.waitForTimeout(300);
+};
 
 // profile recommendation toasts pop up on the WAF pages, keep them out of the shots
 const clearToasts = async page => {
@@ -587,24 +597,32 @@ export const pages = {
   'domains/domains': {
     url: '/domains',
     shots: [
-      { name: 'list', alt: 'Domains page listing domains with their status, document root and PHP version', crop: 'content' },
+      { name: 'list', alt: 'Domains page listing domains with their status, PHP version, SSL certificate and WAF toggle', prepare: hideColumns(['docroot']), crop: 'content' },
+      {
+        name: 'filters',
+        alt: 'Status filter open next to Show Columns, with the PHP Version, SSL, Type and Redirect filters beside it',
+        prepare: click('.relative:has(> div input[name=domain-filter-status]) > button'),
+        crop: { content: 'main [x-model="searchQuery"]', maxHeight: 260 },
+      },
+      {
+        name: 'cloudflare',
+        alt: 'Domain restricted to Cloudflare with the orange cloud icon next to its name',
+        prepare: all(hideColumns(['docroot']), onlyRows('#domains-table', ['files.tests.openpanel.org', 'php.tests.openpanel.org', 'nodejs.tests.openpanel.org'])),
+        crop: { from: 'main table thead', to: 'main table tbody', pad: 0 },
+      },
       {
         name: 'actions',
-        alt: 'Actions menu of a domain with Edit DNS Zone, Manage WAF, Change docroot, Edit VirtualHosts, Capitalize, Suspend and Delete',
+        alt: 'Actions menu of a domain with Edit DNS Zone, Manage WAF, Remove Cloudflare restriction, Change docroot, Edit VirtualHosts, Capitalize, Suspend and Delete',
         prepare: async page => {
           // hide the wide columns so the Actions column fits without horizontal scrolling
-          await page.evaluate(() => {
-            const el = document.querySelector('[x-data^="createTableController"]');
-            const data = window.Alpine.$data(el);
-            for (const k of ['docroot', 'php', 'site_count', 'redirect']) data.columns[k] = false;
-          });
-          await page.waitForTimeout(300);
+          await hideColumns(['docroot', 'php', 'site_count', 'redirect', 'ssl', 'waf'])(page);
           await page.locator('#dropdownHoverButton-0').hover();
           await page.waitForTimeout(500);
         },
         crop: { from: 'main table thead', to: '#dropdownHover-0', pad: 12 },
       },
-      bulkShot('#domains-table', ['example.test.rs'], 'A domain selected with the bulk actions bar offering Suspend, Unsuspend, Change PHP version, Redirect to, Remove redirect, Enable WAF, Disable WAF and Delete'),
+      bulkShot('#domains-table', ['wp.tests.openpanel.org'], 'A domain selected with the bulk actions bar offering Suspend, Unsuspend, Change PHP version, Redirect to, Remove redirect, WAF, Cloudflare and Delete', { keep: ['wp.tests.openpanel.org', 'php.tests.openpanel.org', 'nodejs.tests.openpanel.org'] }),
+      bulkShot('#domains-table', ['wp.tests.openpanel.org'], 'Cloudflare bulk action asking whether to restrict the selected domains to Cloudflare or unrestrict them', { action: 'cloudflare', name: 'bulk-cloudflare', keep: ['wp.tests.openpanel.org', 'php.tests.openpanel.org', 'nodejs.tests.openpanel.org'] }),
     ],
   },
   'domains/new': {
