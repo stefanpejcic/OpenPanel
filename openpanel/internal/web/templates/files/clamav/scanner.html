@@ -199,7 +199,7 @@
 
     document.getElementById('start-scan-btn').addEventListener('click', function() {
         document.getElementById('start-scan-btn').style.display = 'none';
-        document.getElementById('scanning-btn').style.display = 'inline-block';
+        document.getElementById('scanning-btn').style.display = 'inline-flex';
 
         const selectedDirectory = document.getElementById('directory-select').value;
 
@@ -234,11 +234,11 @@
                 if (typeof showToast === 'function') {
                     showToast(i18n.scanFailed + error.message, 'error');
                 }
-                document.getElementById('start-scan-btn').style.display = 'block';
+                document.getElementById('start-scan-btn').style.display = '';
             })
             .finally(() => {
                 document.getElementById('scanning-btn').style.display = 'none';
-                document.getElementById('start-scan-btn').style.display = 'block';
+                document.getElementById('start-scan-btn').style.display = '';
             });
     });
 

@@ -14,11 +14,6 @@
         {{.T.Get "Select a container in which the script will be executed and set schedule. To add multiple jobs at once, use the File Editor instead."}}
       </p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-      <a href="/cronjobs/editor" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit mt-2 md:mt-0">
-        {{.T.Get "Switch to File Editor"}}
-      </a>
-    </div>
   </div>
   <!-- END page header -->
 
@@ -98,7 +93,7 @@
       <div class="md:flex items-center md:justify-end md:space-x-4 mt-6">
         <a href="/cronjobs"
            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full sm:w-auto">
-          {{.T.Get "Back to CronJobs"}}
+          {{.T.Get "Cancel"}}
         </a>
         <button type="button" onclick="submitCronForm()"
                 class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800 w-full sm:w-auto mt-2 sm:mt-0">
