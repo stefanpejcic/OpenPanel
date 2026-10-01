@@ -28,6 +28,11 @@ const DOMAINS = {
   'php.tests.openpanel.org': 'shop.example.com',
   'wp.tests.openpanel.org': 'blog.example.com',
   'to-be-removed.com': 'example.net',
+  // WAF test domains, each with a different firewall setup
+  'waf2.tests.openpanel.org': 'cloud.example.com',
+  'waf3.tests.openpanel.org': 'forum.example.com',
+  'waf4.tests.openpanel.org': 'shop.example.com',
+  'waf.tests.openpanel.org': 'blog.example.com',
   'tests.openpanel.org': 'example.com',
   'aliasexample@': 'sales@',
   'something@gmail.com': 'team@example.org',
@@ -79,6 +84,11 @@ const bulkShot = (table, keys, alt, { action, value, name = 'bulk', keep } = {})
   ),
   crop: { from: `${table} thead`, to: '#bulk-actions-bar' },
 });
+
+// profile recommendation toasts pop up on the WAF pages, keep them out of the shots
+const clearToasts = async page => {
+  await page.evaluate(() => document.getElementById('toast-container')?.replaceChildren());
+};
 
 // token prefixes are real secrets on the test server
 const maskTokens = async page => {
@@ -1240,20 +1250,37 @@ export const pages = {
     url: '/server/webserver_conf',
     shots: [{ name: 'editor', alt: 'Web server configuration editor with the Restore Default and Save Changes buttons', crop: { content: 'main', maxHeight: 700 } }],
   },
-  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs advanced/waf
+  // WAF profiles, levels and monitor mode are new in 2.0.13, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs advanced/waf advanced/waf_domain advanced/waf_monitor
+  // the shots need the four waf*.tests.openpanel.org test domains and a few WAF log entries on that server
   'advanced/waf': {
     url: '/server/waf',
+    prepare: clearToasts,
     shots: [
-      { name: 'list', alt: 'WAF page listing domains with a toggle to enable the firewall and Manage Rules and View Logs buttons', crop: 'content' },
-      bulkShot('#waf-domains-table', ['example.test.rs'], 'A domain selected with the bulk actions bar offering Enable WAF and Disable WAF'),
+      { name: 'list', alt: 'Web Firewall page with the firewall switch for all domains, filters, and a table of domains with blocked requests, protection level and app profiles', crop: 'content' },
+      { name: 'filters', alt: 'Profile filter next to the search box, listing All, None and every app profile', prepare: click('main button:has-text("Profile")'), crop: { from: 'main input[type=search]', to: 'main ul:visible >> nth=-1', pad: 24, right: true } },
+      { ...bulkShot('#waf-domains-table', ['waf.tests.openpanel.org', 'waf4.tests.openpanel.org'], 'Two domains selected with the bulk actions bar offering Set Level, Apply Profile, Enable WAF and Disable WAF', { action: 'set_level' }) },
     ],
   },
   'advanced/waf_domain': {
-    url: '/server/waf/wp.tests.openpanel.org',
+    url: '/server/waf/waf.tests.openpanel.org',
+    prepare: clearToasts,
     shots: [
-      { name: 'page', alt: 'WAF settings for a domain with the status toggle and fields for disabled rule IDs and tags', prepare: fillVisible(['942100 920350', 'attack-sqli']), crop: 'content' },
+      { name: 'page', alt: 'WAF page for a domain with protection status, protection level, recent blocked requests, app profiles and advanced rule exceptions', crop: 'content' },
+      { name: 'protection', alt: 'Firewall is on, with the number of requests checked and blocked in the last 24 hours and the Monitor only and Turn off buttons', crop: { from: 'main h2:text-is("Protection")', to: 'main form[action="/server/waf"]', pad: 24, right: true } },
+      { name: 'level', alt: 'Protection level options Compatibility, Standard and Strict, with Standard selected', crop: { from: 'main h2:text-is("Protection level")', to: 'main label:has(input[name=waf_level]) >> nth=-1', pad: 24, right: true } },
+      { name: 'recent', alt: 'Recent blocked requests grouped by reason, like SQL injection and cross-site scripting, with Disable rule buttons and a table of the latest requests', crop: { from: 'main h2:text-is("Recent blocked requests")', to: 'main table >> nth=0', pad: 24, right: true } },
+      { name: 'profiles', alt: 'App profiles with a recommendation to turn on the WordPress profile and a switch for each profile', crop: { from: 'main h2:text-is("App profiles")', to: 'main p:has-text("Only turn on profiles")', pad: 24, right: true } },
       { name: 'ids', alt: 'Disabled IDs field of the WAF settings with rule IDs 942100 and 920350', prepare: fillVisible(['942100 920350', '']), crop: { from: 'main :text-is("Disabled IDs")', to: 'main input:visible >> nth=0', pad: 24 } },
       { name: 'tags', alt: 'Disabled Tags field of the WAF settings with the attack-sqli tag', prepare: fillVisible(['', 'attack-sqli']), crop: { from: 'main :text-is("Disabled Tags")', to: 'main input:visible >> nth=1', pad: 24 } },
+    ],
+  },
+  // same docs page, a domain in monitor only mode
+  'advanced/waf_monitor': {
+    as: 'advanced/waf_domain',
+    url: '/server/waf/waf3.tests.openpanel.org',
+    prepare: clearToasts,
+    shots: [
+      { name: 'monitor', alt: 'Monitor only mode: requests are checked and logged but nothing is blocked, with the Turn on blocking and Turn off buttons', crop: { from: 'main h2:text-is("Protection")', to: 'main form[action="/server/waf"]', pad: 24, right: true } },
     ],
   },
   'advanced/waf_logs': {

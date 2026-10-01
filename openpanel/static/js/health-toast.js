@@ -46,7 +46,7 @@ function reportHealthIssues(pageKey, issues, ttlHours = 24) {
         const lastShown = pageSeen[id];
         if (!lastShown || (now - lastShown) >= ttlMs) {
             const type = issue.severity === 'error' ? 'error' : (issue.severity === 'info' ? 'info' : 'warning');
-            showToast(issue.message, type, false, issue.link || false);
+            showToast(issue.message, type, false, issue.link ? (issue.link_label ? { label: issue.link_label, href: issue.link } : issue.link) : false);
             pageSeen[id] = now;
         }
     });

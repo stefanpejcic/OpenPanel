@@ -74,14 +74,7 @@ func readWAFStatus(domain string) (status string, removedRules, removedTags []st
 		return "Not Found", nil, nil
 	}
 	contentStr := string(content)
-	switch {
-	case strings.Contains(contentStr, "SecRuleEngine On"):
-		status = "On"
-	case strings.Contains(contentStr, "SecRuleEngine Off"):
-		status = "Off"
-	default:
-		status = "Unknown"
-	}
+	status = engineStatus(contentStr)
 
 	removedRules, removedTags = parseWAFRemovals(contentStr)
 	return status, removedRules, removedTags
@@ -109,8 +102,8 @@ func apiWAFDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		body.Status = r.Form.Get("status")
 	}
 	newStatus := strings.TrimSpace(body.Status)
-	if newStatus != "On" && newStatus != "Off" {
-		writeJSONError(w, http.StatusBadRequest, "status must be On or Off")
+	if !validEngine(newStatus) {
+		writeJSONError(w, http.StatusBadRequest, "status must be On, Off or DetectionOnly")
 		return
 	}
 
@@ -120,12 +113,7 @@ func apiWAFDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusNotFound, "Config file not found for "+domain)
 		return
 	}
-	contentStr := string(content)
-	if newStatus == "On" {
-		contentStr = strings.ReplaceAll(contentStr, "SecRuleEngine Off", "SecRuleEngine On")
-	} else {
-		contentStr = strings.ReplaceAll(contentStr, "SecRuleEngine On", "SecRuleEngine Off")
-	}
+	contentStr := setEngine(string(content), newStatus)
 
 	if writeErr := os.WriteFile(path, []byte(contentStr), 0o644); writeErr != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
@@ -138,8 +126,11 @@ func apiWAFDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	actionWord := "disabled"
-	if newStatus == "On" {
+	switch newStatus {
+	case "On":
 		actionWord = "enabled"
+	case engineMonitor:
+		actionWord = "set monitor only"
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, actionWord+" WAF for "+domain, reqip.ClientIP(r))
 	writeJSON(w, http.StatusOK, map[string]string{"domain": domain, "status": newStatus})

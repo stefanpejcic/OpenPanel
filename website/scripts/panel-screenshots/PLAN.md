@@ -168,7 +168,7 @@ MongoDB has no processlist, remote or configuration pages, and the docs don't ha
 | advanced/ip-blocker | `/security/ip-blocker` | ✅ page |
 | advanced/process_manager | `/process-manager` | ✅ page · detail: kill confirm |
 | advanced/webserver_settings | `/server/webserver_conf` | ✅ page |
-| advanced/waf | `/server/waf`, `/server/waf/{domain}`, `/server/waf/log` | ✅ page · manage domain · logs |
+| advanced/waf | `/server/waf`, `/server/waf/{domain}`, `/server/waf/log` | ✅ page · filters · bulk · manage domain (protection, monitor only, level, recent blocked requests, profiles, rule IDs and tags) · logs. Needs the waf*.tests.openpanel.org test domains and a few log entries, shoot with PANEL_URL |
 | advanced/resource_usage | `/server/usage`, `/server/usage/history` | ✅ page · history |
 | advanced/server_info | `/server/info` | ✅ page |
 

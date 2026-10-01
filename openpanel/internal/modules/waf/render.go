@@ -38,16 +38,69 @@ type WAFListPageData struct {
 	Domains      []appctx.Domain
 	ModsecStatus map[string]string
 	Issues       []WAFIssue
+	// profile recommendations, shown as toasts at most once a day
+	Recommendations []WAFIssue
+	Rows            map[string]DomainWAFRow
+	// default for new domains, the /home/<context>/waf.disabled marker opencli domains-add reads
+	AccountEnabled bool
+	// choices for the level and profile filters next to search
+	LevelOptions   []LevelView
+	ProfileOptions []ProfileView
 }
 
-func renderWAFListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain, modsecStatus map[string]string, issues []WAFIssue) {
+// Mixed is true when some domains don't match the default, so the page offers to apply it to all
+func (d WAFListPageData) Mixed() bool {
+	want := "Off"
+	if d.AccountEnabled {
+		want = "On"
+	}
+	for _, s := range d.ModsecStatus {
+		if (s == "On" || s == "Off") && s != want {
+			return true
+		}
+	}
+	return false
+}
+
+// CountOn is how many domains have the firewall on
+func (d WAFListPageData) CountOn() int {
+	n := 0
+	for _, s := range d.ModsecStatus {
+		if s == "On" {
+			n++
+		}
+	}
+	return n
+}
+
+func renderWAFListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data WAFListPageData) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Web Firewall")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	layout.BulkActions = wafBulkActions(layout.T)
-	data := WAFListPageData{LayoutData: layout, Domains: domains, ModsecStatus: modsecStatus, Issues: issues}
+	data.LayoutData = layout
+	for _, p := range availableProfiles() {
+		data.ProfileOptions = append(data.ProfileOptions, ProfileView{Key: p.Key, Name: p.Name})
+	}
+	for _, l := range levelCatalog {
+		data.LevelOptions = append(data.LevelOptions, LevelView{Key: l.Key, Name: layout.T.Get(l.Name)})
+	}
+	for k, row := range data.Rows {
+		row.LevelKey = row.Level
+		row.LevelStrength = levelStrength(row.Level)
+		row.LevelDots = make([]bool, 3)
+		for i := range row.LevelDots {
+			row.LevelDots[i] = i < row.LevelStrength
+		}
+		if l, ok := levelByKey(row.Level); ok {
+			row.Level = layout.T.Get(l.Name)
+		} else {
+			row.Level = layout.T.Get("Custom")
+		}
+		data.Rows[k] = row
+	}
 	if err := wafListPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WAF - list template render error: %v", err)
 	}
@@ -60,17 +113,67 @@ type WAFDomainPageData struct {
 	Status       string
 	RemovedRules []string
 	RemovedTags  []string
+	Profiles     []ProfileView
+	// recommended profiles that aren't on yet, drives the "we detected..." banner
+	Suggested []ProfileView
+	Stats     wafLogStats
+	// standard, compatibility, strict, or custom when an admin hand-edited it
+	Level  string
+	Levels []LevelView
+	// plain-words summary of the newest log entries, the "Recent blocked requests" section
+	Summary LogSummary
 }
 
-func renderWAFDomainPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domain, status string, removedRules, removedTags []string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Web Firewall for "+domain)
+// LevelView is one protection level option on the domain's WAF page
+type LevelView struct {
+	Key, Name, Description string
+}
+
+// ProfileView is one profile card on the domain's WAF page
+type ProfileView struct {
+	Key, Name, Initials, Color, Description string
+	Active, Recommended                     bool
+	Sites                                   []string
+}
+
+func buildProfileViews(active []string, detected map[string][]string) (all, suggested []ProfileView) {
+	on := map[string]bool{}
+	for _, k := range active {
+		on[k] = true
+	}
+	for _, p := range availableProfiles() {
+		v := ProfileView{
+			Key: p.Key, Name: p.Name, Initials: p.Initials, Color: p.Color, Description: p.Description,
+			Active: on[p.Key], Recommended: len(detected[p.Key]) > 0, Sites: detected[p.Key],
+		}
+		all = append(all, v)
+		if v.Recommended && !v.Active {
+			suggested = append(suggested, v)
+		}
+	}
+	return all, suggested
+}
+
+func renderWAFDomainPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data WAFDomainPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, "Web Firewall for "+data.Domain)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := WAFDomainPageData{
-		LayoutData: layout, Domain: domain, Status: status,
-		RemovedRules: removedRules, RemovedTags: removedTags,
+	data.LayoutData = layout
+	for i := range data.Profiles {
+		data.Profiles[i].Description = layout.T.Get(data.Profiles[i].Description)
+	}
+	for _, l := range levelCatalog {
+		data.Levels = append(data.Levels, LevelView{Key: l.Key, Name: layout.T.Get(l.Name), Description: layout.T.Get(l.Description)})
+	}
+	for i := range data.Summary.Groups {
+		data.Summary.Groups[i].Category = layout.T.Get(data.Summary.Groups[i].Category)
+	}
+	for i := range data.Summary.Events {
+		for j := range data.Summary.Events[i].Rules {
+			data.Summary.Events[i].Rules[j].Category = layout.T.Get(data.Summary.Events[i].Rules[j].Category)
+		}
 	}
 	if err := wafDomainPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WAF - domain template render error: %v", err)

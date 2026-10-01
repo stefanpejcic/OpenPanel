@@ -25,6 +25,8 @@ Response body inspection is turned off (`SecResponseBodyAccess Off` in `/etc/ope
 
 This also disables OWASP CRS rulesets for stacks OpenPanel doesn't use or rarely hosts, by renaming them to `.conf.disabled`: `REQUEST-944-APPLICATION-ATTACK-JAVA`, `RESPONSE-952-DATA-LEAKAGES-JAVA`, `RESPONSE-954-DATA-LEAKAGES-IIS` and `RESPONSE-956-DATA-LEAKAGES-RUBY`. They can be re-enabled from OpenAdmin > Security > CorazaWAF.
 
+It also downloads the official OWASP CRS rule exclusion plugins for WordPress, Drupal, Nextcloud, DokuWiki, phpBB, XenForo and phpMyAdmin into `/etc/openpanel/caddy/coreruleset-plugins/`. Users can turn these on per domain as *App profiles* in OpenPanel > WAF, so the app's normal requests are not blocked as false positives.
+
 ```bash
 opencli waf enable
 ```
@@ -43,6 +45,10 @@ Disabling rulesets not used by the stack..
 - Disabled ruleset RESPONSE-952-DATA-LEAKAGES-JAVA
 - Disabled ruleset RESPONSE-954-DATA-LEAKAGES-IIS
 - Disabled ruleset RESPONSE-956-DATA-LEAKAGES-RUBY
+Downloading CRS plugins for app profiles..
+- Installed plugin wordpress-rule-exclusions
+- Installed plugin drupal-rule-exclusions
+...
 Enabling WAF module..
 Setting container image 'openpanel/caddy-coraza'..
 Restarting Web Server to use the new image with CorazaWAF..
@@ -53,7 +59,7 @@ CorazaWAF is ENABLED
 
 
 ## Disable
-To completely disable the WAF for all existing domains and prevent it from being applied to new domains, run:
+To completely disable the WAF for all existing domains (including domains in monitor only mode) and prevent it from being applied to new domains, run:
 
 ```bash
 opencli waf disable
@@ -101,7 +107,7 @@ CorazaWAF is DISABLED: 'waf' module is not enabled in OpenAdmin > Settings > Mod
 
 
 ### Status
-Check if CorazaWAF is enabled for domain:
+Check if CorazaWAF is enabled (`On`), disabled (`Off`) or in monitor only mode (`DetectionOnly`) for domain:
 
 ```bash
 opencli waf domain <DOMAIN_NAME>
@@ -148,9 +154,86 @@ SecRuleEngine Off is now set for domain example.com
 ```
 </details>
 
+### Monitor only
+
+Check and log requests for a domain without blocking anything (`SecRuleEngine DetectionOnly`). Turn blocking back on with `enable`:
+
+```bash
+opencli waf domain <DOMAIN_NAME> monitor
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf domain example.com monitor
+SecRuleEngine DetectionOnly is now set for domain example.com
+```
+</details>
+
+### App profiles
+
+Show the protection level (`compatibility`, `standard`, `strict`, or `custom` when edited by hand) and the app profiles (CRS plugins) turned on for a domain:
+
+```bash
+opencli waf domain <DOMAIN_NAME> plugins
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf domain example.com plugins
+Protection level for domain example.com: standard
+App profiles active for domain example.com:
+ - wordpress
+```
+</details>
+
+## Plugins
+
+List the CRS rule exclusion plugins, whether each is installed and on how many domains it is turned on:
+
+```bash
+opencli waf plugins
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf plugins
+PLUGIN         STATUS     DOMAINS
+wordpress      installed  3
+drupal         installed  0
+nextcloud      installed  1
+dokuwiki       installed  0
+phpbb          installed  0
+xenforo        installed  0
+phpmyadmin     missing    0
+```
+</details>
+
+### Install
+
+Download any missing plugins, for example on servers where WAF was enabled before plugins were added:
+
+```bash
+opencli waf plugins install
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf plugins install
+- Installed plugin phpmyadmin-rule-exclusions
+```
+</details>
+
 ## Update
 
-Update OWASP CRS:
+Update OWASP CRS and the CRS plugins, then reload Caddy:
 
 ```bash
 opencli waf update
@@ -168,6 +251,10 @@ Rulesets disabled with a `.conf.disabled` file stay disabled after the update, e
 Updating OWASP CRS..
 - Kept ruleset RESPONSE-952-DATA-LEAKAGES-JAVA.conf disabled
 Update successful.
+Updating CRS plugins..
+- Updated plugin dokuwiki-rule-exclusions
+- Updated plugin drupal-rule-exclusions
+...
 ```
 </details>
 

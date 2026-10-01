@@ -5,76 +5,407 @@
 
 <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
     <div>
-            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WAF"}}</h1></div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Manage WAF settings for a domain."}}</p>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Web Application Firewall"}}</h1></div>
+        <p class="punycode text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Protect %(domain)s from attacks like SQL injection, cross-site scripting and malicious bots." "domain" .Domain}}</p>
     </div>
-
     <div class="mt-2 gap-2 sm:mt-0 flex sm:inline">
-        <button class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 border-transparent text-white dark:text-gray-900 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-500 dark:hover:bg-indigo-600 disabled:bg-indigo-100 disabled:text-gray-400 disabled:dark:bg-indigo-800 disabled:dark:text-indigo-400" type="submit" form="waf-rules-form">{{.T.Get "Save"}}</button>
+        <a href="/server/waf/log/{{.Domain}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+            {{.T.Get "View logs"}}
+        </a>
     </div>
 </div>
 
-  <div class="m-8">
+<div class="m-8">
 
+<!-- status -->
 <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
     <div>
-        <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Status"}}</h2>
-        <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Enable/disable WAF for"}} <span class="punycode">{{.Domain}}</span></p>
+        <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Protection"}}</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Every request to your website is checked before it reaches your app. Suspicious requests are blocked."}}</p>
     </div>
-    <div class="md:col-span-2" x-data="{ enabled: {{if eq .Status "On"}}true{{else}}false{{end}} }">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+    <div class="md:col-span-2">
+        <form method="post" action="/server/waf" class="relative isolate overflow-hidden rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 flex flex-wrap items-center justify-between gap-4" style="padding-left:185px;min-height:96px">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            <input type="hidden" name="domain_name" value="{{.Domain}}">
+            <input type="hidden" name="return_to" value="domain">
 
-            <div class="col-span-full">
-                <div class="relative w-full mt-2">
-                    <div class="row form-selectgroup form-selectgroup-boxes d-flex">
-                        <div class="mt-4 grid grid-cols-1 gap-4">
-                                <form method="post" action="/server/waf" class="inline-flex items-center me-5 cursor-pointer">
-        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-        <input type="hidden" name="domain_name" value="{{.Domain}}">
-        <input type="hidden" name="modsec_action" :value="enabled ? 'Off' : 'On'">
-
-        <button type="submit"
-            @click.prevent="enabled = !enabled; $event.target.form.submit()"
-            :aria-checked="enabled"
-            :class="enabled ? 'bg-indigo-600 dark:bg-indigo-600' : 'bg-gray-200 dark:bg-gray-950'"
-            class="group relative isolate inline-flex shrink-0 cursor-pointer items-center rounded-full p-0.5 shadow-inner ring-1 ring-inset transition-all ring-black/5 dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 h-5 w-9">
-            <span :class="enabled ? 'translate-x-4' : 'translate-x-0'"
-                class="pointer-events-none relative inline-block transform appearance-none rounded-full border-none shadow-lg outline-none transition-all duration-150 ease-in-out bg-white dark:bg-gray-50 h-4 w-4">
-            </span>
-        </button>
-                                </form>
-                        </div>
-                    </div>
-                </div>
+            <!-- same shield + rings as the firewall widget on /website, rings spill past the card so they get cut off on top, bottom and left -->
+            <div class="pointer-events-none absolute flex items-center justify-center" style="left:-70px;top:50%;transform:translateY(-50%);width:240px;height:240px" aria-hidden="true">
+                <span class="absolute rounded-full" style="width:240px;height:240px;{{if ne .Status "Off"}}border:2px solid rgba(99,102,241,0.5);background:radial-gradient(circle,rgba(99,102,241,0.3),transparent);{{else}}border:2px solid gray;opacity:0.5;{{end}}"></span>
+                <span class="absolute rounded-full" style="width:160px;height:160px;{{if ne .Status "Off"}}border:2px solid rgba(99,102,241,0.5);background:radial-gradient(circle,rgba(99,102,241,0.3),transparent);{{else}}border:2px solid gray;opacity:0.5;{{end}}"></span>
+                <span class="absolute rounded-full" style="width:80px;height:80px;{{if ne .Status "Off"}}border:2px solid rgba(99,102,241,0.5);background:radial-gradient(circle,rgba(99,102,241,0.3),transparent);{{else}}border:2px solid gray;opacity:0.5;{{end}}"></span>
+                <i class="{{if eq .Status "On"}}bi bi-shield-fill-check{{else if eq .Status "DetectionOnly"}}bi bi-shield-exclamation{{else}}bi bi-shield-slash{{end}} relative text-3xl text-gray-900 dark:text-gray-50"></i>
             </div>
-        </div>
-    </div>
 
+            <div class="flex-1" style="min-width:14rem">
+                {{if eq .Status "On"}}
+                <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Firewall is on"}}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    {{if .Stats.Checks}}{{.Stats.Checks}} {{.T.Get "requests checked"}} · <a href="/server/waf/log/{{.Domain}}" class="{{if .Stats.Blocks}}font-medium text-red-600 dark:text-red-400{{end}} hover:underline">{{.Stats.Blocks}} {{.T.Get "blocked"}}</a> {{.T.Get "in the last 24 hours"}}{{else}}{{.T.Get "No requests were flagged in the last 24 hours."}}{{end}}
+                </p>
+                {{else if eq .Status "DetectionOnly"}}
+                <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Monitor only"}}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    {{.T.Get "Requests are checked and logged, but nothing is blocked."}}
+                    {{if .Stats.Checks}}<a href="/server/waf/log/{{.Domain}}" class="font-medium text-indigo-600 hover:underline dark:text-indigo-400">{{.Stats.Checks}} {{.T.Get "flagged in the last 24 hours"}}</a>{{end}}
+                </p>
+                {{else}}
+                <p class="font-medium text-gray-900 dark:text-gray-50">{{if eq .Status "Off"}}{{.T.Get "Firewall is off"}}{{else}}{{.T.Get "Firewall status unknown"}}{{end}}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Requests reach your website without being checked."}}</p>
+                {{end}}
+            </div>
+            <div class="flex shrink-0 flex-wrap gap-2">
+                {{if eq .Status "On"}}
+                <button type="submit" name="modsec_action" value="DetectionOnly" title="{{.T.Get "Keep logging attacks without blocking them"}}" class="relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Monitor only"}}</button>
+                <button type="submit" name="modsec_action" value="Off" class="relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-black bg-black text-white hover:bg-gray-800 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60">{{.T.Get "Turn off"}}</button>
+                {{else if eq .Status "DetectionOnly"}}
+                <button type="submit" name="modsec_action" value="On" class="relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-transparent text-white bg-indigo-600 hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">{{.T.Get "Turn on blocking"}}</button>
+                <button type="submit" name="modsec_action" value="Off" class="relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-black bg-black text-white hover:bg-gray-800 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60">{{.T.Get "Turn off"}}</button>
+                {{else if eq .Status "Off"}}
+                <button type="submit" name="modsec_action" value="DetectionOnly" title="{{.T.Get "Log attacks without blocking them"}}" class="relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Monitor only"}}</button>
+                <button type="submit" name="modsec_action" value="On" class="relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-transparent text-white bg-indigo-600 hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">{{.T.Get "Turn on"}}</button>
+                {{end}}
+            </div>
+        </form>
+    </div>
 </div>
+
 <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
 
-<form id="waf-rules-form" method="post" action="/server/waf/{{.Domain}}">
+<div x-data="wafSettings({{toJSON .Profiles}}, {{toJSON .Level}})">
+
+<!-- protection level -->
+<div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+    <div>
+        <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Protection level"}}</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "How strict the firewall is with requests. You can change it anytime."}}</p>
+    </div>
+    <div class="md:col-span-2">
+        <template x-if="level === 'custom'">
+            <p class="mb-3 rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">{{.T.Get "A custom protection level was set for this domain by your hosting provider. Picking a level below replaces it."}}</p>
+        </template>
+        <div class="space-y-2">
+            {{range .Levels}}
+            <label class="flex items-center gap-3 rounded border p-3 cursor-pointer"
+                   :class="[level === {{toJSON .Key}} ? 'border-indigo-500 ring-1 ring-indigo-400' : 'border-gray-200 dark:border-gray-700']">
+                <input type="radio" name="waf_level" value="{{.Key}}" :checked="level === {{toJSON .Key}}" :disabled="busy" @change="setLevel({{toJSON .Key}}, {{toJSON .Name}})">
+                <span>
+                    <span class="flex items-center gap-1.5">
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.Name}}</span>
+                        {{if eq .Key "standard"}}<span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400">{{$.T.Get "Default"}}</span>{{end}}
+                    </span>
+                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.Description}}</span>
+                </span>
+            </label>
+            {{end}}
+        </div>
+    </div>
+</div>
+
+<div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+<!-- recent blocked requests -->
+<div x-data="wafRecent({{toJSON .Summary}}, {{toJSON .RemovedRules}})" class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+    <div>
+        <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Recent blocked requests"}}</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "What the firewall stopped lately and why. If something here is your own site working normally, disable that rule for this domain."}}</p>
+    </div>
+    <div class="md:col-span-2">
+    {{if eq .Status "DetectionOnly"}}
+    <p x-show="summary.events.length" class="mb-4 flex items-center gap-2 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-3 py-2 text-sm text-gray-600 dark:text-gray-400"><i class="bi bi-shield-exclamation text-yellow-600 dark:text-yellow-400"></i>{{.T.Get "Monitor only: these requests were logged but not blocked."}}</p>
+    {{end}}
+
+
+    <div x-show="!summary.events.length" class="rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 text-center text-sm text-gray-500">{{.T.Get "No blocked or suspicious requests in the latest log entries."}} <a href="/server/waf/log/{{.Domain}}" class="font-medium text-indigo-600 hover:underline dark:text-indigo-400">{{.T.Get "View full logs"}}</a></div>
+    <div x-show="summary.events.length">
+    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Why requests were stopped"}}</h3>
+    <ul class="mt-2 space-y-2">
+        <template x-for="g in (showAllGroups ? summary.groups : summary.groups.slice(0, 5))" :key="g.id">
+            <li class="rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="min-w-0">
+                    <p class="flex flex-wrap items-center gap-2">
+                        <span class="font-medium text-gray-900 dark:text-gray-50" x-text="g.category"></span>
+                        <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-300" x-text="{{toJSON (.T.Get "Rule")}} + ' ' + g.id"></span>
+                    </p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400" x-text="g.msg"></p>
+                    <p class="mt-1 text-xs text-gray-500" x-text="fmt(g.count === 1 ? (g.blocked ? {{toJSON (.T.Get "1 request, stopped, on %(paths)s, last %(time)s")}} : {{toJSON (.T.Get "1 request on %(paths)s, last %(time)s")}}) : (g.blocked ? {{toJSON (.T.Get "%(count)s requests, %(stopped)s stopped, on %(paths)s, last %(time)s")}} : {{toJSON (.T.Get "%(count)s requests on %(paths)s, last %(time)s")}}), { count: g.count, stopped: g.blocked, paths: g.paths.join(', '), time: g.last_seen })"></p>
+                </div>
+                <template x-if="!disabled.includes(g.id)">
+                    <button type="button" @click="disableRule(g)" :disabled="busy === g.id" class="relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:opacity-60">{{.T.Get "Disable rule"}}</button>
+                </template>
+                <template x-if="disabled.includes(g.id)">
+                    <span class="inline-flex shrink-0 items-center gap-2 text-sm text-gray-500"><i class="bi bi-check2"></i>{{.T.Get "Disabled"}} · <button type="button" @click="enableRule(g)" :disabled="busy === g.id" class="font-medium text-indigo-600 hover:underline dark:text-indigo-400">{{.T.Get "Enable again"}}</button></span>
+                </template>
+            </li>
+        </template>
+    </ul>
+    <template x-if="summary.groups.length > 5 && !showAllGroups">
+        <button type="button" @click="showAllGroups = true" class="mt-2 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400" x-text="{{toJSON (.T.Get "Show all")}} + ' ' + summary.groups.length"></button>
+    </template>
+
+    <div class="mt-6 flex flex-wrap items-center justify-between gap-2">
+        <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Latest requests"}}</h3>
+        <p class="flex items-center gap-3 text-sm">
+            <a href="/server/waf/log/{{.Domain}}" class="font-medium text-indigo-600 hover:underline dark:text-indigo-400">{{.T.Get "View full logs"}}</a>
+            <button type="button" @click="purgeLogs()" :disabled="busy === 'purge'" class="font-medium text-red-600 hover:underline dark:text-red-400 disabled:opacity-60">{{.T.Get "Clear logs"}}</button>
+        </p>
+    </div>
+    <div class="mt-2 overflow-x-auto rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+        <table class="w-full text-sm" style="table-layout:fixed">
+            <thead class="bg-gray-50 text-left text-gray-900 dark:bg-gray-900 dark:text-gray-50">
+                <tr>
+                    <th class="px-4 py-2 font-semibold">{{.T.Get "Request"}}</th>
+                    <th class="px-4 py-2 font-semibold" style="width:11rem">{{.T.Get "Time"}}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                <template x-for="(e, i) in summary.events.slice(0, 10)" :key="i">
+                    <tr class="text-gray-600 dark:text-gray-400">
+                        <td class="px-4 py-2">
+                            <span class="flex min-w-0 items-center gap-2">
+                                <span class="inline-flex shrink-0 items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium"
+                                      :class="{ 'text-red-600 dark:text-red-400': e.result === 'blocked', 'text-yellow-600 dark:text-yellow-400': e.result === 'would_block', 'text-gray-700 dark:text-gray-300': e.result === 'flagged' }"
+                                      x-text="resultLabels[e.result]"></span>
+                                <span class="min-w-0 truncate" :title="e.method + ' ' + e.uri"><span class="font-medium text-gray-900 dark:text-gray-50" x-text="e.method"></span> <span x-text="e.uri"></span></span>
+                            </span>
+                            <span class="mt-0.5 block truncate text-xs text-gray-500" x-text="[...new Set(e.rules.map(r => r.category))].join(', ')"></span>
+                        </td>
+                        <td class="px-4 py-2">
+                            <span class="block whitespace-nowrap tabular-nums" x-text="e.time"></span>
+                            <span class="mt-0.5 block text-xs tabular-nums text-gray-500" x-text="e.ip"></span>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+    </div>
+    </div>
+</div>
+
+<script>
+// fills %(name)s placeholders of a translated string
+function fmt(str, values) {
+    return str.replace(/%\((\w+)\)s/g, (m, k) => (k in values ? values[k] : m));
+}
+
+function wafRecent(summary, disabled) {
+    return {
+        summary: { events: (summary && summary.events) || [], groups: (summary && summary.groups) || [] },
+        fmt,
+        disabled: disabled || [],
+        busy: '',
+        showAllGroups: false,
+        resultLabels: { blocked: {{toJSON (.T.Get "Blocked")}}, would_block: {{toJSON (.T.Get "Would be blocked")}}, flagged: {{toJSON (.T.Get "Flagged")}} },
+        async ruleRequest(action, rule) {
+            this.busy = rule.id;
+            const body = new FormData();
+            body.append('rule_id', rule.id);
+            body.append('csrf_token', csrf_token);
+            try {
+                const res = await fetch('/server/waf/' + action + '/' + encodeURIComponent({{toJSON .Domain}}), { method: 'POST', body, headers: { 'X-CSRF-Token': csrf_token } });
+                const data = await res.json().catch(() => ({}));
+                return { ok: res.ok || res.status === 207, data };
+            } catch (e) {
+                return { ok: false, data: {} };
+            } finally {
+                this.busy = '';
+            }
+        },
+        async disableRule(rule) {
+            if (this.disabled.includes(rule.id)) return;
+            const { ok, data } = await this.ruleRequest('disable-rule', rule);
+            if (!ok) {
+                showToast(data.error || fmt({{toJSON (.T.Get "Could not disable rule %(rule)s")}}, { rule: rule.id }), 'error');
+                return;
+            }
+            this.disabled.push(rule.id);
+            showToast(data.warning || fmt({{toJSON (.T.Get "Rule %(rule)s disabled for %(domain)s")}}, { rule: rule.id, domain: {{toJSON .Domain}} }), data.warning ? 'warning' : 'success', false,
+                { label: {{toJSON (.T.Get "Undo")}}, onClick: () => this.enableRule(rule) });
+        },
+        async purgeLogs() {
+            this.busy = 'purge';
+            const body = new FormData();
+            body.append('csrf_token', csrf_token);
+            try {
+                const res = await fetch('/server/waf/purge-log/' + encodeURIComponent({{toJSON .Domain}}), { method: 'POST', body, headers: { 'X-CSRF-Token': csrf_token } });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.error || {{toJSON (.T.Get "Could not clear the log.")}});
+                this.summary = { events: [], groups: [] };
+                showToast(fmt({{toJSON (.T.Get "Firewall logs cleared for %(domain)s")}}, { domain: {{toJSON .Domain}} }), 'success');
+            } catch (e) {
+                showToast(e.message, 'error');
+            } finally {
+                this.busy = '';
+            }
+        },
+        async enableRule(rule) {
+            const { ok, data } = await this.ruleRequest('enable-rule', rule);
+            if (!ok) {
+                showToast(data.error || fmt({{toJSON (.T.Get "Could not enable rule %(rule)s")}}, { rule: rule.id }), 'error');
+                return;
+            }
+            this.disabled = this.disabled.filter(id => id !== rule.id);
+            showToast(fmt({{toJSON (.T.Get "Rule %(rule)s enabled again")}}, { rule: rule.id }), 'success');
+        },
+    };
+}
+</script>
+
+<div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+<!-- app profiles -->
+<div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+    <div>
+        <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "App profiles"}}</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Some apps send data that can look like an attack, for example HTML when you save a post. A profile tells the firewall what is normal for that app, so you don't get blocked while your site stays protected."}}</p>
+    </div>
+    <div class="md:col-span-2">
+        {{if .Profiles}}
+
+        <template x-if="suggested().length">
+            <div class="mb-4 flex flex-col gap-3 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-start gap-3">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" class="mt-0.5 size-5 shrink-0 text-indigo-600 dark:text-indigo-400"><path d="M14 4.4375C15.3462 4.4375 16.4375 3.34619 16.4375 2H17.5625C17.5625 3.34619 18.6538 4.4375 20 4.4375V5.5625C18.6538 5.5625 17.5625 6.65381 17.5625 8H16.4375C16.4375 6.65381 15.3462 5.5625 14 5.5625V4.4375ZM1 11C4.31371 11 7 8.31371 7 5H9C9 8.31371 11.6863 11 15 11V13C11.6863 13 9 15.6863 9 19H7C7 15.6863 4.31371 13 1 13V11ZM17.25 14C17.25 15.7949 15.7949 17.25 14 17.25V18.75C15.7949 18.75 17.25 20.2051 17.25 22H18.75C18.75 20.2051 20.2051 18.75 22 18.75V17.25C20.2051 17.25 18.75 15.7949 18.75 14H17.25Z"></path></svg>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Recommended for this domain"}}</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            <span x-text="fmt({{toJSON (.T.Get "We found %(apps)s installed here. Turn on the matching profile to avoid false blocks.")}}, { apps: suggested().map(p => p.Name).join(', ') })"></span>
+                        </p>
+                    </div>
+                </div>
+                <button type="button" @click="enableSuggested()" :disabled="busy"
+                    class="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded border border-transparent px-3 py-2 text-sm font-medium text-white shadow-sm bg-indigo-600 hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 disabled:opacity-60"
+                    x-text="suggested().length > 1 ? {{toJSON (.T.Get "Turn on recommended")}} : fmt({{toJSON (.T.Get "Turn on %(app)s")}}, { app: suggested()[0].Name })"></button>
+            </div>
+        </template>
+
+        {{if eq .Status "Off"}}
+        <p class="mb-4 flex items-center gap-2 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-3 py-2 text-sm text-gray-600 dark:text-gray-400"><i class="bi bi-shield-slash text-yellow-600 dark:text-yellow-400"></i>{{.T.Get "The firewall is off for this domain. Profiles you pick here apply as soon as you turn it on."}}</p>
+        {{end}}
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <template x-for="p in profiles" :key="p.Key">
+                <div class="relative flex flex-col gap-2 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="flex size-9 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white" :style="'background:' + p.Color" x-text="p.Initials"></span>
+                            <p class="min-w-0 font-medium text-gray-900 dark:text-gray-50" x-text="p.Name"></p>
+                        </div>
+                        <button type="button" role="switch" :aria-checked="p.Active" :aria-label="p.Name" @click="toggle(p)" :disabled="busy"
+                            :class="p.Active ? 'bg-indigo-600 dark:bg-indigo-600' : 'bg-gray-200 dark:bg-gray-800'"
+                            class="group relative isolate mt-1 inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full p-0.5 shadow-inner ring-1 ring-inset ring-black/5 transition-all dark:ring-gray-800 disabled:cursor-not-allowed disabled:opacity-60 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500">
+                            <span :class="p.Active ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none relative inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-all duration-150 ease-in-out dark:bg-gray-50"></span>
+                        </button>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400" x-text="p.Description"></p>
+                    <template x-if="p.Recommended">
+                        <p class="inline-flex flex-wrap items-center gap-1 text-xs text-green-700 dark:text-green-400">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" class="size-3.5 shrink-0"><path d="M10.0007 15.1709L19.1931 5.97852L20.6073 7.39273L10.0007 17.9993L3.63672 11.6354L5.05093 10.2212L10.0007 15.1709Z"></path></svg>
+                            {{.T.Get "Detected on"}} <span class="punycode font-medium" x-text="(p.Sites || []).join(', ')"></span>
+                        </p>
+                    </template>
+                </div>
+            </template>
+        </div>
+        <p class="mt-3 text-xs text-gray-500">{{.T.Get "Only turn on profiles for apps you actually run on this domain. Each profile relaxes a few checks on that app's own pages."}}</p>
+
+        {{else}}
+        <div class="rounded border border-dashed border-gray-300 p-4 text-sm text-gray-500 dark:border-gray-700">{{.T.Get "App profiles are not available on this server yet. Contact your hosting provider if you need them."}}</div>
+        {{end}}
+    </div>
+</div>
+
+</div>
+
+<script>
+function wafSettings(profiles, level) {
+    return {
+        profiles: profiles || [],
+        level: level || 'standard',
+        fmt,
+        busy: false,
+        suggested() { return this.profiles.filter(p => p.Recommended && !p.Active); },
+        activeKeys() { return this.profiles.filter(p => p.Active).map(p => p.Key); },
+        async save(nextProfiles, nextLevel, okMsg, undoable = true) {
+            this.busy = true;
+            const prevProfiles = this.profiles.map(p => ({...p}));
+            const prevLevel = this.level;
+            const prevKeys = this.activeKeys();
+            this.profiles.forEach(p => { p.Active = nextProfiles.includes(p.Key); });
+            if (nextLevel) this.level = nextLevel;
+            const body = new FormData();
+            body.append('csrf_token', csrf_token);
+            nextProfiles.forEach(k => body.append('profiles', k));
+            if (nextLevel) body.append('level', nextLevel);
+            try {
+                const res = await fetch('/server/waf/profiles/' + encodeURIComponent({{toJSON .Domain}}), { method: 'POST', body, headers: { 'X-CSRF-Token': csrf_token } });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.error || {{toJSON (.T.Get "Could not update the firewall settings")}});
+                const active = data.profiles || [];
+                this.profiles.forEach(p => { p.Active = active.includes(p.Key); });
+                this.level = data.level || this.level;
+                // a custom level isn't a preset, so undo leaves the level alone
+                const undoLevel = nextLevel && prevLevel !== 'custom' ? prevLevel : '';
+                showToast(okMsg, 'success', false, undoable ? {
+                    label: {{toJSON (.T.Get "Undo")}},
+                    onClick: () => this.save(prevKeys, undoLevel, {{toJSON (.T.Get "Change undone")}}, false),
+                } : false);
+            } catch (e) {
+                this.profiles = prevProfiles;
+                this.level = prevLevel;
+                showToast(e.message, 'error');
+            } finally {
+                this.busy = false;
+            }
+        },
+        setLevel(key, name) {
+            if (this.busy || key === this.level) return;
+            this.save(this.activeKeys(), key, fmt({{toJSON (.T.Get "Protection level set to %(level)s")}}, { level: name }));
+        },
+        toggle(p) {
+            if (this.busy) return;
+            const keys = this.activeKeys();
+            if (p.Active) {
+                this.save(keys.filter(k => k !== p.Key), '', fmt({{toJSON (.T.Get "%(profile)s profile turned off")}}, { profile: p.Name }));
+            } else {
+                this.save([...keys, p.Key], '', fmt({{toJSON (.T.Get "%(profile)s profile turned on")}}, { profile: p.Name }));
+            }
+        },
+        enableSuggested() {
+            const add = this.suggested().map(p => p.Key);
+            const names = this.suggested().map(p => p.Name).join(', ');
+            this.save([...new Set([...this.activeKeys(), ...add])], '', fmt({{toJSON (.T.Get "%(profile)s profile turned on")}}, { profile: names }));
+        },
+    };
+}
+</script>
+
+<div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+<!-- advanced -->
+<details x-data="{ open: {{if or .RemovedRules .RemovedTags}}true{{else}}false{{end}} }" @toggle="open = $el.open" {{if or .RemovedRules .RemovedTags}}open{{end}}>
+    <style>summary.waf-advanced::-webkit-details-marker { display: none; }</style>
+    <summary class="waf-advanced flex cursor-pointer items-center justify-between gap-3" style="list-style:none">
+        <div>
+            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Advanced: rule exceptions"}}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Turn off single firewall rules by ID or tag."}}{{if or .RemovedRules .RemovedTags}} <span class="font-medium text-gray-700 dark:text-gray-300">{{len .RemovedRules}} {{if eq (len .RemovedRules) 1}}{{.T.Get "rule"}}{{else}}{{.T.Get "rules"}}{{end}}, {{len .RemovedTags}} {{if eq (len .RemovedTags) 1}}{{.T.Get "tag"}}{{else}}{{.T.Get "tags"}}{{end}} {{.T.Get "turned off"}}</span>{{end}}</p>
+        </div>
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" :class="open ? 'rotate-180' : ''" class="size-5 shrink-0 text-gray-500 transition-transform"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg>
+    </summary>
+
+
+<form id="waf-rules-form" method="post" action="/server/waf/{{.Domain}}" class="mt-6">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
 <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
     <div>
-        <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get " Disabled IDs"}}</h2>
-        <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get " Disable rules by ID"}} <a href="https://coraza.io/docs/seclang/directives/#secruleremovebyid" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">SecRuleRemoveByID<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
+        <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Disabled IDs"}}</h3>
+        <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Disable rules by ID"}} <a href="https://coraza.io/docs/seclang/directives/#secruleremovebyid" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">SecRuleRemoveByID<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
     </div>
     <div class="md:col-span-2">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-
-<div class="col-span-full">
-    <div class="relative w-full mt-2">
-        <div class="row form-selectgroup form-selectgroup-boxes d-flex">
-            <div class="mt-4 grid grid-cols-1 gap-4">
-                <input id="removed_rules" name="removed_rules" class="flex min-h-[3rem] w-full rounded border px-3 py-1.5 shadow-sm outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-300 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" placeholder="{{.T.Get "Enter rule IDs, space-separated"}}" autocomplete="off" value="{{join .RemovedRules " "}}"/>
-                <div id="suggestions" class="hidden mt-1 p-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded shadow-lg"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
+        <input id="removed_rules" name="removed_rules" class="flex min-h-[3rem] w-full rounded border px-3 py-1.5 shadow-sm outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" placeholder="{{.T.Get "Enter rule IDs, space-separated"}}" autocomplete="off" value="{{join .RemovedRules " "}}"/>
+        <div id="suggestions" class="hidden mt-1 p-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded shadow-lg"></div>
 <script>
     document.getElementById("removed_rules").addEventListener("click", function() {
         fetch("/server/waf/type/ids", {
@@ -130,36 +461,17 @@
                 console.error('Error fetching valid IDs:', error);
             });
     });
-</script>
-
-
-        </div>
-    </div>
-
+</script>    </div>
 </div>
-<div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
 
-
-<div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+<div class="mt-6 grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
     <div>
-        <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Disabled Tags"}}</h2>
+        <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Disabled Tags"}}</h3>
         <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Disable rules by tag name"}} <a href="https://coraza.io/docs/seclang/directives/#secruleremovebytag" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">SecRuleRemoveByTag<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
     </div>
     <div class="md:col-span-2">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-
-
-<div class="col-span-full">
-    <div class="relative w-full mt-2">
-        <div class="row form-selectgroup form-selectgroup-boxes d-flex">
-            <div class="mt-4 grid grid-cols-1 gap-4">
-                <input id="removed_tags" name="removed_tags" class="flex min-h-[3rem] w-full rounded border px-3 py-1.5 shadow-sm outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-300 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" placeholder="{{.T.Get "Enter tags, space-separated"}}" autocomplete="off" value="{{join .RemovedTags " "}}"/>
-                <div id="tags_suggestions" class="hidden mt-1 p-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded shadow-lg"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
+        <input id="removed_tags" name="removed_tags" class="flex min-h-[3rem] w-full rounded border px-3 py-1.5 shadow-sm outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" placeholder="{{.T.Get "Enter tags, space-separated"}}" autocomplete="off" value="{{join .RemovedTags " "}}"/>
+        <div id="tags_suggestions" class="hidden mt-1 p-2 bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded shadow-lg"></div>
 <script>
     document.getElementById("removed_tags").addEventListener("click", function() {
         fetch("/server/waf/type/tags", {
@@ -216,17 +528,14 @@
                 console.error('Error fetching valid Tags:', error);
             });
     });
-</script>
-
-
-
-        </div>
-    </div>
-
+</script>    </div>
 </div>
-<div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
 
+<div class="mt-6 flex justify-end">
+    <button class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 border-transparent text-white dark:text-gray-900 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-500 dark:hover:bg-indigo-600" type="submit">{{.T.Get "Save exceptions"}}</button>
+</div>
 </form>
+</details>
 
 </div>
 

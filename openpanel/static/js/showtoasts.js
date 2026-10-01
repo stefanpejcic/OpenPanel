@@ -46,7 +46,17 @@ function showToast(message, type, isPermanent = false, link = false) {
     }
 
 
-    if (link) {
+    // {label, href} or {label, onClick} adds a neutral action like Open or Undo, a plain string keeps the old red Cancel link
+    let action = null;
+    if (link && typeof link === 'object') {
+        action = link;
+        link = `
+            ${action.href
+                ? `<a href="${action.href}" data-toast-action class="flex flex-1 items-center justify-center px-6 text-sm font-semibold transition-colors hover:bg-gray-50 hover:dark:bg-gray-900/30 active:bg-gray-100 active:dark:bg-gray-800 text-indigo-600 dark:text-indigo-400"></a>`
+                : `<button type="button" data-toast-action class="flex flex-1 items-center justify-center px-6 text-sm font-semibold transition-colors hover:bg-gray-50 hover:dark:bg-gray-900/30 active:bg-gray-100 active:dark:bg-gray-800 text-indigo-600 dark:text-indigo-400"></button>`}
+            <div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+        `;
+    } else if (link) {
         link = `
             <a href="${link}" class="flex flex-1 items-center justify-center px-6 text-sm font-semibold transition-colors hover:bg-gray-50 hover:dark:bg-gray-900/30 active:bg-gray-100 active:dark:bg-gray-800 text-red-600 dark:text-red-500">${window.ToastI18n?.cancel || 'Cancel'}</a>
             <div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
@@ -151,6 +161,17 @@ function showToast(message, type, isPermanent = false, link = false) {
         </div>
     `;
 
+    if (action) {
+        const actionEl = toastElement.querySelector('[data-toast-action]');
+        actionEl.textContent = action.label;
+        if (action.onClick) {
+            actionEl.addEventListener('click', () => {
+                removeToast(toastElement);
+                action.onClick();
+            });
+        }
+    }
+
     // Append the toast to the container
     toastContainer.appendChild(toastElement);
 
@@ -164,13 +185,13 @@ function showToast(message, type, isPermanent = false, link = false) {
         }, 5000);
 
         // Add click event to the close button to manually dismiss the toast
-        toastElement.querySelector('button').addEventListener('click', () => {
+        toastElement.querySelector('button[aria-label="Close"]').addEventListener('click', () => {
             clearTimeout(autoRemove); // TODO
             removeToast(toastElement); 
         });
     } else {
         // Add click event to the close button for permanent toast
-        toastElement.querySelector('button').addEventListener('click', () => {
+        toastElement.querySelector('button[aria-label="Close"]').addEventListener('click', () => {
             removeToast(toastElement);
         });
     }

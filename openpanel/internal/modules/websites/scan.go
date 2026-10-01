@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/waf"
 )
 
 // this file adds a universal "scan for existing installations" + "detach" feature covering every CMS type this panel can install, living in the websites package (which already owns /sites) rather than as per-CMS routes since scan/detach just need filesystem detection + a DB row
@@ -180,6 +181,9 @@ func insertScannedSite(ctx context.Context, a *appctx.App, siteName, domainName,
 	}
 	_, insertErr := a.DB.ExecContext(ctx, "INSERT INTO sites (site_name, domain_id, admin_email, version, type) VALUES (?, ?, ?, ?, ?)",
 		siteName, domainID, adminEmail, version, cmsType)
+	if insertErr == nil {
+		waf.EnableProfileForNewSite(a, siteName, cmsType)
+	}
 	return insertErr
 }
 

@@ -19,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/waf"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -347,6 +348,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
+	waf.EnableProfileForNewSite(a, selectedDomain, "nextcloud")
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed Nextcloud on domain "+selectedDomain, ipAddress)
 	flashSess(a, w, r, "success", web.Tr(a, r, "Nextcloud installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))

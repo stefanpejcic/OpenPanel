@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -21,6 +20,9 @@ type WAFIssue struct {
 	ID       string `json:"id"`
 	Severity string `json:"severity"`
 	Message  string `json:"message"`
+	Link     string `json:"link,omitempty"`
+	// button text for Link, without it health-toast shows the old red Cancel link
+	LinkLabel string `json:"link_label,omitempty"`
 }
 
 func wafStatusForDomain(domainName string) string {
@@ -28,14 +30,7 @@ func wafStatusForDomain(domainName string) string {
 	if err != nil {
 		return "Not Found"
 	}
-	switch {
-	case strings.Contains(string(content), "SecRuleEngine On"):
-		return "On"
-	case strings.Contains(string(content), "SecRuleEngine Off"):
-		return "Off"
-	default:
-		return "Unknown"
-	}
+	return engineStatus(string(content))
 }
 
 // notifySentinel fires off `opencli sentinel` without blocking the caller, Wait runs in a goroutine so the finished child doesn't stay a zombie
@@ -71,25 +66,25 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		configFilePath := domainConfigPath(domainName)
 		statusText := "disabled"
-		if newStatus == "On" {
+		switch newStatus {
+		case "On":
 			statusText = "enabled"
+		case engineMonitor:
+			statusText = "set to monitor only"
 		}
 
 		sess, _ := a.Sessions.Get(r, session.CookieName)
 		if content, readErr := os.ReadFile(configFilePath); readErr == nil {
 			contentStr := string(content)
-			switch newStatus {
-			case "On":
-				contentStr = strings.ReplaceAll(contentStr, "SecRuleEngine Off", "SecRuleEngine On")
-			case "Off":
-				contentStr = strings.ReplaceAll(contentStr, "SecRuleEngine On", "SecRuleEngine Off")
+			if validEngine(newStatus) {
+				contentStr = setEngine(contentStr, newStatus)
 			}
 
 			if writeErr := os.WriteFile(configFilePath, []byte(contentStr), 0o644); writeErr == nil {
 				if reloadErr := reloadCaddy(r.Context()); reloadErr == nil {
 					_ = logger.RecordUserAction(a.Config, username, statusText+" WAF for domain "+domainName, reqip.ClientIP(r))
 					notifySentinel(domainName, statusText)
-					flash.Add(sess, "success", web.Tr(a, r, "WAF for domain: %(domain_name)s is now %(status_text)s", "domain_name", domainName, "status_text", statusText))
+					flash.Add(sess, "success", web.Tr(a, r, "WAF for domain: %(domain_name)s is now %(status_text)s", "domain_name", domainName, "status_text", web.Tr(a, r, statusText)))
 				} else {
 					log.Printf("WAF - Error changing WAF status for domain: %v", reloadErr)
 					flash.Add(sess, "error", "Error changing WAF status.")
@@ -103,6 +98,11 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			flash.Add(sess, "warning", web.Tr(a, r, "Config file for %(domain_name)s not found", "domain_name", domainName))
 		}
 		_ = a.Sessions.Save(r, w, sess)
+		// toggle on the domain's own WAF page should land back there, not on the list
+		if r.Form.Get("return_to") == "domain" {
+			http.Redirect(w, r, "/server/waf/"+domainName, http.StatusFound)
+			return
+		}
 	}
 
 	if requestedDomain := r.URL.Query().Get("domain"); requestedDomain != "" {
@@ -117,9 +117,13 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	domains, _ := a.AllDomainsForUser(r.Context(), userID)
 	modsecStatus := make(map[string]string, len(domains))
+	rows := make(map[string]DomainWAFRow, len(domains))
+	detected := detectProfilesForUser(r.Context(), a, userID)
 	var disabledDomains []string
 	for _, d := range domains {
-		status := wafStatusForDomain(d.DomainURL)
+		row := domainWAFRow(d.DomainURL, detected[d.DomainURL])
+		rows[d.DomainURL] = row
+		status := row.Status
 		modsecStatus[d.DomainURL] = status
 		if status == "Off" {
 			disabledDomains = append(disabledDomains, d.DomainURL)
@@ -141,5 +145,18 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	renderWAFListPage(a, w, r, domains, modsecStatus, issues)
+	accountEnabled := true
+	if _, userContext, ctxErr := injectedContext(a, r); ctxErr == nil && userContext != "" {
+		accountEnabled = AccountWAFEnabled(userContext)
+	}
+	var recs []WAFIssue
+	for _, d := range domains {
+		for _, name := range rows[d.DomainURL].Recommended {
+			recs = append(recs, WAFIssue{
+				ID: "waf-profile:" + d.DomainURL + ":" + name, Severity: "info", Link: "/server/waf/" + d.DomainURL, LinkLabel: web.Tr(a, r, "Open"),
+				Message: web.Tr(a, r, "%(app)s found on %(domain)s. Turn on the %(app)s firewall profile to avoid false blocks.", "app", name, "domain", d.DomainURL),
+			})
+		}
+	}
+	renderWAFListPage(a, w, r, WAFListPageData{Domains: domains, ModsecStatus: modsecStatus, Issues: issues, Rows: rows, AccountEnabled: accountEnabled, Recommendations: recs})
 }

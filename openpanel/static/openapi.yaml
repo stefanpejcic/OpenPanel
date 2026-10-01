@@ -4003,7 +4003,7 @@ paths:
       security:
       - bearerAuth: []
     post:
-      summary: Toggle WAF On/Off.
+      summary: Set WAF On, Off or DetectionOnly (monitor only, logs but never blocks).
       operationId: post_waf_domain
       tags:
       - WAF
@@ -4022,6 +4022,10 @@ paths:
               properties:
                 status:
                   type: string
+                  enum:
+                  - 'On'
+                  - 'Off'
+                  - DetectionOnly
                   example: 'On'
               example:
                 status: 'On'

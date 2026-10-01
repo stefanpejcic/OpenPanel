@@ -12,20 +12,43 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 {{end}}
+{{if .Recommendations}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues === 'function') {
+        // own key, sharing 'waf' would make each call drop the other's seen ids
+        reportHealthIssues('waf-profiles', {{toJSON .Recommendations}}, 24);
+    }
+});
+</script>
+{{end}}
 
 <div>
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
             <div>
             <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Web Firewall"}}</h1></div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Enable or disable OWASP Coraza Web Application Firewall protection for domains."}}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Protect your websites from attacks like SQL injection, cross-site scripting and malicious bots."}}</p>
         </div>
-        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        </div>
+        <form method="post" action="/server/waf/all" class="mt-3 flex flex-wrap items-center gap-3 sm:mt-0 sm:justify-end">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            <div class="text-right">
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Firewall for all domains"}}</p>
+                <p class="text-xs text-gray-500" title="{{.T.Get "Turns the firewall on or off for every domain at once, and for domains you add later."}}">
+                    {{if .Domains}}{{.CountOn}} / {{len .Domains}} {{.T.Get "domains protected"}}{{else}}{{.T.Get "Also used for new domains"}}{{end}}
+                    {{if and .Domains .Mixed}} · <button type="submit" name="action" value="{{if .AccountEnabled}}enable{{else}}disable{{end}}" class="font-medium text-indigo-600 hover:underline dark:text-indigo-400">{{.T.Get "Apply to all domains"}}</button>{{end}}
+                </p>
+            </div>
+            <button type="submit" name="action" value="{{if .AccountEnabled}}disable{{else}}enable{{end}}" role="switch" aria-checked="{{if .AccountEnabled}}true{{else}}false{{end}}" aria-label="{{.T.Get "Firewall for all domains"}}"
+                class="group relative isolate inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full p-0.5 shadow-inner ring-1 ring-inset ring-black/5 transition-all dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 {{if .AccountEnabled}}bg-indigo-600{{else}}bg-gray-200 dark:bg-gray-950{{end}}">
+                <span class="pointer-events-none relative inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-all duration-150 ease-in-out dark:bg-gray-50 {{if .AccountEnabled}}translate-x-4{{else}}translate-x-0{{end}}"></span>
+            </button>
+        </form>
     </div>
 </div>
 
-<section aria-label="Domains Table" x-data="{ searchQuery: '' }">
+<section aria-label="Domains Table" x-data="{ searchQuery: '', statusFilter: 'all', statusOpen: false, levelFilter: 'all', levelOpen: false, profileFilter: 'all', profileOpen: false }">
     <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
+        <div class="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
         <div class="relative w-full sm:w-64 [&>input]:py-1.5">
             <input
                 x-model="searchQuery"
@@ -37,6 +60,96 @@ document.addEventListener('DOMContentLoaded', function () {
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
                     <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
                 </svg>
+            </div>
+        </div>
+
+            <div class="relative" @click.outside="statusOpen = false">
+                <button type="button" @click="statusOpen = !statusOpen" :style="statusFilter !== 'all' && 'border-style: solid'" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 cursor-pointer">
+                    <span class="w-full text-left sm:w-fit" x-text="{all: {{toJSON (.T.Get "Status")}}, On: {{toJSON (.T.Get "On")}}, DetectionOnly: {{toJSON (.T.Get "Monitor only")}}, Off: {{toJSON (.T.Get "Off")}}}[statusFilter]">{{.T.Get "Status"}}</span>
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 text-gray-500 sm:size-4"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg>
+                </button>
+                <div x-show="statusOpen" x-cloak class="absolute left-0 mt-1 z-20 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 rounded-lg w-48">
+                    <ul class="p-2 space-y-1">
+                        <li>
+                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+                                <input type="radio" name="waf-status-filter" value="all" x-model="statusFilter" @change="statusOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "All"}}</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+                                <input type="radio" name="waf-status-filter" value="On" x-model="statusFilter" @change="statusOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "On"}}</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+                                <input type="radio" name="waf-status-filter" value="DetectionOnly" x-model="statusFilter" @change="statusOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Monitor only"}}</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+                                <input type="radio" name="waf-status-filter" value="Off" x-model="statusFilter" @change="statusOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Off"}}</span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="relative" @click.outside="levelOpen = false">
+                <button type="button" @click="levelOpen = !levelOpen" :style="levelFilter !== 'all' && 'border-style: solid'" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 cursor-pointer">
+                    <span class="w-full text-left sm:w-fit" x-text="{all: {{toJSON (.T.Get "Level")}}{{range .LevelOptions}}, {{toJSON .Key}}: {{toJSON .Name}}{{end}}}[levelFilter]">{{.T.Get "Level"}}</span>
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 text-gray-500 sm:size-4"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg>
+                </button>
+                <div x-show="levelOpen" x-cloak class="absolute left-0 mt-1 z-20 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 rounded-lg w-48">
+                    <ul class="p-2 space-y-1">
+                        <li>
+                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+                                <input type="radio" name="waf-level-filter" value="all" x-model="levelFilter" @change="levelOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "All"}}</span>
+                            </label>
+                        </li>
+{{range .LevelOptions}}
+                        <li>
+                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+                                <input type="radio" name="waf-level-filter" value="{{.Key}}" x-model="levelFilter" @change="levelOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Name}}</span>
+                            </label>
+                        </li>
+{{end}}
+                    </ul>
+                </div>
+            </div>
+            <div class="relative" @click.outside="profileOpen = false">
+                <button type="button" @click="profileOpen = !profileOpen" :style="profileFilter !== 'all' && 'border-style: solid'" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 cursor-pointer">
+                    <span class="w-full text-left sm:w-fit" x-text="{all: {{toJSON (.T.Get "Profile")}}, none: {{toJSON (.T.Get "No profile")}}{{range .ProfileOptions}}, {{toJSON .Key}}: {{toJSON .Name}}{{end}}}[profileFilter]">{{.T.Get "Profile"}}</span>
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 text-gray-500 sm:size-4"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg>
+                </button>
+                <div x-show="profileOpen" x-cloak class="absolute left-0 mt-1 z-20 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 rounded-lg w-48">
+                    <ul class="p-2 space-y-1">
+                        <li>
+                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+                                <input type="radio" name="waf-profile-filter" value="all" x-model="profileFilter" @change="profileOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "All"}}</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+                                <input type="radio" name="waf-profile-filter" value="none" x-model="profileFilter" @change="profileOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "None"}}</span>
+                            </label>
+                        </li>
+{{range .ProfileOptions}}
+                        <li>
+                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+                                <input type="radio" name="waf-profile-filter" value="{{.Key}}" x-model="profileFilter" @change="profileOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
+                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Name}}</span>
+                            </label>
+                        </li>
+{{end}}
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -72,6 +185,36 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>
                         </th>
 
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                                <span>{{.T.Get "Blocked (24h)"}}</span>
+                                <div class="-space-y-2">
+                                    <a href="#" data-sort-key="blocks" data-sort-type="number" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                    <a href="#" data-sort-key="blocks" data-sort-type="number" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                                </div>
+                            </div>
+                        </th>
+
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                                <span>{{.T.Get "Level"}}</span>
+                                <div class="-space-y-2">
+                                    <a href="#" data-sort-key="level" data-sort-type="number" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                    <a href="#" data-sort-key="level" data-sort-type="number" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                                </div>
+                            </div>
+                        </th>
+
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                                <span>{{.T.Get "Profiles"}}</span>
+                                <div class="-space-y-2">
+                                    <a href="#" data-sort-key="profiles" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                    <a href="#" data-sort-key="profiles" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                                </div>
+                            </div>
+                        </th>
+
                         <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 w-20 text-end">
                             {{.T.Get "Actions"}}
                         </th>
@@ -82,20 +225,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
                     {{if not .Domains}}
                     <tr>
-                        <td colspan="4" class="p-6 text-center">{{.T.Get "No domains yet."}}</td>
+                        <td colspan="7" class="p-6 text-center">{{.T.Get "No domains yet."}}</td>
                     </tr>
                     {{else}}
                     {{$modsecStatus := .ModsecStatus}}
+                    {{$rows := .Rows}}
                     {{$csrf := .CSRFToken}}
                     {{range .Domains}}
                     {{$status := index $modsecStatus .DomainURL}}
-                    <tr x-show="searchQuery === '' || '{{.DomainURL}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                    {{$row := index $rows .DomainURL}}
+                    <tr x-show="(searchQuery === '' || '{{.DomainURL}}'.toLowerCase().includes(searchQuery.toLowerCase())) && (statusFilter === 'all' || statusFilter === {{toJSON $row.Status}}) && (levelFilter === 'all' || levelFilter === {{toJSON $row.LevelKey}}) && (profileFilter === 'all' || (profileFilter === 'none' ? {{len $row.ProfileKeys}} === 0 : ({{toJSON $row.ProfileKeys}} || []).includes(profileFilter)))" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
 {{template "bulk_row_checkbox" (dict "T" $.T "Key" .DomainURL "Label" .DomainURL)}}
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 punycode" data-sort-col="domain" data-sort-value="{{.DomainURL}}">
                             {{.DomainURL}}
                         </td>
 
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="status" data-sort-value="{{$status}}" x-data="{ enabled: {{if eq $status "On"}}true{{else}}false{{end}} }">
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="status" data-sort-value="{{$status}}" x-data="{ enabled: {{if or (eq $status "On") (eq $status "DetectionOnly")}}true{{else}}false{{end}} }">
                         <span id="previous_value_for_domain" style="display:none;">{{$status}}</span>
                                         <form action="/server/waf" method="post">
                             <input type="hidden" name="csrf_token" value="{{$csrf}}"/>
@@ -113,9 +258,23 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </span>
                                 </button>
 
+                                {{if eq $status "DetectionOnly"}}<span class="ms-2 inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-300" title="{{$.T.Get "Requests are checked and logged, but nothing is blocked."}}">{{$.T.Get "Monitor only"}}</span>{{end}}
                                 <label class="inline-flex items-center me-5 cursor-pointer">
 
                                         </form>
+                        </td>
+
+                        <td class="whitespace-nowrap p-4 text-sm tabular-nums" data-sort-col="blocks" data-sort-value="{{$row.Blocks}}">
+                            {{if $row.Blocks}}<a href="/server/waf/log/{{.DomainURL}}" class="font-medium text-red-600 hover:underline dark:text-red-400">{{$row.Blocks}}</a>{{else}}<span class="text-gray-400 dark:text-gray-600">0</span>{{end}}
+                        </td>
+
+                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="level" data-sort-value="{{$row.LevelStrength}}">
+                            <span>{{$row.Level}}</span>
+                            <span class="mt-1 flex gap-1" aria-hidden="true">{{range $row.LevelDots}}<span class="size-1.5 rounded-full {{if .}}bg-indigo-600 dark:bg-indigo-500{{else}}bg-gray-300 dark:bg-gray-700{{end}}"></span>{{end}}</span>
+                        </td>
+
+                        <td class="p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="profiles" data-sort-value="{{join $row.Profiles ", "}}">
+                            {{if $row.Profiles}}<div class="flex flex-wrap gap-1">{{range $row.Profiles}}<span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-300">{{.}}</span>{{end}}</div>{{else}}<a href="/server/waf/{{.DomainURL}}" class="text-gray-400 hover:text-blue-600 hover:underline dark:text-gray-600">{{$.T.Get "None"}}</a>{{end}}
                         </td>
 
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 w-20 text-end">

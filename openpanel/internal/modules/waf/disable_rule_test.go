@@ -1,8 +1,11 @@
 package waf
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"mime/multipart"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -81,5 +84,45 @@ func TestDisableRuleForDomainRefusesScoringAndBadIDs(t *testing.T) {
 	content, _ := os.ReadFile(path)
 	if string(content) != testDomainConf {
 		t.Fatalf("config changed by refused requests:\n%s", content)
+	}
+}
+
+func TestEnableRuleForDomain(t *testing.T) {
+	path, reloads := withTestDomain(t)
+	if err := enableRuleForDomain(context.Background(), "example.com", "920350"); err != nil {
+		t.Fatal(err)
+	}
+	content, _ := os.ReadFile(path)
+	if strings.Contains(string(content), "920350") || !strings.Contains(string(content), "SecRuleRemoveById 007") {
+		t.Fatalf("rule not removed or sentinel lost:\n%s", content)
+	}
+	if err := enableRuleForDomain(context.Background(), "example.com", "920350"); err != nil || *reloads != 1 {
+		t.Fatalf("second enable should be a no-op, err=%v reloads=%d", err, *reloads)
+	}
+	if err := enableRuleForDomain(context.Background(), "example.com", "007"); !errors.Is(err, errInvalidRuleID) {
+		t.Fatalf("sentinel must not be removable, got %v", err)
+	}
+}
+
+func TestRuleIDFromMultipartAndURLEncoded(t *testing.T) {
+	var buf bytes.Buffer
+	mw := multipart.NewWriter(&buf)
+	_ = mw.WriteField("rule_id", "930130")
+	_ = mw.Close()
+	r := httptest.NewRequest("POST", "/server/waf/disable-rule/example.com", &buf)
+	r.Header.Set("Content-Type", mw.FormDataContentType())
+	if err := r.ParseMultipartForm(1 << 20); err != nil {
+		_ = r.ParseForm()
+	}
+	if r.Form.Get("rule_id") != "930130" {
+		t.Fatal("multipart rule_id not read")
+	}
+	r = httptest.NewRequest("POST", "/server/waf/disable-rule/example.com", strings.NewReader("rule_id=1"))
+	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	if err := r.ParseMultipartForm(1 << 20); err != nil {
+		_ = r.ParseForm()
+	}
+	if r.Form.Get("rule_id") != "1" {
+		t.Fatal("urlencoded rule_id not read")
 	}
 }

@@ -14818,3 +14818,579 @@ msgstr ""
 #: internal/web/templates/system/cronjobs.html
 msgid "Next run"
 msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Web Application Firewall"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Protect %(domain)s from attacks like SQL injection, cross-site scripting and malicious bots."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "View logs"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Protection"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Every request to your website is checked before it reaches your app. Suspicious requests are blocked."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Firewall is on"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "requests checked"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "blocked"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "in the last 24 hours"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "No requests were flagged in the last 24 hours."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Monitor only"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Requests are checked and logged, but nothing is blocked."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "flagged in the last 24 hours"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Firewall is off"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Firewall status unknown"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Requests reach your website without being checked."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Keep logging attacks without blocking them"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Turn off"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Turn on blocking"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Log attacks without blocking them"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Turn on"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Protection level"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "How strict the firewall is with requests. You can change it anytime."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "A custom protection level was set for this domain by your hosting provider. Picking a level below replaces it."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Recent blocked requests"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "What the firewall stopped lately and why. If something here is your own site working normally, disable that rule for this domain."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Monitor only: these requests were logged but not blocked."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "No blocked or suspicious requests in the latest log entries."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "View full logs"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Why requests were stopped"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Rule"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "1 request, stopped, on %(paths)s, last %(time)s"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "1 request on %(paths)s, last %(time)s"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "%(count)s requests, %(stopped)s stopped, on %(paths)s, last %(time)s"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "%(count)s requests on %(paths)s, last %(time)s"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Disable rule"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Enable again"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Latest requests"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Clear logs"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Request"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Blocked"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Would be blocked"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Flagged"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Could not disable rule %(rule)s"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Rule %(rule)s disabled for %(domain)s"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Undo"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Could not clear the log."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Firewall logs cleared for %(domain)s"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Could not enable rule %(rule)s"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Rule %(rule)s enabled again"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "App profiles"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Some apps send data that can look like an attack, for example HTML when you save a post. A profile tells the firewall what is normal for that app, so you don't get blocked while your site stays protected."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Recommended for this domain"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "We found %(apps)s installed here. Turn on the matching profile to avoid false blocks."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Turn on recommended"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Turn on %(app)s"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "The firewall is off for this domain. Profiles you pick here apply as soon as you turn it on."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Detected on"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Only turn on profiles for apps you actually run on this domain. Each profile relaxes a few checks on that app's own pages."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "App profiles are not available on this server yet. Contact your hosting provider if you need them."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Could not update the firewall settings"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Change undone"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Protection level set to %(level)s"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "%(profile)s profile turned off"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "%(profile)s profile turned on"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Advanced: rule exceptions"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Turn off single firewall rules by ID or tag."
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "rule"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "rules"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "tag"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "tags"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "turned off"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Disabled IDs"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Disable rules by ID"
+msgstr ""
+
+#: internal/web/templates/system/waf_domain.html
+msgid "Save exceptions"
+msgstr ""
+
+#: internal/web/templates/system/waf.html
+msgid "Protect your websites from attacks like SQL injection, cross-site scripting and malicious bots."
+msgstr ""
+
+#: internal/web/templates/system/waf.html
+msgid "Firewall for all domains"
+msgstr ""
+
+#: internal/web/templates/system/waf.html
+msgid "Turns the firewall on or off for every domain at once, and for domains you add later."
+msgstr ""
+
+#: internal/web/templates/system/waf.html
+msgid "domains protected"
+msgstr ""
+
+#: internal/web/templates/system/waf.html
+msgid "Also used for new domains"
+msgstr ""
+
+#: internal/web/templates/system/waf.html
+msgid "Apply to all domains"
+msgstr ""
+
+#: internal/web/templates/system/waf.html
+msgid "On"
+msgstr ""
+
+#: internal/web/templates/system/waf.html
+msgid "Off"
+msgstr ""
+
+#: internal/web/templates/system/waf.html
+msgid "Profile"
+msgstr ""
+
+#: internal/web/templates/system/waf.html
+msgid "No profile"
+msgstr ""
+
+#: internal/web/templates/system/waf.html
+msgid "Blocked (24h)"
+msgstr ""
+
+#: internal/web/templates/system/waf.html
+msgid "Profiles"
+msgstr ""
+
+#: internal/modules/waf/default_all.go
+msgid "Invalid action."
+msgstr ""
+
+#: internal/modules/waf/default_all.go
+msgid "Could not save the default for new domains."
+msgstr ""
+
+#: internal/modules/waf/default_all.go
+msgid "Settings saved but reloading the web server failed."
+msgstr ""
+
+#: internal/modules/waf/default_all.go
+msgid "Could not update: %(domains)s"
+msgstr ""
+
+#: internal/modules/waf/default_all.go
+msgid "The firewall is now on for all your domains and for new domains."
+msgstr ""
+
+#: internal/modules/waf/default_all.go
+msgid "The firewall is now off for all your domains and for new domains."
+msgstr ""
+
+#: internal/modules/waf/disable_rule.go
+msgid "internal error"
+msgstr ""
+
+#: internal/modules/waf/disable_rule.go
+msgid "rule ID must be a number"
+msgstr ""
+
+#: internal/modules/waf/disable_rule.go
+msgid "this rule only adds up the score of the other rules, disabling it would turn off blocking for the whole domain"
+msgstr ""
+
+#: internal/modules/waf/disable_rule.go
+msgid "WAF config not found for this domain"
+msgstr ""
+
+#: internal/modules/waf/disable_rule.go
+msgid "rule disabled but reloading Caddy failed"
+msgstr ""
+
+#: internal/modules/waf/handlers_list.go
+msgid "WAF for domain: %(domain_name)s is now %(status_text)s"
+msgstr ""
+
+#: internal/modules/waf/handlers_list.go
+msgid "Config file for %(domain_name)s not found"
+msgstr ""
+
+#: internal/modules/waf/handlers_list.go
+msgid "WAF is disabled for %(count)s domains."
+msgstr ""
+
+#: internal/modules/waf/handlers_list.go
+msgid "Open"
+msgstr ""
+
+#: internal/modules/waf/handlers_list.go
+msgid "%(app)s found on %(domain)s. Turn on the %(app)s firewall profile to avoid false blocks."
+msgstr ""
+
+#: internal/modules/waf/handlers_log.go
+msgid "Log file not found for domain %(domain_name)s."
+msgstr ""
+
+#: internal/modules/waf/handlers_log.go
+msgid "Log file for domain %(domain_name)s is empty."
+msgstr ""
+
+#: internal/modules/waf/levels.go
+msgid "Compatibility"
+msgstr ""
+
+#: internal/modules/waf/levels.go
+msgid "Fewer false blocks, only requests that clearly look like attacks are blocked. Use it if normal visitors keep getting blocked."
+msgstr ""
+
+#: internal/modules/waf/levels.go
+msgid "Balanced protection that suits most websites."
+msgstr ""
+
+#: internal/modules/waf/levels.go
+msgid "Strict"
+msgstr ""
+
+#: internal/modules/waf/levels.go
+msgid "Extra checks for sites that need more security. Can block some normal requests, so check the logs after turning it on."
+msgstr ""
+
+#: internal/modules/waf/levels.go
+msgid "unknown protection level"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "SQL injection"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Cross-site scripting (XSS)"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Remote command execution"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Access to restricted files"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Remote file inclusion"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "PHP code injection"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Java code injection"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Code injection"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Malformed request"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Vulnerability scanner"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Automated script"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Session hijacking"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Information leak"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Malformed upload"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Server-side request forgery"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Unsafe data deserialization"
+msgstr ""
+
+#: internal/modules/waf/log_summary.go
+msgid "Suspicious request"
+msgstr ""
+
+#: internal/modules/waf/profiles.go
+msgid "Unknown profile: %(profile)s"
+msgstr ""
+
+#: internal/modules/waf/profiles.go
+msgid "Stops false blocks when editing posts, saving settings, using the block editor or logging in."
+msgstr ""
+
+#: internal/modules/waf/profiles.go
+msgid "Stops false blocks when editing content, saving forms and changing settings in the Drupal admin."
+msgstr ""
+
+#: internal/modules/waf/profiles.go
+msgid "Stops false blocks on file uploads, WebDAV sync, calendars, contacts and document editing."
+msgstr ""
+
+#: internal/modules/waf/profiles.go
+msgid "Stops false blocks when editing and saving wiki pages."
+msgstr ""
+
+#: internal/modules/waf/profiles.go
+msgid "Stops false blocks when posting, sending private messages and using the admin panel."
+msgstr ""
+
+#: internal/modules/waf/profiles.go
+msgid "Stops false blocks when posting, using the editor and managing the forum."
+msgstr ""
+
+#: internal/modules/waf/profiles.go
+msgid "Lets you run SQL queries and import databases from a phpMyAdmin installed on this domain."
+msgstr ""
+
+#: internal/modules/waf/profiles.go
+msgid "WAF config for this domain has no CRS rules include"
+msgstr ""
+
+#: internal/modules/waf/profiles.go
+msgid "the web server rejected the new WAF config, nothing was changed"
+msgstr ""
+
+#: internal/modules/waf/register.go
+msgid "None (remove all profiles)"
+msgstr ""
+
+#: internal/modules/waf/register.go
+msgid "Set Level"
+msgstr ""
+
+#: internal/modules/waf/register.go
+msgid "Set the protection level for the selected domains?"
+msgstr ""
+
+#: internal/modules/waf/register.go
+msgid "Apply Profile"
+msgstr ""
+
+#: internal/modules/waf/register.go
+msgid "Add this app profile to the selected domains? None removes all their profiles."
+msgstr ""
+
+#: internal/modules/waf/handlers_list.go
+msgid "set to monitor only"
+msgstr ""

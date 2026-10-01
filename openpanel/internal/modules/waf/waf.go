@@ -88,8 +88,11 @@ func domainConfigPath(domainName string) string {
 	return caddyDomainsDir + domainName + ".conf"
 }
 
+// wafLogDir holds the per-domain Coraza audit logs, swapped in tests
+var wafLogDir = "/var/log/caddy/coraza_waf/"
+
 func wafLogPath(domainName string) string {
-	return "/var/log/caddy/coraza_waf/" + domainName + ".log"
+	return wafLogDir + domainName + ".log"
 }
 
 // wafLogStats is the {"checks", "blocks"} summary returned by readWAFLogs.

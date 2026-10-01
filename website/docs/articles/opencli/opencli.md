@@ -388,7 +388,7 @@ Usage: opencli version
 ------------------------
 opencli waf
 Description: Manage CorazaWAF
-Usage: opencli waf <status|enable|disable|domain|tags|ids|update|stats|count> [options]
+Usage: opencli waf <status|enable|disable|domain|plugins|tags|ids|update|stats|count> [options]
 ------------------------
 opencli websites-all
 Description: Lists all websites currently hosted on the server.

@@ -101,30 +101,34 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	// GET (and the POST fallthrough): re-read the file after any change.
 	status := "Not Found"
-	var removedRules, removedTags []string
+	var removedRules, removedTags, activeProfiles []string
+	level := defaultLevel
 
 	if content, readErr := os.ReadFile(configFilePath); readErr == nil {
 		contentStr := string(content)
-		switch {
-		case strings.Contains(contentStr, "SecRuleEngine On"):
-			status = "On"
-		case strings.Contains(contentStr, "SecRuleEngine Off"):
-			status = "Off"
-		default:
-			status = "Unknown"
-		}
+		status = engineStatus(contentStr)
 
 		removedRules, removedTags = parseWAFRemovals(contentStr)
+		activeProfiles = parseWAFProfiles(contentStr)
+		level = parseWAFLevel(contentStr)
 	}
+
+	detected := detectProfiles(r.Context(), a, domainName)
 
 	if r.URL.Query().Get("output") == "json" {
 		writeJSON(w, http.StatusOK, map[string]any{
 			"domain": domainName, "status": status, "removed_rules": removedRules, "removed_tags": removedTags,
+			"profiles": activeProfiles, "detected_profiles": detected, "level": level,
 		})
 		return
 	}
 
-	renderWAFDomainPage(a, w, r, domainName, status, removedRules, removedTags)
+	profiles, suggested := buildProfileViews(activeProfiles, detected)
+	renderWAFDomainPage(a, w, r, WAFDomainPageData{
+		Domain: domainName, Status: status, RemovedRules: removedRules, RemovedTags: removedTags,
+		Profiles: profiles, Suggested: suggested, Stats: readWAFLogs(wafLogPath(domainName), 86400), Level: level,
+		Summary: recentSummary(domainName),
+	})
 }
 
 // readLinesKeepEnds splits content into lines; each element (except possibly the last) keeps its trailing "\n"
