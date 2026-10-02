@@ -24,9 +24,30 @@
 </td>
 {{end}}
 
+{{/* .bulk-btn with an <i> icon and a .bulk-btn-label span, on small screens only the icon shows and the label becomes a tooltip */}}
+{{define "bulk_btn_style"}}
+<style>
+    .bulk-btn { gap: .375rem; }
+    @media (max-width: 639.98px) {
+        .bulk-btn { padding: .375rem .625rem; }
+        .bulk-btn > .bi { font-size: 1rem; line-height: 1.25rem; }
+        .bulk-btn-label {
+            position: absolute; bottom: calc(100% + .375rem); left: 50%; transform: translateX(-50%); z-index: 50;
+            padding: .25rem .5rem; border-radius: .25rem; background: #111827; color: #fff; font-size: .75rem; line-height: 1rem; font-weight: 500;
+            opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .1s ease-in-out;
+        }
+        .dark .bulk-btn-label { background: #374151; }
+        .bulk-btn:first-child .bulk-btn-label { left: 0; transform: none; }
+        .bulk-btn:last-child .bulk-btn-label { left: auto; right: 0; transform: none; }
+        .bulk-btn:hover .bulk-btn-label, .bulk-btn:focus-visible .bulk-btn-label, .bulk-btn:active .bulk-btn-label { opacity: 1; visibility: visible; }
+    }
+</style>
+{{end}}
+
 {{/* the page data, uses .T and .BulkActions */}}
 {{define "bulk_bar"}}
 <script src="{{static "js/bulk-actions.js"}}"></script>
+{{template "bulk_btn_style"}}
 <div x-show="bulkCount > 0" class="h-24" aria-hidden="true"></div>
 <div x-show="bulkCount > 0" x-cloak x-transition id="bulk-actions-bar" :style="bulkBarStyle"
     x-init="bulkPlaceBar()"
@@ -38,9 +59,9 @@
     </div>
     <div x-show="!bulkConfirming" class="flex flex-wrap items-center gap-2">
         {{range .BulkActions}}{{if .Usable}}
-        <button type="button" data-bulk-action="{{.Key}}" :disabled="bulkRunning" :class="bulkRunning && 'opacity-50 pointer-events-none'" @click="bulkStart({{toJSON .Key}}, {{if .Input}}{{toJSON .Input.Initial}}{{else}}''{{end}})"
-            class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out {{if .Danger}}border-transparent bg-red-600 text-white hover:bg-red-700{{else}}border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60{{end}}">
-            {{.Label}}
+        <button type="button" data-bulk-action="{{.Key}}" :disabled="bulkRunning" :class="bulkRunning && 'opacity-50 pointer-events-none'" @click="bulkStart({{toJSON .Key}}, {{if .Input}}{{toJSON .Input.Initial}}{{else}}''{{end}})" aria-label="{{.Label}}"
+            class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out {{if .Danger}}border-transparent bg-red-600 text-white hover:bg-red-700{{else}}border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60{{end}}">
+            <i class="bi {{.IconClass}}" aria-hidden="true"></i><span class="bulk-btn-label">{{.Label}}</span>
         </button>
         {{end}}{{end}}
     </div>

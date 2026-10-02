@@ -469,6 +469,7 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
         </div>
     </div>
 
+    {{template "bulk_btn_style"}}
     <div x-show="selectedCount > 0" x-cloak x-transition
         class="sticky bottom-0 inset-x-0 z-20 flex flex-col gap-3 border-t border-gray-200 bg-white px-4 py-3 shadow-[0_-1px_6px_rgba(0,0,0,0.08)] dark:border-gray-800 dark:bg-gray-950 sm:flex-row sm:items-center sm:justify-between sm:px-6">
 
@@ -480,17 +481,17 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
         </template>
         <template x-if="!confirmingAction">
             <div class="flex flex-wrap items-center gap-2">
-                <button type="button" :disabled="bulkRunning" @click="bulkAction('update')" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                    {{.T.Get "Update"}}
+                <button type="button" :disabled="bulkRunning" @click="bulkAction('update')" aria-label="{{.T.Get "Update"}}" class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    <i class="bi bi-arrow-up-circle" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Update"}}</span>
                 </button>
-                <button type="button" :disabled="bulkRunning" @click="bulkAction('backup')" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                    {{.T.Get "Backup"}}
+                <button type="button" :disabled="bulkRunning" @click="bulkAction('backup')" aria-label="{{.T.Get "Backup"}}" class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    <i class="bi bi-archive" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Backup"}}</span>
                 </button>
-                <button type="button" :disabled="bulkRunning" @click="bulkAction('detach')" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                    {{.T.Get "Detach"}}
+                <button type="button" :disabled="bulkRunning" @click="bulkAction('detach')" aria-label="{{.T.Get "Detach"}}" class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    <i class="bi bi-plug" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Detach"}}</span>
                 </button>
-                <button type="button" :disabled="bulkRunning" @click="bulkAction('delete')" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-transparent bg-red-600 text-white hover:bg-red-700">
-                    {{.T.Get "Delete"}}
+                <button type="button" :disabled="bulkRunning" @click="bulkAction('delete')" aria-label="{{.T.Get "Delete"}}" class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-transparent bg-red-600 text-white hover:bg-red-700">
+                    <i class="bi bi-trash3" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Delete"}}</span>
                 </button>
             </div>
         </template>

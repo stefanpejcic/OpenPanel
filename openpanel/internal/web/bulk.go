@@ -29,6 +29,33 @@ type BulkAction struct {
 	Danger  bool
 	Input   *BulkInput // asks for a value on confirm, e.g. a new CPU limit
 	Feature string     // only offered when the user has this feature
+	Icon    string     // bootstrap icon class, falls back to bulkIcons by Key
+}
+
+// bulkIcons is what the bar shows instead of the label on small screens
+var bulkIcons = map[string]string{
+	"delete": "bi-trash3", "remove": "bi-dash-circle", "terminate": "bi-x-octagon", "kill": "bi-x-octagon", "revoke": "bi-x-circle",
+	"assign": "bi-person-plus", "unassign": "bi-person-dash", "password": "bi-key", "export": "bi-download", "backup": "bi-archive",
+	"restore": "bi-arrow-counterclockwise", "default": "bi-arrow-counterclockwise", "enable": "bi-toggle-on", "disable": "bi-toggle-off",
+	"start": "bi-play-circle", "run": "bi-play", "stop": "bi-stop-circle", "restart": "bi-arrow-repeat", "update": "bi-arrow-up-circle",
+	"suspend": "bi-pause-circle", "suspend_in": "bi-pause-circle", "suspend_out": "bi-pause-circle",
+	"unsuspend": "bi-play-circle", "unsuspend_in": "bi-play-circle", "unsuspend_out": "bi-play-circle",
+	"redirect": "bi-signpost-split", "unredirect": "bi-signpost", "ttl": "bi-clock", "schedule": "bi-calendar-event",
+	"overlap_on": "bi-layers", "overlap_off": "bi-layers-half", "waf": "bi-shield-check", "set_level": "bi-sliders",
+	"apply_profile": "bi-ui-checks", "cloudflare": "bi-cloud", "safe": "bi-check2-circle", "repair": "bi-wrench",
+	"optimize": "bi-speedometer2", "version": "bi-tag", "php": "bi-filetype-php", "path": "bi-folder", "container": "bi-box",
+	"detach": "bi-plug", "cpu": "bi-cpu", "ram": "bi-memory", "pids": "bi-list-ol", "quota": "bi-hdd", "add_target": "bi-plus-circle",
+}
+
+// IconClass is the explicit Icon, the default for its Key, or a generic one
+func (b BulkAction) IconClass() string {
+	if b.Icon != "" {
+		return b.Icon
+	}
+	if icon, ok := bulkIcons[b.Key]; ok {
+		return icon
+	}
+	return "bi-lightning-charge"
 }
 
 // BulkInput describes the value field shown on confirm, Options turns it into a select
