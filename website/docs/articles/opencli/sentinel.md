@@ -191,6 +191,19 @@ Nothing is printed when the notification is logged. The message above is shown o
 ### SWAP usage alert
 ![sentinel_highswap.png](/img/docs-content/JzgBmdnx-sentinel-highswap.png)
 
+When SWAP usage is over the threshold and there is enough free RAM, Sentinel clears it with `swapoff -a && swapon -a` and logs a *SWAP cleared* info notification. It clears SWAP at most once every 24 hours. If SWAP fills up again within that time, Sentinel doesn't clear it again. Instead it sends one *High SWAP usage!* alert, because the server probably needs more RAM.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+[!] SWAP 99% > threshold 40%, already cleared 5m ago. Skipping.
+...
+```
+</details>
+
 ### MySQL service inactive alert
 ![sentinel_mysql.png](/img/docs-content/761C3HNt-sentinel-mysql.png)
 
