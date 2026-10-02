@@ -18,13 +18,13 @@ func TestRenderFixPermissionsPage(t *testing.T) {
 		UserAllowedJSON: web.UserAllowedList(userAllowed), CurrentUsername: "testuser",
 		RequestPath: "/fix-permissions", AdminPort: "2087", T: mgr.Translator("en"),
 	}
-	data := FixPermissionsPageData{LayoutData: layout, Directories: []string{"/var/www/html/example.com"}}
+	data := FixPermissionsPageData{LayoutData: layout}
 	w := httptest.NewRecorder()
 	if err := fixPermissionsPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
-	if !strings.Contains(w.Body.String(), "/var/www/html/example.com") {
-		t.Error("expected directory option in rendered page")
+	if !strings.Contains(w.Body.String(), `id="directory-select"`) {
+		t.Error("expected directory input in rendered page")
 	}
 }
 

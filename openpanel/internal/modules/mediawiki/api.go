@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 )
 
 func writeAPIJSON(w http.ResponseWriter, status int, v any) {
@@ -16,7 +18,10 @@ func writeAPIJSON(w http.ResponseWriter, status int, v any) {
 
 // handleMediaWikiVersions backs mediawiki_install.html's version dropdown and mediawiki_app.html's Update tab - there's no GitHub releases API to hit client-side (releases.wikimedia.org sends no CORS headers either), so this exposes the server-side HTML-scrape result (version.go) as JSON instead
 func handleMediaWikiVersions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	versions, err := listMediaWikiVersions(r.Context())
+	// the scrape hits every branch listing on releases.wikimedia.org, so share one result across all users for a day
+	versions, err := cache.Memoize(r.Context(), a.Cache, "mediawiki_versions", 24*time.Hour, func() ([]string, error) {
+		return listMediaWikiVersions(r.Context())
+	})
 	if err != nil {
 		writeAPIJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return

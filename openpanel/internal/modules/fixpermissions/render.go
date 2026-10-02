@@ -24,16 +24,15 @@ var fixPermissionsPage = web.MustLoadPage(
 // FixPermissionsPageData is fix_permissions.html's template context.
 type FixPermissionsPageData struct {
 	web.LayoutData
-	Directories []string
 }
 
-func renderFixPermissionsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, directories []string) {
+func renderFixPermissionsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Fix Permissions")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := FixPermissionsPageData{LayoutData: layout, Directories: directories}
+	data := FixPermissionsPageData{LayoutData: layout}
 	if err := fixPermissionsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("FIX_PERMISSIONS - template render error: %v", err)
 	}

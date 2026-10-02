@@ -1701,11 +1701,6 @@
     "feature": "fix_permissions",
     "endpoints": [
       {
-        "method": "GET",
-        "path": "/api/fix-permissions",
-        "description": "List directories."
-      },
-      {
         "method": "POST",
         "path": "/api/fix-permissions",
         "description": "Fix ownership/permissions for a directory (or the whole account).",

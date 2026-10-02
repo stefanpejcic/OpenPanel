@@ -13,11 +13,12 @@ Open **Fix Permissions**  page and set the path or leave empty (`/var/www/html/`
 ## How It Works
 Clicking the **Fix Permissions** button will:
 
-- Recursively set the correct **ownership** for files and folders.
-- Apply standard **permissions**:
-  - Files: `644`
-  - Folders: `755`
-- Fix common permission problems for known CMS directories like `wp-content`, `storage`, `cache`, etc.
+- Set you as the **owner** of all your website files and folders inside `/var/www/html/`.
+- Set **files** to `664` so you can edit them and the web server can read them.
+- Set **folders** to `775` so you can manage them and the web server can open them.
+- Check and fix ownership of **FTP account** folders so FTP users can upload and edit their files.
+
+It will **not** change emails, databases, or any file contents.
 
 ## Caution
 

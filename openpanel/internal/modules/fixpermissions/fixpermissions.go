@@ -32,9 +32,6 @@ func handleFixPermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 	username, _ := injected["current_username"].(string)
-	userContext, _ := injected["context"].(string)
-
-	volume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
@@ -63,16 +60,7 @@ func handleFixPermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		_ = a.Sessions.Save(r, w, sess)
 	}
 
-	out, _ := exec.CommandContext(ctx, "find", volume, "-type", "d").Output()
-	var directories []string
-	for _, line := range strings.Split(string(out), "\n") {
-		if line == "" {
-			continue
-		}
-		directories = append(directories, strings.Replace(line, volume, "/var/www/html/", 1))
-	}
-
-	renderFixPermissionsPage(a, w, r, directories)
+	renderFixPermissionsPage(a, w, r)
 }
 
 // isRelativeTo reports whether path equals base or is nested under it.
