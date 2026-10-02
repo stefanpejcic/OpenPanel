@@ -61,6 +61,20 @@ If both `autoupdate` and `autopatch` are disabled, nothing is installed:
 ```
 </details>
 
+Only one update can run at a time. An update that doesn't finish within 30 minutes is stopped, and an update lock older than 30 minutes is treated as stale and deleted, so a stuck update can't block new ones.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update
+[INFO] Update available and will be automatically installed
+[✘] Error: Update process is already running.
+Lock /var/lock/openpanel_update.lock is held by PID: 12345
+Please wait for it to complete before retrying.
+```
+</details>
+
 Start update immediately, regardless of `autoupdate` or `autopatch` setting:
 ```bash
 opencli update --force

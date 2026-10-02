@@ -2,7 +2,9 @@
 package paths
 
 import (
+	"errors"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -151,6 +153,59 @@ func SecureUserPath(base, context, userInputPath string, checkExists bool) (stri
 	}
 
 	return resolvedTarget, nil
+}
+
+// ErrNotSymlink is returned by RemoveUserSymlink when the target exists but isn't a symlink.
+var ErrNotSymlink = errors.New("not a symlink")
+
+// RemoveUserSymlink unlinks a symlink inside HOME/HTML without ever following it, the parent chain still can't contain symlinks.
+func RemoveUserSymlink(base, context, userInputPath string) (string, error) {
+	if len(userInputPath) > 200 {
+		return "", abort(403, "Path too long")
+	}
+	lowered := strings.ToLower(userInputPath)
+	for _, pattern := range dangerousPatterns {
+		if strings.Contains(lowered, pattern) {
+			return "", abort(403, "Suspicious path pattern detected")
+		}
+	}
+
+	dir, name := path.Split(strings.Trim(strings.ReplaceAll(userInputPath, "\\", "/"), "/"))
+	if name == "" || name == "." || controlCharsRE.MatchString(name) {
+		return "", abort(403, "Invalid path")
+	}
+
+	userHome, err := SecureUserPath(base, context, "", false)
+	if err != nil {
+		return "", err
+	}
+	parent, err := SecureUserPath(base, context, dir, true)
+	if err != nil {
+		return "", err
+	}
+	rel, err := filepath.Rel(userHome, filepath.Join(parent, name))
+	if err != nil || rel == "." || strings.HasPrefix(rel, "..") {
+		return "", abort(403, "Path traversal or symlink escape detected")
+	}
+
+	// os.Root keeps every op inside userHome even if something gets swapped under us mid-request
+	root, err := os.OpenRoot(userHome)
+	if err != nil {
+		return "", abort(404, "User root directory not found")
+	}
+	defer root.Close()
+
+	info, err := root.Lstat(rel)
+	if err != nil {
+		return "", abort(404, "File or directory not found")
+	}
+	if info.Mode()&os.ModeSymlink == 0 {
+		return "", ErrNotSymlink
+	}
+	if err := root.Remove(rel); err != nil {
+		return "", err
+	}
+	return filepath.Join(userHome, rel), nil
 }
 
 // isWithin reports whether target is a strict descendant of home.

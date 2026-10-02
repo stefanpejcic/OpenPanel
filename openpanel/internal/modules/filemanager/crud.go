@@ -1,6 +1,7 @@
 package filemanager
 
 import (
+	"errors"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -173,6 +174,19 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	targetRelPath := filepath.Join(pathParam, itemName)
+
+	// symlinks just get unlinked, never followed and never trashed
+	if _, linkErr := paths.RemoveUserSymlink("HOME", user.Context, targetRelPath); !errors.Is(linkErr, paths.ErrNotSymlink) {
+		if linkErr != nil {
+			status, msg := pathErrorStatus(linkErr)
+			writeJSON(w, status, map[string]any{"success": false, "error": msg})
+			return
+		}
+		_ = logger.RecordUserAction(a.Config, user.Username, "deleted symlink "+targetRelPath+" using File Manager", reqip.ClientIP(r))
+		writeJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Symlink deleted"})
+		return
+	}
+
 	itemPath, perr := paths.SecureUserPath("HOME", user.Context, targetRelPath, true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)

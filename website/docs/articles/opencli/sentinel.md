@@ -103,7 +103,7 @@ Notifications are stored in `/var/log/openpanel/admin/notifications.log`, one JS
 
 Lines in the old text format (from before 2.0.12) are still shown on the Notifications page as plain entries.
 
-While an OpenPanel update is running, Sentinel skips all checks, so it doesn't alert about or recreate containers the update is restarting.
+While an OpenPanel update is running, Sentinel skips all checks, so it doesn't alert about or recreate containers the update is restarting. An update lock older than 30 minutes is ignored.
 
 <details>
   <summary>Example output</summary>

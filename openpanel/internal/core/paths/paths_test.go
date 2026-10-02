@@ -1,6 +1,7 @@
 package paths
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -180,5 +181,87 @@ func TestSecureUserPathInvalidBaseDirRejected(t *testing.T) {
 	perr, ok := err.(*Error)
 	if !ok || perr.Code != 403 {
 		t.Errorf("SecureUserPath with base VOLUME = %v, want a 403 *Error", err)
+	}
+}
+
+func TestRemoveUserSymlinkUnlinksWithoutFollowing(t *testing.T) {
+	root, context := withHomeVolume(t)
+	outside := filepath.Join(t.TempDir(), "secret.txt")
+	if err := os.WriteFile(outside, []byte("keep"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "sub"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(root, "sub", "link")
+	if err := os.Symlink(outside, link); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := RemoveUserSymlink("HOME", context, "sub/link"); err != nil {
+		t.Fatalf("RemoveUserSymlink: %v", err)
+	}
+	if _, err := os.Lstat(link); !os.IsNotExist(err) {
+		t.Errorf("link still there: %v", err)
+	}
+	if _, err := os.Stat(outside); err != nil {
+		t.Errorf("target got touched: %v", err)
+	}
+}
+
+func TestRemoveUserSymlinkDirTargetKeepsContents(t *testing.T) {
+	root, context := withHomeVolume(t)
+	if err := os.MkdirAll(filepath.Join(root, "real"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "real", "a.txt"), []byte("hi"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(filepath.Join(root, "real"), filepath.Join(root, "dirlink")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := RemoveUserSymlink("HOME", context, "dirlink/"); err != nil {
+		t.Fatalf("RemoveUserSymlink: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "real", "a.txt")); err != nil {
+		t.Errorf("target dir contents got touched: %v", err)
+	}
+}
+
+func TestRemoveUserSymlinkNotSymlink(t *testing.T) {
+	root, context := withHomeVolume(t)
+	if err := os.WriteFile(filepath.Join(root, "file.txt"), []byte("hi"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := RemoveUserSymlink("HOME", context, "file.txt"); !errors.Is(err, ErrNotSymlink) {
+		t.Fatalf("got %v, want ErrNotSymlink", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "file.txt")); err != nil {
+		t.Errorf("regular file got removed: %v", err)
+	}
+}
+
+func TestRemoveUserSymlinkRejectsSymlinkInParent(t *testing.T) {
+	root, context := withHomeVolume(t)
+	outsideDir := t.TempDir()
+	if err := os.Symlink(filepath.Join(outsideDir, "x"), filepath.Join(outsideDir, "victim")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(outsideDir, filepath.Join(root, "escape")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := RemoveUserSymlink("HOME", context, "escape/victim"); err == nil {
+		t.Fatal("expected rejection for symlinked parent")
+	}
+	if _, err := os.Lstat(filepath.Join(outsideDir, "victim")); err != nil {
+		t.Errorf("outside link got removed: %v", err)
+	}
+}
+
+func TestRemoveUserSymlinkRejectsTraversal(t *testing.T) {
+	_, context := withHomeVolume(t)
+	for _, p := range []string{"../alice", "..", "", "/", "a/.."} {
+		if _, err := RemoveUserSymlink("HOME", context, p); err == nil || errors.Is(err, ErrNotSymlink) {
+			t.Errorf("%q: expected rejection, got %v", p, err)
+		}
 	}
 }
