@@ -5,7 +5,7 @@
 
 <input type="hidden" id="global-csrf-token" name="csrf_token" value="{{.CSRFToken}}"/>
 
-<section aria-label="PHP Extensions Header" x-data="{ searchQuery: '' }">
+<section aria-label="{{.T.Get "PHP Extensions Header"}}" x-data="{ searchQuery: '' }">
     <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1></div>
@@ -223,7 +223,7 @@
 {{else}}
 
 <!-- page header -->
-<section aria-label="PHP Extensions Select Header" x-data="{ searchQuery: '' }">
+<section aria-label="{{.T.Get "PHP Extensions Select Header"}}" x-data="{ searchQuery: '' }">
     <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PHP Extensions"}}</h1></div>

@@ -5,7 +5,7 @@
 
 <script src="{{static "js/db-tuning.js"}}"></script>
 
-<section aria-label="Settings" x-data="dbTuning('/postgresql/configuration/recommendations')" x-init="load()">
+<section aria-label="{{.T.Get "Settings"}}" x-data="dbTuning('/postgresql/configuration/recommendations')" x-init="load()">
 <form method="post" x-ref="form">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
     <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">

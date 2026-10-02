@@ -5,7 +5,7 @@
 <!-- START templates/files/inodes.html -->
 
 <!-- page header -->
-<section aria-label="Inodes Usage Header" x-data="{ searchQuery: '' }">
+<section aria-label="{{.T.Get "Inodes Usage Header"}}" x-data="{ searchQuery: '' }">
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="flex items-center gap-x-3">
@@ -23,7 +23,7 @@
 <!-- END page header -->
 
 <div class="m-6">
-    <nav aria-label="Breadcrumb" class="ml-2">
+    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="ml-2">
         <ol role="list" class="flex items-center space-x-3 text-sm">
             <li class="flex">
                 <a class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300" href="/inodes-explorer/">/</a>

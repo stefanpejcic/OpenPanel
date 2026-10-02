@@ -358,7 +358,7 @@ func handleResetPasswordToken(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		}
 
 		if reason := updatePasswordByID(ctx, a, sess, userID, password); reason != "" {
-			errMsg := t.Get(reason)
+			errMsg := passwordErrorText(a, r, reason)
 			data := basePageData(a, r, t)
 			data.Title = errMsg
 			data.Locales = localeOptions(a.I18n.AvailableLocales(ctx))

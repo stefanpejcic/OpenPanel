@@ -3,7 +3,7 @@
 {{define "content"}}
 <!-- START templates/files/ftp.html -->
 
-<section aria-label="FTP Accounts Header" x-data="{ searchQuery: '' }">
+<section aria-label="{{.T.Get "FTP Accounts Header"}}" x-data="{ searchQuery: '' }">
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "FTP Accounts"}}</h1></div>
@@ -15,7 +15,7 @@
     </div>
 </div>
 
-<section aria-label="Records Table" x-data="{ searchQuery: '' }">
+<section aria-label="{{.T.Get "Records Table"}}" x-data="{ searchQuery: '' }">
     <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
         <div class="relative w-full sm:w-64 [&>input]:py-1.5">
             <input
@@ -104,7 +104,7 @@
                             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
 
 
-        <div class="space-x-1 flex justify-end" role="group" aria-label="Actions">
+        <div class="space-x-1 flex justify-end" role="group" aria-label="{{$.T.Get "Actions"}}">
 
             <a href="/ftp/password/{{.Username}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><i class="bi bi-key-fill"></i>{{$.T.Get "Change Password"}}</a>
 

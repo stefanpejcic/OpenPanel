@@ -34,7 +34,7 @@
 
 {{$switch := "relative w-9 h-5 shrink-0 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"}}
 
-<section aria-label="Notifications Settings" x-data="{ on: { {{range $i, $p := .Notifications}}{{if $i}}, {{end}}{{toJSON $p.Key}}: {{if eq $p.Value "1"}}true{{else}}false{{end}}{{end}} } }">
+<section aria-label="{{.T.Get "Notifications Settings"}}" x-data="{ on: { {{range $i, $p := .Notifications}}{{if $i}}, {{end}}{{toJSON $p.Key}}: {{if eq $p.Value "1"}}true{{else}}false{{end}}{{end}} } }">
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email Notifications"}}</h1></div>

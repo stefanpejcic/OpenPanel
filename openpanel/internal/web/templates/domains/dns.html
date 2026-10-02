@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
     </header>
 </div>
 
-<section aria-label="Records Table" x-data="{ searchQuery: '' }">
+<section aria-label="{{.T.Get "Records Table"}}" x-data="{ searchQuery: '' }">
     <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
         <div class="relative w-full sm:w-64 [&>input]:py-1.5">
             <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
@@ -746,7 +746,7 @@ document.getElementById('save_zone_button').addEventListener('click', function()
 {{else}}
 
 <!-- page header -->
-<section aria-label="Select DNS Zone Header">
+<section aria-label="{{.T.Get "Select DNS Zone Header"}}">
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "DNS Zone Editor"}}</h1></div>

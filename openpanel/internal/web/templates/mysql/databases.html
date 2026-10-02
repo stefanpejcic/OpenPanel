@@ -3,7 +3,7 @@
 {{define "content"}}
 <!-- START templates/mysql/databases.html -->
 
-<section aria-label="Databases Table" x-data="{ searchQuery: '' }">
+<section aria-label="{{.T.Get "Databases Table"}}" x-data="{ searchQuery: '' }">
     <div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:flex sm:items-center sm:justify-between sm:p-6 lg:p-8">
         <div>
             <div class="flex relative items-center gap-x-3"><h1 class="flex gap-2 text-lg font-semibold text-gray-900 dark:text-gray-50">{{if eq .Service "mariadb"}}MariaDB{{else}}MySQL{{end}} {{.T.Get "Databases"}}</h1>

@@ -15,7 +15,7 @@
 </div>
 
 <script src="{{static "js/data-table.js"}}"></script>
-<section aria-label="Processes Table" x-data="createTableController({
+<section aria-label="{{.T.Get "Processes Table"}}" x-data="createTableController({
         storageKey: 'processManagerColumnsVisibility',
         columns: {
             container: true,

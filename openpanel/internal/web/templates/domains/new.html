@@ -44,7 +44,7 @@
                         placeholder="example.net"
                         name="domain_url"
                         pattern="(?:(?!-)[\p{L}\p{N}\p{M}-]{1,63}(?&lt;!-)\.)+(?:[a-zA-Z\p{L}]{2,63}|xn--[a-zA-Z0-9-]{1,59}|\bonion\b)"
-                        title="{{.T.Get "Invalid domain name. Please enter a valid domain name like"}} 'example.com' {{.T.Get "or"}} 'sub.example.com'."
+                        title="{{.T.Get "Invalid domain name. Please enter a valid domain name like %(example)s or %(subdomain)s." "example" "'example.com'" "subdomain" "'sub.example.com'"}}"
                         required
                     />
                           <input type="text" class="form-control d-none" name="domain_name" id="domain_name" placeholder="example.net" hidden >
@@ -194,7 +194,7 @@ addDomainForm.addEventListener("submit", function(event) {
     // Check if the domain URL contains a valid domain name
     const validDomain = isValidDomainName(domainUrlInput.value);
     if (!validDomain) {
-        const toastMessage = "{{.T.Get "Invalid domain name. Please enter a valid domain name like"}} 'example.com' {{.T.Get "or"}} 'sub.example.com'.";
+        const toastMessage = "{{.T.Get "Invalid domain name. Please enter a valid domain name like %(example)s or %(subdomain)s." "example" "'example.com'" "subdomain" "'sub.example.com'"}}";
         showToast(toastMessage, 'error');
         event.preventDefault();
         return;
@@ -375,7 +375,7 @@ function syncDomainCustomValidity() {
         domainUrlInput.setCustomValidity('');
     } else {
         domainUrlInput.setCustomValidity(
-            domainUrlInput.title || "{{.T.Get "Invalid domain name. Please enter a valid domain name like"}} 'example.com' {{.T.Get "or"}} 'sub.example.com'."
+            domainUrlInput.title || "{{.T.Get "Invalid domain name. Please enter a valid domain name like %(example)s or %(subdomain)s." "example" "'example.com'" "subdomain" "'sub.example.com'"}}"
         );
     }
 }

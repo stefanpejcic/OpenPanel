@@ -4,7 +4,7 @@
 {{if .DomainName}}
 
 <!-- page header -->
-<section aria-label="Edit Redirect Header">
+<section aria-label="{{.T.Get "Edit Redirect Header"}}">
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if .RedirectURL}}{{.T.Get "Edit Redirect for"}}{{else}}{{.T.Get "Create Redirect for"}}{{end}} {{.DomainName}}</h1></div>
@@ -58,7 +58,7 @@
 
 <!-- page header -->
 <section
-    aria-label="Redirect Header"
+    aria-label="{{.T.Get "Redirect Header"}}"
 >
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>

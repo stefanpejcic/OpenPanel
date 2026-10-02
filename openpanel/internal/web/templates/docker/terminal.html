@@ -11,7 +11,7 @@
   <script src="{{static "vendor/xterm/xterm-addon-fit.min.js"}}"></script>
   <script src="{{static "vendor/xterm/xterm-addon-web-links.min.js"}}"></script>
 
-  <section aria-label="Container Terminal" x-data="{ tooltip: false }">
+  <section aria-label="{{.T.Get "Container Terminal"}}" x-data="{ tooltip: false }">
 
     <!-- header -->
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
@@ -217,7 +217,7 @@
 {{else}}
 
   <!-- ── service picker ───────────────────────────────────────────────────── -->
-  <section aria-label="Select Container">
+  <section aria-label="{{.T.Get "Select Container"}}">
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <div class="flex items-center gap-x-3">

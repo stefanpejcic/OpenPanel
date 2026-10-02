@@ -19,7 +19,7 @@
 {{define "content"}}
 <!-- START templates/user/activity.html -->
 
-<section aria-label="Domains Header" x-data="{ searchActivityQuery: {{toJSON .SearchTerm}} }">
+<section aria-label="{{.T.Get "Domains Header"}}" x-data="{ searchActivityQuery: {{toJSON .SearchTerm}} }">
 
     <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -198,7 +198,7 @@
 >
               <td class="hidden px-4 py-3 items-center space-x-3" data-sort-col="user" data-sort-value="{{.User}}">
                     {{if $.GravatarURL}}
-                    <img class="rounded-full shadow-lg w-8 h-8" src="{{$.GravatarURL}}" alt="Gravatar profile image"/>
+                    <img class="rounded-full shadow-lg w-8 h-8" src="{{$.GravatarURL}}" alt="{{$.T.Get "Gravatar profile image"}}"/>
                     {{end}}
                 <span>{{.User}}</span>
               </td>
@@ -233,7 +233,7 @@
         </div>
 
         <div class="mt-6 flex justify-center">
-            <nav aria-label="Pagination">
+            <nav aria-label="{{.T.Get "Pagination"}}">
                 <ul class="inline-flex -space-x-px text-sm">
 
                     {{if gt .Page 1}}

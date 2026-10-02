@@ -7,7 +7,7 @@
 
 {{if .JSONLogs}}
 <!-- page header -->
-<section aria-label="Select Domain Log Header">
+<section aria-label="{{.T.Get "Select Domain Log Header"}}">
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Domain Logs for"}} <span class="punycode">{{.DomainName}}</span></h1></div>
@@ -49,7 +49,7 @@
 <!-- END page header -->
 
 
-<section aria-label="Records Table" x-data="{
+<section aria-label="{{.T.Get "Records Table"}}" x-data="{
     searchQuery: '',
     columns: {
         timestamp: true,
@@ -199,7 +199,7 @@
 
 <!-- pagination -->
 <div class="m-6 flex justify-center">
-    <nav aria-label="Pagination">
+    <nav aria-label="{{.T.Get "Pagination"}}">
         <ul class="inline-flex -space-x-px text-sm">
             {{if gt .CurrentPage 1}}
                 <li>
@@ -233,7 +233,7 @@
 
 <!-- page header -->
 <section
-    aria-label="Select Domain Log Header"
+    aria-label="{{.T.Get "Select Domain Log Header"}}"
 >
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>

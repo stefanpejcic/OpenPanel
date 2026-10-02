@@ -4,7 +4,7 @@
 <!-- START templates/user/favorites.html -->
 
 <!-- page header -->
-<section aria-label="Favorites" x-data="{ searchQuery: '' }">
+<section aria-label="{{.T.Get "Favorites"}}" x-data="{ searchQuery: '' }">
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Favorites"}}</h1></div>
@@ -19,7 +19,7 @@
 
 <!-- domains table -->
 
-<section aria-label="Logins Table" x-data="{ searchQuery: '' }">
+<section aria-label="{{.T.Get "Logins Table"}}" x-data="{ searchQuery: '' }">
     <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
         <div class="relative w-full sm:w-64 [&>input]:py-1.5">
             <input

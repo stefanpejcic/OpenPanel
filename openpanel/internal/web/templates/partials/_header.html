@@ -13,7 +13,7 @@
                     </button>
                     <div class="mr-2 h-4 w-px bg-gray-200 dark:bg-gray-800"></div>
                     {{if eq .MenuStyle "modern"}}
-                    <nav aria-label="Breadcrumb" class="ml-2">
+                    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="ml-2">
                         {{if .NavTrail}}
                         <ol role="list" class="flex items-center gap-3 text-sm">
                             {{$last := sub (len .NavTrail) 1}}
@@ -32,7 +32,7 @@
                         {{end}}
                     </nav>
                     {{else}}
-                    <nav aria-label="Breadcrumb" class="ml-2">
+                    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="ml-2">
                         <ol role="list" class="flex items-center space-x-3 text-sm" x-data="navMenu('{{.RequestPath}}')">
 
                         <ul>

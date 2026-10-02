@@ -5,7 +5,7 @@
 
 <script src="{{static "js/db-tuning.js"}}"></script>
 
-<section aria-label="Settings" x-data="dbTuning('/mysql/configuration/recommendations')" x-init="load()">
+<section aria-label="{{.T.Get "Settings"}}" x-data="dbTuning('/mysql/configuration/recommendations')" x-init="load()">
 <form method="post" x-ref="form">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 

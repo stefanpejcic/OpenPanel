@@ -76,7 +76,7 @@ function sendDataToPreview(event) {
         </a>
       </div>
 
-      <button type="button" data-tooltip-target="tooltip-refresh-link" data-tooltip-placement="left" @click.prevent="regenerateScreenshot()" class="absolute top-0 right-0 mt-2 mr-2 flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50" aria-label="Refresh screenshot">
+      <button type="button" data-tooltip-target="tooltip-refresh-link" data-tooltip-placement="left" @click.prevent="regenerateScreenshot()" class="absolute top-0 right-0 mt-2 mr-2 flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50" aria-label="{{.T.Get "Refresh screenshot"}}">
         <i class="bi bi-arrow-counterclockwise"></i>
       </button>
       <div id="tooltip-refresh-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
@@ -466,7 +466,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <div class="group inline-flex space-x-4">
                 <div class="wrapper_ps desktop">
         <div class="flex justify-center">
-            <div class="relative" role="progressbar" aria-label="progress bar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" data-max="100" data-value="65">
+            <div class="relative" role="progressbar" aria-label="{{.T.Get "progress bar"}}" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" data-max="100" data-value="65">
                 <svg width="120" height="120" viewBox="0 0 90 90" class="-rotate-90 transform">
                     <circle r="42" cx="45" cy="45" stroke-width="6" fill="transparent" stroke="" stroke-linecap="round" class="transition-colors ease-linear stroke-gray-100"></circle>
                     <circle r="42" cx="45" cy="45" stroke-width="6" stroke-dasharray="263.89378290154264 263.89378290154264" stroke-dashoffset="66.28214111016942" fill="transparent" stroke="" stroke-linecap="round" class="desktop-mainColor stroke-blue-500 transform-gpu transition-all duration-300 ease-in-out"></circle>
@@ -482,7 +482,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 <div class="wrapper_ps mobile">
         <div class="flex justify-center">
-            <div class="relative" role="progressbar" aria-label="progress bar" aria-valuenow="74.88302286571907" aria-valuemin="0" aria-valuemax="100" data-max="100" data-value="74.88302286571907">
+            <div class="relative" role="progressbar" aria-label="{{.T.Get "progress bar"}}" aria-valuenow="74.88302286571907" aria-valuemin="0" aria-valuemax="100" data-max="100" data-value="74.88302286571907">
                 <svg width="120" height="120" viewBox="0 0 90 90" class="-rotate-90 transform">
                     <circle r="42" cx="45" cy="45" stroke-width="6" fill="transparent" stroke="" stroke-linecap="round" class="transition-colors ease-linear stroke-gray-100"></circle>
                     <circle r="42" cx="45" cy="45" stroke-width="6" stroke-dasharray="263.89378290154264 263.89378290154264" stroke-dashoffset="66.28214111016942" fill="transparent" stroke="" stroke-linecap="round" class="mobile-mainColor stroke-blue-500 transform-gpu transition-all duration-300 ease-in-out"></circle>

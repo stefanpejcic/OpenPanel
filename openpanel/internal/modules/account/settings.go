@@ -55,7 +55,7 @@ func clearSessionValues(sess *sessions.Session) {
 	}
 }
 
-// updatePasswordByID rejects a weak or common password, otherwise hashes it, saves it, and clears every Redis session for the user, including the caller's own current one. Returns an untranslated error message, empty on success.
+// updatePasswordByID rejects a weak or common password, otherwise hashes it, saves it, and clears every Redis session for the user, including the caller's own current one. Returns one of the errPassword* codes, empty on success.
 func updatePasswordByID(ctx context.Context, a *appctx.App, sess *sessions.Session, userID int, newPassword string) string {
 	threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
 	if !validators.IsPasswordStrongEnough(newPassword, threshold) {
@@ -86,10 +86,21 @@ func updatePasswordByID(ctx context.Context, a *appctx.App, sess *sessions.Sessi
 }
 
 const (
-	errPasswordWeak   = "Password does not meet the required strength"
-	errPasswordCommon = "Password is too common, please choose a different one"
-	errPasswordSave   = "Failed to update password"
+	errPasswordWeak   = "weak"
+	errPasswordCommon = "common"
+	errPasswordSave   = "save"
 )
+
+// passwordErrorText turns an updatePasswordByID code into a translated message, literals inline so the catalog sync finds them
+func passwordErrorText(a *appctx.App, r *http.Request, code string) string {
+	switch code {
+	case errPasswordWeak:
+		return web.Tr(a, r, "Password does not meet the required strength.")
+	case errPasswordCommon:
+		return web.Tr(a, r, "Password is too common, please choose a different one.")
+	}
+	return web.Tr(a, r, "Failed to update password.")
+}
 
 func notifySentinelPasswordChange(username string) {
 	cmd := exec.Command("opencli", "sentinel", "--action=user_password",
@@ -125,14 +136,13 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 		if newPassword != "" && newPassword == confirmPassword {
 			if errMsg := updatePasswordByID(ctx, a, sess, userID, newPassword); errMsg != "" {
-				flash.Add(sess, "error", errMsg+".")
+				flash.Add(sess, "error", passwordErrorText(a, r, errMsg))
 			} else {
 				message := securityEmail(a, r, "Password changed for account "+currentUsername,
 					"The password for account "+currentUsername+" was changed from the OpenPanel interface. All other sessions stay logged in until they expire.",
 					"If you didn't change it, reset your password right away or contact your hosting provider.")
-				prettyMessage := "Password for account " + currentUsername + " has been changed successfully."
 				checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_password_change", message)
-				flash.Add(sess, "success", prettyMessage)
+				flash.Add(sess, "success", "Password has been changed successfully.")
 				_ = logger.RecordUserAction(a.Config, currentUsername, "changed password", ip)
 				notifySentinelPasswordChange(currentUsername)
 			}
@@ -146,8 +156,7 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 			_ = updateEmailByID(ctx, a, userID, newEmail)
 			a.Cache.Delete(ctx, "get_user_details_with_plan:"+strconv.Itoa(userID))
 
-			prettyMessage := fmt.Sprintf("Email address for account %s has been changed successfully from %s to %s.", currentUsername, currentEmail, newEmail)
-			flash.Add(sess, "success", prettyMessage)
+			flash.Add(sess, "success", web.Tr(a, r, "Email address has been changed successfully from %(old_email)s to %(new_email)s.", "old_email", currentEmail, "new_email", newEmail))
 			_ = logger.RecordUserAction(a.Config, currentUsername, "changed email address to "+newEmail, ip)
 			_ = a.Sessions.Save(r, w, sess)
 			http.Redirect(w, r, "/account", http.StatusFound)

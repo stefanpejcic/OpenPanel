@@ -6,12 +6,12 @@
 <div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
     <header>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Site Manager"}}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Manage"}}{{if .UserAllowed.wordpress}} WordPress,{{end}}{{if .UserAllowed.drupal}} Drupal,{{end}}{{if .UserAllowed.python}} Python,{{end}}{{if .UserAllowed.nodejs}} Node.js, {{end}}{{.T.Get "and other websites."}}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{$apps := ""}}{{if .UserAllowed.wordpress}}{{$apps = print $apps " WordPress,"}}{{end}}{{if .UserAllowed.drupal}}{{$apps = print $apps " Drupal,"}}{{end}}{{if .UserAllowed.python}}{{$apps = print $apps " Python,"}}{{end}}{{if .UserAllowed.nodejs}}{{$apps = print $apps " Node.js,"}}{{end}}{{if $apps}}{{.T.Get "Manage %(apps)s and other websites." "apps" (trimSpace $apps)}}{{else}}{{.T.Get "Manage your websites."}}{{end}}</p>
     </header>
 </div>
 
 {{if .Groups}}
-<section aria-label="Websites Table" x-data="{
+<section aria-label="{{.T.Get "Websites Table"}}" x-data="{
     searchQuery: '',
     selected: {},
     get selectedCount() { return Object.keys(this.selected).length; },

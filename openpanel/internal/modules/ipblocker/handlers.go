@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 func handleIPBlocker(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -37,11 +38,11 @@ func handleIPBlocker(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		var logAction, message string
 		if len(validIPs) > 0 {
 			logAction = "blocked IP addresses using IP Blocker"
-			message = "IP addresses have been successfully added to blocklist and can no longer access websites"
+			message = web.Tr(a, r, "IP addresses have been successfully added to blocklist and can no longer access websites")
 			argv = append(argv, "--list="+strings.Join(validIPs, " "))
 		} else {
 			logAction = "removed all blocked IPs using IP Blocker"
-			message = "All IP addresses have been successfully removed from blocklist and can now access websites"
+			message = web.Tr(a, r, "All IP addresses have been successfully removed from blocklist and can now access websites")
 			argv = append(argv, "--delete-all")
 		}
 

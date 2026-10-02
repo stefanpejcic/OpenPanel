@@ -7,7 +7,7 @@
 <script src="/static/vendor/chartjs/chartjs-adapter-date-fns.bundle.min.js"></script>
 
 <!-- page header -->
-<section aria-label="Usage Header" x-data="{ searchQuery: '' }">
+<section aria-label="{{.T.Get "Usage Header"}}" x-data="{ searchQuery: '' }">
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Historical CPU and Memory Usage"}}</h1>
@@ -159,7 +159,7 @@
 
 <!-- Pagination -->
 <div class="mt-6 flex justify-center">
-    <nav aria-label="Usage History Navigation">
+    <nav aria-label="{{.T.Get "Usage History Navigation"}}">
         <ul class="inline-flex -space-x-px text-sm">
             {{if not .ShowAll}}
                 {{if gt .CurrentPage 1}}

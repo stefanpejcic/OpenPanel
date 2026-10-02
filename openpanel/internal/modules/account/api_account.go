@@ -83,7 +83,7 @@ func apiAccountUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if newPassword != "" {
 		sess := &sessions.Session{Values: map[interface{}]interface{}{}}
 		if errMsg := updatePasswordByID(ctx, a, sess, userID, newPassword); errMsg != "" {
-			writeAPIAccountJSON(w, http.StatusBadRequest, map[string]string{"error": errMsg})
+			writeAPIAccountJSON(w, http.StatusBadRequest, map[string]string{"error": passwordErrorText(a, r, errMsg)})
 			return
 		}
 		checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_password_change",

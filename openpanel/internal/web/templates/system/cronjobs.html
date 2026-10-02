@@ -16,7 +16,7 @@
 
 
 <!-- page header -->
-<section aria-label="Crons Header" x-data="{ searchQuery: '', showSection: false }">
+<section aria-label="{{.T.Get "Crons Header"}}" x-data="{ searchQuery: '', showSection: false }">
     <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3">
@@ -149,7 +149,7 @@ function cronSummary(locale, timeZone, nextRun, jobs) {
 </script>
 
 
-<section aria-label="Crons Table" x-data="{
+<section aria-label="{{.T.Get "Crons Table"}}" x-data="{
     searchQuery: '',
 
     checkLogHealth() {
@@ -352,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 <td class="whitespace-nowrap p-4 text-sm text-end text-gray-600 dark:text-gray-400">
 
-<div class="flex items-center justify-end gap-1" role="group" aria-label="Actions">
+<div class="flex items-center justify-end gap-1" role="group" aria-label="{{$.T.Get "Actions"}}">
 
     <button type="button" @click="editing = true" x-show="!editing" class="inline-flex items-center justify-center p-1.5 text-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50" title="{{$.T.Get "Edit"}}" aria-label="{{$.T.Get "Edit"}} {{$item.Comment}}"><i class="bi bi-pencil"></i></button>
 

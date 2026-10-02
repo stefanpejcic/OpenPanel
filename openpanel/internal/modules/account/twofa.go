@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 func invalidate2FAStatus(a *appctx.App, r *http.Request, userID int) {
@@ -65,7 +66,7 @@ func handleTwofaSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 				return
 			}
 			twofaEnabled = true
-			message = "OTP code removed and Two-Factor Authentication is now required on new logins."
+			message = web.Tr(a, r, "OTP code removed and Two-Factor Authentication is now required on new logins.")
 
 		case twofaActive:
 			otpSecret, err = randomBase32Secret()
@@ -74,12 +75,12 @@ func handleTwofaSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 				return
 			}
 			twofaEnabled = false
-			message = "Setup started: Set up the app or save the OTP code, then confirm to remove it and activate 2FA."
+			message = web.Tr(a, r, "Setup started: Set up the app or save the OTP code, then confirm to remove it and activate 2FA.")
 
 		default:
 			otpSecret = ""
 			twofaEnabled = false
-			message = "Two-Factor Authentication is now disabled."
+			message = web.Tr(a, r, "Two-Factor Authentication is now disabled.")
 		}
 
 		if _, execErr := a.DB.ExecContext(ctx, "UPDATE users SET twofa_enabled = ?, otp_secret = ? WHERE id = ?",

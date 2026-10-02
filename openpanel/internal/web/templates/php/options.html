@@ -5,7 +5,7 @@
 
 <script src="{{static "js/db-tuning.js"}}"></script>
 
-<section aria-label="PHP Settings Header" x-data="dbTuning('/php/php{{.Version}}/options/recommendations')" x-init="load()">
+<section aria-label="{{.T.Get "PHP Settings Header"}}" x-data="dbTuning('/php/php{{.Version}}/options/recommendations')" x-init="load()">
     <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1></div>
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
 {{else}}
 
 <!-- page header -->
-<section aria-label="PHP Select Header" x-data="{ searchQuery: '' }">
+<section aria-label="{{.T.Get "PHP Select Header"}}" x-data="{ searchQuery: '' }">
     <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit PHP options"}}</h1></div>

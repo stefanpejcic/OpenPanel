@@ -3,12 +3,12 @@
 {{define "content"}}
 <!-- START templates/manager/autoinstaller.html -->
 
-<section aria-label="Install App" x-data="{ searchQuery: '', match(el) { const q = this.searchQuery.trim().toLowerCase(); if (!q) return true; return [...el.querySelectorAll('dt, dd')].some(n => n.textContent.toLowerCase().includes(q)); }, sectionMatch(el) { return [...el.querySelectorAll('[data-app]')].some(c => this.match(c)); } }">
+<section aria-label="{{.T.Get "Install App"}}" x-data="{ searchQuery: '', match(el) { const q = this.searchQuery.trim().toLowerCase(); if (!q) return true; return [...el.querySelectorAll('dt, dd')].some(n => n.textContent.toLowerCase().includes(q)); }, sectionMatch(el) { return [...el.querySelectorAll('[data-app]')].some(c => this.match(c)); } }">
 <div class="flex flex-col border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
     <header>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Install App"}}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Quickly install a variety of applications such as"}}
-{{if .UserAllowed.wordpress}}WordPress, {{end}}{{if .UserAllowed.drupal}}Drupal, {{end}}{{if .UserAllowed.joomla}}Joomla, {{end}}{{if .UserAllowed.python}}Python, {{end}}{{if .UserAllowed.nodejs}}Node.js, {{end}}{{.T.Get "and others."}}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{$apps := ""}}{{if .UserAllowed.wordpress}}{{$apps = print $apps " WordPress,"}}{{end}}{{if .UserAllowed.drupal}}{{$apps = print $apps " Drupal,"}}{{end}}{{if .UserAllowed.joomla}}{{$apps = print $apps " Joomla,"}}{{end}}{{if .UserAllowed.python}}{{$apps = print $apps " Python,"}}{{end}}{{if .UserAllowed.nodejs}}{{$apps = print $apps " Node.js,"}}{{end}}
+{{if $apps}}{{.T.Get "Quickly install a variety of applications such as %(apps)s and others." "apps" (trimSpace $apps)}}{{else}}{{.T.Get "Quickly install a variety of applications."}}{{end}}</p>
     </header>
     <div class="mt-2 sm:mt-0 sm:ml-4">
         <div class="relative w-full sm:w-64">
