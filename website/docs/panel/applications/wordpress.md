@@ -266,6 +266,27 @@ From here, you can:
 ![Security tab with vulnerability report, Safe Browsing, salts, integrity check, malware scan and reinstall](/img/openpanel-screenshots/applications/wordpress-security.png#gh-light-mode-only)
 ![Security tab with vulnerability report, Safe Browsing, salts, integrity check, malware scan and reinstall](/img/openpanel-screenshots/applications/wordpress-security_dark.png#gh-dark-mode-only)
 
+#### Security Measures
+
+Server-level rules that harden the site. They are applied by the webserver before a request reaches PHP, so they also stop requests that WordPress plugins never see. Toggle each one on or off from the Security tab:
+
+| Rule | What it does |
+|------|--------------|
+| **Disable wp-admin** | Returns a `401 Unauthorized` error for every request to `/wp-admin`, blocking the WordPress dashboard completely. Turn it off again when you need to log in to wp-admin. |
+| **Mitigate Spam Logins and Comments** | Drops `POST` requests to `wp-login.php` and `wp-comments-post.php` that don't come with a Referer from the same site, stopping bots that submit logins and comments directly. Logging in and commenting from the site keep working. |
+| **Block access to wp-config.php** | Blocks all requests to `wp-config.php` so database credentials are never exposed, even if PHP processing fails. |
+| **Disable PHP in uploads** | Blocks `.php` files in `/wp-content/uploads/`, so a malicious file uploaded there can't be run. |
+| **Block access to xmlrpc.php** | Returns `403` for `xmlrpc.php`, disabling XML-RPC remote publishing and pingbacks used for brute-force and DDoS amplification. |
+| **Protect Environment Files** | Blocks public access to `.env`, `.htaccess` and `.htpasswd` files. |
+| **Protect Sensitive Files** | Blocks backup files (`.bak`, `.swp`), readme and license files, and extensions like `.log`, `.sh` or `.exe`. |
+| **Block Author Enumeration** | Blocks requests with the `author=` query parameter, so bots can't discover valid usernames. |
+| **Block Malicious Bots** | Blocks aggressive scrapers and security scanners like AhrefsBot, SemrushBot, MJ12bot and Nikto by their User-Agent. |
+| **Restrict wp-includes PHP** | Blocks PHP execution in `wp-includes`, except `wp-tinymce.php` so the editor keeps working. |
+| **Disable PHP in Cache** | Blocks PHP scripts stored in cache directories, stopping cache poisoning and file inclusion exploits. |
+| **Disable Script Concatenation** | Blocks `load-scripts.php` and `load-styles.php` to prevent a known ReDoS attack that spikes server CPU. |
+
+Rules can also be managed from the terminal with [`opencli websites-secure`](/docs/articles/opencli/websites/#secure).
+
 ### Updates
 
 Control how WordPress handles updates for the core, plugins, and themes.
