@@ -272,14 +272,14 @@ Server-level rules that harden the site. They are applied by the webserver befor
 
 | Rule | What it does |
 |------|--------------|
-| **Disable wp-admin** | Returns a `401 Unauthorized` error for every request to `/wp-admin`, blocking the WordPress dashboard completely. Turn it off again when you need to log in to wp-admin. |
+| **Disable wp-admin** | Returns a `401 Unauthorized` error for requests to `/wp-admin`, blocking the WordPress dashboard completely. `admin-ajax.php` and `admin-post.php` stay reachable, so contact forms, carts and other plugin features on the site keep working. Turn it off again when you need to log in to wp-admin. |
 | **Mitigate Spam Logins and Comments** | Drops `POST` requests to `wp-login.php` and `wp-comments-post.php` that don't come with a Referer from the same site, stopping bots that submit logins and comments directly. Logging in and commenting from the site keep working. |
 | **Block access to wp-config.php** | Blocks all requests to `wp-config.php` so database credentials are never exposed, even if PHP processing fails. |
 | **Disable PHP in uploads** | Blocks `.php` files in `/wp-content/uploads/`, so a malicious file uploaded there can't be run. |
 | **Block access to xmlrpc.php** | Returns `403` for `xmlrpc.php`, disabling XML-RPC remote publishing and pingbacks used for brute-force and DDoS amplification. |
-| **Protect Environment Files** | Blocks public access to `.env`, `.htaccess` and `.htpasswd` files. |
+| **Protect Environment Files** | Blocks public access to `.env` files (including `.env.local`, `.env.production` and similar), `.htaccess` and `.htpasswd` in any folder of the site. |
 | **Protect Sensitive Files** | Blocks backup files (`.bak`, `.swp`), readme and license files, and extensions like `.log`, `.sh` or `.exe`. |
-| **Block Author Enumeration** | Blocks requests with the `author=` query parameter, so bots can't discover valid usernames. |
+| **Block Author Enumeration** | Blocks requests with the `author=` query parameter and the REST API users list (`/wp-json/wp/v2/users`), so bots can't discover valid usernames. Logged in users can still use the users endpoint, so the block editor keeps working. |
 | **Block Malicious Bots** | Blocks aggressive scrapers and security scanners like AhrefsBot, SemrushBot, MJ12bot and Nikto by their User-Agent. |
 | **Restrict wp-includes PHP** | Blocks PHP execution in `wp-includes`, except `wp-tinymce.php` so the editor keeps working. |
 | **Disable PHP in Cache** | Blocks PHP scripts stored in cache directories, stopping cache poisoning and file inclusion exploits. |

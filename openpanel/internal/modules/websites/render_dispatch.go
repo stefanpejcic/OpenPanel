@@ -510,7 +510,7 @@ type SecurityToggle struct {
 
 var wpSecurityToggles = []SecurityToggle{
 	{"wp_manager_disable_wp_admin", "Disable wp-admin",
-		"Returns a 401 error for every request to /wp-admin, completely blocking access to the WordPress dashboard. Turn it off again to log in to wp-admin."},
+		"Returns a 401 error for requests to /wp-admin, completely blocking access to the WordPress dashboard. admin-ajax.php and admin-post.php stay reachable so forms and plugins on the site keep working. Turn it off again to log in to wp-admin."},
 	{"wp_manager_mitigate_spam_logins", "Mitigate Spam Logins and Comments",
 		"Drops POST requests to wp-login.php and wp-comments-post.php that don't come with a Referer from the same site, stopping bots that submit logins and comments directly."},
 	{"wp_manager_wp_config", "Block access to wp-config.php",
@@ -520,11 +520,11 @@ var wpSecurityToggles = []SecurityToggle{
 	{"wp_manager_xmlrpc", "Block access to xmlrpc.php",
 		"Returns a 403 error for all xmlrpc.php requests. Disables XML-based remote publishing and Pingbacks to prevent DDoS and brute-force amplification."},
 	{"wp_manager_env_files", "Protect Environment Files",
-		"Blocks public access to .env, .htaccess, and .htpasswd files which often contain high-value secrets and server configurations."},
+		"Blocks public access to .env (including .env.local, .env.production and similar), .htaccess, and .htpasswd files in any folder, which often contain high-value secrets and server configurations."},
 	{"wp_manager_sensitive_files", "Protect Sensitive Files",
 		"Uses Regex to block access to backup files (.bak, .swp), readme/license files, and dangerous extensions like .log, .sh, or .exe."},
 	{"wp_manager_author_scan", "Block Author Enumeration",
-		"Identifies and blocks requests containing the \"author=\" query parameter, stopping bots from discovering valid administrative usernames."},
+		"Blocks requests containing the \"author=\" query parameter and the REST API users list (/wp-json/wp/v2/users), stopping bots from discovering valid administrative usernames. Logged in users can still use the users endpoint, so the block editor keeps working."},
 	{"wp_manager_bad_bots", "Block Malicious Bots",
 		"Uses a User-Agent filter to block aggressive scrapers and security scanners like AhrefsBot, SemrushBot, MJ12bot, and Nikto."},
 	{"wp_manager_wp_includes_php", "Restrict wp-includes PHP",
