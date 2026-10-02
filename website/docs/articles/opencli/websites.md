@@ -146,6 +146,8 @@ wp_manager_sensitive_files
 wp_manager_cache_php
 wp_manager_env_files
 wp_manager_bad_bots
+wp_manager_disable_wp_admin
+wp_manager_mitigate_spam_logins
 ```
 </details>
 
