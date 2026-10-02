@@ -747,6 +747,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Scan this site's files for malware using the ClamAV antivirus scanner."}}</p>
 
+            <div id="malwareQuarantineNotice" class="col-span-full rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-red-500/10 dark:text-red-300" style="display: none;" role="alert">
+                <p class="font-medium"><span id="malwareQuarantineCount"></span> {{.T.Get "infected files from this site are in quarantine."}}</p>
+                <p class="mt-1">{{.T.Get "The site may have been compromised. Review the files, find how they got there and update or remove the vulnerable code."}}</p>
+                <ul id="malwareQuarantineFiles" class="mt-2 list-disc pl-5 font-mono text-xs break-all"></ul>
+                <a href="/malware-scanner/quarantine" class="mt-2 inline-block font-medium underline">{{.T.Get "View quarantine"}}</a>
+            </div>
+
             <div class="mt-2 gap-2 sm:mt-0 sm:flex">
                 <button type="button" id="malwareScanBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-100">{{.T.Get "Scan for Malware"}}</button>
             </div>
@@ -775,11 +782,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         scanFailed: {{toJSON (.T.Get "Scan failed: ")}},
         scanComplete: {{toJSON (.T.Get "Scan is complete!")}},
         filesScanned: {{toJSON (.T.Get "files scanned.")}},
-        noMalwareFound: {{toJSON (.T.Get "No malware found.")}}
+        noMalwareFound: {{toJSON (.T.Get "No malware found.")}},
+        more: {{toJSON (.T.Get "more")}}
     };
 
     const btn = document.getElementById('malwareScanBtn');
     if (!btn) return;
+
+    // files the scheduled scan already quarantined from this site
+    fetch(`/malware-scanner/quarantine/site?directory=${encodeURIComponent(scanDirectory)}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+            if (!data || !data.count) return;
+            document.getElementById('malwareQuarantineCount').textContent = data.count;
+            const list = document.getElementById('malwareQuarantineFiles');
+            data.files.slice(0, 5).forEach(f => {
+                const li = document.createElement('li');
+                li.textContent = f.path + (f.signature ? ' (' + f.signature + ')' : '');
+                list.appendChild(li);
+            });
+            if (data.count > 5) {
+                const li = document.createElement('li');
+                li.textContent = '+' + (data.count - 5) + ' ' + i18n.more;
+                list.appendChild(li);
+            }
+            document.getElementById('malwareQuarantineNotice').style.display = 'block';
+        })
+        .catch(() => {});
 
     const progressEl = document.getElementById('malwareScanProgress');
     const countEl = document.getElementById('malwareScanCount');

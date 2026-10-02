@@ -262,6 +262,7 @@ From here, you can:
 - Shuffle WordPress salts
 - Check core file integrity
 - Reinstall WordPress core if needed
+- Scan the site for malware, with a warning when files from this site are already in [quarantine](/docs/panel/security/malware-scanner/#quarantine)
 
 ![Security tab with vulnerability report, Safe Browsing, salts, integrity check, malware scan and reinstall](/img/openpanel-screenshots/applications/wordpress-security.png#gh-light-mode-only)
 ![Security tab with vulnerability report, Safe Browsing, salts, integrity check, malware scan and reinstall](/img/openpanel-screenshots/applications/wordpress-security_dark.png#gh-dark-mode-only)
