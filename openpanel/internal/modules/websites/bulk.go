@@ -264,7 +264,14 @@ func handleSitesBulkAPI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	results := make([]bulkResult, 0, len(req.Sites))
 	for _, item := range req.Sites {
-		domainRoot, _ := splitDomainAndFolder(item.SiteName)
+		// check ownership of the row's own site_name, the client's site_name can't be trusted to match the id
+		var siteName string
+		if scanErr := a.DB.QueryRowContext(ctx, "SELECT site_name FROM sites WHERE id = ?", item.ID).Scan(&siteName); scanErr != nil {
+			results = append(results, bulkResult{SiteName: item.SiteName, OK: false, Message: "No data found for the provided site ID"})
+			continue
+		}
+		item.SiteName = siteName
+		domainRoot, _ := splitDomainAndFolder(siteName)
 		if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
 			results = append(results, bulkResult{SiteName: item.SiteName, OK: false, Message: "You do not own this domain."})
 			continue
