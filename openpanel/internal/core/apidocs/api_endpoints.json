@@ -131,6 +131,11 @@
         "description": "Show full MySQL processlist."
       },
       {
+        "method": "POST",
+        "path": "/api/mysql/processlist/<id>/kill",
+        "description": "Kill a running MySQL query (KILL QUERY)."
+      },
+      {
         "method": "GET",
         "path": "/api/mysql/remote-access",
         "description": "Get remote access status, port, and per-user hosts."
@@ -184,6 +189,11 @@
         "body": {
           "max_connections": "200"
         }
+      },
+      {
+        "method": "GET",
+        "path": "/api/mysql/configuration/recommendations",
+        "description": "Get tuning recommendations for the MySQL server configuration."
       },
       {
         "method": "POST",
@@ -299,6 +309,11 @@
         "description": "Show active connections (pg_stat_activity)."
       },
       {
+        "method": "POST",
+        "path": "/api/postgresql/processlist/<pid>/kill",
+        "description": "Cancel a running PostgreSQL query (pg_cancel_backend)."
+      },
+      {
         "method": "GET",
         "path": "/api/postgresql/remote-access",
         "description": "Get remote access status and port."
@@ -323,6 +338,11 @@
         "body": {
           "max_connections": "200"
         }
+      },
+      {
+        "method": "GET",
+        "path": "/api/postgresql/configuration/recommendations",
+        "description": "Get tuning recommendations for the PostgreSQL server configuration."
       }
     ]
   },
@@ -1008,7 +1028,7 @@
       {
         "method": "POST",
         "path": "/api/waf/<domain>",
-        "description": "Toggle WAF On/Off.",
+        "description": "Set WAF On, Off or DetectionOnly (monitor only, logs but never blocks).",
         "body": {
           "status": "On"
         }
@@ -1101,6 +1121,11 @@
         "method": "GET",
         "path": "/api/php/<version>/options",
         "description": "Get PHP option keys + values."
+      },
+      {
+        "method": "GET",
+        "path": "/api/php/<version>/options/recommendations",
+        "description": "Get tuning recommendations for a PHP version's options."
       },
       {
         "method": "PUT",
@@ -1467,6 +1492,11 @@
         "description": "List quarantined files."
       },
       {
+        "method": "GET",
+        "path": "/api/malware-scanner/logs",
+        "description": "List past malware scans."
+      },
+      {
         "method": "POST",
         "path": "/api/malware-scanner/scan",
         "description": "Run ClamAV scan.",
@@ -1503,8 +1533,18 @@
     "endpoints": [
       {
         "method": "GET",
+        "path": "/api/files",
+        "description": "List the docroot root."
+      },
+      {
+        "method": "GET",
         "path": "/api/files/<path>",
         "description": "List a directory."
+      },
+      {
+        "method": "GET",
+        "path": "/api/folders",
+        "description": "List the docroot root's subfolders (for a copy/move destination picker)."
       },
       {
         "method": "GET",
@@ -1636,6 +1676,11 @@
     "endpoints": [
       {
         "method": "GET",
+        "path": "/api/trash",
+        "description": "List trashed items at the trash root."
+      },
+      {
+        "method": "GET",
         "path": "/api/trash/<path>",
         "description": "List trashed items."
       },
@@ -1703,7 +1748,7 @@
       {
         "method": "POST",
         "path": "/api/fix-permissions",
-        "description": "Fix ownership/permissions for a directory (or the whole account).",
+        "description": "Fix ownership and permissions (files 664, folders 775, FTP account folders) for a directory under /var/www/html/, omit directory or pass / to fix the whole account.",
         "body": {
           "directory": "/var/www/html/example.com"
         }
@@ -1796,6 +1841,20 @@
         "path": "/api/sites/<domain>/packages/<install_type>",
         "description": "Re-run the package install (pip/npm/pnpm) for an already-created Node.js/Python app.",
         "params": "install_type: pip, npm, pnpm"
+      },
+      {
+        "method": "POST",
+        "path": "/api/sites/bulk",
+        "description": "Run a bulk action on several sites, only detach is available via the API (update/backup/delete return 501).",
+        "body": {
+          "action": "detach",
+          "sites": [
+            {
+              "id": 42,
+              "site_name": "example.com"
+            }
+          ]
+        }
       }
     ]
   },
@@ -1872,6 +1931,21 @@
           "db_name": "",
           "db_user": "",
           "db_password": ""
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/joomla/clone",
+        "description": "Clone a Joomla site to another domain or subdirectory, blank fields fall back to generated values.",
+        "body": {
+          "source_domain": "example.com",
+          "target_domain": "clone.example.com",
+          "source_db": "joomla_a1b2c3",
+          "source_folder": "",
+          "subdirectory": "",
+          "target_db": "",
+          "target_db_user": "",
+          "target_db_user_password": ""
         }
       },
       {
@@ -2607,7 +2681,10 @@
     "group": "App Installer",
     "feature": [
       "nodejs",
-      "python"
+      "python",
+      "java",
+      "ruby",
+      "n8n"
     ],
     "endpoints": [
       {
@@ -2619,6 +2696,21 @@
         "method": "POST",
         "path": "/api/python/install",
         "description": "Install a new Python app (form-encoded body; response streams newline-delimited JSON progress events)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/java/install",
+        "description": "Install a new Java app (form-encoded body; response streams newline-delimited JSON progress events)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/ruby/install",
+        "description": "Install a new Ruby app (form-encoded body; response streams newline-delimited JSON progress events)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/n8n/install",
+        "description": "Install n8n with its owner account (form-encoded body; response streams newline-delimited JSON progress events)."
       }
     ]
   },
@@ -2647,6 +2739,17 @@
           "git_repo_url": "https://github.com/user/repo.git",
           "app_type": "nodejs"
         }
+      }
+    ]
+  },
+  {
+    "group": "API",
+    "feature": "api",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/endpoints",
+        "description": "List every API route registered on this panel."
       }
     ]
   },

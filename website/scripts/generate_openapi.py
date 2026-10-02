@@ -111,6 +111,25 @@ FILE_RESPONSES = {
     ("POST", "/api/backups/download"): "application/gzip",
 }
 
+# Form fields appinstall.HandleInstall reads, shared by the Node.js/Python/Java/Ruby installers
+APP_INSTALL_FORM = {
+    "type": "object", "properties": {
+        "domain_id": {"type": "string"}, "service_name": {"type": "string"},
+        "startup_file": {"type": "string"}, "cpu_limit": {"type": "string"},
+        "mem_limit": {"type": "string"}, "pids_limit": {"type": "integer"}, "port": {"type": "integer"},
+        "subdirectory": {"type": "string"}, "version": {"type": "string", "default": "latest"},
+        "custom_cmd": {"type": "string"}, "requirements": {"type": "string"},
+        "git_repo_url": {"type": "string", "format": "uri"},
+    }, "required": ["domain_id", "service_name"]}
+
+# n8n always listens on 5678 so port is ignored, and the owner account fields are required
+N8N_INSTALL_FORM = {
+    "type": "object", "properties": {
+        **{k: v for k, v in APP_INSTALL_FORM["properties"].items() if k != "port"},
+        "owner_email": {"type": "string", "format": "email"}, "owner_first_name": {"type": "string"},
+        "owner_last_name": {"type": "string"}, "owner_password": {"type": "string", "minLength": 8, "maxLength": 64},
+    }, "required": ["domain_id", "service_name", "owner_email", "owner_first_name", "owner_last_name", "owner_password"]}
+
 # Multipart/form endpoints, keyed by openapi_path -> (content_type, schema)
 MULTIPART_SCHEMAS = {
     "/api/mysql/databases/{db_name}/import": ("multipart/form-data", {
@@ -129,24 +148,75 @@ MULTIPART_SCHEMAS = {
             "url": {"type": "string", "format": "uri"},
             "path_param": {"type": "string"},
         }, "required": ["url"]}),
-    "/api/nodejs/install": ("application/x-www-form-urlencoded", {
-        "type": "object", "properties": {
-            "domain_id": {"type": "string"}, "service_name": {"type": "string"},
-            "startup_file": {"type": "string"}, "cpu_limit": {"type": "string"},
-            "mem_limit": {"type": "string"}, "port": {"type": "integer"},
-            "subdirectory": {"type": "string"}, "version": {"type": "string", "default": "latest"},
-            "custom_cmd": {"type": "string"}, "requirements": {"type": "string"},
-            "git_repo_url": {"type": "string", "format": "uri"},
-        }, "required": ["domain_id", "service_name"]}),
-    "/api/python/install": ("application/x-www-form-urlencoded", {
-        "type": "object", "properties": {
-            "domain_id": {"type": "string"}, "service_name": {"type": "string"},
-            "startup_file": {"type": "string"}, "cpu_limit": {"type": "string"},
-            "mem_limit": {"type": "string"}, "port": {"type": "integer"},
-            "subdirectory": {"type": "string"}, "version": {"type": "string", "default": "latest"},
-            "custom_cmd": {"type": "string"}, "requirements": {"type": "string"},
-            "git_repo_url": {"type": "string", "format": "uri"},
-        }, "required": ["domain_id", "service_name"]}),
+    "/api/nodejs/install": ("application/x-www-form-urlencoded", APP_INSTALL_FORM),
+    "/api/python/install": ("application/x-www-form-urlencoded", APP_INSTALL_FORM),
+    "/api/java/install": ("application/x-www-form-urlencoded", APP_INSTALL_FORM),
+    "/api/ruby/install": ("application/x-www-form-urlencoded", APP_INSTALL_FORM),
+    "/api/n8n/install": ("application/x-www-form-urlencoded", N8N_INSTALL_FORM),
+}
+
+
+# Per-operation detail api_endpoints.json can't hold, keyed by (method, openapi_path), cross-checked against the Go handlers.
+# Keys: description, operationId (pins a published id), param_types, body_enum, success (200 description), success_schema, errors.
+OPERATION_EXTRAS = {
+    ("POST", "/api/mysql/processlist/{id}/kill"): {
+        "description": "Only entries whose command is Query can be killed. System threads are refused.",
+        "operationId": "mysql_kill_query",
+        "param_types": {"id": "integer"},
+        "success": "Query killed.",
+        "errors": {"400": "Invalid process ID.", "403": "System threads can not be killed.",
+                   "404": "Process not found or no longer running a query."},
+    },
+    ("GET", "/api/mysql/configuration/recommendations"): {
+        "description": "Checks the live server (memory limit, data per storage engine, status counters, connections "
+                       "and error log) and returns suggested values for the configurable keys, with the reason for "
+                       "each and the facts they are based on.",
+        "operationId": "get_mysql_configuration_recommendations",
+        "errors": {"503": "The database service could not be reached."},
+    },
+    ("POST", "/api/postgresql/processlist/{pid}/kill"): {
+        "description": "Only active client backend queries can be cancelled. The connection stays open.",
+        "operationId": "postgresql_kill_query",
+        "param_types": {"pid": "integer"},
+        "success": "Query cancelled.",
+        "errors": {"400": "Invalid process ID.", "403": "Only user queries can be cancelled.",
+                   "404": "Process not found or no longer running a query."},
+    },
+    ("GET", "/api/postgresql/configuration/recommendations"): {
+        "description": "Checks the live server (memory and CPU limits, data size, statistics, connections and log) "
+                       "and returns suggested values for the configurable keys, with the reason for each and the "
+                       "facts they are based on.",
+        "operationId": "get_postgresql_configuration_recommendations",
+        "errors": {"503": "The database service could not be reached."},
+    },
+    ("GET", "/api/php/{version}/options/recommendations"): {
+        "description": "Checks the PHP service (memory limit, workers, log), the domains and WordPress sites using "
+                       "this version and the current options, and returns suggested values with the reason for each.",
+        "operationId": "get_php_options_recommendations",
+        "errors": {"400": "Invalid PHP version.", "404": "PHP version not installed."},
+    },
+    ("GET", "/api/malware-scanner/logs"): {
+        "description": "Scans from the panel, the API and cron, newest first. The last 50 are kept.",
+    },
+    ("GET", "/api/crons/timezone"): {
+        "description": "The time zone the cron service runs schedules in, from its TZ, the server zone when "
+                       "/etc/localtime is mounted, or UTC.",
+        "success_schema": {"type": "object", "properties": {"timezone": {"type": "string", "example": "Europe/Belgrade"}}},
+    },
+    ("PUT", "/api/crons/timezone"): {
+        "description": "Sets TZ on the cron service in docker-compose.yml and recreates the service when a job is enabled.",
+    },
+    ("POST", "/api/waf/{domain}"): {
+        "body_enum": {"status": ["On", "Off", "DetectionOnly"]},
+    },
+    ("POST", "/api/fix-permissions"): {
+        "operationId": "post_fix_permissions",
+    },
+    ("POST", "/api/sites/bulk"): {
+        "body_enum": {"action": ["detach", "update", "backup", "delete"]},
+        "errors": {"400": "Invalid request body or no sites selected.",
+                   "501": "Only the detach action is available via the API."},
+    },
 }
 
 
@@ -193,8 +263,9 @@ def build_spec(same_origin=False):
             if oapi_path not in paths:
                 paths[oapi_path] = OrderedDict()
 
+            extras = OPERATION_EXTRAS.get((e['method'], oapi_path), {})
             slug = slug_for_path(oapi_path)
-            op_id = f"{method}_{slug}" if slug_method_count[slug] > 1 else slug
+            op_id = extras.get("operationId") or (f"{method}_{slug}" if slug_method_count[slug] > 1 else slug)
             base_op_id = op_id
             n = 2
             while op_id in operation_id_used:
@@ -204,6 +275,8 @@ def build_spec(same_origin=False):
 
             operation = OrderedDict()
             operation["summary"] = description
+            if "description" in extras:
+                operation["description"] = extras["description"]
             operation["operationId"] = op_id
             operation["tags"] = [group_name]
 
@@ -211,7 +284,7 @@ def build_spec(same_origin=False):
             for p in path_params(e['path']):
                 parameters.append({
                     "name": p, "in": "path", "required": True,
-                    "schema": {"type": "string"},
+                    "schema": {"type": extras.get("param_types", {}).get(p, "string")},
                 })
             for qp in QUERY_PARAMS.get((e['method'], oapi_path), []):
                 parameters.append({
@@ -228,9 +301,12 @@ def build_spec(same_origin=False):
                     "content": {content_type: {"schema": schema}},
                 }
             elif "body" in e:
+                schema = body_schema(e["body"])
+                for field, values in extras.get("body_enum", {}).items():
+                    schema["properties"][field]["enum"] = values
                 operation["requestBody"] = {
                     "required": True,
-                    "content": {"application/json": {"schema": body_schema(e["body"])}},
+                    "content": {"application/json": {"schema": schema}},
                 }
 
             content_type = FILE_RESPONSES.get((e['method'], oapi_path))
@@ -241,14 +317,15 @@ def build_spec(same_origin=False):
                 }
             else:
                 success_response = {
-                    "description": "Success.",
-                    "content": {"application/json": {"schema": {"type": "object", "additionalProperties": True}}},
+                    "description": extras.get("success", "Success."),
+                    "content": {"application/json": {"schema": extras.get(
+                        "success_schema", {"type": "object", "additionalProperties": True})}},
                 }
 
-            operation["responses"] = OrderedDict([
-                ("200", success_response),
-                ("default", {"$ref": "#/components/responses/Error"}),
-            ])
+            responses = [("200", success_response)]
+            responses += [(code, {"description": desc}) for code, desc in extras.get("errors", {}).items()]
+            responses.append(("default", {"$ref": "#/components/responses/Error"}))
+            operation["responses"] = OrderedDict(responses)
 
             operation["security"] = [{"bearerAuth": []}]
 

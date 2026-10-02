@@ -127,9 +127,12 @@ tags:
 - name: Node.js / Python Apps
   description: Requires the `nodejs or python` feature to be enabled on the account's plan.
 - name: App Installer
-  description: Requires the `nodejs or python` feature to be enabled on the account's plan.
+  description: Requires the `nodejs or python or java or ruby or n8n` feature to be enabled on the account's
+    plan.
 - name: Helpers
   description: Requires the `helpers` feature to be enabled on the account's plan.
+- name: API
+  description: Requires the `api` feature to be enabled on the account's plan.
 - name: Auto Installer
   description: Requires the `autoinstaller` feature to be enabled on the account's plan.
 - name: Dynamic DNS
@@ -639,6 +642,37 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/mysql/processlist/{id}/kill:
+    post:
+      summary: Kill a running MySQL query (KILL QUERY).
+      description: Only entries whose command is Query can be killed. System threads are refused.
+      operationId: mysql_kill_query
+      tags:
+      - MySQL
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Query killed.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: Invalid process ID.
+        '403':
+          description: System threads can not be killed.
+        '404':
+          description: Process not found or no longer running a query.
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/mysql/remote-access:
     get:
       summary: Get remote access status, port, and per-user hosts.
@@ -837,6 +871,29 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/mysql/configuration/recommendations:
+    get:
+      summary: Get tuning recommendations for the MySQL server configuration.
+      description: Checks the live server (memory limit, data per storage engine, status counters, connections
+        and error log) and returns suggested values for the configurable keys, with the reason for each
+        and the facts they are based on.
+      operationId: get_mysql_configuration_recommendations
+      tags:
+      - MySQL
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '503':
+          description: The database service could not be reached.
         default:
           $ref: '#/components/responses/Error'
       security:
@@ -1281,6 +1338,37 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/postgresql/processlist/{pid}/kill:
+    post:
+      summary: Cancel a running PostgreSQL query (pg_cancel_backend).
+      description: Only active client backend queries can be cancelled. The connection stays open.
+      operationId: postgresql_kill_query
+      tags:
+      - PostgreSQL
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Query cancelled.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: Invalid process ID.
+        '403':
+          description: Only user queries can be cancelled.
+        '404':
+          description: Process not found or no longer running a query.
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/postgresql/remote-access:
     get:
       summary: Get remote access status and port.
@@ -1371,6 +1459,29 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/postgresql/configuration/recommendations:
+    get:
+      summary: Get tuning recommendations for the PostgreSQL server configuration.
+      description: Checks the live server (memory and CPU limits, data size, statistics, connections and
+        log) and returns suggested values for the configurable keys, with the reason for each and the
+        facts they are based on.
+      operationId: get_postgresql_configuration_recommendations
+      tags:
+      - PostgreSQL
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '503':
+          description: The database service could not be reached.
         default:
           $ref: '#/components/responses/Error'
       security:
@@ -2163,7 +2274,8 @@ paths:
       security:
       - bearerAuth: []
     post:
-      summary: Create mailbox (optional gb + format for a custom quota).
+      summary: Create mailbox (optional gb + format for a custom quota, send_welcome to drop a mail client
+        setup guide into the new mailbox).
       operationId: post_emails
       tags:
       - Email
@@ -2183,10 +2295,14 @@ paths:
                 password:
                   type: string
                   example: p
+                send_welcome:
+                  type: boolean
+                  example: true
               example:
                 domain: b.com
                 username: a
                 password: p
+                send_welcome: true
       responses:
         '200':
           description: Success.
@@ -3063,7 +3179,7 @@ paths:
       - bearerAuth: []
   /api/crons/raw:
     get:
-      summary: Get the raw crons file.
+      summary: Get raw crontab.
       operationId: get_crons_raw
       tags:
       - Cron Jobs
@@ -3080,7 +3196,7 @@ paths:
       security:
       - bearerAuth: []
     put:
-      summary: Save the raw crons file.
+      summary: Save raw crontab.
       operationId: put_crons_raw
       tags:
       - Cron Jobs
@@ -3110,8 +3226,9 @@ paths:
       - bearerAuth: []
   /api/crons/timezone:
     get:
-      summary: Get the cron time zone.
-      description: The time zone the cron service runs schedules in, from its TZ, the server zone when /etc/localtime is mounted, or UTC.
+      summary: Get the time zone the cron service runs schedules in.
+      description: The time zone the cron service runs schedules in, from its TZ, the server zone when
+        /etc/localtime is mounted, or UTC.
       operationId: get_crons_timezone
       tags:
       - Cron Jobs
@@ -3131,8 +3248,9 @@ paths:
       security:
       - bearerAuth: []
     put:
-      summary: Set the cron time zone.
-      description: Sets TZ on the cron service in docker-compose.yml and recreates the service when a job is enabled.
+      summary: Set the cron time zone and recreate the cron service.
+      description: Sets TZ on the cron service in docker-compose.yml and recreates the service when a
+        job is enabled.
       operationId: put_crons_timezone
       tags:
       - Cron Jobs
@@ -4022,11 +4140,11 @@ paths:
               properties:
                 status:
                   type: string
+                  example: 'On'
                   enum:
                   - 'On'
                   - 'Off'
                   - DetectionOnly
-                  example: 'On'
               example:
                 status: 'On'
       responses:
@@ -4394,6 +4512,36 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/php/{version}/options/recommendations:
+    get:
+      summary: Get tuning recommendations for a PHP version's options.
+      description: Checks the PHP service (memory limit, workers, log), the domains and WordPress sites
+        using this version and the current options, and returns suggested values with the reason for each.
+      operationId: get_php_options_recommendations
+      tags:
+      - PHP
+      parameters:
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: Invalid PHP version.
+        '404':
+          description: PHP version not installed.
         default:
           $ref: '#/components/responses/Error'
       security:
@@ -5602,6 +5750,35 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/files:
+    get:
+      summary: List the docroot root.
+      operationId: files
+      tags:
+      - File Manager
+      parameters:
+      - name: hidden_files
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/files/{path}:
     get:
       summary: List a directory.
@@ -5614,6 +5791,24 @@ paths:
         required: true
         schema:
           type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/folders:
+    get:
+      summary: List the docroot root's subfolders (for a copy/move destination picker).
+      operationId: folders
+      tags:
+      - File Manager
       responses:
         '200':
           description: Success.
@@ -6195,6 +6390,24 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/trash:
+    get:
+      summary: List trashed items at the trash root.
+      operationId: trash
+      tags:
+      - Trash
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/trash/{path}:
     get:
       summary: List trashed items.
@@ -6393,25 +6606,9 @@ paths:
       security:
       - bearerAuth: []
   /api/fix-permissions:
-    get:
-      summary: List directories.
-      operationId: get_fix_permissions
-      tags:
-      - Fix Permissions
-      responses:
-        '200':
-          description: Success.
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: true
-        default:
-          $ref: '#/components/responses/Error'
-      security:
-      - bearerAuth: []
     post:
-      summary: Fix ownership/permissions for a directory (or the whole account).
+      summary: Fix ownership and permissions (files 664, folders 775, FTP account folders) for a directory
+        under /var/www/html/, omit directory or pass / to fix the whole account.
       operationId: post_fix_permissions
       tags:
       - Fix Permissions
@@ -6820,6 +7017,66 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/sites/bulk:
+    post:
+      summary: Run a bulk action on several sites, only detach is available via the API (update/backup/delete
+        return 501).
+      operationId: sites_bulk
+      tags:
+      - Sites & Websites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  example: detach
+                  enum:
+                  - detach
+                  - update
+                  - backup
+                  - delete
+                sites:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 42
+                      site_name:
+                        type: string
+                        example: example.com
+                    example:
+                      id: 42
+                      site_name: example.com
+                  example:
+                  - id: 42
+                    site_name: example.com
+              example:
+                action: detach
+                sites:
+                - id: 42
+                  site_name: example.com
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: Invalid request body or no sites selected.
+        '501':
+          description: Only the detach action is available via the API.
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/drupal/install:
     post:
       summary: Install Drupal on a domain via `composer create-project drupal/recommended-project` + `drush
@@ -7087,6 +7344,65 @@ paths:
                 db_name: ''
                 db_user: ''
                 db_password: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/joomla/clone:
+    post:
+      summary: Clone a Joomla site to another domain or subdirectory, blank fields fall back to generated
+        values.
+      operationId: joomla_clone
+      tags:
+      - Joomla
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source_domain:
+                  type: string
+                  example: example.com
+                target_domain:
+                  type: string
+                  example: clone.example.com
+                source_db:
+                  type: string
+                  example: joomla_a1b2c3
+                source_folder:
+                  type: string
+                  example: ''
+                subdirectory:
+                  type: string
+                  example: ''
+                target_db:
+                  type: string
+                  example: ''
+                target_db_user:
+                  type: string
+                  example: ''
+                target_db_user_password:
+                  type: string
+                  example: ''
+              example:
+                source_domain: example.com
+                target_domain: clone.example.com
+                source_db: joomla_a1b2c3
+                source_folder: ''
+                subdirectory: ''
+                target_db: ''
+                target_db_user: ''
+                target_db_user_password: ''
       responses:
         '200':
           description: Success.
@@ -9892,6 +10208,8 @@ paths:
                   type: string
                 mem_limit:
                   type: string
+                pids_limit:
+                  type: integer
                 port:
                   type: integer
                 subdirectory:
@@ -9945,6 +10263,8 @@ paths:
                   type: string
                 mem_limit:
                   type: string
+                pids_limit:
+                  type: integer
                 port:
                   type: integer
                 subdirectory:
@@ -9962,6 +10282,184 @@ paths:
               required:
               - domain_id
               - service_name
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/java/install:
+    post:
+      summary: Install a new Java app (form-encoded body; response streams newline-delimited JSON progress
+        events).
+      operationId: java_install
+      tags:
+      - App Installer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                service_name:
+                  type: string
+                startup_file:
+                  type: string
+                cpu_limit:
+                  type: string
+                mem_limit:
+                  type: string
+                pids_limit:
+                  type: integer
+                port:
+                  type: integer
+                subdirectory:
+                  type: string
+                version:
+                  type: string
+                  default: latest
+                custom_cmd:
+                  type: string
+                requirements:
+                  type: string
+                git_repo_url:
+                  type: string
+                  format: uri
+              required:
+              - domain_id
+              - service_name
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/ruby/install:
+    post:
+      summary: Install a new Ruby app (form-encoded body; response streams newline-delimited JSON progress
+        events).
+      operationId: ruby_install
+      tags:
+      - App Installer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                service_name:
+                  type: string
+                startup_file:
+                  type: string
+                cpu_limit:
+                  type: string
+                mem_limit:
+                  type: string
+                pids_limit:
+                  type: integer
+                port:
+                  type: integer
+                subdirectory:
+                  type: string
+                version:
+                  type: string
+                  default: latest
+                custom_cmd:
+                  type: string
+                requirements:
+                  type: string
+                git_repo_url:
+                  type: string
+                  format: uri
+              required:
+              - domain_id
+              - service_name
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/n8n/install:
+    post:
+      summary: Install n8n with its owner account (form-encoded body; response streams newline-delimited
+        JSON progress events).
+      operationId: n8n_install
+      tags:
+      - App Installer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                domain_id:
+                  type: string
+                service_name:
+                  type: string
+                startup_file:
+                  type: string
+                cpu_limit:
+                  type: string
+                mem_limit:
+                  type: string
+                pids_limit:
+                  type: integer
+                subdirectory:
+                  type: string
+                version:
+                  type: string
+                  default: latest
+                custom_cmd:
+                  type: string
+                requirements:
+                  type: string
+                git_repo_url:
+                  type: string
+                  format: uri
+                owner_email:
+                  type: string
+                  format: email
+                owner_first_name:
+                  type: string
+                owner_last_name:
+                  type: string
+                owner_password:
+                  type: string
+                  minLength: 8
+                  maxLength: 64
+              required:
+              - domain_id
+              - service_name
+              - owner_email
+              - owner_first_name
+              - owner_last_name
+              - owner_password
       responses:
         '200':
           description: Success.
@@ -10050,6 +10548,24 @@ paths:
               example:
                 git_repo_url: https://github.com/user/repo.git
                 app_type: nodejs
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/endpoints:
+    get:
+      summary: List every API route registered on this panel.
+      operationId: endpoints
+      tags:
+      - API
       responses:
         '200':
           description: Success.
