@@ -323,6 +323,9 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 	wizardResult, wizardErr := runMatomoInstallWizard(ctx, matomoWizardParams{
 		SiteURL:       "https://" + selectedDomain + "/",
+		UserContext:   userContext,
+		PHPContainer:  phpContainer,
+		WebServer:     webServer,
 		DBHost:        mysql.AppDBHost(userContext, mysqlVersion),
 		DBName:        dbName,
 		DBUser:        dbUser,

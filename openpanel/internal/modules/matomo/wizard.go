@@ -2,20 +2,23 @@ package matomo
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
-	"net/http/cookiejar"
 	"net/url"
 	"regexp"
 	"strings"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/sitedial"
 )
 
 // matomoWizardParams is everything runMatomoInstallWizard needs to drive Matomo's browser installation wizard end to end
 type matomoWizardParams struct {
-	SiteURL       string // e.g. "https://example.com/matomo/" - must already resolve to the freshly-extracted docroot
+	SiteURL       string // e.g. "https://example.com/matomo/", reached through the user's webserver so the domain doesn't need to be pointed yet
+	UserContext   string
+	PHPContainer  string
+	WebServer     string
 	DBHost        string // podman network hostname of the MySQL/MariaDB container, e.g. "mariadb"
 	DBName        string
 	DBUser        string
@@ -29,14 +32,8 @@ type matomoWizardParams struct {
 
 // runMatomoInstallWizard drives plugins/Installation/Controller.php's step sequence (databaseSetup -> tablesCreation -> setupSuperUser -> firstWebsiteSetup -> finished) as a plain HTTP request sequence, field-for-field matched against that controller/its Form classes' source - Matomo ships no non-interactive CLI installer, so this is the only mechanism that reaches a fully installed, ready-to-log-into state without reimplementing Matomo's internal DB-schema/superuser-creation logic by hand
 func runMatomoInstallWizard(ctx context.Context, p matomoWizardParams) (string, error) {
-	jar, _ := cookiejar.New(nil)
-	client := &http.Client{
-		Jar:     jar,
-		Timeout: 90 * time.Second,
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
-	}
+	client := sitedial.NewClient(p.UserContext, p.PHPContainer, p.WebServer, 90*time.Second)
+	defer client.CloseIdleConnections()
 
 	base := strings.TrimSuffix(p.SiteURL, "/")
 
