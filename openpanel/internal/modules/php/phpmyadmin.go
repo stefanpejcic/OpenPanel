@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -91,43 +92,27 @@ func ensureUserToken(ctx context.Context, a *appctx.App, userContext string) (st
 	return token, nil
 }
 
-// pmaProbeClient never follows redirects itself - probePHPMyAdminToken needs to inspect the FIRST redirect's Location header (?server=N vs ?invalid), not whatever page that target eventually renders
-var pmaProbeClient = &http.Client{
-	Timeout: 5 * time.Second,
-	CheckRedirect: func(req *http.Request, via []*http.Request) error {
-		return http.ErrUseLastResponse
-	},
-}
+// mysqld creates its socket a few seconds after compose up returns and pma.php rejects the login until it exists
+const pmaSocketWait = 30 * time.Second
 
-// probePHPMyAdminToken issues the exact request the browser is about to make and reports whether pma.php accepted the token (redirected to ?server=N) rather than rejecting it (?invalid or anything else)
-func probePHPMyAdminToken(ctx context.Context, phpmyadminURL string) bool {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, phpmyadminURL, nil)
-	if err != nil {
-		return false
-	}
-	resp, err := pmaProbeClient.Do(req)
-	if err != nil {
-		return false
-	}
-	defer resp.Body.Close()
-	location := resp.Header.Get("Location")
-	return resp.StatusCode == http.StatusFound && strings.Contains(location, "server=") && !strings.Contains(location, "invalid")
-}
-
-// pmaProbeRetries/pmaProbeRetryDelay bound how long a failed autologin attempt is retried server-side before giving up and redirecting anyway - sized for a "cold" phpMyAdmin/MySQL socket, which can take multiple seconds to settle
-const (
-	pmaProbeRetries    = 15
-	pmaProbeRetryDelay = 300 * time.Millisecond
-)
-
-func probePHPMyAdminTokenWithRetry(ctx context.Context, phpmyadminURL string) bool {
-	for attempt := 0; attempt < pmaProbeRetries; attempt++ {
-		if probePHPMyAdminToken(ctx, phpmyadminURL) {
+func waitForMySQLSocket(ctx context.Context, userContext string) bool {
+	sock := "/home/" + userContext + "/sockets/mysqld/mysqld.sock"
+	deadline := time.Now().Add(pmaSocketWait)
+	for {
+		conn, err := net.DialTimeout("unix", sock, time.Second)
+		if err == nil {
+			conn.Close()
 			return true
 		}
-		time.Sleep(pmaProbeRetryDelay)
+		// socket is there but we can't connect as this uid, pma.php only checks it exists anyway
+		if errors.Is(err, os.ErrPermission) {
+			return true
+		}
+		if time.Now().After(deadline) || ctx.Err() != nil {
+			return false
+		}
+		time.Sleep(200 * time.Millisecond)
 	}
-	return false
 }
 
 func isPMAContainerRunning(ctx context.Context) bool {
@@ -141,30 +126,30 @@ func isPMAContainerRunning(ctx context.Context) bool {
 // errPMAUnavailable means the shared phpMyAdmin container isn't running
 var errPMAUnavailable = errors.New("phpMyAdmin is not running")
 
-// buildPHPMyAdminAutologinURL mints (or reuses) an autologin token and returns the pma.php URL for it, probing the token server-side first so the caller isn't handed a dead end
+// buildPHPMyAdminAutologinURL mints (or reuses) an autologin token and returns the pma.php URL for it once the user's mysql socket is up
 func buildPHPMyAdminAutologinURL(ctx context.Context, a *appctx.App, currentUsername, userContext, db string) (string, string, error) {
+	start := time.Now()
 	if !isPMAContainerRunning(ctx) {
 		return "", "", errPMAUnavailable
 	}
 
 	docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
+	if !waitForMySQLSocket(ctx, userContext) {
+		log.Printf("PHPMYADMIN - DEBUG - mysql socket not ready for context=%s after %s, returning url anyway", userContext, pmaSocketWait)
+	}
 
 	token, err := ensureUserToken(ctx, a, userContext)
 	if err != nil {
 		log.Printf("PHPMYADMIN - DEBUG - ensureUserToken failed for context=%s: %v", userContext, err)
 		return "", "", err
 	}
-	log.Printf("PHPMYADMIN - DEBUG - wrote token for context=%s", userContext)
+	log.Printf("PHPMYADMIN - DEBUG - wrote token for context=%s in %s", userContext, time.Since(start))
 
 	phpmyadminURL := getPMABaseURL(ctx, a, currentUsername) + "/pma.php?user=" + userContext + "&token=" + token
 	if db != "" {
 		phpmyadminURL += "&db=" + url.QueryEscape(db)
 	}
 
-	// pma.php's token check has been observed to intermittently fail on the very next read due to a cross-container read race over the bind-mounted token file - since the check is a plain re-readable file compare (not one-time-use), probing the exact redirect URL first lets us retry past the race
-	if ok := probePHPMyAdminTokenWithRetry(ctx, phpmyadminURL); !ok {
-		log.Printf("PHPMYADMIN - DEBUG - token probe kept failing for context=%s after retries, returning url anyway (best effort)", userContext)
-	}
 	return phpmyadminURL, token, nil
 }
 
