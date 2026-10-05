@@ -315,7 +315,7 @@ func profilesFromRequest(r *http.Request) []string {
 func handleWAFProfiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domain := firstPathSegment(r.PathValue("domain"))
 	userID, _ := auth.UserID(r)
-	username, err := injected(a, r)
+	_, username, _, err := auth.Injected(a, r)
 	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, web.Tr(a, r, "internal error"))
 		return
@@ -355,5 +355,5 @@ func handleWAFProfiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if active == nil {
 		active = []string{}
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"domain": domain, "profiles": active, "level": level})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"domain": domain, "profiles": active, "level": level})
 }

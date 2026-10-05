@@ -1,17 +1,21 @@
 package phpapp
 
-import "testing"
+import (
+	"testing"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
+)
 
 func TestIsValidSubdirectory(t *testing.T) {
 	valid := []string{"", "blog", "app/sub"}
 	invalid := []string{"../etc", "/absolute", "a/../b"}
 	for _, s := range valid {
-		if !isValidSubdirectory(s) {
+		if !cmsapp.IsValidSubdirectory(s) {
 			t.Errorf("expected %q to be a valid subdirectory", s)
 		}
 	}
 	for _, s := range invalid {
-		if isValidSubdirectory(s) {
+		if cmsapp.IsValidSubdirectory(s) {
 			t.Errorf("expected %q to be an invalid subdirectory", s)
 		}
 	}

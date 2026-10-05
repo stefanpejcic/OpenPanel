@@ -7,12 +7,14 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/waf"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // this file adds a universal "scan for existing installations" + "detach" feature covering every CMS type this panel can install, living in the websites package (which already owns /sites) rather than as per-CMS routes since scan/detach just need filesystem detection + a DB row
@@ -71,14 +73,14 @@ func (o *scanOutcome) writeSummary(w http.ResponseWriter) {
 // handleSitesDetach is the universal counterpart to every per-CMS handleRemoveX: removes only the sites row, no file/DB deletion, so a scan can later re-import the still-live installation - works identically regardless of the site's type.
 func handleSitesDetach(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	id := r.FormValue("id")
 	if id == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing site ID."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing site ID."})
 		return
 	}
 
@@ -90,7 +92,7 @@ func handleSitesDetach(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		WHERE sites.id = ?
 		LIMIT 1`, id)
 	if scanErr := row.Scan(&siteName); scanErr != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "No data found for the provided site ID"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "No data found for the provided site ID"})
 		return
 	}
 
@@ -101,7 +103,7 @@ func handleSitesDetach(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, delErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE id = ?", id); delErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "An error occurred during detachment. Please try again."})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "An error occurred during detachment. Please try again."})
 		return
 	}
 
@@ -115,7 +117,7 @@ func handleSitesDetach(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // handleSitesScan is the universal counterpart to every per-CMS handleScanX: walks the current user's html_data volume once per CMS type they're allowed to use, detecting/repairing/importing anything found and not already tracked.
 func handleSitesScan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

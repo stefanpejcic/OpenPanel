@@ -18,6 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dns"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI wires the domains REST endpoints onto mux - since Go's ServeMux requires a "{...}" wildcard to be the final segment, each verb gets one "{rest...}" catch-all and the dispatch funcs below strip the known suffix by hand, while apiregistry.Add still records each logical route separately for /api/endpoints
@@ -283,7 +284,7 @@ func apiDomainsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
 	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	domainsLimit := atoiDefault(plan.DomainsLimit, 0)
+	domainsLimit := web.AtoiDefault(plan.DomainsLimit, 0)
 	if domainsLimit != 0 {
 		existing, _ := a.AllDomainsForUser(ctx, userID)
 		urls := make([]appctx.Domain, len(existing))
@@ -1211,8 +1212,8 @@ func apiDomainsLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page := atoiDefault(r.URL.Query().Get("page"), 1)
-	itemsPerPage := atoiDefault(a.Config.Get("domain_log_per_page", "1000"), 1000)
+	page := web.AtoiDefault(r.URL.Query().Get("page"), 1)
+	itemsPerPage := web.AtoiDefault(a.Config.Get("domain_log_per_page", "1000"), 1000)
 	showAll := r.URL.Query().Get("show_all") == "true"
 
 	content, readErr := os.ReadFile(logPath)

@@ -7,10 +7,12 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // defaultConfKeys is the built-in set of postgresql.conf keys exposed for editing when no admin-provided keys file exists
@@ -128,7 +130,7 @@ func updatePostgresConfigFile(userContext string, newConfig map[string]string, k
 // handleEditPostgresConfig saves the submitted config values and restarts the postgres container to apply them, then renders the current config
 func handleEditPostgresConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -146,15 +148,15 @@ func handleEditPostgresConfig(a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 		argv := podmanmanager.PodmanArgv(userContext, "restart", "postgres")
 		if runErr := podmanmanager.Command(ctx, userContext, argv).Run(); runErr != nil {
-			flashSess(a, w, r, "error", "PostgreSQL configuration was saved successfully but postgres service failed to start! Please revert the changes to restart postgres.")
+			web.Flash(a, w, r, "error", "PostgreSQL configuration was saved successfully but postgres service failed to start! Please revert the changes to restart postgres.")
 		} else {
-			flashSess(a, w, r, "success", "PostgreSQL Configuration was edited successfully and service restarted to apply new settings.")
+			web.Flash(a, w, r, "success", "PostgreSQL Configuration was edited successfully and service restarted to apply new settings.")
 		}
 	}
 
 	var currentConfig map[string]string
 	if !docker.IsServiceRunning(ctx, userContext, "postgres") {
-		flashSess(a, w, r, "warning", "postgres container is not running. Please allow a few moments for initialization..")
+		web.Flash(a, w, r, "warning", "postgres container is not running. Please allow a few moments for initialization..")
 		docker.StartComposeServiceIfNotRunning(ctx, userContext, "postgres")
 		currentConfig = map[string]string{}
 	} else {
@@ -167,7 +169,7 @@ func handleEditPostgresConfig(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{"current_config": currentConfig, "default_keys": availableConfKeys})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"current_config": currentConfig, "default_keys": availableConfKeys})
 		return
 	}
 

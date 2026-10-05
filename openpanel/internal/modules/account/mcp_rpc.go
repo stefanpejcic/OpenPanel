@@ -17,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apidocs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // This file implements the /mcp JSON-RPC endpoint (initialize, tools/list, tools/call). One tool is generated per documented /api/ route+method (apidocs.EndpointsJSON), and calling a tool just replays the equivalent HTTP request through the app's own mux, forwarding the caller's Authorization header - no business logic gets duplicated here.
@@ -278,7 +279,7 @@ type mcpRateLimiter struct {
 }
 
 func newMCPRateLimiter(a *appctx.App) *mcpRateLimiter {
-	limit := atoiDefault(a.Config.Get("mcp_ratelimit", ""), 60)
+	limit := web.AtoiDefault(a.Config.Get("mcp_ratelimit", ""), 60)
 	if limit <= 0 {
 		limit = 60
 	}

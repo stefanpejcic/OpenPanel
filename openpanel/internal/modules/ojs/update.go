@@ -9,17 +9,21 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleOJSUpdate extracts the new version into a fresh sibling directory, copies the old config.inc.php across unmodified, atomically repoints the docroot symlink, then runs tools/upgrade.php upgrade - on failure the symlink is pointed back at the untouched old tree so a bad upgrade never leaves the site down
 func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -27,7 +31,7 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/x-ndjson")
 	flusher, canFlush := w.(http.Flusher)
-	emit := func(v map[string]any) { writeNDJSON(w, flusher, canFlush, v) }
+	emit := func(v map[string]any) { web.WriteNDJSON(w, flusher, canFlush, v) }
 
 	selectedDomain := r.URL.Query().Get("domain")
 	if selectedDomain == "" {
@@ -44,11 +48,11 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
-	if err := createLockFile(currentUsername); err != nil {
+	if err := appkit.CreateLockFile(currentUsername); err != nil {
 		emit(map[string]any{"error": "Error creating lock file: " + err.Error()})
 		return
 	}
-	defer removeLockFile(currentUsername)
+	defer appkit.RemoveLockFile(currentUsername)
 
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	isLitespeed := strings.Contains(strings.ToLower(webServer), "litespeed")
@@ -59,7 +63,7 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	emit(map[string]any{"status": "Starting PHP container: " + phpContainer})
-	if !ensureContainerRunning(ctx, userContext, phpContainer) {
+	if !cmsapp.EnsureContainerRunning(ctx, userContext, phpContainer) {
 		emit(map[string]any{"error": "PHP container failed to start. Please check it from Services."})
 		return
 	}
@@ -82,7 +86,7 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		dotted = resolved.Dotted
 	}
 
-	slug := siteSlug(selectedDomain)
+	slug := appkit.SiteSlug(selectedDomain)
 	htmlVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
 	approotHostPath := filepath.Join(htmlVolume, slug+"_ojsapp")
 	newApprootHostPath := approotHostPath + ".new"
@@ -186,7 +190,7 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // resolveOJSDocrootSymlink returns the host-side path of the domain's docroot symlink, derived the same way install.go does, since update.go's route only carries ?domain=, not ?docroot=
 func resolveOJSDocrootSymlink(userContext, selectedDomain string) (string, error) {
-	slug := siteSlug(selectedDomain)
+	slug := appkit.SiteSlug(selectedDomain)
 	approotContainerPath := "/var/www/html/" + slug + "_ojsapp"
 	htmlVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
 

@@ -6,10 +6,13 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var maintenancePrefixRE = regexp.MustCompile(`DB_PREFIX'\s*,\s*'([^']*)'`)
@@ -17,28 +20,28 @@ var maintenancePrefixRE = regexp.MustCompile(`DB_PREFIX'\s*,\s*'([^']*)'`)
 // handleOpenCartMaintenance reads (GET) or toggles (POST) the config_maintenance flag in {prefix}setting, the same one OpenCart's admin Design settings page writes - mirrors prestashop/maintenance.go's DB-flag approach since OpenCart has no CLI tool like drush/occ
 func handleOpenCartMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
-	domain, docroot, phpContainer, ok := openCartRequestParams(ctx, a, r, userID, userContext)
+	domain, docroot, phpContainer, ok := cmsapp.RequestParams(ctx, a, r, userID, userContext)
 	if !ok {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required, or you do not own this domain"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required, or you do not own this domain"})
 		return
 	}
 
 	catArgv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "cat", docroot+"/config.php")
 	content, catErr := podmanmanager.Command(ctx, userContext, catArgv).CombinedOutput()
 	if catErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to read config.php"})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to read config.php"})
 		return
 	}
 	nameMatch := removeDBNameRE.FindStringSubmatch(string(content))
 	prefixMatch := maintenancePrefixRE.FindStringSubmatch(string(content))
 	if nameMatch == nil || prefixMatch == nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Database name or prefix not found in config.php"})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Database name or prefix not found in config.php"})
 		return
 	}
 	dbName, prefix := nameMatch[1], prefixMatch[1]
@@ -47,16 +50,16 @@ func handleOpenCartMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Req
 		rows, queryErr := mysqlmanager.Exec(ctx, userContext,
 			"SELECT `value` FROM `"+prefix+"setting` WHERE `key` = 'config_maintenance' AND store_id = 0 LIMIT 1", dbName)
 		status := "disabled"
-		if queryErr == nil && len(rows) > 0 && toStringCell(rows[0][0]) == "1" {
+		if queryErr == nil && len(rows) > 0 && mysqlmanager.ToString(rows[0][0]) == "1" {
 			status = "enabled"
 		}
-		writeJSON(w, http.StatusOK, map[string]string{"status": status})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"status": status})
 		return
 	}
 
 	action := strings.ToLower(r.FormValue("action"))
 	if action != "enable" && action != "disable" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "action must be 'enable' or 'disable'"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "action must be 'enable' or 'disable'"})
 		return
 	}
 	value := "0"
@@ -74,7 +77,7 @@ func handleOpenCartMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Req
 			"INSERT INTO `"+prefix+"setting` (store_id, code, `key`, `value`, serialized) VALUES (0, 'config', 'config_maintenance', '"+value+"', 0)", dbName)
 	}
 	if execErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Updating config_maintenance failed", "details": execErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Updating config_maintenance failed", "details": execErr.Error()})
 		return
 	}
 
@@ -83,5 +86,5 @@ func handleOpenCartMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Req
 		status = "enabled"
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, action+"d OpenCart maintenance mode for "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Maintenance mode " + action + "d successfully.", "status": status})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Maintenance mode " + action + "d successfully.", "status": status})
 }

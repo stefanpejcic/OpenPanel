@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterVarnishAPI wires the varnish JSON API routes onto mux.
@@ -66,7 +67,7 @@ func apiVarnishStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if status.State == "running" {
 		actions = []string{"disable", "domain"}
 	}
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"service": "varnish", "container_state": status.State, "health_status": status.Health,
 		"actions": actions, "domain_statuses": varnishDomainStatuses(a, r, userID),
 	})
@@ -96,13 +97,13 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	case "restart":
 		docker.ComposeContainer(ctx, userContext, "varnish", "restart")
 		_ = logger.RecordUserAction(a.Config, currentUsername, "restarted service varnish", ip)
-		writeJSON(w, http.StatusOK, map[string]string{"message": "varnish restarted"})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"message": "varnish restarted"})
 		return
 
 	case "enable":
 		webserver, _ := docker.GetEnvValue(userContext, "WEB_SERVER")
 		if docker.IsServiceRunning(ctx, userContext, "varnish") {
-			writeJSON(w, http.StatusOK, map[string]string{"message": "Varnish is already running"})
+			web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Varnish is already running"})
 			return
 		}
 		_ = docker.ToggleProxyHTTPPort(userContext, "on")
@@ -115,7 +116,7 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			_ = docker.SwapAllWebserversComposePort(userContext, "off")
 			restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
 			_ = docker.ToggleProxyHTTPPort(userContext, "off")
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start " + webserver + ": could not bring it back up with the Varnish proxy port"})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start " + webserver + ": could not bring it back up with the Varnish proxy port"})
 			return
 		}
 
@@ -125,17 +126,17 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			_ = docker.SwapAllWebserversComposePort(userContext, "off")
 			restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
 			_ = docker.ToggleProxyHTTPPort(userContext, "off")
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start varnish: " + result.Message})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start varnish: " + result.Message})
 			return
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "enabled Varnish", ip)
-		writeJSON(w, http.StatusOK, map[string]string{"message": "Varnish enabled"})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Varnish enabled"})
 		return
 
 	case "disable":
 		webserver, _ := docker.GetEnvValue(userContext, "WEB_SERVER")
 		if !docker.IsServiceRunning(ctx, userContext, "varnish") {
-			writeJSON(w, http.StatusOK, map[string]string{"message": "Varnish is not running"})
+			web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Varnish is not running"})
 			return
 		}
 		_ = docker.ToggleProxyHTTPPort(userContext, "off")
@@ -146,21 +147,21 @@ func apiVarnishAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		result := restartWebserverAfterVarnishToggle(opCtx, userContext, webserver)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "disabled Varnish", ip)
 		if !result.Success {
-			writeJSON(w, http.StatusMultiStatus, map[string]string{"warning": "Varnish disabled but failed to restart " + webserver + ": " + result.Message})
+			web.WriteJSON(w, http.StatusMultiStatus, map[string]string{"warning": "Varnish disabled but failed to restart " + webserver + ": " + result.Message})
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]string{"message": "Varnish disabled"})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Varnish disabled"})
 		return
 
 	default:
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action. Valid: enable, disable, restart"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action. Valid: enable, disable, restart"})
 	}
 }
 
 // apiVarnishDomainsList returns every domain's varnish on/off status
 func apiVarnishDomainsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
-	writeJSON(w, http.StatusOK, map[string]any{"domain_statuses": varnishDomainStatuses(a, r, userID)})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"domain_statuses": varnishDomainStatuses(a, r, userID)})
 }
 
 // apiVarnishDomainToggle turns varnish caching on or off for one domain
@@ -170,7 +171,7 @@ func apiVarnishDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	domain := r.PathValue("domain")
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 
@@ -186,7 +187,7 @@ func apiVarnishDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	status := strings.TrimSpace(body.Status)
 	if status != "On" && status != "Off" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "status must be On or Off"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "status must be On or Off"})
 		return
 	}
 
@@ -196,5 +197,5 @@ func apiVarnishDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 	_ = exec.CommandContext(ctx, "opencli", "domains-varnish", domain, what).Run()
 	_ = logger.RecordUserAction(a.Config, currentUsername, verb+" Varnish for "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"domain": domain, "varnish": status})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"domain": domain, "varnish": status})
 }

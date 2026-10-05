@@ -11,10 +11,9 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var ruleIDRE = regexp.MustCompile(`^\d+$`)
@@ -34,22 +33,11 @@ func filterOut(items []string, exclude string) []string {
 	return out
 }
 
-func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-}
-
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	flashSess(a, w, r, category, message)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
 func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domainName := firstPathSegment(r.PathValue("domain"))
 
 	userID, _ := auth.UserID(r)
-	username, err := injected(a, r)
+	_, username, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -70,7 +58,7 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		for _, rule := range removedRules {
 			if !ruleIDRE.MatchString(rule) {
-				flashAndRedirect(a, w, r, "error", "Error: IDs should only contain numbers separated by spaces.", "/server/waf/"+domainName)
+				web.FlashRedirect(a, w, r, "error", "Error: IDs should only contain numbers separated by spaces.", "/server/waf/"+domainName)
 				return
 			}
 		}
@@ -84,18 +72,18 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			if writeErr := os.WriteFile(configFilePath, []byte(newContent), 0o644); writeErr == nil {
 				if reloadErr := reloadCaddy(r.Context()); reloadErr == nil {
 					_ = logger.RecordUserAction(a.Config, username, "updated WAF rules for domain "+domainName, reqip.ClientIP(r))
-					flashSess(a, w, r, "success", "WAF configuration updated.")
+					web.Flash(a, w, r, "success", "WAF configuration updated.")
 				} else {
 					log.Printf("WAF - Error occurred during updating WAF settings: %v", reloadErr)
-					flashSess(a, w, r, "error", "Error updating WAF!")
+					web.Flash(a, w, r, "error", "Error updating WAF!")
 				}
 			} else {
 				log.Printf("WAF - Error occurred during updating WAF settings: %v", writeErr)
-				flashSess(a, w, r, "error", "Error updating WAF!")
+				web.Flash(a, w, r, "error", "Error updating WAF!")
 			}
 		} else {
 			log.Printf("WAF - Configuration file: %s does not exist.", configFilePath)
-			flashSess(a, w, r, "error", "Configuration file not found.")
+			web.Flash(a, w, r, "error", "Configuration file not found.")
 		}
 	}
 
@@ -116,7 +104,7 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	detected := detectProfiles(r.Context(), a, domainName)
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"domain": domainName, "status": status, "removed_rules": removedRules, "removed_tags": removedTags,
 			"profiles": activeProfiles, "detected_profiles": detected, "level": level,
 		})

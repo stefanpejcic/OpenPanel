@@ -16,6 +16,7 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
 const (
@@ -91,7 +92,7 @@ func TriggerScreenshotGeneration(a *appctx.App, domain string) {
 // handleScreenshot: GET serves the cached screenshot (generating it first on a cache miss), POST always regenerates it - the screenshot partial's refresh button POSTs then re-fetches the GET URL with a cache-busting query string.
 func handleScreenshot(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, _, _, err := injected(a, r)
+	userID, _, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

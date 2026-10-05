@@ -44,14 +44,14 @@ func handleDeleteRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 	if redirectURL == "" {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Domain %(domain_url)s does not have a redirect URL configured.", "domain_url", domainURL), "/domains")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Domain %(domain_url)s does not have a redirect URL configured.", "domain_url", domainURL), "/domains")
 		return
 	}
 
 	var ownerUserID int
 	var actualDomainURL string
 	if scanErr := a.DB.QueryRowContext(ctx, "SELECT user_id, domain_url FROM domains WHERE domain_url = ?", domainURL).Scan(&ownerUserID, &actualDomainURL); scanErr != nil || ownerUserID != userID {
-		flashAndRedirect(a, w, r, "error", "Unauthorized", "/domains")
+		web.FlashRedirect(a, w, r, "error", "Unauthorized", "/domains")
 		return
 	}
 	domainURL = actualDomainURL
@@ -59,7 +59,7 @@ func handleDeleteRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	path := domainConfPath(domainURL)
 	content, readErr := readTextFile(path)
 	if readErr != nil {
-		flashAndRedirect(a, w, r, "error", readErr.Error(), "/domains")
+		web.FlashRedirect(a, w, r, "error", readErr.Error(), "/domains")
 		return
 	}
 
@@ -67,13 +67,13 @@ func handleDeleteRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	newContent := strings.ReplaceAll(content, redirectLine, "")
 
 	if writeErr := writeTextFile(path, newContent); writeErr != nil {
-		flashAndRedirect(a, w, r, "error", writeErr.Error(), "/domains")
+		web.FlashRedirect(a, w, r, "error", writeErr.Error(), "/domains")
 		return
 	}
 
 	reloadCaddyWebserver(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted the redirect link "+redirectURL+" for domain "+domainURL, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Successfully deleted the redirect link %(redirect_url)s for domain %(domain_url)s", "redirect_url", redirectURL, "domain_url", domainURL), "/domains")
+	web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Successfully deleted the redirect link %(redirect_url)s for domain %(domain_url)s", "redirect_url", redirectURL, "domain_url", domainURL), "/domains")
 }
 
 // handleSetRedirect sets or replaces a domain's redirect rule.
@@ -92,7 +92,7 @@ func handleSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		redirectURL := r.Form.Get("redirect_url")
 
 		if domainURL == "" {
-			flashAndRedirect(a, w, r, "error", "Domain name not provided.", "/domains")
+			web.FlashRedirect(a, w, r, "error", "Domain name not provided.", "/domains")
 			return
 		}
 		if !a.CheckDomainBelongsToUser(ctx, userID, domainURL) {
@@ -100,7 +100,7 @@ func handleSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if !httpURLRE.MatchString(redirectURL) {
-			flashAndRedirect(a, w, r, "error", "Invalid URL. Please provide a URL with 'http://' or 'https://' prefix.", "/domains")
+			web.FlashRedirect(a, w, r, "error", "Invalid URL. Please provide a URL with 'http://' or 'https://' prefix.", "/domains")
 			return
 		}
 
@@ -119,7 +119,7 @@ func handleSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		reloadCaddyWebserver(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a redirect link "+redirectURL+" for domain "+domainURL, reqip.ClientIP(r))
-		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Successfully created redirect from domain %(domain_url)s to %(redirect_url)s", "domain_url", domainURL, "redirect_url", redirectURL), "/domains")
+		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Successfully created redirect from domain %(domain_url)s to %(redirect_url)s", "domain_url", domainURL, "redirect_url", redirectURL), "/domains")
 		return
 	}
 

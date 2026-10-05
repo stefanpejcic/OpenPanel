@@ -7,6 +7,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI wires the /api/backups/* routes onto mux. Every handler below delegates to the existing UI handler rather than reimplementing its logic: a cloned request gets an "output=json" query param (so the handler's own branch returns JSON) and, where it reads a POST form, Form/PostForm pre-populated from the API's JSON body, so the same code path runs unchanged.
@@ -46,22 +47,13 @@ func withJSONOutput(r *http.Request) *http.Request {
 	return clone
 }
 
-// withForm clones r as a POST carrying values as both Form and PostForm, so a UI handler's own ParseForm call (a no-op once r.Form is already set) sees exactly the fields the API's JSON body supplied
-func withForm(r *http.Request, values url.Values) *http.Request {
-	clone := r.Clone(r.Context())
-	clone.Method = http.MethodPost
-	clone.Form = values
-	clone.PostForm = values
-	return clone
-}
-
 func decodeJSONBody(r *http.Request, v any) error {
 	defer r.Body.Close()
 	return json.NewDecoder(r.Body).Decode(v)
 }
 
 func writeAPIError(w http.ResponseWriter, status int, msg string) {
-	writeJSON(w, status, map[string]string{"error": msg})
+	web.WriteJSON(w, status, map[string]string{"error": msg})
 }
 
 // apiUpdateBackupSettings translates the API's JSON body into the values[KEY]/settings[KEY] form fields handleBackupSettings expects from the UI's POST, then delegates to it
@@ -83,7 +75,7 @@ func apiUpdateBackupSettings(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		form.Set("settings["+k+"]", v)
 	}
 
-	cloned := withJSONOutput(withForm(r, form))
+	cloned := withJSONOutput(web.WithForm(r, form))
 	handleBackupSettings(a, w, cloned)
 }
 
@@ -98,7 +90,7 @@ func apiSwitchBackupDestination(a *appctx.App, w http.ResponseWriter, r *http.Re
 	}
 
 	form := url.Values{"target": {body.Target}}
-	cloned := withJSONOutput(withForm(r, form))
+	cloned := withJSONOutput(web.WithForm(r, form))
 	handleBackupTarget(a, w, cloned)
 }
 
@@ -119,7 +111,7 @@ func apiRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		"restore_target": {body.RestoreTarget},
 		"database":       {body.Database},
 	}
-	handleRestoreFromBackup(a, w, withForm(r, form))
+	handleRestoreFromBackup(a, w, web.WithForm(r, form))
 }
 
 // apiDownloadBackup translates the API's JSON body into the backup_file form field handleDownloadBackup expects from the UI's multipart POST, then delegates to it (streams the archive back as the response body)
@@ -133,5 +125,5 @@ func apiDownloadBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	form := url.Values{"backup_file": {body.BackupFile}}
-	handleDownloadBackup(a, w, withForm(r, form))
+	handleDownloadBackup(a, w, web.WithForm(r, form))
 }

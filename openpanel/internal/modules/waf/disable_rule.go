@@ -68,7 +68,7 @@ func disableRuleForDomain(ctx context.Context, domain, ruleID string) (alreadyDi
 func handleWAFDisableRule(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domain := firstPathSegment(r.PathValue("domain"))
 	userID, _ := auth.UserID(r)
-	username, err := injected(a, r)
+	_, username, _, err := auth.Injected(a, r)
 	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, web.Tr(a, r, "internal error"))
 		return
@@ -92,7 +92,7 @@ func handleWAFDisableRule(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		writeJSONError(w, http.StatusNotFound, web.Tr(a, r, err.Error()))
 		return
 	case errors.Is(err, errCaddyReload):
-		writeJSON(w, http.StatusMultiStatus, map[string]any{"rule_id": ruleID, "warning": web.Tr(a, r, err.Error())})
+		web.WriteJSON(w, http.StatusMultiStatus, map[string]any{"rule_id": ruleID, "warning": web.Tr(a, r, err.Error())})
 		return
 	case err != nil:
 		writeJSONError(w, http.StatusInternalServerError, web.Tr(a, r, err.Error()))
@@ -101,7 +101,7 @@ func handleWAFDisableRule(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	if !already {
 		_ = logger.RecordUserAction(a.Config, username, "disabled WAF rule "+ruleID+" for domain "+domain+" from the WAF log", reqip.ClientIP(r))
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"rule_id": ruleID, "domain": domain, "already_disabled": already})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"rule_id": ruleID, "domain": domain, "already_disabled": already})
 }
 
 // enableRuleForDomain takes a rule ID back out of the domain's SecRuleRemoveById list, the undo for disableRuleForDomain
@@ -133,7 +133,7 @@ func enableRuleForDomain(ctx context.Context, domain, ruleID string) error {
 func handleWAFEnableRule(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domain := firstPathSegment(r.PathValue("domain"))
 	userID, _ := auth.UserID(r)
-	username, err := injected(a, r)
+	_, username, _, err := auth.Injected(a, r)
 	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, web.Tr(a, r, "internal error"))
 		return
@@ -156,14 +156,14 @@ func handleWAFEnableRule(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, username, "enabled WAF rule "+ruleID+" for domain "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]any{"rule_id": ruleID, "domain": domain})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"rule_id": ruleID, "domain": domain})
 }
 
 // handleWAFPurgeLog handles POST /server/waf/purge-log/{domain}, the "Clear logs" link on the domain's WAF page
 func handleWAFPurgeLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domain := firstPathSegment(r.PathValue("domain"))
 	userID, _ := auth.UserID(r)
-	username, err := injected(a, r)
+	_, username, _, err := auth.Injected(a, r)
 	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, web.Tr(a, r, "internal error"))
 		return
@@ -178,5 +178,5 @@ func handleWAFPurgeLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, username, "cleared WAF logs for domain "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]any{"domain": domain, "purged": true})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"domain": domain, "purged": true})
 }

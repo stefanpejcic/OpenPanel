@@ -77,7 +77,7 @@ func handleVarnishStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !docker.IsServiceRunning(ctx, userContext, "varnish") {
-		writeJSON(w, http.StatusOK, map[string]any{"status": "stopped", "message": "Varnish is not running"})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"status": "stopped", "message": "Varnish is not running"})
 		return
 	}
 
@@ -102,7 +102,7 @@ func handleVarnishStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	efficiencyScore := math.Max(0, math.Round((hitRatio*100)-(errorRate*50)))
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"status": "running",
 		"cache":  map[string]any{"hit_ratio": hitRatio, "hits": hits, "misses": misses, "pass": pass},
 		"traffic": map[string]any{
@@ -210,15 +210,15 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 						msg = web.Tr(a, r, "Failed to start %(webserver)s: could not bring it back up with the Varnish proxy port", "webserver", webserver)
 					}
 					if outputJSON {
-						writeJSON(w, http.StatusInternalServerError, map[string]string{"error": msg})
+						web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": msg})
 						return
 					}
-					flashAndRedirect(a, w, r, "error", msg, "/cache/varnish")
+					web.FlashRedirect(a, w, r, "error", msg, "/cache/varnish")
 					return
 				}
 
 				_ = logger.RecordUserAction(a.Config, currentUsername, "enabled Varnish", ipAddress)
-				flashSess(a, w, r, "success", "Varnish caching is now enabled.")
+				web.Flash(a, w, r, "success", "Varnish caching is now enabled.")
 			}
 
 		case "disable":
@@ -235,13 +235,13 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				if !result.Success {
 					msg := web.Tr(a, r, "Failed to start %(webserver)s after disabling %(service)s: %(message)s", "webserver", webserver, "service", service, "message", result.Message)
 					if outputJSON {
-						writeJSON(w, http.StatusInternalServerError, map[string]string{"error": msg})
+						web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": msg})
 						return
 					}
-					flashAndRedirect(a, w, r, "error", msg, "/cache/varnish")
+					web.FlashRedirect(a, w, r, "error", msg, "/cache/varnish")
 					return
 				}
-				flashSess(a, w, r, "success", "Varnish caching is now disabled.")
+				web.Flash(a, w, r, "success", "Varnish caching is now disabled.")
 			}
 
 		case "domain":
@@ -262,7 +262,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			}
 			_ = logger.RecordUserAction(a.Config, currentUsername, verb+" Varnish caching for domain "+domainName, ipAddress)
 			_ = exec.CommandContext(ctx, "opencli", "domains-varnish", domainName, what).Run()
-			flashSess(a, w, r, "success", web.Tr(a, r, "Varnish cache is now %(new_status)s for domain %(domain_name)s", "new_status", newStatus, "domain_name", domainName))
+			web.Flash(a, w, r, "success", web.Tr(a, r, "Varnish cache is now %(new_status)s for domain %(domain_name)s", "new_status", newStatus, "domain_name", domainName))
 		}
 	}
 
@@ -279,7 +279,7 @@ func handleVarnish(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"status": varnishStatus, "varnish_status": varnishStatus, "actions": actions,
 			"container_state": status.State, "health_status": status.Health,
 		})

@@ -8,25 +8,9 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var pageFiles = []string{
-	"base.html",
-	"partials/_header.html",
-	"partials/_footer.html",
-	"partials/_service.html",
-	"partials/_search.html",
-	"partials/_impersonate.html",
-	"partials/_service_js.html",
-	"partials/punnycode.html",
-	"partials/theme_switcher.html",
-}
-
-func loadPage(files ...string) *web.Page {
-	return web.MustLoadPage(append(append([]string{}, pageFiles...), files...)...)
-}
-
 var (
-	listPage    = loadPage("manager/wp/list.html")
-	installPage = loadPage("manager/wp/install.html")
+	listPage    = web.LoadPage("manager/wp/list.html")
+	installPage = web.LoadPage("manager/wp/install.html")
 )
 
 // ListPageData is manager/wp/list.html's template context.

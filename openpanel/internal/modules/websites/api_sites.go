@@ -14,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterSitesAPI wires the /api/sites routes onto mux. Several routes share a <domain> prefix with a literal suffix (e.g. /api/sites/{domain}/safebrowsing, /temporary-link, /visitors, /wp-info), and a domain itself may contain slashes (subfolder installs), so the most specific literal suffix has to win over treating the whole tail as the domain. Since ServeMux requires a "{...}" wildcard to be the final segment, a single "{rest...}" catch-all per method is registered instead, and apiSitesGetDispatch/apiSitesPostDispatch manually strip the known literal suffixes off the tail to resolve the real route. apiregistry.Add still records each logical route separately so /api/endpoints lists them individually.
@@ -110,7 +111,7 @@ func apiSitesList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		FROM sites
 		WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?)`, userID)
 	if execErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
 		return
 	}
 	defer rows.Close()
@@ -142,7 +143,7 @@ func apiSitesList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{"sites": sites, "count": len(sites)})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"sites": sites, "count": len(sites)})
 }
 
 func nullableStr(v sql.NullString) *string {
@@ -168,7 +169,7 @@ func apiSiteDetail(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domainRoot, _ := splitDomainAndFolder(domain)
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 
@@ -183,14 +184,14 @@ func apiSiteDetail(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	)
 	if scanErr := row.Scan(&id, &siteName, &domainID, &adminEmail, &version, &createdDate, &typ, &container, &path, &ports); scanErr != nil {
 		if scanErr == sql.ErrNoRows {
-			writeJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
+			web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
 			return
 		}
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": scanErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": scanErr.Error()})
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"id": nullableInt(id), "site_name": nullableStr(siteName), "domain_id": nullableInt(domainID),
 		"admin_email": nullableStr(adminEmail), "version": nullableStr(version), "created_date": nullableStr(createdDate),
 		"type": nullableStr(typ), "container": nullableStr(container), "path": nullableStr(path), "ports": nullableStr(ports),
@@ -205,16 +206,16 @@ func apiSafeBrowsing(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domainRoot, _ := splitDomainAndFolder(domain)
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 
 	result, err := safeBrowsingData(ctx, a, domain)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to contact Google Safe Browsing API", "details": err.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to contact Google Safe Browsing API", "details": err.Error()})
 		return
 	}
-	writeJSON(w, http.StatusOK, result)
+	web.WriteJSON(w, http.StatusOK, result)
 }
 
 // apiPagespeedGet returns the cached PageSpeed report for a domain, or a "no data yet" message if a scan hasn't been run.
@@ -225,11 +226,11 @@ func apiPagespeedGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domainRoot, _ := splitDomainAndFolder(domain)
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 	if !websiteParamRE.MatchString(domain) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid website parameter"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid website parameter"})
 		return
 	}
 
@@ -250,13 +251,13 @@ func apiPagespeedGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if runErr != nil {
 		status = http.StatusInternalServerError
 	}
-	writeJSON(w, status, map[string]string{"message": message})
+	web.WriteJSON(w, status, map[string]string{"message": message})
 }
 
 // apiPagespeedRefresh kicks off a PageSpeed scan in the background and returns immediately.
 func apiPagespeedRefresh(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -265,11 +266,11 @@ func apiPagespeedRefresh(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	domainRoot, _ := splitDomainAndFolder(domain)
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 	if !websiteParamRE.MatchString(domain) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid website parameter"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid website parameter"})
 		return
 	}
 
@@ -278,7 +279,7 @@ func apiPagespeedRefresh(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		go func() { _ = cmd.Wait() }()
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "initiated PageSpeed refresh for "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusAccepted, map[string]string{"message": "PageSpeed data gathering started"})
+	web.WriteJSON(w, http.StatusAccepted, map[string]string{"message": "PageSpeed data gathering started"})
 }
 
 // apiWPVulnerabilityGet returns the cached WordPress vulnerability report for a domain, triggering a scan and waiting briefly for it if no cached result exists yet.
@@ -289,11 +290,11 @@ func apiWPVulnerabilityGet(a *appctx.App, w http.ResponseWriter, r *http.Request
 	domainRoot, folder := splitDomainAndFolder(domain)
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 	if !isSafeWebsiteSubpath(folder) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid path"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid path"})
 		return
 	}
 
@@ -313,13 +314,13 @@ func apiWPVulnerabilityGet(a *appctx.App, w http.ResponseWriter, r *http.Request
 		writeRawJSON(w, http.StatusOK, content)
 		return
 	}
-	writeJSON(w, http.StatusOK, data)
+	web.WriteJSON(w, http.StatusOK, data)
 }
 
 // apiWPVulnerabilityScan runs a WordPress vulnerability scan synchronously and returns its result.
 func apiWPVulnerabilityScan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -328,11 +329,11 @@ func apiWPVulnerabilityScan(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	domainRoot, folder := splitDomainAndFolder(domain)
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 	if !isSafeWebsiteSubpath(folder) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid path"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid path"})
 		return
 	}
 
@@ -348,7 +349,7 @@ func apiWPVulnerabilityScan(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "scanned WP vulnerabilities for "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]any{"message": "Scan completed for " + domain, "returncode": returnCode})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"message": "Scan completed for " + domain, "returncode": returnCode})
 }
 
 func writeRawJSON(w http.ResponseWriter, status int, raw []byte) {

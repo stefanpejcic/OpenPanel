@@ -17,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // apiUploadFiles is handleUploadFiles's POST path (upload.go) with a JSON response instead of a flash + re-rendered form
@@ -32,14 +33,14 @@ func apiUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	fileLimitBytes := int64(fileLimitMB) * 1024 * 1024
 
 	if parseErr := r.ParseMultipartForm(fileLimitBytes + 1<<20); parseErr != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Error uploading files: " + parseErr.Error()})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Error uploading files: " + parseErr.Error()})
 		return
 	}
 	pathParam := r.Form.Get("path_param")
 
 	files := r.MultipartForm.File["files"]
 	if len(files) == 0 {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "No files were uploaded"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "No files were uploaded"})
 		return
 	}
 
@@ -98,7 +99,7 @@ func apiUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if len(uploaded) == 0 {
 		status = http.StatusInternalServerError
 	}
-	writeJSON(w, status, map[string]any{"uploaded": uploaded, "errors": errs})
+	web.WriteJSON(w, status, map[string]any{"uploaded": uploaded, "errors": errs})
 }
 
 // apiExtractFiles is handleExtractFiles (archive.go) with a JSON body/response.
@@ -138,22 +139,22 @@ func apiExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	destinationPath, perr := paths.SecureUserPath("HOME", user.Context, extractionPath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]string{"error": msg})
+		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
 	if mkErr := os.MkdirAll(destinationPath, 0o755); mkErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error occurred before starting archive extraction: " + mkErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error occurred before starting archive extraction: " + mkErr.Error()})
 		return
 	}
 	archivePath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, selectedFile), true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]string{"error": msg})
+		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
 
 	if verr := validateArchiveMembers(archivePath, selectedFile, destinationPath); verr != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": verr.Error()})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": verr.Error()})
 		return
 	}
 
@@ -175,22 +176,22 @@ func apiExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	case strings.HasSuffix(selectedFile, ".gz"):
 		extractErr = extractSingleGzip(archivePath, selectedFile, destinationPath)
 	default:
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Unsupported file format!"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Unsupported file format!"})
 		return
 	}
 
 	if extractErr != nil {
 		if timeoutCtx.Err() == context.DeadlineExceeded {
-			writeJSON(w, http.StatusGatewayTimeout, map[string]string{"error": fmt.Sprintf("Extraction timed out after %g minutes!", maxTime)})
+			web.WriteJSON(w, http.StatusGatewayTimeout, map[string]string{"error": fmt.Sprintf("Extraction timed out after %g minutes!", maxTime)})
 			return
 		}
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Extraction failed."})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Extraction failed."})
 		return
 	}
 
 	chownRecursive(ctx, a, destinationPath, user.Context)
 	_ = logger.RecordUserAction(a.Config, user.Username, "Extracted "+selectedFile+" into "+destinationPath+" using File Manager API", reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "File extracted successfully"})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "File extracted successfully"})
 }
 
 // apiCompressFiles is handleCompressFiles (archive.go) with a JSON body/response.
@@ -223,7 +224,7 @@ func apiCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		missing = append(missing, "selected_files")
 	}
 	if len(missing) > 0 {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing required fields: " + strings.Join(missing, ", ")})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing required fields: " + strings.Join(missing, ", ")})
 		return
 	}
 
@@ -237,7 +238,7 @@ func apiCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	parentPath, perr := paths.SecureUserPath("HOME", user.Context, pathParam, true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]string{"error": msg})
+		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
 
@@ -248,7 +249,7 @@ func apiCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	archivePath, perr := paths.SecureUserPath("HOME", user.Context, archiveRelPath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]string{"error": msg})
+		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
 
@@ -257,7 +258,7 @@ func apiCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		filePath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, f), true)
 		if perr != nil {
 			status, msg := pathErrorStatus(perr)
-			writeJSON(w, status, map[string]string{"error": msg})
+			web.WriteJSON(w, status, map[string]string{"error": msg})
 			return
 		}
 		validatedFiles = append(validatedFiles, filepath.Base(filePath))
@@ -279,7 +280,7 @@ func apiCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	case "tar.gz":
 		archiveCmd = fmt.Sprintf("cd %s && timeout %sm tar -czf %s %s", shellQuote(parentPath), maxTime, shellQuote(archivePath), fileList)
 	default:
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Unsupported archive format."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Unsupported archive format."})
 		return
 	}
 
@@ -290,7 +291,7 @@ func apiCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if errMsg == "" {
 			errMsg = "Unknown error"
 		}
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Archive creation failed: " + errMsg})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Archive creation failed: " + errMsg})
 		return
 	}
 
@@ -300,5 +301,5 @@ func apiCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if chownErr := chownToUser(ctx, a, archivePath, user.Context); chownErr != nil {
 		warning = "Failed to set archive ownership"
 	}
-	writeJSON(w, http.StatusCreated, map[string]string{"message": "Archive created successfully.", "path": archiveRelPath, "warning": warning})
+	web.WriteJSON(w, http.StatusCreated, map[string]string{"message": "Archive created successfully.", "path": archiveRelPath, "warning": warning})
 }

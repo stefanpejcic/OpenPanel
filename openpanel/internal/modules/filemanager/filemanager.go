@@ -3,7 +3,6 @@ package filemanager
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"os"
 	"os/exec"
@@ -14,9 +13,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
 // Register wires the file manager's routes onto mux, gated behind the "filemanager" feature flag
@@ -100,13 +97,6 @@ func userAllows(a *appctx.App, r *http.Request, feature string) bool {
 	return slices.Contains(allowed, feature)
 }
 
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
 func filesRedirectPath(pathParam string) string {
 	if pathParam == "" {
 		return "/files"
@@ -120,12 +110,6 @@ func pathErrorStatus(err error) (int, string) {
 		return perr.Code, perr.Message
 	}
 	return http.StatusInternalServerError, err.Error()
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
 }
 
 // chownToUser sets ownership of path to the given user's uid - best-effort: the error is returned but not acted on here, leaving each caller to decide whether to flash a warning or ignore it

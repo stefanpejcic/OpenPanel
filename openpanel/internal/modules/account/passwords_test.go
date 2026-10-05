@@ -1,6 +1,10 @@
 package account
 
-import "testing"
+import (
+	"testing"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
+)
 
 func TestIsCyberPanelHash(t *testing.T) {
 	sixtyFourChars := make([]byte, 64)
@@ -23,7 +27,7 @@ func TestIsCyberPanelHash(t *testing.T) {
 func TestVerifyCyberPanelPassword(t *testing.T) {
 	salt := "0123456789abcdef0123456789abcdef" // 32 chars
 	salt = salt[:32]
-	hash := sha256Hex("mypassword" + salt)
+	hash := appkit.SHA256Hex("mypassword" + salt)
 	stored := hash + ":" + salt
 
 	if !verifyCyberPanelPassword("mypassword", stored) {

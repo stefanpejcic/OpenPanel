@@ -9,6 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleDomainDocroot views or changes a domain's document root.
@@ -21,7 +22,7 @@ func handleDomainDocroot(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		_ = r.ParseForm()
 		domainName = r.Form.Get("domain_name")
 		if domainName == "" {
-			flashAndRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains")
+			web.FlashRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains")
 			return
 		}
 	} else {
@@ -44,20 +45,20 @@ func handleDomainDocroot(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		providedDocroot := r.Form.Get("new_docroot")
 		docroot, ok := resolveUnderVarWWWHTML(providedDocroot)
 		if providedDocroot == "" {
-			flashAndRedirect(a, w, r, "error", "docroot must be provided.", "/domains/docroot")
+			web.FlashRedirect(a, w, r, "error", "docroot must be provided.", "/domains/docroot")
 			return
 		}
 		if !ok {
-			flashAndRedirect(a, w, r, "error", "Docroot must be inside '/var/www/html/' directory.", "/domains/docroot")
+			web.FlashRedirect(a, w, r, "error", "Docroot must be inside '/var/www/html/' directory.", "/domains/docroot")
 			return
 		}
 
 		out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-docroot", domainName, "update", docroot).CombinedOutput()
 		if cmdErr == nil {
-			flashAndRedirect(a, w, r, "success", strings.TrimSpace(string(out)), "/domains/docroot?domain_name="+domainName)
+			web.FlashRedirect(a, w, r, "success", strings.TrimSpace(string(out)), "/domains/docroot?domain_name="+domainName)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "changed docroot for "+domainName+" to "+docroot, reqip.ClientIP(r))
 		} else {
-			flashAndRedirect(a, w, r, "error", strings.TrimSpace(string(out)), "/domains/docroot?domain_name="+domainName)
+			web.FlashRedirect(a, w, r, "error", strings.TrimSpace(string(out)), "/domains/docroot?domain_name="+domainName)
 		}
 		return
 	}
@@ -68,7 +69,7 @@ func handleDomainDocroot(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	if cmdErr == nil {
 		docroot = strings.TrimSpace(string(out))
 	} else {
-		flashSess(a, w, r, "error", strings.TrimSpace(string(out)))
+		web.Flash(a, w, r, "error", strings.TrimSpace(string(out)))
 	}
 
 	renderDocrootPage(a, w, r, domainName, docroot, nil)

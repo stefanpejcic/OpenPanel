@@ -19,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI wires the MySQL REST endpoints onto mux - the /databases/{db_name} and /users/{db_user} sub-resources share their prefix with a literal suffix, so since Go's ServeMux requires a "{...}" wildcard to be the final segment, each verb gets a "{rest...}" catch-all where needed and the dispatch funcs below strip the known suffix by hand to route to the right handler
@@ -125,7 +126,7 @@ func mysqlAPIError(err error) string {
 // apiMySQLListDatabases lists all databases with their assigned users.
 func apiMySQLListDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -170,7 +171,7 @@ func apiMySQLListDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request
 func apiMySQLCreateDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -198,7 +199,7 @@ func apiMySQLCreateDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
 	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	dbLimit := atoiDefault(plan.DBLimit, 0)
+	dbLimit := web.AtoiDefault(plan.DBLimit, 0)
 
 	invalidateDatabaseCount(ctx, a, currentUsername)
 	dbUsage := getDatabaseCount(ctx, a, currentUsername, userContext)
@@ -223,7 +224,7 @@ func apiMySQLCreateDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 // apiMySQLDeleteDatabase drops a database.
 func apiMySQLDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -253,7 +254,7 @@ func apiMySQLDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 // apiMySQLDatabaseTables lists tables with row/size info for one database.
 func apiMySQLDatabaseTables(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -304,7 +305,7 @@ func apiMySQLDatabaseTables(a *appctx.App, w http.ResponseWriter, r *http.Reques
 // apiMySQLDBMaintenance runs OPTIMIZE or REPAIR TABLE against every table in a database.
 func apiMySQLDBMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Request, action string) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -369,7 +370,7 @@ func apiMySQLDBMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Request
 // apiMySQLExportDatabase streams a database dump (sql or gzip) for download.
 func apiMySQLExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -410,7 +411,7 @@ func apiMySQLExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 // apiMySQLDatabasesSize returns per-database disk usage (data_length + index_length, summed across every table) in a configurable unit - the API equivalent of GET /json/mysql-size, distinct from GET /api/mysql/databases (names + assigned users, no size) and GET /api/mysql/databases/{db_name}/tables (per-table size for one db)
 func apiMySQLDatabasesSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -456,7 +457,7 @@ func apiMySQLDatabasesSize(a *appctx.App, w http.ResponseWriter, r *http.Request
 // apiMySQLListUsers lists all database users.
 func apiMySQLListUsers(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -476,7 +477,7 @@ func apiMySQLListUsers(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiMySQLCreateUser creates a database user.
 func apiMySQLCreateUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -531,7 +532,7 @@ func apiMySQLCreateUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiMySQLDeleteUser deletes a database user.
 func apiMySQLDeleteUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -568,7 +569,7 @@ func apiMySQLDeleteUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiMySQLChangeUserPassword changes a database user's password.
 func apiMySQLChangeUserPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -618,7 +619,7 @@ func apiMySQLChangeUserPassword(a *appctx.App, w http.ResponseWriter, r *http.Re
 // apiMySQLUserPrivileges returns a user's privileges on a database.
 func apiMySQLUserPrivileges(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -673,7 +674,7 @@ func apiMySQLUserPrivileges(a *appctx.App, w http.ResponseWriter, r *http.Reques
 // apiMySQLGrant grants privileges to a user on a database.
 func apiMySQLGrant(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -743,7 +744,7 @@ func apiMySQLGrant(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiMySQLRevoke revokes all privileges from a user on a database.
 func apiMySQLRevoke(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -801,7 +802,7 @@ func apiMySQLRevoke(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiMySQLInfo returns databases, users, and assigned-databases summary info.
 func apiMySQLInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -849,7 +850,7 @@ func apiMySQLInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiMySQLProcesslist returns the full MySQL processlist.
 func apiMySQLProcesslist(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -882,7 +883,7 @@ func apiMySQLProcesslist(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 // apiMySQLKillQuery runs KILL QUERY on one processlist entry.
 func apiMySQLKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -910,7 +911,7 @@ func apiMySQLKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiMySQLRemoteAccessStatus returns remote-access status, port, and per-user allowed hosts.
 func apiMySQLRemoteAccessStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -959,7 +960,7 @@ func apiMySQLRemoteAccessStatus(a *appctx.App, w http.ResponseWriter, r *http.Re
 // apiMySQLRemoteAccessToggle enables or disables remote access.
 func apiMySQLRemoteAccessToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -1012,7 +1013,7 @@ func apiMySQLRemoteAccessToggle(a *appctx.App, w http.ResponseWriter, r *http.Re
 // apiMySQLRemoteAccessAdd grants a user remote access from a host.
 func apiMySQLRemoteAccessAdd(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -1080,7 +1081,7 @@ func apiMySQLRemoteAccessAdd(a *appctx.App, w http.ResponseWriter, r *http.Reque
 // apiMySQLRemoteAccessEdit changes the host a remote-access entry is valid from.
 func apiMySQLRemoteAccessEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -1129,7 +1130,7 @@ func apiMySQLRemoteAccessEdit(a *appctx.App, w http.ResponseWriter, r *http.Requ
 // apiMySQLRemoteAccessDelete removes a remote-access entry.
 func apiMySQLRemoteAccessDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -1173,7 +1174,7 @@ func apiMySQLRemoteAccessDelete(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 // apiMySQLGetConfig returns the MySQL server configuration.
 func apiMySQLGetConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -1186,7 +1187,7 @@ func apiMySQLGetConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiMySQLUpdateConfig updates the MySQL server configuration and restarts the service.
 func apiMySQLUpdateConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

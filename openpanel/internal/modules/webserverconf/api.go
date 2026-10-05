@@ -6,24 +6,20 @@ import (
 	"os"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI wires the webserver-conf JSON API routes onto mux.
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "webserver_conf", "GET /api/webserver-conf", func(w http.ResponseWriter, r *http.Request) { apiWebserverConfGet(a, w, r) })
 	apiregistry.Handle(mux, a, "webserver_conf", "PUT /api/webserver-conf", func(w http.ResponseWriter, r *http.Request) { apiWebserverConfPut(a, w, r) })
-}
-
-func writeAPIJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
 }
 
 // apiWebserverConfLabels gives each web server's short display label - webserverConfEntry.PageTitle is a different, longer string used only for the UI page title, so this stays a separate small lookup
@@ -34,7 +30,7 @@ var apiWebserverConfLabels = map[string]string{
 
 // apiWebserverConfGet returns the current user's webserver config file content
 func apiWebserverConfGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -43,7 +39,7 @@ func apiWebserverConfGet(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	entry, known := webserverConfs[webServer]
 	if !known {
-		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "Unknown web server: " + webServer})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Unknown web server: " + webServer})
 		return
 	}
 	label := apiWebserverConfLabels[webServer]
@@ -52,14 +48,14 @@ func apiWebserverConfGet(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	content, readErr := os.ReadFile(configFilePath)
 	if readErr != nil {
 		if os.IsNotExist(readErr) {
-			writeAPIJSON(w, http.StatusNotFound, map[string]string{"error": "Config file not found: " + entry.ConfFile})
+			web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Config file not found: " + entry.ConfFile})
 		} else {
-			writeAPIJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
 		}
 		return
 	}
 
-	writeAPIJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"web_server": webServer, "label": label, "filename": entry.ConfFile,
 		"service": entry.ServiceName, "content": string(content),
 	})
@@ -68,7 +64,7 @@ func apiWebserverConfGet(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 // apiWebserverConfPut saves new webserver config content, syntax-checks it, and restarts the service - rolling back on a failed check
 func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -77,7 +73,7 @@ func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	entry, known := webserverConfs[webServer]
 	if !known {
-		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "Unknown web server: " + webServer})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Unknown web server: " + webServer})
 		return
 	}
 	configFilePath := "/home/" + userContext + "/" + entry.ConfFile
@@ -87,14 +83,14 @@ func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	if body.Content == nil {
-		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing \"content\" field"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing \"content\" field"})
 		return
 	}
 
 	previousContent, prevErr := os.ReadFile(configFilePath)
 
 	if writeErr := os.WriteFile(configFilePath, []byte(*body.Content), 0o644); writeErr != nil {
-		writeAPIJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
 
@@ -105,7 +101,7 @@ func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			if prevErr == nil {
 				_ = os.WriteFile(configFilePath, previousContent, 0o644)
 			}
-			writeAPIJSON(w, http.StatusBadRequest, map[string]string{
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{
 				"error": "Config rejected - failed " + entry.ServiceName + " syntax check: " + testOutput,
 			})
 			return
@@ -120,7 +116,7 @@ func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		out, runErr := cmd.CombinedOutput()
 		if runErr != nil {
 			stderr = out
-			writeAPIJSON(w, http.StatusInternalServerError, map[string]string{
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{
 				"error": "Config saved but service restart failed: " + string(stderr),
 			})
 			return
@@ -134,7 +130,7 @@ func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	if restarted {
 		message = "Config saved and service restarted"
 	}
-	writeAPIJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"message": message, "web_server": webServer, "service": entry.ServiceName, "restarted": restarted,
 	})
 }

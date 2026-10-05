@@ -56,7 +56,7 @@ func handleExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if mkErr := os.MkdirAll(destinationPath, 0o755); mkErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error occurred before starting archive extraction: %(error)s", "error", mkErr.Error()), filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error occurred before starting archive extraction: %(error)s", "error", mkErr.Error()), filesRedirectPath(pathParam))
 		return
 	}
 	archivePath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, selectedFile), true)
@@ -67,7 +67,7 @@ func handleExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if verr := validateArchiveMembers(archivePath, selectedFile, destinationPath); verr != nil {
-		flashAndRedirect(a, w, r, "error", verr.Error(), filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", verr.Error(), filesRedirectPath(pathParam))
 		return
 	}
 
@@ -89,22 +89,22 @@ func handleExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	case strings.HasSuffix(selectedFile, ".gz"):
 		extractErr = extractSingleGzip(archivePath, selectedFile, destinationPath)
 	default:
-		flashAndRedirect(a, w, r, "error", "Unsupported file format!", filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", "Unsupported file format!", filesRedirectPath(pathParam))
 		return
 	}
 
 	if extractErr != nil {
 		if timeoutCtx.Err() == context.DeadlineExceeded {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Extraction timed out after %(minutes)s minutes!", "minutes", maxTime), filesRedirectPath(pathParam))
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Extraction timed out after %(minutes)s minutes!", "minutes", maxTime), filesRedirectPath(pathParam))
 			return
 		}
-		flashAndRedirect(a, w, r, "error", "Extraction failed.", filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", "Extraction failed.", filesRedirectPath(pathParam))
 		return
 	}
 
 	chownRecursive(ctx, a, destinationPath, user.Context)
 	_ = logger.RecordUserAction(a.Config, user.Username, "Extracted "+selectedFile+" into "+destinationPath+" using File Manager", reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", "File extracted successfully", filesRedirectPath(pathParam))
+	web.FlashRedirect(a, w, r, "success", "File extracted successfully", filesRedirectPath(pathParam))
 }
 
 // isSafeMember reports whether an extracted member resolves to somewhere inside destinationPath - a zip-slip / tar-slip guard
@@ -225,7 +225,7 @@ func handleCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		missing = append(missing, "selectedFiles")
 	}
 	if len(missing) > 0 {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Missing required form data for compression: %(missing)s", "missing", strings.Join(missing, ", ")), filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Missing required form data for compression: %(missing)s", "missing", strings.Join(missing, ", ")), filesRedirectPath(pathParam))
 		return
 	}
 
@@ -281,7 +281,7 @@ func handleCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	case "tar.gz":
 		archiveCmd = fmt.Sprintf("cd %s && timeout %sm tar -czf %s %s", shellQuote(parentPath), maxTime, shellQuote(archivePath), fileList)
 	default:
-		flashAndRedirect(a, w, r, "error", "Unsupported archive format.", filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", "Unsupported archive format.", filesRedirectPath(pathParam))
 		return
 	}
 
@@ -292,7 +292,7 @@ func handleCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		if errMsg == "" {
 			errMsg = "Unknown error"
 		}
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Archive creation failed: %(err_msg)s", "err_msg", errMsg), filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Archive creation failed: %(err_msg)s", "err_msg", errMsg), filesRedirectPath(pathParam))
 		return
 	}
 

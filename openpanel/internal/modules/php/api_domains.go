@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterDomainsAPI wires the per-domain PHP version API routes onto mux - the domain goes in the body, not the path, since PUT /api/php/domains/{domain} would collide with PUT /api/php/{version}/options as an ambiguous ServeMux pattern
@@ -27,7 +28,7 @@ func RegisterDomainsAPI(mux *http.ServeMux, a *appctx.App) {
 func apiPHPDomainsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -42,7 +43,7 @@ func apiPHPDomainsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domainsList, _ := a.AllDomainsForUser(ctx, userID)
 	rows, counts, outdated := buildPHPDomainRows(userContext, domainsList, phpVersionsData)
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"domains":                rows,
 		"counts":                 counts,
 		"outdated_domains":       outdated,
@@ -56,7 +57,7 @@ func apiPHPDomainsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 func apiPHPDomainSet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -103,7 +104,7 @@ func apiPHPDomainSet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if oldVersion == newVersion {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"message": "Domain " + domainURL + " already uses PHP " + newVersion, "domain": domainURL, "version": newVersion,
 		})
 		return
@@ -145,7 +146,7 @@ func apiPHPDomainSet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, fmt.Sprintf("changed PHP version for domain %s from %s to %s", domainURL, oldVersion, newVersion), ipAddress)
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"message":     fmt.Sprintf("PHP version for domain %s updated from %s to %s", domainURL, oldVersion, newVersion),
 		"domain":      domainURL,
 		"old_version": oldVersion,

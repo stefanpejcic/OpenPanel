@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
@@ -24,7 +25,7 @@ type HealthIssue struct {
 // handlePHPIniEditor edits the php.ini file for one PHP version, or just renders the version-picker form when versionSeg is "" (the bare /php/php_ini_editor route)
 func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, versionSeg string) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -65,7 +66,7 @@ func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 			_ = r.ParseForm()
 			if newContent := r.Form.Get("editor_content"); newContent != "" {
 				if writeErr := os.WriteFile(phpIniFilePath, []byte(newContent), 0o644); writeErr != nil {
-					flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error saving %(text)s php.ini file!", "text", text), "/php/php"+version+".ini/editor")
+					web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error saving %(text)s php.ini file!", "text", text), "/php/php"+version+".ini/editor")
 					return
 				}
 
@@ -78,7 +79,7 @@ func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 					message = web.Tr(a, r, "PHP.INI file for %(text)s version %(version)s edited successfully.", "text", text, "version", version)
 				}
 
-				flashSess(a, w, r, "success", message)
+				web.Flash(a, w, r, "success", message)
 				ipAddress := reqip.ClientIP(r)
 				_ = logger.RecordUserAction(a.Config, currentUsername, "edited php.ini for PHP "+version, ipAddress)
 				http.Redirect(w, r, "/php/php"+version+".ini/editor", http.StatusFound)

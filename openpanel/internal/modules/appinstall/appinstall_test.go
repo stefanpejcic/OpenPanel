@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gopkg.in/yaml.v3"
 )
 
@@ -111,7 +112,7 @@ func TestIsValidSubdirectory(t *testing.T) {
 		"": true, "app": true, "sub/dir": true, "../etc": false, "/abs": false,
 	}
 	for in, want := range cases {
-		if got := isValidSubdirectory(in); got != want {
+		if got := cmsapp.IsValidSubdirectory(in); got != want {
 			t.Errorf("isValidSubdirectory(%q) = %v, want %v", in, got, want)
 		}
 	}

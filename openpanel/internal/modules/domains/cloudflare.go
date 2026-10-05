@@ -24,7 +24,7 @@ func handleDomainCloudflare(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	domainName := r.Form.Get("domain_name")
 
 	if domainName == "" || strings.HasSuffix(domainName, ".onion") {
-		flashAndRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains")
+		web.FlashRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains")
 		return
 	}
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
@@ -44,11 +44,11 @@ func handleDomainCloudflare(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		if msg == "" {
 			msg = cmdErr.Error()
 		}
-		flashAndRedirect(a, w, r, "error", msg, "/domains")
+		web.FlashRedirect(a, w, r, "error", msg, "/domains")
 		return
 	}
 
 	currentUsername, _, _ := injected(a, ctx, userID)
 	_ = logger.RecordUserAction(a.Config, currentUsername, logMsg+domainName, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", web.Tr(a, r, done, "domain", domainName), "/domains")
+	web.FlashRedirect(a, w, r, "success", web.Tr(a, r, done, "domain", domainName), "/domains")
 }

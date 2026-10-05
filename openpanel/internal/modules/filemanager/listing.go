@@ -31,17 +31,17 @@ func handleFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPa
 	safeDir, perr := paths.SecureUserPath("HOME", user.Context, pathParam, true)
 	if perr != nil {
 		if pe, ok := perr.(*paths.Error); ok && pe.Code == http.StatusNotFound {
-			writeJSON(w, http.StatusNotFound, map[string]any{"error": "The specified directory does not exist."})
+			web.WriteJSON(w, http.StatusNotFound, map[string]any{"error": "The specified directory does not exist."})
 			return
 		}
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]any{"error": msg})
+		web.WriteJSON(w, status, map[string]any{"error": msg})
 		return
 	}
 
 	entries, err := os.ReadDir(safeDir)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]any{"error": "The specified directory does not exist."})
+		web.WriteJSON(w, http.StatusNotFound, map[string]any{"error": "The specified directory does not exist."})
 		return
 	}
 
@@ -65,7 +65,7 @@ func handleFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPa
 		})
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{"folders": folderInfo})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"folders": folderInfo})
 }
 
 // handleFiles serves the main file-manager listing page.
@@ -90,7 +90,7 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 
 	directory, perr := paths.SecureUserPath("HOME", user.Context, pathParam, true)
 	if perr != nil {
-		flashAndRedirect(a, w, r, "error", "Directory does not exist.", "/files")
+		web.FlashRedirect(a, w, r, "error", "Directory does not exist.", "/files")
 		return
 	}
 
@@ -151,7 +151,7 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 	paginatedFiles := filesInfo[startIndex:endIndex]
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"files_info": paginatedFiles,
 			"pagination": map[string]any{
 				"current_page": page, "total_pages": totalPages,

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // DatabaseLimitReached checks the current user's plan db_limit against their actual database count (same source getDatabaseCount/dbLimit checks already use for /mysql/new and the setup wizard), exported so an app installer (any CMS module's install.go, about to CREATE DATABASE + CREATE USER on the user's behalf) can refuse up front instead of letting a database-limit failure surface later, mid-install, as a raw SQL error
@@ -12,7 +13,7 @@ func DatabaseLimitReached(ctx context.Context, a *appctx.App, userID int, curren
 	planID, _ := injectedData["hosting_plan"].(int)
 	dbLimit := 0
 	if plan, planErr := a.QueryPlanDetailsByID(ctx, planID); planErr == nil {
-		dbLimit = atoiDefault(plan.DBLimit, 0)
+		dbLimit = web.AtoiDefault(plan.DBLimit, 0)
 	}
 	if dbLimit == 0 {
 		return false

@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI wires the dynamic DNS JSON API routes onto mux.
@@ -38,7 +39,7 @@ func apiDynamicDNSList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			result[d.DomainURL] = entries
 		}
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"domains": result})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"domains": result})
 }
 
 type dynamicDNSAPIBody struct {
@@ -65,7 +66,7 @@ func lineNumberFromBody(v any) (int, bool) {
 func apiDynamicDNSCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -81,25 +82,25 @@ func apiDynamicDNSCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	if domain == "" || subdomain == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and subdomain are required"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and subdomain are required"})
 		return
 	}
 	if !validateSubdomain(subdomain) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid subdomain"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid subdomain"})
 		return
 	}
 	if !validateIP(ip) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid IP address"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid IP address"})
 		return
 	}
 	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 
 	token, ok := addDynamicDNSEntry(domain, subdomain, "A", ip)
 	if !ok {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to create entry"})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to create entry"})
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "created dynamic DNS entry "+subdomain+"."+domain, reqip.ClientIP(r))
@@ -112,14 +113,14 @@ func apiDynamicDNSCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			break
 		}
 	}
-	writeJSON(w, http.StatusCreated, map[string]any{"message": "Dynamic DNS entry created", "entry": entry})
+	web.WriteJSON(w, http.StatusCreated, map[string]any{"message": "Dynamic DNS entry created", "entry": entry})
 }
 
 // apiDynamicDNSUpdate rewrites an existing dynamic DNS entry's zone line by line number
 func apiDynamicDNSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -134,41 +135,41 @@ func apiDynamicDNSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	lineNumber, lineOK := lineNumberFromBody(body.LineNumber)
 
 	if domain == "" || !lineOK || lineNumber == 0 || subdomain == "" || ip == "" || token == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain, line_number, subdomain, ip, and token are required"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain, line_number, subdomain, ip, and token are required"})
 		return
 	}
 	if !validateSubdomain(subdomain) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid subdomain"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid subdomain"})
 		return
 	}
 	if !validateIP(ip) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid IP address"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid IP address"})
 		return
 	}
 	if !dynDNSTokenRE.MatchString(token) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid token"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid token"})
 		return
 	}
 	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 
 	newLine := buildZoneLine(subdomain, "A", ip, token, "")
 	if !updateZoneLine(domain, lineNumber, newLine) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Failed to update entry — line number out of range"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Failed to update entry — line number out of range"})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "updated dynamic DNS entry "+subdomain+"."+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Dynamic DNS entry updated"})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Dynamic DNS entry updated"})
 }
 
 // apiDynamicDNSDelete removes a dynamic DNS entry's zone line by line number
 func apiDynamicDNSDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -180,20 +181,20 @@ func apiDynamicDNSDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	lineNumber, lineOK := lineNumberFromBody(body.LineNumber)
 
 	if domain == "" || !lineOK || lineNumber == 0 {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and line_number are required"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and line_number are required"})
 		return
 	}
 	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 
 	deleted, ok := deleteZoneLine(domain, lineNumber)
 	if !ok {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Failed to delete entry — line number out of range"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Failed to delete entry — line number out of range"})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted dynamic DNS entry on "+domain+": "+deleted, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Dynamic DNS entry deleted", "deleted_line": deleted})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Dynamic DNS entry deleted", "deleted_line": deleted})
 }

@@ -7,9 +7,11 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // DatabasesInfoPayload is databases_info()'s JSON shape - the shared database/user/assignment lookup several forms (assign.html, import.html, remove.html) populate their <select> dropdowns from via fetch()
@@ -62,7 +64,7 @@ func ComputeDatabasesInfo(ctx context.Context, userContext string) (DatabasesInf
 // handleDatabasesInfo returns databases, users, and assigned-databases summary info, cached 300s per userContext (never a single cache entry shared across accounts) - the MySQL reachability check runs outside the cache (always fresh) rather than letting a stale "MySQL unreachable" redirect get cached for 300s past recovery
 func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -79,8 +81,8 @@ func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return ComputeDatabasesInfo(ctx, userContext)
 	})
 	if cacheErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": cacheErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": cacheErr.Error()})
 		return
 	}
-	writeJSON(w, http.StatusOK, payload)
+	web.WriteJSON(w, http.StatusOK, payload)
 }

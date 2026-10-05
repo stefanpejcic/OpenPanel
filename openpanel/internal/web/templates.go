@@ -119,6 +119,24 @@ func MustLoadPage(files ...string) *Page {
 	return &Page{tmpl: t}
 }
 
+// layoutFiles is the standard authenticated-layout template set every panel page is built on
+var layoutFiles = []string{
+	"base.html",
+	"partials/_header.html",
+	"partials/_footer.html",
+	"partials/_service.html",
+	"partials/_search.html",
+	"partials/_impersonate.html",
+	"partials/_service_js.html",
+	"partials/punnycode.html",
+	"partials/theme_switcher.html",
+}
+
+// LoadPage is MustLoadPage with the standard layout files prepended
+func LoadPage(files ...string) *Page {
+	return MustLoadPage(append(append([]string{}, layoutFiles...), files...)...)
+}
+
 func (p *Page) Render(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)

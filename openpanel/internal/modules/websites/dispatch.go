@@ -9,9 +9,11 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 	"golang.org/x/net/idna"
 )
 
@@ -98,7 +100,7 @@ func getPagespeedInsightsAPIKey(a *appctx.App, r *http.Request, userContext stri
 // handleWebsiteDispatch resolves a domain to its site's container and renders the type-specific management page (WordPress, Python/Node app, site builder, ...).
 func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, _, userContext, err := injected(a, r)
+	userID, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -132,14 +134,14 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	domainNameUsed, idnaErr := idna.ToASCII(domain)
 	if idnaErr != nil {
-		flashAndRedirect(a, w, r, "danger", "Invalid domain name format.", "/sites")
+		web.FlashRedirect(a, w, r, "danger", "Invalid domain name format.", "/sites")
 		return
 	}
 
 	var docroot string
 	row := a.DB.QueryRowContext(ctx, "SELECT docroot FROM domains WHERE domain_url = ?", domainNameUsed)
 	if scanErr := row.Scan(&docroot); scanErr != nil {
-		flashAndRedirect(a, w, r, "danger", "Unable to detect docroot for the domain.", "/sites")
+		web.FlashRedirect(a, w, r, "danger", "Unable to detect docroot for the domain.", "/sites")
 		return
 	}
 	if folderParam != "" {
@@ -155,6 +157,36 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		PagespeedAPIKeyValue: pagespeedAPIKey,
 		DiskUsageHref:        explorerHref("/disk-usage/", userContext, docroot),
 		InodesExplorerHref:   explorerHref("/inodes-explorer/", userContext, docroot),
+	}
+
+	if cp, ok := cmsPages[cmsType]; ok {
+		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		data := CMSAppPageData{
+			pageData:             basePageData,
+			Domains:              domains,
+			Container:            container,
+			IsSubdirectory:       folderParam != "",
+			MainDomain:           domain,
+			CurrentPHPVersion:    currentPHPVersion,
+			AvailablePHPVersions: php.FetchPHPVersions(ctx, a, userContext),
+		}
+		if cp.dbInfo != nil {
+			data.DBInfo = cp.dbInfo(userContext, docroot)
+			data.PHPVersion = currentPHPVersion
+			data.MySQLVersion = getMySQLVersion(a, r, userContext)
+		}
+		if cp.version != nil {
+			data.Version = cp.version(userContext, docroot)
+		}
+		switch cmsType {
+		case "ojs":
+			data.Version = container.Version
+		case "tinyphotogallery":
+			data.HasPhotos = dirHasEntries(userContext, docroot+"/photos")
+		}
+		renderCMSAppPage(a, w, r, cmsType, data)
+		return
 	}
 
 	switch cmsType {
@@ -220,298 +252,9 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			Container: container,
 		})
 
-	case "drupal":
-		dbInfo := extractDrupalDatabaseInfo(userContext, docroot)
-		drupalVersion := getDrupalVersion(userContext, docroot)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		mysqlVersion := getMySQLVersion(a, r, userContext)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderDrupalAppPage(a, w, r, DrupalAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			DrupalVersion:        drupalVersion,
-			PHPVersion:           currentPHPVersion,
-			MySQLVersion:         mysqlVersion,
-			DBInfo:               dbInfo,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "flarum":
-		dbInfo := extractFlarumDatabaseInfo(userContext, docroot)
-		flarumVersion := getFlarumVersion(userContext, docroot)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		mysqlVersion := getMySQLVersion(a, r, userContext)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderFlarumAppPage(a, w, r, FlarumAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			FlarumVersion:        flarumVersion,
-			PHPVersion:           currentPHPVersion,
-			MySQLVersion:         mysqlVersion,
-			DBInfo:               dbInfo,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "sofawiki":
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderSofawikiAppPage(a, w, r, SofawikiAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "tinyphotogallery":
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderTinyPhotoGalleryAppPage(a, w, r, TinyPhotoGalleryAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-			HasPhotos:            dirHasEntries(userContext, docroot+"/photos"),
-		})
-
-	case "tinyfilemanager":
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderTinyFileManagerAppPage(a, w, r, TinyFileManagerAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "phpbb":
-		dbInfo := extractPhpbbDatabaseInfo(userContext, docroot)
-		phpbbVersion := getPhpbbVersion(userContext, docroot)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		mysqlVersion := getMySQLVersion(a, r, userContext)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderPhpbbAppPage(a, w, r, PhpbbAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			PhpbbVersion:         phpbbVersion,
-			PHPVersion:           currentPHPVersion,
-			MySQLVersion:         mysqlVersion,
-			DBInfo:               dbInfo,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "dokuwiki":
-		dokuwikiVersion := getDokuwikiVersion(userContext, docroot)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderDokuwikiAppPage(a, w, r, DokuwikiAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			DokuwikiVersion:      dokuwikiVersion,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "joomla":
-		dbInfo := extractJoomlaDatabaseInfo(userContext, docroot)
-		joomlaVersion := getJoomlaVersion(userContext, docroot)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		mysqlVersion := getMySQLVersion(a, r, userContext)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderJoomlaAppPage(a, w, r, JoomlaAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			JoomlaVersion:        joomlaVersion,
-			PHPVersion:           currentPHPVersion,
-			MySQLVersion:         mysqlVersion,
-			DBInfo:               dbInfo,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "opencart":
-		dbInfo := extractOpenCartDatabaseInfo(userContext, docroot)
-		openCartVersion := getOpenCartVersion(userContext, docroot)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		mysqlVersion := getMySQLVersion(a, r, userContext)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderOpenCartAppPage(a, w, r, OpenCartAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			OpenCartVersion:      openCartVersion,
-			PHPVersion:           currentPHPVersion,
-			MySQLVersion:         mysqlVersion,
-			DBInfo:               dbInfo,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "prestashop":
-		dbInfo := extractPrestashopDatabaseInfo(userContext, docroot)
-		prestashopVersion := getPrestashopVersion(userContext, docroot)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		mysqlVersion := getMySQLVersion(a, r, userContext)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderPrestashopAppPage(a, w, r, PrestashopAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			PrestashopVersion:    prestashopVersion,
-			PHPVersion:           currentPHPVersion,
-			MySQLVersion:         mysqlVersion,
-			DBInfo:               dbInfo,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "nextcloud":
-		dbInfo := extractNextcloudDatabaseInfo(userContext, docroot)
-		nextcloudVersion := getNextcloudVersion(userContext, docroot)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		mysqlVersion := getMySQLVersion(a, r, userContext)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderNextcloudAppPage(a, w, r, NextcloudAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			NextcloudVersion:     nextcloudVersion,
-			PHPVersion:           currentPHPVersion,
-			MySQLVersion:         mysqlVersion,
-			DBInfo:               dbInfo,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "matomo":
-		dbInfo := extractMatomoDatabaseInfo(userContext, docroot)
-		matomoVersion := getMatomoVersion(userContext, docroot)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		mysqlVersion := getMySQLVersion(a, r, userContext)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderMatomoAppPage(a, w, r, MatomoAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			MatomoVersion:        matomoVersion,
-			PHPVersion:           currentPHPVersion,
-			MySQLVersion:         mysqlVersion,
-			DBInfo:               dbInfo,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "moodle":
-		dbInfo := extractMoodleDatabaseInfo(userContext, docroot)
-		moodleVersion := getMoodleVersion(userContext, docroot)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		mysqlVersion := getMySQLVersion(a, r, userContext)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderMoodleAppPage(a, w, r, MoodleAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			MoodleVersion:        moodleVersion,
-			PHPVersion:           currentPHPVersion,
-			MySQLVersion:         mysqlVersion,
-			DBInfo:               dbInfo,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "ojs":
-		dbInfo := extractOJSDatabaseInfo(userContext, docroot)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		mysqlVersion := getMySQLVersion(a, r, userContext)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderOJSAppPage(a, w, r, OJSAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			OJSVersion:           container.Version,
-			PHPVersion:           currentPHPVersion,
-			MySQLVersion:         mysqlVersion,
-			DBInfo:               dbInfo,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
-	case "mediawiki":
-		dbInfo := extractMediaWikiDatabaseInfo(userContext, docroot)
-		mediawikiVersion := getMediaWikiVersion(userContext, docroot)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		mysqlVersion := getMySQLVersion(a, r, userContext)
-		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
-		renderMediaWikiAppPage(a, w, r, MediaWikiAppPageData{
-			pageData:             basePageData,
-			Domains:              domains,
-			Container:            container,
-			MediaWikiVersion:     mediawikiVersion,
-			PHPVersion:           currentPHPVersion,
-			MySQLVersion:         mysqlVersion,
-			DBInfo:               dbInfo,
-			IsSubdirectory:       folderParam != "",
-			MainDomain:           domain,
-			CurrentPHPVersion:    currentPHPVersion,
-			AvailablePHPVersions: availablePHPVersions,
-		})
-
 	default:
 		// mautic/anything else: not a supported CMS type here
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Unknown CMS type"})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Unknown CMS type"})
 	}
 }
 

@@ -1,7 +1,6 @@
 package trash
 
 import (
-	"encoding/json"
 	"net/http"
 	"os"
 	"os/exec"
@@ -9,8 +8,10 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 type jsonResult struct {
@@ -19,21 +20,15 @@ type jsonResult struct {
 	Error   string `json:"error,omitempty"`
 }
 
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
-
 // handleRestoreFile moves one trashed item back to its original path, recorded in .trash_restore
 func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	itemName := r.URL.Query().Get("filename")
 	if itemName == "" {
-		writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Missing filename."})
+		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Missing filename."})
 		return
 	}
 
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -44,7 +39,7 @@ func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	itemName = filepath.Base(itemName)
 	if itemName == "" || itemName == "." || itemName == "/" {
-		writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Invalid filename."})
+		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Invalid filename."})
 		return
 	}
 
@@ -52,13 +47,13 @@ func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	trashRestoreFile := filepath.Join(trashDir, ".trash_restore")
 
 	if _, err := os.Stat(trashedPath); err != nil {
-		writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: "File or directory does not exist in Trash."})
+		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "File or directory does not exist in Trash."})
 		return
 	}
 
 	restoreInfo, err := os.ReadFile(trashRestoreFile)
 	if err != nil {
-		writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: ".trash_restore file is missing."})
+		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: ".trash_restore file is missing."})
 		return
 	}
 
@@ -82,7 +77,7 @@ func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if restoreDestination == "" {
-		writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Original path not found in .trash_restore."})
+		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Original path not found in .trash_restore."})
 		return
 	}
 
@@ -90,36 +85,36 @@ func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	volumeAbs := absPath(volume)
 
 	if !isWithin(resolveOrSelf(restoreDestination), resolveOrSelf(volumeAbs)) {
-		writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Restore path is outside your permitted data directory."})
+		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Restore path is outside your permitted data directory."})
 		return
 	}
 
 	if err := os.Rename(trashedPath, restoreDestination); err != nil {
-		writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
+		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
 		return
 	}
 
 	_ = os.WriteFile(trashRestoreFile, []byte(joinLines(linesToKeep)), 0o644)
 
 	_ = logger.RecordUserAction(a.Config, username, "restored "+restoreDestination+" from Trash using File Manager", reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, jsonResult{Success: true, Message: "Restored from Trash"})
+	web.WriteJSON(w, http.StatusOK, jsonResult{Success: true, Message: "Restored from Trash"})
 }
 
 // handleDeleteTrash permanently deletes one item from the trash.
 func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	itemName := r.URL.Query().Get("filename")
 	if itemName == ".trash_restore" {
-		writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Deletion of system file .trash_restore is not allowed."})
+		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Deletion of system file .trash_restore is not allowed."})
 		return
 	}
 
 	itemName = filepath.Base(itemName)
 	if itemName == "" || itemName == "." || itemName == "/" {
-		writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Invalid filename."})
+		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Invalid filename."})
 		return
 	}
 
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -131,7 +126,7 @@ func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	info, err := os.Lstat(trashedPath)
 	if err != nil {
-		writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: "File or directory does not exist in Trash."})
+		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "File or directory does not exist in Trash."})
 		return
 	}
 
@@ -139,18 +134,18 @@ func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	switch {
 	case info.IsDir():
 		if err := os.RemoveAll(trashedPath); err != nil {
-			writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
+			web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
 			return
 		}
 		detectedType = "directory"
 	case info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0:
 		if err := os.Remove(trashedPath); err != nil {
-			writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
+			web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
 			return
 		}
 		detectedType = "file"
 	default:
-		writeJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Unsupported item type."})
+		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Unsupported item type."})
 		return
 	}
 
@@ -168,12 +163,12 @@ func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = logger.RecordUserAction(a.Config, username, "permanently deleted "+detectedType+" "+trashedPath+" using File Manager", reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, jsonResult{Success: true, Message: "Deleted permanently"})
+	web.WriteJSON(w, http.StatusOK, jsonResult{Success: true, Message: "Deleted permanently"})
 }
 
 // handleDeleteAll empties the whole Trash, keeping .trash_restore itself (truncated) rather than removing it outright
 func handleDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -213,7 +208,7 @@ func handleDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // handleRestoreAll restores every item listed in .trash_restore back to its original path - the containment check here uses plain abspath (no symlink resolution), unlike handleRestoreFile's resolveOrSelf, an intentional asymmetry not an oversight
 func handleRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -308,11 +303,11 @@ func resolveOrSelf(p string) string {
 func handleTrashSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	itemName := filepath.Base(r.URL.Query().Get("name"))
 	if itemName == "" || itemName == "." || itemName == "/" || itemName == ".." {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid folder name."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid folder name."})
 		return
 	}
 
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -320,14 +315,14 @@ func handleTrashSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	target := filepath.Join("/home/"+userContext+"/.local/share/Trash", itemName)
 	if info, statErr := os.Lstat(target); statErr != nil || !info.IsDir() {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Folder does not exist in Trash."})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Folder does not exist in Trash."})
 		return
 	}
 
 	out, runErr := exec.CommandContext(r.Context(), "du", "-sh", target).Output()
 	if runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not calculate the folder size."})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not calculate the folder size."})
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]string{"size": strings.SplitN(string(out), "\t", 2)[0]})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"size": strings.SplitN(string(out), "\t", 2)[0]})
 }

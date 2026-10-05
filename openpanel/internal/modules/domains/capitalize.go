@@ -80,7 +80,7 @@ func handleCapitalizeDomains(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		_ = r.ParseForm()
 		capitalizedDomain := r.Form.Get("capitalized_domain")
 		if saveErr := saveCapitalizedDomain(ctx, a, userContext, domain, capitalizedDomain); saveErr == nil {
-			flashSess(a, w, r, "success", web.Tr(a, r, "Domain has been capitalized to %(capitalized_domain)s", "capitalized_domain", capitalizedDomain))
+			web.Flash(a, w, r, "success", web.Tr(a, r, "Domain has been capitalized to %(capitalized_domain)s", "capitalized_domain", capitalizedDomain))
 			_ = logger.RecordUserAction(a.Config, currentUsername, "capitalized domain "+domain+" to "+capitalizedDomain, reqip.ClientIP(r))
 		}
 	}
@@ -105,11 +105,5 @@ func handleDisplayCapitalizedDomains(a *appctx.App, w http.ResponseWriter, r *ht
 	}
 
 	userDomains := loadCapitalizedDomains(ctx, a, userContext)
-	writeJSON(w, http.StatusOK, userDomains)
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
+	web.WriteJSON(w, http.StatusOK, userDomains)
 }

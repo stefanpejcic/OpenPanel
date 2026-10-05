@@ -123,14 +123,6 @@ func writeJSON(w http.ResponseWriter, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-// flashAndRedirect queues a single flash message on the session, then redirects to path
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
 // redirectWithFlashes is like flashAndRedirect but for handlers that queue more than one flash message before their final redirect (e.g. a "container stopped with a warning" message followed by a separate success/error message once the rest of the operation finishes)
 func redirectWithFlashes(a *appctx.App, w http.ResponseWriter, r *http.Request, path string, flashes ...[2]string) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)

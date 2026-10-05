@@ -11,12 +11,12 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/installmanifest"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/waf"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -24,59 +24,6 @@ import (
 
 // dokuwikiStableTarball is DokuWiki's version-agnostic "always current stable" download, wrapped in a single top-level dokuwiki-<version>/ dir inside the tarball
 const dokuwikiStableTarball = "https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz"
-
-func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, _, _, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	injectedData, _ := a.InjectData(ctx, userID)
-	planID, _ := injectedData["hosting_plan"].(int)
-	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	websitesLimit := atoiDefault(plan.WebsitesLimit, 0)
-	websiteCount, _ := countUserWebsites(a, userID)
-
-	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		if r.Method == http.MethodPost {
-			w.Header().Set("Content-Type", "application/x-ndjson")
-			flusher, canFlush := w.(http.Flusher)
-			writeNDJSON(w, flusher, canFlush, map[string]any{"error": "You have reached the maximum number of sites allowed." + plan.UpgradeMessage()})
-			return
-		}
-		flashSess(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
-	} else if r.Method == http.MethodPost {
-		handleInstallStream(a, w, r)
-		return
-	}
-
-	domains, _ := a.AllDomainsForUser(ctx, userID)
-	renderInstallPage(a, w, r, domains)
-}
-
-func formOr(r *http.Request, key, def string) string {
-	if v := r.FormValue(key); v != "" {
-		return v
-	}
-	return def
-}
-
-// ensureContainerRunning starts the container if it isn't already running, polling briefly for it to come up
-func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
-	if docker.IsServiceRunning(ctx, userContext, container) {
-		return true
-	}
-	docker.StartOrStopContainer(ctx, userContext, container, "activate", "detached")
-	const attempts = 15
-	for i := 0; i < attempts; i++ {
-		time.Sleep(2 * time.Second)
-		if docker.IsServiceRunning(ctx, userContext, container) {
-			return true
-		}
-	}
-	return false
-}
 
 // phpVersionBelow reports whether version (e.g. "7.2") is older than wantMajor.wantMinor, opposite of sofawiki's ceiling check - an unparseable version fails safe as "too old"
 func phpVersionBelow(version string, wantMajor, wantMinor int) bool {
@@ -88,13 +35,6 @@ func phpVersionBelow(version string, wantMajor, wantMinor int) bool {
 		return major < wantMajor
 	}
 	return minor < wantMinor
-}
-
-func isValidSubdirectory(subdirectory string) bool {
-	if subdirectory == "" {
-		return true
-	}
-	return !strings.Contains(subdirectory, "..") && !strings.HasPrefix(subdirectory, "/")
 }
 
 // hashDokuwikiPassword shells out to php's password_hash() in the site's own php-fpm container instead of reimplementing bcrypt in Go, so the hash format always matches what install.php would produce - password is passed as a separate argv element, not interpolated into the shell string
@@ -114,62 +54,31 @@ func hashDokuwikiPassword(ctx context.Context, userContext, phpContainer, passwo
 
 // handleInstallStream drives a DokuWiki install end to end over NDJSON: download+extract the stable tarball, write the conf files directly, fix ownership, record the site, and remove install.php
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	in, ok := cmsapp.StartInstall(a, w, r)
+	if !ok {
 		return
 	}
+	defer appkit.RemoveLockFile(in.Username)
+	ctx := in.Ctx
+	currentUsername := in.Username
+	userContext := in.UserContext
+	emit := in.Emit
+	ipAddress := in.IP
+	domainID := in.DomainID
+	dom := in.Domain
+	subdirectory := in.Subdirectory
 
-	w.Header().Set("Content-Type", "application/x-ndjson")
-	flusher, canFlush := w.(http.Flusher)
-	emit := func(v map[string]any) { writeNDJSON(w, flusher, canFlush, v) }
-
-	ipAddress := reqip.ClientIP(r)
-	domainID := r.FormValue("domain_id")
-	if domainID == "" {
-		emit(map[string]any{"error": "Missing required field: domain"})
-		return
-	}
-
-	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
-	if err := createLockFile(currentUsername); err != nil {
-		emit(map[string]any{"error": "Error creating lock file: " + err.Error()})
-		return
-	}
-	defer removeLockFile(currentUsername)
-
-	dom, found, dbErr := lookupDomainByID(ctx, a, domainID)
-	if dbErr != nil {
-		emit(map[string]any{"error": "An error occurred fetching docroot for domain from database."})
-		return
-	}
-	if !found {
-		emit(map[string]any{"error": "Domain not found"})
-		return
-	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, dom.DomainURL) {
-		return
-	}
-
-	emit(map[string]any{"status": "Validating provided data"})
-	subdirectory := strings.ToLower(strings.ReplaceAll(r.FormValue("subdirectory"), " ", ""))
-	if !isValidSubdirectory(subdirectory) {
-		emit(map[string]any{"error": "Invalid subdirectory."})
-		return
-	}
-
-	adminUser := strings.ToLower(strings.TrimSpace(formOr(r, "admin_user", "admin")))
+	adminUser := strings.ToLower(strings.TrimSpace(web.FormOr(r, "admin_user", "admin")))
 	if adminUser == "" || strings.ContainsAny(adminUser, " :\t\n") {
 		emit(map[string]any{"error": "Invalid admin username."})
 		return
 	}
 	adminPassword := r.FormValue("admin_password")
 	if adminPassword == "" {
-		adminPassword = generateRandomString(16)
+		adminPassword = appkit.RandomString(16)
 	}
-	adminFullName := formOr(r, "admin_full_name", "Administrator")
-	siteTitle := formOr(r, "site_title", dom.DomainURL)
+	adminFullName := web.FormOr(r, "admin_full_name", "Administrator")
+	siteTitle := web.FormOr(r, "site_title", dom.DomainURL)
 
 	docroot := dom.Docroot.String
 	selectedDomain := dom.DomainURL
@@ -194,7 +103,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Starting PHP container: " + phpContainer})
-	if !ensureContainerRunning(ctx, userContext, phpContainer) {
+	if !cmsapp.EnsureContainerRunning(ctx, userContext, phpContainer) {
 		emit(map[string]any{"error": "PHP container failed to start. Please check it from Services."})
 		return
 	}
@@ -214,7 +123,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	installedVersion, out, runErr := runDokuwikiExtract(ctx, userContext, phpContainer, installPath)
 	if runErr != nil {
 		emit(map[string]any{"error": "Download/extract failed: " + strings.TrimSpace(string(out))})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 
@@ -222,7 +131,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	passwordHash, hashErr := hashDokuwikiPassword(ctx, userContext, phpContainer, adminPassword)
 	if hashErr != nil {
 		emit(map[string]any{"error": "Failed to hash admin password: " + hashErr.Error()})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 
@@ -232,10 +141,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		AdminUser:  adminUser,
 		AdminHash:  passwordHash,
 		AdminName:  adminFullName,
-		AdminEmail: formOr(r, "admin_email", "admin@"+dom.DomainURL),
+		AdminEmail: web.FormOr(r, "admin_email", "admin@"+dom.DomainURL),
 	}); confErr != nil {
 		emit(map[string]any{"error": "Failed to write configuration: " + confErr.Error()})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 
@@ -249,7 +158,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	_ = installmanifest.Record(hostOSPath)
 
 	emit(map[string]any{"status": "Saving website information to Site Manager"})
-	adminEmail := formOr(r, "admin_email", "admin@"+dom.DomainURL)
+	adminEmail := web.FormOr(r, "admin_email", "admin@"+dom.DomainURL)
 	if _, insertErr := a.DB.ExecContext(ctx,
 		"INSERT INTO sites (site_name, domain_id, admin_email, version, type) VALUES (?, ?, ?, ?, ?)",
 		selectedDomain, domainID, adminEmail, installedVersion, "dokuwiki"); insertErr != nil {
@@ -260,7 +169,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	waf.EnableProfileForNewSite(a, selectedDomain, "dokuwiki")
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed DokuWiki on domain "+selectedDomain, ipAddress)
-	flashSess(a, w, r, "success", web.Tr(a, r, "DokuWiki installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
+	web.Flash(a, w, r, "success", web.Tr(a, r, "DokuWiki installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
 	emit(map[string]any{"status": "DokuWiki installation completed!", "admin_user": adminUser, "admin_password": adminPassword})
 }
 
@@ -302,7 +211,7 @@ type dokuwikiConfigParams struct {
 // writeDokuwikiConfig writes conf/local.php, users.auth.php and acl.auth.php directly, matching what install.php's wizard writes for a single-admin ACL-enabled wiki - AdminHash must already be hashed (see hashDokuwikiPassword), this never touches a clear-text password
 func writeDokuwikiConfig(ctx context.Context, userContext, phpContainer, installPath string, p dokuwikiConfigParams) error {
 	localPHP := "<?php\n" +
-		"$conf['title'] = '" + escapePHPSingleQuoted(p.Title) + "';\n" +
+		"$conf['title'] = '" + cmsapp.EscapePHPSingleQuoted(p.Title) + "';\n" +
 		"$conf['lang'] = 'en';\n" +
 		"$conf['license'] = 'cc-by-sa';\n" +
 		"$conf['useacl'] = 1;\n" +
@@ -342,22 +251,7 @@ cat > ` + installPath + `/conf/acl.auth.php << 'OPENPANEL_EOF'
 	return nil
 }
 
-func escapePHPSingleQuoted(value string) string {
-	value = strings.ReplaceAll(value, `\`, `\\`)
-	value = strings.ReplaceAll(value, `'`, `\'`)
-	return value
-}
-
 // escapeAuthField strips the colon delimiter users.auth.php's line format depends on, since a stray colon in a display name/email would silently shift every field after it
 func escapeAuthField(value string) string {
 	return strings.ReplaceAll(value, ":", "")
-}
-
-// emitCleanupFiles clears installPath's contents but leaves installPath itself - it's the domain's docroot, not ours to delete, and removing it would force a manual recreate before reinstalling
-func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
-	if err := installmanifest.ClearContentsViaContainer(ctx, userContext, phpContainer, installPath); err != nil {
-		emit(map[string]any{"status": "Cleanup: failed to remove files from " + installPath + ": " + err.Error()})
-		return
-	}
-	emit(map[string]any{"status": "Cleanup: removed files from " + installPath})
 }

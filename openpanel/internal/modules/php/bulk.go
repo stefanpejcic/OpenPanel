@@ -70,7 +70,7 @@ func (v *VersionSwitcher) Route(domain, newVersion string) (*web.BulkCall, web.B
 }
 
 func handlePHPDomainsBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, r *http.Request) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

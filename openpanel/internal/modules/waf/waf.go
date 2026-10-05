@@ -9,8 +9,7 @@ import (
 	"strings"
 	"time"
 
-	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // excludedRuleID and excludedTag are always the first (hidden) entry in SecRuleRemoveById/SecRuleRemoveByTag, stripped from what's shown/edited in the UI
@@ -53,24 +52,8 @@ func parseWAFRemovals(contentStr string) (removedRules, removedTags []string) {
 	return removedRules, removedTags
 }
 
-func injected(a *appctx.App, r *http.Request) (username string, err error) {
-	userID, _ := auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return "", err
-	}
-	username, _ = data["current_username"].(string)
-	return username, nil
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
-
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
-	writeJSON(w, status, map[string]string{"error": msg})
+	web.WriteJSON(w, status, map[string]string{"error": msg})
 }
 
 // firstPathSegment drops an accidental subfolder suffix from a path parameter, keeping only the leading domain component

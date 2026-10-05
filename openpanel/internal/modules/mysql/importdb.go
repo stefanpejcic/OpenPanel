@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -36,7 +37,7 @@ var importDBNameRE = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 // handleMySQLImportDB imports an uploaded .sql/.sql.gz dump into a database - urlDBName carries the optional /mysql/import/{dbname} URL segment
 func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -45,12 +46,12 @@ func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	urlDBName := r.PathValue("dbname")
 
 	if !docker.IsServiceRunning(ctx, userContext, mysqlVersion) {
-		flashSess(a, w, r, "warning", web.Tr(a, r, "%(mysql_version)s container is not running. Please allow a few moments for the initialization..", "mysql_version", mysqlVersion))
+		web.Flash(a, w, r, "warning", web.Tr(a, r, "%(mysql_version)s container is not running. Please allow a few moments for the initialization..", "mysql_version", mysqlVersion))
 		docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
 	}
 
 	if r.Method == http.MethodPost {
-		maxBytes := int64(atoiDefault(mysqlImportMaxSizeGB, 1))*1024*1024*1024 + (1 << 20)
+		maxBytes := int64(web.AtoiDefault(mysqlImportMaxSizeGB, 1))*1024*1024*1024 + (1 << 20)
 		_ = r.ParseMultipartForm(maxBytes)
 
 		file, fileHeader, fileErr := r.FormFile("db_file")
@@ -69,9 +70,9 @@ func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 				return
 			}
 
-			maxImportBytes := int64(atoiDefault(mysqlImportMaxSizeGB, 1)) * 1024 * 1024 * 1024
+			maxImportBytes := int64(web.AtoiDefault(mysqlImportMaxSizeGB, 1)) * 1024 * 1024 * 1024
 			if fileHeader.Size > maxImportBytes {
-				flashSess(a, w, r, "error", web.Tr(a, r, "Uploaded file exceeds %(mysql_import_max_size_gb)s GB limit.", "mysql_import_max_size_gb", mysqlImportMaxSizeGB))
+				web.Flash(a, w, r, "error", web.Tr(a, r, "Uploaded file exceeds %(mysql_import_max_size_gb)s GB limit.", "mysql_import_max_size_gb", mysqlImportMaxSizeGB))
 				renderImportPage(a, w, r, mysqlVersion, "", http.StatusRequestEntityTooLarge)
 				return
 			}
@@ -87,21 +88,21 @@ func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			if imported {
 				ipAddress := reqip.ClientIP(r)
 				_ = logger.RecordUserAction(a.Config, currentUsername, "imported "+fileHeader.Filename+" into MySQL database "+dbName, ipAddress)
-				flashSess(a, w, r, "success", web.Tr(a, r, "Successfully imported from %(filename)s file to database: %(db_name)s", "filename", fileHeader.Filename, "db_name", dbName))
+				web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully imported from %(filename)s file to database: %(db_name)s", "filename", fileHeader.Filename, "db_name", dbName))
 				renderImportPage(a, w, r, mysqlVersion, "", http.StatusOK)
 				return
 			}
-			flashSess(a, w, r, "error", web.Tr(a, r, "Import into '%(db_name)s' failed: %(err_detail)s", "db_name", dbName, "err_detail", errDetail))
+			web.Flash(a, w, r, "error", web.Tr(a, r, "Import into '%(db_name)s' failed: %(err_detail)s", "db_name", dbName, "err_detail", errDetail))
 			// falls through to the shared bottom render below, using the URL's dbname (not the form's dbName) - the failure page should reflect what page the admin was already on
 		} else {
-			flashSess(a, w, r, "error", "No database file uploaded!")
+			web.Flash(a, w, r, "error", "No database file uploaded!")
 			renderImportPage(a, w, r, mysqlVersion, urlDBName, http.StatusOK)
 			return
 		}
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]string{"message": "Import feature is enabled for MySQL/MariaDB."})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Import feature is enabled for MySQL/MariaDB."})
 		return
 	}
 	renderImportPage(a, w, r, mysqlVersion, urlDBName, http.StatusOK)

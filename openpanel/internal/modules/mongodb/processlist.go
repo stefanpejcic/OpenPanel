@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mongomanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -35,7 +36,7 @@ func opKillable(op mongomanager.Op) bool {
 // handleProcessList shows the operations currently running on the user's mongod.
 func handleProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -44,7 +45,7 @@ func handleProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var processList []ProcessRow
 	ops, opsErr := mongomanager.CurrentOps(ctx, userContext)
 	if opsErr != nil {
-		flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching process list: %(error)s", "error", opsErr.Error()))
+		web.Flash(a, w, r, "error", web.Tr(a, r, "Error fetching process list: %(error)s", "error", opsErr.Error()))
 	}
 	for _, op := range ops {
 		processList = append(processList, ProcessRow{
@@ -55,7 +56,7 @@ func handleProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{"processlist": processList})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"processlist": processList})
 		return
 	}
 
@@ -95,7 +96,7 @@ func killOp(ctx context.Context, userContext, opid string) error {
 
 // handleKillQuery kills one running operation from the processlist page
 func handleKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -103,9 +104,9 @@ func handleKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	opid := r.Form.Get("opid")
 	if err := killOp(r.Context(), userContext, opid); err != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error killing operation %(opid)s: %(error)s", "opid", opid, "error", err.Error()), "/mongodb/processlist")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error killing operation %(opid)s: %(error)s", "opid", opid, "error", err.Error()), "/mongodb/processlist")
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "killed MongoDB operation "+opid, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Operation %(opid)s killed.", "opid", opid), "/mongodb/processlist")
+	web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Operation %(opid)s killed.", "opid", opid), "/mongodb/processlist")
 }

@@ -1,41 +1,12 @@
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
-<!-- START templates/manager/dokuwiki_install.html -->
-
-<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
-    <header class="flex items-center justify-between gap-4">
-        <div>
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Install DokuWiki"}}</h1>
-            <p id="description_type" class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Set up a new DokuWiki wiki in an existing domain."}}</p>
-        </div>
-        <div id="headerRing" class="hidden flex-shrink-0">
-            <div class="relative w-12 h-12">
-                <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" stroke-width="10" class="dark:stroke-gray-700"/><circle id="progressRing" cx="50" cy="50" r="42" fill="none" stroke="url(#installRingGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9" style="transition: stroke-dashoffset 0.6s ease"/><defs><linearGradient id="installRingGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs></svg>
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <span id="progressPercent" class="text-xs font-bold text-gray-900 dark:text-gray-50">0%</span>
-                </div>
-            </div>
-        </div>
-    </header>
-</div>
-
+{{template "cmsinstall_block_3" .}}
 {{if .Domains}}
-<!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6" id="toAddActive">
-    <form class="space-y-3" id="installForm" action="/dokuwiki/install">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
+{{template "cmsinstall_block_4" .}}
     <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
-        <div class="flex items-center gap-2.5 mb-2">
-            <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">1</div>
-            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domain & location"}}</span>
-        </div>
-
-        <div class="mb-1">
-            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="domain_id">
-                {{.T.Get "Domain"}}<span class="text-red-500">*</span>
-            </label>
+        {{template "cmsinstall_block_7" .}}
+        {{template "cmsinstall_block_9" .}}
             <div class="flex rounded-lg shadow-sm">
                 <select name="domain_id" id="domain_id" onchange="updateDocroot(); updateEmailFromDomain(); updateTitleFromDomain()"
                     class="peer flex-1 min-w-0 cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
@@ -143,24 +114,7 @@
         </div>
     </div>
 
-    <div class="flex items-center justify-between gap-3 pt-1">
-        <a href="/auto-installer"
-            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 whitespace-nowrap">
-            {{.T.Get "← Back"}}
-        </a>
-        <button type="submit" id="installButton"
-            class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-center text-sm font-medium shadow-sm transition-all border-black bg-black text-white hover:bg-gray-800 gap-x-1.5 whitespace-nowrap">
-            {{.T.Get "Start Installation"}}
-            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>
-        </button>
-    </div>
-
-    </form>
-</div>
-<!-- END form -->
-
-<div id="progressUI" class="hidden sm:mx-auto sm:max-w-2xl px-6 py-4 m-6">
-
+    {{template "cmsinstall_block_15" .}}
   <div class="grid grid-cols-1 gap-2" id="stepsContainer">
 
       <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-preflight">
@@ -407,13 +361,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
 </script>
 
 {{else}}
-<div class="mt-8 inset-x-0 flex h-64 flex-col items-center justify-center">
-    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No domains yet"}}</p>
-    <p class="mt-2 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Add your first domain to get started"}}</p>
-    <a href="/domains/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "New domain"}}
-    </a>
-</div>
+{{template "cmsinstall_block_20" .}}
 {{end}}
 
 <!-- END templates/manager/dokuwiki_install.html -->

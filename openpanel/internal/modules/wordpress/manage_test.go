@@ -1,6 +1,10 @@
 package wordpress
 
-import "testing"
+import (
+	"testing"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
+)
 
 func TestWPManagerRuleRE(t *testing.T) {
 	content := "some caddy directive\nwp_manager_block_xmlrpc\nother line wp_manager_disable_file_edit more\n"
@@ -17,7 +21,7 @@ func TestEscapeMySQLString(t *testing.T) {
 }
 
 func TestEscapePHPSingleQuoted(t *testing.T) {
-	if got := escapePHPSingleQuoted(`pass'word\`); got != `pass\'word\\` {
+	if got := cmsapp.EscapePHPSingleQuoted(`pass'word\`); got != `pass\'word\\` {
 		t.Errorf("escapePHPSingleQuoted = %q", got)
 	}
 }

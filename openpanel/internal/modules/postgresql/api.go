@@ -20,6 +20,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI wires the postgresql API routes onto mux - /databases/{db_name} and /users/{db_user} share their prefix with a literal suffix, so since ServeMux requires a wildcard to be the final segment, GET/POST get a "{rest...}" catch-all and the dispatch funcs below strip the known suffix by hand
@@ -85,7 +86,7 @@ func apiPsqlDatabasesPostDispatch(a *appctx.App, w http.ResponseWriter, r *http.
 // apiPsqlListDatabases returns every non-system database along with which users have been granted access to each
 func apiPsqlListDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -141,7 +142,7 @@ func apiPsqlListDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request)
 func apiPsqlCreateDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -170,7 +171,7 @@ func apiPsqlCreateDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request
 	planID, _ := injectedData["hosting_plan"].(int)
 	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
 	dbLimit := 1000000
-	if v := atoiDefault(plan.DBLimit, 0); v != 0 {
+	if v := web.AtoiDefault(plan.DBLimit, 0); v != 0 {
 		dbLimit = v
 	}
 
@@ -202,7 +203,7 @@ func apiPsqlCreateDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request
 // apiPsqlDeleteDatabase drops a database.
 func apiPsqlDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -232,7 +233,7 @@ func apiPsqlDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request
 // apiPsqlExportDatabase streams a `pg_dump` of the database as a downloadable .sql file
 func apiPsqlExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -264,7 +265,7 @@ func apiPsqlExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request
 // apiPsqlImportDatabase imports an uploaded .sql file into a database.
 func apiPsqlImportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -329,7 +330,7 @@ func apiPsqlImportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request
 // apiPsqlListUsers returns every non-system PostgreSQL role.
 func apiPsqlListUsers(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -349,7 +350,7 @@ func apiPsqlListUsers(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiPsqlCreateUser creates a new PostgreSQL database user.
 func apiPsqlCreateUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -392,7 +393,7 @@ func apiPsqlCreateUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiPsqlDeleteUser revokes a user's privileges on every database and drops the role
 func apiPsqlDeleteUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -431,7 +432,7 @@ func apiPsqlDeleteUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiPsqlChangeUserPassword updates an existing user's password.
 func apiPsqlChangeUserPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -472,7 +473,7 @@ func apiPsqlChangeUserPassword(a *appctx.App, w http.ResponseWriter, r *http.Req
 // apiPsqlGrant grants a user full privileges on a database plus USAGE/CREATE on its public schema
 func apiPsqlGrant(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -514,7 +515,7 @@ func apiPsqlGrant(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiPsqlRevoke revokes a user's privileges on a database.
 func apiPsqlRevoke(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -559,7 +560,7 @@ func apiPsqlRevoke(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiPsqlInfo returns the combined databases/users/assigned-databases payload used to populate client-side selects
 func apiPsqlInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -620,7 +621,7 @@ func apiPsqlInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiPsqlProcesslist returns the current pg_stat_activity rows, excluding the connection running the query itself
 func apiPsqlProcesslist(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -667,7 +668,7 @@ func apiPsqlProcesslist(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiPsqlRemoteAccessStatus reports whether PostgreSQL's port is currently exposed for remote access
 func apiPsqlRemoteAccessStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -689,7 +690,7 @@ func apiPsqlRemoteAccessStatus(a *appctx.App, w http.ResponseWriter, r *http.Req
 // apiPsqlRemoteAccessToggle enables or disables remote access by rebinding PostgreSQL's exposed port between 0.0.0.0 and 127.0.0.1
 func apiPsqlRemoteAccessToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -741,7 +742,7 @@ func apiPsqlRemoteAccessToggle(a *appctx.App, w http.ResponseWriter, r *http.Req
 // apiPsqlGetConfig returns the current custom PostgreSQL config values plus the set of keys allowed to be edited
 func apiPsqlGetConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -763,7 +764,7 @@ func apiPsqlGetConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiPsqlUpdateConfig writes submitted config values (filtered to the allowed key set) and restarts the postgres container to apply them
 func apiPsqlUpdateConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -807,7 +808,7 @@ func apiPsqlUpdateConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 // apiPsqlKillQuery runs pg_cancel_backend on one pg_stat_activity entry.
 func apiPsqlKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

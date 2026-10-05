@@ -2,7 +2,6 @@ package crons
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -12,22 +11,17 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
-
 // handleCronjobsLog mirrors cronjobs_log().
 func handleCronjobsLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -42,13 +36,13 @@ func handleCronjobsLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	jobName := r.URL.Query().Get("job")
 
 	if len(jobName) > 50 {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "Job name too long"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]any{"error": "Job name too long"})
 		return
 	}
 
 	body, status := docker.FetchContainerLog(ctx, a, userContext, "cron", lines)
 	if status != http.StatusOK {
-		writeJSON(w, status, map[string]any{"error": "Failed to fetch container log"})
+		web.WriteJSON(w, status, map[string]any{"error": "Failed to fetch container log"})
 		return
 	}
 
@@ -70,7 +64,7 @@ func handleCronjobsLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		matched = []map[string]string{}
 	}
 
-	writeJSON(w, http.StatusOK, matched)
+	web.WriteJSON(w, http.StatusOK, matched)
 }
 
 // handleCronjobs is the Cron Jobs tab, ?view=code still works for API callers and old links
@@ -89,7 +83,7 @@ func handleCronjobs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // handleCronjobsView renders one of the three tabs: table, code (File Editor) or logs
 func handleCronjobsView(a *appctx.App, w http.ResponseWriter, r *http.Request, view string) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -97,7 +91,7 @@ func handleCronjobsView(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 
 	path := cronFilePath(userContext)
 	if info, statErr := os.Stat(path); statErr == nil && info.Size() > int64(cronMaxFileSizeBytes(a)) {
-		writeJSON(w, http.StatusBadRequest, map[string]any{
+		web.WriteJSON(w, http.StatusBadRequest, map[string]any{
 			"error": "Cron file exceeds the " + cronMaxFileSizeKB(a) + " KB limit. Please contact the administrator.",
 		})
 		return
@@ -114,7 +108,7 @@ func handleCronjobsView(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 			content = string(data)
 		}
 		if r.URL.Query().Get("output") == "json" {
-			writeJSON(w, http.StatusOK, content)
+			web.WriteJSON(w, http.StatusOK, content)
 			return
 		}
 		renderCronjobsCodePage(a, w, r, content)
@@ -129,7 +123,7 @@ func handleCronjobsView(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 		serviceNames := cronContainers(ctx, userContext)
 
 		if r.URL.Query().Get("output") == "json" {
-			writeJSON(w, http.StatusOK, cronJobs)
+			web.WriteJSON(w, http.StatusOK, cronJobs)
 			return
 		}
 
@@ -161,7 +155,7 @@ func handleCronjobsView(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 // handleCronjobsNew mirrors cronjobs_new().
 func handleCronjobsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -170,7 +164,7 @@ func handleCronjobsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	serviceNames := cronContainers(ctx, userContext)
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, serviceNames)
+		web.WriteJSON(w, http.StatusOK, serviceNames)
 		return
 	}
 
@@ -220,7 +214,7 @@ func restartOrActivateCron(ctx context.Context, userContext string) {
 // handleSaveCronjob mirrors save_cronjob().
 func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -230,7 +224,7 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	path := cronFilePath(userContext)
 	resolvedPath, resolveErr := filepath.Abs(path)
 	if baseErr != nil || resolveErr != nil || !strings.HasPrefix(resolvedPath, baseDir) {
-		flashAndRedirect(a, w, r, "error", "Invalid cron file path", "/cronjobs/editor")
+		web.FlashRedirect(a, w, r, "error", "Invalid cron file path", "/cronjobs/editor")
 		return
 	}
 
@@ -247,23 +241,23 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	if crontabContent == "" {
 		if schedule == "" || command == "" || container == "" {
-			flashAndRedirect(a, w, r, "error", "Missing one or more required fields (schedule, command, container).", "/cronjobs/new")
+			web.FlashRedirect(a, w, r, "error", "Missing one or more required fields (schedule, command, container).", "/cronjobs/new")
 			return
 		}
 		if strings.Contains(schedule, "\n") || strings.Contains(command, "\n") || strings.Contains(container, "\n") || strings.Contains(comment, "\n") {
-			flashAndRedirect(a, w, r, "error", "Invalid characters in input.", "/cronjobs/new")
+			web.FlashRedirect(a, w, r, "error", "Invalid characters in input.", "/cronjobs/new")
 			return
 		}
 		if _, parseErr := nextCronRuns(schedule, time.Now(), 1, time.UTC); parseErr != nil {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Invalid schedule: %(error)s", "error", parseErr.Error()), "/cronjobs/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Invalid schedule: %(error)s", "error", parseErr.Error()), "/cronjobs/new")
 			return
 		}
 		if containsAnyPattern(command, forbiddenPatterns) {
-			flashAndRedirect(a, w, r, "error", "image= or network= are not allowed in the command.", "/cronjobs/new")
+			web.FlashRedirect(a, w, r, "error", "image= or network= are not allowed in the command.", "/cronjobs/new")
 			return
 		}
 		if containsAnyPattern(command, execPatterns) {
-			flashAndRedirect(a, w, r, "error", "job-run, job-local, and job-service-run are not allowed in the command.", "/cronjobs/new")
+			web.FlashRedirect(a, w, r, "error", "job-run, job-local, and job-service-run are not allowed in the command.", "/cronjobs/new")
 			return
 		}
 
@@ -288,12 +282,12 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		if writeErr := writeCronFile(resolvedPath, cronJobBlock, false); writeErr != nil {
-			flashAndRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs/new")
+			web.FlashRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs/new")
 			return
 		}
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "added a new cron job", ipAddress)
-		flashSess(a, w, r, "success", "Cron job created and saved successfully!")
+		web.Flash(a, w, r, "success", "Cron job created and saved successfully!")
 
 		restartOrActivateCron(ctx, userContext)
 
@@ -302,20 +296,20 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if containsAnyPattern(crontabContent, forbiddenPatterns) {
-		flashAndRedirect(a, w, r, "error", "image= or network= are not allowed in the crons file.", "/cronjobs/editor")
+		web.FlashRedirect(a, w, r, "error", "image= or network= are not allowed in the crons file.", "/cronjobs/editor")
 		return
 	}
 	if containsAnyPattern(crontabContent, execPatterns) {
-		flashAndRedirect(a, w, r, "error", "job-run, job-local, and job-service-run are not allowed in the crons file.", "/cronjobs/editor")
+		web.FlashRedirect(a, w, r, "error", "job-run, job-local, and job-service-run are not allowed in the crons file.", "/cronjobs/editor")
 		return
 	}
 	if errMsg := ValidateCronFileFormat(crontabContent); errMsg != "" {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Invalid crons file format: %(err_msg)s", "err_msg", errMsg), "/cronjobs/editor")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Invalid crons file format: %(err_msg)s", "err_msg", errMsg), "/cronjobs/editor")
 		return
 	}
 
 	if writeErr := writeCronFile(resolvedPath, crontabContent, true); writeErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs/editor")
+		web.FlashRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs/editor")
 		return
 	}
 	ipAddress := reqip.ClientIP(r)
@@ -327,13 +321,13 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		docker.StartOrStopContainer(ctx, userContext, "cron", "deactivate", "")
 	}
 
-	flashAndRedirect(a, w, r, "success", "Crons file saved successfully!", "/cronjobs/editor")
+	web.FlashRedirect(a, w, r, "success", "Crons file saved successfully!", "/cronjobs/editor")
 }
 
 // handleEditCronjob mirrors edit_cronjob().
 func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -351,28 +345,28 @@ func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	originalComment := r.Form.Get("original_comment")
 
 	if schedule == "" || command == "" || container == "" {
-		flashAndRedirect(a, w, r, "error", "Missing one or more required fields.", "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", "Missing one or more required fields.", "/cronjobs")
 		return
 	}
 	if originalSchedule == "" || originalCommand == "" || originalContainer == "" || originalComment == "" {
-		flashAndRedirect(a, w, r, "error", "Missing original cron job fields.", "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", "Missing original cron job fields.", "/cronjobs")
 		return
 	}
 	if strings.Contains(container, "\n") || strings.Contains(comment, "\n") || strings.Contains(schedule, "\n") {
-		flashAndRedirect(a, w, r, "error", "Invalid characters in input.", "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", "Invalid characters in input.", "/cronjobs")
 		return
 	}
 
 	baseDir, baseErr := filepath.Abs("/home/" + userContext)
 	resolvedPath, resolveErr := filepath.Abs(cronFilePath(userContext))
 	if baseErr != nil || resolveErr != nil || !strings.HasPrefix(resolvedPath, baseDir) {
-		flashAndRedirect(a, w, r, "error", "Invalid cron file path.", "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", "Invalid cron file path.", "/cronjobs")
 		return
 	}
 
 	content, readErr := os.ReadFile(resolvedPath)
 	if readErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs")
 		return
 	}
 
@@ -390,12 +384,12 @@ func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	})
 
 	if !updated {
-		flashAndRedirect(a, w, r, "error", "Cron job not found.", "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", "Cron job not found.", "/cronjobs")
 		return
 	}
 
 	if writeErr := os.WriteFile(resolvedPath, []byte(newContent), 0o644); writeErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs")
 		return
 	}
 
@@ -403,13 +397,13 @@ func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = logger.RecordUserAction(a.Config, currentUsername, "edited cron job", ipAddress)
 	restartOrActivateCron(ctx, userContext)
 
-	flashAndRedirect(a, w, r, "success", "Cron job was successfully edited.", "/cronjobs")
+	web.FlashRedirect(a, w, r, "success", "Cron job was successfully edited.", "/cronjobs")
 }
 
 // handleDeleteCronjob mirrors delete_cronjob().
 func handleDeleteCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -422,14 +416,14 @@ func handleDeleteCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	comment := r.Form.Get("comment")
 
 	if schedule == "" || command == "" || container == "" || comment == "" {
-		flashAndRedirect(a, w, r, "error", "Missing one or more required fields (schedule, command, container).", "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", "Missing one or more required fields (schedule, command, container).", "/cronjobs")
 		return
 	}
 
 	path := cronFilePath(userContext)
 	content, readErr := os.ReadFile(path)
 	if readErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error deleting cron job.", "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", "Error deleting cron job.", "/cronjobs")
 		return
 	}
 	newContent, _ := rewriteCronJob(string(content), func(j *CronJob) (bool, bool) {
@@ -438,7 +432,7 @@ func handleDeleteCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	newLines := strings.Split(newContent, "\n")
 
 	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error deleting cron job.", "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", "Error deleting cron job.", "/cronjobs")
 		return
 	}
 
@@ -451,5 +445,5 @@ func handleDeleteCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		docker.StartOrStopContainer(ctx, userContext, "cron", "deactivate", "")
 	}
 
-	flashAndRedirect(a, w, r, "success", "Cron job was successfully deleted.", "/cronjobs")
+	web.FlashRedirect(a, w, r, "success", "Cron job was successfully deleted.", "/cronjobs")
 }

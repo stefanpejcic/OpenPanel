@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/dbexport"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -39,7 +40,7 @@ func usersBulkActions(t i18n.Translator, databases []string) []web.BulkAction {
 
 // handleBulk serves both /postgresql/bulk (items are databases) and /postgresql/users/bulk (items are users)
 func handleBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, r *http.Request, usersPage bool) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

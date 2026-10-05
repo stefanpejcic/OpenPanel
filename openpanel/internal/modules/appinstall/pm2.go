@@ -80,7 +80,7 @@ func handlePM2Logs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if containerID == "" {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Container " + containerName + " is not running."})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Container " + containerName + " is not running."})
 		return
 	}
 
@@ -131,13 +131,13 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		JOIN domains ON domains.domain_url = SUBSTRING_INDEX(sites.site_name, '/', 1)
 		WHERE sites.container LIKE ? AND domains.user_id = ?`, "%"+siteName+"%", userID)
 	if scanErr := row.Scan(&lookup.Type, &lookup.SiteName); scanErr != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Unable to detect container type for the application."})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Unable to detect container type for the application."})
 		return
 	}
 
 	kind, ok := kindByAppType(lookup.Type)
 	if !ok {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Not a valid type, only NodeJS, Python, or Ruby applications can be edited."})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Not a valid type, only NodeJS, Python, or Ruby applications can be edited."})
 		return
 	}
 
@@ -483,13 +483,13 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var serviceName, appType string
 	row := a.DB.QueryRowContext(ctx, "SELECT container, type FROM sites WHERE site_name = ?", siteName)
 	if scanErr := row.Scan(&serviceName, &appType); scanErr != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Unable to detect service name for the application."})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Unable to detect service name for the application."})
 		return
 	}
 
 	kind, ok := kindByAppType(appType)
 	if !ok {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Not a valid type, only NodeJS, Python, or Ruby applications can be removed."})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Not a valid type, only NodeJS, Python, or Ruby applications can be removed."})
 		return
 	}
 
@@ -525,9 +525,9 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 					rmVolArgv := podmanmanager.PodmanArgv(userContext, "volume", "rm", "-f", userContext+"_"+serviceKey+"_data")
 					_ = podmanmanager.Command(ctx, userContext, rmVolArgv).Run()
 				}
-				flashSess(a, w, r, "success", web.Tr(a, r, "Application '%(site_name)s' removed successfully", "site_name", siteName))
+				web.Flash(a, w, r, "success", web.Tr(a, r, "Application '%(site_name)s' removed successfully", "site_name", siteName))
 			} else {
-				flashSess(a, w, r, "warning", web.Tr(a, r, "Service '%(service_key)s' not found in compose file", "service_key", serviceKey))
+				web.Flash(a, w, r, "warning", web.Tr(a, r, "Service '%(service_key)s' not found in compose file", "service_key", serviceKey))
 			}
 		}
 	}
@@ -548,14 +548,14 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			filtered = append(filtered, line)
 		}
 		_ = os.WriteFile(envFile, []byte(strings.Join(filtered, "\n")), 0o644)
-		flashSess(a, w, r, "success", web.Tr(a, r, "Environment variables for '%(service_name)s' removed from .env", "service_name", serviceName))
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Environment variables for '%(service_name)s' removed from .env", "service_name", serviceName))
 	} else {
-		flashSess(a, w, r, "warning", web.Tr(a, r, ".env file not found at %(env_file)s", "env_file", envFile))
+		web.Flash(a, w, r, "warning", web.Tr(a, r, ".env file not found at %(env_file)s", "env_file", envFile))
 	}
 
 	if _, execErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE site_name = ?", siteName); execErr == nil {
 		_ = logger.RecordUserAction(a.Config, currentUsername, "deleted application "+siteName, reqip.ClientIP(r))
-		flashSess(a, w, r, "success", web.Tr(a, r, "Application '%(site_name)s' deleted from the database", "site_name", siteName))
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Application '%(site_name)s' deleted from the database", "site_name", siteName))
 	} else {
 		flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Failed to delete application '%(site_name)s' from the database: %(error)s", "site_name", siteName, "error", execErr.Error()), "/sites")
 		return

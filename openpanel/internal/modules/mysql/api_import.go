@@ -7,16 +7,18 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // apiMySQLImportDatabase imports an uploaded .sql/.sql.gz dump into a database (multipart field: "file") - the API equivalent of POST /mysql/import/{dbname}, reusing the same podman-stdin pipeline (importDatabaseDump, in importdb.go) the web upload form uses - wired from api.go's apiMySQLDatabasesPostDispatch, so it shares the "mysql" feature gate rather than the web route's separate "mysql_import" gate, since Go's ServeMux only allows one registration of the "POST /api/mysql/databases/{rest...}" wildcard
 func apiMySQLImportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -32,7 +34,7 @@ func apiMySQLImportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	maxBytes := int64(atoiDefault(mysqlImportMaxSizeGB, 1))*1024*1024*1024 + (1 << 20)
+	maxBytes := int64(web.AtoiDefault(mysqlImportMaxSizeGB, 1))*1024*1024*1024 + (1 << 20)
 	if mpErr := r.ParseMultipartForm(maxBytes); mpErr != nil {
 		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "SQL file required (multipart field: 'file')."})
 		return
@@ -49,7 +51,7 @@ func apiMySQLImportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "File must be a .sql or .sql.gz dump."})
 		return
 	}
-	maxImportBytes := int64(atoiDefault(mysqlImportMaxSizeGB, 1)) * 1024 * 1024 * 1024
+	maxImportBytes := int64(web.AtoiDefault(mysqlImportMaxSizeGB, 1)) * 1024 * 1024 * 1024
 	if header.Size > maxImportBytes {
 		writeAPIMySQLJSON(w, http.StatusRequestEntityTooLarge, map[string]string{"error": "Uploaded file exceeds " + mysqlImportMaxSizeGB + " GB limit."})
 		return

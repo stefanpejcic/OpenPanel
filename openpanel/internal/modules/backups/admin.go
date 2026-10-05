@@ -28,8 +28,8 @@ func init() {
 func respondBackupsAdminManaged(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	msg := "Backup destinations and settings are managed by your administrator. You can still list and restore backups."
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": msg})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": msg})
 		return
 	}
-	flashAndRedirect(a, w, r, "error", msg, "/backups")
+	web.FlashRedirect(a, w, r, "error", msg, "/backups")
 }

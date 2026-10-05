@@ -11,36 +11,20 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var pageFiles = []string{
-	"base.html",
-	"partials/_header.html",
-	"partials/_footer.html",
-	"partials/_service.html",
-	"partials/_search.html",
-	"partials/_impersonate.html",
-	"partials/_service_js.html",
-	"partials/punnycode.html",
-	"partials/theme_switcher.html",
-}
-
-func loadPage(files ...string) *web.Page {
-	return web.MustLoadPage(append(append([]string{}, pageFiles...), files...)...)
-}
-
 var (
-	databasesPage     = loadPage("mysql/databases.html")
-	newDatabasePage   = loadPage("mysql/new.html")
-	usersPage         = loadPage("mysql/users.html")
-	createUserPage    = loadPage("mysql/mysql_user.html")
-	passwordPage      = loadPage("mysql/password.html")
-	wizardPage        = loadPage("mysql/wizard.html")
-	assignPage        = loadPage("mysql/assign.html")
-	removePage        = loadPage("mysql/remove.html")
-	importPage        = loadPage("mysql/import.html")
-	processlistPage   = loadPage("mysql/processlist.html")
-	rootPasswordPage  = loadPage("mysql/root_password.html")
-	remoteMySQLPage   = loadPage("mysql/remote_mysql.html")
-	configurationPage = loadPage("mysql/configuration.html", "partials/_db_tuning.html")
+	databasesPage     = web.LoadPage("mysql/databases.html")
+	newDatabasePage   = web.LoadPage("db/new.html")
+	usersPage         = web.LoadPage("mysql/users.html")
+	createUserPage    = web.LoadPage("mysql/mysql_user.html")
+	passwordPage      = web.LoadPage("mysql/password.html")
+	wizardPage        = web.LoadPage("mysql/wizard.html")
+	assignPage        = web.LoadPage("mysql/assign.html")
+	removePage        = web.LoadPage("mysql/remove.html")
+	importPage        = web.LoadPage("mysql/import.html")
+	processlistPage   = web.LoadPage("mysql/processlist.html")
+	rootPasswordPage  = web.LoadPage("mysql/root_password.html")
+	remoteMySQLPage   = web.LoadPage("mysql/remote_mysql.html")
+	configurationPage = web.LoadPage("db/configuration.html", "partials/_db_tuning.html")
 )
 
 // ServiceStatusData is the container_state/health_status view-model shared by databases.html and users.html.
@@ -94,6 +78,7 @@ func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 type NewDatabasePageData struct {
 	web.LayoutData
 	Service string
+	Engine  web.DBEngine
 }
 
 func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion string) {
@@ -102,7 +87,7 @@ func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := NewDatabasePageData{LayoutData: layout, Service: mysqlVersion}
+	data := NewDatabasePageData{LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine}
 	if err := newDatabasePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MYSQL - new database template render error: %v", err)
 	}
@@ -364,6 +349,7 @@ type ConfigurationPageData struct {
 	Service       string
 	CurrentConfig map[string]string
 	DefaultKeys   []string
+	Engine        web.DBEngine
 }
 
 func renderConfigurationPage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion string, currentConfig map[string]string, defaultKeys []string) {
@@ -372,7 +358,7 @@ func renderConfigurationPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := ConfigurationPageData{LayoutData: layout, Service: mysqlVersion, CurrentConfig: currentConfig, DefaultKeys: defaultKeys}
+	data := ConfigurationPageData{LayoutData: layout, Service: mysqlVersion, CurrentConfig: currentConfig, DefaultKeys: defaultKeys, Engine: web.MySQLEngine}
 	if err := configurationPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MYSQL - configuration template render error: %v", err)
 	}

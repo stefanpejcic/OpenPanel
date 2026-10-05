@@ -13,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterPM2Clone wires the /pm2/clone route onto mux.
@@ -64,12 +65,12 @@ func handlePM2Clone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		JOIN domains ON domains.domain_url = SUBSTRING_INDEX(sites.site_name, '/', 1)
 		WHERE sites.container LIKE ? AND domains.user_id = ?`, "%"+siteName+"%", userID)
 	if scanErr := row.Scan(&lookup.Type, &lookup.SiteName, &lookup.Container); scanErr != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Application not found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Application not found"})
 		return
 	}
 	kind, ok := kindByAppType(lookup.Type)
 	if !ok {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Only NodeJS, Python, or Ruby applications can be cloned"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Only NodeJS, Python, or Ruby applications can be cloned"})
 		return
 	}
 
@@ -78,7 +79,7 @@ func handlePM2Clone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	targetServiceName := strings.ToLower(strings.TrimSpace(r.FormValue("target_service_name")))
 	startupFile := strings.TrimSpace(r.FormValue("startup_file"))
 	if targetDomainID == "" || targetServiceName == "" || startupFile == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Target domain, service name, and startup file are required"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Target domain, service name, and startup file are required"})
 		return
 	}
 
@@ -86,7 +87,7 @@ func handlePM2Clone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var targetDocrootNull sql.NullString
 	if scanErr := a.DB.QueryRowContext(ctx, "SELECT domain_url, docroot FROM domains WHERE domain_id = ?", targetDomainID).
 		Scan(&targetTopDomain, &targetDocrootNull); scanErr != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Target domain not found"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Target domain not found"})
 		return
 	}
 	if !a.CheckDomainBelongsToUser(ctx, userID, targetTopDomain) {
@@ -98,7 +99,7 @@ func handlePM2Clone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	srcDomain, srcSubdirectory, _ := strings.Cut(lookup.SiteName, "/")
 	var srcDocrootNull sql.NullString
 	if scanErr := a.DB.QueryRowContext(ctx, "SELECT docroot FROM domains WHERE domain_url = ?", srcDomain).Scan(&srcDocrootNull); scanErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Source domain not found"})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Source domain not found"})
 		return
 	}
 	srcDocroot := srcDocrootNull.String
@@ -128,15 +129,15 @@ func handlePM2Clone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	// copy the source app's files into place *before* triggering the install below - HandleInstall only considers it successful once the container is observed running, and the container immediately exits if its startup file doesn't exist yet, which HandleInstall would treat as a failed install and roll back. A fresh install avoids this via git_repo_url or a later file upload, but a clone needs its real files to land before the container-start check runs.
 	if info, statErr := os.Stat(srcHostPath); statErr != nil || !info.IsDir() {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Source folder not found on disk: " + srcPath})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Source folder not found on disk: " + srcPath})
 		return
 	}
 	if mkErr := os.MkdirAll(dstHostPath, 0o755); mkErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to prepare target folder: " + mkErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to prepare target folder: " + mkErr.Error()})
 		return
 	}
 	if cpErr := exec.CommandContext(ctx, "cp", "-a", srcHostPath+"/.", dstHostPath+"/").Run(); cpErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy application files: " + cpErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy application files: " + cpErr.Error()})
 		return
 	}
 	_ = exec.CommandContext(ctx, "chown", "-R", userContext+":"+userContext, dstHostPath).Run()
@@ -163,12 +164,12 @@ func handlePM2Clone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	installOutput := installRec.Body.String()
 	if strings.Contains(installOutput, `"error"`) {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Clone failed: " + firstNDJSONError(installOutput)})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Clone failed: " + firstNDJSONError(installOutput)})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "cloned "+kind.DisplayAppType+" application from "+lookup.SiteName+" to "+targetSiteName, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]any{"status": "success", "target": targetSiteName})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"status": "success", "target": targetSiteName})
 }
 
 func orDefault(value, def string) string {

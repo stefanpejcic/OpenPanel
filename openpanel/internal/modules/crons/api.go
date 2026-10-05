@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -47,7 +48,7 @@ func apiCronPath(userContext string) (path string, ok bool) {
 // apiCronsList mirrors api_crons_list().
 func apiCronsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -111,7 +112,7 @@ func toAPIJobs(jobs []CronJob) []crJob {
 
 // apiCronsRawGet mirrors api_crons_raw()'s GET branch.
 func apiCronsRawGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -132,7 +133,7 @@ func apiCronsRawGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiCronsRawPut mirrors api_crons_raw()'s PUT branch.
 func apiCronsRawPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -180,7 +181,7 @@ func apiCronsRawPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiCronsCreate mirrors api_crons_create().
 func apiCronsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -262,7 +263,7 @@ func apiCronsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiCronsEdit mirrors api_crons_edit().
 func apiCronsEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -347,7 +348,7 @@ func apiCronsEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiCronsDelete mirrors api_crons_delete().
 func apiCronsDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -403,7 +404,7 @@ func apiCronsDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiCronsLog mirrors api_crons_log().
 func apiCronsLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

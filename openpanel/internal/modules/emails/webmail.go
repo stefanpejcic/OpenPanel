@@ -18,6 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 const (
@@ -203,7 +204,7 @@ func createWebmailToken(ctx context.Context, email string) (string, error) {
 func handleWebmailLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -212,7 +213,7 @@ func handleWebmailLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userDomains := domainSet(domains)
 
 	if !isWebmailRunning(ctx) {
-		flashAndRedirect(a, w, r, "info", "Webmail service is not yet started, please contact Administrator to enable it.", "/emails")
+		web.FlashRedirect(a, w, r, "info", "Webmail service is not yet started, please contact Administrator to enable it.", "/emails")
 		return
 	}
 

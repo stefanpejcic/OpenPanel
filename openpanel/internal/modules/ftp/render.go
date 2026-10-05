@@ -9,23 +9,11 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var pageFiles = []string{
-	"base.html",
-	"partials/_header.html",
-	"partials/_footer.html",
-	"partials/_service.html",
-	"partials/_search.html",
-	"partials/_impersonate.html",
-	"partials/_service_js.html",
-	"partials/punnycode.html",
-	"partials/theme_switcher.html",
-}
-
-var ftpAccountsPage = web.MustLoadPage(append(append([]string{}, pageFiles...), "files/ftp.html")...)
-var ftpConnectionsPage = web.MustLoadPage(append(append([]string{}, pageFiles...), "files/ftp_connections.html")...)
-var ftpNewPage = web.MustLoadPage(append(append([]string{}, pageFiles...), "files/ftp_new.html")...)
-var ftpPasswordPage = web.MustLoadPage(append(append([]string{}, pageFiles...), "files/ftp_password.html")...)
-var ftpPathPage = web.MustLoadPage(append(append([]string{}, pageFiles...), "files/ftp_path.html")...)
+var ftpAccountsPage = web.LoadPage("files/ftp.html")
+var ftpConnectionsPage = web.LoadPage("files/ftp_connections.html")
+var ftpNewPage = web.LoadPage("files/ftp_new.html")
+var ftpPasswordPage = web.LoadPage("files/ftp_password.html")
+var ftpPathPage = web.LoadPage("files/ftp_path.html")
 
 // FTPAccountsPageData is ftp.html's template context.
 type FTPAccountsPageData struct {

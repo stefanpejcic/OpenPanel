@@ -1,56 +1,33 @@
 package opencart
 
 import (
-	"context"
 	"net/http"
+	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
-
-// openCartRequestParams pulls domain/docroot, splits off any subdirectory suffix, checks ownership, and resolves the PHP container - shared by cache/logs/login, mirrors drupal/drush.go's drushRequestParams and joomla/cli.go's joomlaRequestParams
-func openCartRequestParams(ctx context.Context, a *appctx.App, r *http.Request, userID int, userContext string) (domain, docroot, phpContainer string, ok bool) {
-	domain = r.URL.Query().Get("domain")
-	docroot = r.URL.Query().Get("docroot")
-	if domain == "" || docroot == "" {
-		return "", "", "", false
-	}
-
-	mainDomain := domain
-	if idx := strings.Index(domain, "/"); idx != -1 {
-		mainDomain = domain[:idx]
-	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, mainDomain) {
-		return "", "", "", false
-	}
-
-	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
-	phpVersion := php.GetPHPVForDomain(ctx, a, userContext, mainDomain)
-	phpContainer = webServer
-	if !strings.Contains(strings.ToLower(webServer), "litespeed") {
-		phpContainer = "php-fpm-" + phpVersion
-	}
-	return domain, docroot, phpContainer, true
-}
 
 // handleOpenCartCacheClean deletes every cache.* file under system/storage/cache/ - OpenCart has no CLI cache-clear command, this is what the admin "Refresh Cache" button does under the hood
 func handleOpenCartCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
-	domain, docroot, phpContainer, ok := openCartRequestParams(ctx, a, r, userID, userContext)
+	domain, docroot, phpContainer, ok := cmsapp.RequestParams(ctx, a, r, userID, userContext)
 	if !ok {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required, or you do not own this domain"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required, or you do not own this domain"})
 		return
 	}
 
@@ -58,49 +35,18 @@ func handleOpenCartCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		`find "$1/system/storage/cache" -maxdepth 1 -name 'cache.*' -delete`, "sh", docroot)
 	out, runErr := podmanmanager.Command(ctx, userContext, argv).CombinedOutput()
 	if runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Clearing cache failed", "details": strings.TrimSpace(string(out))})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Clearing cache failed", "details": strings.TrimSpace(string(out))})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "cleared OpenCart cache for "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Cache cleared successfully."})
-}
-
-// handleOpenCartLogs returns the tail of system/storage/logs/error.log, the single file OpenCart logs PHP warnings/errors and admin activity to
-func handleOpenCartLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, _, userContext, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	_, docroot, phpContainer, ok := openCartRequestParams(ctx, a, r, userID, userContext)
-	if !ok {
-		http.Error(w, "domain and docroot are required, or you do not own this domain", http.StatusBadRequest)
-		return
-	}
-
-	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "sh", "-c",
-		`tail -n 300 "$1/system/storage/logs/error.log" 2>/dev/null`, "sh", docroot)
-	out, runErr := podmanmanager.Command(ctx, userContext, argv).CombinedOutput()
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	if runErr != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write(out)
-		return
-	}
-	if len(strings.TrimSpace(string(out))) == 0 {
-		_, _ = w.Write([]byte("No log entries yet - OpenCart only writes here when a PHP warning/error occurs."))
-		return
-	}
-	_, _ = w.Write(out)
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Cache cleared successfully."})
 }
 
 // handleOpenCartLogin generates a one-time admin login link, mirrors joomla's approach with a lazily-created token table plus the login helper PHP deployed at install time
 func handleOpenCartLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -109,7 +55,7 @@ func handleOpenCartLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	domain := r.URL.Query().Get("domain")
 	docroot := r.URL.Query().Get("docroot")
 	if domain == "" || docroot == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required"})
 		return
 	}
 	mainDomain := domain
@@ -123,7 +69,7 @@ func handleOpenCartLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	dbInfo := extractOpenCartDatabaseInfoForLogin(userContext, docroot)
 	if dbInfo["error"] != "" {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": dbInfo["error"]})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": dbInfo["error"]})
 		return
 	}
 	dbName := dbInfo["database_name"]
@@ -135,19 +81,19 @@ func handleOpenCartLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	rows, queryErr := mysqlmanager.Exec(ctx, userContext,
 		"SELECT user_id FROM `oc_user` WHERE status = 1 ORDER BY user_id ASC LIMIT 1", dbName)
 	if queryErr != nil || len(rows) == 0 {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "No active admin account found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "No active admin account found"})
 		return
 	}
-	userIDStr := toStringCell(rows[0][0])
+	userIDStr := mysqlmanager.ToString(rows[0][0])
 
-	token := generateRandomString(32)
-	tokenHash := sha256Hex(token)
+	token := appkit.RandomString(32)
+	tokenHash := appkit.SHA256Hex(token)
 	const ttlSeconds = 600
 	_, insErr := mysqlmanager.Exec(ctx, userContext,
 		"INSERT INTO `oc_openpanel_login_tokens` (token_hash, user_id, expires) VALUES ('"+
-			tokenHash+"', "+userIDStr+", UNIX_TIMESTAMP() + "+itoa(ttlSeconds)+")", dbName)
+			tokenHash+"', "+userIDStr+", UNIX_TIMESTAMP() + "+strconv.Itoa(ttlSeconds)+")", dbName)
 	if insErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": insErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": insErr.Error()})
 		return
 	}
 
@@ -157,5 +103,5 @@ func handleOpenCartLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		maskedLink = loginLink[:len(loginLink)-10] + "*****"
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "generated auto-login link for OpenCart admin: "+maskedLink, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"login_link": loginLink})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"login_link": loginLink})
 }

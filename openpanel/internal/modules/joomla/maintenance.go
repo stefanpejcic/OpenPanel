@@ -5,23 +5,26 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleJoomlaMaintenance reads (GET) or toggles (POST, action=enable|disable) Joomla's own offline mode - the public $offline property in configuration.php that Joomla's front controller already checks on every request, so no extra code ships into the docroot the way opencart/prestashop's flag lives in the DB
 func handleJoomlaMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
-	domain, docroot, phpContainer, ok := joomlaRequestParams(ctx, a, r, userID, userContext)
+	domain, docroot, phpContainer, ok := cmsapp.RequestParams(ctx, a, r, userID, userContext)
 	if !ok {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required, or you do not own this domain"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required, or you do not own this domain"})
 		return
 	}
 
@@ -33,13 +36,13 @@ func handleJoomlaMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		if strings.TrimSpace(string(out)) == "true" {
 			status = "enabled"
 		}
-		writeJSON(w, http.StatusOK, map[string]string{"status": status})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"status": status})
 		return
 	}
 
 	action := strings.ToLower(r.FormValue("action"))
 	if action != "enable" && action != "disable" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "action must be 'enable' or 'disable'"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "action must be 'enable' or 'disable'"})
 		return
 	}
 	value := "false"
@@ -50,7 +53,7 @@ func handleJoomlaMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		`sed -i "s/\$offline[[:space:]]*=[[:space:]]*\(true\|false\)/\$offline = `+value+`/" "$1/configuration.php"`, "sh", docroot)
 	out, runErr := podmanmanager.Command(ctx, userContext, argv).CombinedOutput()
 	if runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Updating configuration.php failed", "details": strings.TrimSpace(string(out))})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Updating configuration.php failed", "details": strings.TrimSpace(string(out))})
 		return
 	}
 
@@ -59,5 +62,5 @@ func handleJoomlaMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		status = "enabled"
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, action+"d Joomla maintenance mode for "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Maintenance mode " + action + "d successfully.", "status": status})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Maintenance mode " + action + "d successfully.", "status": status})
 }

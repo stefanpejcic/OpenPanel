@@ -16,6 +16,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 
@@ -284,7 +285,7 @@ func setCronTimeZone(ctx context.Context, userContext, tz string) error {
 
 // handleCronTimeZone saves the zone picked on the Cron Jobs summary
 func handleCronTimeZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -292,16 +293,16 @@ func handleCronTimeZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	tz := strings.TrimSpace(r.Form.Get("timezone"))
 	if err := setCronTimeZone(r.Context(), userContext, tz); err != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, err.Error()), "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, err.Error()), "/cronjobs")
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, username, "changed the cron time zone to "+tz, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Cron time zone set to %(tz)s.", "tz", tz), "/cronjobs")
+	web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Cron time zone set to %(tz)s.", "tz", tz), "/cronjobs")
 }
 
 // apiCronTimeZoneGet returns the zone the cron service runs in
 func apiCronTimeZoneGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -311,7 +312,7 @@ func apiCronTimeZoneGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // apiCronTimeZonePut sets the zone, body {"timezone": "Europe/Belgrade"}
 func apiCronTimeZonePut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

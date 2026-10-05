@@ -50,13 +50,6 @@ func isValidServiceName(name string) bool {
 	return validServiceNameRE.MatchString(name)
 }
 
-func isValidSubdirectory(subdirectory string) bool {
-	if subdirectory == "" {
-		return true
-	}
-	return !strings.Contains(subdirectory, "..") && !strings.HasPrefix(subdirectory, "/")
-}
-
 // versionRE accepts plain dotted-numeric tags ("3.3.6", "18") used by ruby/python/nodejs, plus the "_NN"/"-jdk-jammy" suffixes eclipse-temurin's Java tags always carry (see shared.go's javaCleanTagRE)
 var versionRE = regexp.MustCompile(`^[0-9]+(\.[0-9]+)*(_[0-9]+)?(-jdk-jammy)?$`)
 

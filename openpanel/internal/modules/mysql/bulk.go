@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/dbexport"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
@@ -57,7 +58,7 @@ func usersBulkActions(t i18n.Translator, databases []web.BulkOption) []web.BulkA
 
 // handleDatabasesBulk replays each database through the same routes as its row buttons
 func handleDatabasesBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, r *http.Request) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -70,7 +71,7 @@ func handleDatabasesBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter,
 
 // handleUsersBulk is the same for /mysql/users, where the item is the user and the value the database
 func handleUsersBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, r *http.Request) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

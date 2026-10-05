@@ -1,49 +1,15 @@
 package ojs
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 )
-
-// toStringCell converts one mysqlmanager.Exec() result cell to a string, mirrors every other CMS module's identical helper
-func toStringCell(v any) string {
-	switch t := v.(type) {
-	case nil:
-		return ""
-	case string:
-		return t
-	case []byte:
-		return string(t)
-	case int64:
-		return strconv.FormatInt(t, 10)
-	case uint64:
-		return strconv.FormatUint(t, 10)
-	case int:
-		return strconv.Itoa(t)
-	case float64:
-		return strconv.FormatFloat(t, 'f', -1, 64)
-	case bool:
-		return strconv.FormatBool(t)
-	default:
-		return ""
-	}
-}
-
-func sha256Hex(s string) string {
-	sum := sha256.Sum256([]byte(s))
-	return hex.EncodeToString(sum[:])
-}
-
-func itoa(n int) string { return strconv.Itoa(n) }
 
 // config.inc.php is INI format ("key = value" under "[section]"), not a PHP $CFG-> assignment file like Moodle/WordPress/Joomla, so these match a bare "key = ..." line - safe without anchoring on the section since key names don't collide across the sections this module touches
 var (
-	iniDatabaseDriverRE   = regexp.MustCompile(`(?m)^driver\s*=.*$`)
-	iniDatabaseHostRE     = regexp.MustCompile(`(?m)^host\s*=.*$`)
 	iniDatabaseUsernameRE = regexp.MustCompile(`(?m)^username\s*=.*$`)
 	iniDatabasePasswordRE = regexp.MustCompile(`(?m)^password\s*=.*$`)
 	iniDatabaseNameRE     = regexp.MustCompile(`(?m)^name\s*=.*$`)
@@ -64,14 +30,14 @@ func iniBare(key, value string) string {
 	return key + " = " + value
 }
 
-// ojsApprootDir maps a site's docroot (a symlink to <slug>_ojsapp, see ojs.go) to its backing app-root directory where config.inc.php/tools/index.php live, via the same siteSlug() install.go used to create it
+// ojsApprootDir maps a site's docroot (a symlink to <slug>_ojsapp, see ojs.go) to its backing app-root directory where config.inc.php/tools/index.php live, via the same appkit.SiteSlug() install.go used to create it
 func ojsApprootDir(userContext, directory string) string {
 	const wwwPrefix = "/var/www/html/"
 	relPath := directory
 	if len(relPath) >= len(wwwPrefix) && relPath[:len(wwwPrefix)] == wwwPrefix {
 		relPath = relPath[len(wwwPrefix):]
 	}
-	slug := siteSlug(relPath)
+	slug := appkit.SiteSlug(relPath)
 	return "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + slug + "_ojsapp"
 }
 

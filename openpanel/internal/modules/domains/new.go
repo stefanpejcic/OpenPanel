@@ -12,10 +12,8 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -23,20 +21,6 @@ var domainCharsRE = regexp.MustCompile(`^[a-zA-Z0-9.-]+$`)
 
 // pathCharsRE matches the safe charset for a filesystem path segment - excludes quotes, backticks, semicolons etc, since these paths get interpolated into opencli SQL/shell commands downstream
 var pathCharsRE = regexp.MustCompile(`^[a-zA-Z0-9._/-]+$`)
-
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
-// flashSess adds a flash message without redirecting, for GET branches that flash an error but still render the current page
-func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-}
 
 // resolveUnderVarWWWHTML resolves a path lexically (no symlink following, the path may not exist yet) and confirms it stays under the docroot base, used for onion key paths and docroot in handleDomainsNew
 func resolveUnderVarWWWHTML(raw string) (resolved string, ok bool) {
@@ -73,7 +57,7 @@ func handleDomainsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	domainURL := r.Form.Get("domain_url")
 	if domainURL == "" {
-		flashAndRedirect(a, w, r, "error", "Domain name is required", "/domains/new")
+		web.FlashRedirect(a, w, r, "error", "Domain name is required", "/domains/new")
 		return
 	}
 
@@ -94,7 +78,7 @@ func handleDomainsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domainURL = strings.ToLower(domainURL)
 
 	if !domainCharsRE.MatchString(domainURL) {
-		flashAndRedirect(a, w, r, "error", "Domain name contains invalid characters.", "/domains/new")
+		web.FlashRedirect(a, w, r, "error", "Domain name contains invalid characters.", "/domains/new")
 		return
 	}
 
@@ -104,29 +88,29 @@ func handleDomainsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		onionSecretKey := r.Form.Get("hs_ed25519_secret_key")
 
 		if onionPublicKey == "" || onionSecretKey == "" {
-			flashAndRedirect(a, w, r, "error", "Paths for both public and secret files must be set for importing .onion domain.", "/domains/new")
+			web.FlashRedirect(a, w, r, "error", "Paths for both public and secret files must be set for importing .onion domain.", "/domains/new")
 			return
 		}
 
 		normalizedPublic, publicOK := resolveUnderVarWWWHTML(onionPublicKey)
 		if !publicOK {
-			flashAndRedirect(a, w, r, "error", "Path for public file must start with /var/www/html/", "/domains/new")
+			web.FlashRedirect(a, w, r, "error", "Path for public file must start with /var/www/html/", "/domains/new")
 			return
 		}
 		fullPublicKeyPath := filepath.Join(homePrefix, strings.TrimPrefix(normalizedPublic, userHomeDirectory))
 		if info, statErr := os.Stat(fullPublicKeyPath); statErr != nil || info.IsDir() {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Public key file: %(onion_public_key)s does not exist!", "onion_public_key", onionPublicKey), "/domains/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Public key file: %(onion_public_key)s does not exist!", "onion_public_key", onionPublicKey), "/domains/new")
 			return
 		}
 
 		normalizedSecret, secretOK := resolveUnderVarWWWHTML(onionSecretKey)
 		if !secretOK {
-			flashAndRedirect(a, w, r, "error", "Path for secret file must start with /var/www/html/", "/domains/new")
+			web.FlashRedirect(a, w, r, "error", "Path for secret file must start with /var/www/html/", "/domains/new")
 			return
 		}
 		fullSecretKeyPath := filepath.Join(homePrefix, strings.TrimPrefix(normalizedSecret, userHomeDirectory))
 		if info, statErr := os.Stat(fullSecretKeyPath); statErr != nil || info.IsDir() {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Secret key file: %(onion_secret_key)s does not exist!", "onion_secret_key", onionSecretKey), "/domains/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Secret key file: %(onion_secret_key)s does not exist!", "onion_secret_key", onionSecretKey), "/domains/new")
 			return
 		}
 
@@ -143,7 +127,7 @@ func handleDomainsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	planID, _ := injectedData["hosting_plan"].(int)
 	domainsLimit := 0
 	if plan, planErr := a.QueryPlanDetailsByID(ctx, planID); planErr == nil {
-		domainsLimit = atoiDefault(plan.DomainsLimit, 0)
+		domainsLimit = web.AtoiDefault(plan.DomainsLimit, 0)
 	}
 
 	if domainsLimit != 0 {

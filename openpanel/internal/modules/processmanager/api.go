@@ -7,10 +7,12 @@ import (
 	"strconv"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI wires the process manager JSON API routes onto mux.
@@ -21,7 +23,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 
 // apiProcessList returns every process running across the user's containers
 func apiProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -31,13 +33,13 @@ func apiProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusInternalServerError, procErr.Error())
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"processes": processes, "count": len(processes)})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"processes": processes, "count": len(processes)})
 }
 
 // apiProcessKill terminates a process by PID using the container-scoped `podman exec <container> kill -9 <pid>` also used by the UI route, since these are container-namespaced PIDs a bare host-level kill wouldn't hit the right process
 func apiProcessKill(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -80,5 +82,5 @@ func apiProcessKill(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = logger.RecordUserAction(a.Config, username, fmt.Sprintf("terminated process %d via API", pidInt), reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("Process %d killed successfully", pidInt)})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("Process %d killed successfully", pidInt)})
 }

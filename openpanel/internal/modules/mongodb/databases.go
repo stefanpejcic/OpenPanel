@@ -35,7 +35,7 @@ func normalizeHealth(status docker.ContainerStatus) docker.ContainerStatus {
 // handleDatabases lists the user's MongoDB databases, starting the container in the background if it isn't running yet
 func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -46,14 +46,14 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	switch {
 	case status.State == "not_found":
-		flashSess(a, w, r, "warning", "MongoDB service is not yet installed. Starting it in the background..")
+		web.Flash(a, w, r, "warning", "MongoDB service is not yet installed. Starting it in the background..")
 		docker.StartOrStopContainer(ctx, userContext, "mongodb", "activate", "detached")
 	case status.State != "running":
-		flashSess(a, w, r, "warning", "MongoDB container is not running. Please allow a few moments for the initialization..")
+		web.Flash(a, w, r, "warning", "MongoDB container is not running. Please allow a few moments for the initialization..")
 	default:
 		dbs, listErr := mongomanager.ListDatabases(ctx, userContext)
 		if listErr != nil {
-			flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching databases: %(error)s", "error", listErr.Error()))
+			web.Flash(a, w, r, "error", web.Tr(a, r, "Error fetching databases: %(error)s", "error", listErr.Error()))
 		} else {
 			for _, d := range dbs {
 				databaseInfo = append(databaseInfo, DatabaseRow{Database: d.Name, SizeDisplay: formatSize(d.SizeBytes), IsSystem: mongomanager.IsSystemDatabase(d.Name)})
@@ -62,7 +62,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"databases":       databaseInfo,
 			"container_state": status.State, "health_status": status.Health,
 		})
@@ -76,7 +76,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -84,7 +84,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	status := docker.GetContainerStatus(ctx, userContext, "mongodb")
 	if status.State != "running" {
-		flashAndRedirect(a, w, r, "warning", "MongoDB service is not ready yet. Please wait for the installation to finish before creating a database.", "/mongodb")
+		web.FlashRedirect(a, w, r, "warning", "MongoDB service is not ready yet. Please wait for the installation to finish before creating a database.", "/mongodb")
 		return
 	}
 
@@ -97,15 +97,15 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		_ = r.ParseForm()
 		databaseName := r.Form.Get("database_name")
 		if databaseName == "" {
-			flashAndRedirect(a, w, r, "error", "Database name is required.", "/mongodb/new")
+			web.FlashRedirect(a, w, r, "error", "Database name is required.", "/mongodb/new")
 			return
 		}
 		if !validators.IsValidIdentifier(databaseName) {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mongodb/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mongodb/new")
 			return
 		}
 		if isRestrictedDatabase(databaseName) {
-			flashAndRedirect(a, w, r, "error", "This is a system database that can not be used.", "/mongodb/new")
+			web.FlashRedirect(a, w, r, "error", "This is a system database that can not be used.", "/mongodb/new")
 			return
 		}
 
@@ -115,7 +115,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		planID, _ := injectedData["hosting_plan"].(int)
 		plan, _ := a.QueryPlanDetailsByID(ctx, planID)
 		dbLimit := 100
-		if v := atoiDefault(plan.DBLimit, 0); v != 0 {
+		if v := web.AtoiDefault(plan.DBLimit, 0); v != 0 {
 			dbLimit = v
 		} else {
 			dbLimit = 1000000
@@ -127,18 +127,18 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		if dbUsage >= dbLimit {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "You have reached the maximum number of databases allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()), "/mongodb/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "You have reached the maximum number of databases allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()), "/mongodb/new")
 			return
 		}
 
 		if createErr := mongomanager.CreateDatabase(ctx, userContext, databaseName); createErr != nil {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create database: %(error)s", "error", createErr.Error()), "/mongodb/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create database: %(error)s", "error", createErr.Error()), "/mongodb/new")
 			return
 		}
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a MongoDB database "+databaseName, ipAddress)
-		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully created a MongoDB database %(database_name)s", "database_name", databaseName))
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a MongoDB database %(database_name)s", "database_name", databaseName))
 		http.Redirect(w, r, "/mongodb", http.StatusFound)
 		return
 	}
@@ -149,7 +149,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // handleDeleteDatabase drops a MongoDB database.
 func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -160,24 +160,24 @@ func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	switch {
 	case databaseName == "":
-		flashAndRedirect(a, w, r, "error", "Database name is required.", "/mongodb")
+		web.FlashRedirect(a, w, r, "error", "Database name is required.", "/mongodb")
 		return
 	case !validators.IsValidIdentifier(databaseName):
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mongodb")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mongodb")
 		return
 	case isRestrictedDatabase(databaseName):
-		flashAndRedirect(a, w, r, "error", "This is a system database that cannot be deleted.", "/mongodb")
+		web.FlashRedirect(a, w, r, "error", "This is a system database that cannot be deleted.", "/mongodb")
 		return
 	}
 
 	if dropErr := mongomanager.DropDatabase(ctx, userContext, databaseName); dropErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting database %(database_name)s: %(error)s", "database_name", databaseName, "error", dropErr.Error()), "/mongodb")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting database %(database_name)s: %(error)s", "database_name", databaseName, "error", dropErr.Error()), "/mongodb")
 		return
 	}
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted a MongoDB database "+databaseName, ipAddress)
-	flashSess(a, w, r, "success", web.Tr(a, r, "Successfully deleted a MongoDB database %(database_name)s", "database_name", databaseName))
+	web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully deleted a MongoDB database %(database_name)s", "database_name", databaseName))
 	http.Redirect(w, r, "/mongodb", http.StatusFound)
 }
 
@@ -206,7 +206,7 @@ func ComputeDatabaseAndUserNames(ctx context.Context, userContext string) (datab
 
 func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -215,7 +215,7 @@ func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	databaseNames, users, namesErr := ComputeDatabaseAndUserNames(ctx, userContext)
 	if namesErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error executing MongoDB query: " + namesErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error executing MongoDB query: " + namesErr.Error()})
 		return
 	}
 	var databases []map[string]string
@@ -223,7 +223,7 @@ func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		databases = append(databases, map[string]string{"database": dbName})
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"databases": databases, "users": users,
 	})
 }

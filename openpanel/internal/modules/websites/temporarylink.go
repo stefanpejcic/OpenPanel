@@ -9,7 +9,9 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 const temporaryLinkFallback = "https://preview.openpanel.org/index.php"
@@ -77,7 +79,7 @@ func temporaryLinkForDomain(ctx context.Context, a *appctx.App, currentUsername,
 // handleTemporaryLink is the UI-facing handler for GET /domains/temporary-link (domain passed as a query param).
 func handleTemporaryLink(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -96,5 +98,5 @@ func handleTemporaryLink(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	result, status := temporaryLinkForDomain(ctx, a, currentUsername, domain)
-	writeJSON(w, status, result)
+	web.WriteJSON(w, status, result)
 }

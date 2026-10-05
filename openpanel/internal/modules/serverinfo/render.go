@@ -9,26 +9,10 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var pageFiles = []string{
-	"base.html",
-	"partials/_header.html",
-	"partials/_footer.html",
-	"partials/_service.html",
-	"partials/_search.html",
-	"partials/_impersonate.html",
-	"partials/_service_js.html",
-	"partials/punnycode.html",
-	"partials/theme_switcher.html",
-}
-
-func loadPage(files ...string) *web.Page {
-	return web.MustLoadPage(append(append([]string{}, pageFiles...), files...)...)
-}
-
 var (
-	serverInfoPage   = loadPage("system/server_info.html")
-	statsPage        = loadPage("user/stats.html")
-	usageHistoryPage = loadPage("user/history_usage.html")
+	serverInfoPage   = web.LoadPage("system/server_info.html")
+	statsPage        = web.LoadPage("user/stats.html")
+	usageHistoryPage = web.LoadPage("user/history_usage.html")
 )
 
 // ServerInfoPageData is system/server_info.html's template context - the page is filled in almost entirely client-side via /json/system/hosting/* fetches, so this only carries the layout

@@ -6,6 +6,7 @@ import (
 	"github.com/lib/pq"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -17,7 +18,7 @@ import (
 // handleDatabasesUsers lists the PostgreSQL roles, starting the container in the background if it isn't running yet
 func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -34,10 +35,10 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	switch {
 	case status.State == "not_found":
-		flashSess(a, w, r, "warning", "Postgres service is not yet installed. Starting it in the background..")
+		web.Flash(a, w, r, "warning", "Postgres service is not yet installed. Starting it in the background..")
 		docker.StartOrStopContainer(ctx, userContext, "postgres", "activate", "detached")
 	case status.State != "running":
-		flashSess(a, w, r, "warning", "Postgres container is not running. Please allow a few moments for the initialization..")
+		web.Flash(a, w, r, "warning", "Postgres container is not running. Please allow a few moments for the initialization..")
 	default:
 		query := "SELECT rolname FROM pg_roles ORDER BY rolname"
 		if !showAll {
@@ -45,7 +46,7 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 		rows, execErr := postgresmanager.Exec(ctx, userContext, query, "postgres")
 		if execErr != nil {
-			flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching users: %(error)s", "error", execErr.Error()))
+			web.Flash(a, w, r, "error", web.Tr(a, r, "Error fetching users: %(error)s", "error", execErr.Error()))
 		} else {
 			for _, row := range rows {
 				usersList = append(usersList, toStringCell(row[0]))
@@ -54,7 +55,7 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"users": usersList, "show_all": showAll,
 			"container_state": status.State, "health_status": status.Health,
 		})
@@ -71,7 +72,7 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 // handleDatabasesUser creates a new PostgreSQL database user.
 func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -84,25 +85,25 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 		switch {
 		case dbUser == "":
-			flashAndRedirect(a, w, r, "error", "User name is required.", "/postgresql/user")
+			web.FlashRedirect(a, w, r, "error", "User name is required.", "/postgresql/user")
 			return
 		case !validators.IsValidIdentifier(dbUser):
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/postgresql/user")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/postgresql/user")
 			return
 		case isRestrictedUser(dbUser):
-			flashAndRedirect(a, w, r, "error", "This username is not allowed.", "/postgresql/user")
+			web.FlashRedirect(a, w, r, "error", "This username is not allowed.", "/postgresql/user")
 			return
 		case !validators.IsPasswordStrongEnough(password, validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)):
-			flashAndRedirect(a, w, r, "error", "Password does not meet the required strength.", "/postgresql/user")
+			web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/postgresql/user")
 			return
 		}
 
 		if _, execErr := postgresmanager.Exec(ctx, userContext, `CREATE USER "`+dbUser+`" WITH PASSWORD `+pq.QuoteLiteral(password), "postgres"); execErr != nil {
-			flashSess(a, w, r, "error", web.Tr(a, r, "Failed to create user: %(error)s", "error", execErr.Error()))
+			web.Flash(a, w, r, "error", web.Tr(a, r, "Failed to create user: %(error)s", "error", execErr.Error()))
 		} else {
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "created a PostgreSQL user "+dbUser, ipAddress)
-			flashSess(a, w, r, "success", web.Tr(a, r, "Successfully created a PostgreSQL user %(db_user)s", "db_user", dbUser))
+			web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a PostgreSQL user %(db_user)s", "db_user", dbUser))
 		}
 
 		http.Redirect(w, r, "/postgresql/user", http.StatusFound)
@@ -116,7 +117,7 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 func handleDatabasesPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	dbUser := r.PathValue("db_user")
 	if isRestrictedUser(dbUser) {
-		flashAndRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/postgresql/user")
+		web.FlashRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/postgresql/user")
 		return
 	}
 	renderChangePasswordPage(a, w, r, dbUser)
@@ -125,7 +126,7 @@ func handleDatabasesPassword(a *appctx.App, w http.ResponseWriter, r *http.Reque
 // handleDeletePostgresUser revokes a user's privileges on every database and drops the role
 func handleDeletePostgresUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -141,13 +142,13 @@ func handleDeletePostgresUser(a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 	switch {
 	case dbUser == "":
-		flashAndRedirect(a, w, r, "error", "User name is required.", "/delete_postgres_user")
+		web.FlashRedirect(a, w, r, "error", "User name is required.", "/delete_postgres_user")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "db_user", dbUser), "/delete_postgres_user")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "db_user", dbUser), "/delete_postgres_user")
 		return
 	case isRestrictedUser(dbUser):
-		flashAndRedirect(a, w, r, "error", "This is a system username that cannot be deleted.", "/postgresql/users")
+		web.FlashRedirect(a, w, r, "error", "This is a system username that cannot be deleted.", "/postgresql/users")
 		return
 	}
 
@@ -164,9 +165,9 @@ func handleDeletePostgresUser(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 
 	if _, execErr := postgresmanager.Exec(ctx, userContext, `DROP ROLE IF EXISTS "`+dbUser+`"`, "postgres"); execErr != nil {
-		flashSess(a, w, r, "error", web.Tr(a, r, "Error deleting user %(db_user)s: %(error)s", "db_user", dbUser, "error", execErr.Error()))
+		web.Flash(a, w, r, "error", web.Tr(a, r, "Error deleting user %(db_user)s: %(error)s", "db_user", dbUser, "error", execErr.Error()))
 	} else {
-		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully deleted user %(db_user)s", "db_user", dbUser))
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully deleted user %(db_user)s", "db_user", dbUser))
 	}
 
 	ipAddress := reqip.ClientIP(r)
@@ -178,7 +179,7 @@ func handleDeletePostgresUser(a *appctx.App, w http.ResponseWriter, r *http.Requ
 // handleChangePostgresUserPassword updates an existing user's password.
 func handleChangePostgresUserPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -190,25 +191,25 @@ func handleChangePostgresUserPassword(a *appctx.App, w http.ResponseWriter, r *h
 
 	switch {
 	case dbUser == "":
-		flashAndRedirect(a, w, r, "error", "User name is required.", "/postgresql/change_user_password")
+		web.FlashRedirect(a, w, r, "error", "User name is required.", "/postgresql/change_user_password")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/postgresql/change_user_password")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/postgresql/change_user_password")
 		return
 	case isRestrictedUser(dbUser):
-		flashAndRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/postgresql/users")
+		web.FlashRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/postgresql/users")
 		return
 	case !validators.IsPasswordStrongEnough(newPassword, validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)):
-		flashAndRedirect(a, w, r, "error", "Password does not meet the required strength.", "/postgresql/change_user_password")
+		web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/postgresql/change_user_password")
 		return
 	}
 
 	if _, execErr := postgresmanager.Exec(ctx, userContext, `ALTER USER "`+dbUser+`" WITH PASSWORD `+pq.QuoteLiteral(newPassword), "postgres"); execErr != nil {
-		flashSess(a, w, r, "error", web.Tr(a, r, "Error changing password for user %(db_user)s: %(error)s", "db_user", dbUser, "error", execErr.Error()))
+		web.Flash(a, w, r, "error", web.Tr(a, r, "Error changing password for user %(db_user)s: %(error)s", "db_user", dbUser, "error", execErr.Error()))
 	} else {
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "changed password for PostgreSQL user "+dbUser, ipAddress)
-		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully changed password for user %(db_user)s", "db_user", dbUser))
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully changed password for user %(db_user)s", "db_user", dbUser))
 	}
 
 	http.Redirect(w, r, "/postgresql/users", http.StatusFound)

@@ -9,33 +9,17 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var pageFiles = []string{
-	"base.html",
-	"partials/_header.html",
-	"partials/_footer.html",
-	"partials/_service.html",
-	"partials/_search.html",
-	"partials/_impersonate.html",
-	"partials/_service_js.html",
-	"partials/punnycode.html",
-	"partials/theme_switcher.html",
-}
-
-func loadPage(files ...string) *web.Page {
-	return web.MustLoadPage(append(append([]string{}, pageFiles...), files...)...)
-}
-
 var (
-	databasesPage   = loadPage("mongodb/databases.html")
-	newDatabasePage = loadPage("mongodb/new.html")
-	usersPage       = loadPage("mongodb/users.html")
-	createUserPage  = loadPage("mongodb/mongodb_user.html")
-	passwordPage    = loadPage("mongodb/password.html")
-	wizardPage      = loadPage("mongodb/wizard.html")
-	assignPage      = loadPage("mongodb/assign.html")
-	removePage      = loadPage("mongodb/remove.html")
-	importPage      = loadPage("mongodb/import.html")
-	processlistPage = loadPage("mongodb/processlist.html")
+	databasesPage   = web.LoadPage("mongodb/databases.html")
+	newDatabasePage = web.LoadPage("mongodb/new.html")
+	usersPage       = web.LoadPage("mongodb/users.html")
+	createUserPage  = web.LoadPage("mongodb/mongodb_user.html")
+	passwordPage    = web.LoadPage("mongodb/password.html")
+	wizardPage      = web.LoadPage("mongodb/wizard.html")
+	assignPage      = web.LoadPage("mongodb/assign.html")
+	removePage      = web.LoadPage("mongodb/remove.html")
+	importPage      = web.LoadPage("mongodb/import.html")
+	processlistPage = web.LoadPage("mongodb/processlist.html")
 )
 
 // ServiceStatusData is the container_state/health_status view-model shared by databases.html and users.html.

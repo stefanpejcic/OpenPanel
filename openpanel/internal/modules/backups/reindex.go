@@ -6,15 +6,12 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
 
-	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -200,15 +197,4 @@ func doReindex(userHome string, config map[string]string, jsonFile, lockFile str
 		return
 	}
 	_ = os.WriteFile(jsonFile, b, 0o644)
-}
-
-func injected(a *appctx.App, r *http.Request) (username, userContext string, err error) {
-	userID, _ := auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return "", "", err
-	}
-	username, _ = data["current_username"].(string)
-	userContext, _ = data["context"].(string)
-	return username, userContext, nil
 }

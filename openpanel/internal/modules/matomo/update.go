@@ -10,11 +10,15 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // unpackMatomoUpdateArchive is unpackMatomoArchive's update-time sibling: replaces every top-level entry from the new release except config/ (config.ini.php holds live DB credentials), matching how nextcloud/update.go's unpackNextcloudUpdateArchive preserves config/data
@@ -47,7 +51,7 @@ rm -rf "$2"
 // handleMatomoUpdate updates an existing Matomo install in place: downloads the latest release, replaces core files (preserving config/), then runs `console core:update -n` to bring the database schema up to date - Matomo's documented manual-update procedure (unlike a fresh install which has no CLI equivalent, an existing install can be updated via console since core:update doesn't need the interactive wizard), streaming NDJSON progress like install does
 func handleMatomoUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -55,7 +59,7 @@ func handleMatomoUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/x-ndjson")
 	flusher, canFlush := w.(http.Flusher)
-	emit := func(v map[string]any) { writeNDJSON(w, flusher, canFlush, v) }
+	emit := func(v map[string]any) { web.WriteNDJSON(w, flusher, canFlush, v) }
 
 	selectedDomain := r.URL.Query().Get("domain")
 	docroot := r.URL.Query().Get("docroot")
@@ -73,11 +77,11 @@ func handleMatomoUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
-	if err := createLockFile(currentUsername); err != nil {
+	if err := appkit.CreateLockFile(currentUsername); err != nil {
 		emit(map[string]any{"error": "Error creating lock file: " + err.Error()})
 		return
 	}
-	defer removeLockFile(currentUsername)
+	defer appkit.RemoveLockFile(currentUsername)
 
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	isLitespeed := strings.Contains(strings.ToLower(webServer), "litespeed")
@@ -88,7 +92,7 @@ func handleMatomoUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	emit(map[string]any{"status": "Starting PHP container: " + phpContainer})
-	if !ensureContainerRunning(ctx, userContext, phpContainer) {
+	if !cmsapp.EnsureContainerRunning(ctx, userContext, phpContainer) {
 		emit(map[string]any{"error": "PHP container failed to start. Please check it from Services."})
 		return
 	}

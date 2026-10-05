@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -28,7 +29,7 @@ type ProcessRow struct {
 // handleMySQLProcessList shows the live MySQL processlist.
 func handleMySQLProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -37,7 +38,7 @@ func handleMySQLProcessList(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	var processList []ProcessRow
 	rows, execErr := mysqlmanager.Exec(ctx, userContext, "SHOW FULL PROCESSLIST", "")
 	if execErr != nil {
-		flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching process list: %(error)s", "error", execErr.Error()))
+		web.Flash(a, w, r, "error", web.Tr(a, r, "Error fetching process list: %(error)s", "error", execErr.Error()))
 	} else {
 		for _, row := range rows {
 			processList = append(processList, ProcessRow{
@@ -49,7 +50,7 @@ func handleMySQLProcessList(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{"processlist": processList})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"processlist": processList})
 		return
 	}
 
@@ -91,7 +92,7 @@ func killQuery(ctx context.Context, userContext, id string) error {
 
 // handleMySQLKillQuery kills one running query from the processlist page
 func handleMySQLKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -99,9 +100,9 @@ func handleMySQLKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	_ = r.ParseForm()
 	id := r.Form.Get("id")
 	if err := killQuery(r.Context(), userContext, id); err != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error killing query %(id)s: %(error)s", "id", id, "error", err.Error()), "/mysql/processlist")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error killing query %(id)s: %(error)s", "id", id, "error", err.Error()), "/mysql/processlist")
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "killed MySQL query "+id, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Query %(id)s killed.", "id", id), "/mysql/processlist")
+	web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Query %(id)s killed.", "id", id), "/mysql/processlist")
 }

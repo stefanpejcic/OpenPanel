@@ -103,7 +103,7 @@ func TestRenderUsersPage(t *testing.T) {
 
 func TestRenderNewDatabasePage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
-	data := NewDatabasePageData{LayoutData: baseLayout(mgr, "/mysql/new"), Service: "mysql"}
+	data := NewDatabasePageData{LayoutData: baseLayout(mgr, "/mysql/new"), Service: "mysql", Engine: web.MySQLEngine}
 	w := httptest.NewRecorder()
 	if err := newDatabasePage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
@@ -275,6 +275,7 @@ func TestRenderConfigurationPage(t *testing.T) {
 		LayoutData: baseLayout(mgr, "/mysql/configuration"), Service: "mysql",
 		CurrentConfig: map[string]string{"max_connections": "150"},
 		DefaultKeys:   []string{"max_connections", "wait_timeout"},
+		Engine:        web.MySQLEngine,
 	}
 	w := httptest.NewRecorder()
 	if err := configurationPage.Render(w, 200, data); err != nil {

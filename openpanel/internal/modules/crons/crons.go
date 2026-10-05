@@ -4,45 +4,17 @@ package crons
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/auth"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
 var excludedServicesForCrons = map[string]bool{"cron": true, "docker-proxy": true}
-
-func injected(a *appctx.App, r *http.Request) (username, userContext string, err error) {
-	userID, _ := auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return "", "", err
-	}
-	username, _ = data["current_username"].(string)
-	userContext, _ = data["context"].(string)
-	return username, userContext, nil
-}
-
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
-func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-}
 
 // cronMaxFileSizeBytes is derived from cron_max_file_size_kb (default 100 KB); a.Config is loaded once at process startup
 func cronMaxFileSizeBytes(a *appctx.App) int {

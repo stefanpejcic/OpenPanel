@@ -38,7 +38,7 @@ var ttlFieldRE = regexp.MustCompile(`^(\S+\s+)(\d+)(\s)`)
 // handleDNSBulk edits the zone file once for the whole selection: deletes run bottom-up so earlier line numbers stay valid, then the serial is bumped and the zone reloaded once
 func handleDNSBulk(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
-	username, _, err := injected(a, r)
+	_, username, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

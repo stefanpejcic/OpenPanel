@@ -6,6 +6,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleWAFJSONForDomain returns recent check/block counts for a domain, polled by waf.html's status column
@@ -26,7 +27,7 @@ func handleWAFJSONForDomain(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 
 	stats := readWAFLogs(wafLogPath(domain), seconds)
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"domain": domain, "seconds": seconds, "checks": stats.Checks, "blocks": stats.Blocks,
 	})
 }

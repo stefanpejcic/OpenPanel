@@ -59,7 +59,7 @@ func isPM2Type(typeLower string) bool {
 // handleSitesBulk runs Update/Backup/Detach/Delete across multiple selected sites at once, dispatching to the exact same per-type routes each manager page's own buttons already call - one internal, in-process HTTP call per site, reusing the current request's authenticated session/CSRF, no new per-type logic duplicated here.
 func handleSitesBulk(a *appctx.App, mux *http.ServeMux, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -67,11 +67,11 @@ func handleSitesBulk(a *appctx.App, mux *http.ServeMux, w http.ResponseWriter, r
 
 	var req bulkRequest
 	if decErr := json.NewDecoder(r.Body).Decode(&req); decErr != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
 		return
 	}
 	if len(req.Sites) == 0 {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "No sites selected"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "No sites selected"})
 		return
 	}
 
@@ -85,9 +85,9 @@ func handleSitesBulk(a *appctx.App, mux *http.ServeMux, w http.ResponseWriter, r
 		results = append(results, dispatchBulkItem(a, mux, r, req.Action, item))
 	}
 
-	_ = logger.RecordUserAction(a.Config, currentUsername, "ran bulk action '"+req.Action+"' on "+itoa(len(req.Sites))+" site(s)", reqip.ClientIP(r))
-	flashSess(a, w, r, bulkFlashCategory(results), bulkFlashMessage(a, r, req.Action, results))
-	writeJSON(w, http.StatusOK, map[string]any{"results": results})
+	_ = logger.RecordUserAction(a.Config, currentUsername, "ran bulk action '"+req.Action+"' on "+strconv.Itoa(len(req.Sites))+" site(s)", reqip.ClientIP(r))
+	web.Flash(a, w, r, bulkFlashCategory(results), bulkFlashMessage(a, r, req.Action, results))
+	web.WriteJSON(w, http.StatusOK, map[string]any{"results": results})
 }
 
 // dispatchBulkItem routes one selected site's action to the existing per-type handler already registered on mux, by replaying the current already-authenticated request into a synthetic in-process request - never leaves the process, never touches the network.
@@ -96,16 +96,16 @@ func dispatchBulkItem(a *appctx.App, mux *http.ServeMux, r *http.Request, action
 
 	switch action {
 	case "detach":
-		return internalDispatch(mux, r, item.SiteName, "POST", "/sites/detach", url.Values{"id": {itoa(item.ID)}}, nil)
+		return internalDispatch(mux, r, item.SiteName, "POST", "/sites/detach", url.Values{"id": {strconv.Itoa(item.ID)}}, nil)
 
 	case "delete":
 		switch {
 		case isPM2Type(typeLower):
 			return internalDispatch(mux, r, item.SiteName, "POST", "/pm2/delete/"+item.SiteName, nil, nil)
 		case typeLower == "websitebuilder":
-			return internalDispatch(mux, r, item.SiteName, "POST", "/website-builder/remove", url.Values{"id": {itoa(item.ID)}}, nil)
+			return internalDispatch(mux, r, item.SiteName, "POST", "/website-builder/remove", url.Values{"id": {strconv.Itoa(item.ID)}}, nil)
 		case cmsRemoveTypes[typeLower]:
-			return internalDispatch(mux, r, item.SiteName, "POST", "/"+typeLower+"/remove", url.Values{"id": {itoa(item.ID)}}, nil)
+			return internalDispatch(mux, r, item.SiteName, "POST", "/"+typeLower+"/remove", url.Values{"id": {strconv.Itoa(item.ID)}}, nil)
 		default:
 			return bulkResult{SiteName: item.SiteName, OK: false, Message: "Delete is not supported for this site type via bulk actions; use Detach instead."}
 		}
@@ -131,10 +131,6 @@ func dispatchBulkItem(a *appctx.App, mux *http.ServeMux, r *http.Request, action
 	default:
 		return bulkResult{SiteName: item.SiteName, OK: false, Message: "Unknown bulk action."}
 	}
-}
-
-func itoa(n int) string {
-	return strconv.Itoa(n)
 }
 
 // bulkFlashCategory/bulkFlashMessage turn a batch of per-site results into the one flash banner shown after the page reload that follows a bulk action - "success"/"warning"/"danger" drive the same flash styling every other redirect-based action already uses.
@@ -164,10 +160,10 @@ func bulkFlashMessage(a *appctx.App, r *http.Request, action string, results []b
 	}
 	actionTitle := strings.ToUpper(action[:1]) + action[1:]
 	if len(failed) == 0 {
-		return web.Tr(a, r, "%(action_title)s: completed successfully for all %(total)s selected site(s).", "action_title", actionTitle, "total", itoa(len(results)))
+		return web.Tr(a, r, "%(action_title)s: completed successfully for all %(total)s selected site(s).", "action_title", actionTitle, "total", strconv.Itoa(len(results)))
 	}
 
-	msg := web.Tr(a, r, "%(action_title)s: %(failed)s of %(total)s selected site(s) failed.", "action_title", actionTitle, "failed", itoa(len(failed)), "total", itoa(len(results)))
+	msg := web.Tr(a, r, "%(action_title)s: %(failed)s of %(total)s selected site(s) failed.", "action_title", actionTitle, "failed", strconv.Itoa(len(failed)), "total", strconv.Itoa(len(results)))
 	for _, res := range failed {
 		msg += " " + res.SiteName + " (" + web.Tr(a, r, res.Message) + ")."
 	}
@@ -247,16 +243,16 @@ func handleSitesBulkAPI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	var req bulkRequest
 	if decErr := json.NewDecoder(r.Body).Decode(&req); decErr != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
 		return
 	}
 	if len(req.Sites) == 0 {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "No sites selected"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "No sites selected"})
 		return
 	}
 
 	if req.Action != "detach" {
-		writeJSON(w, http.StatusNotImplemented, map[string]string{
+		web.WriteJSON(w, http.StatusNotImplemented, map[string]string{
 			"error": "Only the 'detach' bulk action is currently available via the API; use the web UI for update/backup/delete.",
 		})
 		return
@@ -280,9 +276,9 @@ func handleSitesBulkAPI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			results = append(results, bulkResult{SiteName: item.SiteName, OK: false, Message: "An error occurred during detachment."})
 			continue
 		}
-		_ = a.Cache.Delete(ctx, "get_user_websites:"+itoa(userID))
+		_ = a.Cache.Delete(ctx, "get_user_websites:"+strconv.Itoa(userID))
 		results = append(results, bulkResult{SiteName: item.SiteName, OK: true, Message: "Detached successfully!"})
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{"results": results})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"results": results})
 }

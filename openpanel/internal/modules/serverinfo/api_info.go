@@ -5,6 +5,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterInfoAPI wires GET /api/server/info onto mux: a single-call convenience endpoint combining the three buildHosting* payloads /server/info's page already fetches client-side as separate calls
@@ -22,7 +23,7 @@ func handleServerInfoAPI(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	userContext, _ := data["context"].(string)
 	planID, _ := data["hosting_plan"].(int)
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"info":  buildHostingInfo(a, r, username),
 		"plan":  buildHostingPlan(a, r, userContext, planID),
 		"ports": buildHostingPorts(username),

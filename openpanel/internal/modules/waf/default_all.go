@@ -90,14 +90,14 @@ func handleWAFAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	action := r.Form.Get("action")
 	if action != "enable" && action != "disable" {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Invalid action."), "/server/waf")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Invalid action."), "/server/waf")
 		return
 	}
 	enabled := action == "enable"
 
 	if err := SetAccountWAFEnabled(userContext, enabled); err != nil {
 		log.Printf("WAF - saving default for new domains: %v", err)
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Could not save the default for new domains."), "/server/waf")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Could not save the default for new domains."), "/server/waf")
 		return
 	}
 
@@ -118,12 +118,12 @@ func handleWAFAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	switch {
 	case reloadErr != nil:
 		log.Printf("WAF - reload after changing all domains: %v", reloadErr)
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Settings saved but reloading the web server failed."), "/server/waf")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Settings saved but reloading the web server failed."), "/server/waf")
 	case len(failed) > 0:
-		flashAndRedirect(a, w, r, "warning", web.Tr(a, r, "Could not update: %(domains)s", "domains", strings.Join(failed, ", ")), "/server/waf")
+		web.FlashRedirect(a, w, r, "warning", web.Tr(a, r, "Could not update: %(domains)s", "domains", strings.Join(failed, ", ")), "/server/waf")
 	case enabled:
-		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "The firewall is now on for all your domains and for new domains."), "/server/waf")
+		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "The firewall is now on for all your domains and for new domains."), "/server/waf")
 	default:
-		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "The firewall is now off for all your domains and for new domains."), "/server/waf")
+		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "The firewall is now off for all your domains and for new domains."), "/server/waf")
 	}
 }

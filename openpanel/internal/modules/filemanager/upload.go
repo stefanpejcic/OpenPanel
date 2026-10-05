@@ -54,7 +54,7 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		if parseErr := r.ParseMultipartForm(fileLimitBytes + 1<<20); parseErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]any{"error": "Error uploading files: " + parseErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"error": "Error uploading files: " + parseErr.Error()})
 			return
 		}
 		pathParam = r.Form.Get("path_param")
@@ -123,12 +123,12 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if wantsJSON {
 			if allSuccess && len(errs) == 0 && len(files) > 0 {
 				flashOnlySession(a, r, w, "success", "Files uploaded successfully.")
-				writeJSON(w, http.StatusOK, map[string]any{"success": true})
+				web.WriteJSON(w, http.StatusOK, map[string]any{"success": true})
 			} else {
 				if len(files) == 0 {
 					errs = append(errs, "No files were uploaded")
 				}
-				writeJSON(w, http.StatusOK, map[string]any{"success": false, "errors": errs})
+				web.WriteJSON(w, http.StatusOK, map[string]any{"success": false, "errors": errs})
 			}
 			return
 		}

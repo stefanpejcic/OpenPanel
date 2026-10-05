@@ -7,35 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 )
-
-// toStringCell converts one mysqlmanager.Exec() result cell to a string, mirrors every other CMS module's identical helper
-func toStringCell(v any) string {
-	switch t := v.(type) {
-	case nil:
-		return ""
-	case string:
-		return t
-	case []byte:
-		return string(t)
-	case int64:
-		return strconv.FormatInt(t, 10)
-	case uint64:
-		return strconv.FormatUint(t, 10)
-	case int:
-		return strconv.Itoa(t)
-	case float64:
-		return strconv.FormatFloat(t, 'f', -1, 64)
-	case bool:
-		return strconv.FormatBool(t)
-	default:
-		return ""
-	}
-}
-
-func itoa(n int) string { return strconv.Itoa(n) }
 
 // generateSecretToken returns a long random hex string used as the login-helper's shared secret (see login_php.go)
 func generateSecretToken() string {

@@ -2,7 +2,6 @@ package wordpress
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"os"
 	"os/exec"
@@ -13,6 +12,8 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -28,7 +29,7 @@ import (
 // handleInstallPage renders the WordPress install form - when the user is over their site limit, it still falls through to render the form with a warning flash, just skipping the MySQL-ensure-running step and the POST handoff.
 func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, _, userContext, err := injected(a, r)
+	userID, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -36,17 +37,17 @@ func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
 	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	websitesLimit := atoiDefault(plan.WebsitesLimit, 0)
-	websiteCount, _ := countUserWebsites(a, userID)
+	websitesLimit := web.AtoiDefault(plan.WebsitesLimit, 0)
+	websiteCount, _ := appkit.CountUserWebsites(a, userID)
 
 	if websitesLimit != 0 && websiteCount >= websitesLimit {
 		if r.Method == http.MethodPost {
 			w.Header().Set("Content-Type", "application/x-ndjson")
 			flusher, canFlush := w.(http.Flusher)
-			writeNDJSON(w, flusher, canFlush, map[string]any{"error": "You have reached the maximum number of sites allowed." + plan.UpgradeMessage()})
+			web.WriteNDJSON(w, flusher, canFlush, map[string]any{"error": "You have reached the maximum number of sites allowed." + plan.UpgradeMessage()})
 			return
 		}
-		flashSess(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
+		web.Flash(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
 	} else {
 		mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
 		if !docker.IsServiceRunning(ctx, userContext, mysqlVersion) {
@@ -62,19 +63,10 @@ func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderInstallPage(a, w, r, domains)
 }
 
-func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v map[string]any) {
-	b, _ := json.Marshal(v)
-	_, _ = w.Write(b)
-	_, _ = w.Write([]byte("\n"))
-	if canFlush {
-		flusher.Flush()
-	}
-}
-
 // handleInstallStream drives a WordPress install end to end, streaming NDJSON progress events to the client as each step completes.
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -82,7 +74,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	w.Header().Set("Content-Type", "application/json")
 	flusher, canFlush := w.(http.Flusher)
-	emit := func(v map[string]any) { writeNDJSON(w, flusher, canFlush, v) }
+	emit := func(v map[string]any) { web.WriteNDJSON(w, flusher, canFlush, v) }
 
 	ipAddress := reqip.ClientIP(r)
 	domainID := r.FormValue("domain_id")
@@ -90,12 +82,12 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 
-	if err := createLockFile(currentUsername); err != nil {
+	if err := appkit.CreateLockFile(currentUsername); err != nil {
 		emit(map[string]any{"error": "Error creating lock file: " + err.Error()})
 		return
 	}
 
-	dom, found, dbErr := lookupDomainByID(ctx, a, domainID)
+	dom, found, dbErr := appkit.LookupDomainByID(ctx, a, domainID)
 	if dbErr != nil {
 		emit(map[string]any{"error": "An error occurred fetching docroot for domain from database."})
 		return
@@ -123,12 +115,12 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		docker.StartOrStopContainer(ctx, userContext, phpContainer, "activate", "detached")
 	}
 
-	adminEmail := formOr(r, "admin_email", "admin@"+selectedDomain)
-	websiteName := formOr(r, "website_name", "My Blog")
-	siteDescription := formOr(r, "site_description", "My WordPress Blog")
+	adminEmail := web.FormOr(r, "admin_email", "admin@"+selectedDomain)
+	websiteName := web.FormOr(r, "website_name", "My Blog")
+	siteDescription := web.FormOr(r, "site_description", "My WordPress Blog")
 	adminUsername := r.FormValue("admin_username")
 	adminPassword := r.FormValue("admin_password")
-	wordpressVersion := formOr(r, "wordpress_version", "latest")
+	wordpressVersion := web.FormOr(r, "wordpress_version", "latest")
 	subdirectory := strings.ReplaceAll(strings.ToLower(r.FormValue("subdirectory")), " ", "")
 	dbName := strings.ToLower(r.FormValue("db_name"))
 	if dbName == "" {
@@ -239,7 +231,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		uidStr := itoa(uid)
+		uidStr := strconv.Itoa(uid)
 		_ = exec.Command("chown", uidStr+":"+uidStr, "-R", hostOSPath).Run()
 	}
 
@@ -296,13 +288,13 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		}
 	}
 	if dbCreateErr != nil {
-		invalidateMySQLCaches(ctx, a, userContext, currentUsername)
+		appkit.InvalidateMySQLCaches(ctx, a, userContext, currentUsername)
 		emit(map[string]any{"error": "Error creating MySQL database and user: " + dbCreateErr.Error()})
 		emitCleanupFiles(hostOSPath, emit)
 		emitCleanupDatabase(ctx, userContext, mysqlVersion, dbName, dbUser, dbHost, emit)
 		return
 	}
-	invalidateMySQLCaches(ctx, a, userContext, currentUsername)
+	appkit.InvalidateMySQLCaches(ctx, a, userContext, currentUsername)
 
 	emit(map[string]any{"status": "Importing WordPress tables in the database"})
 	wpBaseCmd := podmanmanager.BuildWPCLIBaseCommand(userContext, phpContainer)
@@ -372,28 +364,12 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed WordPress on domain "+selectedDomain, ipAddress)
-	flashSess(a, w, r, "success", web.Tr(a, r, "WordPress installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
+	web.Flash(a, w, r, "success", web.Tr(a, r, "WordPress installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
 	emit(map[string]any{"status": "WordPress installation completed!"})
-	removeLockFile(currentUsername)
-}
-
-func formOr(r *http.Request, key, def string) string {
-	if v := r.FormValue(key); v != "" {
-		return v
-	}
-	return def
-}
-
-func itoa(n int) string {
-	return strconv.Itoa(n)
+	appkit.RemoveLockFile(currentUsername)
 }
 
 var tablePrefixRE = regexp.MustCompile(`(\$table_prefix\s*=\s*')[^']*(';)`)
-
-func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, currentUsername string) {
-	_ = a.Cache.Delete(ctx, "databases_info:"+userContext)
-	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
-}
 
 func emitCleanupFiles(hostOSPath string, emit func(map[string]any)) {
 	var deleted, failed []string

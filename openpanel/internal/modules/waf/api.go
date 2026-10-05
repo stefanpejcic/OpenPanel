@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI registers the WAF API routes onto mux.
@@ -44,7 +45,7 @@ func apiWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	for _, d := range domains {
 		result[d.DomainURL] = StatusForDomain(d.DomainURL)
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"domains": result})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"domains": result})
 }
 
 // apiWAFDomainGet returns a single domain's WAF status plus its removed rule IDs/tags.
@@ -62,7 +63,7 @@ func apiWAFDomainGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if removedTags == nil {
 		removedTags = []string{}
 	}
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"domain": domain, "status": status, "removed_rules": removedRules, "removed_tags": removedTags,
 	})
 }
@@ -88,7 +89,7 @@ func apiWAFDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if !apiOwnOr403(a, w, r, userID, domain) {
 		return
 	}
-	currentUsername, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -116,12 +117,12 @@ func apiWAFDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	contentStr := setEngine(string(content), newStatus)
 
 	if writeErr := os.WriteFile(path, []byte(contentStr), 0o644); writeErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
 
 	if reloadErr := reloadCaddy(ctx); reloadErr != nil {
-		writeJSON(w, http.StatusMultiStatus, map[string]string{"warning": "Config written but Caddy reload failed"})
+		web.WriteJSON(w, http.StatusMultiStatus, map[string]string{"warning": "Config written but Caddy reload failed"})
 		return
 	}
 
@@ -133,7 +134,7 @@ func apiWAFDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		actionWord = "set monitor only"
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, actionWord+" WAF for "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"domain": domain, "status": newStatus})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"domain": domain, "status": newStatus})
 }
 
 var apiRuleIDRE = regexp.MustCompile(`^\d+$`)
@@ -146,7 +147,7 @@ func apiWAFDomainRules(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if !apiOwnOr403(a, w, r, userID, domain) {
 		return
 	}
-	currentUsername, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -184,17 +185,17 @@ func apiWAFDomainRules(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	newContent := rewriteDirectivesBlock(string(content), removedRules, removedTags)
 	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
 
 	if reloadErr := reloadCaddy(ctx); reloadErr != nil {
-		writeJSON(w, http.StatusMultiStatus, map[string]string{"warning": "Rules written but Caddy reload failed"})
+		web.WriteJSON(w, http.StatusMultiStatus, map[string]string{"warning": "Rules written but Caddy reload failed"})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "updated WAF rules for "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"domain": domain, "removed_rules": removedRules[1:], "removed_tags": removedTags[1:],
 	})
 }
@@ -220,7 +221,7 @@ func apiWAFLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	logPath := wafLogPath(domain)
 	content, readErr := os.ReadFile(logPath)
 	if readErr != nil {
-		writeJSON(w, http.StatusOK, map[string]any{"domain": domain, "entries": []json.RawMessage{}, "total": 0})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"domain": domain, "entries": []json.RawMessage{}, "total": 0})
 		return
 	}
 
@@ -259,7 +260,7 @@ func apiWAFLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	totalPages := (total + perPage - 1) / perPage
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"domain": domain, "entries": entries, "total": total,
 		"page": page, "per_page": perPage, "total_pages": totalPages,
 	})
@@ -278,7 +279,7 @@ func apiWAFStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		seconds = 60
 	}
 	stats := readWAFLogs(wafLogPath(domain), seconds)
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"domain": domain, "seconds": seconds, "checks": stats.Checks, "blocks": stats.Blocks,
 	})
 }
@@ -297,5 +298,5 @@ func apiWAFIDs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if data == nil {
 		data = []string{}
 	}
-	writeJSON(w, http.StatusOK, map[string]any{idType: data})
+	web.WriteJSON(w, http.StatusOK, map[string]any{idType: data})
 }

@@ -1,6 +1,10 @@
 package mysql
 
-import "testing"
+import (
+	"testing"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
+)
 
 func TestZeroUserDatabasesToast(t *testing.T) {
 	t.Run("none", func(t *testing.T) {
@@ -56,13 +60,13 @@ func TestZeroUserDatabasesToast(t *testing.T) {
 }
 
 func TestAtoiDefault(t *testing.T) {
-	if got := atoiDefault("42", 0); got != 42 {
+	if got := web.AtoiDefault("42", 0); got != 42 {
 		t.Errorf("got %d, want 42", got)
 	}
-	if got := atoiDefault("not-a-number", 7); got != 7 {
+	if got := web.AtoiDefault("not-a-number", 7); got != 7 {
 		t.Errorf("got %d, want 7 (fallback)", got)
 	}
-	if got := atoiDefault("", 7); got != 7 {
+	if got := web.AtoiDefault("", 7); got != 7 {
 		t.Errorf("got %d, want 7 (fallback for empty)", got)
 	}
 }

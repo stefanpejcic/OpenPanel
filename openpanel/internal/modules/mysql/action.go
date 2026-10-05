@@ -4,14 +4,16 @@ import (
 	"net/http"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleDatabaseAction: GET returns the table list for one database, POST runs OPTIMIZE/REPAIR TABLE against every table in it
 func handleDatabaseAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -20,22 +22,22 @@ func handleDatabaseAction(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	dbName := r.PathValue("db_name")
 
 	if action != "optimize" && action != "repair" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action. Must be one of: optimize, repair"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action. Must be one of: optimize, repair"})
 		return
 	}
 	if !validators.IsValidIdentifier(dbName) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid database name '" + dbName + "'"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid database name '" + dbName + "'"})
 		return
 	}
 
 	checkRows, checkErr := mysqlmanager.Exec(ctx, userContext,
 		"SELECT schema_name FROM information_schema.schemata WHERE schema_name NOT IN ("+restricted.dbsSQL+") AND schema_name = '"+dbName+"'", "")
 	if checkErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error validating database: " + checkErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error validating database: " + checkErr.Error()})
 		return
 	}
 	if len(checkRows) == 0 {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Database '" + dbName + "' not found or not accessible"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Database '" + dbName + "' not found or not accessible"})
 		return
 	}
 
@@ -43,7 +45,7 @@ func handleDatabaseAction(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		tableRows, tblErr := mysqlmanager.Exec(ctx, userContext,
 			"SELECT table_name, table_rows, data_length, index_length, data_free, COALESCE(engine, '') FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE' ORDER BY table_name", dbName)
 		if tblErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error fetching tables: " + tblErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error fetching tables: " + tblErr.Error()})
 			return
 		}
 		tables := make([]map[string]any, 0, len(tableRows))
@@ -54,14 +56,14 @@ func handleDatabaseAction(a *appctx.App, w http.ResponseWriter, r *http.Request)
 				"data_free": mysqlmanager.ToInt(row[4]), "engine": toStringCell(row[5]),
 			})
 		}
-		writeJSON(w, http.StatusOK, map[string]any{"database": dbName, "action": action, "tables": tables})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"database": dbName, "action": action, "tables": tables})
 		return
 	}
 
 	tableRows, tblErr := mysqlmanager.Exec(ctx, userContext,
 		"SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE' ORDER BY table_name", dbName)
 	if tblErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error fetching tables: " + tblErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error fetching tables: " + tblErr.Error()})
 		return
 	}
 	var tables []string
@@ -69,7 +71,7 @@ func handleDatabaseAction(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		tables = append(tables, toStringCell(row[0]))
 	}
 	if len(tables) == 0 {
-		writeJSON(w, http.StatusOK, map[string]any{"database": dbName, "action": action, "results": []any{}})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"database": dbName, "action": action, "results": []any{}})
 		return
 	}
 
@@ -90,5 +92,5 @@ func handleDatabaseAction(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 		results = append(results, map[string]any{"table": table, "status": "ok", "details": details})
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"database": dbName, "action": action, "results": results})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"database": dbName, "action": action, "results": results})
 }

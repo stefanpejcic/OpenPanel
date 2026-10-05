@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -67,7 +68,7 @@ func runCronJobOnce(a *appctx.App, r *http.Request, userContext string, job Cron
 }
 
 func handleCronjobsBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, r *http.Request) {
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

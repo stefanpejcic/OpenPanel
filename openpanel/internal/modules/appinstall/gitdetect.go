@@ -10,6 +10,7 @@ import (
 	"github.com/go-git/go-git/v5"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // nodeEntryCandidates/pythonEntryCandidates/rubyEntryCandidates are checked in order when there's no manifest to read (or package.json has no "main"), matching the default filenames buildAppRunCommand() falls back to
@@ -81,22 +82,22 @@ func HandleDetectGitStartupFile(a *appctx.App, w http.ResponseWriter, r *http.Re
 	appType := r.FormValue("app_type")
 
 	if !isValidGitURL(gitURL) || gitURL == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid or missing git repository URL."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid or missing git repository URL."})
 		return
 	}
 	if appType != "nodejs" && appType != "python" && appType != "ruby" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid app type."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid app type."})
 		return
 	}
 
 	startupFile, err := detectStartupFile(r.Context(), gitURL, appType)
 	if err != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Could not read repository: " + err.Error()})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Could not read repository: " + err.Error()})
 		return
 	}
 	if startupFile == "" {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Could not detect a startup file, please set it manually."})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Could not detect a startup file, please set it manually."})
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]string{"startup_file": "/var/www/html/" + startupFile})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"startup_file": "/var/www/html/" + startupFile})
 }

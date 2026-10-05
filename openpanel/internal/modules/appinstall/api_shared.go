@@ -9,6 +9,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterSharedAPI wires /api/ equivalents of the three helper endpoints the Python/NodeJS install forms call over AJAX. Gated on "helpers", same as RegisterShared, which is unconditionally granted - so in practice this is API-key-only.
@@ -35,7 +36,7 @@ func apiCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	file := body.File
 	if file == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "File path is missing"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "File path is missing"})
 		return
 	}
 
@@ -48,15 +49,15 @@ func apiCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	ext := stdpath.Ext(file)
 	if ext != ".py" && ext != ".js" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid file extension. Only .py, or .js are allowed."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid file extension. Only .py, or .js are allowed."})
 		return
 	}
 
 	if runErr := exec.CommandContext(r.Context(), "test", "-f", realFilePath).Run(); runErr != nil {
-		writeJSON(w, http.StatusOK, map[string]any{"file": file, "exists": false})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"file": file, "exists": false})
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"file": file, "exists": true})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"file": file, "exists": true})
 }
 
 // apiDetectGitStartupFile is HandleDetectGitStartupFile (gitdetect.go) with a JSON-body request instead of a form post
@@ -72,22 +73,22 @@ func apiDetectGitStartupFile(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 
 	if !isValidGitURL(body.GitRepoURL) || body.GitRepoURL == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid or missing git repository URL."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid or missing git repository URL."})
 		return
 	}
 	if body.AppType != "nodejs" && body.AppType != "python" && body.AppType != "ruby" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid app type."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid app type."})
 		return
 	}
 
 	startupFile, err := detectStartupFile(r.Context(), body.GitRepoURL, body.AppType)
 	if err != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Could not read repository: " + err.Error()})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Could not read repository: " + err.Error()})
 		return
 	}
 	if startupFile == "" {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Could not detect a startup file, please set it manually."})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Could not detect a startup file, please set it manually."})
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]string{"startup_file": startupFile})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"startup_file": startupFile})
 }

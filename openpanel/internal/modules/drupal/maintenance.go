@@ -5,15 +5,17 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleDrupalMaintenance reads (GET) or toggles (POST, action=enable|disable) Drupal's built-in maintenance mode via drush's `state:get`/`state:set` on system.maintenance_mode - Drupal core's own front controller already checks this, so no extra code ships into the docroot
 func handleDrupalMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -21,7 +23,7 @@ func handleDrupalMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	domain, docroot, phpContainer, ok := drushRequestParams(ctx, a, r, userID, userContext)
 	if !ok {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required, or you do not own this domain"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required, or you do not own this domain"})
 		return
 	}
 	drush := docroot + "/vendor/bin/drush"
@@ -34,13 +36,13 @@ func handleDrupalMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		if strings.TrimSpace(string(out)) == "1" {
 			status = "enabled"
 		}
-		writeJSON(w, http.StatusOK, map[string]string{"status": status})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"status": status})
 		return
 	}
 
 	action := strings.ToLower(r.FormValue("action"))
 	if action != "enable" && action != "disable" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "action must be 'enable' or 'disable'"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "action must be 'enable' or 'disable'"})
 		return
 	}
 	value := "0"
@@ -51,7 +53,7 @@ func handleDrupalMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		"state:set", "system.maintenance_mode", value, "--input-format=integer", "--root="+docroot)
 	out, runErr := podmanmanager.Command(ctx, userContext, argv).CombinedOutput()
 	if runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "drush state:set failed", "details": strings.TrimSpace(string(out))})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "drush state:set failed", "details": strings.TrimSpace(string(out))})
 		return
 	}
 
@@ -60,5 +62,5 @@ func handleDrupalMaintenance(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		status = "enabled"
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, action+"d Drupal maintenance mode for "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Maintenance mode " + action + "d successfully.", "status": status})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Maintenance mode " + action + "d successfully.", "status": status})
 }

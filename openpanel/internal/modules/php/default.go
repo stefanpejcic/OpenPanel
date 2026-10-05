@@ -2,12 +2,12 @@ package php
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -16,14 +16,8 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
-
 func writeJSONError(w http.ResponseWriter, status int, message string) {
-	writeJSON(w, status, map[string]string{"error": message})
+	web.WriteJSON(w, status, map[string]string{"error": message})
 }
 
 var litespeedDefaultVersions = map[float64]bool{8.5: true, 8.4: true, 8.3: true, 8.2: true}
@@ -31,7 +25,7 @@ var litespeedDefaultVersions = map[float64]bool{8.5: true, 8.4: true, 8.3: true,
 // handleDefaultPHPVersion gets or sets the default PHP version applied to newly created domains
 func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -52,11 +46,11 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		if isLitespeed {
 			versionFloat, parseErr := strconv.ParseFloat(newPHPVersion, 64)
 			if parseErr != nil {
-				flashAndRedirect(a, w, r, "error", "Invalid PHP version format", "/php/default")
+				web.FlashRedirect(a, w, r, "error", "Invalid PHP version format", "/php/default")
 				return
 			}
 			if !litespeedDefaultVersions[versionFloat] {
-				flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Default PHP version for OpenLitespeed can not be set to %(new_phpversion)s - only available tags are: 8.5 8.4 8.3 8.2", "new_phpversion", newPHPVersion), "/php/default")
+				web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Default PHP version for OpenLitespeed can not be set to %(new_phpversion)s - only available tags are: 8.5 8.4 8.3 8.2", "new_phpversion", newPHPVersion), "/php/default")
 				return
 			}
 		}
@@ -79,12 +73,12 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			}
 
 			if outputJSON {
-				writeJSON(w, http.StatusOK, map[string]any{"message": message, "version": newPHPVersion})
+				web.WriteJSON(w, http.StatusOK, map[string]any{"message": message, "version": newPHPVersion})
 				return
 			}
-			flashSess(a, w, r, "success", message)
+			web.Flash(a, w, r, "success", message)
 		} else {
-			flashSess(a, w, r, "error", web.Tr(a, r, "Default PHP version could not be changed to %(new_phpversion)s", "new_phpversion", newPHPVersion))
+			web.Flash(a, w, r, "error", web.Tr(a, r, "Default PHP version could not be changed to %(new_phpversion)s", "new_phpversion", newPHPVersion))
 			writeJSONError(w, http.StatusNotFound, "Configuration file not found")
 			return
 		}
@@ -100,7 +94,7 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			level, label := classifyPHPVersionLevel(v, versionsAPI)
 			versionStatus[v] = map[string]any{"level": level, "label": label, "is_latest": versionsAPI[v].IsLatestVersion}
 		}
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"version": phpDefaultVersion, "service": service, "is_litespeed": isLitespeed,
 			"installed_versions": installedVersions, "version_status": versionStatus,
 		})

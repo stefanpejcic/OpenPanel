@@ -62,7 +62,7 @@ func apiEmailImportPreview(a *appctx.App, w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -139,7 +139,7 @@ func apiEmailImportConfirm(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

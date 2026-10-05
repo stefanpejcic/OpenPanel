@@ -1,45 +1,11 @@
 package opencart
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 )
-
-// toStringCell converts one mysqlmanager.Exec() result cell to a string, mirrors wordpress/backups.go's identical helper
-func toStringCell(v any) string {
-	switch t := v.(type) {
-	case nil:
-		return ""
-	case string:
-		return t
-	case []byte:
-		return string(t)
-	case int64:
-		return strconv.FormatInt(t, 10)
-	case uint64:
-		return strconv.FormatUint(t, 10)
-	case int:
-		return strconv.Itoa(t)
-	case float64:
-		return strconv.FormatFloat(t, 'f', -1, 64)
-	case bool:
-		return strconv.FormatBool(t)
-	default:
-		return ""
-	}
-}
-
-func sha256Hex(s string) string {
-	sum := sha256.Sum256([]byte(s))
-	return hex.EncodeToString(sum[:])
-}
-
-func itoa(n int) string { return strconv.Itoa(n) }
 
 // extractOpenCartDatabaseInfoForLogin is a local copy of websites.extractOpenCartDatabaseInfo (unexported there, duplicated here like the other CMS modules do), only populates the field handleOpenCartLogin needs
 func extractOpenCartDatabaseInfoForLogin(userContext, directory string) map[string]string {

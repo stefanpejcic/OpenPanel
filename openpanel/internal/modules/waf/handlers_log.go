@@ -114,7 +114,7 @@ func handleWAFLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"domain_name": domainName, "json_logs": paginated, "current_page": page,
 			"items_per_page": itemsPerPage, "total_pages": totalPages, "total_lines": totalLogs,
 			"total_allowed_lines_for_show_all": totalAllowedForShowAll,

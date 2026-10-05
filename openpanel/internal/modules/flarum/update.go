@@ -6,11 +6,15 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // parseFlarumCoreVersion reads flarum/core's resolved version out of composer.lock content already fetched via podman exec cat, mirroring websites.go's getFlarumVersion (which reads the same file from the host bind mount) without needing this package to import that one
@@ -35,7 +39,7 @@ func parseFlarumCoreVersion(lockContent []byte) string {
 // handleFlarumUpdate updates an existing Flarum install in place: composer update of flarum/core and its deps, then `php flarum migrate` and `php flarum cache:clear`, matching Flarum's documented Composer update procedure, streaming NDJSON like install does - reuses the same absolute-flarum-script-path workaround install.go needs since the PHP wrapper doesn't reliably resolve relative script paths
 func handleFlarumUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -43,7 +47,7 @@ func handleFlarumUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/x-ndjson")
 	flusher, canFlush := w.(http.Flusher)
-	emit := func(v map[string]any) { writeNDJSON(w, flusher, canFlush, v) }
+	emit := func(v map[string]any) { web.WriteNDJSON(w, flusher, canFlush, v) }
 
 	selectedDomain := r.URL.Query().Get("domain")
 	docroot := r.URL.Query().Get("docroot")
@@ -61,11 +65,11 @@ func handleFlarumUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
-	if err := createLockFile(currentUsername); err != nil {
+	if err := appkit.CreateLockFile(currentUsername); err != nil {
 		emit(map[string]any{"error": "Error creating lock file: " + err.Error()})
 		return
 	}
-	defer removeLockFile(currentUsername)
+	defer appkit.RemoveLockFile(currentUsername)
 
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	isLitespeed := strings.Contains(strings.ToLower(webServer), "litespeed")
@@ -76,7 +80,7 @@ func handleFlarumUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	emit(map[string]any{"status": "Starting PHP container: " + phpContainer})
-	if !ensureContainerRunning(ctx, userContext, phpContainer) {
+	if !cmsapp.EnsureContainerRunning(ctx, userContext, phpContainer) {
 		emit(map[string]any{"error": "PHP container failed to start. Please check it from Services."})
 		return
 	}
@@ -100,7 +104,7 @@ func handleFlarumUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	emit(map[string]any{"status": "Running composer require (" + updateTarget + ")"})
 	// flarum/core is a transitive dependency pulled in by flarum/flarum, not a direct "require" entry in composer.json, so "composer update flarum/core" refuses to touch it ("Run composer require flarum/core instead") - "composer require" both adds/bumps the constraint and installs it in one step, which is what's needed here
-	composerArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "composer"),
+	composerArgv := append(composerExec(userContext, phpContainer, updateTarget),
 		"--working-dir="+docroot, "require", updateTarget, "--with-all-dependencies", "--no-interaction")
 	out, runErr := podmanmanager.Command(ctx, userContext, composerArgv).CombinedOutput()
 	if runErr != nil {

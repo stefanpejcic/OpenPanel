@@ -17,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // errorLogTail is how many container log lines are scanned for known problems
@@ -147,20 +148,20 @@ func gatherPHPTuningStats(ctx context.Context, a *appctx.App, userID int, userCo
 
 // handlePHPOptionsRecommendations returns tuning suggestions for one PHP version's options page, loaded with ajax
 func handlePHPOptionsRecommendations(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	version := phpVersionFromSegment(r.PathValue("phpversion"))
 	if !phpVersionFormRE.MatchString(version) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid PHP version."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid PHP version."})
 		return
 	}
 	if _, err := os.Stat("/home/" + userContext + "/php.ini/" + version + ".ini"); err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "PHP " + version + " is not installed."})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "PHP " + version + " is not installed."})
 		return
 	}
 	userID, _ := auth.UserID(r)
-	writeJSON(w, http.StatusOK, BuildPHPRecommendations(gatherPHPTuningStats(r.Context(), a, userID, userContext, version)))
+	web.WriteJSON(w, http.StatusOK, BuildPHPRecommendations(gatherPHPTuningStats(r.Context(), a, userID, userContext, version)))
 }

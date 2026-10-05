@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -14,7 +15,7 @@ import (
 // handleDatabasesAssign grants a Postgres user access to a database - unlike MySQL's equivalent, there's no privilege checklist here, Postgres assignment is always the fixed GRANT ALL PRIVILEGES + USAGE + CREATE trio
 func handleDatabasesAssign(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -27,13 +28,13 @@ func handleDatabasesAssign(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 		switch {
 		case dbUser == "" || !validators.IsValidIdentifier(dbUser):
-			flashAndRedirect(a, w, r, "error", "Invalid or missing user name.", "/postgresql/assign")
+			web.FlashRedirect(a, w, r, "error", "Invalid or missing user name.", "/postgresql/assign")
 			return
 		case databaseName == "" || !validators.IsValidIdentifier(databaseName):
-			flashAndRedirect(a, w, r, "error", "Invalid or missing database name.", "/postgresql/assign")
+			web.FlashRedirect(a, w, r, "error", "Invalid or missing database name.", "/postgresql/assign")
 			return
 		case isRestrictedDatabase(databaseName):
-			flashAndRedirect(a, w, r, "error", "This is a system database that cannot be used.", "/postgresql")
+			web.FlashRedirect(a, w, r, "error", "This is a system database that cannot be used.", "/postgresql")
 			return
 		}
 
@@ -42,11 +43,11 @@ func handleDatabasesAssign(a *appctx.App, w http.ResponseWriter, r *http.Request
 			`GRANT CREATE ON SCHEMA public TO "` + dbUser + `";`
 
 		if _, execErr := postgresmanager.Exec(ctx, userContext, grantSQL, databaseName); execErr != nil {
-			flashSess(a, w, r, "error", "Failed to assign user to database.")
+			web.Flash(a, w, r, "error", "Failed to assign user to database.")
 		} else {
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "assigned all privileges to PostgreSQL user "+dbUser+" on database "+databaseName, ipAddress)
-			flashSess(a, w, r, "success", web.Tr(a, r, "Successfully added a user %(db_user)s to PostgreSQL database", "db_user", dbUser))
+			web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully added a user %(db_user)s to PostgreSQL database", "db_user", dbUser))
 		}
 
 		http.Redirect(w, r, "/postgresql", http.StatusFound)
@@ -64,7 +65,7 @@ func handleDatabasesRemove(a *appctx.App, w http.ResponseWriter, r *http.Request
 // handleRemovePostgresUserFromDB revokes a PostgreSQL user's privileges on a database
 func handleRemovePostgresUserFromDB(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -76,25 +77,25 @@ func handleRemovePostgresUserFromDB(a *appctx.App, w http.ResponseWriter, r *htt
 
 	switch {
 	case dbUser == "" || !validators.IsValidIdentifier(dbUser):
-		flashAndRedirect(a, w, r, "error", "Invalid or missing user name.", "/postgresql/remove")
+		web.FlashRedirect(a, w, r, "error", "Invalid or missing user name.", "/postgresql/remove")
 		return
 	case databaseName == "" || !validators.IsValidIdentifier(databaseName):
-		flashAndRedirect(a, w, r, "error", "Invalid or missing database name.", "/postgresql/remove")
+		web.FlashRedirect(a, w, r, "error", "Invalid or missing database name.", "/postgresql/remove")
 		return
 	case isRestrictedUser(dbUser):
-		flashAndRedirect(a, w, r, "error", "This is a system username that cannot be edited.", "/postgresql/remove")
+		web.FlashRedirect(a, w, r, "error", "This is a system username that cannot be edited.", "/postgresql/remove")
 		return
 	case isRestrictedDatabase(databaseName):
-		flashAndRedirect(a, w, r, "error", "This is a system database that cannot be edited.", "/postgresql/remove")
+		web.FlashRedirect(a, w, r, "error", "This is a system database that cannot be edited.", "/postgresql/remove")
 		return
 	}
 
 	if _, execErr := postgresmanager.Exec(ctx, userContext, `REVOKE ALL PRIVILEGES ON DATABASE "`+databaseName+`" FROM "`+dbUser+`"`, "postgres"); execErr != nil {
-		flashSess(a, w, r, "error", web.Tr(a, r, "Failed to revoke privileges for user %(db_user)s from PostgreSQL database %(database_name)s", "db_user", dbUser, "database_name", databaseName))
+		web.Flash(a, w, r, "error", web.Tr(a, r, "Failed to revoke privileges for user %(db_user)s from PostgreSQL database %(database_name)s", "db_user", dbUser, "database_name", databaseName))
 	} else {
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "revoked all privileges for PostgreSQL user "+dbUser+" from database "+databaseName, ipAddress)
-		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully revoked all privileges for user %(db_user)s from PostgreSQL database %(database_name)s", "db_user", dbUser, "database_name", databaseName))
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully revoked all privileges for user %(db_user)s from PostgreSQL database %(database_name)s", "db_user", dbUser, "database_name", databaseName))
 	}
 
 	http.Redirect(w, r, "/postgresql", http.StatusFound)

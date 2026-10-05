@@ -62,7 +62,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 				jsonErr(http.StatusConflict, msg)
 				return
 			}
-			flashAndRedirect(a, w, r, "error", msg, "/containers/mysql")
+			web.FlashRedirect(a, w, r, "error", msg, "/containers/mysql")
 			return
 		}
 
@@ -75,7 +75,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 				jsonErr(http.StatusBadRequest, msg)
 				return
 			}
-			flashAndRedirect(a, w, r, "error", msg, "/containers/mysql")
+			web.FlashRedirect(a, w, r, "error", msg, "/containers/mysql")
 			return
 		}
 		if newSQL == "mysql" || newSQL == "mariadb" || newSQL == "percona" {
@@ -91,7 +91,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 					jsonErr(http.StatusInternalServerError, stopResp.Message)
 					return
 				}
-				flashAndRedirect(a, w, r, "error", stopResp.Message, "/containers/mysql")
+				web.FlashRedirect(a, w, r, "error", stopResp.Message, "/containers/mysql")
 				return
 			}
 
@@ -155,7 +155,7 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 			jsonErr(http.StatusBadRequest, "Invalid mysql server selected")
 			return
 		}
-		flashAndRedirect(a, w, r, "error", "Invalid mysql server selected", "/containers/mysql")
+		web.FlashRedirect(a, w, r, "error", "Invalid mysql server selected", "/containers/mysql")
 		return
 	}
 
@@ -205,7 +205,7 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 				writeJSONError(w, http.StatusConflict, msg)
 				return
 			}
-			flashAndRedirect(a, w, r, "error", msg, "/containers/webserver")
+			web.FlashRedirect(a, w, r, "error", msg, "/containers/webserver")
 			return
 		}
 
@@ -225,7 +225,7 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 					writeJSONError(w, http.StatusInternalServerError, stopResp.Message)
 					return
 				}
-				flashAndRedirect(a, w, r, "error", stopResp.Message, "/containers/webserver")
+				web.FlashRedirect(a, w, r, "error", stopResp.Message, "/containers/webserver")
 				return
 			}
 
@@ -237,7 +237,7 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 					writeJSONError(w, http.StatusInternalServerError, msg)
 					return
 				}
-				flashAndRedirect(a, w, r, "error", msg, "/containers/webserver")
+				web.FlashRedirect(a, w, r, "error", msg, "/containers/webserver")
 				return
 			}
 
@@ -257,7 +257,7 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 				writeJSON(w, map[string]string{"message": successMsg})
 				return
 			}
-			flashAndRedirect(a, w, r, "success", successMsg, "/containers/webserver")
+			web.FlashRedirect(a, w, r, "success", successMsg, "/containers/webserver")
 			return
 		}
 
@@ -265,7 +265,7 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 			writeJSONError(w, http.StatusBadRequest, "Invalid web server selected")
 			return
 		}
-		flashAndRedirect(a, w, r, "error", "Invalid web server selected", "/containers/webserver")
+		web.FlashRedirect(a, w, r, "error", "Invalid web server selected", "/containers/webserver")
 		return
 	}
 

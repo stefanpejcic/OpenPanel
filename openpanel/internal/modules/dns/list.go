@@ -9,6 +9,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // DomainZoneRow represents a user's domain plus whether it has a zone file on disk. DomainName is populated from the domain's docroot - odd, but that's what the JSON output actually contains; nothing in dns.html ever reads it.
@@ -61,7 +62,7 @@ func handleEditDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			for i, row := range rows {
 				dicts[i] = row.toJSONMap()
 			}
-			writeJSON(w, http.StatusOK, dicts)
+			web.WriteJSON(w, http.StatusOK, dicts)
 			return
 		}
 		renderDNSListPage(a, w, r, rows)
@@ -82,22 +83,22 @@ func handleEditDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			errorMessage = "Zone file not found."
 		}
 		if outputJSON {
-			writeJSON(w, http.StatusOK, errorMessage)
+			web.WriteJSON(w, http.StatusOK, errorMessage)
 			return
 		}
-		flashAndRedirect(a, w, r, "error", errorMessage, "/domains/edit-dns-zone")
+		web.FlashRedirect(a, w, r, "error", errorMessage, "/domains/edit-dns-zone")
 		return
 	}
 
 	content, err := os.ReadFile(path)
 	if err != nil {
-		flashAndRedirect(a, w, r, "error", "Zone file not found.", "/domains/edit-dns-zone")
+		web.FlashRedirect(a, w, r, "error", "Zone file not found.", "/domains/edit-dns-zone")
 		return
 	}
 	zoneContent := string(content)
 
 	if outputJSON {
-		writeJSON(w, http.StatusOK, zoneContent)
+		web.WriteJSON(w, http.StatusOK, zoneContent)
 		return
 	}
 

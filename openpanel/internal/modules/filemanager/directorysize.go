@@ -9,6 +9,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // HandleDirectorySize serves `/json/directory-size`, used by both the file manager table's "Calculate" links and various app single-page views - feature "helpers" is unconditionally granted to every user (see baselineFeatures), so like /docker/tags and /json/check_if_file_exists this is registered unconditionally rather than gated behind "filemanager"
@@ -30,7 +31,7 @@ func HandleDirectorySize(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	targetPath := filepath.Clean(filepath.Join(baseDir, folder))
 	if !strings.HasPrefix(targetPath, baseDir) {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Invalid folder path."})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Invalid folder path."})
 		return
 	}
 
@@ -40,12 +41,12 @@ func HandleDirectorySize(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		if exitErr, ok := runErr.(*exec.ExitError); ok {
 			errMsg = strings.TrimSpace(string(exitErr.Stderr))
 		}
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": errMsg})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": errMsg})
 		return
 	}
 
 	size := strings.SplitN(string(out), "\t", 2)[0]
-	writeJSON(w, http.StatusOK, map[string]string{"size": size})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"size": size})
 }
 
 // RegisterDirectorySize wires up the always-on directory-size route.

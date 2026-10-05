@@ -13,10 +13,12 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterWebsiteBuilderAPI wires the website builder API routes onto mux.
@@ -48,7 +50,7 @@ func apiSiteDir(a *appctx.App, r *http.Request, userContext, domain string) (sit
 
 // apiWebsiteBuilderGet returns the current HTML/CSS content for a site.
 func apiWebsiteBuilderGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	userID, _, userContext, err := injected(a, r)
+	userID, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -57,13 +59,13 @@ func apiWebsiteBuilderGet(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	domainRoot, _ := splitDomainAndFolder(domain)
 
 	if !a.CheckDomainBelongsToUser(r.Context(), userID, domainRoot) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 
 	siteDir, docroot, ok, status := apiSiteDir(a, r, userContext, domain)
 	if !ok {
-		writeJSON(w, status, map[string]string{"error": "Domain not found"})
+		web.WriteJSON(w, status, map[string]string{"error": "Domain not found"})
 		return
 	}
 
@@ -76,13 +78,13 @@ func apiWebsiteBuilderGet(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		css = string(content)
 	}
 
-	writeJSON(w, http.StatusOK, map[string]string{"domain": domain, "docroot": docroot, "html": html, "css": css})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"domain": domain, "docroot": docroot, "html": html, "css": css})
 }
 
 // apiWebsiteBuilderSave writes submitted HTML/CSS content to a site's directory.
 func apiWebsiteBuilderSave(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -91,7 +93,7 @@ func apiWebsiteBuilderSave(a *appctx.App, w http.ResponseWriter, r *http.Request
 	domainRoot, _ := splitDomainAndFolder(domain)
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 
@@ -103,20 +105,20 @@ func apiWebsiteBuilderSave(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	siteDir, _, ok, status := apiSiteDir(a, r, userContext, domain)
 	if !ok {
-		writeJSON(w, status, map[string]string{"error": "Domain not found"})
+		web.WriteJSON(w, status, map[string]string{"error": "Domain not found"})
 		return
 	}
 
 	if mkErr := os.MkdirAll(siteDir, 0o755); mkErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
 		return
 	}
 	if wErr := os.WriteFile(filepath.Join(siteDir, "index.html"), []byte(body.HTML), 0o644); wErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": wErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": wErr.Error()})
 		return
 	}
 	if wErr := os.WriteFile(filepath.Join(siteDir, "style.css"), []byte(body.CSS), 0o644); wErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": wErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": wErr.Error()})
 		return
 	}
 
@@ -126,13 +128,13 @@ func apiWebsiteBuilderSave(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "saved website builder content for "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Content saved successfully", "domain": domain})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Content saved successfully", "domain": domain})
 }
 
 // apiWebsiteBuilderInstall creates a new website-builder site: validates plan limits and the target path, then writes starter HTML/CSS files and inserts the site's database row.
 func apiWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -148,7 +150,7 @@ func apiWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	websitesLimit := atoiDefaultWB(plan.WebsitesLimit, 0)
 	userWebsites, _ := dashboard.GetUserWebsites(a, ctx, userID)
 	if websitesLimit != 0 && len(userWebsites) >= websitesLimit {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed" + plan.UpgradeMessage()})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed" + plan.UpgradeMessage()})
 		return
 	}
 
@@ -167,19 +169,19 @@ func apiWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		domainIDStr = strconv.Itoa(int(v))
 	}
 	if domainIDStr == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain_id is required"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain_id is required"})
 		return
 	}
 
 	var selectedDomain, docroot sql.NullString
 	row := a.DB.QueryRowContext(ctx, "SELECT domain_url, docroot FROM domains WHERE domain_id = ?", domainIDStr)
 	if scanErr := row.Scan(&selectedDomain, &docroot); scanErr != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Domain not found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Domain not found"})
 		return
 	}
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, selectedDomain.String) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 
@@ -195,13 +197,13 @@ func apiWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 	for _, fname := range []string{"index.html", "index.php", ".htaccess"} {
 		if _, statErr := os.Stat(path.Join(volume, fname)); statErr == nil {
-			writeJSON(w, http.StatusConflict, map[string]string{"error": fname + " already exists — website creation cannot proceed"})
+			web.WriteJSON(w, http.StatusConflict, map[string]string{"error": fname + " already exists — website creation cannot proceed"})
 			return
 		}
 	}
 
 	if mkErr := os.MkdirAll(volume, 0o755); mkErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
 		return
 	}
 
@@ -218,11 +220,11 @@ func apiWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Requ
 </body>
 </html>`
 	if wErr := os.WriteFile(path.Join(volume, "index.html"), []byte(htmlContent), 0o644); wErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": wErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": wErr.Error()})
 		return
 	}
 	if wErr := os.WriteFile(path.Join(volume, "style.css"), []byte("* { box-sizing: border-box; } body {margin: 0;}"), 0o644); wErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": wErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": wErr.Error()})
 		return
 	}
 
@@ -233,13 +235,13 @@ func apiWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 
 	if _, insertErr := a.DB.ExecContext(ctx, "INSERT INTO sites (site_name, domain_id, type) VALUES (?, ?, ?)", siteName, domainIDStr, "websitebuilder"); insertErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": insertErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": insertErr.Error()})
 		return
 	}
 
 	_ = a.Cache.Delete(ctx, cacheKeyUserWebsites(userID))
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed Website Builder on "+siteName, reqip.ClientIP(r))
-	writeJSON(w, http.StatusCreated, map[string]string{"message": "Website created successfully on " + siteName, "site_name": siteName})
+	web.WriteJSON(w, http.StatusCreated, map[string]string{"message": "Website created successfully on " + siteName, "site_name": siteName})
 }
 
 // apiGetSite looks up a site by ID and reports ownership separately from existence, so callers can distinguish 403 from 404.
@@ -264,7 +266,7 @@ func apiGetSite(ctx context.Context, a *appctx.App, userID int, siteID string) (
 // apiWebsiteBuilderRemove deletes a site's generated files and its database row.
 func apiWebsiteBuilderRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -273,15 +275,15 @@ func apiWebsiteBuilderRemove(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	siteName, docroot, forbidden, found := apiGetSite(ctx, a, userID, siteID)
 	if !found {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
 		return
 	}
 	if forbidden {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 	if docroot == "" {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found in database"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found in database"})
 		return
 	}
 
@@ -291,18 +293,18 @@ func apiWebsiteBuilderRemove(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	_ = os.Remove(filepath.Join(volume, "style.css"))
 
 	if _, delErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE id = ?", siteID); delErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": delErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": delErr.Error()})
 		return
 	}
 	_ = a.Cache.Delete(ctx, cacheKeyUserWebsites(userID))
 	_ = logger.RecordUserAction(a.Config, currentUsername, "removed Website Builder for "+siteName, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Website deleted successfully"})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Website deleted successfully"})
 }
 
 // apiWebsiteBuilderDetach removes a site's database row without touching its files on disk.
 func apiWebsiteBuilderDetach(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -311,19 +313,19 @@ func apiWebsiteBuilderDetach(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	siteName, _, forbidden, found := apiGetSite(ctx, a, userID, siteID)
 	if !found {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
 		return
 	}
 	if forbidden {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
 
 	if _, delErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE id = ?", siteID); delErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": delErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": delErr.Error()})
 		return
 	}
 	_ = a.Cache.Delete(ctx, cacheKeyUserWebsites(userID))
 	_ = logger.RecordUserAction(a.Config, currentUsername, "detached Website Builder for "+siteName, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Website detached successfully"})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Website detached successfully"})
 }

@@ -7,27 +7,8 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
-
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
-func injected(a *appctx.App, r *http.Request) (username string, err error) {
-	userID, _ := auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return "", err
-	}
-	username, _ = data["current_username"].(string)
-	return username, nil
-}
 
 // handleDomainStats shows the domain picker when no domain_name is given, or reads and serves that domain's pre-rendered GoAccess HTML report file as-is
 func handleDomainStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -46,7 +27,7 @@ func handleDomainStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	currentUsername, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -55,7 +36,7 @@ func handleDomainStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	logFilePath := "/var/log/caddy/stats/" + currentUsername + "/" + domainName + ".html"
 	content, readErr := os.ReadFile(logFilePath)
 	if readErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Stats file for domain %(domain_name)s not found. Data is generated every 24h.", "domain_name", domainName), "/domains/stats")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Stats file for domain %(domain_name)s not found. Data is generated every 24h.", "domain_name", domainName), "/domains/stats")
 		return
 	}
 

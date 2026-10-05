@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
@@ -228,7 +229,7 @@ func buildOptionField(key, value string, timezones []string) OptionField {
 // handlePHPOptions gets or updates the PHP options table for one version, versionSeg is "" for the bare /php/options route (version picker only)
 func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, versionSeg string) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -240,7 +241,7 @@ func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, ver
 	if version == "" {
 		installedVersions := FetchPHPVersions(ctx, a, userContext)
 		if r.URL.Query().Get("output") == "json" {
-			writeJSON(w, http.StatusOK, map[string]any{"installed_versions": installedVersions})
+			web.WriteJSON(w, http.StatusOK, map[string]any{"installed_versions": installedVersions})
 			return
 		}
 		renderPHPOptionsSelectPage(a, w, r, title, installedVersions)
@@ -274,9 +275,9 @@ func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, ver
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "edited PHP "+version+" configuration using PHP Selector", ipAddress)
 		if result := docker.RestartContainer(ctx, userContext, phpContainer); result.Success {
-			flashSess(a, w, r, "success", web.Tr(a, r, "Configuration edited successfully and %(text)s service restarted to apply new settings.", "text", text))
+			web.Flash(a, w, r, "success", web.Tr(a, r, "Configuration edited successfully and %(text)s service restarted to apply new settings.", "text", text))
 		} else {
-			flashSess(a, w, r, "error", web.Tr(a, r, "Configuration edited successfully, but %(text)s failed to restart. Try restarting it manually from Services.", "text", text))
+			web.Flash(a, w, r, "error", web.Tr(a, r, "Configuration edited successfully, but %(text)s failed to restart. Try restarting it manually from Services.", "text", text))
 		}
 		http.Redirect(w, r, "/php/php"+version+"/options", http.StatusFound)
 		return
@@ -285,7 +286,7 @@ func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, ver
 	timezones := AvailableTimezones()
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"available_keys":      availableKeys,
 			"current_config":      currentConfig,
 			"available_timezones": timezones,

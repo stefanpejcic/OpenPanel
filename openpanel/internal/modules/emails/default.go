@@ -83,16 +83,16 @@ func handleDefaultAlias(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		destination := strings.TrimSpace(r.Form.Get("destination"))
 
 		if destination != "" && !isValidEmail(destination) {
-			flashAndRedirect(a, w, r, "error", "Invalid destination email address.", "/emails/default/"+domain)
+			web.FlashRedirect(a, w, r, "error", "Invalid destination email address.", "/emails/default/"+domain)
 			return
 		}
 
 		if err := setDefaultAliasForDomain(domain, destination); err != nil {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to update default email: %(error)s", "error", err.Error()), "/emails/default/"+domain)
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to update default email: %(error)s", "error", err.Error()), "/emails/default/"+domain)
 			return
 		}
 
-		currentUsername, _, _ := injected(a, r)
+		_, currentUsername, _, _ := auth.Injected(a, r)
 		ipAddress := reqip.ClientIP(r)
 		if destination != "" {
 			_ = logger.RecordUserAction(a.Config, currentUsername, "set default email for "+domain+" to "+destination, ipAddress)

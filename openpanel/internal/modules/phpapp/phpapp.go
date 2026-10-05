@@ -3,14 +3,11 @@
 package phpapp
 
 import (
-	"encoding/json"
 	"net/http"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
 // Register wires the PHP app install/manage routes onto mux, gated behind the already-enabled "php" feature flag
@@ -46,32 +43,6 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	})
 	apiregistry.Handle(mux, a, "php", "GET /api/php/apps/logs/{site_name...}", func(w http.ResponseWriter, r *http.Request) { handleComposerLogs(a, w, r) })
 	apiregistry.Handle(mux, a, "php", "DELETE /api/php/apps/{site_name...}", func(w http.ResponseWriter, r *http.Request) { handleDelete(a, w, r) })
-}
-
-func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-}
-
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	flashSess(a, w, r, category, message)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
-
-func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v map[string]any) {
-	b, _ := json.Marshal(v)
-	_, _ = w.Write(b)
-	_, _ = w.Write([]byte("\n"))
-	if canFlush {
-		flusher.Flush()
-	}
 }
 
 func injectedContext(a *appctx.App, r *http.Request) (username, userContext string, err error) {

@@ -10,26 +10,10 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var pageFiles = []string{
-	"base.html",
-	"partials/_header.html",
-	"partials/_footer.html",
-	"partials/_service.html",
-	"partials/_search.html",
-	"partials/_impersonate.html",
-	"partials/_service_js.html",
-	"partials/punnycode.html",
-	"partials/theme_switcher.html",
-}
-
-func loadPage(files ...string) *web.Page {
-	return web.MustLoadPage(append(append([]string{}, pageFiles...), files...)...)
-}
-
 var (
-	wafListPage   = loadPage("system/waf.html")
-	wafDomainPage = loadPage("system/waf_domain.html")
-	wafLogsPage   = loadPage("system/waf_logs.html")
+	wafListPage   = web.LoadPage("system/waf.html")
+	wafDomainPage = web.LoadPage("system/waf_domain.html")
+	wafLogsPage   = web.LoadPage("system/waf_logs.html")
 )
 
 // WAFListPageData is system/waf.html's template context.

@@ -75,7 +75,7 @@ func handleImportEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		flashAndRedirect(a, w, r, "error", "Error: No file uploaded.", "/emails/import")
+		web.FlashRedirect(a, w, r, "error", "Error: No file uploaded.", "/emails/import")
 		return
 	}
 	defer file.Close()
@@ -83,29 +83,29 @@ func handleImportEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	filename := strings.ToLower(header.Filename)
 	if !strings.HasSuffix(filename, ".csv") {
 		// .xls/.xlsx are intentionally unsupported (no Excel parsing dependency for one upload path), reported the same as any other unrecognized extension
-		flashAndRedirect(a, w, r, "error", `Error: Unsupported file format, please upload a .csv or .xls file.`, "/emails/import")
+		web.FlashRedirect(a, w, r, "error", `Error: Unsupported file format, please upload a .csv or .xls file.`, "/emails/import")
 		return
 	}
 
 	rawRows, err := parseImportCSV(file)
 	if err != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error reading file: %(error)s", "error", err.Error()), "/emails/import")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error reading file: %(error)s", "error", err.Error()), "/emails/import")
 		return
 	}
 
 	if len(rawRows) == 0 {
-		flashAndRedirect(a, w, r, "error", "Error: File must have at least 2 columns: email, password", "/emails/import")
+		web.FlashRedirect(a, w, r, "error", "Error: File must have at least 2 columns: email, password", "/emails/import")
 		return
 	}
 
 	for _, row := range rawRows {
 		if !isValidEmail(row[0]) {
-			flashAndRedirect(a, w, r, "error", "Error: File is invalid - the first column must contain valid email addresses.", "/emails/import")
+			web.FlashRedirect(a, w, r, "error", "Error: File is invalid - the first column must contain valid email addresses.", "/emails/import")
 			return
 		}
 	}
 
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -143,7 +143,7 @@ func handleImportEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = a.Sessions.Save(r, w, sess)
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{"valid_users": validRows, "invalid_users": invalidRows})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"valid_users": validRows, "invalid_users": invalidRows})
 		return
 	}
 
@@ -161,7 +161,7 @@ func handleConfirmEmailImport(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	_ = a.Sessions.Save(r, w, sess)
 
 	if importToken == "" {
-		flashAndRedirect(a, w, r, "error", "Error: No import data found, please try again.", "/emails/import")
+		web.FlashRedirect(a, w, r, "error", "Error: No import data found, please try again.", "/emails/import")
 		return
 	}
 
@@ -169,16 +169,16 @@ func handleConfirmEmailImport(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	payload, getErr := a.Cache.Raw().Get(ctx, cacheKey).Bytes()
 	_ = a.Cache.Raw().Del(ctx, cacheKey).Err()
 	if getErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error: No import data found, please try again.", "/emails/import")
+		web.FlashRedirect(a, w, r, "error", "Error: No import data found, please try again.", "/emails/import")
 		return
 	}
 	var users []ImportRow
 	if err := json.Unmarshal(payload, &users); err != nil || len(users) == 0 {
-		flashAndRedirect(a, w, r, "error", "Error: No import data found, please try again.", "/emails/import")
+		web.FlashRedirect(a, w, r, "error", "Error: No import data found, please try again.", "/emails/import")
 		return
 	}
 
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

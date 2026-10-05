@@ -19,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 const wgetStateDir = "/tmp/filemanager_wget_states"
@@ -136,11 +137,11 @@ func handleWgetFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	pathParam := strings.TrimSpace(r.Form.Get("path_param"))
 
 	if rawURL == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "No URL provided"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]any{"error": "No URL provided"})
 		return
 	}
 	if verr := validateWgetURL(rawURL); verr != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": verr.Error()})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]any{"error": verr.Error()})
 		return
 	}
 
@@ -154,14 +155,14 @@ func handleWgetFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	parentPath, perr := paths.SecureUserPath("HOME", user.Context, pathParam, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]any{"error": msg})
+		web.WriteJSON(w, status, map[string]any{"error": msg})
 		return
 	}
 	displayPath := filepath.Join("/var/www/html/", pathParam)
 
 	filename := filenameFromURL(rawURL)
 	if _, statErr := os.Stat(filepath.Join(parentPath, filename)); statErr == nil {
-		writeJSON(w, http.StatusConflict, map[string]any{"error": "File already exists: " + filename})
+		web.WriteJSON(w, http.StatusConflict, map[string]any{"error": "File already exists: " + filename})
 		return
 	}
 
@@ -172,13 +173,13 @@ func handleWgetFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	downloadID := uuid.NewString()
 	if err := saveDownloadState(downloadID, info); err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"error": "Internal server error during download."})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"error": "Internal server error during download."})
 		return
 	}
 
 	go runWgetWithProgress(a, downloadID)
 
-	writeJSON(w, http.StatusOK, map[string]any{"download_id": downloadID})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"download_id": downloadID})
 }
 
 // runWgetWithProgress runs the actual `wget` download and updates the persisted state as it progresses - it runs detached from the triggering request (context.Background()) so the download continues even after the HTTP response that started it has been sent
@@ -268,7 +269,7 @@ func handleWgetStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	downloadID := r.PathValue("download_id")
 	info, ok := loadDownloadState(downloadID)
 	if !ok {
-		writeJSON(w, http.StatusNotFound, map[string]any{"error": "Download not found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]any{"error": "Download not found"})
 		return
 	}
 
@@ -278,7 +279,7 @@ func handleWgetStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		_ = saveDownloadState(downloadID, info)
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"progress": info.Progress, "status": info.Status, "message": info.Message,
 	})
 }

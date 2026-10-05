@@ -8,6 +8,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/services"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // serviceDef is one of the five generic cache services' fixed identity: its service name, port, title, and description
@@ -84,7 +85,7 @@ func handleGenericService(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"service": def.Name, "description": def.Description, "port": def.Port, "actions": actions,
 			"container_state": status.State, "health_status": status.Health,
 		})

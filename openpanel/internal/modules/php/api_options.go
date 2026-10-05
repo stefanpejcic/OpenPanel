@@ -7,11 +7,13 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterOptionsAPI wires the PHP options API route onto mux.
@@ -35,7 +37,7 @@ func apiPHPContainer(userContext, version string) string {
 // apiPHPOptions gets or updates the php.ini options for one PHP version.
 func apiPHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -46,11 +48,11 @@ func apiPHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		content, readErr := os.ReadFile("/home/" + userContext + "/php.ini/" + version + ".ini")
 		if readErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
 			return
 		}
 		currentConfig := configEntriesToMap(parseConfigContent(string(content)))
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"version": version, "available_keys": availableKeys, "current_config": currentConfig,
 		})
 		return
@@ -66,7 +68,7 @@ func apiPHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if len(newConfig) == 0 {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "Provide at least one key from: " + strings.Join(availableKeys, ", ")})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]any{"error": "Provide at least one key from: " + strings.Join(availableKeys, ", ")})
 		return
 	}
 
@@ -74,13 +76,13 @@ func apiPHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = logger.RecordUserAction(a.Config, currentUsername, "edited PHP "+version+" configuration using PHP Selector", reqip.ClientIP(r))
 	container := apiPHPContainer(userContext, version)
 	if result := docker.RestartContainer(ctx, userContext, container); !result.Success {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"message": "Options updated, but " + container + " failed to restart. Try restarting it manually from Services.", "version": version, "updated": newConfig,
 		})
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"message": "Options updated and " + container + " restarted", "version": version, "updated": newConfig,
 	})
 }

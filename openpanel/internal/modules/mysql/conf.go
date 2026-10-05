@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -155,7 +156,7 @@ func updateMySQLConfigFile(userContext string, newConfig map[string]string, keyO
 // handleEditMySQLConfig renders and processes the MySQL configuration editor: on POST, writes the submitted keys to custom.cnf and restarts the database service
 func handleEditMySQLConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -174,19 +175,19 @@ func handleEditMySQLConfig(a *appctx.App, w http.ResponseWriter, r *http.Request
 		_ = logger.RecordUserAction(a.Config, currentUsername, "edited MySQL configuration", reqip.ClientIP(r))
 
 		if mysqlVersion != "mysql" && mysqlVersion != "mariadb" {
-			flashSess(a, w, r, "error", "Unknown database service, cannot restart")
+			web.Flash(a, w, r, "error", "Unknown database service, cannot restart")
 		} else {
 			argv := podmanmanager.PodmanArgv(userContext, "restart", mysqlVersion)
 			if runErr := podmanmanager.Command(ctx, userContext, argv).Run(); runErr != nil {
-				flashSess(a, w, r, "error", web.Tr(a, r, "%(mysql_version)s configuration saved but service failed to restart.", "mysql_version", mysqlVersion))
+				web.Flash(a, w, r, "error", web.Tr(a, r, "%(mysql_version)s configuration saved but service failed to restart.", "mysql_version", mysqlVersion))
 			} else {
-				flashSess(a, w, r, "success", web.Tr(a, r, "%(mysql_version)s configuration updated and service restarted.", "mysql_version", mysqlVersion))
+				web.Flash(a, w, r, "success", web.Tr(a, r, "%(mysql_version)s configuration updated and service restarted.", "mysql_version", mysqlVersion))
 			}
 		}
 	}
 
 	if !docker.IsServiceRunning(ctx, userContext, mysqlVersion) {
-		flashSess(a, w, r, "warning", web.Tr(a, r, "%(mysql_version)s container is not running. Please wait for initialization.", "mysql_version", mysqlVersion))
+		web.Flash(a, w, r, "warning", web.Tr(a, r, "%(mysql_version)s container is not running. Please wait for initialization.", "mysql_version", mysqlVersion))
 		docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
 	}
 
@@ -194,7 +195,7 @@ func handleEditMySQLConfig(a *appctx.App, w http.ResponseWriter, r *http.Request
 	currentConfig := configEntriesToMap(parseMySQLConfigContent(currentContent))
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{"current_config": currentConfig, "default_keys": availableConfKeys})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"current_config": currentConfig, "default_keys": availableConfKeys})
 		return
 	}
 

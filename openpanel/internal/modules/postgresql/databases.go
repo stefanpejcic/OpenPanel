@@ -26,7 +26,7 @@ type DatabaseRow struct {
 // handleDatabases lists the user's PostgreSQL databases, starting the container in the background if it isn't running yet
 func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -43,10 +43,10 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	switch {
 	case status.State == "not_found":
-		flashSess(a, w, r, "warning", "Postgres service is not yet installed. Starting it in the background..")
+		web.Flash(a, w, r, "warning", "Postgres service is not yet installed. Starting it in the background..")
 		docker.StartOrStopContainer(ctx, userContext, "postgres", "activate", "detached")
 	case status.State != "running":
-		flashSess(a, w, r, "warning", "Postgres container is not running. Please allow a few moments for the initialization..")
+		web.Flash(a, w, r, "warning", "Postgres container is not running. Please allow a few moments for the initialization..")
 	default:
 		dbWhere, assignedWhere := "", ""
 		if !showAll {
@@ -59,7 +59,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		userDatabasesSQL := "SELECT datname FROM pg_database " + dbWhere + " ORDER BY datname"
 		rows, execErr := postgresmanager.Exec(ctx, userContext, userDatabasesSQL, "postgres")
 		if execErr != nil {
-			flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching databases: %(error)s", "error", execErr.Error()))
+			web.Flash(a, w, r, "error", web.Tr(a, r, "Error fetching databases: %(error)s", "error", execErr.Error()))
 		} else {
 			assignedSQL := `
 				SELECT
@@ -94,7 +94,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"databases": databaseInfo, "show_all": showAll,
 			"container_state": status.State, "health_status": status.Health,
 		})
@@ -108,7 +108,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -116,7 +116,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	status := docker.GetContainerStatus(ctx, userContext, "postgres")
 	if status.State != "running" {
-		flashAndRedirect(a, w, r, "warning", "Postgres service is not ready yet. Please wait for the installation to finish before creating a database.", "/postgresql")
+		web.FlashRedirect(a, w, r, "warning", "Postgres service is not ready yet. Please wait for the installation to finish before creating a database.", "/postgresql")
 		return
 	}
 
@@ -129,11 +129,11 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		_ = r.ParseForm()
 		databaseName := r.Form.Get("database_name")
 		if databaseName == "" {
-			flashAndRedirect(a, w, r, "error", "Database name is required.", "/postgresql/new")
+			web.FlashRedirect(a, w, r, "error", "Database name is required.", "/postgresql/new")
 			return
 		}
 		if !validators.IsValidIdentifier(databaseName) {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/postgresql/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/postgresql/new")
 			return
 		}
 
@@ -143,7 +143,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		planID, _ := injectedData["hosting_plan"].(int)
 		plan, _ := a.QueryPlanDetailsByID(ctx, planID)
 		dbLimit := 100
-		if v := atoiDefault(plan.DBLimit, 0); v != 0 {
+		if v := web.AtoiDefault(plan.DBLimit, 0); v != 0 {
 			dbLimit = v
 		} else {
 			dbLimit = 1000000
@@ -156,18 +156,18 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		if dbUsage >= dbLimit {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "You have reached the maximum number of databases allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()), "/postgresql/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "You have reached the maximum number of databases allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()), "/postgresql/new")
 			return
 		}
 
 		if _, execErr := postgresmanager.Exec(ctx, userContext, `CREATE DATABASE "`+databaseName+`"`, "postgres"); execErr != nil {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create database: %(error)s", "error", execErr.Error()), "/postgresql/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create database: %(error)s", "error", execErr.Error()), "/postgresql/new")
 			return
 		}
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a PostgreSQL database "+databaseName, ipAddress)
-		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully created a PostgreSQL database %(database_name)s", "database_name", databaseName))
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a PostgreSQL database %(database_name)s", "database_name", databaseName))
 		http.Redirect(w, r, "/postgresql", http.StatusFound)
 		return
 	}
@@ -178,7 +178,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // handleDeleteDatabase drops a PostgreSQL database.
 func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -188,24 +188,24 @@ func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	databaseName := r.Form.Get("database_name")
 
 	if databaseName == "" {
-		flashAndRedirect(a, w, r, "error", "Database name is required.", "/postgresql")
+		web.FlashRedirect(a, w, r, "error", "Database name is required.", "/postgresql")
 		return
 	}
 	if !validators.IsValidIdentifier(databaseName) {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/postgresql")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/postgresql")
 		return
 	}
 
 	postgresmanager.InvalidatePool(userContext, databaseName)
 
 	if _, execErr := postgresmanager.Exec(ctx, userContext, `DROP DATABASE IF EXISTS "`+databaseName+`" WITH (FORCE)`, "postgres"); execErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting database %(database_name)s: %(error)s", "database_name", databaseName, "error", execErr.Error()), "/postgresql")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting database %(database_name)s: %(error)s", "database_name", databaseName, "error", execErr.Error()), "/postgresql")
 		return
 	}
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted a PostgreSQL database "+databaseName, ipAddress)
-	flashSess(a, w, r, "success", web.Tr(a, r, "Successfully deleted a PostgreSQL database %(database_name)s", "database_name", databaseName))
+	web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully deleted a PostgreSQL database %(database_name)s", "database_name", databaseName))
 	http.Redirect(w, r, "/postgresql", http.StatusFound)
 }
 
@@ -234,7 +234,7 @@ func ComputeDatabaseAndUserNames(ctx context.Context, userContext string) (datab
 
 func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -243,7 +243,7 @@ func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	userDatabaseNames, users, namesErr := ComputeDatabaseAndUserNames(ctx, userContext)
 	if namesErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error executing PostgreSQL query: " + namesErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error executing PostgreSQL query: " + namesErr.Error()})
 		return
 	}
 	var userDatabases []map[string]string
@@ -263,7 +263,7 @@ func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		ORDER BY d.datname
 	`, "postgres")
 	if execErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error executing PostgreSQL query: " + execErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error executing PostgreSQL query: " + execErr.Error()})
 		return
 	}
 	var assignedDatabases []map[string]string
@@ -271,7 +271,7 @@ func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		assignedDatabases = append(assignedDatabases, map[string]string{"database": toStringCell(row[0]), "users": toStringCell(row[1])})
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"databases": userDatabases, "users": users, "assigned_databases": assignedDatabases,
 	})
 }
@@ -279,7 +279,7 @@ func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 // handleDatabasesSizeInfo serves the /json/postgresql-size route: each database's size, converted to the requested unit
 func handleDatabasesSizeInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -292,12 +292,12 @@ func handleDatabasesSizeInfo(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	divisors := map[string]int64{"bytes": 1, "kb": 1024, "mb": 1024 * 1024, "gb": 1024 * 1024 * 1024}
 	divisor, ok := divisors[unit]
 	if !ok {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": `Invalid unit parameter. Use "bytes", "kb", "mb", or "gb".`})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": `Invalid unit parameter. Use "bytes", "kb", "mb", or "gb".`})
 		return
 	}
 	status := docker.GetContainerStatus(ctx, userContext, "postgres")
 	if status.State != "running" {
-		writeJSON(w, http.StatusOK, []map[string]any{})
+		web.WriteJSON(w, http.StatusOK, []map[string]any{})
 		return
 	}
 
@@ -311,7 +311,7 @@ func handleDatabasesSizeInfo(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	rows, execErr := postgresmanager.Exec(ctx, userContext, query, "postgres")
 	if execErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
 		return
 	}
 
@@ -320,5 +320,5 @@ func handleDatabasesSizeInfo(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	for _, row := range rows {
 		result = append(result, map[string]any{"Database": toStringCell(row[0]), sizeKey: toFloatCell(row[1])})
 	}
-	writeJSON(w, http.StatusOK, result)
+	web.WriteJSON(w, http.StatusOK, result)
 }

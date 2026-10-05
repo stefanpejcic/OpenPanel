@@ -8,6 +8,7 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -44,7 +45,7 @@ func timeCell(v any) string {
 // handleProcessList renders the PostgreSQL active-process list page.
 func handleProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -59,7 +60,7 @@ func handleProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		ORDER BY pid
 	`, "postgres")
 	if execErr != nil {
-		flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching process list: %(error)s", "error", execErr.Error()))
+		web.Flash(a, w, r, "error", web.Tr(a, r, "Error fetching process list: %(error)s", "error", execErr.Error()))
 	} else {
 		for _, row := range rows {
 			processList = append(processList, ProcessRow{
@@ -72,7 +73,7 @@ func handleProcessList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{"processlist": processList})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"processlist": processList})
 		return
 	}
 
@@ -117,7 +118,7 @@ func cancelQuery(ctx context.Context, userContext, pid string) error {
 
 // handleKillQuery cancels one running query from the processlist page
 func handleKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -125,9 +126,9 @@ func handleKillQuery(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	pid := r.Form.Get("pid")
 	if err := cancelQuery(r.Context(), userContext, pid); err != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error killing query %(pid)s: %(error)s", "pid", pid, "error", err.Error()), "/postgresql/processlist")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error killing query %(pid)s: %(error)s", "pid", pid, "error", err.Error()), "/postgresql/processlist")
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "killed PostgreSQL query "+pid, reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Query %(pid)s killed.", "pid", pid), "/postgresql/processlist")
+	web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Query %(pid)s killed.", "pid", pid), "/postgresql/processlist")
 }

@@ -3,7 +3,6 @@ package backupwizard
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -20,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // Register wires the backup wizard routes onto mux, gated behind the "backup_wizard" feature flag
@@ -164,17 +164,6 @@ func listBackups(userContext, inProgressFile string) []BackupFile {
 	return result
 }
 
-func injected(a *appctx.App, r *http.Request) (username, userContext string, err error) {
-	userID, _ := auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return "", "", err
-	}
-	username, _ = data["current_username"].(string)
-	userContext, _ = data["context"].(string)
-	return username, userContext, nil
-}
-
 func flashAndRedirectToWizard(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	flash.Add(sess, category, message)
@@ -184,7 +173,7 @@ func flashAndRedirectToWizard(a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 // handleBackupWizard mirrors backup_wizard().
 func handleBackupWizard(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -198,7 +187,7 @@ func handleBackupWizard(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	backups := listBackups(userContext, inProgressFile)
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, statusPayload{InProgress: inProgress, Backups: backups})
+		web.WriteJSON(w, http.StatusOK, statusPayload{InProgress: inProgress, Backups: backups})
 		return
 	}
 
@@ -207,7 +196,7 @@ func handleBackupWizard(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // handleBackupWizardStatus mirrors backup_wizard_status().
 func handleBackupWizardStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -220,7 +209,7 @@ func handleBackupWizardStatus(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	backups := listBackups(userContext, inProgressFile)
 
-	writeJSON(w, http.StatusOK, statusPayload{
+	web.WriteJSON(w, http.StatusOK, statusPayload{
 		InProgress: inProgress, InProgressStarted: started, InProgressSize: size, Backups: backups,
 	})
 }
@@ -234,7 +223,7 @@ type statusPayload struct {
 
 // handleBackupWizardCreate fires `opencli user-backup` in the background as a fire-and-forget child process that must outlive this request
 func handleBackupWizardCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -264,7 +253,7 @@ func handleBackupWizardCreate(a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 // handleBackupWizardDownload mirrors backup_wizard_download().
 func handleBackupWizardDownload(a *appctx.App, w http.ResponseWriter, r *http.Request, filename string) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -312,12 +301,6 @@ func handleBackupWizardDownload(a *appctx.App, w http.ResponseWriter, r *http.Re
 	w.Header().Set("Content-Type", "application/gzip")
 	w.Header().Set("Content-Disposition", "attachment; filename=\""+safeName+"\"")
 	http.ServeContent(w, r, safeName, info.ModTime(), f)
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
 }
 
 func isWithin(candidate, base string) bool {

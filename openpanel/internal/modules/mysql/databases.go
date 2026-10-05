@@ -19,13 +19,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-func atoiDefault(s string, def int) int {
-	if v, err := strconv.Atoi(s); err == nil {
-		return v
-	}
-	return def
-}
-
 // invalidateDatabasesInfo busts the per-account databases_info cache entry - keyed per userContext, not a single global entry, so invalidating one account's cache never affects another's
 func invalidateDatabasesInfo(ctx context.Context, a *appctx.App, userContext string) {
 	_ = a.Cache.Delete(ctx, "databases_info:"+userContext)
@@ -58,7 +51,7 @@ type DatabaseRow struct {
 // handleDatabases lists databases (and their assigned users) for this account.
 func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -97,7 +90,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		rows, execErr := mysqlmanager.Exec(ctx, userContext, query, "")
 		if execErr != nil {
-			flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching databases: %(error)s", "error", execErr.Error()))
+			web.Flash(a, w, r, "error", web.Tr(a, r, "Error fetching databases: %(error)s", "error", execErr.Error()))
 		} else {
 			assignedLookup := map[string]string{}
 			for _, row := range rows {
@@ -113,11 +106,11 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else {
-		flashSess(a, w, r, "warning", web.Tr(a, r, mysqlWarningFlashMessage(mysqlVersion, status.State, status.Health), "service", mysqlVersion, "state", status.State))
+		web.Flash(a, w, r, "warning", web.Tr(a, r, mysqlWarningFlashMessage(mysqlVersion, status.State, status.Health), "service", mysqlVersion, "state", status.State))
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"container_state": status.State, "health_status": status.Health,
 			"databases": databaseInfo, "show_all": showAll,
 		})
@@ -153,7 +146,7 @@ func zeroUserDatabasesToast(databases []DatabaseRow) (id, message string) {
 func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -162,7 +155,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	status := docker.GetContainerStatus(ctx, userContext, mysqlVersion)
 	if status.State != "running" {
-		flashAndRedirect(a, w, r, "warning", web.Tr(a, r, "%(mysql_version)s service is not ready yet. Please wait for the installation to finish before creating a database.", "mysql_version", mysqlVersion), "/mysql")
+		web.FlashRedirect(a, w, r, "warning", web.Tr(a, r, "%(mysql_version)s service is not ready yet. Please wait for the installation to finish before creating a database.", "mysql_version", mysqlVersion), "/mysql")
 		return
 	}
 
@@ -170,15 +163,15 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		_ = r.ParseForm()
 		databaseName := r.Form.Get("database_name")
 		if databaseName == "" {
-			flashAndRedirect(a, w, r, "error", "Database name is required.", "/mysql/new")
+			web.FlashRedirect(a, w, r, "error", "Database name is required.", "/mysql/new")
 			return
 		}
 		if !validators.IsValidIdentifier(databaseName) {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mysql/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mysql/new")
 			return
 		}
 		if len(databaseName) > 64 {
-			flashAndRedirect(a, w, r, "error", "Database name is too long. MySQL identifiers are limited to 64 characters.", "/mysql/new")
+			web.FlashRedirect(a, w, r, "error", "Database name is too long. MySQL identifiers are limited to 64 characters.", "/mysql/new")
 			return
 		}
 
@@ -187,18 +180,18 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		injectedData, _ := a.InjectData(ctx, userID)
 		planID, _ := injectedData["hosting_plan"].(int)
 		plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-		dbLimit := atoiDefault(plan.DBLimit, 0)
+		dbLimit := web.AtoiDefault(plan.DBLimit, 0)
 
 		invalidateDatabaseCount(ctx, a, currentUsername)
 		dbUsage := getDatabaseCount(ctx, a, currentUsername, userContext)
 
 		if dbLimit != 0 && dbUsage >= dbLimit {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error creating database: '%(database_name)s' - You have reached the maximum number of databases allowed.%(upgrade_message)s", "database_name", databaseName, "upgrade_message", plan.UpgradeMessage()), "/mysql/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error creating database: '%(database_name)s' - You have reached the maximum number of databases allowed.%(upgrade_message)s", "database_name", databaseName, "upgrade_message", plan.UpgradeMessage()), "/mysql/new")
 			return
 		}
 
 		if _, execErr := mysqlmanager.Exec(ctx, userContext, "CREATE DATABASE IF NOT EXISTS `"+databaseName+"`", ""); execErr != nil {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error creating database: %(error)s", "error", execErr.Error()), "/mysql/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error creating database: %(error)s", "error", execErr.Error()), "/mysql/new")
 			return
 		}
 		invalidateDatabasesInfo(ctx, a, userContext)
@@ -206,7 +199,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a MySQL database "+databaseName, ipAddress)
-		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully created a database %(database_name)s", "database_name", databaseName))
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a database %(database_name)s", "database_name", databaseName))
 		http.Redirect(w, r, "/mysql", http.StatusFound)
 		return
 	}
@@ -217,7 +210,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // handleDeleteDatabase drops a database.
 func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -227,16 +220,16 @@ func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	databaseName := r.Form.Get("database_name")
 
 	if databaseName == "" {
-		flashAndRedirect(a, w, r, "error", "Database name is required.", "/mysql/users")
+		web.FlashRedirect(a, w, r, "error", "Database name is required.", "/mysql/users")
 		return
 	}
 	if !validators.IsValidIdentifier(databaseName) {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mysql/users")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mysql/users")
 		return
 	}
 
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "DROP DATABASE IF EXISTS `"+databaseName+"`", ""); execErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting database: %(error)s", "error", execErr.Error()), "/mysql")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting database: %(error)s", "error", execErr.Error()), "/mysql")
 		return
 	}
 	invalidateDatabasesInfo(ctx, a, userContext)
@@ -244,14 +237,14 @@ func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted a MYSQL database "+databaseName, ipAddress)
-	flashSess(a, w, r, "success", web.Tr(a, r, "Successfully deleted a database %(database_name)s", "database_name", databaseName))
+	web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully deleted a database %(database_name)s", "database_name", databaseName))
 	http.Redirect(w, r, "/mysql", http.StatusFound)
 }
 
 // handleDatabasesSizeInfo reports on-disk size per database.
 func handleDatabasesSizeInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -264,7 +257,7 @@ func handleDatabasesSizeInfo(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	divisors := map[string]int64{"bytes": 1, "kb": 1024, "mb": 1024 * 1024, "gb": 1024 * 1024 * 1024}
 	divisor, ok := divisors[unit]
 	if !ok {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": `Invalid unit parameter. Use "bytes", "kb", "mb", or "gb".`})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": `Invalid unit parameter. Use "bytes", "kb", "mb", or "gb".`})
 		return
 	}
 	showAll := r.URL.Query().Get("show_all") != ""
@@ -277,7 +270,7 @@ func handleDatabasesSizeInfo(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	rows, execErr := mysqlmanager.Exec(ctx, userContext, query, "")
 	if execErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
 		return
 	}
 
@@ -286,5 +279,5 @@ func handleDatabasesSizeInfo(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	for _, row := range rows {
 		result = append(result, map[string]any{"Database": toStringCell(row[0]), sizeKey: toFloatCell(row[1])})
 	}
-	writeJSON(w, http.StatusOK, result)
+	web.WriteJSON(w, http.StatusOK, result)
 }

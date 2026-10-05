@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/dbexport"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -17,7 +18,7 @@ import (
 // handleExportDatabase streams a database dump (sql or gzip) for download.
 func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -37,16 +38,16 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	switch {
 	case databaseName == "":
-		flashAndRedirect(a, w, r, "error", "Database name is required.", "/mysql")
+		web.FlashRedirect(a, w, r, "error", "Database name is required.", "/mysql")
 		return
 	case !validators.IsValidIdentifier(databaseName):
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "database_name", databaseName), "/mysql")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "database_name", databaseName), "/mysql")
 		return
 	case isRestrictedDatabase(databaseName):
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Database '%(database_name)s' is restricted and cannot be exported. Contact Administrator", "database_name", databaseName), "/mysql")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Database '%(database_name)s' is restricted and cannot be exported. Contact Administrator", "database_name", databaseName), "/mysql")
 		return
 	case exportFormat != "sql" && exportFormat != "gzip":
-		flashAndRedirect(a, w, r, "error", "Invalid export format provided, select SQL or GZIP.", "/mysql")
+		web.FlashRedirect(a, w, r, "error", "Invalid export format provided, select SQL or GZIP.", "/mysql")
 		return
 	}
 
@@ -57,7 +58,7 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	case "mariadb":
 		dumpCmd = "mariadb-dump"
 	default:
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Unsupported database engine: %(mysql_version)s", "mysql_version", mysqlVersion), "/mysql")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Unsupported database engine: %(mysql_version)s", "mysql_version", mysqlVersion), "/mysql")
 		return
 	}
 
@@ -67,7 +68,7 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	switch exportDestination {
 	case "browser":
 		if sendErr := dbexport.Send(w, dump, databaseName+".sql", "application/sql", exportFormat == "gzip"); sendErr != nil {
-			flashAndRedirect(a, w, r, "error", failedMsg, "/mysql")
+			web.FlashRedirect(a, w, r, "error", failedMsg, "/mysql")
 			return
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "exported MYSQL database "+databaseName+" to browser", reqip.ClientIP(r))
@@ -77,18 +78,18 @@ func handleExportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		localPath := strings.TrimSpace(r.Form.Get("local_path"))
 		displayFile, saveErr := dbexport.SaveToFiles(dump, userContext, localPath, databaseName, ".sql", exportFormat == "gzip")
 		if errors.Is(saveErr, dbexport.ErrDumpFailed) {
-			flashAndRedirect(a, w, r, "error", failedMsg, "/mysql")
+			web.FlashRedirect(a, w, r, "error", failedMsg, "/mysql")
 			return
 		} else if saveErr != nil {
-			flashAndRedirect(a, w, r, "error", saveErr.Error(), "/mysql")
+			web.FlashRedirect(a, w, r, "error", saveErr.Error(), "/mysql")
 			return
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "exported MYSQL database "+databaseName+" to folder "+localPath, reqip.ClientIP(r))
-		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Database '%(database_name)s' exported to %(display_file)s", "database_name", databaseName, "display_file", displayFile), "/mysql")
+		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Database '%(database_name)s' exported to %(display_file)s", "database_name", databaseName, "display_file", displayFile), "/mysql")
 		return
 
 	default:
-		flashAndRedirect(a, w, r, "error", "Invalid export destination.", "/mysql")
+		web.FlashRedirect(a, w, r, "error", "Invalid export destination.", "/mysql")
 		return
 	}
 }

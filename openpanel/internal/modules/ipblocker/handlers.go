@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -15,7 +16,7 @@ import (
 )
 
 func handleIPBlocker(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, err := injected(a, r)
+	_, username, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -75,7 +76,7 @@ func handleIPBlocker(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, ips)
+		web.WriteJSON(w, http.StatusOK, ips)
 		return
 	}
 

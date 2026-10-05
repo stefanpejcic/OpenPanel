@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"regexp"
 	"sort"
-	"strconv"
-	"strings"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
 
 var matomoVersionRE = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
@@ -64,7 +64,7 @@ func listMatomoVersions(ctx context.Context) ([]string, error) {
 	if len(versions) == 0 {
 		return nil, errors.New("no Matomo versions found")
 	}
-	sort.Slice(versions, func(i, j int) bool { return compareVersions(versions[i], versions[j]) > 0 })
+	sort.Slice(versions, func(i, j int) bool { return cmsapp.CompareVersions(versions[i], versions[j]) > 0 })
 	return versions, nil
 }
 
@@ -75,23 +75,4 @@ func latestMatomoVersion(ctx context.Context) (string, error) {
 		return "", err
 	}
 	return versions[0], nil
-}
-
-// compareVersions compares two dotted numeric versions ("5.12.0" vs "5.9.1"), returns >0 if a > b
-func compareVersions(a, b string) int {
-	partsA := strings.Split(a, ".")
-	partsB := strings.Split(b, ".")
-	for i := 0; i < len(partsA) || i < len(partsB); i++ {
-		var na, nb int
-		if i < len(partsA) {
-			na, _ = strconv.Atoi(partsA[i])
-		}
-		if i < len(partsB) {
-			nb, _ = strconv.Atoi(partsB[i])
-		}
-		if na != nb {
-			return na - nb
-		}
-	}
-	return 0
 }

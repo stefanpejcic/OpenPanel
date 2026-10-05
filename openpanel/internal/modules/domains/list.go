@@ -3,11 +3,11 @@ package domains
 import (
 	"net/http"
 	"os"
-	"strconv"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/waf"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // DomainRow is the per-row shape the domains list page renders.
@@ -63,11 +63,11 @@ func handleDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		rows = append(rows, row)
 	}
 
-	page := atoiDefault(r.URL.Query().Get("page"), 1)
+	page := web.AtoiDefault(r.URL.Query().Get("page"), 1)
 	if page < 1 {
 		page = 1
 	}
-	perPage := atoiDefault(a.Config.Get("domains_per_page", "100"), 100)
+	perPage := web.AtoiDefault(a.Config.Get("domains_per_page", "100"), 100)
 	if perPage < 1 {
 		perPage = 100
 	}
@@ -117,12 +117,4 @@ func subdomainURLSet(domainData []DomainWithSite) map[string]bool {
 		set[s.DomainURL] = true
 	}
 	return set
-}
-
-func atoiDefault(s string, def int) int {
-	n, err := strconv.Atoi(s)
-	if err != nil {
-		return def
-	}
-	return n
 }

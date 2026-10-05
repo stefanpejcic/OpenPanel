@@ -47,7 +47,7 @@ func notifySentinel(domainName, statusText string) {
 // handleWAFList handles the per-domain enable/disable toggle (POST) and the domain list/single domain status lookup (GET) - a POST here does not redirect, it flashes and falls straight through to the GET rendering below in the same response
 func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
-	username, err := injected(a, r)
+	_, username, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -116,7 +116,7 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "You do not own this domain.", http.StatusForbidden)
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]string{requestedDomain: StatusForDomain(requestedDomain)})
+		web.WriteJSON(w, http.StatusOK, map[string]string{requestedDomain: StatusForDomain(requestedDomain)})
 		return
 	}
 

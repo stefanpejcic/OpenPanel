@@ -50,17 +50,17 @@ func handleViewDomainAccessLog(a *appctx.App, w http.ResponseWriter, r *http.Req
 	logFilePath := "/var/log/caddy/domlogs/" + domainName + "/access.log"
 	info, statErr := os.Stat(logFilePath)
 	if statErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Log file not found for domain %(domain_name)s.", "domain_name", domainName), "/domains/log")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Log file not found for domain %(domain_name)s.", "domain_name", domainName), "/domains/log")
 		return
 	}
 	if info.Size() == 0 {
-		flashAndRedirect(a, w, r, "info", web.Tr(a, r, "Log file for domain %(domain_name)s is empty.", "domain_name", domainName), "/domains/log")
+		web.FlashRedirect(a, w, r, "info", web.Tr(a, r, "Log file for domain %(domain_name)s is empty.", "domain_name", domainName), "/domains/log")
 		return
 	}
 
 	content, err := os.ReadFile(logFilePath)
 	if err != nil {
-		flashAndRedirect(a, w, r, "danger", web.Tr(a, r, "Error reading log file: %(error)s", "error", err.Error()), "/domains/log")
+		web.FlashRedirect(a, w, r, "danger", web.Tr(a, r, "Error reading log file: %(error)s", "error", err.Error()), "/domains/log")
 		return
 	}
 
@@ -87,7 +87,7 @@ func handleViewDomainAccessLog(a *appctx.App, w http.ResponseWriter, r *http.Req
 		itemsPerPage = totalLogs
 		totalPages = 1
 	} else {
-		itemsPerPage = atoiDefault(a.Config.Get("domain_log_per_page", "1000"), 1000)
+		itemsPerPage = web.AtoiDefault(a.Config.Get("domain_log_per_page", "1000"), 1000)
 		if itemsPerPage < 1 {
 			itemsPerPage = 1000
 		}
@@ -96,9 +96,9 @@ func handleViewDomainAccessLog(a *appctx.App, w http.ResponseWriter, r *http.Req
 			totalPages++
 		}
 	}
-	totalAllowedForShowAll := atoiDefault(a.Config.Get("domain_log_max_for_show_all", "10000"), 10000)
+	totalAllowedForShowAll := web.AtoiDefault(a.Config.Get("domain_log_max_for_show_all", "10000"), 10000)
 
-	page := atoiDefault(r.URL.Query().Get("page"), 1)
+	page := web.AtoiDefault(r.URL.Query().Get("page"), 1)
 	if page < 1 {
 		page = 1
 	}

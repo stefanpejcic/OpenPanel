@@ -7,6 +7,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // SiteRow is one row from the sites table, as read by list_sites().
@@ -94,7 +95,7 @@ func handleListSites(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{"title": "Websites", "groups": groups, "view_mode": viewMode})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"title": "Websites", "groups": groups, "view_mode": viewMode})
 		return
 	}
 

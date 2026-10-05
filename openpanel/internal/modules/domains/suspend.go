@@ -9,6 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleSuspendDomain suspends a domain (serves a static page instead of proxying it).
@@ -23,7 +24,7 @@ func handleSuspendDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		comment := strings.TrimSpace(r.Form.Get("comment"))
 
 		if domainName == "" {
-			flashAndRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains/suspend")
+			web.FlashRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains/suspend")
 			return
 		}
 		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
@@ -38,11 +39,11 @@ func handleSuspendDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		out, cmdErr := exec.CommandContext(ctx, "opencli", args...).CombinedOutput()
 		if cmdErr == nil {
 			invalidateRewriteCondCache(ctx, a, domainName)
-			flashAndRedirect(a, w, r, "success", string(out), "/domains")
+			web.FlashRedirect(a, w, r, "success", string(out), "/domains")
 			currentUsername, _, _ := injected(a, ctx, userID)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "suspended domain "+domainName, reqip.ClientIP(r))
 		} else {
-			flashAndRedirect(a, w, r, "error", string(out), "/domains/suspend?domain="+domainName)
+			web.FlashRedirect(a, w, r, "error", string(out), "/domains/suspend?domain="+domainName)
 		}
 		return
 	}
@@ -70,7 +71,7 @@ func handleUnsuspendDomain(a *appctx.App, w http.ResponseWriter, r *http.Request
 		domainName := r.Form.Get("domain_name")
 
 		if domainName == "" {
-			flashAndRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains/unsuspend")
+			web.FlashRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains/unsuspend")
 			return
 		}
 		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
@@ -81,11 +82,11 @@ func handleUnsuspendDomain(a *appctx.App, w http.ResponseWriter, r *http.Request
 		out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-unsuspend", domainName).CombinedOutput()
 		if cmdErr == nil {
 			invalidateRewriteCondCache(ctx, a, domainName)
-			flashAndRedirect(a, w, r, "success", string(out), "/domains")
+			web.FlashRedirect(a, w, r, "success", string(out), "/domains")
 			currentUsername, _, _ := injected(a, ctx, userID)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "unsuspended domain "+domainName, reqip.ClientIP(r))
 		} else {
-			flashAndRedirect(a, w, r, "error", string(out), "/domains/unsuspend?domain="+domainName)
+			web.FlashRedirect(a, w, r, "error", string(out), "/domains/unsuspend?domain="+domainName)
 		}
 		return
 	}

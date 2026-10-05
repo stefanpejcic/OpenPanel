@@ -11,6 +11,7 @@ import (
 	"github.com/robfig/cron/v3"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -78,7 +79,7 @@ func cronSummary(jobs []CronJob, now time.Time, loc *time.Location) CronSummary 
 
 // handleToggleCronjob turns one job on or off by commenting its block out, then restarts cron to pick it up
 func handleToggleCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -90,7 +91,7 @@ func handleToggleCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	path := cronFilePath(userContext)
 	content, readErr := os.ReadFile(path)
 	if readErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error saving cron job. Please try again."), "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error saving cron job. Please try again."), "/cronjobs")
 		return
 	}
 	var name string
@@ -102,11 +103,11 @@ func handleToggleCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return true, true
 	})
 	if !found {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Cron job not found."), "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Cron job not found."), "/cronjobs")
 		return
 	}
 	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error saving cron job. Please try again."), "/cronjobs")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error saving cron job. Please try again."), "/cronjobs")
 		return
 	}
 
@@ -120,7 +121,7 @@ func handleToggleCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	} else {
 		docker.StartOrStopContainer(r.Context(), userContext, "cron", "deactivate", "")
 	}
-	flashAndRedirect(a, w, r, "success", web.Tr(a, r, msg, "name", name), "/cronjobs")
+	web.FlashRedirect(a, w, r, "success", web.Tr(a, r, msg, "name", name), "/cronjobs")
 }
 
 func init() {

@@ -1,45 +1,11 @@
 package joomla
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 )
-
-// toStringCell converts one mysqlmanager.Exec() result cell to a string, mirrors wordpress/backups.go's identical helper - every numeric driver type needs its own case, a missing one silently becomes "" rather than a compile error, which broke WP's autologin token flow the same way once already
-func toStringCell(v any) string {
-	switch t := v.(type) {
-	case nil:
-		return ""
-	case string:
-		return t
-	case []byte:
-		return string(t)
-	case int64:
-		return strconv.FormatInt(t, 10)
-	case uint64:
-		return strconv.FormatUint(t, 10)
-	case int:
-		return strconv.Itoa(t)
-	case float64:
-		return strconv.FormatFloat(t, 'f', -1, 64)
-	case bool:
-		return strconv.FormatBool(t)
-	default:
-		return ""
-	}
-}
-
-func sha256Hex(s string) string {
-	sum := sha256.Sum256([]byte(s))
-	return hex.EncodeToString(sum[:])
-}
-
-func itoa(n int) string { return strconv.Itoa(n) }
 
 // extractJoomlaDatabaseInfoForLogin is a local copy of websites.extractJoomlaDatabaseInfo (unexported in another package, so duplicated here, same pattern wordpress/drupal already use rather than sharing across module packages) - only the fields handleJoomlaLogin actually needs are populated
 func extractJoomlaDatabaseInfoForLogin(userContext, directory string) map[string]string {

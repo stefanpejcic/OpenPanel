@@ -17,11 +17,13 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 const opLoginTokenTTL = 300 * time.Second
@@ -186,8 +188,8 @@ func getWPUsers(ctx context.Context, userContext, realPath, roleFilter string) (
 			"SELECT user_id, meta_value FROM `"+metaTable+"` WHERE meta_key = '"+capKey+"'", dbName)
 		if roleErr == nil {
 			for _, row := range roleRows {
-				uid := toStringCell(row[0])
-				metaValue := toStringCell(row[1])
+				uid := mysqlmanager.ToString(row[0])
+				metaValue := mysqlmanager.ToString(row[1])
 				role := "unknown"
 				switch {
 				case strings.Contains(metaValue, "administrator"):
@@ -208,7 +210,7 @@ func getWPUsers(ctx context.Context, userContext, realPath, roleFilter string) (
 
 	var users []wpUser
 	for _, row := range userRows {
-		uid := toStringCell(row[0])
+		uid := mysqlmanager.ToString(row[0])
 		role := roleMap[uid]
 		if role == "" {
 			role = "unknown"
@@ -218,8 +220,8 @@ func getWPUsers(ctx context.Context, userContext, realPath, roleFilter string) (
 		}
 		id, _ := strconv.Atoi(uid)
 		users = append(users, wpUser{
-			ID: id, Username: toStringCell(row[1]), Email: toStringCell(row[2]),
-			Registered: toStringCell(row[3]), Role: role,
+			ID: id, Username: mysqlmanager.ToString(row[1]), Email: mysqlmanager.ToString(row[2]),
+			Registered: mysqlmanager.ToString(row[3]), Role: role,
 		})
 	}
 	return users, nil
@@ -261,7 +263,7 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	action := strings.ToLower(r.PathValue("action"))
 	params := wpCLIParams(r)
 
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -390,10 +392,10 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			if usersErr.Error() == "wp-config.php not found" {
 				status = http.StatusNotFound
 			}
-			writeJSON(w, status, map[string]string{"error": usersErr.Error()})
+			web.WriteJSON(w, status, map[string]string{"error": usersErr.Error()})
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"success": true, "domain": domain, "filter_role": roleFilter, "count": len(users), "users": users,
 		})
 		return
@@ -421,9 +423,9 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		fullPath := filepath.Join(hostosPath, ".maintenance")
 		if r.Method == http.MethodGet {
 			if _, statErr := os.Stat(fullPath); statErr == nil {
-				writeJSON(w, http.StatusOK, map[string]string{"status": "enabled"})
+				web.WriteJSON(w, http.StatusOK, map[string]string{"status": "enabled"})
 			} else {
-				writeJSON(w, http.StatusOK, map[string]string{"status": "disabled"})
+				web.WriteJSON(w, http.StatusOK, map[string]string{"status": "disabled"})
 			}
 			return
 		}
@@ -439,14 +441,14 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			_ = os.Remove(fullPath)
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, act+"d maintenance mode", reqip.ClientIP(r))
-		writeJSON(w, http.StatusOK, map[string]string{"message": "Maintenance mode " + act + "d successfully."})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Maintenance mode " + act + "d successfully."})
 		return
 
 	case "cache":
 		if r.Method == http.MethodPost {
 			_, _ = safeRunWPCLI(ctx, userContext, append(append([]string{}, baseDocker...), subActions["flush"]...))
 			_ = logger.RecordUserAction(a.Config, currentUsername, "flushed cache", reqip.ClientIP(r))
-			writeJSON(w, http.StatusOK, map[string]string{"message": "Cache flushed successfully."})
+			web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Cache flushed successfully."})
 			return
 		}
 		out, _ := safeRunWPCLI(ctx, userContext, append(append([]string{}, baseDocker...), subActions["type"]...))
@@ -454,7 +456,7 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if out == "" {
 			out = "none"
 		}
-		writeJSON(w, http.StatusOK, map[string]string{"type": out})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"type": out})
 		return
 	}
 
@@ -474,7 +476,7 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	cmd = append(cmd, "--skip-themes", "--skip-plugins")
 	out, _ := safeRunWPCLI(ctx, userContext, cmd)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "Executed command: wp "+strings.Join(subcmd, " ")+" for website "+domainParam+" using WP Manager", reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Success", "output": strings.TrimSpace(out)})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Success", "output": strings.TrimSpace(out)})
 }
 
 // handleWPCLILogin mirrors the "login" action branch of wp_cli(): generates a one-time autologin link for an administrator via the mu-plugin above.
@@ -483,11 +485,11 @@ func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 
 	admins, usersErr := getWPUsers(ctx, userContext, realPath, "administrator")
 	if usersErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Admin username could not be obtained", "details": "Please try login manually to wp-admin."})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Admin username could not be obtained", "details": "Please try login manually to wp-admin."})
 		return
 	}
 	if len(admins) == 0 {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "No administrator users found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "No administrator users found"})
 		return
 	}
 
@@ -508,7 +510,7 @@ func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 			}
 		}
 		if matched == nil {
-			writeJSON(w, http.StatusNotFound, map[string]string{"error": adminUsername + " is not an administrator on this site"})
+			web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": adminUsername + " is not an administrator on this site"})
 			return
 		}
 	}
@@ -516,24 +518,24 @@ func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 	muFilePath := filepath.Join(realPath, "wp-content", "mu-plugins", "openpanel-login.php")
 	muPluginDir := filepath.Dir(muFilePath)
 	if mkErr := os.MkdirAll(muPluginDir, 0o755); mkErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed deploying login handler", "details": mkErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed deploying login handler", "details": mkErr.Error()})
 		return
 	}
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
 		_ = os.Chown(muPluginDir, uid, uid)
 		if writeErr := os.WriteFile(muFilePath, []byte(openpanelMuPluginPHP), 0o644); writeErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed deploying login handler", "details": writeErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed deploying login handler", "details": writeErr.Error()})
 			return
 		}
 		_ = os.Chown(muFilePath, uid, uid)
 	} else if writeErr := os.WriteFile(muFilePath, []byte(openpanelMuPluginPHP), 0o644); writeErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed deploying login handler", "details": writeErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed deploying login handler", "details": writeErr.Error()})
 		return
 	}
 
 	dbName, tablePrefix, dbErr := getWPConfigDBInfo(realPath)
 	if dbErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": dbErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": dbErr.Error()})
 		return
 	}
 
@@ -547,18 +549,18 @@ func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 
 	siteURLRows, rowsErr := mysqlmanager.Exec(ctx, userContext, "SELECT option_value FROM `"+optionsTable+"` WHERE option_name = 'siteurl' LIMIT 1", dbName)
 	if rowsErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": rowsErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": rowsErr.Error()})
 		return
 	}
 	siteURL := "https://" + domain
 	if len(siteURLRows) > 0 {
-		siteURL = toStringCell(siteURLRows[0][0])
+		siteURL = mysqlmanager.ToString(siteURLRows[0][0])
 	}
 	siteURL = strings.TrimSuffix(siteURL, "/")
 
 	insertQuery := "INSERT INTO `" + optionsTable + "` (option_name, option_value, autoload) VALUES ('" + optionName + "', '" + optionValue + "', 'no') ON DUPLICATE KEY UPDATE option_value = '" + optionValue + "'"
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, insertQuery, dbName); execErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": execErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": execErr.Error()})
 		return
 	}
 
@@ -570,5 +572,5 @@ func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 		maskedLink = "*****"
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "generated auto-login link for wp-admin: "+maskedLink, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"login_link": loginLink})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"login_link": loginLink})
 }

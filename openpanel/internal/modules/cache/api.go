@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var validCacheActions = map[string]bool{"enable": true, "disable": true, "restart": true}
@@ -48,7 +49,7 @@ func apiCacheStatus(a *appctx.App, w http.ResponseWriter, r *http.Request, def s
 	if status.State == "running" {
 		actions = []string{"disable"}
 	}
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"service": def.Name, "port": def.Port, "description": def.Description,
 		"container_state": status.State, "health_status": status.Health, "actions": actions,
 	})
@@ -68,7 +69,7 @@ func apiCacheAction(a *appctx.App, w http.ResponseWriter, r *http.Request, def s
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	action := strings.ToLower(strings.TrimSpace(body.Action))
 	if !validCacheActions[action] {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action. Valid: disable, enable, restart"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action. Valid: disable, enable, restart"})
 		return
 	}
 
@@ -78,7 +79,7 @@ func apiCacheAction(a *appctx.App, w http.ResponseWriter, r *http.Request, def s
 	if action == "restart" {
 		docker.RestartContainer(ctx, userContext, def.Name)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "restarted service "+def.Name, ip)
-		writeJSON(w, http.StatusOK, map[string]string{"message": def.Name + " restarted"})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"message": def.Name + " restarted"})
 		return
 	}
 
@@ -88,5 +89,5 @@ func apiCacheAction(a *appctx.App, w http.ResponseWriter, r *http.Request, def s
 	}
 	docker.StartOrStopContainer(ctx, userContext, def.Name, dockerAction, "")
 	_ = logger.RecordUserAction(a.Config, currentUsername, action+"d service "+def.Name, ip)
-	writeJSON(w, http.StatusOK, map[string]string{"message": def.Name + " " + action + "d"})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": def.Name + " " + action + "d"})
 }

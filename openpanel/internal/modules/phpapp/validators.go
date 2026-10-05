@@ -1,35 +1,9 @@
 package phpapp
 
 import (
-	stdpath "path"
 	"regexp"
 	"strings"
 )
-
-// isValidSubdirectory mirrors appinstall.isValidSubdirectory: empty is valid (install at docroot), otherwise no path traversal and no leading slash
-func isValidSubdirectory(subdirectory string) bool {
-	if subdirectory == "" {
-		return true
-	}
-	return !strings.Contains(subdirectory, "..") && !strings.HasPrefix(subdirectory, "/")
-}
-
-// noPathTraversal mirrors appinstall.noPathTraversal: normalizes the path then requires it lands under /var/www/html/
-func noPathTraversal(p string) bool {
-	if strings.ContainsAny(p, "\n\r") {
-		return false
-	}
-	cleaned := stdpath.Clean(p)
-	if !strings.HasPrefix(cleaned, "/var/www/html/") {
-		return false
-	}
-	for _, part := range strings.Split(cleaned, "/") {
-		if part == ".." {
-			return false
-		}
-	}
-	return true
-}
 
 var archiveURLRE = regexp.MustCompile(`(?i)^https://[^\s'"]+\.(zip|tar\.gz|tgz|tar)$`)
 

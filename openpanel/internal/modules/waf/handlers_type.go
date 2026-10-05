@@ -9,6 +9,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleWAFType returns a Redis-cached (300s) list of valid rule IDs or tags, fed to the autocomplete on the WAF domain page
@@ -25,7 +26,7 @@ func handleWAFType(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if data == nil {
 		data = []string{}
 	}
-	writeJSON(w, http.StatusOK, data)
+	web.WriteJSON(w, http.StatusOK, data)
 }
 
 // extractIDs runs `opencli waf <type>` and pulls the ID/tag off the end of each "label: value" output line - any failure, including the binary not existing, yields an empty list rather than an error

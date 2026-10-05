@@ -17,27 +17,14 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
-
-func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
 
 // HandleDockerTags proxies endoflife.date's release feed for the "version" dropdown on the nodejs/python install forms (cached 24h). For ruby it queries Docker Hub's own tag list directly instead, reshaped into the same [{"latest": "X.Y.Z"}, ...] shape so the frontend doesn't need a ruby-specific branch.
 func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	appType := r.PathValue("type")
 	if appType != "nodejs" && appType != "python" && appType != "ruby" && appType != "java" && appType != "n8n" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid type. Use 'nodejs', 'python', 'ruby', 'java', or 'n8n'."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid type. Use 'nodejs', 'python', 'ruby', 'java', or 'n8n'."})
 		return
 	}
 
@@ -56,7 +43,7 @@ func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return fetch(ctx)
 		})
 		if err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to fetch " + appType + " versions."})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to fetch " + appType + " versions."})
 			return
 		}
 		type tagEntry struct {
@@ -66,7 +53,7 @@ func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		for i, v := range versions {
 			entries[i] = tagEntry{Latest: v}
 		}
-		writeJSON(w, http.StatusOK, entries)
+		web.WriteJSON(w, http.StatusOK, entries)
 		return
 	}
 
@@ -83,7 +70,7 @@ func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return io.ReadAll(resp.Body)
 	})
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to fetch " + appType + " versions."})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to fetch " + appType + " versions."})
 		return
 	}
 
@@ -262,7 +249,7 @@ func HandleCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	file := r.FormValue("file")
 	if file == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "File path is missing"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "File path is missing"})
 		return
 	}
 
@@ -275,15 +262,15 @@ func HandleCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	ext := stdpath.Ext(file)
 	if ext != ".py" && ext != ".js" && ext != ".rb" && ext != ".java" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid file extension. Only .py, .js, .rb, or .java are allowed."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid file extension. Only .py, .js, .rb, or .java are allowed."})
 		return
 	}
 
 	if runErr := exec.CommandContext(r.Context(), "test", "-f", realFilePath).Run(); runErr != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"message": file + " does not exist."})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"message": file + " does not exist."})
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]string{"message": file + " exists."})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": file + " exists."})
 }
 
 // RegisterShared wires the two always-on routes only the Python/NodeJS install forms use. Gated on "helpers", not "python"/"nodejs" - "helpers" is unconditionally granted (see baselineFeatures), so in practice this is login-only.

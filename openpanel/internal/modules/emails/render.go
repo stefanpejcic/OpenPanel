@@ -11,38 +11,22 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var pageFiles = []string{
-	"base.html",
-	"partials/_header.html",
-	"partials/_footer.html",
-	"partials/_service.html",
-	"partials/_search.html",
-	"partials/_impersonate.html",
-	"partials/_service_js.html",
-	"partials/punnycode.html",
-	"partials/theme_switcher.html",
-}
-
-func loadPage(files ...string) *web.Page {
-	return web.MustLoadPage(append(append([]string{}, pageFiles...), files...)...)
-}
-
 var (
-	accountsPage             = loadPage("emails/accounts.html")
-	newEmailPage             = loadPage("emails/new.html")
-	singleAccountPage        = loadPage("emails/single_account.html")
-	deletePage               = loadPage("emails/delete.html")
-	infoPage                 = loadPage("emails/info.html")
-	aliasesPage              = loadPage("emails/aliases.html")
-	aliasDetailPage          = loadPage("emails/alias_detail.html")
-	aliasNewPage             = loadPage("emails/alias_new.html")
-	aliasDeletePage          = loadPage("emails/alias_delete.html")
-	defaultAddressPage       = loadPage("emails/default_address.html")
-	deliverabilityPage       = loadPage("emails/deliverability.html")
-	deliverabilityDomainPage = loadPage("emails/deliverability_domain.html")
-	filterPage               = loadPage("emails/filter.html")
-	importPage               = loadPage("emails/import.html")
-	confirmImportPage        = loadPage("emails/confirm_import.html")
+	accountsPage             = web.LoadPage("emails/accounts.html")
+	newEmailPage             = web.LoadPage("emails/new.html")
+	singleAccountPage        = web.LoadPage("emails/single_account.html")
+	deletePage               = web.LoadPage("emails/delete.html")
+	infoPage                 = web.LoadPage("emails/info.html")
+	aliasesPage              = web.LoadPage("emails/aliases.html")
+	aliasDetailPage          = web.LoadPage("emails/alias_detail.html")
+	aliasNewPage             = web.LoadPage("emails/alias_new.html")
+	aliasDeletePage          = web.LoadPage("emails/alias_delete.html")
+	defaultAddressPage       = web.LoadPage("emails/default_address.html")
+	deliverabilityPage       = web.LoadPage("emails/deliverability.html")
+	deliverabilityDomainPage = web.LoadPage("emails/deliverability_domain.html")
+	filterPage               = web.LoadPage("emails/filter.html")
+	importPage               = web.LoadPage("emails/import.html")
+	confirmImportPage        = web.LoadPage("emails/confirm_import.html")
 )
 
 func addressesOf(lines []string) []string {

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mongomanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -15,7 +16,7 @@ import (
 // handleDatabasesUsers lists the MongoDB users, starting the container in the background if it isn't running yet
 func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -31,14 +32,14 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	switch {
 	case status.State == "not_found":
-		flashSess(a, w, r, "warning", "MongoDB service is not yet installed. Starting it in the background..")
+		web.Flash(a, w, r, "warning", "MongoDB service is not yet installed. Starting it in the background..")
 		docker.StartOrStopContainer(ctx, userContext, "mongodb", "activate", "detached")
 	case status.State != "running":
-		flashSess(a, w, r, "warning", "MongoDB container is not running. Please allow a few moments for the initialization..")
+		web.Flash(a, w, r, "warning", "MongoDB container is not running. Please allow a few moments for the initialization..")
 	default:
 		users, listErr := mongomanager.ListUsers(ctx, userContext)
 		if listErr != nil {
-			flashSess(a, w, r, "error", web.Tr(a, r, "Error fetching users: %(error)s", "error", listErr.Error()))
+			web.Flash(a, w, r, "error", web.Tr(a, r, "Error fetching users: %(error)s", "error", listErr.Error()))
 		} else {
 			for _, u := range users {
 				userRows = append(userRows, UserRow{Name: u.Username, Roles: rolesDisplay(u.Roles), IsSystem: isRestrictedUser(u.Username)})
@@ -47,7 +48,7 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"users":           userRows,
 			"container_state": status.State, "health_status": status.Health,
 		})
@@ -60,7 +61,7 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 // handleDatabasesUser creates a new MongoDB user with no roles yet - access is granted separately via /mongodb/assign.
 func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -73,25 +74,25 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 		switch {
 		case dbUser == "":
-			flashAndRedirect(a, w, r, "error", "User name is required.", "/mongodb/user")
+			web.FlashRedirect(a, w, r, "error", "User name is required.", "/mongodb/user")
 			return
 		case !validators.IsValidIdentifier(dbUser):
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/mongodb/user")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/mongodb/user")
 			return
 		case isRestrictedUser(dbUser):
-			flashAndRedirect(a, w, r, "error", "This username is not allowed.", "/mongodb/user")
+			web.FlashRedirect(a, w, r, "error", "This username is not allowed.", "/mongodb/user")
 			return
 		case !validators.IsPasswordStrongEnough(password, validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)):
-			flashAndRedirect(a, w, r, "error", "Password does not meet the required strength.", "/mongodb/user")
+			web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/mongodb/user")
 			return
 		}
 
 		if createErr := mongomanager.CreateUser(ctx, userContext, dbUser, password); createErr != nil {
-			flashSess(a, w, r, "error", web.Tr(a, r, "Failed to create user: %(error)s", "error", createErr.Error()))
+			web.Flash(a, w, r, "error", web.Tr(a, r, "Failed to create user: %(error)s", "error", createErr.Error()))
 		} else {
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "created a MongoDB user "+dbUser, ipAddress)
-			flashSess(a, w, r, "success", web.Tr(a, r, "Successfully created a MongoDB user %(db_user)s", "db_user", dbUser))
+			web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a MongoDB user %(db_user)s", "db_user", dbUser))
 		}
 
 		http.Redirect(w, r, "/mongodb/user", http.StatusFound)
@@ -105,7 +106,7 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 func handleDatabasesPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	dbUser := r.PathValue("db_user")
 	if isRestrictedUser(dbUser) {
-		flashAndRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/mongodb/user")
+		web.FlashRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/mongodb/user")
 		return
 	}
 	renderChangePasswordPage(a, w, r, dbUser)
@@ -114,7 +115,7 @@ func handleDatabasesPassword(a *appctx.App, w http.ResponseWriter, r *http.Reque
 // handleDeleteMongoUser drops a MongoDB user entirely.
 func handleDeleteMongoUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -130,20 +131,20 @@ func handleDeleteMongoUser(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	switch {
 	case dbUser == "":
-		flashAndRedirect(a, w, r, "error", "User name is required.", "/delete_mongodb_user")
+		web.FlashRedirect(a, w, r, "error", "User name is required.", "/delete_mongodb_user")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "db_user", dbUser), "/delete_mongodb_user")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "db_user", dbUser), "/delete_mongodb_user")
 		return
 	case isRestrictedUser(dbUser):
-		flashAndRedirect(a, w, r, "error", "This is a system username that cannot be deleted.", "/mongodb/users")
+		web.FlashRedirect(a, w, r, "error", "This is a system username that cannot be deleted.", "/mongodb/users")
 		return
 	}
 
 	if dropErr := mongomanager.DropUser(ctx, userContext, dbUser); dropErr != nil {
-		flashSess(a, w, r, "error", web.Tr(a, r, "Error deleting user %(db_user)s: %(error)s", "db_user", dbUser, "error", dropErr.Error()))
+		web.Flash(a, w, r, "error", web.Tr(a, r, "Error deleting user %(db_user)s: %(error)s", "db_user", dbUser, "error", dropErr.Error()))
 	} else {
-		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully deleted user %(db_user)s", "db_user", dbUser))
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully deleted user %(db_user)s", "db_user", dbUser))
 	}
 
 	ipAddress := reqip.ClientIP(r)
@@ -155,7 +156,7 @@ func handleDeleteMongoUser(a *appctx.App, w http.ResponseWriter, r *http.Request
 // handleChangeMongoUserPassword updates an existing user's password.
 func handleChangeMongoUserPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -167,25 +168,25 @@ func handleChangeMongoUserPassword(a *appctx.App, w http.ResponseWriter, r *http
 
 	switch {
 	case dbUser == "":
-		flashAndRedirect(a, w, r, "error", "User name is required.", "/mongodb/change_user_password")
+		web.FlashRedirect(a, w, r, "error", "User name is required.", "/mongodb/change_user_password")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/mongodb/change_user_password")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/mongodb/change_user_password")
 		return
 	case isRestrictedUser(dbUser):
-		flashAndRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/mongodb/users")
+		web.FlashRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/mongodb/users")
 		return
 	case !validators.IsPasswordStrongEnough(newPassword, validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)):
-		flashAndRedirect(a, w, r, "error", "Password does not meet the required strength.", "/mongodb/change_user_password")
+		web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/mongodb/change_user_password")
 		return
 	}
 
 	if changeErr := mongomanager.ChangeUserPassword(ctx, userContext, dbUser, newPassword); changeErr != nil {
-		flashSess(a, w, r, "error", web.Tr(a, r, "Error changing password for user %(db_user)s: %(error)s", "db_user", dbUser, "error", changeErr.Error()))
+		web.Flash(a, w, r, "error", web.Tr(a, r, "Error changing password for user %(db_user)s: %(error)s", "db_user", dbUser, "error", changeErr.Error()))
 	} else {
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "changed password for MongoDB user "+dbUser, ipAddress)
-		flashSess(a, w, r, "success", web.Tr(a, r, "Successfully changed password for user %(db_user)s", "db_user", dbUser))
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully changed password for user %(db_user)s", "db_user", dbUser))
 	}
 
 	http.Redirect(w, r, "/mongodb/users", http.StatusFound)

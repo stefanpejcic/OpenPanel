@@ -1,16 +1,13 @@
 package mediawiki
 
 import (
-	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 
-	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 )
 
@@ -24,137 +21,30 @@ var (
 	cloneMediaWikiScriptPathRE = regexp.MustCompile(`\$wgScriptPath\s*=\s*"[^"]*"`)
 )
 
-// handleMediaWikiClone mirrors drupal/clone.go's handleDrupalClone.
-func handleMediaWikiClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	websiteCount, _ := countUserWebsites(a, userID)
-	if !cmsclone.WithinSiteLimit(ctx, a, userID, websiteCount) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed" + a.UpgradeMessageForUser(ctx, userID)})
-		return
-	}
-
-	providedDomain := r.FormValue("source_domain")
-	dstDomain := r.FormValue("target_domain")
-	srcDB := r.FormValue("source_db")
-	srcFolder := r.FormValue("source_folder")
-	dstFolder := r.FormValue("subdirectory")
-
-	dstDB := strings.ToLower(formOr(r, "target_db", "mediawiki_clone_"+generateRandomString(6)))
-	dstDBUser := strings.ToLower(formOr(r, "target_db_user", dstDB))
-	dstDBUserPassword := formOr(r, "target_db_user_password", generateRandomString(16))
-
-	if providedDomain == "" || dstDomain == "" || srcDB == "" || srcFolder == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing required form fields"})
-		return
-	}
-
-	domainID, docroot, phpVersion, dstDomainWithSubdir, ok := cmsclone.ResolveDestination(ctx, a, dstDomain, dstFolder)
-	if !ok {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Destination domain not found in database"})
-		return
-	}
-
-	srcDomain := strings.Split(providedDomain, "/")[0]
-
-	if !cmsclone.ValidDomain(srcDomain) || !cmsclone.ValidDomain(dstDomain) || !cmsclone.ValidDB(srcDB) || !cmsclone.ValidDB(dstDB) ||
-		!cmsclone.ValidDB(dstDBUser) || !cmsclone.ValidDocroot(srcFolder) || !cmsclone.ValidDocroot(docroot) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid input or unsafe docroot"})
-		return
-	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, srcDomain) || !a.CheckDomainBelongsToUser(ctx, userID, dstDomain) {
-		http.Error(w, "You do not own this domain.", http.StatusForbidden)
-		return
-	}
-
-	dumpCmd, mysqlVersion, dumpCmdErr := cmsclone.SelectDumpCommand(userContext)
-	if dumpCmdErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": dumpCmdErr.Error()})
-		return
-	}
-
-	const wwwBaseDirectory = "/var/www/html/"
-	baseDirectory := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
-	srcPath := strings.Replace(filepath.Clean(srcFolder), wwwBaseDirectory, baseDirectory, 1)
-	dstPath := strings.Replace(filepath.Clean(docroot), wwwBaseDirectory, baseDirectory, 1)
-
-	if info, statErr := os.Stat(srcPath); statErr != nil || !info.IsDir() {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Source folder not found: " + srcFolder})
-		return
-	}
-	if mkErr := os.MkdirAll(dstPath, 0o755); mkErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy MediaWiki files: " + mkErr.Error()})
-		return
-	}
-	if cpErr := exec.CommandContext(ctx, "cp", "-a", srcPath+"/.", dstPath+"/").Run(); cpErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy MediaWiki files: " + cpErr.Error()})
-		return
-	}
-	cmsclone.ChownRecursive(ctx, userContext, dstPath)
-	settingsFile := filepath.Join(dstPath, "LocalSettings.php")
-	_ = exec.CommandContext(ctx, "chmod", "644", settingsFile).Run()
-
-	escapedPassword := strings.ReplaceAll(dstDBUserPassword, `"`, `\"`)
-	_, dbErr := cmsclone.CreateDatabaseAndDump(ctx, userContext, mysqlVersion, dumpCmd, srcDB, dstDB, dstDBUser, dstDBUserPassword)
-	if dbErr != nil {
-		if cmsclone.DumpStageFailed(dbErr) {
-			writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed"})
-		} else {
-			writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": dbErr.Error()})
-		}
-		return
-	}
-
-	content, readErr := os.ReadFile(settingsFile)
-	if readErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": readErr.Error()})
-		return
-	}
+func cloneConfig(c *cmsapp.Clone) map[string]any {
+	_ = exec.CommandContext(c.Ctx, "chmod", "644", filepath.Join(c.DstPath, "LocalSettings.php")).Run()
+	escapedPassword := strings.ReplaceAll(c.DstDBUserPassword, `"`, `\"`)
 	dstScriptPath := ""
-	if dstFolder != "" {
-		dstScriptPath = "/" + dstFolder
+	if c.DstFolder != "" {
+		dstScriptPath = "/" + c.DstFolder
 	}
-	strContent := string(content)
-	// ReplaceAllString (not ReplaceAllStringFunc) would silently swallow the "$wg..." prefix here - Go's regexp treats a bare "$name" in the replacement string as a submatch-expansion reference, not literal text, and since these regexes have no such named group it expands to "", producing a PHP parse error on every request to the clone; ReplaceAllStringFunc never does submatch expansion
-	strContent = cloneMediaWikiDBNameRE.ReplaceAllStringFunc(strContent, func(string) string { return `$wgDBname = "` + dstDB + `"` })
-	strContent = cloneMediaWikiDBUserRE.ReplaceAllStringFunc(strContent, func(string) string { return `$wgDBuser = "` + dstDBUser + `"` })
-	strContent = cloneMediaWikiDBPasswordRE.ReplaceAllStringFunc(strContent, func(string) string { return `$wgDBpassword = "` + escapedPassword + `"` })
-	strContent = cloneMediaWikiServerRE.ReplaceAllStringFunc(strContent, func(string) string { return `$wgServer = "https://` + dstDomain + `"` })
-	strContent = cloneMediaWikiScriptPathRE.ReplaceAllStringFunc(strContent, func(string) string { return `$wgScriptPath = "` + dstScriptPath + `"` })
-	if writeErr := os.WriteFile(settingsFile, []byte(strContent), 0o644); writeErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": writeErr.Error()})
-		return
-	}
-	if !strings.Contains(strContent, dstDB) {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "Failed to set 'wgDBname' in LocalSettings.php"})
-		return
-	}
+	// ReplaceAllStringFunc since ReplaceAllString would expand the "$wg..." prefix as a submatch reference and drop it
+	return c.RewriteConfig("LocalSettings.php", func(s string) string {
+		s = cloneMediaWikiDBNameRE.ReplaceAllStringFunc(s, func(string) string { return `$wgDBname = "` + c.DstDB + `"` })
+		s = cloneMediaWikiDBUserRE.ReplaceAllStringFunc(s, func(string) string { return `$wgDBuser = "` + c.DstDBUser + `"` })
+		s = cloneMediaWikiDBPasswordRE.ReplaceAllStringFunc(s, func(string) string { return `$wgDBpassword = "` + escapedPassword + `"` })
+		s = cloneMediaWikiServerRE.ReplaceAllStringFunc(s, func(string) string { return `$wgServer = "https://` + c.DstDomain + `"` })
+		return cloneMediaWikiScriptPathRE.ReplaceAllStringFunc(s, func(string) string { return `$wgScriptPath = "` + dstScriptPath + `"` })
+	}, "Failed to set 'wgDBname' in LocalSettings.php")
+}
 
-	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
-	isLitespeed := strings.Contains(strings.ToLower(webServer), "litespeed")
+// cloneAddCron registers the clone's own runJobs.php job, the job queue doesn't run without it
+func cloneAddCron(c *cmsapp.Clone) {
+	webServer := webserver.GetEnvFileValue(c.UserContext, "WEB_SERVER")
 	phpContainer := webServer
-	if !isLitespeed {
-		phpContainer = "php-fpm-" + phpVersion
+	if !strings.Contains(strings.ToLower(webServer), "litespeed") {
+		phpContainer = "php-fpm-" + c.PHPVersion
 	}
-	cronComment := mediawikiCronComment(dstDomainWithSubdir)
-	cronCommand := "php " + docroot + "/maintenance/runJobs.php --maxjobs=50"
-	_ = crons.AddJob(ctx, userContext, cronComment, "0 * * * * *", phpContainer, cronCommand, true)
-
-	adminEmail := formOr(r, "admin_email", "admin@"+dstDomain)
-	mediawikiVersion := formOr(r, "mediawiki_version", "latest")
-	// Rewrites hardcoded source-domain URLs left in page/content body text (the config-file rewrite above only fixes the DB connection settings, not application data) - the generic equivalent of wp-cli's search-replace, which this CMS's own CLI has no built-in version of.
-	cmsclone.SearchReplaceDatabase(ctx, userContext, dstDB, "https://"+providedDomain, "https://"+dstDomainWithSubdir)
-
-	cmsclone.FinalizeSite(ctx, w, r, cmsclone.FinalizeParams{
-		App: a, WriteJSON: writeJSON, UserID: userID, Username: currentUsername,
-		CMSDisplayName: "MediaWiki", CMSType: "mediawiki",
-		ProvidedDomain: providedDomain, DstDomainWithSubdir: dstDomainWithSubdir, DomainID: domainID,
-		AdminEmail: adminEmail, Version: mediawikiVersion,
-		SrcPath: srcPath, DstPath: dstPath, DstDB: dstDB,
-	})
+	cronCommand := "php " + c.Docroot + "/maintenance/runJobs.php --maxjobs=50"
+	_ = crons.AddJob(c.Ctx, c.UserContext, mediawikiCronComment(c.DstDomainWithSubdir), "0 * * * * *", phpContainer, cronCommand, true)
 }

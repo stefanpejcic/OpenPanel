@@ -56,7 +56,7 @@ func classifyPHPVersionLevel(version string, data map[string]VersionInfo) (level
 func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -64,7 +64,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	if strings.Contains(strings.ToLower(webServer), "litespeed") {
-		flashAndRedirect(a, w, r, "warning", "Only one PHP version can be used on Litespeed, to change version for all domains use this page.", "/php/default")
+		web.FlashRedirect(a, w, r, "warning", "Only one PHP version can be used on Litespeed, to change version for all domains use this page.", "/php/default")
 		return
 	}
 
@@ -92,11 +92,11 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		validNew := newPHPVersion != "" && phpVersionFormRE.MatchString(newPHPVersion) && containsString(installedVersions, newPHPVersion)
 		if !validNew {
-			flashAndRedirect(a, w, r, "error", "Invalid or unavailable PHP version selected.", target)
+			web.FlashRedirect(a, w, r, "error", "Invalid or unavailable PHP version selected.", target)
 			return
 		}
 		if oldPHPVersion == "" || !phpVersionFormRE.MatchString(oldPHPVersion) {
-			flashAndRedirect(a, w, r, "error", "Invalid current PHP version.", target)
+			web.FlashRedirect(a, w, r, "error", "Invalid current PHP version.", target)
 			return
 		}
 
@@ -104,7 +104,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if !docker.IsServiceRunning(ctx, userContext, newPHPContainer) {
 			result := docker.StartOrStopContainer(ctx, userContext, newPHPContainer, "activate", "run")
 			if !result.Success {
-				flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to start PHP %(new_phpversion)s: %(message)s", "new_phpversion", newPHPVersion, "message", result.Message), target)
+				web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to start PHP %(new_phpversion)s: %(message)s", "new_phpversion", newPHPVersion, "message", result.Message), target)
 				return
 			}
 		}
@@ -112,7 +112,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		confFile := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
 		content, readErr := os.ReadFile(confFile)
 		if readErr != nil {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to read vhost configuration for %(domain_url)s: %(error)s", "domain_url", domainURL, "error", readErr.Error()), target)
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to read vhost configuration for %(domain_url)s: %(error)s", "domain_url", domainURL, "error", readErr.Error()), target)
 			return
 		}
 
@@ -120,7 +120,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		_ = os.WriteFile(confFile, []byte(updated), 0o644)
 
 		if strings.Contains(updated, "php-fpm-"+oldPHPVersion) {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error occurred while updating PHP version for domain %(domain_url)s", "domain_url", domainURL), target)
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error occurred while updating PHP version for domain %(domain_url)s", "domain_url", domainURL), target)
 			return
 		}
 
@@ -133,7 +133,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, fmt.Sprintf("changed PHP version for domain %s from %s to %s", domainURL, oldPHPVersion, newPHPVersion), ipAddress)
-		flashSess(a, w, r, "success", web.Tr(a, r, "PHP version for domain %(domain_url)s updated from %(old_phpversion)s to %(new_phpversion)s", "domain_url", domainURL, "old_phpversion", oldPHPVersion, "new_phpversion", newPHPVersion))
+		web.Flash(a, w, r, "success", web.Tr(a, r, "PHP version for domain %(domain_url)s updated from %(old_phpversion)s to %(new_phpversion)s", "domain_url", domainURL, "old_phpversion", oldPHPVersion, "new_phpversion", newPHPVersion))
 
 		if redirectTo != "" {
 			http.Redirect(w, r, redirectTo, http.StatusFound)
@@ -151,7 +151,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		for _, row := range rows {
 			phpVersions[row.DomainID] = row.PHPVersion
 		}
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"domains":                domainsList,
 			"php_versions":           phpVersions,
 			"available_php_versions": installedVersions,

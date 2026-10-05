@@ -9,9 +9,10 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
 
 var (
@@ -57,7 +58,7 @@ func listMediaWikiBranches(ctx context.Context) ([]string, error) {
 	if len(branches) == 0 {
 		return nil, errors.New("no MediaWiki release branches found")
 	}
-	sort.Slice(branches, func(i, j int) bool { return compareVersions(branches[i], branches[j]) > 0 })
+	sort.Slice(branches, func(i, j int) bool { return cmsapp.CompareVersions(branches[i], branches[j]) > 0 })
 	return branches, nil
 }
 
@@ -75,7 +76,7 @@ func listMediaWikiVersionsForBranch(ctx context.Context, branch string) ([]strin
 	if len(versions) == 0 {
 		return nil, errors.New("no MediaWiki tarballs found for branch " + branch)
 	}
-	sort.Slice(versions, func(i, j int) bool { return compareVersions(versions[i], versions[j]) > 0 })
+	sort.Slice(versions, func(i, j int) bool { return cmsapp.CompareVersions(versions[i], versions[j]) > 0 })
 	return versions, nil
 }
 
@@ -96,7 +97,7 @@ func listMediaWikiVersions(ctx context.Context) ([]string, error) {
 	if len(all) == 0 {
 		return nil, errors.New("no MediaWiki versions found")
 	}
-	sort.Slice(all, func(i, j int) bool { return compareVersions(all[i], all[j]) > 0 })
+	sort.Slice(all, func(i, j int) bool { return cmsapp.CompareVersions(all[i], all[j]) > 0 })
 	return all, nil
 }
 
@@ -139,23 +140,4 @@ func minPHPVersionFromComposerJSON(installDir string) string {
 		return ""
 	}
 	return string(m[1])
-}
-
-// compareVersions compares two dotted numeric versions ("1.42.7" vs "1.9.3"), returns >0 if a > b
-func compareVersions(a, b string) int {
-	partsA := strings.Split(a, ".")
-	partsB := strings.Split(b, ".")
-	for i := 0; i < len(partsA) || i < len(partsB); i++ {
-		var na, nb int
-		if i < len(partsA) {
-			na, _ = strconv.Atoi(partsA[i])
-		}
-		if i < len(partsB) {
-			nb, _ = strconv.Atoi(partsB[i])
-		}
-		if na != nb {
-			return na - nb
-		}
-	}
-	return 0
 }

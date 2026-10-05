@@ -5,7 +5,6 @@ import (
 	"context"
 	cryptorand "crypto/rand"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -70,36 +69,6 @@ func readEmailStorageLocation() string {
 		}
 	}
 	return fallback
-}
-
-func injected(a *appctx.App, r *http.Request) (username, userContext string, err error) {
-	userID, _ := auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return "", "", err
-	}
-	username, _ = data["current_username"].(string)
-	userContext, _ = data["context"].(string)
-	return username, userContext, nil
-}
-
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
-func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
 }
 
 // randomURLToken mirrors secrets.token_urlsafe(nBytes).
@@ -313,7 +282,7 @@ func getDedicatedOrSharedIP(ctx context.Context, currentUsername string) string 
 func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -360,19 +329,19 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		if !validators.IsValidEmailUsername(username) {
-			flashAndRedirect(a, w, r, "error", "Username can only contain letters, numbers, and . _ % + - (no @).", "/emails/new")
+			web.FlashRedirect(a, w, r, "error", "Username can only contain letters, numbers, and . _ % + - (no @).", "/emails/new")
 			return
 		}
 
 		threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
 		if !validators.IsPasswordStrongEnough(password, threshold) {
-			flashAndRedirect(a, w, r, "error", "Password does not meet the required strength.", "/emails/new")
+			web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/emails/new")
 			return
 		}
 
 		emailLimit, _ := strconv.Atoi(emailLimitStr)
 		if emailLimit != 0 && GetEmailCount(ctx, a, userID, currentUsername, userDomains) >= emailLimit {
-			flashAndRedirect(a, w, r, "error", "Error: reached max number of email accounts on the hosting plan.", "/emails/new")
+			web.FlashRedirect(a, w, r, "error", "Error: reached max number of email accounts on the hosting plan.", "/emails/new")
 			return
 		}
 
@@ -397,7 +366,7 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				if msg == "" {
 					msg = "command failed"
 				}
-				flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to add email %(email)s: %(msg)s", "email", email, "msg", msg), "/emails/new")
+				web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to add email %(email)s: %(msg)s", "email", email, "msg", msg), "/emails/new")
 				return
 			}
 		}
@@ -416,7 +385,7 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created email "+email, ipAddress)
 		InvalidateEmailCache(ctx, a, userID, currentUsername)
-		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Email %(email)s added successfully.", "email", email), "/emails")
+		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Email %(email)s added successfully.", "email", email), "/emails")
 		return
 	}
 
@@ -583,7 +552,7 @@ func parseSingleEmailQuota(entry string) SingleEmailQuota {
 func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -659,7 +628,7 @@ func getSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, email
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"title": email, "current_emails_list": currentEmailsList,
 			"max_email_quota_numeric": maxEmailQuotaNumeric, "allocated_unit": allocatedUnit,
 			"server_ip": serverIP, "dedicated_ip": dedicatedIP,
@@ -723,7 +692,7 @@ func postSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, emai
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, strings.Join(actionsTaken, "; ")+" for email "+email, ipAddress)
 	InvalidateEmailCache(ctx, a, userID, currentUsername)
-	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Settings saved for email %(email)s", "email", email), r.URL.Path)
+	web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Settings saved for email %(email)s", "email", email), r.URL.Path)
 }
 
 func deleteSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, userID int, currentUsername string) {
@@ -734,10 +703,10 @@ func deleteSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, em
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "deleted email "+email, ipAddress)
 		InvalidateEmailCache(ctx, a, userID, currentUsername)
-		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Email %(email)s deleted successfully.", "email", email), "/emails")
+		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Email %(email)s deleted successfully.", "email", email), "/emails")
 		return
 	}
-	flashAndRedirect(a, w, r, "error", web.Tr(a, r, "ERROR: Failed to delete email %(email)s: %(output)s", "email", email, "output", strings.TrimSpace(string(out))), "/emails")
+	web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "ERROR: Failed to delete email %(email)s: %(output)s", "email", email, "output", strings.TrimSpace(string(out))), "/emails")
 }
 
 // DELETE (select-then-confirm page)
@@ -746,7 +715,7 @@ func deleteSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, em
 func handleEmailsDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -788,7 +757,7 @@ func handleEmailsServerInfo(a *appctx.App, w http.ResponseWriter, r *http.Reques
 // handleEmailConfiguration mirrors email_configuration().
 func handleEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -802,7 +771,7 @@ func handleEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 	configType := strings.ToLower(r.PathValue("type"))
 	if configType != "thunderbird" && configType != "outlook" && configType != "apple" {
-		flashAndRedirect(a, w, r, "error", "Error: Invalid configuration type.", "/emails")
+		web.FlashRedirect(a, w, r, "error", "Error: Invalid configuration type.", "/emails")
 		return
 	}
 

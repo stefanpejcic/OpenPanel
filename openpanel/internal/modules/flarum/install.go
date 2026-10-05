@@ -10,142 +10,58 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/installmanifest"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
-func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, _, _, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	injectedData, _ := a.InjectData(ctx, userID)
-	planID, _ := injectedData["hosting_plan"].(int)
-	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	websitesLimit := atoiDefault(plan.WebsitesLimit, 0)
-	websiteCount, _ := countUserWebsites(a, userID)
-
-	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		if r.Method == http.MethodPost {
-			w.Header().Set("Content-Type", "application/x-ndjson")
-			flusher, canFlush := w.(http.Flusher)
-			writeNDJSON(w, flusher, canFlush, map[string]any{"error": "You have reached the maximum number of sites allowed." + plan.UpgradeMessage()})
-			return
-		}
-		flashSess(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
-	} else if r.Method == http.MethodPost {
-		handleInstallStream(a, w, r)
-		return
-	}
-
-	domains, _ := a.AllDomainsForUser(ctx, userID)
-	renderInstallPage(a, w, r, domains)
-}
-
-func formOr(r *http.Request, key, def string) string {
-	if v := r.FormValue(key); v != "" {
-		return v
-	}
-	return def
-}
-
-// ensureContainerRunning starts the container if it isn't already running, polling briefly for it to come up
-func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
-	if docker.IsServiceRunning(ctx, userContext, container) {
-		return true
-	}
-	docker.StartOrStopContainer(ctx, userContext, container, "activate", "detached")
-	const attempts = 15
-	for i := 0; i < attempts; i++ {
-		time.Sleep(2 * time.Second)
-		if docker.IsServiceRunning(ctx, userContext, container) {
-			return true
-		}
-	}
-	return false
-}
-
 // handleInstallStream drives a Flarum install end to end over NDJSON: create a Composer project (flarum/flarum), create a MySQL database, run Flarum's own console installer (see runFlarumInstaller's doc comment), then record the site
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	in, ok := cmsapp.StartInstall(a, w, r)
+	if !ok {
 		return
 	}
+	defer appkit.RemoveLockFile(in.Username)
+	ctx := in.Ctx
+	userID := in.UserID
+	currentUsername := in.Username
+	userContext := in.UserContext
+	emit := in.Emit
+	ipAddress := in.IP
+	domainID := in.DomainID
+	dom := in.Domain
+	subdirectory := in.Subdirectory
 
-	w.Header().Set("Content-Type", "application/x-ndjson")
-	flusher, canFlush := w.(http.Flusher)
-	emit := func(v map[string]any) { writeNDJSON(w, flusher, canFlush, v) }
-
-	ipAddress := reqip.ClientIP(r)
-	domainID := r.FormValue("domain_id")
-	if domainID == "" {
-		emit(map[string]any{"error": "Missing required field: domain"})
-		return
-	}
-
-	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
-	if err := createLockFile(currentUsername); err != nil {
-		emit(map[string]any{"error": "Error creating lock file: " + err.Error()})
-		return
-	}
-	defer removeLockFile(currentUsername)
-
-	dom, found, dbErr := lookupDomainByID(ctx, a, domainID)
-	if dbErr != nil {
-		emit(map[string]any{"error": "An error occurred fetching docroot for domain from database."})
-		return
-	}
-	if !found {
-		emit(map[string]any{"error": "Domain not found"})
-		return
-	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, dom.DomainURL) {
-		return
-	}
-
-	emit(map[string]any{"status": "Validating provided data"})
-	subdirectory := strings.ToLower(strings.ReplaceAll(r.FormValue("subdirectory"), " ", ""))
-	if !isValidSubdirectory(subdirectory) {
-		emit(map[string]any{"error": "Invalid subdirectory."})
-		return
-	}
-
-	forumTitle := formOr(r, "site_name", "Flarum")
+	forumTitle := web.FormOr(r, "site_name", "Flarum")
 	flarumVersion := strings.TrimSpace(r.FormValue("flarum_version"))
-	adminUsername := formOr(r, "admin_username", "admin")
+	adminUsername := web.FormOr(r, "admin_username", "admin")
 	adminPassword := r.FormValue("admin_password")
 	if adminPassword == "" {
-		adminPassword = generateRandomString(16)
+		adminPassword = appkit.RandomString(16)
 	}
-	adminEmail := formOr(r, "admin_email", "admin@"+dom.DomainURL)
+	adminEmail := web.FormOr(r, "admin_email", "admin@"+dom.DomainURL)
 
 	dbName := strings.ToLower(r.FormValue("db_name"))
 	if dbName == "" {
-		dbName = "flarum_" + strings.ToLower(generateRandomString(6))
+		dbName = "flarum_" + strings.ToLower(appkit.RandomString(6))
 	}
 	dbUser := strings.ToLower(r.FormValue("db_user"))
 	if dbUser == "" {
-		dbUser = strings.ToLower(generateRandomString(10))
+		dbUser = strings.ToLower(appkit.RandomString(10))
 	}
 	dbPassword := r.FormValue("db_password")
 	if dbPassword == "" {
-		dbPassword = generateRandomString(16)
+		dbPassword = appkit.RandomString(16)
 	}
 
 	docroot := dom.Docroot.String
@@ -171,7 +87,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Starting PHP container: " + phpContainer})
-	if !ensureContainerRunning(ctx, userContext, phpContainer) {
+	if !cmsapp.EnsureContainerRunning(ctx, userContext, phpContainer) {
 		emit(map[string]any{"error": "PHP container failed to start. Please check it from Services."})
 		return
 	}
@@ -193,18 +109,22 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	} else {
 		// no explicit pin for "latest" - fetch the real latest *stable* numeric release rather than letting composer's own resolution run unconstrained, so this never silently picks up a future 2.0.0 pre-release the moment one ships
 		if version, verErr := latestFlarumVersion(ctx); verErr == nil {
+			// that's flarum/core's version, the flarum/flarum skeleton lags behind on patch releases so only pin major.minor
+			if parts := strings.SplitN(version, ".", 3); len(parts) >= 2 {
+				version = parts[0] + "." + parts[1]
+			}
 			projectConstraint = "flarum/flarum:^" + version
 		}
 	}
 
 	// deliberately not pre-creating hostOSPath, composer create-project makes its own target dir (see drupal/install.go's identical comment about a host-side mkdir racing composer over the rootless bind mount)
 	emit(map[string]any{"status": "Creating Composer project " + projectConstraint})
-	composerArgv := append(podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "composer"),
+	composerArgv := append(composerExec(userContext, phpContainer, projectConstraint),
 		"create-project", projectConstraint, installPath, "--no-interaction")
 	out, runErr := podmanmanager.Command(ctx, userContext, composerArgv).CombinedOutput()
 	if runErr != nil {
 		emit(map[string]any{"error": "composer create-project failed: " + strings.TrimSpace(string(out))})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 
@@ -216,7 +136,7 @@ printf '%s\n' '<?php' 'chdir(__DIR__ . "/public"); require __DIR__ . "/public/in
 	out, runErr = podmanmanager.Command(ctx, userContext, linkArgv).CombinedOutput()
 	if runErr != nil {
 		emit(map[string]any{"error": "Linking public root into docroot failed: " + strings.TrimSpace(string(out))})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 
@@ -236,14 +156,14 @@ printf '%s\n' '<?php' 'chdir(__DIR__ . "/public"); require __DIR__ . "/public/in
 		emit(map[string]any{"status": "Checking " + mysqlVersion + " container status.."})
 		if !mysql.CheckMySQLNotTemporary(ctx, userContext, mysqlVersion) {
 			emit(map[string]any{"error": "The " + mysqlVersion + " container is either not running or still initializing. Please ensure your plan has sufficient resources to start the service."})
-			emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+			cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 			return
 		}
 	}
 
 	if mysql.DatabaseLimitReached(ctx, a, userID, currentUsername, userContext) {
 		emit(map[string]any{"error": "You have reached the maximum number of databases allowed on your plan." + a.UpgradeMessageForUser(ctx, userID)})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 
@@ -257,14 +177,14 @@ printf '%s\n' '<?php' 'chdir(__DIR__ . "/public"); require __DIR__ . "/public/in
 	}
 	for _, q := range queries {
 		if _, execErr := mysqlmanager.Exec(ctx, userContext, q, ""); execErr != nil {
-			invalidateMySQLCaches(ctx, a, userContext, currentUsername)
+			appkit.InvalidateMySQLCaches(ctx, a, userContext, currentUsername)
 			emit(map[string]any{"error": "Error creating MySQL database and user: " + execErr.Error()})
-			emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
-			emitCleanupDatabase(ctx, userContext, dbName, dbUser, dbHost, emit)
+			cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+			cmsapp.EmitCleanupDatabase(ctx, userContext, dbName, dbUser, dbHost, emit)
 			return
 		}
 	}
-	invalidateMySQLCaches(ctx, a, userContext, currentUsername)
+	appkit.InvalidateMySQLCaches(ctx, a, userContext, currentUsername)
 
 	emit(map[string]any{"status": "Running Flarum installer"})
 	baseURL := "https://" + selectedDomain
@@ -276,14 +196,14 @@ printf '%s\n' '<?php' 'chdir(__DIR__ . "/public"); require __DIR__ . "/public/in
 	log.Printf("FLARUM - installer for %s exited (err=%v), output: %s", installPath, runErr, strings.TrimSpace(string(out)))
 	if runErr != nil {
 		emit(map[string]any{"error": "Flarum installer failed: " + strings.TrimSpace(string(out))})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
-		emitCleanupDatabase(ctx, userContext, dbName, dbUser, dbHost, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupDatabase(ctx, userContext, dbName, dbUser, dbHost, emit)
 		return
 	}
 	if !strings.Contains(string(out), "DONE") {
 		emit(map[string]any{"error": "Flarum installer did not report success: " + strings.TrimSpace(string(out))})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
-		emitCleanupDatabase(ctx, userContext, dbName, dbUser, dbHost, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupDatabase(ctx, userContext, dbName, dbUser, dbHost, emit)
 		return
 	}
 
@@ -305,7 +225,7 @@ printf '%s\n' '<?php' 'chdir(__DIR__ . "/public"); require __DIR__ . "/public/in
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed Flarum on domain "+selectedDomain, ipAddress)
-	flashSess(a, w, r, "success", web.Tr(a, r, "Flarum installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
+	web.Flash(a, w, r, "success", web.Tr(a, r, "Flarum installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
 	emit(map[string]any{"status": "Flarum installation completed!"})
 }
 
@@ -376,29 +296,6 @@ func runFlarumInstaller(ctx context.Context, userContext, phpContainer, installP
 	return podmanmanager.Command(ctx, userContext, argv).CombinedOutput()
 }
 
-func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, currentUsername string) {
-	_ = a.Cache.Delete(ctx, "databases_info:"+userContext)
-	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
-}
-
-// emitCleanupFiles clears installPath's contents but leaves installPath itself - it's the domain's docroot, not ours to delete, and removing it would force a manual recreate before reinstalling
-func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
-	if err := installmanifest.ClearContentsViaContainer(ctx, userContext, phpContainer, installPath); err != nil {
-		emit(map[string]any{"status": "Cleanup: failed to remove files from " + installPath + ": " + err.Error()})
-		return
-	}
-	emit(map[string]any{"status": "Cleanup: removed files from " + installPath})
-}
-
-func emitCleanupDatabase(ctx context.Context, userContext, dbName, dbUser, dbHost string, emit func(map[string]any)) {
-	_, _ = mysqlmanager.Exec(ctx, userContext, "DROP DATABASE IF EXISTS `"+dbName+"`", "")
-	if _, execErr := mysqlmanager.Exec(ctx, userContext, "DROP USER IF EXISTS '"+dbUser+"'@'"+dbHost+"'", ""); execErr != nil {
-		emit(map[string]any{"error": "Cleanup: failed to drop database/user: " + execErr.Error()})
-		return
-	}
-	emit(map[string]any{"status": "Cleanup: dropped database `" + dbName + "` and user `" + dbUser + "`"})
-}
-
 // phpVersionBelow reports whether version (e.g. "7.2") is older than wantMajor.wantMinor - an unparseable version fails safe as "too old" (blocks the install with a clear message) rather than silently proceeding
 func phpVersionBelow(version string, wantMajor, wantMinor int) bool {
 	major, minor := 0, 0
@@ -411,9 +308,10 @@ func phpVersionBelow(version string, wantMajor, wantMinor int) bool {
 	return minor < wantMinor
 }
 
-func isValidSubdirectory(subdirectory string) bool {
-	if subdirectory == "" {
-		return true
+// composerExec is `podman exec <php> composer`, letting Flarum 1.x through composer's security blocking since every 1.x release requires league/flysystem 1.x, which carries advisories upstream won't fix
+func composerExec(userContext, phpContainer, constraint string) []string {
+	if strings.Contains(constraint, ":^2") {
+		return podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "composer")
 	}
-	return !strings.Contains(subdirectory, "..") && !strings.HasPrefix(subdirectory, "/")
+	return podmanmanager.PodmanArgv(userContext, "exec", "-e", "COMPOSER_NO_SECURITY_BLOCKING=1", phpContainer, "composer")
 }

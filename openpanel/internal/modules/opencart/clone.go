@@ -1,15 +1,11 @@
 package opencart
 
 import (
-	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
-	"strings"
 
-	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 )
 
@@ -25,143 +21,42 @@ var (
 	cloneOCDBDatabaseRE  = regexp.MustCompile(`define\('DB_DATABASE',\s*'.*?'\);`)
 )
 
-// handleOpenCartClone mirrors wordpress/manage.go's handleCloneWordPress.
-func handleOpenCartClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
-	websiteCount, _ := countUserWebsites(a, userID)
-	if !cmsclone.WithinSiteLimit(ctx, a, userID, websiteCount) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed" + a.UpgradeMessageForUser(ctx, userID)})
-		return
-	}
-
-	providedDomain := r.FormValue("source_domain")
-	dstDomain := r.FormValue("target_domain")
-	srcDB := r.FormValue("source_db")
-	srcFolder := r.FormValue("source_folder")
-	dstFolder := r.FormValue("subdirectory")
-
-	dstDB := strings.ToLower(formOr(r, "target_db", "oc_clone_"+generateRandomString(6)))
-	dstDBUser := strings.ToLower(formOr(r, "target_db_user", dstDB))
-	dstDBUserPassword := formOr(r, "target_db_user_password", generateRandomString(16))
-
-	if providedDomain == "" || dstDomain == "" || srcDB == "" || srcFolder == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing required form fields"})
-		return
-	}
-
-	domainID, docroot, _, dstDomainWithSubdir, ok := cmsclone.ResolveDestination(ctx, a, dstDomain, dstFolder)
-	if !ok {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Destination domain not found in database"})
-		return
-	}
+// cloneConfig rewrites both config.php and admin/config.php for the new domain, path and db
+func cloneConfig(c *cmsapp.Clone) map[string]any {
 	dstBaseURLPath := ""
-	if dstFolder != "" {
-		dstBaseURLPath = dstFolder + "/"
+	if c.DstFolder != "" {
+		dstBaseURLPath = c.DstFolder + "/"
 	}
-
-	srcDomain := strings.Split(providedDomain, "/")[0]
-
-	if !cmsclone.ValidDomain(srcDomain) || !cmsclone.ValidDomain(dstDomain) || !cmsclone.ValidDB(srcDB) || !cmsclone.ValidDB(dstDB) ||
-		!cmsclone.ValidDB(dstDBUser) || !cmsclone.ValidDocroot(srcFolder) || !cmsclone.ValidDocroot(docroot) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid input or unsafe docroot"})
-		return
-	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, srcDomain) || !a.CheckDomainBelongsToUser(ctx, userID, dstDomain) {
-		http.Error(w, "You do not own this domain.", http.StatusForbidden)
-		return
-	}
-
-	dumpCmd, mysqlVersion, dumpCmdErr := cmsclone.SelectDumpCommand(userContext)
-	if dumpCmdErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": dumpCmdErr.Error()})
-		return
-	}
-
-	const wwwBaseDirectory = "/var/www/html/"
-	baseDirectory := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
-	srcPath := strings.Replace(filepath.Clean(srcFolder), wwwBaseDirectory, baseDirectory, 1)
-	dstPath := strings.Replace(filepath.Clean(docroot), wwwBaseDirectory, baseDirectory, 1)
-
-	if info, statErr := os.Stat(srcPath); statErr != nil || !info.IsDir() {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Source folder not found: " + srcFolder})
-		return
-	}
-	if mkErr := os.MkdirAll(dstPath, 0o755); mkErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy OpenCart files: " + mkErr.Error()})
-		return
-	}
-	if cpErr := exec.CommandContext(ctx, "cp", "-a", srcPath+"/.", dstPath+"/").Run(); cpErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy OpenCart files: " + cpErr.Error()})
-		return
-	}
-	cmsclone.ChownRecursive(ctx, userContext, dstPath)
-
-	_, dbErr := cmsclone.CreateDatabaseAndDump(ctx, userContext, mysqlVersion, dumpCmd, srcDB, dstDB, dstDBUser, dstDBUserPassword)
-	if dbErr != nil {
-		if cmsclone.DumpStageFailed(dbErr) {
-			writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed"})
-		} else {
-			writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": dbErr.Error()})
-		}
-		return
-	}
-
-	newHTTPServer := "https://" + dstDomain + "/" + dstBaseURLPath
-	newHTTPCatalog := "https://" + dstDomain + "/" + dstBaseURLPath
-	newDirOpenCart := "/var/www/html/" + dstDomainWithSubdir + "/"
+	newHTTPServer := "https://" + c.DstDomain + "/" + dstBaseURLPath
+	newHTTPCatalog := "https://" + c.DstDomain + "/" + dstBaseURLPath
+	newDirOpenCart := "/var/www/html/" + c.DstDomainWithSubdir + "/"
 
 	rewriteConfig := func(relPath string, isAdmin bool) error {
-		fp := filepath.Join(dstPath, relPath)
+		fp := filepath.Join(c.DstPath, relPath)
 		content, readErr := os.ReadFile(fp)
 		if readErr != nil {
 			return readErr
 		}
 		strContent := string(content)
 		if isAdmin {
-			strContent = cloneOCHTTPServerRE.ReplaceAllString(strContent, "define('HTTP_SERVER', '"+escapePHPSingleQuoted(newHTTPServer+"admin/")+"');")
-			strContent = cloneOCHTTPCatalogRE.ReplaceAllString(strContent, "define('HTTP_CATALOG', '"+escapePHPSingleQuoted(newHTTPCatalog)+"');")
+			strContent = cloneOCHTTPServerRE.ReplaceAllString(strContent, "define('HTTP_SERVER', '"+cmsapp.EscapePHPSingleQuoted(newHTTPServer+"admin/")+"');")
+			strContent = cloneOCHTTPCatalogRE.ReplaceAllString(strContent, "define('HTTP_CATALOG', '"+cmsapp.EscapePHPSingleQuoted(newHTTPCatalog)+"');")
 		} else {
-			strContent = cloneOCHTTPServerRE.ReplaceAllString(strContent, "define('HTTP_SERVER', '"+escapePHPSingleQuoted(newHTTPServer)+"');")
+			strContent = cloneOCHTTPServerRE.ReplaceAllString(strContent, "define('HTTP_SERVER', '"+cmsapp.EscapePHPSingleQuoted(newHTTPServer)+"');")
 		}
-		strContent = cloneOCDirOpenCartRE.ReplaceAllString(strContent, "define('DIR_OPENCART', '"+escapePHPSingleQuoted(newDirOpenCart)+"');")
-		strContent = cloneOCDBHostnameRE.ReplaceAllString(strContent, "define('DB_HOSTNAME', '"+mysql.AppDBHost(userContext, mysqlVersion)+"');")
-		strContent = cloneOCDBUsernameRE.ReplaceAllString(strContent, "define('DB_USERNAME', '"+escapePHPSingleQuoted(dstDBUser)+"');")
-		strContent = cloneOCDBPasswordRE.ReplaceAllString(strContent, "define('DB_PASSWORD', '"+escapePHPSingleQuoted(dstDBUserPassword)+"');")
-		strContent = cloneOCDBDatabaseRE.ReplaceAllString(strContent, "define('DB_DATABASE', '"+escapePHPSingleQuoted(dstDB)+"');")
+		strContent = cloneOCDirOpenCartRE.ReplaceAllString(strContent, "define('DIR_OPENCART', '"+cmsapp.EscapePHPSingleQuoted(newDirOpenCart)+"');")
+		strContent = cloneOCDBHostnameRE.ReplaceAllString(strContent, "define('DB_HOSTNAME', '"+mysql.AppDBHost(c.UserContext, c.MySQLVersion)+"');")
+		strContent = cloneOCDBUsernameRE.ReplaceAllString(strContent, "define('DB_USERNAME', '"+cmsapp.EscapePHPSingleQuoted(c.DstDBUser)+"');")
+		strContent = cloneOCDBPasswordRE.ReplaceAllString(strContent, "define('DB_PASSWORD', '"+cmsapp.EscapePHPSingleQuoted(c.DstDBUserPassword)+"');")
+		strContent = cloneOCDBDatabaseRE.ReplaceAllString(strContent, "define('DB_DATABASE', '"+cmsapp.EscapePHPSingleQuoted(c.DstDB)+"');")
 		return os.WriteFile(fp, []byte(strContent), 0o644)
 	}
 
 	if rwErr := rewriteConfig("config.php", false); rwErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": "config.php: " + rwErr.Error()})
-		return
+		return map[string]any{"status": "error", "details": "config.php: " + rwErr.Error()}
 	}
 	if rwErr := rewriteConfig(filepath.Join("admin", "config.php"), true); rwErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": "admin/config.php: " + rwErr.Error()})
-		return
+		return map[string]any{"status": "error", "details": "admin/config.php: " + rwErr.Error()}
 	}
-
-	adminEmail := formOr(r, "admin_email", "admin@"+dstDomain)
-	openCartVersion := formOr(r, "opencart_version", "latest")
-	// rewrites hardcoded source-domain URLs left in content body text, the generic equivalent of wp-cli's search-replace which OpenCart's CLI lacks
-	cmsclone.SearchReplaceDatabase(ctx, userContext, dstDB, "https://"+providedDomain, "https://"+dstDomainWithSubdir)
-
-	cmsclone.FinalizeSite(ctx, w, r, cmsclone.FinalizeParams{
-		App: a, WriteJSON: writeJSON, UserID: userID, Username: currentUsername,
-		CMSDisplayName: "OpenCart", CMSType: "opencart",
-		ProvidedDomain: providedDomain, DstDomainWithSubdir: dstDomainWithSubdir, DomainID: domainID,
-		AdminEmail: adminEmail, Version: openCartVersion,
-		SrcPath: srcPath, DstPath: dstPath, DstDB: dstDB,
-	})
-}
-
-func escapePHPSingleQuoted(value string) string {
-	value = strings.ReplaceAll(value, `\`, `\\`)
-	value = strings.ReplaceAll(value, `'`, `\'`)
-	return value
+	return nil
 }

@@ -2,11 +2,7 @@
 package webserverconf
 
 import (
-	"net/http"
 	"os"
-
-	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 )
 
 // defaultConfTemplates lists the stock configuration files shipped in openpanel-configuration, used to restore a user's webserver conf file back to the default
@@ -39,17 +35,6 @@ func lookupWebserverConf(webServer string) webserverConfEntry {
 		return entry
 	}
 	return webserverConfEntry{PageTitle: "Web Server Configuration Editor"}
-}
-
-func injected(a *appctx.App, r *http.Request) (username, userContext string, err error) {
-	userID, _ := auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return "", "", err
-	}
-	username, _ = data["current_username"].(string)
-	userContext, _ = data["context"].(string)
-	return username, userContext, nil
 }
 
 func fileExists(path string) bool {

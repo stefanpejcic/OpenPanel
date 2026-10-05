@@ -9,35 +9,19 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var pageFiles = []string{
-	"base.html",
-	"partials/_header.html",
-	"partials/_footer.html",
-	"partials/_service.html",
-	"partials/_search.html",
-	"partials/_impersonate.html",
-	"partials/_service_js.html",
-	"partials/punnycode.html",
-	"partials/theme_switcher.html",
-}
-
-func loadPage(files ...string) *web.Page {
-	return web.MustLoadPage(append(append([]string{}, pageFiles...), files...)...)
-}
-
 var (
-	databasesPage      = loadPage("psql/databases.html")
-	newDatabasePage    = loadPage("psql/new.html")
-	usersPage          = loadPage("psql/users.html")
-	createUserPage     = loadPage("psql/psql_user.html")
-	passwordPage       = loadPage("psql/password.html")
-	wizardPage         = loadPage("psql/wizard.html")
-	assignPage         = loadPage("psql/assign.html")
-	removePage         = loadPage("psql/remove.html")
-	importPage         = loadPage("psql/import.html")
-	processlistPage    = loadPage("psql/processlist.html")
-	remotePostgresPage = loadPage("psql/remote_psql.html")
-	configurationPage  = loadPage("psql/configuration.html", "partials/_db_tuning.html")
+	databasesPage      = web.LoadPage("psql/databases.html")
+	newDatabasePage    = web.LoadPage("db/new.html")
+	usersPage          = web.LoadPage("psql/users.html")
+	createUserPage     = web.LoadPage("psql/psql_user.html")
+	passwordPage       = web.LoadPage("psql/password.html")
+	wizardPage         = web.LoadPage("psql/wizard.html")
+	assignPage         = web.LoadPage("psql/assign.html")
+	removePage         = web.LoadPage("psql/remove.html")
+	importPage         = web.LoadPage("psql/import.html")
+	processlistPage    = web.LoadPage("psql/processlist.html")
+	remotePostgresPage = web.LoadPage("psql/remote_psql.html")
+	configurationPage  = web.LoadPage("db/configuration.html", "partials/_db_tuning.html")
 )
 
 // ServiceStatusData is the container_state/health_status view-model shared by databases.html and users.html.
@@ -86,7 +70,11 @@ func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 	layout.Service = "postgres"
-	if err := newDatabasePage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
+	data := struct {
+		web.LayoutData
+		Engine web.DBEngine
+	}{layout, web.PostgreSQLEngine}
+	if err := newDatabasePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - new database template render error: %v", err)
 	}
 }
@@ -263,6 +251,7 @@ type ConfigurationPageData struct {
 	web.LayoutData
 	CurrentConfig map[string]string
 	DefaultKeys   []string
+	Engine        web.DBEngine
 }
 
 func renderConfigurationPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentConfig map[string]string, defaultKeys []string) {
@@ -272,7 +261,7 @@ func renderConfigurationPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		return
 	}
 	layout.Service = "postgres"
-	data := ConfigurationPageData{LayoutData: layout, CurrentConfig: currentConfig, DefaultKeys: defaultKeys}
+	data := ConfigurationPageData{LayoutData: layout, CurrentConfig: currentConfig, DefaultKeys: defaultKeys, Engine: web.PostgreSQLEngine}
 	if err := configurationPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - configuration template render error: %v", err)
 	}

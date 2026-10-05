@@ -29,14 +29,14 @@ func handleContainersChangeImage(a *appctx.App, w http.ResponseWriter, r *http.R
 
 	if service != "" {
 		if !imageChangeable(service) {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "The image of %(service)s can't be changed.", "service", service), "/containers/image/change")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "The image of %(service)s can't be changed.", "service", service), "/containers/image/change")
 			return
 		}
 		if r.Method == http.MethodPost {
 			_ = r.ParseForm()
 			value := strings.TrimSpace(r.Form.Get("new_tag"))
 			if !imageTagRE.MatchString(value) {
-				flashAndRedirect(a, w, r, "error", "Invalid image tag.", fmt.Sprintf("/containers/image/change/%s", service))
+				web.FlashRedirect(a, w, r, "error", "Invalid image tag.", fmt.Sprintf("/containers/image/change/%s", service))
 				return
 			}
 			envVar, _ := imageTagVar(userContext, service)
@@ -45,10 +45,10 @@ func handleContainersChangeImage(a *appctx.App, w http.ResponseWriter, r *http.R
 			if result.Success {
 				SetEnvValue(userContext, envVar, value)
 				_ = logger.RecordUserAction(a.Config, username, fmt.Sprintf("changed image tag for %s to %s", service, value), reqip.ClientIP(r))
-				flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Successfully changed image tag for %(service)s to %(value)s!", "service", service, "value", value), "/containers/image/change")
+				web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Successfully changed image tag for %(service)s to %(value)s!", "service", service, "value", value), "/containers/image/change")
 				return
 			}
-			flashAndRedirect(a, w, r, "error", "Failed to stop the service in order to delete old image.", fmt.Sprintf("/containers/image/change/%s", service))
+			web.FlashRedirect(a, w, r, "error", "Failed to stop the service in order to delete old image.", fmt.Sprintf("/containers/image/change/%s", service))
 			return
 		}
 

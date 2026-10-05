@@ -6,48 +6,11 @@ import (
 	"net/url"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-func writeAPIJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
-
-// apiInstallSofawiki delegates straight to handleInstallPage (calls handleInstallStream on POST): same site-limit check, same NDJSON progress stream, just fed from the API's JSON body instead of a UI form post
-func apiInstallSofawiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		DomainID     string `json:"domain_id"`
-		Subdirectory string `json:"subdirectory"`
-		AdminEmail   string `json:"admin_email"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
-		return
-	}
-	if body.DomainID == "" {
-		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "domain_id is required"})
-		return
-	}
-
-	form := url.Values{
-		"domain_id": {body.DomainID}, "subdirectory": {body.Subdirectory}, "admin_email": {body.AdminEmail},
-	}
-	handleInstallPage(a, w, withSofawikiForm(r, form))
-}
-
-// apiRemoveSofawiki delegates to handleRemoveSofawiki with the path's {site_id} translated into the "id" form field it expects, and output=json forced so it returns JSON instead of a flash-and-redirect
-func apiRemoveSofawiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	siteID := r.PathValue("site_id")
-	cloned := withSofawikiForm(r, url.Values{"id": {siteID}})
-	q := cloned.URL.Query()
-	q.Set("output", "json")
-	cloned.URL.RawQuery = q.Encode()
-	handleRemoveSofawiki(a, w, cloned)
-}
-
-// apiCloneSofawiki resolves {site_id} into source_domain/source_folder - no source_db since SofaWiki is flat-file - and takes the destination-side fields from the JSON body
-func apiCloneSofawiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+// apiCloneForm builds the clone form from the API's JSON body and the site behind {site_id}
+func apiCloneForm(a *appctx.App, w http.ResponseWriter, r *http.Request) (url.Values, bool) {
 	siteID := r.PathValue("site_id")
 
 	var siteName, docroot string
@@ -57,8 +20,8 @@ func apiCloneSofawiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		JOIN domains ON domains.domain_url = SUBSTRING_INDEX(sites.site_name, '/', 1)
 		WHERE sites.id = ? AND sites.type = 'sofawiki'`, siteID)
 	if scanErr := row.Scan(&siteName, &docroot); scanErr != nil {
-		writeAPIJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
-		return
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
+		return nil, false
 	}
 
 	var body struct {
@@ -67,12 +30,12 @@ func apiCloneSofawiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		AdminEmail   string `json:"admin_email"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
-		return
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
+		return nil, false
 	}
 	if body.TargetDomain == "" {
-		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "target_domain is required"})
-		return
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "target_domain is required"})
+		return nil, false
 	}
 
 	form := url.Values{
@@ -80,5 +43,5 @@ func apiCloneSofawiki(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		"target_domain": {body.TargetDomain}, "subdirectory": {body.Subdirectory},
 		"admin_email": {body.AdminEmail},
 	}
-	handleSofawikiClone(a, w, withSofawikiForm(r, form))
+	return form, true
 }

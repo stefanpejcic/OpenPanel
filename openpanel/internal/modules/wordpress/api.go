@@ -19,11 +19,13 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI wires the WordPress API routes onto mux - several sub-resources share a <domain> prefix with a literal suffix, so GET/POST get a "{rest...}" catch-all and the dispatch funcs below strip the known suffix by hand to recover per-suffix routing.
@@ -392,7 +394,7 @@ var apiWPManagerRuleFullRE = regexp.MustCompile(`^wp_manager_\w+$`)
 // apiWordPressSecureSet mirrors api_wordpress_secure_set().
 func apiWordPressSecureSet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -441,7 +443,7 @@ func apiWordPressSecureSet(a *appctx.App, w http.ResponseWriter, r *http.Request
 // apiWordPressRemove doesn't reuse the UI's handleRemoveWordPress, since that one flash-and-redirects while this needs its own 403/404/500 status contract, so it reimplements the same DB lookup/wp-config.php scrape/DB+user drop/file cleanup sequence directly, reusing only the low-level pieces.
 func apiWordPressRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -487,7 +489,7 @@ func apiWordPressRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			dbName, dbUser := dbNameMatch[1], dbUserMatch[1]
 			_, _ = mysqlmanager.Exec(ctx, userContext, "DROP DATABASE IF EXISTS `"+dbName+"`", "")
 			_, _ = mysqlmanager.Exec(ctx, userContext, "DROP USER IF EXISTS '"+dbUser+"'@'%'", "")
-			invalidateMySQLCaches(ctx, a, userContext, currentUsername)
+			appkit.InvalidateMySQLCaches(ctx, a, userContext, currentUsername)
 		}
 	}
 
@@ -514,7 +516,7 @@ func apiWordPressRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiWordPressDetach mirrors api_wordpress_detach(): standalone for the same reason as apiWordPressRemove above.
 func apiWordPressDetach(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -552,7 +554,7 @@ func apiWordPressDetach(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiWordPressReload mirrors api_wordpress_reload(): standalone rather than reusing handleReloadWordPressData, since that one only writes a fixed plain-text banner while the API needs the full `updated` list, but built on the same walkForWPConfig/checkSiteAlreadyExistsForUser/phpContainerForUser helpers.
 func apiWordPressReload(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -631,7 +633,7 @@ var apiWPCLISafeRE = regexp.MustCompile(`^[A-Za-z0-9_\-./]+$`)
 // apiWPCLI mirrors api_wp_cli().
 func apiWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -739,15 +741,6 @@ func apiWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ── Install / Clone / Scan ───────────────────────────────────────────────
 
-// withWPForm clones r as a POST carrying the given values as both Form and PostForm, so a UI handler reading r.FormValue/r.Form sees exactly the fields the API's JSON body supplied.
-func withWPForm(r *http.Request, values url.Values) *http.Request {
-	clone := r.Clone(r.Context())
-	clone.Method = http.MethodPost
-	clone.Form = values
-	clone.PostForm = values
-	return clone
-}
-
 // apiWordPressInstall delegates straight to handleInstallPage (which calls handleInstallStream on POST), same website-limit check and NDJSON progress stream, just fed from the API's JSON body instead of a UI form post.
 func apiWordPressInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
@@ -779,7 +772,7 @@ func apiWordPressInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		"wordpress_version": {body.WordPressVersion}, "subdirectory": {body.Subdirectory},
 		"db_name": {body.DBName}, "db_user": {body.DBUser}, "db_password": {body.DBPassword}, "db_prefix": {body.DBPrefix},
 	}
-	handleInstallPage(a, w, withWPForm(r, form))
+	handleInstallPage(a, w, web.WithForm(r, form))
 }
 
 // apiWordPressClone delegates straight to handleCloneWordPress, which already writes a JSON response as-is.
@@ -804,19 +797,19 @@ func apiWordPressClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		"source_db": {body.SourceDB}, "source_folder": {body.SourceFolder}, "subdirectory": {body.Subdirectory},
 		"target_db": {body.TargetDB}, "target_db_user": {body.TargetDBUser}, "target_db_user_password": {body.TargetDBUserPassword},
 	}
-	handleCloneWordPress(a, w, withWPForm(r, form))
+	handleCloneWordPress(a, w, web.WithForm(r, form))
 }
 
 // apiWordPressScan mirrors handleScanWordPress's filesystem walk, finding WP installs not yet tracked in the sites table and inserting them (the checkSiteAlreadyExistsForUser gate inverted from apiWordPressReload's), returning a structured JSON list instead of a plain-text summary.
 func apiWordPressScan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
-	lockPath := lockFilePath(currentUsername)
+	lockPath := appkit.LockFilePath(currentUsername)
 	if info, statErr := os.Stat(lockPath); statErr == nil {
 		if time.Since(info.ModTime()) < time.Minute {
 			writeAPIWPJSON(w, http.StatusConflict, map[string]string{"error": "A WordPress installation is currently running"})

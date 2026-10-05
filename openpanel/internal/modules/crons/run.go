@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/websocket"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -45,7 +46,7 @@ func findCronJob(jobs []CronJob, comment, schedule, container, command string) (
 
 // handleCronjobsRunWS upgrades to a websocket and streams the live output of a manual "Run now" of one cron job, executed non-interactively inside its configured container
 func handleCronjobsRunWS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

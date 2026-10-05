@@ -1,65 +1,42 @@
 package ojs
 
 import (
-	"context"
 	"net/http"
+	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
-
-// ojsRequestParams pulls domain/docroot, splits off any subdirectory suffix, checks ownership, and resolves the PHP container - mirrors moodle/cli.go's moodleRequestParams
-func ojsRequestParams(ctx context.Context, a *appctx.App, r *http.Request, userID int, userContext string) (domain, docroot, phpContainer string, ok bool) {
-	domain = r.URL.Query().Get("domain")
-	docroot = r.URL.Query().Get("docroot")
-	if domain == "" || docroot == "" {
-		return "", "", "", false
-	}
-
-	mainDomain := domain
-	if idx := strings.Index(domain, "/"); idx != -1 {
-		mainDomain = domain[:idx]
-	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, mainDomain) {
-		return "", "", "", false
-	}
-
-	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
-	phpVersion := php.GetPHPVForDomain(ctx, a, userContext, mainDomain)
-	phpContainer = webServer
-	if !strings.Contains(strings.ToLower(webServer), "litespeed") {
-		phpContainer = "php-fpm-" + phpVersion
-	}
-	return domain, docroot, phpContainer, true
-}
 
 // ojsApprootContainerPath returns the approot's container path for a site - docroot is a symlink into it (see ojs.go), but tools/*.php live at its root so cache-clear/logs/update need this path instead
 func ojsApprootContainerPath(domain string) string {
-	return "/var/www/html/" + siteSlug(domain) + "_ojsapp"
+	return "/var/www/html/" + appkit.SiteSlug(domain) + "_ojsapp"
 }
 
 func ojsFilesContainerPath(domain string) string {
-	return "/var/www/html/" + siteSlug(domain) + "_ojsfiles"
+	return "/var/www/html/" + appkit.SiteSlug(domain) + "_ojsfiles"
 }
 
 // handleOJSCacheClean empties the approot's cache/ directory directly, since OJS has no CLI cache-purge command like Moodle/Joomla - same technique the PKP community documents for a stuck install
 func handleOJSCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
-	domain, _, phpContainer, ok := ojsRequestParams(ctx, a, r, userID, userContext)
+	domain, _, phpContainer, ok := cmsapp.RequestParams(ctx, a, r, userID, userContext)
 	if !ok {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required, or you do not own this domain"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required, or you do not own this domain"})
 		return
 	}
 
@@ -68,24 +45,24 @@ func handleOJSCacheClean(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		`find "$1/cache" -mindepth 1 -not -name index.html -exec rm -rf {} +`, "sh", approot)
 	out, runErr := podmanmanager.Command(ctx, userContext, argv).CombinedOutput()
 	if runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Clearing cache failed", "details": strings.TrimSpace(string(out))})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Clearing cache failed", "details": strings.TrimSpace(string(out))})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "cleared OJS cache for "+domain, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Caches purged successfully."})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Caches purged successfully."})
 }
 
 // handleOJSLogs tails any *.log file under the approot's cache/ or files dir, since OJS has no flat application log by default and logs PHP errors through PHP's own error_log instead
 func handleOJSLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, _, userContext, err := injected(a, r)
+	userID, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
-	domain, _, phpContainer, ok := ojsRequestParams(ctx, a, r, userID, userContext)
+	domain, _, phpContainer, ok := cmsapp.RequestParams(ctx, a, r, userID, userContext)
 	if !ok {
 		http.Error(w, "domain and docroot are required, or you do not own this domain", http.StatusBadRequest)
 		return
@@ -112,7 +89,7 @@ func handleOJSLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // handleOJSLogin generates a one-time site-admin login link, mirrors joomla/cli.go's handleJoomlaLogin with a lazily-created token table plus the login helper PHP deployed at install time (see login_php.go)
 func handleOJSLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -121,7 +98,7 @@ func handleOJSLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domain := r.URL.Query().Get("domain")
 	docroot := r.URL.Query().Get("docroot")
 	if domain == "" || docroot == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and docroot are required"})
 		return
 	}
 	mainDomain := domain
@@ -135,7 +112,7 @@ func handleOJSLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	dbInfo := extractOJSDatabaseInfoForLogin(userContext, domain)
 	if dbInfo["error"] != "" {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": dbInfo["error"]})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": dbInfo["error"]})
 		return
 	}
 	dbName := dbInfo["database_name"]
@@ -151,19 +128,19 @@ func handleOJSLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			"JOIN `user_groups` ug ON ug.user_group_id = uug.user_group_id "+
 			"WHERE u.disabled = 0 AND ug.role_id = 1 LIMIT 1", dbName)
 	if queryErr != nil || len(rows) == 0 {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "No active site administrator account found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "No active site administrator account found"})
 		return
 	}
-	userIDStr := toStringCell(rows[0][0])
+	userIDStr := mysqlmanager.ToString(rows[0][0])
 
-	token := generateRandomString(32)
-	tokenHash := sha256Hex(token)
+	token := appkit.RandomString(32)
+	tokenHash := appkit.SHA256Hex(token)
 	const ttlSeconds = 600
 	_, insErr := mysqlmanager.Exec(ctx, userContext,
 		"INSERT INTO `openpanel_login_tokens` (token_hash, user_id, expires) VALUES ('"+
-			tokenHash+"', "+userIDStr+", UNIX_TIMESTAMP() + "+itoa(ttlSeconds)+")", dbName)
+			tokenHash+"', "+userIDStr+", UNIX_TIMESTAMP() + "+strconv.Itoa(ttlSeconds)+")", dbName)
 	if insErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": insErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": insErr.Error()})
 		return
 	}
 
@@ -173,5 +150,5 @@ func handleOJSLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		maskedLink = loginLink[:len(loginLink)-10] + "*****"
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "generated auto-login link for OJS site admin: "+maskedLink, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"login_link": loginLink})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"login_link": loginLink})
 }

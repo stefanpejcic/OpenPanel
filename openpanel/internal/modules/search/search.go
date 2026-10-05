@@ -19,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/postgresql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/services"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 	"gopkg.in/yaml.v3"
 )
 
@@ -58,14 +59,8 @@ func isEnterprise(a *appctx.App) bool {
 	return strings.HasPrefix(a.LicenseKey, "enterprise")
 }
 
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
-
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
-	writeJSON(w, status, map[string]string{"error": msg})
+	web.WriteJSON(w, status, map[string]string{"error": msg})
 }
 
 // item is the {name, link} shape almost every sub-handler returns.
@@ -174,7 +169,7 @@ func searchFeatures(w http.ResponseWriter, userAllowed map[string]bool) {
 		}
 	}
 
-	writeJSON(w, http.StatusOK, filtered)
+	web.WriteJSON(w, http.StatusOK, filtered)
 }
 
 // WEBSITES
@@ -188,88 +183,88 @@ func searchWebsites(a *appctx.App, w http.ResponseWriter, r *http.Request, userI
 	if len(limited) > 10 {
 		limited = limited[:10]
 	}
-	writeJSON(w, http.StatusOK, limited)
+	web.WriteJSON(w, http.StatusOK, limited)
 }
 
 // MYSQL DATABASES / USERS
 func searchMySQLDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext string) {
 	data, err := mysql.ComputeDatabasesInfo(r.Context(), userContext)
 	if err != nil {
-		writeJSON(w, http.StatusOK, []item{})
+		web.WriteJSON(w, http.StatusOK, []item{})
 		return
 	}
 	items := make([]item, 0, len(data.Databases))
 	for _, name := range data.Databases {
 		items = append(items, item{Name: name, Link: "/mysql"})
 	}
-	writeJSON(w, http.StatusOK, limitItems(items, 50))
+	web.WriteJSON(w, http.StatusOK, limitItems(items, 50))
 }
 
 func searchMySQLUsers(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext string) {
 	data, err := mysql.ComputeDatabasesInfo(r.Context(), userContext)
 	if err != nil {
-		writeJSON(w, http.StatusOK, []item{})
+		web.WriteJSON(w, http.StatusOK, []item{})
 		return
 	}
 	items := make([]item, 0, len(data.Users))
 	for _, name := range data.Users {
 		items = append(items, item{Name: name, Link: "/mysql/users"})
 	}
-	writeJSON(w, http.StatusOK, limitItems(items, 50))
+	web.WriteJSON(w, http.StatusOK, limitItems(items, 50))
 }
 
 // POSTGRESQL DATABASES / USERS
 func searchPostgresDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext string) {
 	databases, _, err := postgresql.ComputeDatabaseAndUserNames(r.Context(), userContext)
 	if err != nil {
-		writeJSON(w, http.StatusOK, []item{})
+		web.WriteJSON(w, http.StatusOK, []item{})
 		return
 	}
 	items := make([]item, 0, len(databases))
 	for _, name := range databases {
 		items = append(items, item{Name: name, Link: "/postgresql"})
 	}
-	writeJSON(w, http.StatusOK, limitItems(items, 50))
+	web.WriteJSON(w, http.StatusOK, limitItems(items, 50))
 }
 
 func searchPostgresUsers(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext string) {
 	_, users, err := postgresql.ComputeDatabaseAndUserNames(r.Context(), userContext)
 	if err != nil {
-		writeJSON(w, http.StatusOK, []item{})
+		web.WriteJSON(w, http.StatusOK, []item{})
 		return
 	}
 	items := make([]item, 0, len(users))
 	for _, name := range users {
 		items = append(items, item{Name: name, Link: "/postgresql/users"})
 	}
-	writeJSON(w, http.StatusOK, limitItems(items, 50))
+	web.WriteJSON(w, http.StatusOK, limitItems(items, 50))
 }
 
 // MONGODB DATABASES / USERS
 func searchMongoDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext string) {
 	databases, _, err := mongodb.ComputeDatabaseAndUserNames(r.Context(), userContext)
 	if err != nil {
-		writeJSON(w, http.StatusOK, []item{})
+		web.WriteJSON(w, http.StatusOK, []item{})
 		return
 	}
 	items := make([]item, 0, len(databases))
 	for _, name := range databases {
 		items = append(items, item{Name: name, Link: "/mongodb"})
 	}
-	writeJSON(w, http.StatusOK, limitItems(items, 50))
+	web.WriteJSON(w, http.StatusOK, limitItems(items, 50))
 }
 
 func searchMongoUsers(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext string) {
 	_, users, err := mongodb.ComputeDatabaseAndUserNames(r.Context(), userContext)
 	if err != nil {
-		writeJSON(w, http.StatusOK, []item{})
+		web.WriteJSON(w, http.StatusOK, []item{})
 		return
 	}
 	items := make([]item, 0, len(users))
 	for _, name := range users {
 		items = append(items, item{Name: name, Link: "/mongodb/users"})
 	}
-	writeJSON(w, http.StatusOK, limitItems(items, 50))
+	web.WriteJSON(w, http.StatusOK, limitItems(items, 50))
 }
 
 // DOMAINS
@@ -283,7 +278,7 @@ func searchDomains(a *appctx.App, w http.ResponseWriter, r *http.Request, userID
 	for _, d := range domains {
 		items = append(items, item{Name: d.DomainURL, Link: "/domains"})
 	}
-	writeJSON(w, http.StatusOK, limitItems(items, 50))
+	web.WriteJSON(w, http.StatusOK, limitItems(items, 50))
 }
 
 // EMAIL ACCOUNTS
@@ -306,7 +301,7 @@ func searchEmails(a *appctx.App, w http.ResponseWriter, r *http.Request, userID 
 			items = append(items, item{Name: parts[1], Link: "/emails"})
 		}
 	}
-	writeJSON(w, http.StatusOK, limitItems(items, 50))
+	web.WriteJSON(w, http.StatusOK, limitItems(items, 50))
 }
 
 // FTP ACCOUNTS
@@ -321,14 +316,14 @@ func searchFTP(w http.ResponseWriter, userContext string) {
 			}
 		}
 	}
-	writeJSON(w, http.StatusOK, limitItems(items, 50))
+	web.WriteJSON(w, http.StatusOK, limitItems(items, 50))
 }
 
 // DOCKER CONTAINERS
 func searchContainers(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext string) {
 	names, err := docker.GetRunningContainers(r.Context(), userContext)
 	if err != nil {
-		writeJSON(w, http.StatusOK, []item{})
+		web.WriteJSON(w, http.StatusOK, []item{})
 		return
 	}
 	items := make([]item, 0, len(names))
@@ -338,7 +333,7 @@ func searchContainers(a *appctx.App, w http.ResponseWriter, r *http.Request, use
 		}
 		items = append(items, item{Name: n, Link: "/containers/edit/" + n})
 	}
-	writeJSON(w, http.StatusOK, limitItems(items, 50))
+	web.WriteJSON(w, http.StatusOK, limitItems(items, 50))
 }
 
 // SERVICES
@@ -363,7 +358,7 @@ func searchServices(w http.ResponseWriter, userContext string) {
 	for _, n := range names {
 		items = append(items, item{Name: n, Link: "/services/" + n})
 	}
-	writeJSON(w, http.StatusOK, limitItems(items, 50))
+	web.WriteJSON(w, http.StatusOK, limitItems(items, 50))
 }
 
 // CRON JOBS
@@ -381,7 +376,7 @@ func searchCrons(w http.ResponseWriter, userContext string) {
 			}
 		}
 	}
-	writeJSON(w, http.StatusOK, limitItems(items, 50))
+	web.WriteJSON(w, http.StatusOK, limitItems(items, 50))
 }
 
 // FILES
@@ -428,7 +423,7 @@ func searchFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, userCont
 	if results == nil {
 		results = []map[string]string{}
 	}
-	writeJSON(w, http.StatusOK, results)
+	web.WriteJSON(w, http.StatusOK, results)
 }
 
 // FOLDERS
@@ -468,7 +463,7 @@ func searchFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, userCo
 	if results == nil {
 		results = []map[string]string{}
 	}
-	writeJSON(w, http.StatusOK, results)
+	web.WriteJSON(w, http.StatusOK, results)
 }
 
 // walkLimitedDepth visits root and its subdirectories up to maxDepth levels below root, calling visit(dir, entries) for each - visit returns false to stop the walk early (result cap reached)

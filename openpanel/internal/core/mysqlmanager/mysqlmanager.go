@@ -258,3 +258,27 @@ func ToInt(v any) int {
 		return 0
 	}
 }
+
+// ToString converts one Exec result cell to a string, a missing case here silently becomes ""
+func ToString(v any) string {
+	switch t := v.(type) {
+	case nil:
+		return ""
+	case string:
+		return t
+	case []byte:
+		return string(t)
+	case int64:
+		return strconv.FormatInt(t, 10)
+	case uint64:
+		return strconv.FormatUint(t, 10)
+	case int:
+		return strconv.Itoa(t)
+	case float64:
+		return strconv.FormatFloat(t, 'f', -1, 64)
+	case bool:
+		return strconv.FormatBool(t)
+	default:
+		return ""
+	}
+}

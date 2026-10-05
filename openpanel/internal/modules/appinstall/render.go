@@ -35,19 +35,7 @@ func displayFor(kind Kind) kindDisplay {
 	}
 }
 
-var pageFiles = []string{
-	"base.html",
-	"partials/_header.html",
-	"partials/_footer.html",
-	"partials/_service.html",
-	"partials/_search.html",
-	"partials/_impersonate.html",
-	"partials/_service_js.html",
-	"partials/punnycode.html",
-	"partials/theme_switcher.html",
-}
-
-var installPage = web.MustLoadPage(append(append([]string{}, pageFiles...), "manager/app_install.html")...)
+var installPage = web.LoadPage("manager/app_install.html")
 
 // InstallPageData is manager/app_install.html's template context.
 type InstallPageData struct {

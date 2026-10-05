@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // apiCreateFile is handleCreateFile (crud.go) with a JSON body/response instead of a form post + flash/redirect.
@@ -35,24 +36,24 @@ func apiCreateFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if filename == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Filename is missing"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Filename is missing"})
 		return
 	}
 
 	filePath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, filename), false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]string{"error": msg})
+		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
 	if _, statErr := os.Stat(filePath); statErr == nil {
-		writeJSON(w, http.StatusConflict, map[string]string{"error": "Error creating file: already exists."})
+		web.WriteJSON(w, http.StatusConflict, map[string]string{"error": "Error creating file: already exists."})
 		return
 	}
 
 	f, createErr := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0o644)
 	if createErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating file! Check permissions."})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating file! Check permissions."})
 		return
 	}
 	_ = f.Close()
@@ -63,7 +64,7 @@ func apiCreateFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = logger.RecordUserAction(a.Config, user.Username, "created a new file "+filename+" via File Manager API", reqip.ClientIP(r))
-	writeJSON(w, http.StatusCreated, map[string]string{"message": "File created successfully.", "path": filepath.Join(pathParam, filename), "warning": warning})
+	web.WriteJSON(w, http.StatusCreated, map[string]string{"message": "File created successfully.", "path": filepath.Join(pathParam, filename), "warning": warning})
 }
 
 // apiCreateFolder is handleCreateFolder (crud.go) with a JSON body/response.
@@ -87,19 +88,19 @@ func apiCreateFolder(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if folderName == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Foldername is missing"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Foldername is missing"})
 		return
 	}
 
 	folderPath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, folderName), false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]string{"error": msg})
+		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
 
 	if mkErr := os.MkdirAll(folderPath, 0o755); mkErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating directory! Check permissions."})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating directory! Check permissions."})
 		return
 	}
 
@@ -109,7 +110,7 @@ func apiCreateFolder(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = logger.RecordUserAction(a.Config, user.Username, "created a new folder "+folderName+" via File Manager API", reqip.ClientIP(r))
-	writeJSON(w, http.StatusCreated, map[string]string{"message": "Folder created successfully.", "path": filepath.Join(pathParam, folderName), "warning": warning})
+	web.WriteJSON(w, http.StatusCreated, map[string]string{"message": "Folder created successfully.", "path": filepath.Join(pathParam, folderName), "warning": warning})
 }
 
 // apiRenameFile is handleRenameFile (crud.go) with a JSON body/response.
@@ -139,24 +140,24 @@ func apiRenameFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	oldPath, perr := paths.SecureUserPath("HOME", user.Context, oldRelPath, true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]string{"error": msg})
+		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
 	newPath, perr := paths.SecureUserPath("HOME", user.Context, newRelPath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]string{"error": msg})
+		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
 
 	if renameErr := os.Rename(oldPath, newPath); renameErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error renaming item! Check permissions or if the new name already exists."})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error renaming item! Check permissions or if the new name already exists."})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, user.Username,
 		"renamed file /var/www/html/"+oldRelPath+" to /var/www/html/"+newRelPath+" using File Manager API", reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "File renamed successfully.", "path": newRelPath})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "File renamed successfully.", "path": newRelPath})
 }
 
 // apiChangePermissions is handleChangePermissions (crud.go) with a JSON body/response
@@ -176,7 +177,7 @@ func apiChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	if !permissionsRE.MatchString(body.Permissions) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid permissions format."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid permissions format."})
 		return
 	}
 
@@ -215,5 +216,5 @@ func apiChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		changed = append(changed, filename)
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{"changed": changed, "errored": errored})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"changed": changed, "errored": errored})
 }

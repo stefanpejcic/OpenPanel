@@ -13,8 +13,10 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // composerLogPath returns the host path a site's captured Composer run output is written to and read back from - same base directory convention as the install lock file
@@ -92,8 +94,8 @@ func handleComposerAction(a *appctx.App, w http.ResponseWriter, r *http.Request,
 		args = append(args, "--optimize-autoloader")
 	}
 
-	if !ensureContainerRunning(ctx, userContext, phpContainer) {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "PHP container is not running."})
+	if !cmsapp.EnsureContainerRunning(ctx, userContext, phpContainer) {
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "PHP container is not running."})
 		return
 	}
 
@@ -104,12 +106,12 @@ func handleComposerAction(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	appendComposerLog(username, siteName, action, out)
 
 	if runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "composer " + action + " failed: " + strings.TrimSpace(string(out))})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "composer " + action + " failed: " + strings.TrimSpace(string(out))})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, username, "ran composer "+action+" for "+siteName, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "composer " + action + " completed successfully.", "output": string(out)})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "composer " + action + " completed successfully.", "output": string(out)})
 }
 
 // handleComposerLogs returns the captured Composer run history for a site.
@@ -161,7 +163,7 @@ func handleDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, execErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE site_name = ? AND type = 'PHP'", siteName); execErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
 		return
 	}
 
@@ -175,5 +177,5 @@ func handleDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = docker.SaveEnvFile(userContext, env)
 
 	_ = logger.RecordUserAction(a.Config, username, "deleted PHP application "+siteName, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "PHP application removed."})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "PHP application removed."})
 }

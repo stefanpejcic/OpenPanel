@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -34,7 +35,7 @@ var importDBNameRE = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 // handlePostgresImportDB imports an uploaded .sql/.sql.gz dump into a PostgreSQL database, urlDBName carries the optional /postgresql/import/<dbname> URL segment
 func handlePostgresImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -42,7 +43,7 @@ func handlePostgresImportDB(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	urlDBName := r.PathValue("dbname")
 
 	if !docker.IsServiceRunning(ctx, userContext, "postgres") {
-		flashSess(a, w, r, "warning", "postgres container is not running. Please allow a few moments for initialization..")
+		web.Flash(a, w, r, "warning", "postgres container is not running. Please allow a few moments for initialization..")
 		docker.StartComposeServiceIfNotRunning(ctx, userContext, "postgres")
 	}
 
@@ -77,22 +78,22 @@ func handlePostgresImportDB(a *appctx.App, w http.ResponseWriter, r *http.Reques
 			if imported {
 				ipAddress := reqip.ClientIP(r)
 				_ = logger.RecordUserAction(a.Config, currentUsername, "imported "+filename+" into PostgreSQL database "+dbName, ipAddress)
-				flashSess(a, w, r, "success", web.Tr(a, r, "Successfully imported %(filename)s into database: %(db_name)s", "filename", filename, "db_name", dbName))
+				web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully imported %(filename)s into database: %(db_name)s", "filename", filename, "db_name", dbName))
 				renderImportPage(a, w, r, "", http.StatusOK)
 				return
 			}
-			flashSess(a, w, r, "error", web.Tr(a, r, "Error importing %(filename)s into database %(db_name)s: %(import_err)s", "filename", filename, "db_name", dbName, "import_err", importErr))
+			web.Flash(a, w, r, "error", web.Tr(a, r, "Error importing %(filename)s into database %(db_name)s: %(import_err)s", "filename", filename, "db_name", dbName, "import_err", importErr))
 			renderImportPage(a, w, r, dbName, http.StatusOK)
 			return
 		}
 
-		flashSess(a, w, r, "error", "No database file uploaded!")
+		web.Flash(a, w, r, "error", "No database file uploaded!")
 		renderImportPage(a, w, r, "", http.StatusOK)
 		return
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]string{"message": "Import feature is enabled for PostgreSQL."})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Import feature is enabled for PostgreSQL."})
 		return
 	}
 	renderImportPage(a, w, r, urlDBName, http.StatusOK)

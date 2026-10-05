@@ -62,7 +62,10 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("new", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := newDatabasePage.Render(w, 200, struct{ web.LayoutData }{layout}); err != nil {
+		if err := newDatabasePage.Render(w, 200, struct {
+			web.LayoutData
+			Engine web.DBEngine
+		}{layout, web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("new: %v", err)
 		}
 	})
@@ -149,7 +152,7 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("configuration", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		data := ConfigurationPageData{LayoutData: layout, CurrentConfig: map[string]string{"max_connections": "100"}, DefaultKeys: []string{"max_connections", "shared_buffers"}}
+		data := ConfigurationPageData{LayoutData: layout, CurrentConfig: map[string]string{"max_connections": "100"}, DefaultKeys: []string{"max_connections", "shared_buffers"}, Engine: web.PostgreSQLEngine}
 		if err := configurationPage.Render(w, 200, data); err != nil {
 			t.Fatalf("configuration: %v", err)
 		}

@@ -2,7 +2,6 @@
 package serverinfo
 
 import (
-	"encoding/json"
 	"net/http"
 	"os/exec"
 	"regexp"
@@ -16,12 +15,6 @@ import (
 func injected(a *appctx.App, r *http.Request) (data map[string]any, err error) {
 	userID, _ := auth.UserID(r)
 	return a.InjectData(r.Context(), userID)
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
 }
 
 // platformInfo holds the uname-derived fields shown on the server info page

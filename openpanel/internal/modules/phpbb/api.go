@@ -6,52 +6,12 @@ import (
 	"net/url"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-func writeAPIJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
-
-func apiInstallPhpbb(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		DomainID         string `json:"domain_id"`
-		Subdirectory     string `json:"subdirectory"`
-		BoardName        string `json:"board_name"`
-		BoardDescription string `json:"board_description"`
-		AdminUsername    string `json:"admin_username"`
-		AdminPassword    string `json:"admin_password"`
-		AdminEmail       string `json:"admin_email"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
-		return
-	}
-	if body.DomainID == "" {
-		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "domain_id is required"})
-		return
-	}
-
-	form := url.Values{
-		"domain_id": {body.DomainID}, "subdirectory": {body.Subdirectory},
-		"board_name": {body.BoardName}, "board_description": {body.BoardDescription},
-		"admin_username": {body.AdminUsername}, "admin_password": {body.AdminPassword}, "admin_email": {body.AdminEmail},
-	}
-	handleInstallPage(a, w, withPhpbbForm(r, form))
-}
-
-func apiRemovePhpbb(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	siteID := r.PathValue("site_id")
-	cloned := withPhpbbForm(r, url.Values{"id": {siteID}})
-	q := cloned.URL.Query()
-	q.Set("output", "json")
-	cloned.URL.RawQuery = q.Encode()
-	handleRemovePhpbb(a, w, cloned)
-}
-
-// apiClonePhpbb resolves {site_id} into source_domain/source_folder, derives source_db from config.php via extractPhpbbDatabaseInfoForBackup, and takes the destination-side fields from the JSON body
-func apiClonePhpbb(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+// apiCloneForm builds the clone form from the API's JSON body and the site behind {site_id}
+func apiCloneForm(a *appctx.App, w http.ResponseWriter, r *http.Request) (url.Values, bool) {
 	siteID := r.PathValue("site_id")
 
 	var siteName, docroot string
@@ -61,20 +21,20 @@ func apiClonePhpbb(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		JOIN domains ON domains.domain_url = SUBSTRING_INDEX(sites.site_name, '/', 1)
 		WHERE sites.id = ? AND sites.type = 'phpbb'`, siteID)
 	if scanErr := row.Scan(&siteName, &docroot); scanErr != nil {
-		writeAPIJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
-		return
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Site not found"})
+		return nil, false
 	}
 
-	_, _, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
+		return nil, false
 	}
 	dbInfo := extractPhpbbDatabaseInfoForBackup(userContext, docroot)
 	sourceDB := dbInfo["database_name"]
 	if sourceDB == "" {
-		writeAPIJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not determine source database: " + dbInfo["error"]})
-		return
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not determine source database: " + dbInfo["error"]})
+		return nil, false
 	}
 
 	var body struct {
@@ -87,12 +47,12 @@ func apiClonePhpbb(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		Version              string `json:"version"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
-		return
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
+		return nil, false
 	}
 	if body.TargetDomain == "" {
-		writeAPIJSON(w, http.StatusBadRequest, map[string]string{"error": "target_domain is required"})
-		return
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "target_domain is required"})
+		return nil, false
 	}
 
 	form := url.Values{
@@ -101,5 +61,5 @@ func apiClonePhpbb(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		"target_db": {body.TargetDB}, "target_db_user": {body.TargetDBUser}, "target_db_user_password": {body.TargetDBUserPassword},
 		"admin_email": {body.AdminEmail}, "version": {body.Version},
 	}
-	handlePhpbbClone(a, w, withPhpbbForm(r, form))
+	return form, true
 }

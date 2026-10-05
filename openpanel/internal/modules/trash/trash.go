@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // Register wires the trash routes onto mux, gated behind the "trash" feature flag
@@ -33,17 +34,6 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /json/trash-size", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleTrashSize(a, w, r) }))
 }
 
-func injected(a *appctx.App, r *http.Request) (username, userContext string, err error) {
-	userID, _ := auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return "", "", err
-	}
-	username, _ = data["current_username"].(string)
-	userContext, _ = data["context"].(string)
-	return username, userContext, nil
-}
-
 func flashAndRedirectToTrash(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	flash.Add(sess, category, message)
@@ -53,7 +43,7 @@ func flashAndRedirectToTrash(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 // handleFilesInTrash lists the contents of the user's trash directory (or a subdirectory within it), parsed from `ls -l`/`ls -la` output
 func handleFilesInTrash(a *appctx.App, w http.ResponseWriter, r *http.Request, pathParam string) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -106,7 +96,7 @@ func handleFilesInTrash(a *appctx.App, w http.ResponseWriter, r *http.Request, p
 	filesInfo := parseLsOutputTrash(string(out), string(trashInfoContent))
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, filesInfo)
+		web.WriteJSON(w, http.StatusOK, filesInfo)
 		return
 	}
 

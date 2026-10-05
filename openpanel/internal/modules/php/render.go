@@ -11,27 +11,14 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var pageFiles = []string{
-	"base.html",
-	"partials/_header.html",
-	"partials/_footer.html",
-	"partials/_service.html",
-	"partials/_search.html",
-	"partials/_impersonate.html",
-	"partials/_service_js.html",
-	"partials/punnycode.html",
-	"partials/theme_switcher.html",
-	"php/_shared.html",
-}
-
 func loadPage(files ...string) *web.Page {
-	return web.MustLoadPage(append(append([]string{}, pageFiles...), files...)...)
+	return web.LoadPage(append([]string{"php/_shared.html"}, files...)...)
 }
 
 var defaultVersionPage = loadPage("php/default.html")
 var settingsPage = loadPage("php/settings.html")
 
-// infoPage is a standalone document (own {{define "layout"}}, no panel chrome) since a raw `php -i` dump is meant to be viewed on its own - must NOT be combined with pageFiles since both it and base.html define "layout" and html/template panics on a duplicate
+// infoPage is a standalone document (own {{define "layout"}}, no panel chrome) since a raw `php -i` dump is meant to be viewed on its own - must NOT go through web.LoadPage since both it and base.html define "layout" and html/template panics on a duplicate
 var infoPage = web.MustLoadPage("php/info.html")
 
 var iniEditorPage = loadPage("php/ini_editor.html")

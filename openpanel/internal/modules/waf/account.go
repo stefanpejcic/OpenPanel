@@ -9,6 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // wafDisabledMarkerPath is the per-account switch for whether WAF is applied to newly created domains - not to be confused with a single domain's own SecRuleRemoveById/SecRuleRemoveByTag exclusions (waf.go)
@@ -83,5 +84,5 @@ func handleWAFAccountToggle(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		_ = logger.RecordUserAction(a.Config, username, verb+" WAF for new domains", reqip.ClientIP(r))
 	}
 
-	writeJSON(w, http.StatusOK, map[string]bool{"enabled": AccountWAFEnabled(userContext)})
+	web.WriteJSON(w, http.StatusOK, map[string]bool{"enabled": AccountWAFEnabled(userContext)})
 }

@@ -9,35 +9,18 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// pageFiles is the standard authenticated-layout template set, shared by every page in this file - unlike loginPage in login.go, which renders standalone with no session/sidebar yet
-var pageFiles = []string{
-	"base.html",
-	"partials/_header.html",
-	"partials/_footer.html",
-	"partials/_service.html",
-	"partials/_search.html",
-	"partials/_impersonate.html",
-	"partials/_service_js.html",
-	"partials/punnycode.html",
-	"partials/theme_switcher.html",
-}
-
-func loadPage(files ...string) *web.Page {
-	return web.MustLoadPage(append(append([]string{}, pageFiles...), files...)...)
-}
-
 var (
-	accountPage        = loadPage("user/account.html")
-	localePage         = loadPage("user/locale.html")
-	twofaPage          = loadPage("user/twofa_settings.html")
-	passkeysPage       = loadPage("user/passkeys.html")
-	notificationsPage  = loadPage("user/notifications.html")
-	favoritesPage      = loadPage("user/favorites.html")
-	activeSessionsPage = loadPage("user/active_sessions.html")
-	activityPage       = loadPage("user/activity.html")
-	loginHistoryPage   = loadPage("user/loginlog.html")
-	mcpPage            = loadPage("user/mcp.html")
-	apiSwaggerPage     = loadPage("user/api_swagger.html")
+	accountPage        = web.LoadPage("user/account.html")
+	localePage         = web.LoadPage("user/locale.html")
+	twofaPage          = web.LoadPage("user/twofa_settings.html")
+	passkeysPage       = web.LoadPage("user/passkeys.html")
+	notificationsPage  = web.LoadPage("user/notifications.html")
+	favoritesPage      = web.LoadPage("user/favorites.html")
+	activeSessionsPage = web.LoadPage("user/active_sessions.html")
+	activityPage       = web.LoadPage("user/activity.html")
+	loginHistoryPage   = web.LoadPage("user/loginlog.html")
+	mcpPage            = web.LoadPage("user/mcp.html")
+	apiSwaggerPage     = web.LoadPage("user/api_swagger.html")
 )
 
 // AccountPageData is user/account.html's template context.

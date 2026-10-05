@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // getAndValidateSite looks up a site by ID and confirms it belongs to userID before returning its domain and install path.
@@ -51,7 +52,7 @@ func deleteSiteFromDB(ctx context.Context, a *appctx.App, userID int, siteID str
 // handleWebsiteBuilderRemove deletes the generated site files and the site's database row.
 func handleWebsiteBuilderRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -61,11 +62,11 @@ func handleWebsiteBuilderRemove(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 	selectedDomain, installPath, ok := getAndValidateSite(ctx, a, userID, siteID)
 	if !ok {
-		flashAndRedirect(a, w, r, "error", "No data found for the provided site ID", "/sites")
+		web.FlashRedirect(a, w, r, "error", "No data found for the provided site ID", "/sites")
 		return
 	}
 	if installPath == "" {
-		flashAndRedirect(a, w, r, "error", "Website not found in the database", "/sites")
+		web.FlashRedirect(a, w, r, "error", "Website not found in the database", "/sites")
 		return
 	}
 
@@ -76,20 +77,20 @@ func handleWebsiteBuilderRemove(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 	if delErr := deleteSiteFromDB(ctx, a, userID, siteID); delErr != nil {
 		message := "An error occurred during website deletion."
-		flashSess(a, w, r, "error", message)
+		web.Flash(a, w, r, "error", message)
 		_, _ = w.Write([]byte(message))
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "removed Website Builder for "+selectedDomain, reqip.ClientIP(r))
 	message := "Website deleted successfully!"
-	flashSess(a, w, r, "success", message)
+	web.Flash(a, w, r, "success", message)
 	_, _ = w.Write([]byte(message))
 }
 
 // handleWebsiteBuilderDetach removes the site's database row without touching its files on disk.
 func handleWebsiteBuilderDetach(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -99,26 +100,26 @@ func handleWebsiteBuilderDetach(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 	selectedDomain, _, ok := getAndValidateSite(ctx, a, userID, siteID)
 	if !ok {
-		flashAndRedirect(a, w, r, "error", "No data found for the provided site ID", "/sites")
+		web.FlashRedirect(a, w, r, "error", "No data found for the provided site ID", "/sites")
 		return
 	}
 
 	if delErr := deleteSiteFromDB(ctx, a, userID, siteID); delErr != nil {
 		message := "An error occurred during website detachment."
-		flashSess(a, w, r, "error", message)
+		web.Flash(a, w, r, "error", message)
 		_, _ = w.Write([]byte(message))
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "detached Website Builder for "+selectedDomain, reqip.ClientIP(r))
 	message := "Website detached successfully!"
-	flashSess(a, w, r, "success", message)
+	web.Flash(a, w, r, "success", message)
 	_, _ = w.Write([]byte(message))
 }
 
 // handleWebsiteBuilderEdit serves the GrapesJS editor on GET and saves the submitted HTML/CSS to disk on POST.
 func handleWebsiteBuilderEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, _, userContext, err := injected(a, r)
+	userID, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -151,7 +152,7 @@ func handleWebsiteBuilderEdit(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	var docroot string
 	row := a.DB.QueryRowContext(ctx, "SELECT docroot FROM domains WHERE domain_url = ?", domain)
 	if scanErr := row.Scan(&docroot); scanErr != nil {
-		flashAndRedirect(a, w, r, "error", "Unable to detect docroot for the domain.", "/sites")
+		web.FlashRedirect(a, w, r, "error", "Unable to detect docroot for the domain.", "/sites")
 		return
 	}
 	if folderParam != "" {
@@ -160,7 +161,7 @@ func handleWebsiteBuilderEdit(a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 	cmsType := strings.ToLower(container.Type)
 	if cmsType != "websitebuilder" && cmsType != "sitebuilder" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action"})
 		return
 	}
 

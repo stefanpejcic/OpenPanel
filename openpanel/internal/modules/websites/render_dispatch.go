@@ -47,442 +47,6 @@ func renderPHPAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dat
 	}
 }
 
-var drupalAppPage = loadPage("manager/drupal_app.html")
-
-// DrupalAppPageData is manager/drupal_app.html's template context.
-type DrupalAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	DrupalVersion        string
-	PHPVersion           string
-	MySQLVersion         string
-	DBInfo               map[string]string
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderDrupalAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data DrupalAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := drupalAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - drupal_app template render error: %v", err)
-	}
-}
-
-var flarumAppPage = loadPage("manager/flarum_app.html")
-
-// FlarumAppPageData is manager/flarum_app.html's template context.
-type FlarumAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	FlarumVersion        string
-	PHPVersion           string
-	MySQLVersion         string
-	DBInfo               map[string]string
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderFlarumAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data FlarumAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := flarumAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - flarum_app template render error: %v", err)
-	}
-}
-
-var sofawikiAppPage = loadPage("manager/sofawiki_app.html")
-
-// SofawikiAppPageData is manager/sofawiki_app.html's template context.
-type SofawikiAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderSofawikiAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data SofawikiAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := sofawikiAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - sofawiki_app template render error: %v", err)
-	}
-}
-
-var tinyphotogalleryAppPage = loadPage("manager/tinyphotogallery_app.html")
-
-// TinyPhotoGalleryAppPageData is manager/tinyphotogallery_app.html's template context.
-type TinyPhotoGalleryAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-	HasPhotos            bool // true once photos/ has at least one entry - at that point the "Setup" info box explaining how to add photos is redundant and hidden
-}
-
-func renderTinyPhotoGalleryAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data TinyPhotoGalleryAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := tinyphotogalleryAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - tinyphotogallery_app template render error: %v", err)
-	}
-}
-
-var tinyfilemanagerAppPage = loadPage("manager/tinyfilemanager_app.html")
-
-// TinyFileManagerAppPageData is manager/tinyfilemanager_app.html's template context.
-type TinyFileManagerAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderTinyFileManagerAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data TinyFileManagerAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := tinyfilemanagerAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - tinyfilemanager_app template render error: %v", err)
-	}
-}
-
-var phpbbAppPage = loadPage("manager/phpbb_app.html")
-
-// PhpbbAppPageData is manager/phpbb_app.html's template context.
-type PhpbbAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	PhpbbVersion         string
-	PHPVersion           string
-	MySQLVersion         string
-	DBInfo               map[string]string
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderPhpbbAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PhpbbAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := phpbbAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - phpbb_app template render error: %v", err)
-	}
-}
-
-var dokuwikiAppPage = loadPage("manager/dokuwiki_app.html")
-
-// DokuwikiAppPageData is manager/dokuwiki_app.html's template context.
-type DokuwikiAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	DokuwikiVersion      string
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderDokuwikiAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data DokuwikiAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := dokuwikiAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - dokuwiki_app template render error: %v", err)
-	}
-}
-
-var joomlaAppPage = loadPage("manager/joomla_app.html")
-
-// JoomlaAppPageData is manager/joomla_app.html's template context.
-type JoomlaAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	JoomlaVersion        string
-	PHPVersion           string
-	MySQLVersion         string
-	DBInfo               map[string]string
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderJoomlaAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data JoomlaAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := joomlaAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - joomla_app template render error: %v", err)
-	}
-}
-
-var openCartAppPage = loadPage("manager/opencart_app.html")
-
-// OpenCartAppPageData is manager/opencart_app.html's template context.
-type OpenCartAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	OpenCartVersion      string
-	PHPVersion           string
-	MySQLVersion         string
-	DBInfo               map[string]string
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderOpenCartAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data OpenCartAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := openCartAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - opencart_app template render error: %v", err)
-	}
-}
-
-var prestashopAppPage = loadPage("manager/prestashop_app.html")
-
-// PrestashopAppPageData is manager/prestashop_app.html's template context.
-type PrestashopAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	PrestashopVersion    string
-	PHPVersion           string
-	MySQLVersion         string
-	DBInfo               map[string]string
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderPrestashopAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PrestashopAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := prestashopAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - prestashop_app template render error: %v", err)
-	}
-}
-
-var nextcloudAppPage = loadPage("manager/nextcloud_app.html")
-
-// NextcloudAppPageData is manager/nextcloud_app.html's template context.
-type NextcloudAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	NextcloudVersion     string
-	PHPVersion           string
-	MySQLVersion         string
-	DBInfo               map[string]string
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderNextcloudAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data NextcloudAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := nextcloudAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - nextcloud_app template render error: %v", err)
-	}
-}
-
-var matomoAppPage = loadPage("manager/matomo_app.html")
-
-// MatomoAppPageData is manager/matomo_app.html's template context.
-type MatomoAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	MatomoVersion        string
-	PHPVersion           string
-	MySQLVersion         string
-	DBInfo               map[string]string
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderMatomoAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data MatomoAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := matomoAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - matomo_app template render error: %v", err)
-	}
-}
-
-var moodleAppPage = loadPage("manager/moodle_app.html")
-
-// MoodleAppPageData is manager/moodle_app.html's template context.
-type MoodleAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	MoodleVersion        string
-	PHPVersion           string
-	MySQLVersion         string
-	DBInfo               map[string]string
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderMoodleAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data MoodleAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := moodleAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - moodle_app template render error: %v", err)
-	}
-}
-
-var ojsAppPage = loadPage("manager/ojs_app.html")
-
-// OJSAppPageData is manager/ojs_app.html's template context.
-type OJSAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	OJSVersion           string
-	PHPVersion           string
-	MySQLVersion         string
-	DBInfo               map[string]string
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderOJSAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data OJSAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := ojsAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - ojs_app template render error: %v", err)
-	}
-}
-
-var mediawikiAppPage = loadPage("manager/mediawiki_app.html")
-
-// MediaWikiAppPageData is manager/mediawiki_app.html's template context.
-type MediaWikiAppPageData struct {
-	pageData
-	Domains              []appctx.Domain
-	Container            ContainerInfo
-	MediaWikiVersion     string
-	PHPVersion           string
-	MySQLVersion         string
-	DBInfo               map[string]string
-	IsSubdirectory       bool
-	MainDomain           string
-	CurrentPHPVersion    string
-	AvailablePHPVersions []string
-}
-
-func renderMediaWikiAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data MediaWikiAppPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data.LayoutData = layout
-	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
-	if err := mediawikiAppPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("WEBSITES - mediawiki_app template render error: %v", err)
-	}
-}
-
 var websiteBuilderPage = loadPage("manager/websitebuilder.html")
 
 // WebsiteBuilderPageData is manager/websitebuilder.html's template context.
@@ -688,5 +252,62 @@ func renderN8nAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dat
 
 	if err := n8nAppPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WEBSITES - n8n_app template render error: %v", err)
+	}
+}
+
+// CMSAppPageData is manager/<type>_app.html's template context for every one-click CMS site
+type CMSAppPageData struct {
+	pageData
+	Domains              []appctx.Domain
+	Container            ContainerInfo
+	Version              string
+	PHPVersion           string
+	MySQLVersion         string
+	DBInfo               map[string]string
+	IsSubdirectory       bool
+	MainDomain           string
+	CurrentPHPVersion    string
+	AvailablePHPVersions []string
+	HasPhotos            bool
+	App                  web.AppNames
+}
+
+// cmsPage is how the /website dispatcher reads one CMS type, dbInfo is nil for apps without a database
+type cmsPage struct {
+	name    string
+	page    *web.Page
+	dbInfo  func(userContext, docroot string) map[string]string
+	version func(userContext, docroot string) string
+}
+
+var cmsPages = map[string]cmsPage{
+	"drupal":           {name: "Drupal", page: loadPage("manager/_cms_app_shared.html", "manager/drupal_app.html"), dbInfo: extractDrupalDatabaseInfo, version: getDrupalVersion},
+	"flarum":           {name: "Flarum", page: loadPage("manager/_cms_app_shared.html", "manager/flarum_app.html"), dbInfo: extractFlarumDatabaseInfo, version: getFlarumVersion},
+	"sofawiki":         {name: "SofaWiki", page: loadPage("manager/_cms_app_shared.html", "manager/sofawiki_app.html"), dbInfo: nil, version: nil},
+	"tinyphotogallery": {name: "TinyPhotoGallery", page: loadPage("manager/_cms_app_shared.html", "manager/tinyphotogallery_app.html"), dbInfo: nil, version: nil},
+	"tinyfilemanager":  {name: "TinyFileManager", page: loadPage("manager/_cms_app_shared.html", "manager/tinyfilemanager_app.html"), dbInfo: nil, version: nil},
+	"phpbb":            {name: "phpBB", page: loadPage("manager/_cms_app_shared.html", "manager/phpbb_app.html"), dbInfo: extractPhpbbDatabaseInfo, version: getPhpbbVersion},
+	"dokuwiki":         {name: "DokuWiki", page: loadPage("manager/_cms_app_shared.html", "manager/dokuwiki_app.html"), dbInfo: nil, version: getDokuwikiVersion},
+	"joomla":           {name: "Joomla", page: loadPage("manager/_cms_app_shared.html", "manager/joomla_app.html"), dbInfo: extractJoomlaDatabaseInfo, version: getJoomlaVersion},
+	"opencart":         {name: "OpenCart", page: loadPage("manager/_cms_app_shared.html", "manager/opencart_app.html"), dbInfo: extractOpenCartDatabaseInfo, version: getOpenCartVersion},
+	"prestashop":       {name: "PrestaShop", page: loadPage("manager/_cms_app_shared.html", "manager/prestashop_app.html"), dbInfo: extractPrestashopDatabaseInfo, version: getPrestashopVersion},
+	"nextcloud":        {name: "Nextcloud", page: loadPage("manager/_cms_app_shared.html", "manager/nextcloud_app.html"), dbInfo: extractNextcloudDatabaseInfo, version: getNextcloudVersion},
+	"matomo":           {name: "Matomo", page: loadPage("manager/_cms_app_shared.html", "manager/matomo_app.html"), dbInfo: extractMatomoDatabaseInfo, version: getMatomoVersion},
+	"moodle":           {name: "Moodle", page: loadPage("manager/_cms_app_shared.html", "manager/moodle_app.html"), dbInfo: extractMoodleDatabaseInfo, version: getMoodleVersion},
+	"ojs":              {name: "OJS", page: loadPage("manager/_cms_app_shared.html", "manager/ojs_app.html"), dbInfo: extractOJSDatabaseInfo, version: nil},
+	"mediawiki":        {name: "MediaWiki", page: loadPage("manager/_cms_app_shared.html", "manager/mediawiki_app.html"), dbInfo: extractMediaWikiDatabaseInfo, version: getMediaWikiVersion},
+}
+
+func renderCMSAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, cmsType string, data CMSAppPageData) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.CurrentDomain)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data.LayoutData = layout
+	data.App = web.NewAppNames(cmsType, cmsPages[cmsType].name)
+	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
+	if err := cmsPages[cmsType].page.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("WEBSITES - %s_app template render error: %v", cmsType, err)
 	}
 }

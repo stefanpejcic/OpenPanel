@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -53,7 +54,7 @@ func wordpressSiteRefs(a *appctx.App, r *http.Request, userID int) map[string]wp
 
 // handleWordPressBulk replays each site through the same routes the per-site buttons and /sites bulk use
 func handleWordPressBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, r *http.Request) {
-	userID, _, _, err := injected(a, r)
+	userID, _, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

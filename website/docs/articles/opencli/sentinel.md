@@ -68,9 +68,10 @@ Checking services:
 
 ### What gets emailed
 
-- **Alerts** need admin attention. They are logged as unread with a *critical* or *warning* severity and sent by email/webhook. Service alerts say what failed, what Sentinel tried, which command to check it with, and include the last log lines. If the same alert is detected again while it's still unread, its count and last seen time are updated instead of adding a new notification or sending another email.
-- **Info** entries are for things Sentinel already fixed on its own, like restarting a stopped container. They are logged as already read for history and are not emailed.
+- **Alerts** need admin attention. They are logged as unread with a *critical* or *warning* severity and sent by email/webhook. Service alerts say what failed, what Sentinel tried, which command to check it with, and include the last log lines. If the same alert is detected again while it's still unread, its count and last seen time are updated instead of adding a new notification or sending another email. Disk, load, RAM and SSH login checks are skipped entirely while their alert is unread, so no new crashlog is generated either. This only lasts 24 hours from when the alert was first reported: after that, an unread alert no longer blocks new ones, so a new notification (and crashlog for load) is logged and emailed again.
+- **Info** entries are for things Sentinel already fixed on its own, like restarting a stopped container. They are logged as already read for history and are not emailed. If the same thing happens again within 24 hours of the first entry, that entry's count, last seen time and message are updated instead of adding a new row, so a container that keeps crashing shows up once.
 - All alerts from one run are sent as **one email and one webhook**. With a single alert the subject is its title, with more it's *N notifications from Sentinel on &lt;hostname&gt;* and the body lists them all. In the email each notification is shown with its severity.
+- The webhook is sent as JSON with a `text` field for Slack and a `content` field for Discord, which is cut to 2000 characters since Discord rejects longer messages.
 
 Load, CPU and RAM only alert after they stay over the threshold for **2 checks in a row** (about 10 minutes with the default cron), so short spikes don't trigger alerts. CPU usage is measured over 1 second.
 
@@ -81,6 +82,34 @@ Load, CPU and RAM only alert after they stay over the threshold for **2 checks i
 # opencli sentinel
 ...
 [!] CPU 96% > threshold 90% (1/2 checks), alerting if it stays high.
+...
+```
+</details>
+
+OOM kills are read from the kernel log with `journalctl -k`, at most once an hour, covering everything since the previous check (the last hour on the first run after a reboot). Both kills inside a container's memory limit and system-wide out of memory kills are counted, and the alert lists them per system service and per user.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+[✘] 2 user process(es) killed by OOM since 2026-10-02 14:05
+...
+```
+</details>
+
+### Timeouts
+
+So a hung `podman` command can't stop monitoring, every podman call Sentinel makes has a timeout, each check in the parallel part (logins, disk, load, RAM, CPU, SWAP, DNS, user containers) is stopped after 10 minutes, and the whole run is stopped after 15 minutes. A stopped check sends a *Sentinel checks did not finish* alert listing which checks hung, and a stopped run sends a critical *Sentinel checks timed out!* alert. Both are resolved on the next run that finishes in time. If a previous run is still going, the new one exits with *Error: Another instance is already running.*
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+[✘] check_user_containers did not finish in 600s and was stopped.
 ...
 ```
 </details>
@@ -97,7 +126,7 @@ Notifications are stored in `/var/log/openpanel/admin/notifications.log`, one JS
 - `severity`: `critical`, `warning` or `info`
 - `category`: `service`, `resources`, `security`, `dns`, `traffic`, `system`, `update` or `action`
 - `source`: `sentinel`, `update`, or the action name for `--action` notifications
-- `count` and `last_seen`: how many times the alert was detected while unread, and when it was last detected
+- `count` and `last_seen`: how many times the alert was detected while unread (or, for info entries, happened again) within 24 hours of `time`, and when it was last detected
 - `resolved_at`: when Sentinel detected that the issue was gone
 - `details`: optional structured data used by the Notifications page, e.g. RAM/CPU/disk usage and top processes, OOM kills, or a link to the crashlog or update log
 

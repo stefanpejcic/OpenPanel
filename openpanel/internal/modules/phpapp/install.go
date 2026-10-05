@@ -1,48 +1,25 @@
 package phpapp
 
 import (
-	"context"
 	"database/sql"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
-	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
-
-func atoiDefault(s string, def int) int {
-	if v, err := strconv.Atoi(s); err == nil {
-		return v
-	}
-	return def
-}
-
-// countUserWebsites counts sites owned by any of this user's domains, capped at 1000 - same query appinstall.countUserWebsites uses
-func countUserWebsites(a *appctx.App, userID int) (int, error) {
-	rows, err := a.DB.Query(
-		"SELECT site_name FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000", userID)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-	n := 0
-	for rows.Next() {
-		n++
-	}
-	return n, rows.Err()
-}
 
 // HandleInstallPage renders the install form and handles the early over-limit check for a POST; the streaming install itself is handled separately by HandleInstall
 func HandleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -55,11 +32,11 @@ func HandleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	planID, _ := injectedData["hosting_plan"].(int)
 	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	websitesLimit := atoiDefault(plan.WebsitesLimit, 0)
-	websiteCount, _ := countUserWebsites(a, userID)
+	websitesLimit := web.AtoiDefault(plan.WebsitesLimit, 0)
+	websiteCount, _ := appkit.CountUserWebsites(a, userID)
 
 	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		flashSess(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
+		web.Flash(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
 	} else if r.Method == http.MethodPost {
 		HandleInstall(a, w, r)
 		return
@@ -83,7 +60,7 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/x-ndjson")
 	flusher, canFlush := w.(http.Flusher)
-	emit := func(v map[string]any) { writeNDJSON(w, flusher, canFlush, v) }
+	emit := func(v map[string]any) { web.WriteNDJSON(w, flusher, canFlush, v) }
 
 	ipAddress := reqip.ClientIP(r)
 
@@ -122,7 +99,7 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	autorunComposerInstall := normalizeCheckbox(r.FormValue("autorun_composer_install"))
 	composerOptimizeAutoloader := normalizeCheckbox(r.FormValue("composer_optimize_autoloader"))
 
-	if !isValidSubdirectory(subdirectory) {
+	if !cmsapp.IsValidSubdirectory(subdirectory) {
 		emit(map[string]any{"error": "Invalid subdirectory."})
 		return
 	}
@@ -154,7 +131,7 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	emit(map[string]any{"status": "Starting PHP container: " + phpContainer})
-	if !ensureContainerRunning(ctx, userContext, phpContainer) {
+	if !cmsapp.EnsureContainerRunning(ctx, userContext, phpContainer) {
 		emit(map[string]any{"error": "PHP container failed to start. Please check it from Services."})
 		return
 	}
@@ -231,22 +208,6 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	emit(map[string]any{"status": "New PHP application setup completed!"})
 	_ = logger.RecordUserAction(a.Config, currentUsername, "created a new PHP application on domain "+selectedDomain, ipAddress)
-}
-
-// ensureContainerRunning starts container if it's not already running and polls briefly for it to come up, mirrors wordpress.waitForWPAvailable's shape but keyed off container status rather than a WP-CLI probe
-func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
-	if docker.IsServiceRunning(ctx, userContext, container) {
-		return true
-	}
-	docker.StartOrStopContainer(ctx, userContext, container, "activate", "detached")
-	const attempts = 15
-	for i := 0; i < attempts; i++ {
-		time.Sleep(2 * time.Second)
-		if docker.IsServiceRunning(ctx, userContext, container) {
-			return true
-		}
-	}
-	return false
 }
 
 func normalizeCheckbox(raw string) bool {

@@ -112,7 +112,7 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 
 	if !containsString(dottedExts, fileExt) && !containsAny(strings.ToLower(filename), bareNames) {
 		if !isEditableFile(realPath) {
-			flashAndRedirect(a, w, r, "error", "Editing this file type is not allowed.", "/files")
+			web.FlashRedirect(a, w, r, "error", "Editing this file type is not allowed.", "/files")
 			return
 		}
 	}
@@ -157,11 +157,11 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 	if !isNew {
 		info, statErr := os.Stat(realPath)
 		if statErr != nil {
-			flashAndRedirect(a, w, r, "error", "Error accessing file size.", "/files")
+			web.FlashRedirect(a, w, r, "error", "Error accessing file size.", "/files")
 			return
 		}
 		if info.Size() > fileLimitBytes {
-			flashAndRedirect(a, w, r, "error",
+			web.FlashRedirect(a, w, r, "error",
 				web.Tr(a, r, "File is too large to open in the editor (limit is %(file_limit_mb)s MB)", "file_limit_mb", strconv.Itoa(fileLimitMB)), "/files")
 			return
 		}
@@ -170,7 +170,7 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 	data, readErr := os.ReadFile(realPath)
 	if readErr != nil {
 		if !isNew {
-			flashAndRedirect(a, w, r, "error", "Error reading file", "/files")
+			web.FlashRedirect(a, w, r, "error", "Error reading file", "/files")
 			return
 		}
 	} else {
@@ -178,7 +178,7 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, fileContent)
+		web.WriteJSON(w, http.StatusOK, fileContent)
 		return
 	}
 
@@ -212,18 +212,18 @@ func handleDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 
 	info, statErr := os.Stat(realPath)
 	if statErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error retrieving file size.", filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", "Error retrieving file size.", filesRedirectPath(pathParam))
 		return
 	}
 	fileLimitMB := atoiDefault(a.Config.Get("filemanager_download_size", "500"), 500)
 	if info.Size() > int64(fileLimitMB)*1024*1024 {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "File size exceeds %(file_limit_mb)sMB limit. Download aborted.", "file_limit_mb", strconv.Itoa(fileLimitMB)), filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "File size exceeds %(file_limit_mb)sMB limit. Download aborted.", "file_limit_mb", strconv.Itoa(fileLimitMB)), filesRedirectPath(pathParam))
 		return
 	}
 
 	f, openErr := os.Open(realPath)
 	if openErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error retrieving file size.", filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", "Error retrieving file size.", filesRedirectPath(pathParam))
 		return
 	}
 	defer f.Close()
@@ -277,7 +277,7 @@ func handleViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filen
 	if !containsString(dottedExts, fileExt) && !containsAny(strings.ToLower(baseName), editBareNames) {
 		realPathCheck, perr := paths.SecureUserPath("HOME", user.Context, filename, false)
 		if perr == nil && !isEditableFile(realPathCheck) {
-			flashAndRedirect(a, w, r, "error", "Editing this file type is not allowed.", "/files")
+			web.FlashRedirect(a, w, r, "error", "Editing this file type is not allowed.", "/files")
 			return
 		}
 	}
@@ -295,11 +295,11 @@ func handleViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filen
 	if !isNew {
 		info, statErr := os.Stat(realPath)
 		if statErr != nil {
-			flashAndRedirect(a, w, r, "error", "Error accessing file size.", "/files")
+			web.FlashRedirect(a, w, r, "error", "Error accessing file size.", "/files")
 			return
 		}
 		if info.Size() > int64(fileLimitMB)*1024*1024 {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "File is too large to view in the browser (limit is %(file_limit_mb)s MB)", "file_limit_mb", strconv.Itoa(fileLimitMB)), "/files")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "File is too large to view in the browser (limit is %(file_limit_mb)s MB)", "file_limit_mb", strconv.Itoa(fileLimitMB)), "/files")
 			return
 		}
 	}
@@ -321,7 +321,7 @@ func handleViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filen
 		content, err = os.ReadFile(realPath)
 	}
 	if err != nil {
-		flashAndRedirect(a, w, r, "error", "Error opening file.", "/files")
+		web.FlashRedirect(a, w, r, "error", "Error opening file.", "/files")
 		return
 	}
 

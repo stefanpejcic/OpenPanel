@@ -5,6 +5,7 @@ import (
 	"os/exec"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -16,7 +17,7 @@ import (
 // handleRootPasswordMySQL changes the MySQL root password - unlike every other password-change route in this package, no strength check is applied here, deliberately, since the root password is admin-only
 func handleRootPasswordMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -34,15 +35,15 @@ func handleRootPasswordMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 		ok := func() bool {
 			if _, execErr := mysqlmanager.Exec(ctx, userContext, "ALTER USER 'root'@'"+dbHost+"' IDENTIFIED BY '"+escapedPassword+"'", ""); execErr != nil {
-				flashSess(a, w, r, "error", web.Tr(a, r, "Error changing MySQL root password: %(error)s", "error", execErr.Error()))
+				web.Flash(a, w, r, "error", web.Tr(a, r, "Error changing MySQL root password: %(error)s", "error", execErr.Error()))
 				return false
 			}
 			if _, execErr := mysqlmanager.Exec(ctx, userContext, "ALTER USER 'root'@'localhost' IDENTIFIED BY '"+escapedPassword+"'", ""); execErr != nil {
-				flashSess(a, w, r, "error", web.Tr(a, r, "Error changing MySQL root password: %(error)s", "error", execErr.Error()))
+				web.Flash(a, w, r, "error", web.Tr(a, r, "Error changing MySQL root password: %(error)s", "error", execErr.Error()))
 				return false
 			}
 			if _, execErr := mysqlmanager.Exec(ctx, userContext, "FLUSH PRIVILEGES", ""); execErr != nil {
-				flashSess(a, w, r, "error", web.Tr(a, r, "Error changing MySQL root password: %(error)s", "error", execErr.Error()))
+				web.Flash(a, w, r, "error", web.Tr(a, r, "Error changing MySQL root password: %(error)s", "error", execErr.Error()))
 				return false
 			}
 			return true
@@ -54,17 +55,17 @@ func handleRootPasswordMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			sedCmd := "s/^password=.*/password=" + escapedPassword + "/"
 			myCnfPath := "/home/" + userContext + "/my.cnf"
 			if sedErr := exec.CommandContext(ctx, "sed", "-i", "-e", sedCmd, myCnfPath).Run(); sedErr != nil {
-				flashSess(a, w, r, "error", "Password changed but failed to restart MySQL.")
+				web.Flash(a, w, r, "error", "Password changed but failed to restart MySQL.")
 			} else {
 				mysqlmanager.InvalidatePool(userContext)
 
 				argv := podmanmanager.PodmanArgv(userContext, "restart", mysqlVersion)
 				if restartErr := podmanmanager.Command(ctx, userContext, argv).Run(); restartErr != nil {
-					flashSess(a, w, r, "error", "Password changed but failed to restart MySQL.")
+					web.Flash(a, w, r, "error", "Password changed but failed to restart MySQL.")
 				} else {
 					ipAddress := reqip.ClientIP(r)
 					_ = logger.RecordUserAction(a.Config, currentUsername, "changed MySQL root user password", ipAddress)
-					flashSess(a, w, r, "success", "Successfully changed root password.")
+					web.Flash(a, w, r, "success", "Successfully changed root password.")
 				}
 			}
 		}

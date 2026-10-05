@@ -9,10 +9,12 @@ import (
 	"github.com/google/uuid"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterExtensionsAPI wires the PHP extensions API routes onto mux.
@@ -27,7 +29,7 @@ func RegisterExtensionsAPI(mux *http.ServeMux, a *appctx.App) {
 // apiPHPExtensionsList returns the supported extensions for a PHP version along with their active/disabled/not-installed state and install history
 func apiPHPExtensionsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -57,7 +59,7 @@ func apiPHPExtensionsList(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	history := loadExtensionsHistory(userContext, version)
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"version": version, "service": service, "extensions": extensions, "history": history,
 	})
 }
@@ -65,7 +67,7 @@ func apiPHPExtensionsList(a *appctx.App, w http.ResponseWriter, r *http.Request)
 // apiPHPExtensionToggle enables or disables one already-installed PHP extension and restarts the PHP service to apply the change
 func apiPHPExtensionToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -94,14 +96,14 @@ func apiPHPExtensionToggle(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	if !extensionNameRE.MatchString(extension) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid extension name"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid extension name"})
 		return
 	}
 
 	version := r.PathValue("version")
 	service, isLitespeed := phpExtensionsService(userContext, version)
 	if ok, errMsg := ensurePHPServiceRunning(ctx, userContext, service); !ok {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start PHP " + version + ": " + errMsg})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start PHP " + version + ": " + errMsg})
 		return
 	}
 
@@ -113,7 +115,7 @@ func apiPHPExtensionToggle(a *appctx.App, w http.ResponseWriter, r *http.Request
 		ok, errMsg = toggleExtension(ctx, userContext, service, extension, enable)
 	}
 	if !ok {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not change " + extension + ": " + errMsg})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not change " + extension + ": " + errMsg})
 		return
 	}
 
@@ -124,7 +126,7 @@ func apiPHPExtensionToggle(a *appctx.App, w http.ResponseWriter, r *http.Request
 		action = "enabled"
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, action+" PHP extension "+extension+" for PHP "+version, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"message":   "Extension " + extension + " " + action + ", PHP " + version + " restarted",
 		"extension": extension, "enabled": enable,
 	})
@@ -133,7 +135,7 @@ func apiPHPExtensionToggle(a *appctx.App, w http.ResponseWriter, r *http.Request
 // apiPHPExtensionsAvailable lists all extensions supported for a PHP version, flagging which ones are already installed
 func apiPHPExtensionsAvailable(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -163,7 +165,7 @@ func apiPHPExtensionsAvailable(a *appctx.App, w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{"version": version, "extensions": extensions})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"version": version, "extensions": extensions})
 }
 
 var apiExtensionsCommaSplitRE = regexp.MustCompile(`\s*,\s*`)
@@ -171,7 +173,7 @@ var apiExtensionsCommaSplitRE = regexp.MustCompile(`\s*,\s*`)
 // apiPHPExtensionsInstall queues an asynchronous install of one or more PHP extensions and returns an install ID for polling progress
 func apiPHPExtensionsInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -207,14 +209,14 @@ func apiPHPExtensionsInstall(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		}
 	}
 	if len(extensions) == 0 {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "No valid extensions provided"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "No valid extensions provided"})
 		return
 	}
 
 	version := r.PathValue("version")
 	service, _ := phpExtensionsService(userContext, version)
 	if ok, errMsg := ensurePHPServiceRunning(ctx, userContext, service); !ok {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start PHP " + version + ": " + errMsg})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start PHP " + version + ": " + errMsg})
 		return
 	}
 
@@ -224,13 +226,13 @@ func apiPHPExtensionsInstall(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		Version: version, Context: userContext, CurrentUsername: currentUsername, Service: service,
 	}
 	if err := saveInstallState(installID, info); err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Internal server error"})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Internal server error"})
 		return
 	}
 
 	go runExtensionInstall(installID)
 
-	writeJSON(w, http.StatusAccepted, map[string]any{
+	web.WriteJSON(w, http.StatusAccepted, map[string]any{
 		"install_id": installID, "extensions": extensions, "message": "Install started",
 	})
 }
@@ -238,7 +240,7 @@ func apiPHPExtensionsInstall(a *appctx.App, w http.ResponseWriter, r *http.Reque
 // apiPHPExtensionsInstallStatus reports the progress of a queued extension install, logging the user action once it completes
 func apiPHPExtensionsInstallStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -257,7 +259,7 @@ func apiPHPExtensionsInstallStatus(a *appctx.App, w http.ResponseWriter, r *http
 			info.Logged = true
 			_ = saveInstallState(installID, info)
 		}
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"status": info.Status, "message": info.Message, "extensions": info.Extensions, "container_busy": containerBusy,
 		})
 		return
@@ -267,5 +269,5 @@ func apiPHPExtensionsInstallStatus(a *appctx.App, w http.ResponseWriter, r *http
 	if containerBusy {
 		status = "busy"
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"status": status, "container_busy": containerBusy})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"status": status, "container_busy": containerBusy})
 }

@@ -323,7 +323,7 @@ func logUserLogin(a *appctx.App, r *http.Request, sess *sessions.Session, userID
 	country := getCountryCode(a, r.Context(), ip)
 	records = append(records, fmt.Sprintf("IP: %s - Country: %s - Login Time: %s", ip, country, time.Now().Format("2006-01-02 15:04:05")))
 
-	maxRecords := atoiDefault(a.Config.Get("max_login_records", ""), 20)
+	maxRecords := web.AtoiDefault(a.Config.Get("max_login_records", ""), 20)
 	if len(records) > maxRecords {
 		records = records[len(records)-maxRecords:]
 	}
@@ -348,14 +348,6 @@ func logUserLogin(a *appctx.App, r *http.Request, sess *sessions.Session, userID
 
 	sess.Values["session_token"] = sessionToken
 	return nil
-}
-
-func atoiDefault(s string, def int) int {
-	n, err := strconv.Atoi(s)
-	if err != nil {
-		return def
-	}
-	return n
 }
 
 // getCountryCode looks up the country for an IP via a public geolocation API, cached for 6 minutes to avoid hitting it on every login

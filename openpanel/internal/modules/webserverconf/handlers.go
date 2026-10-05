@@ -5,6 +5,7 @@ import (
 	"os"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -28,7 +29,7 @@ func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, cat
 
 // handleWebserverConf serves the in-browser editor for a user's main webserver configuration file and handles saving/restoring it
 func handleWebserverConf(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

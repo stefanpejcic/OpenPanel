@@ -1,6 +1,10 @@
 package wordpress
 
-import "testing"
+import (
+	"testing"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
+)
 
 func TestBackupFolderRE(t *testing.T) {
 	cases := map[string]bool{
@@ -45,29 +49,29 @@ $table_prefix = 'wp7x_';
 }
 
 func TestToStringCell(t *testing.T) {
-	if toStringCell(nil) != "" {
+	if mysqlmanager.ToString(nil) != "" {
 		t.Error("nil should stringify to empty")
 	}
-	if toStringCell("abc") != "abc" {
+	if mysqlmanager.ToString("abc") != "abc" {
 		t.Error("string passthrough failed")
 	}
-	if toStringCell([]byte("abc")) != "abc" {
+	if mysqlmanager.ToString([]byte("abc")) != "abc" {
 		t.Error("[]byte should stringify")
 	}
 	// INTEGER columns scan into int64 via mysqlmanager.Exec()'s interface{} destinations, must stringify correctly not silently go empty (see toStringCell's doc comment)
-	if toStringCell(int64(42)) != "42" {
+	if mysqlmanager.ToString(int64(42)) != "42" {
 		t.Error("int64 should stringify to its decimal representation")
 	}
-	if toStringCell(uint64(42)) != "42" {
+	if mysqlmanager.ToString(uint64(42)) != "42" {
 		t.Error("uint64 should stringify to its decimal representation")
 	}
-	if toStringCell(42) != "42" {
+	if mysqlmanager.ToString(42) != "42" {
 		t.Error("int should stringify to its decimal representation")
 	}
-	if toStringCell(3.14) != "3.14" {
+	if mysqlmanager.ToString(3.14) != "3.14" {
 		t.Error("float64 should stringify to its decimal representation")
 	}
-	if toStringCell(struct{}{}) != "" {
+	if mysqlmanager.ToString(struct{}{}) != "" {
 		t.Error("genuinely unsupported type should stringify to empty")
 	}
 }

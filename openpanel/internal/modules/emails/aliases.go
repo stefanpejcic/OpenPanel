@@ -119,7 +119,7 @@ func ImportUserAliases(currentUsername string, userDomains map[string]bool) {
 func handleAliases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -130,7 +130,7 @@ func handleAliases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	aliasList := GetAliasList(ctx, a, userID, currentUsername, userDomains)
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{"aliases": aliasList})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"aliases": aliasList})
 		return
 	}
 
@@ -147,7 +147,7 @@ func handleAliasDetail(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -187,7 +187,7 @@ func getAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email strin
 		if entry != nil {
 			targets = entry.Targets
 		}
-		writeJSON(w, http.StatusOK, map[string]any{"source": email, "targets": targets})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"source": email, "targets": targets})
 		return
 	}
 
@@ -200,20 +200,20 @@ func postAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email stri
 	target := strings.TrimSpace(r.Form.Get("target"))
 
 	if target == "" || !isValidEmail(target) {
-		flashAndRedirect(a, w, r, "error", "Error: a valid target email address is required.", "/emails/aliases/"+email)
+		web.FlashRedirect(a, w, r, "error", "Error: a valid target email address is required.", "/emails/aliases/"+email)
 		return
 	}
 
 	out, err := exec.CommandContext(ctx, "opencli", "email-setup", "alias", "add", email, target).CombinedOutput()
 	if err != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error adding alias: %(output)s", "output", strings.TrimSpace(string(out))), "/emails/aliases/"+email)
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error adding alias: %(output)s", "output", strings.TrimSpace(string(out))), "/emails/aliases/"+email)
 		return
 	}
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "added alias "+email+" -> "+target, ipAddress)
 	InvalidateAliasCache(ctx, a, userID, currentUsername)
-	flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Alias %(email)s → %(target)s added successfully.", "email", email, "target", target), "/emails/aliases/"+email)
+	web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Alias %(email)s → %(target)s added successfully.", "email", email, "target", target), "/emails/aliases/"+email)
 }
 
 func deleteAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, userID int, currentUsername string, userDomains map[string]bool) {
@@ -247,7 +247,7 @@ func deleteAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email st
 		if entry != nil {
 			for _, t := range entry.Targets {
 				if out, err := exec.CommandContext(ctx, "opencli", "email-setup", "alias", "del", email, t).CombinedOutput(); err != nil {
-					flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting alias %(email)s -> %(target)s: %(output)s", "email", email, "target", t, "output", strings.TrimSpace(string(out))), "/emails/aliases")
+					web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error deleting alias %(email)s -> %(target)s: %(output)s", "email", email, "target", t, "output", strings.TrimSpace(string(out))), "/emails/aliases")
 					return
 				}
 			}
@@ -255,12 +255,12 @@ func deleteAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email st
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "deleted alias "+email, ipAddress)
 		InvalidateAliasCache(ctx, a, userID, currentUsername)
-		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Alias %(email)s deleted successfully.", "email", email), "/emails/aliases")
+		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Alias %(email)s deleted successfully.", "email", email), "/emails/aliases")
 		return
 	}
 
 	if target == "" || !isValidEmail(target) {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "A valid target email address is required."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]any{"error": "A valid target email address is required."})
 		return
 	}
 
@@ -269,7 +269,7 @@ func deleteAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email st
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted alias "+email+" -> "+target, ipAddress)
 	InvalidateAliasCache(ctx, a, userID, currentUsername)
-	writeJSON(w, http.StatusOK, map[string]any{"success": true})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"success": true})
 }
 
 // create alias (new source address)
@@ -278,7 +278,7 @@ func deleteAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email st
 func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -303,19 +303,19 @@ func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		if len(missing) > 0 {
 			for _, field := range missing {
-				flashSess(a, w, r, "error", web.Tr(a, r, "Error: %(field)s not provided.", "field", field))
+				web.Flash(a, w, r, "error", web.Tr(a, r, "Error: %(field)s not provided.", "field", field))
 			}
 			http.Redirect(w, r, "/emails/aliases/new", http.StatusFound)
 			return
 		}
 
 		if !validators.IsValidEmailUsername(username) {
-			flashAndRedirect(a, w, r, "error", "Username can only contain letters, numbers, and . _ % + - (no @).", "/emails/aliases/new")
+			web.FlashRedirect(a, w, r, "error", "Username can only contain letters, numbers, and . _ % + - (no @).", "/emails/aliases/new")
 			return
 		}
 
 		if !isValidEmail(target) {
-			flashAndRedirect(a, w, r, "error", "Error: target must be a valid email address.", "/emails/aliases/new")
+			web.FlashRedirect(a, w, r, "error", "Error: target must be a valid email address.", "/emails/aliases/new")
 			return
 		}
 
@@ -328,14 +328,14 @@ func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		out, cmdErr := exec.CommandContext(ctx, "opencli", "email-setup", "alias", "add", source, target).CombinedOutput()
 		if cmdErr != nil {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error creating alias: %(output)s", "output", strings.TrimSpace(string(out))), "/emails/aliases/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error creating alias: %(output)s", "output", strings.TrimSpace(string(out))), "/emails/aliases/new")
 			return
 		}
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created alias "+source+" -> "+target, ipAddress)
 		InvalidateAliasCache(ctx, a, userID, currentUsername)
-		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Alias %(source)s → %(target)s created successfully.", "source", source, "target", target), "/emails/aliases")
+		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Alias %(source)s → %(target)s created successfully.", "source", source, "target", target), "/emails/aliases")
 		return
 	}
 
@@ -348,7 +348,7 @@ func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 func handleAliasDeletePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

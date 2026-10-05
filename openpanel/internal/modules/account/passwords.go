@@ -2,22 +2,16 @@ package account
 
 import (
 	"context"
-	"crypto/sha256"
 	"database/sql"
-	"encoding/hex"
 	"log"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cpanelpw"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/werkzeugpw"
 )
-
-func sha256Hex(s string) string {
-	sum := sha256.Sum256([]byte(s))
-	return hex.EncodeToString(sum[:])
-}
 
 type loginResult struct {
 	UserID       int
@@ -88,7 +82,7 @@ func verifyCyberPanelPassword(password, storedHash string) bool {
 	if !ok || len(hashPart) != 64 || len(salt) != 32 {
 		return false
 	}
-	return sha256Hex(password+salt) == hashPart
+	return appkit.SHA256Hex(password+salt) == hashPart
 }
 
 func upgradeHash(a *appctx.App, ctx context.Context, userID int, password string) {

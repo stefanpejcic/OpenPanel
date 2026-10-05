@@ -12,20 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var pageFiles = []string{
-	"base.html",
-	"partials/_header.html",
-	"partials/_footer.html",
-	"partials/_service.html",
-	"partials/_search.html",
-	"partials/_impersonate.html",
-	"partials/_service_js.html",
-	"partials/punnycode.html",
-	"partials/theme_switcher.html",
-	"domains/_shared.html",
-}
-
-var dynamicDNSPage = web.MustLoadPage(append(append([]string{}, pageFiles...), "domains/dynamic_dns.html")...)
+var dynamicDNSPage = web.LoadPage("domains/_shared.html", "domains/dynamic_dns.html")
 
 // DomainEntries is one domain's group of dynamic DNS entries, kept as a slice in userDomains' insertion order rather than a map since Go maps don't preserve order
 type DomainEntries struct {

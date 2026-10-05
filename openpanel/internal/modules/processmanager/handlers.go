@@ -8,11 +8,13 @@ import (
 	"strconv"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 type killRequest struct {
@@ -22,7 +24,7 @@ type killRequest struct {
 
 // handleProcessManager serves the process manager page - GET lists (or, with ?output=json, dumps) every process running across the user's containers; POST terminates one
 func handleProcessManager(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -45,18 +47,18 @@ func handleProcessManager(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		_ = json.NewDecoder(r.Body).Decode(&payload)
 
 		if payload.PIDToKill == "" || payload.Container == "" {
-			writeJSON(w, http.StatusOK, map[string]any{"success": false, "error_message": "No PID provided"})
+			web.WriteJSON(w, http.StatusOK, map[string]any{"success": false, "error_message": "No PID provided"})
 			return
 		}
 
 		if !valid[processKey(payload.Container, payload.PIDToKill)] {
-			writeJSON(w, http.StatusOK, map[string]any{"success": false, "error_message": "PID not found or not allowed"})
+			web.WriteJSON(w, http.StatusOK, map[string]any{"success": false, "error_message": "PID not found or not allowed"})
 			return
 		}
 
 		pidInt, atoiErr := strconv.Atoi(payload.PIDToKill)
 		if atoiErr != nil || pidInt <= 0 {
-			writeJSON(w, http.StatusOK, map[string]any{"success": false, "error_message": "Invalid PID"})
+			web.WriteJSON(w, http.StatusOK, map[string]any{"success": false, "error_message": "Invalid PID"})
 			return
 		}
 
@@ -65,19 +67,19 @@ func handleProcessManager(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		var stderr bytes.Buffer
 		cmd.Stderr = &stderr
 		if runErr := cmd.Run(); runErr != nil {
-			writeJSON(w, http.StatusOK, map[string]any{"success": false, "error_message": stderr.String()})
+			web.WriteJSON(w, http.StatusOK, map[string]any{"success": false, "error_message": stderr.String()})
 			return
 		}
 
 		_ = logger.RecordUserAction(a.Config, username,
 			fmt.Sprintf("terminated process %d in container %s using Process Manager", pidInt, payload.Container),
 			reqip.ClientIP(r))
-		writeJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Process killed successfully"})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Process killed successfully"})
 		return
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, processes)
+		web.WriteJSON(w, http.StatusOK, processes)
 		return
 	}
 

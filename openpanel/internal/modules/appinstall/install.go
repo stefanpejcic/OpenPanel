@@ -3,7 +3,6 @@ package appinstall
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"net/http"
 	"os"
 	"strconv"
@@ -12,9 +11,11 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -89,28 +90,6 @@ func indentComposeService(serviceStr string, existingIndent int) string {
 	return pad + strings.ReplaceAll(strings.TrimSuffix(serviceStr, "\n"), "\n", "\n"+pad) + "\n"
 }
 
-func atoiDefault(s string, def int) int {
-	if v, err := strconv.Atoi(s); err == nil {
-		return v
-	}
-	return def
-}
-
-// countUserWebsites counts sites owned by any of this user's domains, capped at 1000
-func countUserWebsites(a *appctx.App, userID int) (int, error) {
-	rows, err := a.DB.Query(
-		"SELECT site_name FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000", userID)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-	n := 0
-	for rows.Next() {
-		n++
-	}
-	return n, rows.Err()
-}
-
 // HandleInstallPage renders the install form and handles the early over-limit check for a POST; the streaming install itself is handled separately by HandleInstall
 func HandleInstallPage(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -122,11 +101,11 @@ func HandleInstallPage(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.
 	}
 	planID, _ := injectedData["hosting_plan"].(int)
 	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	websitesLimit := atoiDefault(plan.WebsitesLimit, 0)
-	websiteCount, _ := countUserWebsites(a, userID)
+	websitesLimit := web.AtoiDefault(plan.WebsitesLimit, 0)
+	websiteCount, _ := appkit.CountUserWebsites(a, userID)
 
 	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		flashSess(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
+		web.Flash(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
 	} else if r.Method == http.MethodPost {
 		HandleInstall(kind, a, w, r)
 		return
@@ -134,15 +113,6 @@ func HandleInstallPage(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.
 
 	domains, _ := a.AllDomainsForUser(ctx, userID)
 	renderInstallPage(kind, a, w, r, domains)
-}
-
-func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v map[string]any) {
-	b, _ := json.Marshal(v)
-	_, _ = w.Write(b)
-	_, _ = w.Write([]byte("\n"))
-	if canFlush {
-		flusher.Flush()
-	}
 }
 
 // HandleInstall drives the NDJSON-streamed install of one app-type service. Some failure branches deliberately end the stream early with a bare `return` instead of an {"error":...} event - once streaming has started, there's no clean way to signal a mid-stream failure besides stopping, so the browser just sees it stall until the front-end's 5-minute hang timer fires, matching how the UI treats any interrupted install stream.
@@ -159,7 +129,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 	w.Header().Set("Content-Type", "application/x-ndjson")
 	flusher, canFlush := w.(http.Flusher)
-	emit := func(v map[string]any) { writeNDJSON(w, flusher, canFlush, v) }
+	emit := func(v map[string]any) { web.WriteNDJSON(w, flusher, canFlush, v) }
 
 	ipAddress := reqip.ClientIP(r)
 
@@ -228,7 +198,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	requirements := normalizeRequirements(r.FormValue("requirements"))
 	gitRepoURL := strings.TrimSpace(r.FormValue("git_repo_url"))
 
-	if !isValidSubdirectory(subdirectory) {
+	if !cmsapp.IsValidSubdirectory(subdirectory) {
 		emit(map[string]any{"error": "Invalid subdirectory."})
 		return
 	}

@@ -13,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // loginRateLimiter enforces a fixed-window "N per minute" limit on POST /login, keyed per IP. State is in-process, correct for a single instance but won't share state across instances behind a load balancer.
@@ -29,7 +30,7 @@ type window struct {
 }
 
 func newLoginRateLimiter(a *appctx.App) *loginRateLimiter {
-	limit := atoiDefault(a.Config.Get("login_ratelimit", ""), 5)
+	limit := web.AtoiDefault(a.Config.Get("login_ratelimit", ""), 5)
 	return &loginRateLimiter{limit: limit, windows: map[string]*window{}}
 }
 
@@ -63,8 +64,8 @@ func clearFailedAttempts(ip string) {
 // handleRateLimitExceeded logs the throttled attempt, tracks a separate in-memory failure counter per IP, and temporarily blocks the IP via CSF once that counter passes login_blocklimit
 func handleRateLimitExceeded(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ip := reqip.ClientIP(r)
-	postLimit := atoiDefault(a.Config.Get("login_ratelimit", ""), 5)
-	blockLimit := atoiDefault(a.Config.Get("login_blocklimit", ""), 20)
+	postLimit := web.AtoiDefault(a.Config.Get("login_ratelimit", ""), 5)
+	blockLimit := web.AtoiDefault(a.Config.Get("login_blocklimit", ""), 20)
 
 	appendLine(failedLoginLogPath, fmt.Sprintf("%s Rate limit for login: '%d per minute' exceeded from IP: %s",
 		time.Now().Format("2006-01-02 15:04:05"), postLimit, ip))

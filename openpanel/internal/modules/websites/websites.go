@@ -22,24 +22,8 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
-
-func injected(a *appctx.App, r *http.Request) (userID int, username, userContext string, err error) {
-	userID, _ = auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return userID, "", "", err
-	}
-	username, _ = data["current_username"].(string)
-	userContext, _ = data["context"].(string)
-	return userID, username, userContext, nil
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
 
 // splitDomainAndFolder splits a "domain/subfolder" path parameter into its domain and (possibly empty) folder parts, on the first slash.
 func splitDomainAndFolder(param string) (domain, folder string) {
@@ -69,7 +53,7 @@ func isSafeWebsiteSubpath(folder string) bool {
 
 // handleFavicon redirects to a domain's favicon, either through a configured favicon service or Google's fallback.
 func handleFavicon(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	userID, _, _, err := injected(a, r)
+	userID, _, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -99,7 +83,7 @@ var dbNameSafeRE = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 // handleDatabaseSize reports either a WordPress install's on-disk size (via `wp db size`) or a raw database's size, depending on which query parameter was supplied.
 func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, _, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -115,7 +99,7 @@ func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		folder := strings.TrimPrefix(strings.TrimPrefix(docroot, "/"), "var/www/html/")
 		docrootInContainer := filepath.Join(baseDir, folder)
 		if !strings.HasPrefix(docrootInContainer, baseDir) {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Invalid folder path."})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Invalid folder path."})
 			return
 		}
 
@@ -130,40 +114,40 @@ func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		argv := append(append([]string{}, wpBase...), "db", "size", "--human-readable", "--path="+docrootInContainer, "--allow-root")
 		out, runErr := podmanmanager.Command(ctx, userContext, argv).Output()
 		if runErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": string(out)})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": string(out)})
 			return
 		}
 		lines := strings.Split(strings.TrimSpace(string(out)), "\n")
 		if len(lines) < 2 {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to retrieve size"})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to retrieve size"})
 			return
 		}
 		columns := strings.Fields(lines[1])
 		if len(columns) < 2 {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unexpected output format"})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unexpected output format"})
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]string{"size": columns[1]})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"size": columns[1]})
 
 	case database != "":
 		if !dbNameSafeRE.MatchString(database) {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid database name."})
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid database name."})
 			return
 		}
 		rows, execErr := mysqlmanager.Exec(ctx, userContext,
 			"SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) FROM information_schema.TABLES WHERE table_schema = \""+database+"\"", "")
 		if execErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
 			return
 		}
 		if len(rows) == 0 || rows[0][0] == nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to retrieve size"})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to retrieve size"})
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]string{"size": toStringCell(rows[0][0]) + " MB"})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"size": toStringCell(rows[0][0]) + " MB"})
 
 	default:
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request. Please specify a domain or database name."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request. Please specify a domain or database name."})
 	}
 }
 
@@ -213,7 +197,7 @@ func safeBrowsingData(ctx context.Context, a *appctx.App, domain string) (map[st
 // handleGoogleSafeBrowsing returns the cached Safe Browsing verdict for a domain the caller owns.
 func handleGoogleSafeBrowsing(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, _, _, err := injected(a, r)
+	userID, _, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -227,10 +211,10 @@ func handleGoogleSafeBrowsing(a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 	result, err := safeBrowsingData(ctx, a, domain)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to contact Google Safe Browsing API", "details": err.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to contact Google Safe Browsing API", "details": err.Error()})
 		return
 	}
-	writeJSON(w, http.StatusOK, result)
+	web.WriteJSON(w, http.StatusOK, result)
 }
 
 // ---------------------- PAGE SPEED ---------------------- //
@@ -240,7 +224,7 @@ var websiteParamRE = regexp.MustCompile(`^[a-zA-Z0-9./-]+$`)
 // handlePageSpeed serves the cached PageSpeed report on GET, or triggers a fresh scan on POST.
 func handlePageSpeed(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -275,12 +259,12 @@ func handlePageSpeed(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if json.Unmarshal(content, &data) != nil {
 			data = map[string]any{"timestamp": nil, "website": domain, "desktop_speed": map[string]any{}, "mobile_speed": map[string]any{}}
 		}
-		writeJSON(w, http.StatusOK, data)
+		web.WriteJSON(w, http.StatusOK, data)
 		return
 	}
 
 	if !websiteParamRE.MatchString(websiteParam) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"message": "Invalid website parameter"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"message": "Invalid website parameter"})
 		return
 	}
 	out, runErr := exec.CommandContext(ctx, "opencli", "websites-pagespeed", websiteParam).CombinedOutput()
@@ -292,7 +276,7 @@ func handlePageSpeed(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if runErr != nil {
 		status = http.StatusInternalServerError
 	}
-	writeJSON(w, status, map[string]string{"message": message})
+	web.WriteJSON(w, status, map[string]string{"message": message})
 }
 
 // ---------------------- WP VULNERABILITY ---------------------- //
@@ -300,7 +284,7 @@ func handlePageSpeed(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // handleWPVulnerability serves the cached WordPress vulnerability report on GET (running a scan first if none exists yet), or triggers a fresh scan on POST.
 func handleWPVulnerability(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -342,7 +326,7 @@ func handleWPVulnerability(a *appctx.App, w http.ResponseWriter, r *http.Request
 			_ = json.Unmarshal(content, &data)
 		}
 	}
-	writeJSON(w, http.StatusOK, data)
+	web.WriteJSON(w, http.StatusOK, data)
 }
 
 // ---------------------- PM2 PACKAGE INSTALL ---------------------- //
@@ -385,7 +369,7 @@ func installPackagesInContainer(a *appctx.App, r *http.Request, userContext, sit
 
 // handleInstallPackages installs a Python/Node app's declared dependencies inside its container.
 func handleInstallPackages(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	_, currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -394,7 +378,7 @@ func handleInstallPackages(a *appctx.App, w http.ResponseWriter, r *http.Request
 	installType := strings.ToLower(r.PathValue("install_type"))
 
 	if installType != "pip" && installType != "npm" && installType != "pnpm" && installType != "bundle" && installType != "mvn" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"message": "Invalid install type. Use 'pip' for Python apps, 'npm' or 'pnpm' for NodeJS, 'bundle' for Ruby, or 'mvn' for Java."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"message": "Invalid install type. Use 'pip' for Python apps, 'npm' or 'pnpm' for NodeJS, 'bundle' for Ruby, or 'mvn' for Java."})
 		return
 	}
 
@@ -410,7 +394,7 @@ func handleInstallPackages(a *appctx.App, w http.ResponseWriter, r *http.Request
 			successMsg = "Maven dependencies installed successfully."
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "executed "+installType+" install for application "+siteName, reqip.ClientIP(r))
-		writeJSON(w, http.StatusOK, map[string]string{"message": successMsg, "output": output})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"message": successMsg, "output": output})
 		return
 	}
 	errorMsg := "An error occurred while installing NPM packages."
@@ -422,7 +406,7 @@ func handleInstallPackages(a *appctx.App, w http.ResponseWriter, r *http.Request
 	case "mvn":
 		errorMsg = "An error occurred while installing Maven dependencies."
 	}
-	writeJSON(w, http.StatusInternalServerError, map[string]string{"message": errorMsg, "error_output": output})
+	web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"message": errorMsg, "error_output": output})
 }
 
 // ---------------------- CMS DB INFO (shared) ---------------------- //
@@ -991,7 +975,7 @@ func wpInfoForSite(a *appctx.App, r *http.Request, userContext, siteName string)
 // handleWebsiteWPInfo returns a WordPress site's database credentials, WP version, PHP version, and MySQL version for the site-manager info panel.
 func handleWebsiteWPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, _, userContext, err := injected(a, r)
+	userID, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -1006,11 +990,11 @@ func handleWebsiteWPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	info, ok := wpInfoForSite(a, r, userContext, siteName)
 	if !ok {
-		flashAndRedirect(a, w, r, "error", "Unable to detect docroot for the domain.", "/sites")
+		web.FlashRedirect(a, w, r, "error", "Unable to detect docroot for the domain.", "/sites")
 		return
 	}
 
-	writeJSON(w, http.StatusOK, info)
+	web.WriteJSON(w, http.StatusOK, info)
 }
 
 // ---------------------- DISTINCT WP-CLI PASSTHROUGH ---------------------- //
@@ -1026,7 +1010,7 @@ var wsDocrootSafeRE = regexp.MustCompile(`^[a-zA-Z0-9_/.-]+$`)
 // handleWordPressWPCLI dispatches a scoped set of `wp` CLI actions (site info, debug flags, update preferences, ...) for the site-manager single-page UI.
 func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -1040,11 +1024,11 @@ func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	docroot := r.URL.Query().Get("docroot")
 
 	if !wsAllowedWPCLIActions[action] {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action"})
 		return
 	}
 	if website == "" || docroot == "" {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Missing required parameters"})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Missing required parameters"})
 		return
 	}
 
@@ -1055,7 +1039,7 @@ func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	if !wsDocrootSafeRE.MatchString(docroot) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid docroot"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid docroot"})
 		return
 	}
 
@@ -1093,13 +1077,13 @@ func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request)
 func handleWPCLISiteInfo(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext, wpConfigFile, docroot string, wpBase []string) {
 	content, readErr := os.ReadFile(wpConfigFile)
 	if readErr != nil {
-		writeJSON(w, http.StatusOK, wpCLIOptionListFallback(a, r, userContext, docroot, wpBase))
+		web.WriteJSON(w, http.StatusOK, wpCLIOptionListFallback(a, r, userContext, docroot, wpBase))
 		return
 	}
 	dbNameMatch := regexp.MustCompile(`define\(\s*['"]DB_NAME['"]\s*,\s*['"]([^'"]+)['"]`).FindStringSubmatch(string(content))
 	tablePrefixMatch := regexp.MustCompile(`\$table_prefix\s*=\s*['"]([^'"]+)['"]`).FindStringSubmatch(string(content))
 	if dbNameMatch == nil || tablePrefixMatch == nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "wp-config parse error"})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "wp-config parse error"})
 		return
 	}
 	dbName, tablePrefix := dbNameMatch[1], tablePrefixMatch[1]
@@ -1108,14 +1092,14 @@ func handleWPCLISiteInfo(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		"SELECT option_name, option_value FROM `"+tablePrefix+"options` WHERE option_name IN "+
 			"('siteurl','home','blogname','blogdescription','admin_email','users_can_register','blog_public','default_ping_status')", dbName)
 	if execErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed reading WordPress options: " + execErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed reading WordPress options: " + execErr.Error()})
 		return
 	}
 	options := map[string]string{}
 	for _, row := range rows {
 		options[toStringCell(row[0])] = toStringCell(row[1])
 	}
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"success": true, "site_url": options["siteurl"], "home_url": options["home"],
 		"site_name": options["blogname"], "tagline": options["blogdescription"], "admin_email": options["admin_email"],
 		"registration_enabled": options["users_can_register"] == "1", "seo_indexing_enabled": options["blog_public"] == "1",
@@ -1165,11 +1149,11 @@ func handleWPCLIUpdateDebug(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	fullCmd := strings.Join(commands, " && ")
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "sh", "-c", fullCmd)
 	if runErr := podmanmanager.Command(r.Context(), userContext, argv).Run(); runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "updated debug options for WordPress website "+website, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Debugging options updated successfully"})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Debugging options updated successfully"})
 }
 
 func onOff(v string) string {
@@ -1190,17 +1174,17 @@ func handleWPCLIUpdateSiteInfo(a *appctx.App, w http.ResponseWriter, r *http.Req
 		_ = podmanmanager.Command(r.Context(), userContext, argv).Run()
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "updated site information for WordPress website "+website, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "General options edited successfully"})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "General options edited successfully"})
 }
 
 func handleWPCLIUpdateNow(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, docroot string, wpBase []string) {
 	argv := append(append([]string{}, wpBase...), "core", "update", "--path="+docroot, "--skip-themes", "--allow-root")
 	_ = logger.RecordUserAction(a.Config, currentUsername, "started core update for WordPress website in "+docroot, reqip.ClientIP(r))
 	if runErr := podmanmanager.Command(r.Context(), userContext, argv).Run(); runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]string{"message": "WordPress updated successfully"})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "WordPress updated successfully"})
 }
 
 func handleWPCLIUpdatePreferences(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, docroot, phpContainer string) {
@@ -1223,7 +1207,7 @@ func handleWPCLIUpdatePreferences(a *appctx.App, w http.ResponseWriter, r *http.
 	}
 	for opt, value := range updateOpts {
 		if !allowedValues[opt][value] {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid value for " + opt})
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid value for " + opt})
 			return
 		}
 	}
@@ -1241,11 +1225,11 @@ func handleWPCLIUpdatePreferences(a *appctx.App, w http.ResponseWriter, r *http.
 	fullCmd := strings.Join(commands, " && ")
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "sh", "-c", fullCmd)
 	if runErr := podmanmanager.Command(r.Context(), userContext, argv).Run(); runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "edited auto-update preferences for WordPress website in "+docroot, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Update preferences saved successfully"})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Update preferences saved successfully"})
 }
 
 var defineBoolOrStringRE = regexp.MustCompile(`(?i)define\(\s*['"](?P<name>[^'"]+)['"]\s*,\s*(?P<value>true|false|['"][^'"]+['"])\s*\)\s*;`)
@@ -1258,7 +1242,7 @@ func handleWPCLIDebugInfo(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	} else {
 		fillDefinesFromWPCLIConfigList(r, userContext, docroot, wpBase, debugConstants)
 	}
-	writeJSON(w, http.StatusOK, debugConstants)
+	web.WriteJSON(w, http.StatusOK, debugConstants)
 }
 
 func handleWPCLIUpdateInfo(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext, wpConfigFile, docroot string, wpBase []string) {
@@ -1269,7 +1253,7 @@ func handleWPCLIUpdateInfo(a *appctx.App, w http.ResponseWriter, r *http.Request
 	} else {
 		fillDefinesFromWPCLIConfigList(r, userContext, docroot, wpBase, updateConstants)
 	}
-	writeJSON(w, http.StatusOK, updateConstants)
+	web.WriteJSON(w, http.StatusOK, updateConstants)
 }
 
 func fillDefinesFromContent(content string, constants map[string]string) {

@@ -82,7 +82,7 @@ type apiAccountEntry struct {
 
 // apiFTPList returns the FTP accounts configured for the current user.
 func apiFTPList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -118,7 +118,7 @@ func apiFTPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -183,7 +183,7 @@ func apiFTPDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if !apiFTPServiceCheck(w, r) {
 		return
 	}
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -210,7 +210,7 @@ func apiFTPPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if !apiFTPServiceCheck(w, r) {
 		return
 	}
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -253,7 +253,7 @@ func apiFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if !apiFTPServiceCheck(w, r) {
 		return
 	}
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -301,7 +301,7 @@ func apiFTPConnections(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if !apiFTPServiceCheck(w, r) {
 		return
 	}
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -323,7 +323,7 @@ func apiFTPConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

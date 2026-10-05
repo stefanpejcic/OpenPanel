@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // pm2BackupManifest is what settings.json in a backup folder holds - the same fields the Update tab manages, plus the Env Vars tab's KEY=VALUE list. No container_name/image/volumes/networks field on purpose: applyPM2Settings only ever writes into the site's own already-verified container, so a hand-edited file has no way to repoint a restore at a different container or network.
@@ -110,24 +111,24 @@ func handlePM2CreateBackup(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	lookup, kind, ok := lookupPM2Site(a, userID, r.PathValue("site_name"))
 	if !ok {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Application not found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Application not found"})
 		return
 	}
 	_, installHostPath, ok := pm2InstallPaths(a, userContext, lookup.SiteName)
 	if !ok {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Domain not found"})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Domain not found"})
 		return
 	}
 
 	timestamp := time.Now().Format("2006-01-02_15-04-05")
 	backupDir := pm2BackupsDir(userContext, lookup.SiteName) + "/" + timestamp
 	if mkErr := os.MkdirAll(backupDir, 0o755); mkErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
 		return
 	}
 
 	if runErr := exec.CommandContext(ctx, "tar", "-czf", backupDir+"/files.tar.gz", "-C", installHostPath, ".").Run(); runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to archive files: " + runErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to archive files: " + runErr.Error()})
 		return
 	}
 
@@ -152,12 +153,12 @@ func handlePM2CreateBackup(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 	manifestBytes, _ := json.MarshalIndent(manifest, "", "  ")
 	if writeErr := os.WriteFile(backupDir+"/settings.json", manifestBytes, 0o644); writeErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "created a backup for application "+lookup.SiteName, reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"status": "success", "date": timestamp})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"status": "success", "date": timestamp})
 }
 
 // handlePM2ListBackups returns every backup timestamp available for the site, newest first
@@ -171,13 +172,13 @@ func handlePM2ListBackups(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	lookup, _, ok := lookupPM2Site(a, userID, r.PathValue("site_name"))
 	if !ok {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Application not found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Application not found"})
 		return
 	}
 
 	entries, readErr := os.ReadDir(pm2BackupsDir(userContext, lookup.SiteName))
 	if readErr != nil {
-		writeJSON(w, http.StatusOK, []string{})
+		web.WriteJSON(w, http.StatusOK, []string{})
 		return
 	}
 	dates := []string{}
@@ -187,7 +188,7 @@ func handlePM2ListBackups(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 	}
 	sort.Sort(sort.Reverse(sort.StringSlice(dates)))
-	writeJSON(w, http.StatusOK, dates)
+	web.WriteJSON(w, http.StatusOK, dates)
 }
 
 // handlePM2RestoreBackup extracts a backup's files and re-applies its settings.json through the exact same validatePM2Settings/applyPM2Settings path a live Update-tab submission uses, and the env_vars list gets the same per-line check handlePM2EnvVars enforces. The whole restore is rejected up front if anything fails validation - nothing is extracted or written until it passes.
@@ -202,35 +203,35 @@ func handlePM2RestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 	backupDate := r.URL.Query().Get("backup_date")
 	if !pm2BackupDateRE.MatchString(backupDate) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid backup date."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid backup date."})
 		return
 	}
 
 	lookup, kind, ok := lookupPM2Site(a, userID, r.PathValue("site_name"))
 	if !ok {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Application not found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Application not found"})
 		return
 	}
 	_, installHostPath, ok := pm2InstallPaths(a, userContext, lookup.SiteName)
 	if !ok {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Domain not found"})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Domain not found"})
 		return
 	}
 	backupDir := pm2BackupsDir(userContext, lookup.SiteName) + "/" + backupDate
 
 	manifestBytes, readErr := os.ReadFile(backupDir + "/settings.json")
 	if readErr != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Backup settings not found."})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Backup settings not found."})
 		return
 	}
 	var manifest pm2BackupManifest
 	if jsonErr := json.Unmarshal(manifestBytes, &manifest); jsonErr != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Backup settings.json is not valid JSON: " + jsonErr.Error()})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Backup settings.json is not valid JSON: " + jsonErr.Error()})
 		return
 	}
 
 	if errs := validatePM2Settings(manifest.pm2Settings); len(errs) > 0 {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "Backup settings failed validation, refusing to restore.", "details": errs})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]any{"error": "Backup settings failed validation, refusing to restore.", "details": errs})
 		return
 	}
 	var envLines []string
@@ -240,7 +241,7 @@ func handlePM2RestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Reques
 			continue
 		}
 		if !envVarLineRE.MatchString(line) {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Backup env_vars contains an invalid line: " + line})
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Backup env_vars contains an invalid line: " + line})
 			return
 		}
 		envLines = append(envLines, line)
@@ -250,18 +251,18 @@ func handlePM2RestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 	if info, statErr := os.Stat(backupDir + "/files.tar.gz"); statErr == nil && !info.IsDir() {
 		if mkErr := os.MkdirAll(installHostPath, 0o755); mkErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
 			return
 		}
 		if runErr := exec.CommandContext(ctx, "tar", "-xzf", backupDir+"/files.tar.gz", "-C", installHostPath).Run(); runErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to extract files: " + runErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to extract files: " + runErr.Error()})
 			return
 		}
 		_ = exec.CommandContext(ctx, "chown", "-R", userContext+":"+userContext, installHostPath).Run()
 	}
 
 	if applyErr := applyPM2Settings(a, ctx, userContext, containerName, kind, manifest.pm2Settings); applyErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to apply settings: " + applyErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to apply settings: " + applyErr.Error()})
 		return
 	}
 
@@ -292,12 +293,12 @@ func handlePM2RestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "restored backup ("+backupDate+") for application "+lookup.SiteName, reqip.ClientIP(r))
 	if upErr != nil {
-		writeJSON(w, http.StatusOK, map[string]any{
+		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"status": "success",
 			"warning": "Backup restored, but the container failed to restart automatically - restart it manually from the Overview tab: " +
 				strings.TrimSpace(string(downOut)) + " " + strings.TrimSpace(string(upOut)),
 		})
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]string{"status": "success"})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"status": "success"})
 }

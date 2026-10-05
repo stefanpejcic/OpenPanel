@@ -13,11 +13,15 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // escapeMySQLString mirrors escape_mysql_string() (duplicated per-package, same as mysql.escapeMySQLString - see that function's doc comment)
@@ -32,16 +36,16 @@ func escapeMySQLString(value string) string {
 // handleCloneWordPress mirrors clone_wordpress().
 func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
-	lockPath := lockFilePath(currentUsername)
+	lockPath := appkit.LockFilePath(currentUsername)
 	if info, statErr := os.Stat(lockPath); statErr == nil {
 		if time.Since(info.ModTime()) < 5*time.Minute {
-			writeJSON(w, http.StatusOK, map[string]string{"message": "Abort, another WordPress clone process is currently running."})
+			web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Abort, another WordPress clone process is currently running."})
 			return
 		}
 		_ = os.Remove(lockPath)
@@ -50,10 +54,10 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
 	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	websitesLimit := atoiDefault(plan.WebsitesLimit, 0)
-	websiteCount, _ := countUserWebsites(a, userID)
+	websitesLimit := web.AtoiDefault(plan.WebsitesLimit, 0)
+	websiteCount, _ := appkit.CountUserWebsites(a, userID)
 	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed" + plan.UpgradeMessage()})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed" + plan.UpgradeMessage()})
 		return
 	}
 
@@ -63,12 +67,12 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	srcFolder := r.FormValue("source_folder")
 	dstFolder := r.FormValue("subdirectory")
 
-	dstDB := strings.ToLower(formOr(r, "target_db", "wp_clone_"+generateRandomString(6)))
-	dstDBUser := strings.ToLower(formOr(r, "target_db_user", dstDB))
-	dstDBUserPassword := formOr(r, "target_db_user_password", generateRandomString(16))
+	dstDB := strings.ToLower(web.FormOr(r, "target_db", "wp_clone_"+generateRandomString(6)))
+	dstDBUser := strings.ToLower(web.FormOr(r, "target_db_user", dstDB))
+	dstDBUserPassword := web.FormOr(r, "target_db_user_password", generateRandomString(16))
 
 	if providedDomain == "" || dstDomain == "" || srcDB == "" || srcFolder == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing required form fields"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing required form fields"})
 		return
 	}
 
@@ -76,7 +80,7 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	var docroot, phpVersion string
 	row := a.DB.QueryRowContext(ctx, "SELECT domain_id, docroot, php_version FROM domains WHERE domain_url = ?", dstDomain)
 	if scanErr := row.Scan(&domainID, &docroot, &phpVersion); scanErr != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Destination domain not found in database"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Destination domain not found in database"})
 		return
 	}
 
@@ -90,7 +94,7 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	if !validateDomain(srcDomain) || !validateDomain(dstDomain) || !validateDB(srcDB) || !validateDB(dstDB) ||
 		!validateDB(dstDBUser) || !validateDocroot(srcFolder) || !validateDocroot(docroot) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid input or unsafe docroot"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid input or unsafe docroot"})
 		return
 	}
 
@@ -109,7 +113,7 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	case "mariadb":
 		dumpCmd = "mariadb-dump --gtid"
 	default:
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unsupported MYSQL_TYPE: " + mysqlVersion})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unsupported MYSQL_TYPE: " + mysqlVersion})
 		return
 	}
 
@@ -119,12 +123,12 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	dstPath := strings.Replace(filepath.Clean(docroot), wwwBaseDirectory, baseDirectory, 1)
 
 	if info, statErr := os.Stat(srcPath); statErr != nil || !info.IsDir() {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "Source folder not found: " + srcFolder})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Source folder not found: " + srcFolder})
 		return
 	}
 
 	if mkErr := os.MkdirAll(dstPath, 0o755); mkErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy WordPress files: " + mkErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy WordPress files: " + mkErr.Error()})
 		return
 	}
 
@@ -144,7 +148,7 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			cpErr = exec.CommandContext(ctx, "cp", srcItem, dstItem).Run()
 		}
 		if cpErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy WordPress files: " + cpErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy WordPress files: " + cpErr.Error()})
 			return
 		}
 	}
@@ -158,7 +162,7 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 	for _, q := range cloneQueries {
 		if _, execErr := mysqlmanager.Exec(ctx, userContext, q, ""); execErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": execErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": execErr.Error()})
 			return
 		}
 	}
@@ -166,27 +170,27 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	dumpTablesCmd := dumpCmd + " --single-transaction --quick `" + srcDB + "` | " + mysqlVersion + " `" + dstDB + "`"
 	fullDBArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, "bash", "-c", dumpTablesCmd)
 	if runErr := podmanmanager.Command(ctx, userContext, fullDBArgv).Run(); runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed", "command": strings.Join(fullDBArgv, " ")})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed", "command": strings.Join(fullDBArgv, " ")})
 		return
 	}
 
 	wpConfigFile := filepath.Join(dstPath, "wp-config.php")
 	content, readErr := os.ReadFile(wpConfigFile)
 	if readErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": readErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": readErr.Error()})
 		return
 	}
 	strContent := string(content)
-	strContent = cloneDBNameRE.ReplaceAllString(strContent, "define('DB_NAME', '"+escapePHPSingleQuoted(dstDB)+"');")
-	strContent = cloneDBUserRE.ReplaceAllString(strContent, "define('DB_USER', '"+escapePHPSingleQuoted(dstDBUser)+"');")
-	strContent = cloneDBPasswordRE.ReplaceAllString(strContent, "define('DB_PASSWORD', '"+escapePHPSingleQuoted(dstDBUserPassword)+"');")
+	strContent = cloneDBNameRE.ReplaceAllString(strContent, "define('DB_NAME', '"+cmsapp.EscapePHPSingleQuoted(dstDB)+"');")
+	strContent = cloneDBUserRE.ReplaceAllString(strContent, "define('DB_USER', '"+cmsapp.EscapePHPSingleQuoted(dstDBUser)+"');")
+	strContent = cloneDBPasswordRE.ReplaceAllString(strContent, "define('DB_PASSWORD', '"+cmsapp.EscapePHPSingleQuoted(dstDBUserPassword)+"');")
 	if writeErr := os.WriteFile(wpConfigFile, []byte(strContent), 0o644); writeErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": writeErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": writeErr.Error()})
 		return
 	}
 
 	if !strings.Contains(strContent, dstDB) {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "Failed to set DB_NAME constant in " + docroot})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "Failed to set DB_NAME constant in " + docroot})
 		return
 	}
 
@@ -212,20 +216,20 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	_ = a.Cache.Delete(ctx, fmt.Sprintf("get_user_websites:%d", userID))
 	_ = os.Remove(lockPath)
 
-	adminEmail := formOr(r, "admin_email", "admin@"+dstDomain)
-	wpVersion := formOr(r, "wordpress_version", "latest")
+	adminEmail := web.FormOr(r, "admin_email", "admin@"+dstDomain)
+	wpVersion := web.FormOr(r, "wordpress_version", "latest")
 	if _, insertErr := a.DB.ExecContext(ctx, `
 		INSERT INTO sites (site_name, domain_id, admin_email, version, type)
 		VALUES (?, ?, ?, ?, ?)
 		ON DUPLICATE KEY UPDATE domain_id = VALUES(domain_id), admin_email = VALUES(admin_email), version = VALUES(version), type = VALUES(type)`,
 		dstDomainWithSubdir, domainID, adminEmail, wpVersion, "wordpress"); insertErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": insertErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": insertErr.Error()})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "cloned WordPress website from "+providedDomain+" to "+dstDomainWithSubdir, reqip.ClientIP(r))
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"status": "success", "source": providedDomain, "target": dstDomainWithSubdir,
 		"source_path": srcPath, "target_path": dstPath, "target_db": dstDB,
 	})
@@ -237,18 +241,12 @@ var (
 	cloneDBPasswordRE = regexp.MustCompile(`define\(\s*'DB_PASSWORD'\s*,\s*'.*?'\s*\);`)
 )
 
-func escapePHPSingleQuoted(value string) string {
-	value = strings.ReplaceAll(value, `\`, `\\`)
-	value = strings.ReplaceAll(value, `'`, `\'`)
-	return value
-}
-
 // ---------------------- REMOVE ---------------------- //
 
 // handleRemoveWordPress mirrors remove_wordpress().
 func handleRemoveWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -262,7 +260,7 @@ func handleRemoveWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request
 		JOIN domains ON domains.domain_url = SUBSTRING_INDEX(sites.site_name, '/', 1)
 		WHERE sites.id = ?`, id)
 	if scanErr := row.Scan(&siteName, &docroot); scanErr != nil {
-		flashAndRedirect(a, w, r, "error", "No data found for the provided site ID", "/sites")
+		web.FlashRedirect(a, w, r, "error", "No data found for the provided site ID", "/sites")
 		return
 	}
 
@@ -271,7 +269,7 @@ func handleRemoveWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request
 	subdirectory := parts[1:]
 
 	if docroot == "" {
-		flashAndRedirect(a, w, r, "error", "WordPress installation not found in the database", "/sites")
+		web.FlashRedirect(a, w, r, "error", "WordPress installation not found in the database", "/sites")
 		return
 	}
 
@@ -296,9 +294,9 @@ func handleRemoveWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request
 		dbName, dbUser := dbNameMatch[1], dbUserMatch[1]
 		_, _ = mysqlmanager.Exec(ctx, userContext, "DROP DATABASE IF EXISTS `"+dbName+"`", "")
 		_, _ = mysqlmanager.Exec(ctx, userContext, "DROP USER IF EXISTS '"+dbUser+"'@'%'", "")
-		invalidateMySQLCaches(ctx, a, userContext, currentUsername)
+		appkit.InvalidateMySQLCaches(ctx, a, userContext, currentUsername)
 	} else {
-		flashSess(a, w, r, "warning", "Database name or user not found in wp-config.php")
+		web.Flash(a, w, r, "warning", "Database name or user not found in wp-config.php")
 	}
 
 	var toDelete []string
@@ -314,7 +312,7 @@ func handleRemoveWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	if _, delErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE id = ?", id); delErr != nil {
 		message := "An error occurred during WordPress uninstall."
-		flashSess(a, w, r, "error", message)
+		web.Flash(a, w, r, "error", message)
 		_, _ = w.Write([]byte(message))
 		return
 	}
@@ -323,7 +321,7 @@ func handleRemoveWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request
 	_ = logger.RecordUserAction(a.Config, currentUsername, "uninstalled WordPress website for "+selectedDomain, reqip.ClientIP(r))
 
 	message := "WordPress uninstalled successfully!"
-	flashSess(a, w, r, "success", message)
+	web.Flash(a, w, r, "success", message)
 	_, _ = w.Write([]byte(message))
 }
 
@@ -337,14 +335,14 @@ var (
 // handleDetachWordPress mirrors detach_wordpress().
 func handleDetachWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	id := r.FormValue("id")
 	if id == "" {
-		flashAndRedirect(a, w, r, "error", "Missing site ID.", "/sites")
+		web.FlashRedirect(a, w, r, "error", "Missing site ID.", "/sites")
 		return
 	}
 
@@ -356,7 +354,7 @@ func handleDetachWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request
 		WHERE sites.id = ?
 		LIMIT 1`, id)
 	if scanErr := row.Scan(&siteName); scanErr != nil {
-		flashAndRedirect(a, w, r, "error", "No data found for the provided site ID", "/sites")
+		web.FlashRedirect(a, w, r, "error", "No data found for the provided site ID", "/sites")
 		return
 	}
 
@@ -368,14 +366,14 @@ func handleDetachWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	if _, delErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE id = ?", id); delErr != nil {
 		message := "An error occurred during WordPress detachment. Please try again."
-		flashSess(a, w, r, "error", message)
+		web.Flash(a, w, r, "error", message)
 		_, _ = w.Write([]byte("An error occurred during WordPress detachment."))
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "detached WordPress website", reqip.ClientIP(r))
 	_ = a.Cache.Delete(ctx, fmt.Sprintf("get_user_websites:%d", userID))
-	flashSess(a, w, r, "success", "WordPress installation detached from Manager.")
+	web.Flash(a, w, r, "success", "WordPress installation detached from Manager.")
 	_, _ = w.Write([]byte("WordPress detachment completed successfully!"))
 }
 
@@ -429,7 +427,7 @@ func phpContainerForUser(userContext string) string {
 // handleReloadWordPressData mirrors reload_wordpress_data_in_wpmanager().
 func handleReloadWordPressData(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, _, userContext, err := injected(a, r)
+	userID, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -485,13 +483,13 @@ func handleReloadWordPressData(a *appctx.App, w http.ResponseWriter, r *http.Req
 // handleScanWordPress mirrors scan_wordpress().
 func handleScanWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
-	lockPath := lockFilePath(currentUsername)
+	lockPath := appkit.LockFilePath(currentUsername)
 	if info, statErr := os.Stat(lockPath); statErr == nil {
 		if time.Since(info.ModTime()) < time.Minute {
 			_, _ = w.Write([]byte("Scan skipped. WordPress installation is currently running."))
@@ -581,7 +579,7 @@ var wpManagerRuleRE = regexp.MustCompile(`\bwp_manager_\w+\b`)
 // handleWordPressSecure mirrors wordpress_secure().
 func handleWordPressSecure(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, _, err := injected(a, r)
+	userID, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -592,7 +590,7 @@ func handleWordPressSecure(a *appctx.App, w http.ResponseWriter, r *http.Request
 		if providedDomain == "" {
 			out, runErr := exec.CommandContext(ctx, "opencli", "websites-secure", "--list-available-rules").CombinedOutput()
 			if runErr != nil {
-				writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to list available rules: " + string(out)})
+				web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to list available rules: " + string(out)})
 				return
 			}
 			rules := wpManagerRuleRE.FindAllString(string(out), -1)
@@ -600,7 +598,7 @@ func handleWordPressSecure(a *appctx.App, w http.ResponseWriter, r *http.Request
 				rules = []string{}
 			}
 			sort.Strings(rules)
-			writeJSON(w, http.StatusOK, rules)
+			web.WriteJSON(w, http.StatusOK, rules)
 			return
 		}
 
@@ -613,7 +611,7 @@ func handleWordPressSecure(a *appctx.App, w http.ResponseWriter, r *http.Request
 		configPath := "/etc/openpanel/caddy/domains/" + domain + ".conf"
 		content, readErr := os.ReadFile(configPath)
 		if readErr != nil {
-			writeJSON(w, http.StatusNotFound, map[string]string{"error": "Config file not found"})
+			web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Config file not found"})
 			return
 		}
 		matches := wpManagerRuleRE.FindAllString(string(content), -1)
@@ -626,7 +624,7 @@ func handleWordPressSecure(a *appctx.App, w http.ResponseWriter, r *http.Request
 			}
 		}
 		sort.Strings(unique)
-		writeJSON(w, http.StatusOK, unique)
+		web.WriteJSON(w, http.StatusOK, unique)
 		return
 	}
 
@@ -656,9 +654,9 @@ func handleWordPressSecure(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	if runErr := exec.CommandContext(ctx, argv[0], argv[1:]...).Run(); runErr == nil {
 		_ = logger.RecordUserAction(a.Config, currentUsername, logAction, reqip.ClientIP(r))
-		flashSess(a, w, r, "success", "Hardening rules have been successfully applied to the website")
+		web.Flash(a, w, r, "success", "Hardening rules have been successfully applied to the website")
 	} else {
-		flashSess(a, w, r, "error", "Failed to apply hardening rules to the website - please try again")
+		web.Flash(a, w, r, "error", "Failed to apply hardening rules to the website - please try again")
 	}
 
 	http.Redirect(w, r, "/website?domain="+providedDomain, http.StatusFound)

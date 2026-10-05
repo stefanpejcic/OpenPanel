@@ -1,7 +1,6 @@
 package websites
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -63,15 +62,6 @@ func renderGrapesJSEditor(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	}
 }
 
-func writeNDJSON(w http.ResponseWriter, flusher http.Flusher, canFlush bool, v map[string]any) {
-	b, _ := json.Marshal(v)
-	_, _ = w.Write(b)
-	_, _ = w.Write([]byte("\n"))
-	if canFlush {
-		flusher.Flush()
-	}
-}
-
 // handleWebsiteBuilderInstall serves the "create website" form on GET and dispatches to createHTMLSiteStream on POST, after checking the plan's site limit.
 func handleWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -88,7 +78,7 @@ func handleWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.R
 	userWebsites, _ := dashboard.GetUserWebsites(a, ctx, userID)
 
 	if websitesLimit != 0 && len(userWebsites) >= websitesLimit {
-		flashSess(a, w, r, "warning", "You have reached the maximum number of sites allowed.")
+		web.Flash(a, w, r, "warning", "You have reached the maximum number of sites allowed.")
 	} else if r.Method == http.MethodPost {
 		createHTMLSiteStream(a, w, r)
 		return
@@ -101,7 +91,7 @@ func handleWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.R
 // createHTMLSiteStream creates a new website-builder site, streaming newline-delimited JSON status updates as each step completes.
 func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
+	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -109,7 +99,7 @@ func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	w.Header().Set("Content-Type", "application/json")
 	flusher, canFlush := w.(http.Flusher)
-	emit := func(v map[string]any) { writeNDJSON(w, flusher, canFlush, v) }
+	emit := func(v map[string]any) { web.WriteNDJSON(w, flusher, canFlush, v) }
 
 	ipAddress := reqip.ClientIP(r)
 	_ = r.ParseForm()
@@ -207,7 +197,7 @@ func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	_ = a.Cache.Delete(ctx, cacheKeyUserWebsites(userID))
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed Website Builder on "+selectedDomain, ipAddress)
-	flashSess(a, w, r, "success", web.Tr(a, r, "Website created successfully on %(selected_domain)s", "selected_domain", selectedDomain))
+	web.Flash(a, w, r, "success", web.Tr(a, r, "Website created successfully on %(selected_domain)s", "selected_domain", selectedDomain))
 
 	emit(map[string]any{"status": "Website creation completed!"})
 

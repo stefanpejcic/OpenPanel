@@ -1,17 +1,14 @@
 package backups
 
 import (
-	"encoding/json"
 	"net/http"
 	"os"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -28,12 +25,6 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/backups/list", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleListBackupsFromDestination(a, w, r) }))
 	mux.Handle("POST /backups/restore", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRestoreFromBackup(a, w, r) }))
 	mux.Handle("POST /backups/download", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDownloadBackup(a, w, r) }))
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
 }
 
 func envFilePath(userContext string) string {
@@ -54,7 +45,7 @@ func parseFormGroups(r *http.Request, group string) map[string]string {
 
 // handleBackupSettings serves and updates the backup.env key/value form for the user's currently configured backup target
 func handleBackupSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -71,14 +62,14 @@ func handleBackupSettings(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 
 		if isBackupInProgress(r.Context(), userContext) {
-			flashAndRedirect(a, w, r, "error", "A backup is currently in progress. Please wait until it finishes before saving settings. Or if you want to interrupt the backup process: stop and start the backup service.", r.URL.String())
+			web.FlashRedirect(a, w, r, "error", "A backup is currently in progress. Please wait until it finishes before saving settings. Or if you want to interrupt the backup process: stop and start the backup service.", r.URL.String())
 			return
 		}
 
 		if postErr := saveBackupSettings(a, r, path, userContext, currentUsername); postErr != nil {
-			flashSess(a, w, r, "error", "Error updating settings.")
+			web.Flash(a, w, r, "error", "Error updating settings.")
 		} else {
-			flashSess(a, w, r, "success", "Settings updated successfully.")
+			web.Flash(a, w, r, "success", "Settings updated successfully.")
 		}
 	}
 
@@ -154,28 +145,15 @@ func saveBackupSettings(a *appctx.App, r *http.Request, path, userContext, curre
 	return nil
 }
 
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
-func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-}
-
 func renderBackupSettingsFromFile(a *appctx.App, w http.ResponseWriter, r *http.Request, path string) {
 	if _, err := os.Stat(path); err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
 		return
 	}
 
 	entries, err := parseUncommentedEnv(path)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
 		return
 	}
 	grouped := groupBySections(entries)
@@ -196,7 +174,7 @@ func renderBackupSettingsFromFile(a *appctx.App, w http.ResponseWriter, r *http.
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, backupSettingsJSON(target, errMsg, grouped, values, settingsKV))
+		web.WriteJSON(w, http.StatusOK, backupSettingsJSON(target, errMsg, grouped, values, settingsKV))
 		return
 	}
 
@@ -229,7 +207,7 @@ func kvToMap(entries []KV) map[string]string {
 
 // handleBackupTarget switches (or reports) which backup destination section (s3/webdav/ssh/azure/dropbox) is active, by commenting out the other sections' keys in backup.env
 func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -245,12 +223,12 @@ func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		target := r.Form.Get("target")
 
 		if _, ok := sectionKeys[target]; !ok {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid backup target: " + target})
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid backup target: " + target})
 			return
 		}
 		content, readErr := os.ReadFile(path)
 		if readErr != nil {
-			writeJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
+			web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
 			return
 		}
 
@@ -282,7 +260,7 @@ func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "switched backup target to '"+target+"'", reqip.ClientIP(r))
-		flashSess(a, w, r, "success", web.Tr(a, r, "Backup target switched to '%(target)s' successfully.", "target", target))
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Backup target switched to '%(target)s' successfully.", "target", target))
 	}
 
 	if _, err := os.Stat(path); err != nil {
@@ -316,7 +294,7 @@ func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Query().Get("output") == "json" {
-		writeJSON(w, http.StatusOK, map[string]any{"active": active, "targets": sectionOrder})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"active": active, "targets": sectionOrder})
 		return
 	}
 
@@ -337,7 +315,7 @@ func belongsToOtherSection(target, key string) bool {
 
 // handleBackupsPage serves the backups landing page. Registered for GET and POST, but never branches on method, so POST behaves identically to GET - intentional, not an oversight.
 func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -346,13 +324,13 @@ func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	path := envFilePath(userContext)
 
 	if _, statErr := os.Stat(path); statErr != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
 		return
 	}
 
 	entries, err := parseUncommentedEnv(path)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
 		return
 	}
 	grouped := groupBySections(entries)
@@ -368,7 +346,7 @@ func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("output") == "json" {
 		// admin-managed accounts don't get destination/settings details (which include stored credentials) here - just enough to know a backup target exists and whether the service is running
 		if adminManaged {
-			writeJSON(w, http.StatusOK, map[string]any{"admin_managed": true, "configured": target != "", "service_active": serviceActive})
+			web.WriteJSON(w, http.StatusOK, map[string]any{"admin_managed": true, "configured": target != "", "service_active": serviceActive})
 			return
 		}
 		var errMsg string
@@ -381,7 +359,7 @@ func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		payload := backupSettingsJSON(target, errMsg, grouped, values, grouped.Settings)
 		payload["service_active"] = serviceActive
-		writeJSON(w, http.StatusOK, payload)
+		web.WriteJSON(w, http.StatusOK, payload)
 		return
 	}
 

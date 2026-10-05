@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -17,7 +18,7 @@ import (
 // apiMySQLSetRootPassword changes the MySQL root user's password (both the given host, defaulting to '%', and 'localhost'), then persists it to my.cnf/.env and restarts the service - the API equivalent of POST /mysql/root-password (handleRootPasswordMySQL in rootpassword.go) - there's no GET counterpart since the root password isn't readable anywhere, so this is write-only, and deliberately has no strength check, matching handleRootPasswordMySQL's own comment that the root password is admin-only
 func apiMySQLSetRootPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

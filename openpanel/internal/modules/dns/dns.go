@@ -3,7 +3,6 @@ package dns
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,10 +14,7 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
 // HealthIssue is the {id, severity, message} shape consumed client-side by reportHealthIssues() to render dismissible health toasts
@@ -26,12 +22,6 @@ type HealthIssue struct {
 	ID       string `json:"id"`
 	Severity string `json:"severity"`
 	Message  string `json:"message"`
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
 }
 
 func writeText(w http.ResponseWriter, text string) {
@@ -56,30 +46,6 @@ const ZoneFileDir = "/etc/bind/zones/"
 
 func zoneFilePath(domain string) string {
 	return ZoneFileDir + domain + ".zone"
-}
-
-func injected(a *appctx.App, r *http.Request) (username, userContext string, err error) {
-	userID, _ := auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return "", "", err
-	}
-	username, _ = data["current_username"].(string)
-	userContext, _ = data["context"].(string)
-	return username, userContext, nil
-}
-
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
-func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
 }
 
 // validateZoneFile runs named-checkzone inside the shared openpanel_dns container (bind-mounted at the same /etc/bind path, so the on-disk file can be checked directly) and returns its error output, or "" if valid

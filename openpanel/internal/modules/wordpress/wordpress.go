@@ -5,18 +5,12 @@ import (
 	"context"
 	"crypto/rand"
 	"database/sql"
-	"encoding/json"
 	"math/big"
-	"net/http"
-	"os"
 	"regexp"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/auth"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 )
 
 // wordpressFiles lists every top-level file/dir a stock WordPress install creates, used by cleanup, remove, and detach to know what to delete.
@@ -30,34 +24,6 @@ var wordpressFiles = []string{
 
 // skipDirs are directories reload/scan never descend into while walking the html volume for wp-config.php files.
 var skipDirs = map[string]bool{"wp-content": true, "node_modules": true, ".git": true, "backups": true}
-
-func injected(a *appctx.App, r *http.Request) (userID int, username, userContext string, err error) {
-	userID, _ = auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return userID, "", "", err
-	}
-	username, _ = data["current_username"].(string)
-	userContext, _ = data["context"].(string)
-	return userID, username, userContext, nil
-}
-
-func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-}
-
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	flashSess(a, w, r, category, message)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
 
 const randomStringAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
@@ -90,74 +56,15 @@ func validateDocroot(path string) bool {
 	return path != "" && !strings.Contains(path, "..") && !strings.HasPrefix(path, "/")
 }
 
-// lockFilePath returns the per-user krompir.lock path used to serialize WordPress operations.
-func lockFilePath(username string) string {
-	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
-}
-
-func createLockFile(username string) error {
-	dir := "/etc/openpanel/openpanel/core/users/" + username
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return err
-	}
-	return os.WriteFile(lockFilePath(username), nil, 0o644)
-}
-
-func removeLockFile(username string) {
-	_ = os.Remove(lockFilePath(username))
-}
-
-// domainRow is the shape every route reads from the domains table.
-type domainRow struct {
-	DomainURL  string
-	Docroot    sql.NullString
-	PHPVersion sql.NullString
-}
-
-func lookupDomainByID(ctx context.Context, a *appctx.App, domainID string) (domainRow, bool, error) {
-	var d domainRow
-	row := a.DB.QueryRowContext(ctx, "SELECT domain_url, docroot, php_version FROM domains WHERE domain_id = ?", domainID)
-	err := row.Scan(&d.DomainURL, &d.Docroot, &d.PHPVersion)
-	if err == sql.ErrNoRows {
-		return domainRow{}, false, nil
-	}
-	if err != nil {
-		return domainRow{}, false, err
-	}
-	return d, true, nil
-}
-
-func lookupDomainByURL(ctx context.Context, a *appctx.App, domainURL string) (domainRow, bool, error) {
-	var d domainRow
+func lookupDomainByURL(ctx context.Context, a *appctx.App, domainURL string) (appkit.DomainRow, bool, error) {
+	var d appkit.DomainRow
 	row := a.DB.QueryRowContext(ctx, "SELECT domain_url, docroot, php_version FROM domains WHERE domain_url = ?", domainURL)
 	err := row.Scan(&d.DomainURL, &d.Docroot, &d.PHPVersion)
 	if err == sql.ErrNoRows {
-		return domainRow{}, false, nil
+		return appkit.DomainRow{}, false, nil
 	}
 	if err != nil {
-		return domainRow{}, false, err
+		return appkit.DomainRow{}, false, err
 	}
 	return d, true, nil
-}
-
-// countUserWebsites counts the user's sites, capped at 1000 - same query used by internal/modules/appinstall, duplicated here since that package doesn't export it and it's small enough to not bother with cross-package coupling.
-func countUserWebsites(a *appctx.App, userID int) (int, error) {
-	rows, err := a.DB.Query(
-		"SELECT site_name FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000", userID)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-	n := 0
-	for rows.Next() {
-		n++
-	}
-	return n, rows.Err()
-}
-
-func atoiDefault(s string, def int) int {
-	if v, err := strconv.Atoi(s); err == nil {
-		return v
-	}
-	return def
 }

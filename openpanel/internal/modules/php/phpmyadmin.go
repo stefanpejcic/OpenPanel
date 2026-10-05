@@ -13,6 +13,7 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
@@ -137,7 +138,7 @@ func isPMAContainerRunning(ctx context.Context) bool {
 // handlePHPMyAdminRedirect mints (or reuses) an autologin token and redirects the browser to phpMyAdmin, probing the token server-side first so the user isn't sent to a dead end
 func handlePHPMyAdminRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -180,7 +181,7 @@ func handlePHPMyAdminRedirect(a *appctx.App, w http.ResponseWriter, r *http.Requ
 // handlePHPMyAdminLoginLink redirects to phpMyAdmin's manual login form for this user's context
 func handlePHPMyAdminLoginLink(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

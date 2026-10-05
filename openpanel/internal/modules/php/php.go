@@ -3,7 +3,6 @@ package php
 
 import (
 	"context"
-	"net/http"
 	"os"
 	"regexp"
 	"strconv"
@@ -11,11 +10,8 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
@@ -28,30 +24,6 @@ func phpVersionFromSegment(seg string) string {
 // phpVersionFromIniSegment extracts the version from a "php<version>.ini" segment, used by the /php/{phpiniversion}/editor route
 func phpVersionFromIniSegment(seg string) string {
 	return strings.TrimSuffix(phpVersionFromSegment(seg), ".ini")
-}
-
-func injected(a *appctx.App, r *http.Request) (username, userContext string, err error) {
-	userID, _ := auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return "", "", err
-	}
-	username, _ = data["current_username"].(string)
-	userContext, _ = data["context"].(string)
-	return username, userContext, nil
-}
-
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
-func flashSess(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
 }
 
 // checkPHPIniSyntax mirrors check_php_ini_syntax(): has the PHP CLI inside the relevant container parse php.ini, returning the parse error string if invalid, or "" if valid or unable to check

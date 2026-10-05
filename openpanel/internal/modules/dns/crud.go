@@ -21,7 +21,7 @@ import (
 func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -35,7 +35,7 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	rowID, convErr := strconv.Atoi(r.PathValue("row_id"))
 	if convErr != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Invalid row ID"})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Invalid row ID"})
 		return
 	}
 
@@ -50,30 +50,30 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	path := zoneFilePath(domain)
 	if !fileExists(path) {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error:Zone file not found for domain: %(domain)s", "domain", domain), "/domains/edit-dns-zone")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error:Zone file not found for domain: %(domain)s", "domain", domain), "/domains/edit-dns-zone")
 		return
 	}
 
 	serialFromPost := r.Form.Get("serial")
 	if serialFromPost == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"status": "error", "message": "Serial number not provided. Please try again."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"status": "error", "message": "Serial number not provided. Please try again."})
 		return
 	}
 
 	content, readErr := os.ReadFile(path)
 	if readErr != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Error updating DNS record: " + readErr.Error()})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Error updating DNS record: " + readErr.Error()})
 		return
 	}
 	lines := readLinesKeepEnds(string(content))
 	serialFromZone := readSerialNumber(lines)
 	if serialFromPost != serialFromZone {
-		writeJSON(w, http.StatusConflict, map[string]string{"status": "error", "message": "Serial number mismatch. Zone was edited by another user/program. Please try again."})
+		web.WriteJSON(w, http.StatusConflict, map[string]string{"status": "error", "message": "Serial number mismatch. Zone was edited by another user/program. Please try again."})
 		return
 	}
 
 	if rowID < 1 || rowID > len(lines) || rowID > endRowID || endRowID > len(lines) {
-		writeJSON(w, http.StatusOK, map[string]string{"error": fmt.Sprintf("Invalid row ID: %d", rowID)})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": fmt.Sprintf("Invalid row ID: %d", rowID)})
 		return
 	}
 
@@ -87,7 +87,7 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 	newLines = append(newLines, lines[endRowID:]...)
 
 	if writeErr := os.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Error updating DNS record: " + writeErr.Error()})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Error updating DNS record: " + writeErr.Error()})
 		return
 	}
 
@@ -95,14 +95,14 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 	_ = logger.RecordUserAction(a.Config, currentUsername, "updated DNS record to "+newContent+" for domain "+domain, ipAddress)
 	RestartDNSService(domain)
 
-	writeJSON(w, http.StatusOK, map[string]string{"updated_row": newContent, "message": fmt.Sprintf("Row with ID %d updated successfully", rowID)})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"updated_row": newContent, "message": fmt.Sprintf("Row with ID %d updated successfully", rowID)})
 }
 
 // handleDeleteDNSRecord deletes a zone record by line number. rowId in the URL is 0-indexed (the JS caller sends item.line_number - 1), unlike handleUpdateDNSRecord's 1-indexed row_id - an inconsistency kept for compatibility with the existing frontend.
 func handleDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -110,7 +110,7 @@ func handleDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	rowID, convErr := strconv.Atoi(r.PathValue("rowId"))
 	if convErr != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Invalid row ID"})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Invalid row ID"})
 		return
 	}
 
@@ -132,13 +132,13 @@ func handleDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 	path := zoneFilePath(domain)
 	content, readErr := os.ReadFile(path)
 	if readErr != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Error deleting DNS record: " + readErr.Error()})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Error deleting DNS record: " + readErr.Error()})
 		return
 	}
 	lines := readLinesKeepEnds(string(content))
 
 	if rowID < 0 || rowID >= len(lines) {
-		writeJSON(w, http.StatusOK, map[string]string{"error": fmt.Sprintf("Invalid row ID: %d", rowID)})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": fmt.Sprintf("Invalid row ID: %d", rowID)})
 		return
 	}
 
@@ -155,7 +155,7 @@ func handleDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	if writeErr := os.WriteFile(path, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Error deleting DNS record: " + writeErr.Error()})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Error deleting DNS record: " + writeErr.Error()})
 		return
 	}
 
@@ -163,14 +163,14 @@ func handleDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted DNS record "+deletedRow+" for domain "+domain, ipAddress)
 	RestartDNSService(domain)
 
-	writeJSON(w, http.StatusOK, map[string]string{"message": "Row deleted successfully", "deleted_row": strings.TrimSpace(deletedRow)})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Row deleted successfully", "deleted_row": strings.TrimSpace(deletedRow)})
 }
 
 // handleAddDNSRecord appends a new record to the domain's zone file.
 func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -190,13 +190,13 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if name == "" || ttl == "" || recordType == "" || record == "" || domain == "" {
-		flashAndRedirect(a, w, r, "error", "Please provide all required fields.", redirectTarget)
+		web.FlashRedirect(a, w, r, "error", "Please provide all required fields.", redirectTarget)
 		return
 	}
 
 	for _, v := range []string{name, ttl, recordType, record, priority, domain} {
 		if strings.ContainsAny(v, "\n\r") {
-			flashAndRedirect(a, w, r, "error", "Invalid characters in submitted data.", redirectTarget)
+			web.FlashRedirect(a, w, r, "error", "Invalid characters in submitted data.", redirectTarget)
 			return
 		}
 	}
@@ -209,7 +209,7 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !fileExists(path) {
-		flashAndRedirect(a, w, r, "error", "Zone file not found.", "/domains/edit-dns-zone")
+		web.FlashRedirect(a, w, r, "error", "Zone file not found.", "/domains/edit-dns-zone")
 		return
 	}
 
@@ -231,13 +231,13 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if recordType == "CNAME" && CnameRecordExists(ctx, a, path, name) {
-		flashAndRedirect(a, w, r, "error", "CNAME record with this name already exists.", redirectTarget)
+		web.FlashRedirect(a, w, r, "error", "CNAME record with this name already exists.", redirectTarget)
 		return
 	}
 
 	f, openErr := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if openErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", openErr.Error()), redirectTarget)
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", openErr.Error()), redirectTarget)
 		return
 	}
 	// a zone ending without a newline would glue the record onto its last line
@@ -248,21 +248,21 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, writeErr := f.WriteString(prefix + newRecord + "\n")
 	_ = f.Close()
 	if writeErr != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", writeErr.Error()), redirectTarget)
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", writeErr.Error()), redirectTarget)
 		return
 	}
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "added DNS record "+newRecord+" for domain "+domain, ipAddress)
 	RestartDNSService(domain)
-	flashAndRedirect(a, w, r, "success", "DNS record added successfully.", redirectTarget)
+	web.FlashRedirect(a, w, r, "success", "DNS record added successfully.", redirectTarget)
 }
 
 // handleSaveDNSZone validates the whole new zone content by copying it into the shared DNS container and running named-checkzone before ever touching the real on-disk file
 func handleSaveDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -326,7 +326,7 @@ func handleSaveDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 func handleRestartDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -334,7 +334,7 @@ func handleRestartDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	domain := r.PathValue("domain")
 
 	if domain == "" {
-		flashAndRedirect(a, w, r, "error", "Please provide a domain name.", "/domains/edit-dns-zone")
+		web.FlashRedirect(a, w, r, "error", "Please provide a domain name.", "/domains/edit-dns-zone")
 		return
 	}
 
@@ -346,13 +346,13 @@ func handleRestartDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	cctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 	if err := exec.CommandContext(cctx, "opencli", "domains-dns", "default", domain, "-y").Run(); err != nil {
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to restart DNS zone: %(error)s", "error", err.Error()), "/domains/edit-dns-zone/"+domain)
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to restart DNS zone: %(error)s", "error", err.Error()), "/domains/edit-dns-zone/"+domain)
 		return
 	}
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "reset DNS zone for domain "+domain, ipAddress)
-	flashAndRedirect(a, w, r, "success", "DNS zone restarted successfully.", "/domains/edit-dns-zone/"+domain)
+	web.FlashRedirect(a, w, r, "success", "DNS zone restarted successfully.", "/domains/edit-dns-zone/"+domain)
 }
 
 // zoneExportHeaderTemplate is the informational header block prepended to an exported zone file
@@ -389,7 +389,7 @@ const zoneExportHeaderTemplate = `
 func handleExportDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -397,7 +397,7 @@ func handleExportDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	domain := r.PathValue("domain")
 
 	if domain == "" {
-		writeJSON(w, http.StatusOK, map[string]string{"error": "Please provide a domain name."})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Please provide a domain name."})
 		return
 	}
 

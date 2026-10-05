@@ -7,11 +7,13 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterDefaultAPI wires the PHP default-version API route onto mux.
@@ -23,7 +25,7 @@ func RegisterDefaultAPI(mux *http.ServeMux, a *appctx.App) {
 // apiPHPDefault gets or updates the server-wide default PHP version applied to newly created domains that don't have an explicit per-domain override
 func apiPHPDefault(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -75,13 +77,13 @@ func apiPHPDefault(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		_ = logger.RecordUserAction(a.Config, currentUsername, "changed default PHP version for new domains to "+newVersion, reqip.ClientIP(r))
-		writeJSON(w, http.StatusOK, map[string]any{"message": message, "version": newVersion})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"message": message, "version": newVersion})
 		return
 	}
 
 	installedVersions := FetchPHPVersions(ctx, a, userContext)
 	version, service := computeDefaultPHPVersionAndService(ctx, userContext, webServer, isLitespeed)
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"version": version, "service": service, "is_litespeed": isLitespeed, "installed_versions": installedVersions,
 	})
 }

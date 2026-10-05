@@ -13,6 +13,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 const (
@@ -174,7 +175,7 @@ func checkDomainDeliverability(ctx context.Context, a *appctx.App, domain, serve
 func handleEmailsDeliverability(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -198,7 +199,7 @@ func handleEmailsDeliverability(a *appctx.App, w http.ResponseWriter, r *http.Re
 		}
 		wg.Wait()
 
-		writeJSON(w, http.StatusOK, map[string]any{"domains": results})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"domains": results})
 		return
 	}
 
@@ -209,7 +210,7 @@ func handleEmailsDeliverability(a *appctx.App, w http.ResponseWriter, r *http.Re
 func handleEmailDeliverabilityDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -223,7 +224,7 @@ func handleEmailDeliverabilityDomain(a *appctx.App, w http.ResponseWriter, r *ht
 
 	if r.URL.Query().Get("output") == "json" {
 		serverIP := getDedicatedOrSharedIP(ctx, currentUsername)
-		writeJSON(w, http.StatusOK, checkDomainDeliverability(ctx, a, domain, serverIP))
+		web.WriteJSON(w, http.StatusOK, checkDomainDeliverability(ctx, a, domain, serverIP))
 		return
 	}
 

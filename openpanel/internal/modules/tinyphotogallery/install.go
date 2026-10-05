@@ -7,15 +7,14 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/installmanifest"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -26,99 +25,21 @@ const tinyPhotoGallerySourceFile = "https://raw.githubusercontent.com/stefanpejc
 // tinyPhotoGalleryVersion is a static placeholder recorded in the sites table - no real versioning upstream, same convention sofawiki uses for its own "master" branch install
 const tinyPhotoGalleryVersion = "main"
 
-// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
-func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, _, _, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	injectedData, _ := a.InjectData(ctx, userID)
-	planID, _ := injectedData["hosting_plan"].(int)
-	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	websitesLimit := atoiDefault(plan.WebsitesLimit, 0)
-	websiteCount, _ := countUserWebsites(a, userID)
-
-	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		if r.Method == http.MethodPost {
-			w.Header().Set("Content-Type", "application/x-ndjson")
-			flusher, canFlush := w.(http.Flusher)
-			writeNDJSON(w, flusher, canFlush, map[string]any{"error": "You have reached the maximum number of sites allowed." + plan.UpgradeMessage()})
-			return
-		}
-		flashSess(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
-	} else if r.Method == http.MethodPost {
-		handleInstallStream(a, w, r)
-		return
-	}
-
-	domains, _ := a.AllDomainsForUser(ctx, userID)
-	renderInstallPage(a, w, r, domains)
-}
-
-// ensureContainerRunning starts the container if it isn't already running, polling briefly for it to come up
-func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
-	if docker.IsServiceRunning(ctx, userContext, container) {
-		return true
-	}
-	docker.StartOrStopContainer(ctx, userContext, container, "activate", "detached")
-	const attempts = 15
-	for i := 0; i < attempts; i++ {
-		time.Sleep(2 * time.Second)
-		if docker.IsServiceRunning(ctx, userContext, container) {
-			return true
-		}
-	}
-	return false
-}
-
 // handleInstallStream drives a TinyPhotoGallery install end to end over NDJSON: download index.php, create an empty photos/ folder next to it, fix ownership, record the site - no database, no admin account, no CLI installer; install is complete the moment the two filesystem items exist
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	in, ok := cmsapp.StartInstall(a, w, r)
+	if !ok {
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/x-ndjson")
-	flusher, canFlush := w.(http.Flusher)
-	emit := func(v map[string]any) { writeNDJSON(w, flusher, canFlush, v) }
-
-	ipAddress := reqip.ClientIP(r)
-	domainID := r.FormValue("domain_id")
-	if domainID == "" {
-		emit(map[string]any{"error": "Missing required field: domain"})
-		return
-	}
-
-	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
-	if err := createLockFile(currentUsername); err != nil {
-		emit(map[string]any{"error": "Error creating lock file: " + err.Error()})
-		return
-	}
-	defer removeLockFile(currentUsername)
-
-	dom, found, dbErr := lookupDomainByID(ctx, a, domainID)
-	if dbErr != nil {
-		emit(map[string]any{"error": "An error occurred fetching docroot for domain from database."})
-		return
-	}
-	if !found {
-		emit(map[string]any{"error": "Domain not found"})
-		return
-	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, dom.DomainURL) {
-		return
-	}
-
-	emit(map[string]any{"status": "Validating provided data"})
-	subdirectory := strings.ToLower(strings.ReplaceAll(r.FormValue("subdirectory"), " ", ""))
-	if !isValidSubdirectory(subdirectory) {
-		emit(map[string]any{"error": "Invalid subdirectory."})
-		return
-	}
+	defer appkit.RemoveLockFile(in.Username)
+	ctx := in.Ctx
+	currentUsername := in.Username
+	userContext := in.UserContext
+	emit := in.Emit
+	ipAddress := in.IP
+	domainID := in.DomainID
+	dom := in.Domain
+	subdirectory := in.Subdirectory
 
 	docroot := dom.Docroot.String
 	selectedDomain := dom.DomainURL
@@ -137,7 +58,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Starting PHP container: " + phpContainer})
-	if !ensureContainerRunning(ctx, userContext, phpContainer) {
+	if !cmsapp.EnsureContainerRunning(ctx, userContext, phpContainer) {
 		emit(map[string]any{"error": "PHP container failed to start. Please check it from Services."})
 		return
 	}
@@ -157,7 +78,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	out, runErr := runTinyPhotoGalleryInstall(ctx, userContext, phpContainer, installPath)
 	if runErr != nil {
 		emit(map[string]any{"error": "Download failed: " + strings.TrimSpace(string(out))})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 
@@ -180,7 +101,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed TinyPhotoGallery on domain "+selectedDomain, ipAddress)
-	flashSess(a, w, r, "success", web.Tr(a, r, "TinyPhotoGallery installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
+	web.Flash(a, w, r, "success", web.Tr(a, r, "TinyPhotoGallery installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
 	emit(map[string]any{"status": "TinyPhotoGallery installation completed! Visit the site to start uploading photos."})
 }
 
@@ -193,20 +114,4 @@ mkdir -p ` + installPath + `/photos`
 
 	argv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "sh", "-c", script)
 	return podmanmanager.Command(ctx, userContext, argv).CombinedOutput()
-}
-
-// emitCleanupFiles clears installPath's contents but leaves installPath itself - it's the domain's docroot, not ours to delete, and removing it would force a manual recreate before reinstalling
-func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
-	if err := installmanifest.ClearContentsViaContainer(ctx, userContext, phpContainer, installPath); err != nil {
-		emit(map[string]any{"status": "Cleanup: failed to remove files from " + installPath + ": " + err.Error()})
-		return
-	}
-	emit(map[string]any{"status": "Cleanup: removed files from " + installPath})
-}
-
-func isValidSubdirectory(subdirectory string) bool {
-	if subdirectory == "" {
-		return true
-	}
-	return !strings.Contains(subdirectory, "..") && !strings.HasPrefix(subdirectory, "/")
 }

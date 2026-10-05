@@ -32,7 +32,7 @@ func handleCreateFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if filename == "" {
-		flashAndRedirect(a, w, r, "error", "Filename is missing", filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", "Filename is missing", filesRedirectPath(pathParam))
 		return
 	}
 
@@ -43,13 +43,13 @@ func handleCreateFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if _, statErr := os.Stat(filePath); statErr == nil {
-		flashAndRedirect(a, w, r, "error", "Error creating file: already exists.", filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", "Error creating file: already exists.", filesRedirectPath(pathParam))
 		return
 	}
 
 	f, createErr := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0o644)
 	if createErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error creating file! Check permissions.", filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", "Error creating file! Check permissions.", filesRedirectPath(pathParam))
 		return
 	}
 	_ = f.Close()
@@ -86,7 +86,7 @@ func handleCreateFolder(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if folderName == "" {
-		flashAndRedirect(a, w, r, "error", "Foldername is missing", filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", "Foldername is missing", filesRedirectPath(pathParam))
 		return
 	}
 
@@ -98,7 +98,7 @@ func handleCreateFolder(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if mkErr := os.MkdirAll(folderPath, 0o755); mkErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error creating directory! Check permissions.", filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", "Error creating directory! Check permissions.", filesRedirectPath(pathParam))
 		return
 	}
 
@@ -144,13 +144,13 @@ func handleRenameFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if renameErr := os.Rename(oldPath, newPath); renameErr != nil {
-		flashAndRedirect(a, w, r, "error", "Error renaming item! Check permissions or if the new name already exists.", filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", "Error renaming item! Check permissions or if the new name already exists.", filesRedirectPath(pathParam))
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, user.Username,
 		"renamed file /var/www/html/"+oldRelPath+" to /var/www/html/"+newRelPath+" using File Manager", reqip.ClientIP(r))
-	flashAndRedirect(a, w, r, "success", "File renamed successfully.", filesRedirectPath(pathParam))
+	web.FlashRedirect(a, w, r, "success", "File renamed successfully.", filesRedirectPath(pathParam))
 }
 
 // handleDeleteFile deletes a file or directory, either permanently or by moving it to the trash depending on the "mode" query parameter
@@ -179,29 +179,29 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if _, linkErr := paths.RemoveUserSymlink("HOME", user.Context, targetRelPath); !errors.Is(linkErr, paths.ErrNotSymlink) {
 		if linkErr != nil {
 			status, msg := pathErrorStatus(linkErr)
-			writeJSON(w, status, map[string]any{"success": false, "error": msg})
+			web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
 			return
 		}
 		_ = logger.RecordUserAction(a.Config, user.Username, "deleted symlink "+targetRelPath+" using File Manager", reqip.ClientIP(r))
-		writeJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Symlink deleted"})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Symlink deleted"})
 		return
 	}
 
 	itemPath, perr := paths.SecureUserPath("HOME", user.Context, targetRelPath, true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]any{"success": false, "error": msg})
+		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
 		return
 	}
 	displayPath := filepath.Join(pathParam, itemName)
 
 	if mode == "trash" {
 		if _, trashErr := moveItemToTrash(ctx, a, itemPath, itemName, user.Context); trashErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "message": "Delete failed: " + trashErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "message": "Delete failed: " + trashErr.Error()})
 			return
 		}
 		_ = logger.RecordUserAction(a.Config, user.Username, "moved "+itemType+" "+displayPath+" to Trash using File Manager", reqip.ClientIP(r))
-		writeJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Moved to Trash"})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Moved to Trash"})
 		return
 	}
 
@@ -212,11 +212,11 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		rmErr = os.Remove(itemPath)
 	}
 	if rmErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "message": "Delete failed: " + rmErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "message": "Delete failed: " + rmErr.Error()})
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, user.Username, "deleted "+itemType+" "+displayPath+" using File Manager", reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Deleted permanently"})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Deleted permanently"})
 }
 
 var permissionsRE = regexp.MustCompile(`^[0-7]{3,4}$`)
@@ -244,7 +244,7 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	recursive := r.Form.Get("recursive") == "on"
 
 	if !permissionsRE.MatchString(permissions) {
-		flashAndRedirect(a, w, r, "error", "Invalid permissions format.", filesRedirectPath(pathParam))
+		web.FlashRedirect(a, w, r, "error", "Invalid permissions format.", filesRedirectPath(pathParam))
 		return
 	}
 
@@ -309,7 +309,7 @@ func handleCopyItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	destinationPath = strings.TrimPrefix(destinationPath, "/")
 
 	if itemName == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": "File name is empty"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": "File name is empty"})
 		return
 	}
 
@@ -323,13 +323,13 @@ func handleCopyItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	src, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, itemName), true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]any{"success": false, "error": msg})
+		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
 		return
 	}
 	dst, perr := paths.SecureUserPath("HOME", user.Context, destinationPath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]any{"success": false, "error": msg})
+		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
 		return
 	}
 	if info, statErr := os.Stat(dst); statErr == nil && info.IsDir() {
@@ -344,21 +344,21 @@ func handleCopyItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	if copyErr != nil {
 		if os.IsExist(copyErr) {
-			writeJSON(w, http.StatusConflict, map[string]any{"success": false, "error": "Destination already exists"})
+			web.WriteJSON(w, http.StatusConflict, map[string]any{"success": false, "error": "Destination already exists"})
 			return
 		}
 		if os.IsPermission(copyErr) {
-			writeJSON(w, http.StatusForbidden, map[string]any{"success": false, "error": "Permission denied"})
+			web.WriteJSON(w, http.StatusForbidden, map[string]any{"success": false, "error": "Permission denied"})
 			return
 		}
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Error copying item: " + copyErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Error copying item: " + copyErr.Error()})
 		return
 	}
 
 	chownRecursive(ctx, a, dst, user.Context)
 	_ = logger.RecordUserAction(a.Config, user.Username,
 		"copied "+itemType+" "+filepath.Join(pathParam, itemName)+" to "+destinationPath+" using File Manager", reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]any{"success": true})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"success": true})
 }
 
 // handleMoveItem moves a file or directory to a destination path.
@@ -369,7 +369,7 @@ func handleMoveItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	destinationPath := strings.TrimPrefix(q.Get("destination_path"), "/")
 
 	if itemName == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": "File name is empty"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": "File name is empty"})
 		return
 	}
 
@@ -383,13 +383,13 @@ func handleMoveItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	src, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, itemName), true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]any{"success": false, "error": msg})
+		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
 		return
 	}
 	dst, perr := paths.SecureUserPath("HOME", user.Context, destinationPath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		writeJSON(w, status, map[string]any{"success": false, "error": msg})
+		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
 		return
 	}
 	if info, statErr := os.Stat(dst); statErr == nil && info.IsDir() {
@@ -397,7 +397,7 @@ func handleMoveItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if moveErr := os.Rename(src, dst); moveErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Move failed: " + moveErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Move failed: " + moveErr.Error()})
 		return
 	}
 
@@ -409,5 +409,5 @@ func handleMoveItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	_ = logger.RecordUserAction(a.Config, user.Username,
 		"moved "+filepath.Join(pathParam, itemName)+" to "+destinationPath+" using File Manager", reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]any{"success": true})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"success": true})
 }

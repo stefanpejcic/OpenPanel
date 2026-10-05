@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sieveparser"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 var (
@@ -52,7 +53,7 @@ func writeSieve(resolvedPath, content string) error {
 func handleFiltersForUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -84,7 +85,7 @@ func handleFilterView(a *appctx.App, w http.ResponseWriter, r *http.Request, vie
 	ctx := r.Context()
 	email := r.PathValue("email")
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -111,11 +112,11 @@ func handleFilterView(a *appctx.App, w http.ResponseWriter, r *http.Request, vie
 		_ = r.ParseForm()
 		newContent, ok := r.Form["new_content"]
 		if !ok {
-			flashAndRedirect(a, w, r, "error", "No content provided.", "/emails/filter/"+email+"/"+viewMode)
+			web.FlashRedirect(a, w, r, "error", "No content provided.", "/emails/filter/"+email+"/"+viewMode)
 			return
 		}
 		if writeErr := writeSieve(resolvedPath, newContent[0]); writeErr != nil {
-			flashAndRedirect(a, w, r, "error", "Error saving filter.", "/emails/filter/"+email+"/"+viewMode)
+			web.FlashRedirect(a, w, r, "error", "Error saving filter.", "/emails/filter/"+email+"/"+viewMode)
 			return
 		}
 		action := "GUI"
@@ -124,7 +125,7 @@ func handleFilterView(a *appctx.App, w http.ResponseWriter, r *http.Request, vie
 		}
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "edited filter ("+action+") for "+email, ipAddress)
-		flashAndRedirect(a, w, r, "success", "Filter saved successfully.", "/emails/filter/"+email+"/"+viewMode)
+		web.FlashRedirect(a, w, r, "success", "Filter saved successfully.", "/emails/filter/"+email+"/"+viewMode)
 		return
 	}
 

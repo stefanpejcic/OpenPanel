@@ -13,10 +13,12 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // restoreMySQLFromSQL drops/recreates the database, then executes the dump in ";\n"-delimited chunks, tolerating failures on statements starting with SET, /*, or -- (harmless lines a dump may contain that can fail depending on server config)
@@ -218,7 +220,7 @@ func scanSQLMembers(localPath string) ([]tarSQLMember, error) {
 
 // handleListBackupsFromDestination serves the list of remote backups (from the cached index file) and, on POST, kicks off a background reindex against the SSH destination
 func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -229,7 +231,7 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 
 	if r.Method == http.MethodPost {
 		if _, statErr := os.Stat(lockFile); statErr == nil {
-			writeJSON(w, http.StatusConflict, map[string]string{"message": "Reindex already in progress."})
+			web.WriteJSON(w, http.StatusConflict, map[string]string{"message": "Reindex already in progress."})
 			return
 		}
 
@@ -240,7 +242,7 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 		go doReindex(userHome, config, jsonFile, lockFile)
 
 		if r.URL.Query().Get("output") == "json" {
-			writeJSON(w, http.StatusAccepted, map[string]string{"message": "Reindex started."})
+			web.WriteJSON(w, http.StatusAccepted, map[string]string{"message": "Reindex started."})
 			return
 		}
 		http.Redirect(w, r, "/backups/list", http.StatusFound)
@@ -268,15 +270,15 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 	if r.URL.Query().Get("output") == "json" {
 		// status=1 is the polling shape (onboarding wizard's destination test), which needs "reindexing" to tell an in-progress run apart from a finished one - kept opt-in so the existing Array.isArray() poller keeps working unchanged
 		if r.URL.Query().Get("status") == "1" {
-			writeJSON(w, http.StatusOK, map[string]any{"reindexing": reindexing, "error": reindexErr, "count": len(backups)})
+			web.WriteJSON(w, http.StatusOK, map[string]any{"reindexing": reindexing, "error": reindexErr, "count": len(backups)})
 			return
 		}
 		if reindexErr != "" {
 			// this used to fall through to the HTML error page even for output=json callers - return JSON instead
-			writeJSON(w, http.StatusOK, map[string]string{"error": reindexErr})
+			web.WriteJSON(w, http.StatusOK, map[string]string{"error": reindexErr})
 			return
 		}
-		writeJSON(w, http.StatusOK, backups)
+		web.WriteJSON(w, http.StatusOK, backups)
 		return
 	}
 
@@ -285,7 +287,7 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 
 // handleRestoreFromBackup downloads a remote backup archive and restores it - all files, a single database, or files only, per restore_target
 func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -300,19 +302,19 @@ func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	database := strings.TrimSpace(r.Form.Get("database"))
 
 	if backupFile == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "No backup file specified."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "No backup file specified."})
 		return
 	}
 	safeName := filepath.Base(backupFile)
 	if safeName != backupFile {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid backup filename."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid backup filename."})
 		return
 	}
 
 	config, _ := readBackupEnv(userContext)
 	store, storeErr := newRemoteStore(config)
 	if storeErr != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": storeErr.Error()})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": storeErr.Error()})
 		return
 	}
 
@@ -320,7 +322,7 @@ func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	localPath, cleanup, fetchErr := store.Fetch(ctx, safeName)
 	if fetchErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": fetchErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fetchErr.Error()})
 		return
 	}
 	defer cleanup()
@@ -330,32 +332,32 @@ func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	switch restoreTarget {
 	case "all":
 		if _, err := restoreFilesFromTar(localPath, userContext, uid); err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
 		sqlMembers, err := scanSQLMembers(localPath)
 		if err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
 		for _, member := range sqlMembers {
 			dbName := strings.TrimSuffix(filepath.Base(member.Name), ".sql")
 			if err := restoreSQLMember(ctx, userContext, member, dbName); err != nil {
-				writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+				web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 				return
 			}
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "restored full backup from "+safeName, reqip.ClientIP(r))
-		writeJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Full restore completed."})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Full restore completed."})
 
 	case "database":
 		if database == "" {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "No database specified."})
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "No database specified."})
 			return
 		}
 		sqlMembers, err := scanSQLMembers(localPath)
 		if err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
 		var found *tarSQLMember
@@ -366,33 +368,33 @@ func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			}
 		}
 		if found == nil {
-			writeJSON(w, http.StatusNotFound, map[string]string{"error": "Database '" + database + "' not found in this backup."})
+			web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Database '" + database + "' not found in this backup."})
 			return
 		}
 		if err := restoreSQLMember(ctx, userContext, *found, database); err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "restored database '"+database+"' from backup "+safeName, reqip.ClientIP(r))
-		writeJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Database '" + database + "' restored successfully."})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Database '" + database + "' restored successfully."})
 
 	case "files":
 		extracted, err := restoreFilesFromTar(localPath, userContext, uid)
 		if err != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "restored files from backup "+safeName, reqip.ClientIP(r))
-		writeJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Files restored (" + strconv.Itoa(len(extracted)) + " items)."})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Files restored (" + strconv.Itoa(len(extracted)) + " items)."})
 
 	default:
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Unknown restore target: " + restoreTarget})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Unknown restore target: " + restoreTarget})
 	}
 }
 
 // handleDownloadBackup downloads a remote backup archive and streams it back to the client
 func handleDownloadBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -401,32 +403,32 @@ func handleDownloadBackup(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	_ = r.ParseMultipartForm(1 << 20)
 	backupFile := strings.TrimSpace(r.Form.Get("backup_file"))
 	if backupFile == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "No backup file specified."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "No backup file specified."})
 		return
 	}
 	safeName := filepath.Base(backupFile)
 	if safeName != backupFile {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid backup filename."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid backup filename."})
 		return
 	}
 
 	config, _ := readBackupEnv(userContext)
 	store, storeErr := newRemoteStore(config)
 	if storeErr != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": storeErr.Error()})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": storeErr.Error()})
 		return
 	}
 
 	localPath, cleanup, fetchErr := store.Fetch(r.Context(), safeName)
 	if fetchErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": fetchErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": fetchErr.Error()})
 		return
 	}
 	defer cleanup()
 
 	f, openErr := os.Open(localPath)
 	if openErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": openErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": openErr.Error()})
 		return
 	}
 	defer f.Close()

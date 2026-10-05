@@ -18,7 +18,7 @@ import (
 func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -27,7 +27,7 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	status := docker.GetContainerStatus(ctx, userContext, mysqlVersion)
 	if status.State != "running" {
-		flashAndRedirect(a, w, r, "warning", web.Tr(a, r, "%(mysql_version)s service is not ready yet. Please wait for the installation to finish before creating a database.", "mysql_version", mysqlVersion), "/mysql")
+		web.FlashRedirect(a, w, r, "warning", web.Tr(a, r, "%(mysql_version)s service is not ready yet. Please wait for the installation to finish before creating a database.", "mysql_version", mysqlVersion), "/mysql")
 		return
 	}
 
@@ -43,7 +43,7 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 		selectedPrivs := r.Form["privileges"]
 
 		flashAndRerender := func(category, message string) {
-			flashSess(a, w, r, category, message)
+			web.Flash(a, w, r, category, message)
 			renderWizardForm(a, w, r, mysqlVersion, databaseName, dbUser)
 		}
 
@@ -79,7 +79,7 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 		injectedData, _ := a.InjectData(ctx, userID)
 		planID, _ := injectedData["hosting_plan"].(int)
 		plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-		dbLimit := atoiDefault(plan.DBLimit, 0)
+		dbLimit := web.AtoiDefault(plan.DBLimit, 0)
 		invalidateDatabaseCount(ctx, a, currentUsername)
 		dbUsage := getDatabaseCount(ctx, a, currentUsername, userContext)
 		if dbLimit != 0 && dbUsage >= dbLimit {

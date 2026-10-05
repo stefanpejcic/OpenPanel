@@ -13,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleEditVhosts views or edits a domain's raw virtual-host config.
@@ -32,7 +33,7 @@ func handleEditVhosts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		vhostContent := r.Form.Get("vhost_content")
 
 		if domainName == "" {
-			flashAndRedirect(a, w, r, "error", "Invalid request. Domain name and Vhost content must be provided.", "/domains/vhosts")
+			web.FlashRedirect(a, w, r, "error", "Invalid request. Domain name and Vhost content must be provided.", "/domains/vhosts")
 			return
 		}
 		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
@@ -42,10 +43,10 @@ func handleEditVhosts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		ok, message := writeVhostContent(ctx, domainName, userContext, webServerPreference, vhostContent)
 		if ok {
-			flashAndRedirect(a, w, r, "success", message, "/domains/vhosts?domain="+domainName)
+			web.FlashRedirect(a, w, r, "success", message, "/domains/vhosts?domain="+domainName)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "edited Virtual Host file for domain: "+domainName, reqip.ClientIP(r))
 		} else {
-			flashAndRedirect(a, w, r, "error", message, "/domains/vhosts?domain="+domainName)
+			web.FlashRedirect(a, w, r, "error", message, "/domains/vhosts?domain="+domainName)
 		}
 		return
 	}

@@ -14,6 +14,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // This file mirrors the latest-version lookups every CMS module's own version.go already has (see internal/modules/joomla/version.go, prestashop/version.go, etc.) - duplicated locally rather than imported, same "websites doesn't cross-import the CMS packages" convention websites.go's getMoodleVersion/extractMoodleDatabaseInfo etc. already establish (and those functions are unexported in their own packages anyway, so a cross-import wouldn't compile). Used by handleSitesUpdates to tell /sites which installed sites have a newer version available.
@@ -329,5 +330,5 @@ func latestVersionsForAllTypes(ctx context.Context, a *appctx.App) map[string]st
 // handleSitesUpdates returns {"joomla":"5.4.1","wordpress":"6.8.1",...} - the latest known version per supported CMS type, for /sites to compare each installed site's version against and flag ones that are outdated
 func handleSitesUpdates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	versions := latestVersionsForAllTypes(r.Context(), a)
-	writeJSON(w, http.StatusOK, versions)
+	web.WriteJSON(w, http.StatusOK, versions)
 }

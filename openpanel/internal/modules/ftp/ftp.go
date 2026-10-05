@@ -94,17 +94,6 @@ func isFTPContainerRunning(ctx context.Context, containerName string) bool {
 	return false
 }
 
-func injected(a *appctx.App, r *http.Request) (username, userContext string, err error) {
-	userID, _ := auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return "", "", err
-	}
-	username, _ = data["current_username"].(string)
-	userContext, _ = data["context"].(string)
-	return username, userContext, nil
-}
-
 func flashAndRedirectToAccounts(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message string) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	flash.Add(sess, category, message)
@@ -153,7 +142,7 @@ func loadAccounts(usersListFile string) []Account {
 
 // handleFTPAccounts renders the FTP accounts list page.
 func handleFTPAccounts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -182,7 +171,7 @@ func handleFTPAccounts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // handleListFTPConnections renders the page listing currently active FTP connections for the user
 func handleListFTPConnections(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -205,7 +194,7 @@ func handleListFTPConnections(a *appctx.App, w http.ResponseWriter, r *http.Requ
 func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -225,11 +214,11 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		ftpPath := r.Form.Get("path")
 
 		if ftpUsername == "" {
-			flashAndRedirect(a, w, r, "error", "FTP username not provided.", "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", "FTP username not provided.", "/ftp/new")
 			return
 		}
 		if ftpDomain == "" {
-			flashAndRedirect(a, w, r, "error", "FTP domain not provided.", "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", "FTP domain not provided.", "/ftp/new")
 			return
 		}
 		if !a.CheckDomainBelongsToUser(ctx, userID, ftpDomain) {
@@ -237,29 +226,29 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			return
 		}
 		if ftpPath == "" {
-			flashAndRedirect(a, w, r, "error", "FTP path not provided.", "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", "FTP path not provided.", "/ftp/new")
 			return
 		}
 		if ftpPassword == "" {
-			flashAndRedirect(a, w, r, "error", "FTP password not provided.", "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", "FTP password not provided.", "/ftp/new")
 			return
 		}
 
 		const realPath = "/var/www/html/"
 		if !strings.HasPrefix(ftpPath, realPath) {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "The FTP path must start with %(real_path)s", "real_path", realPath), "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "The FTP path must start with %(real_path)s", "real_path", realPath), "/ftp/new")
 			return
 		}
 
 		ftpUsername = ftpUsername + "@" + ftpDomain
 		if !isValidUsername(ftpUsername) {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Username %(ftp_username)s contains invalid characters, only allowed: BCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_@.", "ftp_username", ftpUsername), "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Username %(ftp_username)s contains invalid characters, only allowed: BCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_@.", "ftp_username", ftpUsername), "/ftp/new")
 			return
 		}
 
 		out, cmdErr := exec.CommandContext(ctx, "opencli", "ftp-add", ftpUsername, ftpPassword, ftpPath, currentUsername).CombinedOutput()
 		if cmdErr != nil {
-			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error creating FTP user %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error creating FTP user %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), "/ftp/new")
 			return
 		}
 		if strings.Contains(string(out), "Success: FTP user") {
@@ -268,23 +257,16 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			flashAndRedirectToAccounts(a, w, r, "success", web.Tr(a, r, "FTP account %(ftp_username)s created successfully.", "ftp_username", ftpUsername))
 			return
 		}
-		flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create FTP account %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), "/ftp/new")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create FTP account %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), "/ftp/new")
 		return
 	}
 
 	renderNewFTPAccountPage(a, w, r, userDomains)
 }
 
-func flashAndRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
-	sess, _ := a.Sessions.Get(r, session.CookieName)
-	flash.Add(sess, category, message)
-	_ = a.Sessions.Save(r, w, sess)
-	http.Redirect(w, r, path, http.StatusFound)
-}
-
 // handleDeleteFTPAccount deletes an FTP account by username.
 func handleDeleteFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -329,7 +311,7 @@ func handleChangeFTPPassword(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		currentUsername, _, err := injected(a, r)
+		_, currentUsername, _, err := auth.Injected(a, r)
 		if err != nil {
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
@@ -354,7 +336,7 @@ func handleChangeFTPPassword(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 // handleChangeFTPPath handles both the change-path form page and its submission for one FTP account
 func handleChangeFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request, username string) {
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -401,7 +383,7 @@ func handleFTPConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	currentUsername, userContext, err := injected(a, r)
+	_, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

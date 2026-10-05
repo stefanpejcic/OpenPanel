@@ -7,9 +7,11 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI wires the /api/trash routes onto mux, gated behind the "trash" feature flag - handleRestoreFile and handleDeleteTrash already speak pure JSON and are reused unmodified; handleFilesInTrash supports "?output=json" forced on here, matching filemanager's own pattern; restore-all/empty-trash needed a JSON variant since the web handlers only flash+redirect
@@ -37,7 +39,7 @@ func forceJSONOutput(r *http.Request) *http.Request {
 
 // apiDeleteAll is handleDeleteAll (crud.go) with a JSON response instead of flash+redirect
 func apiDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -47,7 +49,7 @@ func apiDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	entries, err := os.ReadDir(trashDir)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, jsonResult{Success: false, Error: "Unexpected error"})
+		web.WriteJSON(w, http.StatusInternalServerError, jsonResult{Success: false, Error: "Unexpected error"})
 		return
 	}
 
@@ -61,22 +63,22 @@ func apiDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if clearErr != nil {
-		writeJSON(w, http.StatusInternalServerError, jsonResult{Success: false, Error: "Unexpected error"})
+		web.WriteJSON(w, http.StatusInternalServerError, jsonResult{Success: false, Error: "Unexpected error"})
 		return
 	}
 
 	if err := os.WriteFile(filepath.Join(trashDir, ".trash_restore"), nil, 0o644); err != nil {
-		writeJSON(w, http.StatusInternalServerError, jsonResult{Success: false, Error: "Unexpected error"})
+		web.WriteJSON(w, http.StatusInternalServerError, jsonResult{Success: false, Error: "Unexpected error"})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, username, "Emptied trash via API", reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, jsonResult{Success: true, Message: "Trash emptied successfully"})
+	web.WriteJSON(w, http.StatusOK, jsonResult{Success: true, Message: "Trash emptied successfully"})
 }
 
 // apiRestoreAll is handleRestoreAll (crud.go) with a JSON response instead of flash+redirect
 func apiRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, userContext, err := injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -88,7 +90,7 @@ func apiRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	content, err := os.ReadFile(trashRestorePath)
 	if err != nil {
-		writeJSON(w, http.StatusOK, map[string]any{"restored": []string{}, "errors": []string{}, "message": "Nothing to restore"})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"restored": []string{}, "errors": []string{}, "message": "Nothing to restore"})
 		return
 	}
 
@@ -149,5 +151,5 @@ func apiRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		_ = os.WriteFile(trashRestorePath, nil, 0o644)
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{"restored": restored, "errors": restoreErrors})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"restored": restored, "errors": restoreErrors})
 }

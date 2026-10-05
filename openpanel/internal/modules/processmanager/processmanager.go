@@ -4,7 +4,6 @@ package processmanager
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"log"
 	"net/http"
 	"regexp"
@@ -12,10 +11,9 @@ import (
 	"strconv"
 	"strings"
 
-	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // topDescriptors are the fields requested from `podman top` - "user", not "uid", since "uid" isn't a recognized AIX format descriptor and including it makes podman exec ps(1) inside the container instead, which fails on busybox/Alpine's ps and always showed "No processes"
@@ -35,17 +33,6 @@ type Process struct {
 	TTY       string `json:"TTY"`
 	TIME      string `json:"TIME"`
 	CMD       string `json:"CMD"`
-}
-
-func injected(a *appctx.App, r *http.Request) (username, userContext string, err error) {
-	userID, _ := auth.UserID(r)
-	data, err := a.InjectData(r.Context(), userID)
-	if err != nil {
-		return "", "", err
-	}
-	username, _ = data["current_username"].(string)
-	userContext, _ = data["context"].(string)
-	return username, userContext, nil
 }
 
 // serviceNamesFromCompose extracts every service name from a parsed docker-compose.yml
@@ -152,14 +139,8 @@ func isDisplayableCmd(cmd string) bool {
 		!strings.Contains(cmd, "/dev/null")
 }
 
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
-
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
-	writeJSON(w, status, map[string]string{"error": msg})
+	web.WriteJSON(w, status, map[string]string{"error": msg})
 }
 
 func processKey(container, pid string) string {

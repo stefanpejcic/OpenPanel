@@ -108,7 +108,7 @@ func handleContainersList(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	totalCPU, totalRAM := getCPUAndRAMForPlanID(a, ctx, planID)
 
 	if webserver == "" || mysqlType == "" {
-		flashAndRedirect(a, w, r, "error", "Missing environment variables. Please check the configuration or restore from backup.", "/dashboard")
+		web.FlashRedirect(a, w, r, "error", "Missing environment variables. Please check the configuration or restore from backup.", "/dashboard")
 		return
 	}
 
@@ -128,23 +128,6 @@ func handleContainersList(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	renderContainersPage(a, w, r, totalCPU, totalRAM, mysqlType, webserver, dockerData)
-}
-
-// containerFormValidation runs the shared service_name/cpu/ram/pids validation add_container() and edit_container() both do, returning "" if all valid
-func validateServiceForm(serviceName, cpu, ram, pids string) string {
-	if !IsValidServiceName(serviceName) {
-		return "Invalid service name. Must start with a letter, contain only lowercase letters and digits, and be at least 3 characters long."
-	}
-	if !IsValidCPULimit(cpu) {
-		return "CPU limit must be a positive number."
-	}
-	if !IsValidRAMLimit(ram) {
-		return "Memory limit must be a positive number followed by 'M' or 'G' (e.g., 512M or 1.5G)."
-	}
-	if !IsValidPIDsLimit(pids) {
-		return "PIDs limit must be a positive whole number."
-	}
-	return ""
 }
 
 var imageRefRE = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._/:@-]{0,254}$`)
@@ -308,7 +291,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	_ = logger.RecordUserAction(a.Config, username, "added container "+serviceName, reqip.ClientIP(r))
 	if !stream {
-		flashAndRedirect(a, w, r, "success", web.Tr(a, r, "Container %(service_name)s created successfully!", "service_name", serviceName), "/containers")
+		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Container %(service_name)s created successfully!", "service_name", serviceName), "/containers")
 		return
 	}
 
@@ -451,7 +434,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		_ = SaveCompose(userContext, composeData)
 
 		_ = logger.RecordUserAction(a.Config, username, "edited container "+service, reqip.ClientIP(r))
-		flashAndRedirect(a, w, r, "success", "Container updated successfully.", "/containers/edit/"+service)
+		web.FlashRedirect(a, w, r, "success", "Container updated successfully.", "/containers/edit/"+service)
 		return
 	}
 

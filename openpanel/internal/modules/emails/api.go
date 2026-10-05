@@ -78,7 +78,7 @@ type apiMailboxEntry struct {
 func apiEmailsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -109,7 +109,7 @@ func apiEmailsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 func apiEmailsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -215,7 +215,7 @@ func apiEmailDetailGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if !apiOwnEmailOr403(a, w, r, userID, email) {
 		return
 	}
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -267,7 +267,7 @@ func apiEmailDetailPatch(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	if !apiOwnEmailOr403(a, w, r, userID, email) {
 		return
 	}
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -350,7 +350,7 @@ func apiEmailDetailDelete(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	if !apiOwnEmailOr403(a, w, r, userID, email) {
 		return
 	}
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -382,7 +382,7 @@ func apiEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -472,7 +472,7 @@ func apiEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request
 func apiEmailAliasesList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -485,7 +485,7 @@ func apiEmailAliasesList(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 func apiEmailAliasesCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -549,7 +549,7 @@ func apiEmailAliasDetailGet(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	if !apiOwnDomainOr403(a, w, r, userID, domain) {
 		return
 	}
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -579,7 +579,7 @@ func apiEmailAliasDetailPost(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	if !apiOwnDomainOr403(a, w, r, userID, domain) {
 		return
 	}
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -622,7 +622,7 @@ func apiEmailAliasDetailDelete(a *appctx.App, w http.ResponseWriter, r *http.Req
 	if !apiOwnDomainOr403(a, w, r, userID, domain) {
 		return
 	}
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -687,7 +687,7 @@ func apiEmailDefaultPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if !apiOwnDomainOr403(a, w, r, userID, domain) {
 		return
 	}
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -731,7 +731,7 @@ func apiEmailDefaultPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 func apiEmailDeliverabilityAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -764,7 +764,7 @@ func apiEmailDeliverabilityDomain(a *appctx.App, w http.ResponseWriter, r *http.
 	if !apiOwnDomainOr403(a, w, r, userID, domain) {
 		return
 	}
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -813,7 +813,7 @@ func apiEmailFilterPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIEmailsJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid email format"})
 		return
 	}
-	currentUsername, _, err := injected(a, r)
+	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

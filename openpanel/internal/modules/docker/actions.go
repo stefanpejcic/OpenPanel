@@ -232,7 +232,7 @@ func handleManageContainer(a *appctx.App, w http.ResponseWriter, r *http.Request
 		if success {
 			_ = logger.RecordUserAction(a.Config, username, fmt.Sprintf("updated %s limit for %s to: %s", action, containerName, value), reqip.ClientIP(r))
 		}
-		flashAndRedirect(a, w, r, successCategory(success), message, "/containers")
+		web.FlashRedirect(a, w, r, successCategory(success), message, "/containers")
 		return
 	}
 
@@ -243,7 +243,7 @@ func handleManageContainer(a *appctx.App, w http.ResponseWriter, r *http.Request
 		if success {
 			_ = logger.RecordUserAction(a.Config, username, fmt.Sprintf("updated pids limit for %s to: %s", containerName, value), reqip.ClientIP(r))
 		}
-		flashAndRedirect(a, w, r, successCategory(success), message, "/containers")
+		web.FlashRedirect(a, w, r, successCategory(success), message, "/containers")
 		return
 	}
 
@@ -289,7 +289,7 @@ func handleManageContainer(a *appctx.App, w http.ResponseWriter, r *http.Request
 			}
 		}
 		_ = logger.RecordUserAction(a.Config, username, logMsg, reqip.ClientIP(r))
-		flashAndRedirect(a, w, r, "success", flashMsg, "/containers")
+		web.FlashRedirect(a, w, r, "success", flashMsg, "/containers")
 		return
 	}
 
@@ -297,7 +297,7 @@ func handleManageContainer(a *appctx.App, w http.ResponseWriter, r *http.Request
 	if response.Message != "" {
 		msg = web.Tr(a, r, response.Message)
 	}
-	flashAndRedirect(a, w, r, "error", msg, "/containers")
+	web.FlashRedirect(a, w, r, "error", msg, "/containers")
 }
 
 func successCategory(success bool) string {

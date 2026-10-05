@@ -7,10 +7,12 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/dbtuning"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // errorLogTail is how many container log lines are scanned for known problems
@@ -106,15 +108,15 @@ func parseEnvSize(v string) (int64, bool) {
 
 // handlePgConfigRecommendations returns tuning suggestions for the configuration page, loaded with ajax so the page itself stays fast
 func handlePgConfigRecommendations(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	_, userContext, err := injected(a, r)
+	_, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	stats, err := gatherPgTuningStats(r.Context(), a, userContext)
 	if err != nil {
-		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Could not read the database status: " + err.Error()})
+		web.WriteJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Could not read the database status: " + err.Error()})
 		return
 	}
-	writeJSON(w, http.StatusOK, BuildPgRecommendations(stats))
+	web.WriteJSON(w, http.StatusOK, BuildPgRecommendations(stats))
 }

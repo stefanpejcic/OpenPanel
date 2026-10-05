@@ -9,9 +9,11 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI wires the ip-blocker API routes onto mux.
@@ -39,7 +41,7 @@ func validateIPs(raw []string) (valid, invalid []string) {
 
 // apiIPBlockerList mirrors api_ip_blocker_list().
 func apiIPBlockerList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, err := injected(a, r)
+	_, username, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -64,12 +66,12 @@ func apiIPBlockerList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if ips == nil {
 		ips = []string{}
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"blocked_ips": ips})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"blocked_ips": ips})
 }
 
 // apiIPBlockerAdd mirrors api_ip_blocker_add().
 func apiIPBlockerAdd(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, err := injected(a, r)
+	_, username, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -98,7 +100,7 @@ func apiIPBlockerAdd(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(validIPs) == 0 {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "No valid IPs or CIDRs provided", "invalid": invalidIPs})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]any{"error": "No valid IPs or CIDRs provided", "invalid": invalidIPs})
 		return
 	}
 
@@ -106,13 +108,13 @@ func apiIPBlockerAdd(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	cmd := exec.CommandContext(r.Context(), "opencli", "user-block_ip", username, "--list="+strings.Join(validIPs, " "))
 	cmd.Stderr = &stderr
 	if runErr := cmd.Run(); runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to block IPs", "details": stderr.String()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to block IPs", "details": stderr.String()})
 		return
 	}
 
 	countStr := strconv.Itoa(len(validIPs))
 	_ = logger.RecordUserAction(a.Config, username, "blocked "+countStr+" IP(s) via API", reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]any{
+	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"blocked": validIPs, "invalid": invalidIPs,
 		"message": countStr + " IP(s) added to blocklist",
 	})
@@ -120,7 +122,7 @@ func apiIPBlockerAdd(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // apiIPBlockerClear mirrors api_ip_blocker_clear().
 func apiIPBlockerClear(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	username, err := injected(a, r)
+	_, username, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -130,10 +132,10 @@ func apiIPBlockerClear(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	cmd := exec.CommandContext(r.Context(), "opencli", "user-block_ip", username, "--delete-all")
 	cmd.Stderr = &stderr
 	if runErr := cmd.Run(); runErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to remove IPs", "details": stderr.String()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to remove IPs", "details": stderr.String()})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, username, "removed all blocked IPs via API", reqip.ClientIP(r))
-	writeJSON(w, http.StatusOK, map[string]string{"message": "All blocked IPs removed"})
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "All blocked IPs removed"})
 }

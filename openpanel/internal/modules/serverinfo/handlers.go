@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // handleServerInfo serves a static page shell, entirely filled in client-side via the /json/system/hosting/* fetches below
@@ -131,7 +132,7 @@ func handleSystemHostingInfo(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 	username, _ := data["current_username"].(string)
 
-	writeJSON(w, http.StatusOK, buildHostingInfo(a, r, username))
+	web.WriteJSON(w, http.StatusOK, buildHostingInfo(a, r, username))
 }
 
 // buildHostingPlan gathers the user's hosting plan limits plus the webserver/mysql type and nameservers configured for their context - the data behind both /json/system/hosting/plan and /api/hosting/plan
@@ -185,7 +186,7 @@ func handleSystemHostingPlan(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	userContext, _ := data["context"].(string)
 	planID, _ := data["hosting_plan"].(int)
 
-	writeJSON(w, http.StatusOK, buildHostingPlan(a, r, userContext, planID))
+	web.WriteJSON(w, http.StatusOK, buildHostingPlan(a, r, userContext, planID))
 }
 
 // getEnvPort reads /home/<context>/.env and, for host:port style values, returns just the port segment
@@ -231,5 +232,5 @@ func handleSystemHostingPorts(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	username, _ := data["current_username"].(string)
 
-	writeJSON(w, http.StatusOK, buildHostingPorts(username))
+	web.WriteJSON(w, http.StatusOK, buildHostingPorts(username))
 }

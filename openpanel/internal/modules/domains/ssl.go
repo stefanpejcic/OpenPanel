@@ -17,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // triggerSSLGeneration reloads Caddy and visits the domain over HTTPS to trigger on-demand certificate issuance
@@ -47,7 +48,7 @@ func handleDomainCustomSSL(a *appctx.App, w http.ResponseWriter, r *http.Request
 		_ = r.ParseForm()
 		domainName = r.Form.Get("domain_name")
 		if domainName == "" {
-			flashAndRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains/ssl")
+			web.FlashRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains/ssl")
 			return
 		}
 	} else {
@@ -75,27 +76,27 @@ func handleDomainCustomSSL(a *appctx.App, w http.ResponseWriter, r *http.Request
 		case "autossl":
 			out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-ssl", domainName, "auto").CombinedOutput()
 			if cmdErr == nil {
-				flashAndRedirect(a, w, r, "success", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
+				web.FlashRedirect(a, w, r, "success", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
 				_ = logger.RecordUserAction(a.Config, currentUsername, "enabled AutoSSL for "+domainName, reqip.ClientIP(r))
 			} else {
-				flashAndRedirect(a, w, r, "error", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
+				web.FlashRedirect(a, w, r, "error", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
 			}
 			return
 
 		case "generate":
 			ok, message := triggerSSLGeneration(ctx, domainName)
 			if ok {
-				flashAndRedirect(a, w, r, "success", message, "/domains/ssl?domain_name="+domainName)
+				web.FlashRedirect(a, w, r, "success", message, "/domains/ssl?domain_name="+domainName)
 				_ = logger.RecordUserAction(a.Config, currentUsername, "generated SSL certificate for "+domainName, reqip.ClientIP(r))
 			} else {
-				flashAndRedirect(a, w, r, "error", message, "/domains/ssl?domain_name="+domainName)
+				web.FlashRedirect(a, w, r, "error", message, "/domains/ssl?domain_name="+domainName)
 			}
 			return
 
 		case "switch_and_generate":
 			out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-ssl", domainName, "auto").CombinedOutput()
 			if cmdErr != nil {
-				flashAndRedirect(a, w, r, "error", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
+				web.FlashRedirect(a, w, r, "error", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
 				return
 			}
 			ok, message := triggerSSLGeneration(ctx, domainName)
@@ -103,12 +104,12 @@ func handleDomainCustomSSL(a *appctx.App, w http.ResponseWriter, r *http.Request
 			if !ok {
 				category = "error"
 			}
-			flashAndRedirect(a, w, r, category, message, "/domains/ssl?domain_name="+domainName)
+			web.FlashRedirect(a, w, r, category, message, "/domains/ssl?domain_name="+domainName)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "switched "+domainName+" to AutoSSL and triggered certificate generation", reqip.ClientIP(r))
 			return
 
 		default:
-			flashSess(a, w, r, "error", "Invalid action! Only AutoSSL or Custom are available.")
+			web.Flash(a, w, r, "error", "Invalid action! Only AutoSSL or Custom are available.")
 		}
 	}
 
@@ -120,7 +121,7 @@ func handleDomainCustomSSL(a *appctx.App, w http.ResponseWriter, r *http.Request
 			keys = strings.TrimSpace(string(infoOut))
 		}
 	} else {
-		flashSess(a, w, r, "error", strings.TrimSpace(string(out)))
+		web.Flash(a, w, r, "error", strings.TrimSpace(string(out)))
 	}
 
 	renderSSLPage(a, w, r, domainName, currentSetting, keys, domainsList)
@@ -132,21 +133,21 @@ func handleCustomSSLUpload(a *appctx.App, w http.ResponseWriter, r *http.Request
 	privateKey := strings.TrimSpace(r.Form.Get("private_key"))
 
 	if certificate == "" || privateKey == "" {
-		flashAndRedirect(a, w, r, "error", "Certificate and private key are required.", "/domains/ssl?domain_name="+domainName)
+		web.FlashRedirect(a, w, r, "error", "Certificate and private key are required.", "/domains/ssl?domain_name="+domainName)
 		return
 	}
 	if !strings.Contains(certificate, "BEGIN CERTIFICATE") {
-		flashAndRedirect(a, w, r, "error", "Invalid certificate.", "/domains/ssl?domain_name="+domainName)
+		web.FlashRedirect(a, w, r, "error", "Invalid certificate.", "/domains/ssl?domain_name="+domainName)
 		return
 	}
 	if !strings.Contains(privateKey, "BEGIN") || !strings.Contains(privateKey, "PRIVATE KEY") {
-		flashAndRedirect(a, w, r, "error", "Invalid private key.", "/domains/ssl?domain_name="+domainName)
+		web.FlashRedirect(a, w, r, "error", "Invalid private key.", "/domains/ssl?domain_name="+domainName)
 		return
 	}
 
 	dataDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data"
 	if err := os.MkdirAll(dataDir, 0o755); err != nil {
-		flashAndRedirect(a, w, r, "error", err.Error(), "/domains/ssl?domain_name="+domainName)
+		web.FlashRedirect(a, w, r, "error", err.Error(), "/domains/ssl?domain_name="+domainName)
 		return
 	}
 
@@ -164,10 +165,10 @@ func handleCustomSSLUpload(a *appctx.App, w http.ResponseWriter, r *http.Request
 	_ = os.Remove(keyPath)
 
 	if cmdErr == nil {
-		flashAndRedirect(a, w, r, "success", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
+		web.FlashRedirect(a, w, r, "success", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "configured custom SSL for "+domainName, reqip.ClientIP(r))
 	} else {
-		flashAndRedirect(a, w, r, "error", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
+		web.FlashRedirect(a, w, r, "error", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
 	}
 }
 
@@ -191,36 +192,36 @@ func handleGetTLSAHash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	} else if _, err := os.Stat(leCert); err == nil {
 		certPath, certType = leCert, "letsencrypt"
 	} else {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "No SSL certificate found for this domain."})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "No SSL certificate found for this domain."})
 		return
 	}
 
 	certData, err := os.ReadFile(certPath)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return
 	}
 
 	block, _ := pem.Decode(certData)
 	if block == nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to decode PEM certificate"})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to decode PEM certificate"})
 		return
 	}
 	cert, parseErr := x509.ParseCertificate(block.Bytes)
 	if parseErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": parseErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": parseErr.Error()})
 		return
 	}
 
 	pubKeyDER, pubErr := x509.MarshalPKIXPublicKey(cert.PublicKey)
 	if pubErr != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": pubErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": pubErr.Error()})
 		return
 	}
 	hash311 := sha256.Sum256(pubKeyDER)
 	hash301 := sha256.Sum256(cert.Raw)
 
-	writeJSON(w, http.StatusOK, map[string]string{
+	web.WriteJSON(w, http.StatusOK, map[string]string{
 		"hash_311":  hex.EncodeToString(hash311[:]),
 		"hash_301":  hex.EncodeToString(hash301[:]),
 		"cert_path": certPath,

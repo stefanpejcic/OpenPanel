@@ -20,6 +20,7 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -27,6 +28,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 	"golang.org/x/net/idna"
 )
 
@@ -65,7 +67,7 @@ var wpCacheTTLChoices = map[int]bool{60: true, 300: true, 900: true, 1800: true,
 // resolveWPCacheSite checks ownership and works out docroot, php container and webserver for a WordPress site
 func resolveWPCacheSite(a *appctx.App, r *http.Request, siteParam string) (*wpCacheSite, int, error) {
 	ctx := r.Context()
-	userID, username, userContext, err := injected(a, r)
+	userID, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.New("internal error")
 	}
@@ -928,10 +930,10 @@ func measureSite(ctx context.Context, s *wpCacheSite) (*cacheMeasurement, error)
 func handleWPCacheStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	s, status, err := resolveWPCacheSite(a, r, r.URL.Query().Get("domain"))
 	if err != nil {
-		writeJSON(w, status, map[string]string{"error": err.Error()})
+		web.WriteJSON(w, status, map[string]string{"error": err.Error()})
 		return
 	}
-	writeJSON(w, http.StatusOK, wpCacheStatus(r.Context(), a, s))
+	web.WriteJSON(w, http.StatusOK, wpCacheStatus(r.Context(), a, s))
 }
 
 func handleWPCacheAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -939,7 +941,7 @@ func handleWPCacheAction(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	_ = r.ParseForm()
 	s, status, err := resolveWPCacheSite(a, r, r.Form.Get("domain"))
 	if err != nil {
-		writeJSON(w, status, map[string]string{"error": err.Error()})
+		web.WriteJSON(w, status, map[string]string{"error": err.Error()})
 		return
 	}
 	action := r.PathValue("action")
@@ -951,14 +953,14 @@ func handleWPCacheAction(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	switch action {
 	case "varnish":
 		if !userAllowed(ctx, a, s, "varnish") {
-			writeJSON(w, http.StatusForbidden, map[string]string{"error": "Varnish is not available on your plan."})
+			web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "Varnish is not available on your plan."})
 			return
 		}
 		msg, err = setVarnishForSite(ctx, a, s, on)
 		_ = logger.RecordUserAction(a.Config, s.Username, onOff+" Varnish page cache for WordPress site "+s.Site, ip)
 	case "varnish-ttl":
 		if !userAllowed(ctx, a, s, "varnish") {
-			writeJSON(w, http.StatusForbidden, map[string]string{"error": "Varnish is not available on your plan."})
+			web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "Varnish is not available on your plan."})
 			return
 		}
 		ttl, _ := strconv.Atoi(r.Form.Get("ttl"))
@@ -966,7 +968,7 @@ func handleWPCacheAction(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		_ = logger.RecordUserAction(a.Config, s.Username, "set Varnish cache lifetime to "+strconv.Itoa(ttl)+"s for domain "+s.Domain, ip)
 	case "redis":
 		if !userAllowed(ctx, a, s, "redis") {
-			writeJSON(w, http.StatusForbidden, map[string]string{"error": "Redis is not available on your plan."})
+			web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "Redis is not available on your plan."})
 			return
 		}
 		msg, err = setRedisForSite(ctx, s, on)
@@ -988,18 +990,18 @@ func handleWPCacheAction(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	case "measure":
 		m, mErr := measureSite(ctx, s)
 		if mErr != nil {
-			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": mErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mErr.Error()})
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]any{"measurement": m})
+		web.WriteJSON(w, http.StatusOK, map[string]any{"measurement": m})
 		return
 	default:
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Unsupported action"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Unsupported action"})
 		return
 	}
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"message": msg, "status": wpCacheStatus(ctx, a, s)})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"message": msg, "status": wpCacheStatus(ctx, a, s)})
 }

@@ -8,74 +8,20 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/installmanifest"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
-
-// handleInstallPage renders the install form / checks the plan's site limit for a GET, and hands POST off to handleInstallStream
-func handleInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, _, _, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	injectedData, _ := a.InjectData(ctx, userID)
-	planID, _ := injectedData["hosting_plan"].(int)
-	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	websitesLimit := atoiDefault(plan.WebsitesLimit, 0)
-	websiteCount, _ := countUserWebsites(a, userID)
-
-	if websitesLimit != 0 && websiteCount >= websitesLimit {
-		if r.Method == http.MethodPost {
-			w.Header().Set("Content-Type", "application/x-ndjson")
-			flusher, canFlush := w.(http.Flusher)
-			writeNDJSON(w, flusher, canFlush, map[string]any{"error": "You have reached the maximum number of sites allowed." + plan.UpgradeMessage()})
-			return
-		}
-		flashSess(a, w, r, "warning", web.Tr(a, r, "You have reached the maximum number of sites allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
-	} else if r.Method == http.MethodPost {
-		handleInstallStream(a, w, r)
-		return
-	}
-
-	domains, _ := a.AllDomainsForUser(ctx, userID)
-	renderInstallPage(a, w, r, domains)
-}
-
-func formOr(r *http.Request, key, def string) string {
-	if v := r.FormValue(key); v != "" {
-		return v
-	}
-	return def
-}
-
-// ensureContainerRunning starts the container if it isn't already running and polls briefly for it to come up, mirrors joomla/drupal/opencart/nextcloud's identical helper
-func ensureContainerRunning(ctx context.Context, userContext, container string) bool {
-	if docker.IsServiceRunning(ctx, userContext, container) {
-		return true
-	}
-	docker.StartOrStopContainer(ctx, userContext, container, "activate", "detached")
-	const attempts = 15
-	for i := 0; i < attempts; i++ {
-		time.Sleep(2 * time.Second)
-		if docker.IsServiceRunning(ctx, userContext, container) {
-			return true
-		}
-	}
-	return false
-}
 
 // ensureContainerTmpOnSameFilesystem makes the container's /tmp resolve onto the same filesystem as /var/www/html by symlinking it into a shared sticky-bit dir there (idempotent) - PHP's sys_temp_dir can't be overridden per-directory (PHP_INI_SYSTEM scope, .user.ini ignored), so a filesystem-level redirect of /tmp itself is the only thing that works; applies container-wide, which is intentional and safe
 func ensureContainerTmpOnSameFilesystem(ctx context.Context, userContext, phpContainer string) {
@@ -120,70 +66,40 @@ func (e *execError) Unwrap() error { return e.err }
 // handleInstallStream drives a PrestaShop install end to end over NDJSON: download the release asset, extract inner prestashop.zip into the docroot, create the DB, run install/index_cli.php install (its argv parser only recognizes "--flag=value", the opposite of OpenCart's space-separated form)
 // immediately after a successful install, admin/ is renamed to a random name and install/ is removed - PrestaShop's own AdminLoginController does the rename automatically on first browser load, but doing it here closes the window where admin/ sits at its guessable default name
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userID, currentUsername, userContext, err := injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	in, ok := cmsapp.StartInstall(a, w, r)
+	if !ok {
 		return
 	}
+	defer appkit.RemoveLockFile(in.Username)
+	ctx := in.Ctx
+	userID := in.UserID
+	currentUsername := in.Username
+	userContext := in.UserContext
+	emit := in.Emit
+	ipAddress := in.IP
+	domainID := in.DomainID
+	dom := in.Domain
+	subdirectory := in.Subdirectory
 
-	w.Header().Set("Content-Type", "application/x-ndjson")
-	flusher, canFlush := w.(http.Flusher)
-	emit := func(v map[string]any) { writeNDJSON(w, flusher, canFlush, v) }
-
-	ipAddress := reqip.ClientIP(r)
-	domainID := r.FormValue("domain_id")
-	if domainID == "" {
-		emit(map[string]any{"error": "Missing required field: domain"})
-		return
-	}
-
-	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
-	if err := createLockFile(currentUsername); err != nil {
-		emit(map[string]any{"error": "Error creating lock file: " + err.Error()})
-		return
-	}
-	defer removeLockFile(currentUsername)
-
-	dom, found, dbErr := lookupDomainByID(ctx, a, domainID)
-	if dbErr != nil {
-		emit(map[string]any{"error": "An error occurred fetching docroot for domain from database."})
-		return
-	}
-	if !found {
-		emit(map[string]any{"error": "Domain not found"})
-		return
-	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, dom.DomainURL) {
-		return
-	}
-
-	emit(map[string]any{"status": "Validating provided data"})
-	subdirectory := strings.ToLower(strings.ReplaceAll(r.FormValue("subdirectory"), " ", ""))
-	if !isValidSubdirectory(subdirectory) {
-		emit(map[string]any{"error": "Invalid subdirectory."})
-		return
-	}
-
-	adminEmail := formOr(r, "admin_email", "admin@"+dom.DomainURL)
+	adminEmail := web.FormOr(r, "admin_email", "admin@"+dom.DomainURL)
 	adminPassword := r.FormValue("admin_password")
 	if adminPassword == "" {
-		adminPassword = generateRandomString(16) + "!A1"
+		adminPassword = appkit.RandomString(16) + "!A1"
 	}
-	adminFirstname := formOr(r, "admin_firstname", "Admin")
-	adminLastname := formOr(r, "admin_lastname", "User")
+	adminFirstname := web.FormOr(r, "admin_firstname", "Admin")
+	adminLastname := web.FormOr(r, "admin_lastname", "User")
 
 	dbName := strings.ToLower(r.FormValue("db_name"))
 	if dbName == "" {
-		dbName = "prestashop_" + strings.ToLower(generateRandomString(6))
+		dbName = "prestashop_" + strings.ToLower(appkit.RandomString(6))
 	}
 	dbUser := strings.ToLower(r.FormValue("db_user"))
 	if dbUser == "" {
-		dbUser = strings.ToLower(generateRandomString(10))
+		dbUser = strings.ToLower(appkit.RandomString(10))
 	}
 	dbPassword := r.FormValue("db_password")
 	if dbPassword == "" {
-		dbPassword = generateRandomString(16)
+		dbPassword = appkit.RandomString(16)
 	}
 
 	docroot := dom.Docroot.String
@@ -205,7 +121,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Starting PHP container: " + phpContainer})
-	if !ensureContainerRunning(ctx, userContext, phpContainer) {
+	if !cmsapp.EnsureContainerRunning(ctx, userContext, phpContainer) {
 		emit(map[string]any{"error": "PHP container failed to start. Please check it from Services."})
 		return
 	}
@@ -253,7 +169,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "Extracting files to " + installPath})
 	if unpackErr := unpackPrestashopArchive(ctx, archivePath, hostOSPath); unpackErr != nil {
 		emit(map[string]any{"error": "Error extracting PrestaShop archive: " + unpackErr.Error()})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 
@@ -262,13 +178,13 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr != nil {
 		emit(map[string]any{"error": "Could not determine file owner: " + uidErr.Error()})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 	uidStr := strconv.Itoa(uid)
 	if chownErr := exec.Command("chown", "-R", uidStr+":"+uidStr, hostOSPath).Run(); chownErr != nil {
 		emit(map[string]any{"error": "Could not set file ownership: " + chownErr.Error()})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 
@@ -286,14 +202,14 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emit(map[string]any{"status": "Checking " + mysqlVersion + " container status.."})
 		if !mysql.CheckMySQLNotTemporary(ctx, userContext, mysqlVersion) {
 			emit(map[string]any{"error": "The " + mysqlVersion + " container is either not running or still initializing. Please ensure your plan has sufficient resources to start the service."})
-			emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+			cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 			return
 		}
 	}
 
 	if mysql.DatabaseLimitReached(ctx, a, userID, currentUsername, userContext) {
 		emit(map[string]any{"error": "You have reached the maximum number of databases allowed on your plan." + a.UpgradeMessageForUser(ctx, userID)})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
 
@@ -307,14 +223,14 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 	for _, q := range queries {
 		if _, execErr := mysqlmanager.Exec(ctx, userContext, q, ""); execErr != nil {
-			invalidateMySQLCaches(ctx, a, userContext, currentUsername)
+			appkit.InvalidateMySQLCaches(ctx, a, userContext, currentUsername)
 			emit(map[string]any{"error": "Error creating MySQL database and user: " + execErr.Error()})
-			emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
-			emitCleanupDatabase(ctx, userContext, dbName, dbUser, dbHost, emit)
+			cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+			cmsapp.EmitCleanupDatabase(ctx, userContext, dbName, dbUser, dbHost, emit)
 			return
 		}
 	}
-	invalidateMySQLCaches(ctx, a, userContext, currentUsername)
+	appkit.InvalidateMySQLCaches(ctx, a, userContext, currentUsername)
 
 	emit(map[string]any{"status": "Running PrestaShop CLI installer"})
 	// index_cli.php's argv parser only recognizes "--flag=value" single-element pairs - space-separated "--flag value" silently drops the value
@@ -341,8 +257,8 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	out, runErr := podmanmanager.Command(ctx, userContext, installArgv).CombinedOutput()
 	if runErr != nil || !strings.Contains(string(out), "Installation successful") {
 		emit(map[string]any{"error": "PrestaShop CLI installer failed: " + strings.TrimSpace(string(out))})
-		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
-		emitCleanupDatabase(ctx, userContext, dbName, dbUser, dbHost, emit)
+		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
+		cmsapp.EmitCleanupDatabase(ctx, userContext, dbName, dbUser, dbHost, emit)
 		return
 	}
 
@@ -365,7 +281,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	emit(map[string]any{"status": "Securing admin directory"})
 	// see handleInstallStream's doc comment: doing this right after install avoids ever leaving admin/ at its guessable default name
-	adminDirName := "admin" + generateRandomString(20)
+	adminDirName := "admin" + appkit.RandomString(20)
 	if renameErr := os.Rename(filepath.Join(hostOSPath, "admin"), filepath.Join(hostOSPath, adminDirName)); renameErr != nil {
 		emit(map[string]any{"status": "Warning: could not rename admin directory: " + renameErr.Error()})
 		adminDirName = "admin"
@@ -392,36 +308,6 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed PrestaShop on domain "+selectedDomain, ipAddress)
-	flashSess(a, w, r, "success", web.Tr(a, r, "PrestaShop installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
+	web.Flash(a, w, r, "success", web.Tr(a, r, "PrestaShop installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
 	emit(map[string]any{"status": "PrestaShop installation completed!"})
-}
-
-func invalidateMySQLCaches(ctx context.Context, a *appctx.App, userContext, currentUsername string) {
-	_ = a.Cache.Delete(ctx, "databases_info:"+userContext)
-	_ = a.Cache.Delete(ctx, "get_database_count:"+currentUsername)
-}
-
-// emitCleanupFiles clears installPath's contents but leaves installPath itself - it's the domain's docroot, not ours to delete, and removing it would force a manual recreate before reinstalling
-func emitCleanupFiles(ctx context.Context, userContext, phpContainer, installPath string, emit func(map[string]any)) {
-	if err := installmanifest.ClearContentsViaContainer(ctx, userContext, phpContainer, installPath); err != nil {
-		emit(map[string]any{"status": "Cleanup: failed to remove files from " + installPath + ": " + err.Error()})
-		return
-	}
-	emit(map[string]any{"status": "Cleanup: removed files from " + installPath})
-}
-
-func emitCleanupDatabase(ctx context.Context, userContext, dbName, dbUser, dbHost string, emit func(map[string]any)) {
-	_, _ = mysqlmanager.Exec(ctx, userContext, "DROP DATABASE IF EXISTS `"+dbName+"`", "")
-	if _, execErr := mysqlmanager.Exec(ctx, userContext, "DROP USER IF EXISTS '"+dbUser+"'@'"+dbHost+"'", ""); execErr != nil {
-		emit(map[string]any{"error": "Cleanup: failed to drop database/user: " + execErr.Error()})
-		return
-	}
-	emit(map[string]any{"status": "Cleanup: dropped database `" + dbName + "` and user `" + dbUser + "`"})
-}
-
-func isValidSubdirectory(subdirectory string) bool {
-	if subdirectory == "" {
-		return true
-	}
-	return !strings.Contains(subdirectory, "..") && !strings.HasPrefix(subdirectory, "/")
 }

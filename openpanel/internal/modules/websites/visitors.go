@@ -10,6 +10,7 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 type visitorsLogRequest struct {
@@ -114,5 +115,5 @@ func visitorsSeconds(r *http.Request) int {
 // handleVisitors returns the recent unique-visitor-IP count/list for a domain - notably, this doesn't check domain ownership, any logged-in user can query any domain's recent visitor count/IPs.
 func handleVisitors(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domain := r.PathValue("domain")
-	writeJSON(w, http.StatusOK, visitorsForDomain(domain, visitorsSeconds(r)))
+	web.WriteJSON(w, http.StatusOK, visitorsForDomain(domain, visitorsSeconds(r)))
 }
