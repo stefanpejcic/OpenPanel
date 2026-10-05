@@ -27,3 +27,22 @@ else
     echo "Failed to download wp.rules, keeping the existing file"
 fi
 rm -f "$WP_RULES.new"
+
+# docker-mailserver v16 switched to Dovecot 2.4, which ignores the old quota_rule our accounts.sh wrote, so mailbox quotas were never enforced
+ACCOUNTS_SH="/usr/local/mail/openmail/openpanel/accounts.sh"
+if [ -f "$ACCOUNTS_SH" ]; then
+    echo "Updating email quota handling in $ACCOUNTS_SH..."
+    if wget --timeout=15 --tries=3 -q -O "$ACCOUNTS_SH.new" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/openpanel/accounts.sh && grep -q "userdb_quota_storage_size" "$ACCOUNTS_SH.new" && bash -n "$ACCOUNTS_SH.new"; then
+        cp "$ACCOUNTS_SH" "$ACCOUNTS_SH.bak-2.0.14"
+        # cat keeps the inode, the file is bind-mounted into the mailserver container
+        cat "$ACCOUNTS_SH.new" > "$ACCOUNTS_SH"
+        # a container restart skips docker-mailserver's account setup, so reload the change detector with the new file and make it think dovecot-quotas.cf changed, it then rebuilds every account's dovecot entry and existing quotas apply
+        if podman ps --format '{{.Names}}' | grep -qx openadmin_mailserver; then
+            podman exec openadmin_mailserver supervisorctl restart changedetector >/dev/null 2>&1
+            podman exec openadmin_mailserver sed -i 's#^[0-9a-f]*  /tmp/docker-mailserver/dovecot-quotas.cf$#0  /tmp/docker-mailserver/dovecot-quotas.cf#' /tmp/docker-mailserver-config-chksum
+        fi
+    else
+        echo "Failed to download a fixed accounts.sh, keeping the existing file"
+    fi
+    rm -f "$ACCOUNTS_SH.new"
+fi

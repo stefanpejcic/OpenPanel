@@ -54,7 +54,7 @@ func (app *App) HandleRemove(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	subdirectory := parts[1:]
 
 	if docroot == "" {
-		web.FlashRedirect(a, w, r, "error", app.Name+" installation not found in the database", "/sites")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "%(name)s installation not found in the database", "name", app.Name), "/sites")
 		return
 	}
 	if !a.CheckDomainBelongsToUser(ctx, userID, selectedDomain) {
@@ -101,7 +101,7 @@ func (app *App) HandleRemove(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 
 	if _, delErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE id = ?", id); delErr != nil {
-		web.Flash(a, w, r, "error", "An error occurred during "+app.Name+" uninstall.")
+		web.Flash(a, w, r, "error", web.Tr(a, r, "An error occurred during %(name)s uninstall.", "name", app.Name))
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": delErr.Error()})
 		return
 	}
@@ -112,7 +112,7 @@ func (app *App) HandleRemove(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		web.WriteJSON(w, http.StatusOK, map[string]string{"message": app.Name + " uninstalled successfully"})
 		return
 	}
-	web.FlashRedirect(a, w, r, "success", app.Name+" uninstalled successfully", "/sites")
+	web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "%(name)s uninstalled successfully", "name", app.Name), "/sites")
 }
 
 // dropDBFromConfig reads the db name and user out of the site's config file and drops both
@@ -130,7 +130,7 @@ func (app *App) dropDBFromConfig(a *appctx.App, w http.ResponseWriter, r *http.R
 	dbNameMatch := app.RemoveDBNameRE.FindStringSubmatch(text)
 	dbUserMatch := app.RemoveDBUserRE.FindStringSubmatch(text)
 	if dbNameMatch == nil || dbUserMatch == nil {
-		web.Flash(a, w, r, "warning", "Database name or user not found in "+app.RemoveConfig)
+		web.Flash(a, w, r, "warning", web.Tr(a, r, "Database name or user not found in %(file)s", "file", app.RemoveConfig))
 		return
 	}
 	ctx := r.Context()
