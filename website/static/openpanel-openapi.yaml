@@ -624,6 +624,37 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/phpmyadmin:
+    get:
+      summary: Get a phpMyAdmin autologin link.
+      description: Mints an autologin token and returns a link that logs straight into phpMyAdmin. The link stays valid until a new one is generated. Requires the phpmyadmin feature.
+      operationId: phpmyadmin_autologin
+      tags:
+      - MySQL
+      parameters:
+      - name: db
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  login_url:
+                    type: string
+        '503':
+          description: phpMyAdmin is not running.
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/mysql/processlist:
     get:
       summary: Show full MySQL processlist.

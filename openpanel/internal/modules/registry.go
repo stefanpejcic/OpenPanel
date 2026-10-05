@@ -158,6 +158,7 @@ var configured = map[string]Registrar{
 		php.RegisterExtensionsAPI(mux, a)
 		php.RegisterDefaultAPI(mux, a)
 		php.RegisterDomainsAPI(mux, a)
+		php.RegisterPHPMyAdminAPI(mux, a)
 		phpapp.Register(mux, a)
 		phpapp.RegisterAPI(mux, a)
 	},

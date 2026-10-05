@@ -4,8 +4,10 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strings"
@@ -14,6 +16,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
@@ -135,7 +138,37 @@ func isPMAContainerRunning(ctx context.Context) bool {
 	return strings.TrimSpace(strings.ToLower(string(out))) == "true"
 }
 
-// handlePHPMyAdminRedirect mints (or reuses) an autologin token and redirects the browser to phpMyAdmin, probing the token server-side first so the user isn't sent to a dead end
+// errPMAUnavailable means the shared phpMyAdmin container isn't running
+var errPMAUnavailable = errors.New("phpMyAdmin is not running")
+
+// buildPHPMyAdminAutologinURL mints (or reuses) an autologin token and returns the pma.php URL for it, probing the token server-side first so the caller isn't handed a dead end
+func buildPHPMyAdminAutologinURL(ctx context.Context, a *appctx.App, currentUsername, userContext, db string) (string, string, error) {
+	if !isPMAContainerRunning(ctx) {
+		return "", "", errPMAUnavailable
+	}
+
+	docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
+
+	token, err := ensureUserToken(ctx, a, userContext)
+	if err != nil {
+		log.Printf("PHPMYADMIN - DEBUG - ensureUserToken failed for context=%s: %v", userContext, err)
+		return "", "", err
+	}
+	log.Printf("PHPMYADMIN - DEBUG - wrote token for context=%s", userContext)
+
+	phpmyadminURL := getPMABaseURL(ctx, a, currentUsername) + "/pma.php?user=" + userContext + "&token=" + token
+	if db != "" {
+		phpmyadminURL += "&db=" + url.QueryEscape(db)
+	}
+
+	// pma.php's token check has been observed to intermittently fail on the very next read due to a cross-container read race over the bind-mounted token file - since the check is a plain re-readable file compare (not one-time-use), probing the exact redirect URL first lets us retry past the race
+	if ok := probePHPMyAdminTokenWithRetry(ctx, phpmyadminURL); !ok {
+		log.Printf("PHPMYADMIN - DEBUG - token probe kept failing for context=%s after retries, returning url anyway (best effort)", userContext)
+	}
+	return phpmyadminURL, token, nil
+}
+
+// handlePHPMyAdminRedirect sends the browser straight into phpMyAdmin via an autologin link
 func handlePHPMyAdminRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, currentUsername, userContext, err := auth.Injected(a, r)
@@ -145,30 +178,14 @@ func handlePHPMyAdminRedirect(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	log.Printf("PHPMYADMIN - DEBUG - redirect request from %s: user=%s context=%s ua=%q", reqip.ClientIP(r), currentUsername, userContext, r.UserAgent())
 
-	if !isPMAContainerRunning(ctx) {
+	phpmyadminURL, token, err := buildPHPMyAdminAutologinURL(ctx, a, currentUsername, userContext, r.URL.Query().Get("db"))
+	if errors.Is(err, errPMAUnavailable) {
 		renderPHPMyAdminUnavailablePage(a, w, r, web.Tr(a, r, "Please contact support."), http.StatusServiceUnavailable)
 		return
 	}
-
-	docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
-
-	token, tokenErr := ensureUserToken(ctx, a, userContext)
-	if tokenErr != nil {
-		log.Printf("PHPMYADMIN - DEBUG - ensureUserToken failed for context=%s: %v", userContext, tokenErr)
+	if err != nil {
 		renderPHPMyAdminUnavailablePage(a, w, r, web.Tr(a, r, "Failed to generate autologin token."), http.StatusInternalServerError)
 		return
-	}
-	log.Printf("PHPMYADMIN - DEBUG - wrote token for context=%s", userContext)
-
-	pmaBaseURL := getPMABaseURL(ctx, a, currentUsername)
-	phpmyadminURL := pmaBaseURL + "/pma.php?user=" + userContext + "&token=" + token
-	if db := r.URL.Query().Get("db"); db != "" {
-		phpmyadminURL += "&db=" + db
-	}
-
-	// pma.php's token check has been observed to intermittently fail on the very next read due to a cross-container read race over the bind-mounted token file - since the check is a plain re-readable file compare (not one-time-use), probing the exact redirect URL first lets us retry past the race
-	if ok := probePHPMyAdminTokenWithRetry(ctx, phpmyadminURL); !ok {
-		log.Printf("PHPMYADMIN - DEBUG - token probe kept failing for context=%s after retries, redirecting anyway (best effort)", userContext)
 	}
 
 	log.Printf("PHPMYADMIN - DEBUG - redirecting context=%s to %s", userContext, strings.Replace(phpmyadminURL, token, "REDACTED", 1))
@@ -176,6 +193,37 @@ func handlePHPMyAdminRedirect(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "opened phpMyAdmin", ipAddress)
 	http.Redirect(w, r, phpmyadminURL, http.StatusFound)
+}
+
+// RegisterPHPMyAdminAPI wires the phpMyAdmin autologin API route onto mux, gated by the same "phpmyadmin" feature as the web routes
+func RegisterPHPMyAdminAPI(mux *http.ServeMux, a *appctx.App) {
+	apiregistry.Handle(mux, a, "phpmyadmin", "GET /api/phpmyadmin", func(w http.ResponseWriter, r *http.Request) { apiPHPMyAdminAutologin(a, w, r) })
+}
+
+// apiPHPMyAdminAutologin returns a ready-to-open phpMyAdmin autologin url instead of redirecting, so API clients can hand it to a browser
+func apiPHPMyAdminAutologin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	_, currentUsername, userContext, err := auth.Injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	phpmyadminURL, _, err := buildPHPMyAdminAutologinURL(ctx, a, currentUsername, userContext, r.URL.Query().Get("db"))
+	if errors.Is(err, errPMAUnavailable) {
+		writeJSONError(w, http.StatusServiceUnavailable, "phpMyAdmin is not available, please contact support")
+		return
+	}
+	if err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "failed to generate autologin token")
+		return
+	}
+
+	_ = logger.RecordUserAction(a.Config, currentUsername, "generated phpMyAdmin autologin link via API", reqip.ClientIP(r))
+	web.WriteJSON(w, http.StatusOK, map[string]string{
+		"url":       phpmyadminURL,
+		"login_url": getPMABaseURL(ctx, a, currentUsername) + "/index.php?manual=" + userContext,
+	})
 }
 
 // handlePHPMyAdminLoginLink redirects to phpMyAdmin's manual login form for this user's context
