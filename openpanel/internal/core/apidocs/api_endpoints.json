@@ -222,6 +222,22 @@
     ]
   },
   {
+    "group": "phpMyAdmin",
+    "feature": "phpmyadmin",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/phpmyadmin",
+        "description": "Get a phpMyAdmin autologin link, valid until a new one is generated.",
+        "params": "?db=mydb",
+        "response": {
+          "url": "https://panel.example.com:2053/pma.php?user=stefan&token=3f9c...",
+          "login_url": "https://panel.example.com:2053/index.php?manual=stefan"
+        }
+      }
+    ]
+  },
+  {
     "group": "PostgreSQL",
     "feature": "postgresql",
     "endpoints": [
