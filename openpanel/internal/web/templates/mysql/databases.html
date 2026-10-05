@@ -107,7 +107,7 @@ function populateDatabasesTable() {
         .then(sizeResponse => {
             sizesFetched = true;
             document.querySelectorAll('#databases-table tbody tr').forEach(row => {
-                const dbName      = row.querySelector('td').textContent.trim();
+                const dbName      = row.querySelector('td[data-sort-col="database"]')?.textContent.trim();
                 const dbSizeInfo  = sizeResponse.find(item => item.Database === dbName);
 
                 let sizeValue = 'N/A';

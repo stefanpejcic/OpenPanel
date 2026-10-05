@@ -325,7 +325,7 @@ function populateDatabasesTable() {
         .then(res => res.json())
         .then(sizeResponse => {
             document.querySelectorAll('#databases-table tbody tr').forEach(row => {
-                var databaseName = row.querySelector('td').textContent.trim();
+                var databaseName = row.querySelector('td.db_size')?.previousElementSibling?.textContent.trim();
                 var databaseSizeInfo = sizeResponse.find(function (item) {
                     return item.Database === databaseName;
                 });
