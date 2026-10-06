@@ -757,6 +757,182 @@ Total checks performed: 70
 
 
 
+### Report
+
+Health report for a user: what is working and what needs attention, from the same checks the OpenPanel interface shows as warnings and the email notifications use.
+
+```bash
+opencli user-report <USERNAME|--all> [--section <name,...>] [--json]
+```
+
+The report starts with a summary of all problems found, errors first, then one part per section. Lines marked `[ERROR]` need fixing, `[WARN]` might cause problems, `[INFO]` is good to know. The command exits with `1` when any error is found, or when the user doesn't exist.
+
+Sections, in report order:
+
+| Section | What it checks |
+|---|---|
+| `info` | Account, server (load, RAM, disk), plan limits vs. usage, enabled modules and features, OpenPanel version, system containers |
+| `account` | Locale, admin notes, custom message, email notification preferences and whether they can be delivered, favorites |
+| `containers` | Status, CPU/RAM/PIDs vs. limits, restarts, OOM kills, containers not from the default template, hourly usage history |
+| `processes` | Processes per container, top processes by CPU and RAM, zombie processes |
+| `files` | Disk and inodes quota, biggest volumes and folders, permission problems, trash and auto-purge, FTP accounts and connections, malware scanner and quarantine |
+| `backups` | Backup destination, schedule, retention, encryption, backup service status, last run, full account archives |
+| `domains` | Domains with size, status (active, suspended), docroot or redirect |
+| `dns` | Nameservers, zone validation, where each domain points, SPF/DKIM/DMARC, dynamic DNS |
+| `ssl` | Certificate type, issuer and expiry per domain, AutoSSL errors |
+| `waf` | WAF status, level and profiles per domain, blocked requests, top rules and IPs |
+| `webserver` | Web server, Varnish, config test, vhosts and the folders they serve, error log |
+| `php` | Versions per domain and their support status, php.ini changes vs. the defaults, extensions, ionCube, PHP-FPM errors |
+| `websites` | Installed websites with version, available updates and whether they answer |
+| `databases` | MySQL/MariaDB, PostgreSQL and MongoDB: databases, sizes, users, remote access, running queries, log errors |
+| `cache` | Redis, Valkey, Memcached, Elasticsearch and OpenSearch status and usage |
+| `emails` | Mail server, webmail, mailboxes and quotas, aliases, hourly sending limit |
+| `crons` | Cron jobs with schedule, last and next run, results, timezone |
+| `stats` | Visitor statistics, log rotation, log sizes per domain |
+| `security` | 2FA, passkeys, logins, sessions, blocked IPs, API and MCP tokens, shell access, suspicious activity |
+| `activity` | Last entries of the activity log |
+
+When run in a terminal, the progress of each section is shown while the report is being made. It is left out when the output goes to a file or a pipe.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-report stefan --section info,ssl
+################################################################################
+ Report for stefan, generated 2026-10-06 09:25:45 GMT
+################################################################################
+
+== SUMMARY ==
+  2 error(s), 0 warning(s), 0 info
+
+  [ERROR] INFORMATION > SERVER: Server load (10.23) is over twice the CPU cores (4).
+  [ERROR] SSL: example.com has no SSL certificate yet, AutoSSL hasn't issued one.
+
+== INFORMATION ==
+  Username:                stefan
+  Status:                  Active
+  Owner:                   root
+  Email:                   stefan@example.com
+  Created:                 2026-10-05 17:02:56
+  Context:                 stefan
+  IP address:              192.0.2.10 (shared)
+
+  -- SERVER --
+  Hostname:                server.example.com
+  OS:                      Ubuntu 24.04 LTS, kernel 6.8.0-31-generic
+  CPU:                     4 cores, x86_64, Intel Xeon Processor (Cascadelake)
+  Load:                    8.19, 10.23, 10.04 (1, 5, 15 min)
+  [ERROR] Server load (10.23) is over twice the CPU cores (4).
+  RAM:                     2.98 GB used of 8.73 GB (34%)
+  Disk:                    31.21 GB used of 98.31 GB, 62.09 GB free (34%)
+
+  -- PLAN --
+  Plan:                    Standard plan
+  CPU / RAM:               2 cores / 2g
+...
+== SSL ==
+  Domain                               Type     Issuer                 Expires      Days left
+  example.com                          auto     -                      -            -
+  [ERROR] example.com has no SSL certificate yet, AutoSSL hasn't issued one.
+  site.example.com                     auto     Let's Encrypt          2026-12-30   85
+...
+  Valid:                   15 of 16
+```
+</details>
+
+Report for every user:
+
+```bash
+opencli user-report --all
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-report --all
+################################################################################
+ Report for stefan, generated 2026-10-06 09:25:45 GMT
+################################################################################
+
+== SUMMARY ==
+...
+################################################################################
+ Report for pejcic, generated 2026-10-06 09:25:58 GMT
+################################################################################
+...
+```
+</details>
+
+#### JSON
+
+With `--json` the report is saved as JSON instead of printed, so it can be read by other tools. For a single user it is saved to `/home/<context>/user_report_status.json`:
+
+```bash
+opencli user-report stefan --json
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-report stefan --json
+Report for stefan saved to /home/stefan/user_report_status.json
+```
+</details>
+
+With `--all` every user is saved as one line (NDJSON) to `/etc/openpanel/openpanel/user_report_status.json`:
+
+```bash
+opencli user-report --all --json
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-report --all --json
+Reports for 2 user(s) saved to /etc/openpanel/openpanel/user_report_status.json
+```
+</details>
+
+Both files are replaced in one step when the report is done, they never contain a half written report. `--section` works with `--json` too. In the JSON, `issues` has every problem found (errors first) and `sections` has each section's rows as `group`/`label`/`value`, its own issues and its plain text output:
+
+<details>
+  <summary>Example JSON</summary>
+
+```json
+{
+  "username": "stefan",
+  "context": "stefan",
+  "owner": "root",
+  "plan": "Standard plan",
+  "suspended": false,
+  "generated_at": "2026-10-06T09:26:02Z",
+  "duration_ms": 6520,
+  "summary": { "errors": 1, "warnings": 0, "info": 0 },
+  "issues": [
+    { "severity": "error", "section": "SSL", "message": "example.com has no SSL certificate yet, AutoSSL hasn't issued one." }
+  ],
+  "sections": [
+    {
+      "key": "ssl",
+      "title": "SSL",
+      "duration_ms": 6510,
+      "rows": [
+        { "group": "", "label": "Valid", "value": "15 of 16" }
+      ],
+      "issues": [
+        { "severity": "error", "section": "SSL", "message": "example.com has no SSL certificate yet, AutoSSL hasn't issued one." }
+      ],
+      "text": "\n== SSL ==\n  Domain  ..."
+    }
+  ]
+}
+```
+</details>
+
 ### Block IP
 
 Prevent specific IP addresses or CIDR ranges from accessing any user websites:

@@ -362,6 +362,10 @@ opencli user-rename
 Description: Rename username.
 Usage: opencli user-rename <old_username> <new_username>
 ------------------------
+opencli user-report
+Description: Prints a health report for a user: what is working and what needs attention.
+Usage: opencli user-report <USERNAME|--all> [--section <name,...>] [--json]
+------------------------
 opencli user-restore
 Description: Restores a single OpenPanel user account from a full account .tar.gz backup.
 Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--quiet] [--temp-dir=<PATH> ]
