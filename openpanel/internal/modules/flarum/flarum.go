@@ -2,6 +2,7 @@
 package flarum
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -9,27 +10,33 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 )
 
 var cms = cmsapp.New(cmsapp.App{
-	Install:        handleInstallStream,
-	InstallFields:  []string{"domain_id", "subdirectory", "site_name", "flarum_version", "admin_username", "admin_password", "admin_email", "db_name", "db_user", "db_password"},
-	Cache:          handleFlarumCacheClear,
-	Logs:           handleFlarumLogs,
-	CloneDBPrefix:  "flarum_clone_",
-	CloneConfig:    cloneConfig,
-	Update:         handleFlarumUpdate,
-	CanClone:       true,
-	APICloneForm:   apiCloneForm,
-	APIUpdate:      cmsapp.SiteQuery("flarum", handleFlarumUpdate),
-	APICache:       cmsapp.SiteQuery("flarum", handleFlarumCacheClear),
-	Slug:           "flarum",
-	Name:           "Flarum",
-	RemoveConfig:   "config.php",
-	RemoveDBNameRE: removeDBNameRE,
-	RemoveDBUserRE: removeDBUserRE,
-	DBMode:         cmsapp.DBOptionalPrefix,
+	Install:          handleInstallStream,
+	InstallFields:    []string{"domain_id", "subdirectory", "site_name", "flarum_version", "admin_username", "admin_password", "admin_email", "db_name", "db_user", "db_password"},
+	Cache:            handleFlarumCacheClear,
+	Logs:             handleFlarumLogs,
+	CloneDBPrefix:    "flarum_clone_",
+	CloneConfig:      cloneConfig,
+	CloneAfterConfig: cloneAddCron,
+	Update:           handleFlarumUpdate,
+	CanClone:         true,
+	APICloneForm:     apiCloneForm,
+	APIUpdate:        cmsapp.SiteQuery("flarum", handleFlarumUpdate),
+	APICache:         cmsapp.SiteQuery("flarum", handleFlarumCacheClear),
+	Slug:             "flarum",
+	Name:             "Flarum",
+	RemoveConfig:     "config.php",
+	RemoveDBNameRE:   removeDBNameRE,
+	RemoveDBUserRE:   removeDBUserRE,
+	OnRemove: func(ctx context.Context, s *cmsapp.Site) {
+		_ = crons.RemoveJobByComment(ctx, s.UserContext, flarumCronComment(s.Name))
+	},
+	DBMode: cmsapp.DBOptionalPrefix,
 	DBInfo: func(userContext, docroot, selectedDomain string) map[string]string {
 		return extractFlarumDatabaseInfoForBackup(userContext, docroot)
 	},
@@ -58,5 +65,13 @@ func extractFlarumDatabaseInfoForBackup(userContext, docroot string) map[string]
 	return map[string]string{"database_name": nameMatch[1], "database_prefix": ""}
 }
 
-func Register(mux *http.ServeMux, a *appctx.App)    { cms.Register(mux, a) }
+func Register(mux *http.ServeMux, a *appctx.App) {
+	cms.Register(mux, a)
+	scheduler := auth.RequireLogin(a, "flarum")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleFlarumScheduler(a, w, r)
+	}))
+	mux.Handle("GET /flarum/scheduler", scheduler)
+	mux.Handle("POST /flarum/scheduler", scheduler)
+}
+
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) { cms.RegisterAPI(mux, a) }

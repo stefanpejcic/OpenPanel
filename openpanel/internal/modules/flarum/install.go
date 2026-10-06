@@ -207,6 +207,11 @@ printf '%s\n' '<?php' 'chdir(__DIR__ . "/public"); require __DIR__ . "/public/in
 		return
 	}
 
+	emit(map[string]any{"status": "Registering cron job (flarum schedule:run, every minute)"})
+	if cronErr := addScheduler(ctx, userContext, selectedDomain, phpContainer, installPath); cronErr != nil {
+		emit(map[string]any{"status": "Warning: Flarum installed, but the scheduler cron job could not be registered: " + cronErr.Error() + " - turn it on from the Scheduler card on the site page."})
+	}
+
 	version := flarumVersion
 	if version == "" {
 		version = "latest"

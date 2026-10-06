@@ -134,7 +134,7 @@ const INSTALL_STEPS = [
   { id: 'step-project',   triggers: ['Creating Composer project', 'Linking public root', 'Setting files permissions'] },
   { id: 'step-database',  triggers: ['Testing database connection', 'Creating database'] },
   { id: 'step-installer', triggers: ['Running Flarum installer'] },
-  { id: 'step-done',      triggers: ['Saving website information', 'installation completed'] },
+  { id: 'step-done',      triggers: ['Registering cron job', 'Saving website information', 'installation completed'] },
 ];
 
 const TOTAL_STEPS = INSTALL_STEPS.length;

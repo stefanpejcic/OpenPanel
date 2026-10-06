@@ -59,3 +59,17 @@ func RemoveJobByComment(ctx context.Context, userContext, comment string) error 
 	restartOrActivateCron(ctx, userContext)
 	return nil
 }
+
+// HasJob reports whether userContext's crons.ini has an enabled [job-exec "<comment>"] block
+func HasJob(userContext, comment string) bool {
+	content, err := os.ReadFile(cronFilePath(userContext))
+	if err != nil {
+		return false
+	}
+	for _, j := range ParseCronFile(string(content)) {
+		if j.Comment == comment && !j.Disabled {
+			return true
+		}
+	}
+	return false
+}

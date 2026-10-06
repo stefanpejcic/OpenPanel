@@ -342,6 +342,8 @@
 
         {{template "flarum_cache" .}}
 
+        {{template "flarum_scheduler" .}}
+
     </div>
 
 </div>
@@ -395,4 +397,60 @@ function confirmDetachFlarum() {
         {{template "cms_block_33" .}}
 {{template "cms_script_13" .}}
 <!-- END flarum_cache widget -->
+{{end}}
+
+{{define "flarum_scheduler"}}
+<!-- START flarum_scheduler widget -->
+<div x-data="flarumSchedulerComponent()" x-init="load()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+    <div class="mb-2 flex items-center justify-between gap-4 relative">
+        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Scheduler"}}</h2>
+        <svg aria-hidden="true" class="size-5 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    </div>
+    <div class="flex items-center justify-between gap-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Runs php flarum schedule:run every minute, needed by extensions that do scheduled tasks or queue jobs."}}</p>
+        <button type="button" role="switch" :aria-checked="enabled.toString()" aria-label="{{.T.Get "Scheduler on"}}"
+                @click="toggle()" :disabled="!loaded || busy"
+                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                :class="enabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'">
+            <span class="pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform" :class="enabled ? 'translate-x-5' : 'translate-x-0'"></span>
+        </button>
+    </div>
+    <a href="/cronjobs" class="mt-2 text-xs text-gray-500 hover:underline dark:text-gray-400">{{.T.Get "View in Cron Jobs"}}</a>
+</div>
+<script>
+  function flarumSchedulerComponent() {
+    return {
+      domain: {{toJSON .CurrentDomain}},
+      docroot: {{toJSON .Docroot}},
+      enabled: false,
+      loaded: false,
+      busy: false,
+      url(extra) {
+        return `/flarum/scheduler?domain=${encodeURIComponent(this.domain)}&docroot=${encodeURIComponent(this.docroot)}` + (extra || '');
+      },
+      load() {
+        fetch(this.url(), { headers: { 'X-CSRF-Token': csrf_token } })
+          .then(res => res.json())
+          .then(data => { this.enabled = !!data.enabled; this.loaded = !data.error; });
+      },
+      toggle() {
+        this.busy = true;
+        fetch(this.url('&state=' + (this.enabled ? 'off' : 'on')), { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } })
+          .then(res => res.json())
+          .then(data => {
+            if (data.error) {
+              showToast(data.error, 'danger');
+              return;
+            }
+            this.enabled = !!data.enabled;
+            showToast(data.message, 'success');
+          })
+          .catch(() => showToast({{toJSON (.T.Get "Failed to update the scheduler")}}, 'danger'))
+          .finally(() => { this.busy = false; });
+      }
+    }
+  }
+</script>
+<!-- END flarum_scheduler widget -->
 {{end}}
