@@ -71,7 +71,7 @@
         {label:{{toJSON (.T.Get "Database")}}, key:'db',   val:{{toJSON .CreatedDB}}},
         {label:{{toJSON (.T.Get "Username")}}, key:'user', val:{{toJSON .CreatedUser}}},
         {label:{{toJSON (.T.Get "Password")}}, key:'pass', val:{{toJSON .CreatedPassword}}},
-        {label:{{toJSON (.T.Get "Server")}},   key:'host', val:{{toJSON .Service}}},
+        {label:{{toJSON (.T.Get "Server")}},   key:'host', val:'localhost'},
         {label:{{toJSON (.T.Get "Port")}}, key:'priv', val:'3306', nocopy: true}
       ]" :key="row.key">
         <div :class="['db','pass','priv'].includes(row.key) ? 'bg-white' : 'bg-gray-50'" class="flex items-center">
@@ -96,31 +96,31 @@
       id: 'wordpress',
       filename: 'wp-config-snippet.php',
       lang: 'wp-config.php',
-      code: `define( 'DB_NAME',     '{{.CreatedDB}}' );\ndefine( 'DB_USER',     '{{.CreatedUser}}' );\ndefine( 'DB_PASSWORD', '{{.CreatedPassword}}' );\ndefine( 'DB_HOST',     '{{.Service}}' );\ndefine( 'DB_CHARSET',  'utf8mb4' );\ndefine( 'DB_COLLATE',  '' );`
+      code: `define( 'DB_NAME',     '{{.CreatedDB}}' );\ndefine( 'DB_USER',     '{{.CreatedUser}}' );\ndefine( 'DB_PASSWORD', '{{.CreatedPassword}}' );\ndefine( 'DB_HOST',     'localhost' );\ndefine( 'DB_CHARSET',  'utf8mb4' );\ndefine( 'DB_COLLATE',  '' );`
     },
     {
       id: 'laravel',
       filename: '.env',
       lang: '.env',
-      code: `DB_CONNECTION=mysql\nDB_HOST={{.Service}}\nDB_PORT=3306\nDB_DATABASE={{.CreatedDB}}\nDB_USERNAME={{.CreatedUser}}\nDB_PASSWORD={{.CreatedPassword}}`
+      code: `DB_CONNECTION=mysql\nDB_HOST=localhost\nDB_PORT=3306\nDB_DATABASE={{.CreatedDB}}\nDB_USERNAME={{.CreatedUser}}\nDB_PASSWORD={{.CreatedPassword}}`
     },
     {
       id: 'django',
       filename: 'settings.py',
       lang: 'settings.py',
-      code: `DATABASES = {\n    'default': {\n        'ENGINE':   'django.db.backends.mysql',\n        'NAME':     '{{.CreatedDB}}',\n        'USER':     '{{.CreatedUser}}',\n        'PASSWORD': '{{.CreatedPassword}}',\n        'HOST':     '{{.Service}}',\n        'PORT':     '3306',\n    }\n}`
+      code: `DATABASES = {\n    'default': {\n        'ENGINE':   'django.db.backends.mysql',\n        'NAME':     '{{.CreatedDB}}',\n        'USER':     '{{.CreatedUser}}',\n        'PASSWORD': '{{.CreatedPassword}}',\n        'HOST':     'localhost',\n        'PORT':     '3306',\n    }\n}`
     },
     {
       id: 'nodejs',
       filename: 'db.js',
       lang: 'Node.js (MySQL2)',
-      code: `import mysql from 'mysql2/promise';\n\nconst pool = mysql.createPool({\n  host:     '{{.Service}}',\n  user:     '{{.CreatedUser}}',\n  password: '{{.CreatedPassword}}',\n  database: '{{.CreatedDB}}',\n  waitForConnections: true,\n  connectionLimit:    10,\n});`
+      code: `import mysql from 'mysql2/promise';\n\nconst pool = mysql.createPool({\n  host:     'localhost',\n  user:     '{{.CreatedUser}}',\n  password: '{{.CreatedPassword}}',\n  database: '{{.CreatedDB}}',\n  waitForConnections: true,\n  connectionLimit:    10,\n});`
     },
     {
       id: 'phppdo',
       filename: 'db-connect.php',
       lang: 'PHP PDO',
-      code: `<?php\n\n$dsn  = 'mysql:host={{.Service}};dbname={{.CreatedDB}};charset=utf8mb4';\n$user = '{{.CreatedUser}}';\n$pass = '{{.CreatedPassword}}';\n$opts = [\n    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,\n    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,\n    PDO::ATTR_EMULATE_PREPARES   => false,\n];\n\ntry {\n    $pdo = new PDO($dsn, $user, $pass, $opts);\n} catch (\\PDOException $e) {\n    throw new \\PDOException($e->getMessage(), (int)$e->getCode());\n}`
+      code: `<?php\n\n$dsn  = 'mysql:host=localhost;dbname={{.CreatedDB}};charset=utf8mb4';\n$user = '{{.CreatedUser}}';\n$pass = '{{.CreatedPassword}}';\n$opts = [\n    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,\n    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,\n    PDO::ATTR_EMULATE_PREPARES   => false,\n];\n\ntry {\n    $pdo = new PDO($dsn, $user, $pass, $opts);\n} catch (\\PDOException $e) {\n    throw new \\PDOException($e->getMessage(), (int)$e->getCode());\n}`
     }
   ]" :key="cfg.id">
     <div x-show="tab === cfg.id">
