@@ -23,7 +23,7 @@ var (
 	dbNameRE = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 )
 
-// ValidDomain/ValidDB/ValidDocroot replace the identical validation helpers every CMS clone.go used to define for itself - ValidDocroot accepts the "/var/www/html/..." absolute form clone handlers actually use, unlike WordPress's own stricter validateDocroot()
+// ValidDomain/ValidDB/ValidDocroot replace the identical validation helpers every CMS clone.go used to define for itself
 func ValidDomain(name string) bool { return name != "" && domainRE.MatchString(name) }
 func ValidDB(name string) bool     { return name != "" && dbNameRE.MatchString(name) }
 func ValidDocroot(path string) bool {

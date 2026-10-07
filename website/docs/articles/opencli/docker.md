@@ -122,6 +122,7 @@ opencli docker-backup
 2026-09-24 02:00:01 : Found 2 active users to process
 2026-09-24 02:00:01 : Processing user: stefan (1/2)
 2026-09-24 02:00:01 : Processing user: stefan
+2026-09-24 02:00:01 : docker-proxy is ready for context: stefan (after 0s)
 2026-09-24 02:00:03 : --- backup container output for user: stefan ---
 ...
 2026-09-24 02:00:40 : --- end of backup container output for user: stefan ---

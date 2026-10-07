@@ -12,7 +12,6 @@ import (
 
 // mirrors wordpress/manage.go's handleCloneWordPress in shape (file copy, DB create+dump, config rewrite, sites insert), sharing everything but docroot copy and config rewrite with every other CMS via internal/core/cmsclone
 // unlike Joomla/Drupal, PrestaShop does hardcode its domain in the DB - the `{prefix}shop_url` table's domain/domain_ssl/physical_uri columns - so after the DB import this updates that row to point the clone at its own new domain/subdirectory, the PrestaShop equivalent of wp-cli's search-replace step
-// cmsclone.ValidDocroot accepts the real absolute "/var/www/html/..." form used everywhere here, unlike wordpress's own validateDocroot which would reject it
 
 var (
 	clonePrestaDBNameRE   = regexp.MustCompile(`'database_name'\s*=>\s*'.*?',`)

@@ -15,6 +15,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -93,7 +94,7 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	srcDomain := strings.Split(providedDomain, "/")[0]
 
 	if !validateDomain(srcDomain) || !validateDomain(dstDomain) || !validateDB(srcDB) || !validateDB(dstDB) ||
-		!validateDB(dstDBUser) || !validateDocroot(srcFolder) || !validateDocroot(docroot) {
+		!validateDB(dstDBUser) || !cmsclone.ValidDocroot(srcFolder) || !cmsclone.ValidDocroot(docroot) {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid input or unsafe docroot"})
 		return
 	}

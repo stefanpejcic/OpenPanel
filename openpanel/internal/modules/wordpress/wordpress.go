@@ -7,7 +7,6 @@ import (
 	"database/sql"
 	"math/big"
 	"regexp"
-	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
@@ -50,11 +49,6 @@ var (
 // validateDomain/validateDB check a domain/db-name-like value for the restricted character set these routes accept as user input.
 func validateDomain(name string) bool { return name != "" && validDomainRE.MatchString(name) }
 func validateDB(name string) bool     { return name != "" && validDBRE.MatchString(name) }
-
-// validateDocroot rejects path traversal and a leading slash, since the value is joined onto the account's html volume root.
-func validateDocroot(path string) bool {
-	return path != "" && !strings.Contains(path, "..") && !strings.HasPrefix(path, "/")
-}
 
 func lookupDomainByURL(ctx context.Context, a *appctx.App, domainURL string) (appkit.DomainRow, bool, error) {
 	var d appkit.DomainRow

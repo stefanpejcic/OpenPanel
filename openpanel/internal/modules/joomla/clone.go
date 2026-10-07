@@ -6,7 +6,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
 
-// mirrors wordpress/manage.go's handleCloneWordPress in shape (site-limit check, file copy, DB create+dump-pipe, config rewrite, sites-table insert) via internal/core/cmsclone, but differs from WordPress in two ways: Joomla's configuration.php has no hardcoded site URL (derived from the request at runtime), so there's no wp-cli search-replace step - hardcoded URLs in article/module content still point at the source domain after cloning, same as a manual domain move on a stock Joomla site; and cmsclone.ValidDocroot intentionally accepts the "/var/www/html/..." absolute-path form every handler in this package already uses for .Docroot, unlike WordPress's own validateDocroot() which rejects a leading "/"
+// mirrors wordpress/manage.go's handleCloneWordPress in shape (site-limit check, file copy, DB create+dump-pipe, config rewrite, sites-table insert) via internal/core/cmsclone, but differs from WordPress in that Joomla's configuration.php has no hardcoded site URL (derived from the request at runtime), so there's no wp-cli search-replace step - hardcoded URLs in article/module content still point at the source domain after cloning, same as a manual domain move on a stock Joomla site
 
 var (
 	cloneJoomlaUserRE     = regexp.MustCompile(`\$user\s*=\s*'.*?';`)
