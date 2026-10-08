@@ -9,6 +9,8 @@ Emails landing in spam - or not arriving at all - almost always come down to a f
 
 **Quick test first:** send an email to [mail-tester.com](https://www.mail-tester.com/) - it checks most of the items below in one go. See [Test your mail setup](/docs/articles/email/test-email-with-mail-tester/).
 
+**Then check where it landed:** [email-spam-tester.com](https://email-spam-tester.com/) reports inbox, spam or Promotions at Gmail, Outlook, Yahoo and other providers from a single send, so you can re-test after each fix below and see whether it moved.
+
 ---
 
 ## 1. SPF - Is Your Server Allowed to Send?
