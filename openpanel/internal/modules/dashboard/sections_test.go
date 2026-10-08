@@ -112,3 +112,16 @@ func TestBuildDashboardSectionsAppKeys(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildDashboardSectionsSitesNeedsAnApp(t *testing.T) {
+	for _, style := range []string{"classic", "modern"} {
+		sections := buildDashboardSections(testTranslator(t), map[string]bool{"websites": true}, nil, style, nil)
+		if len(sections) != 0 {
+			t.Errorf("%s: expected no Websites section without any app enabled, got %+v", style, sections)
+		}
+		sections = buildDashboardSections(testTranslator(t), map[string]bool{"websites": true, "nodejs": true}, nil, style, nil)
+		if len(sections) != 1 || len(sections[0].Items) != 1 || sections[0].Items[0].Key != "websites" {
+			t.Errorf("%s: expected only the Sites tile with nodejs enabled, got %+v", style, sections)
+		}
+	}
+}

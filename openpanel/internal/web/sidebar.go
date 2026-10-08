@@ -201,6 +201,9 @@ func mongodbTabs(g navGate, path string) []NavLink {
 	return tabs
 }
 
+// WebsiteAppKeys are the features that make the Websites area worth showing, /sites itself is always on
+var WebsiteAppKeys = []string{"wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "website_builder", "nodejs", "python"}
+
 // sidebarAreas is the sidebar in display order
 var sidebarAreas = []navArea{
 	{label: "Domains", icon: domainsIcon, menuID: "domains-menu", keys: []string{"domains"}, match: isDomainsPath,
@@ -219,7 +222,7 @@ var sidebarAreas = []navArea{
 
 	// mautic/flarum are excluded, legacy code slated for removal entirely, not ported here per user decision
 	{label: "Websites", icon: websitesIcon, menuID: "websites-menu", match: isWebsitesPath,
-		keys: []string{"wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "website_builder", "nodejs", "python"},
+		keys: WebsiteAppKeys,
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			tabs := []NavLink{{Href: "/sites", Label: "Sites", Active: isWebsitesPath(path) && !strings.HasPrefix(path, "/wordpress") && !isAppInstallPath(path)}}
 			tabs = g.add(tabs, "wordpress", "/wordpress", "WordPress", strings.HasPrefix(path, "/wordpress"), "")

@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // SectionItem mirrors one icon-link dict in dashboard.html's `sections` Jinja literal (e.g. {"key": "filemanager", "href": "/files", ...})
@@ -40,14 +41,21 @@ func buildDashboardSections(t i18n.Translator, allowed, upsellAllowed map[string
 		}
 	}
 
+	// websites is a main module so it's always allowed, gate the Sites tile on the apps like the sidebar does
+	sitesAllowed, sitesUpsell := hasAny(allowed, web.WebsiteAppKeys), hasAny(upsellAllowed, web.WebsiteAppKeys)
+
 	result := make([]Section, 0, len(all))
 	for _, s := range all {
 		var items []SectionItem
 		for _, item := range s.Items {
 			item.Label = t.Get(item.Label)
-			if allowed[item.Key] {
+			ok, upsell := allowed[item.Key], upsellAllowed[item.Key]
+			if item.Key == "websites" {
+				ok, upsell = sitesAllowed, sitesUpsell
+			}
+			if ok {
 				items = append(items, item)
-			} else if upsellAllowed[item.Key] {
+			} else if upsell {
 				item.Disabled = true
 				items = append(items, item)
 			}
@@ -360,6 +368,15 @@ func websitesItems(defaults []SectionItem, appKeys []string) []SectionItem {
 		}
 	}
 	return items
+}
+
+func hasAny(m map[string]bool, keys []string) bool {
+	for _, k := range keys {
+		if m[k] {
+			return true
+		}
+	}
+	return false
 }
 
 // parseAppKeys reads applications_dashboard_items, accepting spaces or commas as separators

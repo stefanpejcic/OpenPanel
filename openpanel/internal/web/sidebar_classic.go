@@ -40,7 +40,7 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 	}
 
 	// Websites group - mautic/flarum are excluded, legacy code slated for removal entirely, not ported here per user decision
-	if has("wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "website_builder", "nodejs", "python") {
+	if has(WebsiteAppKeys...) {
 		var links []NavLink
 		links = add(links, "autoinstaller", "/auto-installer", "Auto Installer",
 			hasAnyPrefix(path, "/auto-installer", "/pm2", "/nodejs", "/python", "/ruby", "/java", "/n8n", "/website-builder/install",
