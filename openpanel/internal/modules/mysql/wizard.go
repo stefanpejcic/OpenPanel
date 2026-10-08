@@ -42,9 +42,14 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 		password := r.Form.Get("password")
 		selectedPrivs := r.Form["privileges"]
 
+		// the form gets back what was typed, the prefix is shown next to the field anyway
+		typedDB, typedUser := databaseName, dbUser
+		databaseName = mysqlmanager.WithPrefix(a.Config, userContext, databaseName)
+		dbUser = mysqlmanager.WithPrefix(a.Config, userContext, dbUser)
+
 		flashAndRerender := func(category, message string) {
 			web.Flash(a, w, r, category, message)
-			renderWizardForm(a, w, r, mysqlVersion, databaseName, dbUser)
+			renderWizardForm(a, w, r, mysqlVersion, typedDB, typedUser)
 		}
 
 		switch {
@@ -57,8 +62,14 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 		case isRestrictedDatabase(databaseName):
 			flashAndRerender("error", "This is a system database that can not be used.")
 			return
+		case len(databaseName) > 64:
+			flashAndRerender("error", "Database name is too long. MySQL identifiers are limited to 64 characters.")
+			return
 		case dbUser == "":
 			flashAndRerender("error", "User name is required.")
+			return
+		case len(dbUser) > maxUserLen:
+			flashAndRerender("error", "User name is too long. MySQL user names are limited to 32 characters.")
 			return
 		case !validators.IsValidIdentifier(dbUser):
 			flashAndRerender("error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "db_user", dbUser))

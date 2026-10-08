@@ -166,6 +166,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			web.FlashRedirect(a, w, r, "error", "Database name is required.", "/mysql/new")
 			return
 		}
+		databaseName = mysqlmanager.WithPrefix(a.Config, userContext, databaseName)
 		if !validators.IsValidIdentifier(databaseName) {
 			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mysql/new")
 			return

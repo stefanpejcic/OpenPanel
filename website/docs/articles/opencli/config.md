@@ -2173,3 +2173,17 @@ opencli config update mysql_restricted_databases "information_schema performance
 Updated mysql_restricted_databases to information_schema performance_schema mysql phpmyadmin sys mariadb.sys
 ```
 </details>
+
+### `mysql_enforce_username_prefix`
+When set to `yes`, every new MySQL database and user gets the account's Docker context plus `_` as a prefix (e.g. `john_shop`). The context doesn't change when the account is renamed, so the prefix stays the same after a username change. This applies to the Databases page, Users page, Database Wizard, Remote Access, API and app installs/clones. The prefix is shown as a fixed part of the name field, and it isn't added twice if the user already typed it. Empty (default) leaves names as they are.
+
+Existing databases and users are not renamed, and Remote Access still accepts existing unprefixed users.
+
+```bash
+mysql_enforce_username_prefix=yes
+```
+
+**Set new value**:
+```bash
+opencli config update mysql_enforce_username_prefix yes
+```

@@ -181,10 +181,14 @@ func apiMySQLCreateDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		Name string `json:"name"`
 	}
 	_ = json.NewDecoder(r.Body).Decode(&body)
-	name := strings.TrimSpace(body.Name)
+	name := mysqlmanager.WithPrefix(a.Config, userContext, strings.TrimSpace(body.Name))
 
 	if name == "" {
 		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "Database name is required."})
+		return
+	}
+	if len(name) > 64 {
+		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "Database name is too long. MySQL identifiers are limited to 64 characters."})
 		return
 	}
 	if !validators.IsValidIdentifier(name) {
@@ -495,9 +499,14 @@ func apiMySQLCreateUser(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		dbHost = "%"
 	}
 	password := body.Password
+	dbUser = mysqlmanager.WithPrefix(a.Config, userContext, dbUser)
 
 	if dbUser == "" {
 		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "Username is required."})
+		return
+	}
+	if len(dbUser) > maxUserLen {
+		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "Username is too long. MySQL user names are limited to 32 characters."})
 		return
 	}
 	if !validators.IsValidIdentifier(dbUser) {
@@ -1043,6 +1052,11 @@ func apiMySQLRemoteAccessAdd(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 	if password == "" {
 		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "Password is required."})
+		return
+	}
+	dbUser = remoteAccessUser(ctx, a, userContext, dbUser)
+	if len(dbUser) > maxUserLen {
+		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "Username is too long. MySQL user names are limited to 32 characters."})
 		return
 	}
 

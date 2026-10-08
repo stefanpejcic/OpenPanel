@@ -68,8 +68,8 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	srcFolder := r.FormValue("source_folder")
 	dstFolder := r.FormValue("subdirectory")
 
-	dstDB := strings.ToLower(web.FormOr(r, "target_db", "wp_clone_"+generateRandomString(6)))
-	dstDBUser := strings.ToLower(web.FormOr(r, "target_db_user", dstDB))
+	dstDB := mysqlmanager.WithPrefix(a.Config, userContext, strings.ToLower(web.FormOr(r, "target_db", "wp_clone_"+generateRandomString(6))))
+	dstDBUser := mysqlmanager.WithPrefix(a.Config, userContext, strings.ToLower(web.FormOr(r, "target_db_user", dstDB)))
 	dstDBUserPassword := web.FormOr(r, "target_db_user_password", generateRandomString(16))
 
 	if providedDomain == "" || dstDomain == "" || srcDB == "" || srcFolder == "" {

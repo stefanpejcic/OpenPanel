@@ -71,6 +71,8 @@ type LayoutData struct {
 	Impersonating bool
 	AdminPort     string
 
+	MySQLPrefix string // "<context>_" when mysql_enforce_username_prefix=yes, shown as a fixed addon on db/user name fields
+
 	PasswordStrength int // clamped password_strength config value every page's passwordStrength() Alpine component reads as its minimum-score threshold
 
 	Service string // set by pages that manage a single service; "" on the dashboard, so {{if .Service}} partials render nothing there

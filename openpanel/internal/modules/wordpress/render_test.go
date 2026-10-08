@@ -2,6 +2,7 @@ package wordpress
 
 import (
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -91,6 +92,21 @@ func TestRenderInstallPage(t *testing.T) {
 		w := httptest.NewRecorder()
 		if err := installPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
+		}
+	})
+
+	t.Run("enforced mysql prefix", func(t *testing.T) {
+		data := InstallPageData{
+			LayoutData: baseLayout(mgr, "/wordpress/install"),
+			Domains:    []appctx.Domain{{DomainID: 1, Docroot: "/var/www/html/example.com", DomainURL: "example.com"}},
+		}
+		data.MySQLPrefix = "john_"
+		w := httptest.NewRecorder()
+		if err := installPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "john_") {
+			t.Error("expected the john_ prefix next to the db fields")
 		}
 	})
 }

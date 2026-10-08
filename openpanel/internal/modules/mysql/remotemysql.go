@@ -138,6 +138,18 @@ func handleRemoteMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderRemoteMySQLPage(a, w, r, mysqlVersion, serverIP, remoteMySQLPortOnly, remoteMySQLDisplay, mysqlPort, userAccess)
 }
 
+// remoteAccessUser applies the enforced prefix, except for an existing user so ones made before the setting was turned on still work
+func remoteAccessUser(ctx context.Context, a *appctx.App, userContext, dbUser string) string {
+	prefixed := mysqlmanager.WithPrefix(a.Config, userContext, dbUser)
+	if prefixed == dbUser {
+		return dbUser
+	}
+	if rows, err := mysqlmanager.Exec(ctx, userContext, "SELECT 1 FROM mysql.user WHERE User = '"+dbUser+"' LIMIT 1", ""); err == nil && len(rows) > 0 {
+		return dbUser
+	}
+	return prefixed
+}
+
 // handleRemoteMySQLAccessAdd grants a user remote access from a new host.
 func handleRemoteMySQLAccessAdd(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -163,6 +175,12 @@ func handleRemoteMySQLAccessAdd(a *appctx.App, w http.ResponseWriter, r *http.Re
 		return
 	case password == "":
 		web.FlashRedirect(a, w, r, "error", "Password is required.", "/mysql/remote-mysql")
+		return
+	}
+
+	dbUser = remoteAccessUser(ctx, a, userContext, dbUser)
+	if len(dbUser) > maxUserLen {
+		web.FlashRedirect(a, w, r, "error", "User name is too long. MySQL user names are limited to 32 characters.", "/mysql/remote-mysql")
 		return
 	}
 

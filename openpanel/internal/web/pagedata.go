@@ -10,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
@@ -168,6 +169,7 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		IsEnterprise:      isEnterprise,
 		CurrentUsername:   currentUsername,
 		HostingPlanName:   hostingPlanName,
+		MySQLPrefix:       mysqlmanager.Prefix(a.Config, userContext),
 		AvatarType:        avatarType,
 		GravatarURL:       gravatarURL,
 		RequestPath:       r.URL.Path,

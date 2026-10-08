@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -38,8 +39,8 @@ func handleOJSClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	srcDB := r.FormValue("source_db")
 	dstFolder := r.FormValue("subdirectory")
 
-	dstDB := strings.ToLower(web.FormOr(r, "target_db", "ojs_clone_"+appkit.RandomString(6)))
-	dstDBUser := strings.ToLower(web.FormOr(r, "target_db_user", dstDB))
+	dstDB := mysqlmanager.WithPrefix(a.Config, userContext, strings.ToLower(web.FormOr(r, "target_db", "ojs_clone_"+appkit.RandomString(6))))
+	dstDBUser := mysqlmanager.WithPrefix(a.Config, userContext, strings.ToLower(web.FormOr(r, "target_db_user", dstDB)))
 	dstDBUserPassword := web.FormOr(r, "target_db_user_password", appkit.RandomString(16))
 
 	if providedDomain == "" || dstDomain == "" || srcDB == "" {

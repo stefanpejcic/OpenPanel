@@ -184,11 +184,12 @@
           </label>
         </div>
         <div class="flex rounded-lg">
+          {{if .MySQLPrefix}}<span class="inline-flex items-center px-2.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-800 rounded-l select-none">{{.MySQLPrefix}}</span>{{end}}
           <input type="text" x-ref="dbname" x-model="dbname" name="database_name" id="dbname"
-            minlength="1" maxlength="63" pattern="[a-zA-Z0-9_]+"
+            minlength="1" maxlength="{{sub 63 (len .MySQLPrefix)}}" pattern="[a-zA-Z0-9_]+"
             title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-63 characters)."}}"
             value="{{.FormDatabaseName}}"
-            class="relative block w-full appearance-none rounded-l border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
+            class="relative block w-full appearance-none {{if not .MySQLPrefix}}rounded-l {{end}}border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
             placeholder=" {{.T.Get "Database Name"}}" required>
           <div class="input-group-append">
             <button type="button" @click="dbname = generateString(12); updateGrantCommands(); $nextTick(() => $refs.dbname.dispatchEvent(new Event('input', { bubbles: true })))"
@@ -212,11 +213,12 @@
           </label>
         </div>
         <div class="flex rounded-lg">
+          {{if .MySQLPrefix}}<span class="inline-flex items-center px-2.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-800 rounded-l select-none">{{.MySQLPrefix}}</span>{{end}}
           <input type="text" x-ref="username" x-model="username" name="db_user" id="username"
-            pattern="[a-zA-Z0-9_]+" minlength="1" maxlength="31"
+            pattern="[a-zA-Z0-9_]+" minlength="1" maxlength="{{sub 31 (len .MySQLPrefix)}}"
             title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters)."}}"
             value="{{.FormDBUser}}"
-            class="relative block w-full appearance-none rounded-l border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
+            class="relative block w-full appearance-none {{if not .MySQLPrefix}}rounded-l {{end}}border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
             placeholder=" {{.T.Get "Database User"}}" required>
           <div class="input-group-append">
             <button type="button" @click="username = generateString(12); updateGrantCommands(); $nextTick(() => $refs.username.dispatchEvent(new Event('input', { bubbles: true })))"
@@ -316,9 +318,13 @@
       dbname:   {{toJSON .FormDatabaseName}},
       username: {{toJSON .FormDBUser}},
       grantText: '',
+      prefix:   {{toJSON .MySQLPrefix}},
+      withPrefix(name) {
+        return !name || name.startsWith(this.prefix) ? name : this.prefix + name;
+      },
       updateGrantCommands() {
-        const db   = this.dbname   || '[database]';
-        const user = this.username || '[user]';
+        const db   = this.withPrefix(this.dbname)   || '[database]';
+        const user = this.withPrefix(this.username) || '[user]';
         this.grantText = `GRANT ALL PRIVILEGES ON \`${db}\`.* TO '${user}'@'%';`;
       }
     };

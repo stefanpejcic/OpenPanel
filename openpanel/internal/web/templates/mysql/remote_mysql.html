@@ -152,6 +152,7 @@
                             <div>
                                 <label class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Username"}}</label>
                                 <input type="text" name="db_user" pattern="[a-zA-Z0-9_]+" title="{{.T.Get "Only letters, numbers, and underscores are allowed."}}" required placeholder="{{.T.Get "Existing or new username"}}" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950">
+                                {{if .MySQLPrefix}}<p class="mt-1 text-xs text-gray-500">{{.T.Get "New users get the prefix"}} <code>{{.MySQLPrefix}}</code></p>{{end}}
                             </div>
                             <div>
                                 <label class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Allowed Host"}}</label>

@@ -183,8 +183,11 @@
                         <label class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="db_name">
                             {{.T.Get "Database name"}}<span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="db_name" id="db_name" required
-                            class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                        <div class="flex">
+                            {{if $.MySQLPrefix}}<span class="inline-flex items-center px-2.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-800 rounded-l select-none">{{$.MySQLPrefix}}</span>{{end}}
+                            <input type="text" name="db_name" id="db_name" required
+                                class="relative block w-full appearance-none {{if $.MySQLPrefix}}rounded-r{{else}}rounded{{end}} border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                        </div>
                     </div>
                     <div>
                         <label class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="db_prefix">
@@ -197,8 +200,11 @@
                         <label class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="db_user">
                             {{.T.Get "DB username"}}<span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="db_user" id="db_user" required
-                            class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                        <div class="flex">
+                            {{if $.MySQLPrefix}}<span class="inline-flex items-center px-2.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-800 rounded-l select-none">{{$.MySQLPrefix}}</span>{{end}}
+                            <input type="text" name="db_user" id="db_user" required
+                                class="relative block w-full appearance-none {{if $.MySQLPrefix}}rounded-r{{else}}rounded{{end}} border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                        </div>
                     </div>
                     <div>
                         <label class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="db_password">

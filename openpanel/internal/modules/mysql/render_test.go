@@ -294,3 +294,35 @@ func TestRenderConfigurationPage(t *testing.T) {
 		t.Errorf("expected an optimize button per key, got %d", n)
 	}
 }
+
+func TestRenderEnforcedPrefix(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	layout := func(path string) web.LayoutData {
+		l := baseLayout(mgr, path)
+		l.MySQLPrefix = "john_"
+		return l
+	}
+	pages := map[string]func(w *httptest.ResponseRecorder) error{
+		"new database": func(w *httptest.ResponseRecorder) error {
+			return newDatabasePage.Render(w, 200, NewDatabasePageData{LayoutData: layout("/mysql/new"), Service: "mysql", Engine: web.MySQLEngine})
+		},
+		"new user": func(w *httptest.ResponseRecorder) error {
+			return createUserPage.Render(w, 200, CreateUserPageData{LayoutData: layout("/mysql/user"), Service: "mysql"})
+		},
+		"wizard": func(w *httptest.ResponseRecorder) error {
+			return wizardPage.Render(w, 200, WizardPageData{LayoutData: layout("/mysql/wizard"), Service: "mysql"})
+		},
+		"remote access": func(w *httptest.ResponseRecorder) error {
+			return remoteMySQLPage.Render(w, 200, RemoteMySQLPageData{LayoutData: layout("/mysql/remote-mysql"), Service: "mysql", RemoteMySQLDisplay: "ON"})
+		},
+	}
+	for name, render := range pages {
+		w := httptest.NewRecorder()
+		if err := render(w); err != nil {
+			t.Fatalf("%s: Render: %v", name, err)
+		}
+		if !strings.Contains(w.Body.String(), "john_") {
+			t.Errorf("%s: expected the john_ prefix on the page", name)
+		}
+	}
+}

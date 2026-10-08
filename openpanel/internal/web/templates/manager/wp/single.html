@@ -1610,14 +1610,16 @@
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
                             <div class="col-span-full">
                                 <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="target_db">{{.T.Get "Database Name"}}</label>
-                                <div class="relative w-full mt-2">
-                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="target_db" name="target_db" type="text" minlength="6" maxlength="30" title="{{.T.Get "Database name must be between 6 and 30 characters."}}" />
+                                <div class="relative w-full mt-2 flex">
+                                    {{if $.MySQLPrefix}}<span class="inline-flex items-center px-2.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-800 rounded-l select-none">{{$.MySQLPrefix}}</span>{{end}}
+                                    <input class="relative block w-full appearance-none {{if $.MySQLPrefix}}rounded-r{{else}}rounded{{end}} border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="target_db" name="target_db" type="text" minlength="6" maxlength="30" title="{{.T.Get "Database name must be between 6 and 30 characters."}}" />
                                 </div>
                             </div>
                             <div class="col-span-full">
                                 <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="target_db_user">{{.T.Get "Database user"}}</label>
-                                <div class="relative w-full mt-2">
-                                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="target_db_user" name="target_db_user" type="text" minlength="6" maxlength="30" title="{{.T.Get "Username must be between 6 and 30 characters."}}" />
+                                <div class="relative w-full mt-2 flex">
+                                    {{if $.MySQLPrefix}}<span class="inline-flex items-center px-2.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-800 rounded-l select-none">{{$.MySQLPrefix}}</span>{{end}}
+                                    <input class="relative block w-full appearance-none {{if $.MySQLPrefix}}rounded-r{{else}}rounded{{end}} border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="target_db_user" name="target_db_user" type="text" minlength="6" maxlength="30" title="{{.T.Get "Username must be between 6 and 30 characters."}}" />
                                 </div>
                             </div>
                             <div class="col-span-full">

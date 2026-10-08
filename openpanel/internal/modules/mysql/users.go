@@ -13,6 +13,9 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
+// MySQL 5.7+ and MariaDB 10.x both cap user names at 32 chars
+const maxUserLen = 32
+
 // handleDatabasesUsers lists MySQL users for this account.
 func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -78,9 +81,14 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		}
 		password := r.Form.Get("password")
 
+		dbUser = mysqlmanager.WithPrefix(a.Config, userContext, dbUser)
+
 		switch {
 		case dbUser == "":
 			web.FlashRedirect(a, w, r, "error", "User name is required.", "/mysql/user")
+			return
+		case len(dbUser) > maxUserLen:
+			web.FlashRedirect(a, w, r, "error", "User name is too long. MySQL user names are limited to 32 characters.", "/mysql/user")
 			return
 		case !validators.IsValidIdentifier(dbUser):
 			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/mysql/user")

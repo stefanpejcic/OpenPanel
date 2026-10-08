@@ -56,6 +56,8 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	if dbUser == "" {
 		dbUser = strings.ToLower(appkit.RandomString(10))
 	}
+	dbName = mysqlmanager.WithPrefix(a.Config, userContext, dbName)
+	dbUser = mysqlmanager.WithPrefix(a.Config, userContext, dbUser)
 	dbPassword := r.FormValue("db_password")
 	if dbPassword == "" {
 		dbPassword = appkit.RandomString(16)

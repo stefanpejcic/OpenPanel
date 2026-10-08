@@ -46,3 +46,14 @@ if [ -f "$ACCOUNTS_SH" ]; then
     fi
     rm -f "$ACCOUNTS_SH.new"
 fi
+
+# enforce <context>_ prefix on new mysql dbs/users, new in 2.0.14 and off by default
+OPENPANEL_CONFIG="/etc/openpanel/openpanel/conf/openpanel.config"
+if [ -f "$OPENPANEL_CONFIG" ] && ! grep -q "^mysql_enforce_username_prefix=" "$OPENPANEL_CONFIG"; then
+    echo "Adding mysql_enforce_username_prefix to $OPENPANEL_CONFIG..."
+    if grep -q "^\[PANEL\]" "$OPENPANEL_CONFIG"; then
+        sed -i '/^\[PANEL\]/a mysql_enforce_username_prefix=no' "$OPENPANEL_CONFIG"
+    else
+        printf '\n[PANEL]\nmysql_enforce_username_prefix=no\n' >> "$OPENPANEL_CONFIG"
+    fi
+fi

@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -75,8 +76,8 @@ func (app *App) HandleClone(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	var srcDB string
 	if hasDB {
 		srcDB = r.FormValue("source_db")
-		c.DstDB = strings.ToLower(web.FormOr(r, "target_db", app.CloneDBPrefix+appkit.RandomString(6)))
-		c.DstDBUser = strings.ToLower(web.FormOr(r, "target_db_user", c.DstDB))
+		c.DstDB = mysqlmanager.WithPrefix(a.Config, userContext, strings.ToLower(web.FormOr(r, "target_db", app.CloneDBPrefix+appkit.RandomString(6))))
+		c.DstDBUser = mysqlmanager.WithPrefix(a.Config, userContext, strings.ToLower(web.FormOr(r, "target_db_user", c.DstDB)))
 		c.DstDBUserPassword = web.FormOr(r, "target_db_user_password", appkit.RandomString(16))
 	}
 
