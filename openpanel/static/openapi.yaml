@@ -11620,9 +11620,42 @@ paths:
       operationId: backups_list
       tags:
       - Backups
+      parameters:
+      - name: status
+        in: query
+        required: false
+        description: Set to 1 to return reindex progress (reindexing, error, count) instead of the list.
+        schema:
+          type: string
+          example: '1'
       responses:
         '200':
           description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/reindex:
+    post:
+      summary: Rescan the configured destination in the background so new backups show up in /api/backups/list.
+      operationId: backups_reindex
+      tags:
+      - Backups
+      responses:
+        '202':
+          description: Reindex started.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '409':
+          description: Reindex already in progress.
           content:
             application/json:
               schema:

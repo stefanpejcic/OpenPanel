@@ -3078,7 +3078,12 @@
       {
         "method": "GET",
         "path": "/api/backups/list",
-        "description": "List backups available at the configured destination."
+        "description": "List backups available at the configured destination. Add ?status=1 to get reindex progress instead."
+      },
+      {
+        "method": "POST",
+        "path": "/api/backups/reindex",
+        "description": "Rescan the configured destination in the background so new backups show up in /api/backups/list."
       },
       {
         "method": "POST",

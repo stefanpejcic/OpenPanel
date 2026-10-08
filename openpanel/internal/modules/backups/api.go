@@ -30,6 +30,9 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "backups", "GET /api/backups/list", func(w http.ResponseWriter, r *http.Request) {
 		handleListBackupsFromDestination(a, w, withJSONOutput(r))
 	})
+	apiregistry.Handle(mux, a, "backups", "POST /api/backups/reindex", func(w http.ResponseWriter, r *http.Request) {
+		handleListBackupsFromDestination(a, w, withJSONOutput(r))
+	})
 	apiregistry.Handle(mux, a, "backups", "POST /api/backups/restore", func(w http.ResponseWriter, r *http.Request) {
 		apiRestoreFromBackup(a, w, r)
 	})
