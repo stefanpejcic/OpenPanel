@@ -76,7 +76,7 @@ func apiDetectGitStartupFile(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid or missing git repository URL."})
 		return
 	}
-	if body.AppType != "nodejs" && body.AppType != "python" && body.AppType != "ruby" {
+	if !isDetectableAppType(body.AppType) {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid app type."})
 		return
 	}
