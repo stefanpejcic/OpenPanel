@@ -98,6 +98,10 @@ func RegisterProcesslist(mux *http.ServeMux, a *appctx.App) {
 			return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/mysql/processlist/kill", Form: url.Values{"id": {id}}})
 		})
 	}))
+
+	// API gets the same mysql_processlist gate as the web routes
+	apiregistry.Handle(mux, a, "mysql_processlist", "GET /api/mysql/processlist", func(w http.ResponseWriter, r *http.Request) { apiMySQLProcesslist(a, w, r) })
+	apiregistry.Handle(mux, a, "mysql_processlist", "POST /api/mysql/processlist/{id}/kill", func(w http.ResponseWriter, r *http.Request) { apiMySQLKillQuery(a, w, r) })
 }
 
 // RegisterRootPassword wires the MySQL root-password route onto mux.

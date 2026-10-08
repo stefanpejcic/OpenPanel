@@ -52,8 +52,6 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "mysql", "DELETE /api/mysql/grants", func(w http.ResponseWriter, r *http.Request) { apiMySQLRevoke(a, w, r) })
 
 	apiregistry.Handle(mux, a, "mysql", "GET /api/mysql/info", func(w http.ResponseWriter, r *http.Request) { apiMySQLInfo(a, w, r) })
-	apiregistry.Handle(mux, a, "mysql", "GET /api/mysql/processlist", func(w http.ResponseWriter, r *http.Request) { apiMySQLProcesslist(a, w, r) })
-	apiregistry.Handle(mux, a, "mysql", "POST /api/mysql/processlist/{id}/kill", func(w http.ResponseWriter, r *http.Request) { apiMySQLKillQuery(a, w, r) })
 
 	apiregistry.Handle(mux, a, "mysql", "GET /api/mysql/remote-access", func(w http.ResponseWriter, r *http.Request) { apiMySQLRemoteAccessStatus(a, w, r) })
 	apiregistry.Handle(mux, a, "mysql", "POST /api/mysql/remote-access", func(w http.ResponseWriter, r *http.Request) { apiMySQLRemoteAccessToggle(a, w, r) })
