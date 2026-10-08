@@ -86,3 +86,46 @@ term that gets through.
 6. Keep the dev server running (`yarn dev:docs`, see the run-website skill) and check
    the page in a browser: all images load, notes render.
 7. `git add`, then tell the user what was added per section and anything skipped.
+
+## Blog posts: screenshots and the featured image
+
+Blog posts (`blog/YYYY-MM-DD-<name>.md`) use the same tools, with different rules:
+
+- Images go in `static/img/blog/<topic>_<what>.png` and are referenced as `/img/blog/...`.
+  One light image each, no `_dark` pair.
+- Show the real thing. A test server the user gives you (`PANEL_URL`, `PANEL_USER`,
+  `PANEL_PASS`) can take writes, so set up the state the post needs (save a setting, create
+  test data) instead of faking it, and tell the user what you changed on that server.
+- Command output: `node panel-terminal.mjs <service> <commands.sh> <out.png> [--width 1500]`
+  types the commands into the service's web terminal (sidebar collapsed), waits for each
+  prompt, prints the output and crops from the tabs bar down to the last line. Check the
+  printed output and make the post's text and examples match it.
+- For a crop of a regular page, a short throwaway Playwright script or a `shots.mjs` entry
+  with `PANEL_URL` set both work. Delete throwaway scripts when you're done.
+
+### Featured image
+
+Every post needs a 1500x800 cover in the style of the existing ones (navy background,
+OpenPanel logo, big uppercase title, a screenshot in a slanted panel on the right).
+Generate it, never hand-make it:
+
+```bash
+node blog-cover.mjs --title "SLOW QUERY|ANALYSIS" --shot <screenshot.png> \
+  --out ../../static/img/blog/<topic>_cover.png [--scale 0.5] [--x 0] [--y 330]
+```
+
+- `--title`: 2–3 short lines split by `|`, about 10 characters each, e.g. `NEW MODERN|STYLE`.
+  Longer lines are shrunk to fit but look worse.
+- `--shot`: a screenshot from the post, or a dedicated one (`panel-terminal.mjs ... --full`).
+  The panel shows 585x700px of it at `--scale`, starting at `--x`/`--y` in screenshot
+  pixels. Use `--scale 0.5` for 2x screenshots. Scale and offset are clamped so the panel is
+  always filled, so crop the source to the part worth showing (e.g. cut off the page footer
+  below the terminal), otherwise the clamp shifts it back into view.
+- The left ~160px of the panel are hidden behind the slant at the top, so put the
+  interesting part right of that.
+- Set `image: https://openpanel.com/img/blog/<topic>_cover.png` in the front matter. It
+  won't load locally until the site is deployed, the other posts work the same way.
+- Look at the cover before using it.
+
+Assets live in `scripts/panel-screenshots/blog-cover/`: League Spartan (OFL, the title
+font) and the white OpenPanel logo cut out of an existing cover.

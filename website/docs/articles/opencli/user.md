@@ -10,19 +10,16 @@ To list all users, use the following command:
 opencli user-list
 ```
 
+When printed to a terminal, RAM, CPU, disk and inodes usage is shown in orange when over 80% of the limit and in red when over 90%, online users get a green dot, and suspended users are shown in red. Colors are left out when the output is piped or `NO_COLOR` is set.
 
 <details>
   <summary>Example output</summary>
 
 ```bash
 # opencli user-list
-+----+----------------+-------------------+----------------+----------------+-------+---------------------+
-| id | username       | email             | plan_name      | server         | owner | registered_date     |
-+----+----------------+-------------------+----------------+----------------+-------+---------------------+
-|  1 | stefan         | stefan@pejcic.rs  | Developer Plus | stefan         | NULL  | 2025-12-25 14:49:38 |
-|  2 | panel          | stefan@netops.com | Developer Plus | panel          | NULL  | 2025-12-25 14:50:18 |
-|  6 | emailfilterapi | emailfilterapi    | Developer Plus | emailfilterapi | NULL  | 2026-01-28 12:25:41 |
-+----+----------------+-------------------+----------------+----------------+-------+---------------------+
+USERNAME  EMAIL               STATUS     ONLINE  2FA  IP ADDRESS                PLAN           DOMAINS  RAM (used/allocated)  CPU (used/allocated)  DISK (used/allocated)  INODES (used/allocated)  NOTES
+stefan    stefan@example.com  Active     ● Yes   On   203.0.113.10 (shared)     Standard plan  3        412.5M/2 GB           0.1 cores/1 Core      9.20GB/10.00GB         48213/1000000            VIP client
+panel     panel@example.com   Suspended  No      Off  203.0.113.25 (dedicated)  Standard plan  1        N/A/2 GB              N/A/1 Core            0.52GB/10.00GB         10422/1000000
 ```
 </details>
 
