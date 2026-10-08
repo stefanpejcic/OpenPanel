@@ -137,3 +137,33 @@ func TestBelongsToOtherSection(t *testing.T) {
 		t.Error("expected an unrecognized key to belong to no section")
 	}
 }
+
+func TestBackupNamePrefix(t *testing.T) {
+	cases := []struct {
+		config map[string]string
+		want   string
+	}{
+		{map[string]string{"BACKUP_FILENAME": "$USERNAME-%Y-%m-%dT%H-%M-%S.{{ .Extension }}"}, "alice-"},
+		{map[string]string{"BACKUP_FILENAME": "${USERNAME}_db-%Y.tar.gz"}, "alice_db-"},
+		{map[string]string{"BACKUP_FILENAME": "backup-{{ .Extension }}"}, "backup-"},
+		{map[string]string{"BACKUP_FILENAME": "$USERNAME-%Y.tar.gz", "BACKUP_PRUNING_PREFIX": "custom-"}, "custom-"},
+		{map[string]string{"BACKUP_FILENAME": "$HOSTNAME-%Y.tar.gz"}, ""},
+		{map[string]string{}, ""},
+	}
+	for _, c := range cases {
+		if got := backupNamePrefix(c.config, "alice"); got != c.want {
+			t.Errorf("backupNamePrefix(%v) = %q, want %q", c.config, got, c.want)
+		}
+	}
+}
+
+func TestFilterBackupNames(t *testing.T) {
+	names := []string{"alice-2026-10-07T00-00-00.tar.gz", "bob-2026-10-07T00-00-00.tar.gz", "alice-2026-10-08T00-00-00.tar.gz"}
+	got := filterBackupNames(names, "alice-")
+	if len(got) != 2 || got[0] != names[0] || got[1] != names[2] {
+		t.Errorf("filterBackupNames kept %v", got)
+	}
+	if got := filterBackupNames(names, ""); len(got) != 3 {
+		t.Errorf("empty prefix should keep everything, kept %v", got)
+	}
+}

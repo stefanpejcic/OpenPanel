@@ -239,7 +239,7 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
-		go doReindex(userHome, config, jsonFile, lockFile)
+		go doReindex(userHome, config, backupNamePrefix(config, userContext), jsonFile, lockFile)
 
 		if r.URL.Query().Get("output") == "json" {
 			web.WriteJSON(w, http.StatusAccepted, map[string]string{"message": "Reindex started."})
@@ -265,6 +265,16 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 		} else {
 			_ = json.Unmarshal(content, &backups)
 		}
+	}
+	// an index written before the prefix filter existed can still hold other accounts' archives
+	if prefix := backupNamePrefix(config, userContext); prefix != "" {
+		own := backups[:0]
+		for _, b := range backups {
+			if strings.HasPrefix(b.BackupFile, prefix) {
+				own = append(own, b)
+			}
+		}
+		backups = own
 	}
 
 	if r.URL.Query().Get("output") == "json" {

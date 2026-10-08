@@ -150,8 +150,42 @@ func classifyLocalArchive(backup, localPath string) (BackupInfo, error) {
 	return classifyTarListing(backup, strings.Join(names, "\n")), nil
 }
 
+// backupNamePrefix returns the fixed start of this account's archive names (BACKUP_PRUNING_PREFIX, else BACKUP_FILENAME up to its first format verb), or "" if it can't be worked out
+func backupNamePrefix(config map[string]string, userContext string) string {
+	name := config["BACKUP_PRUNING_PREFIX"]
+	if name == "" {
+		name = config["BACKUP_FILENAME"]
+	}
+	// compose sets USERNAME to the account's context for the backup container
+	name = strings.NewReplacer("${USERNAME}", userContext, "$USERNAME", userContext).Replace(name)
+	if i := strings.Index(name, "%"); i >= 0 {
+		name = name[:i]
+	}
+	if i := strings.Index(name, "{{"); i >= 0 {
+		name = name[:i]
+	}
+	if strings.Contains(name, "$") {
+		return ""
+	}
+	return name
+}
+
+// filterBackupNames keeps only names starting with prefix, so a destination shared by several accounts only gets this one's archives indexed
+func filterBackupNames(names []string, prefix string) []string {
+	if prefix == "" {
+		return names
+	}
+	var own []string
+	for _, name := range names {
+		if strings.HasPrefix(name, prefix) {
+			own = append(own, name)
+		}
+	}
+	return own
+}
+
 // doReindex runs in a background goroutine, connects to whichever destination is currently configured, lists the remote backups, classifies each archive (3 at a time), writes jsonFile, and always removes lockFile
-func doReindex(userHome string, config map[string]string, jsonFile, lockFile string) {
+func doReindex(userHome string, config map[string]string, prefix, jsonFile, lockFile string) {
 	defer os.Remove(lockFile)
 
 	writeError := func(msg string) {
@@ -171,6 +205,7 @@ func doReindex(userHome string, config map[string]string, jsonFile, lockFile str
 		writeError(err.Error())
 		return
 	}
+	backupNames = filterBackupNames(backupNames, prefix)
 
 	results := make([]BackupInfo, len(backupNames))
 	sem := make(chan struct{}, 3)
