@@ -302,10 +302,40 @@ func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, ver
 		})
 	}
 
+	// LiteSpeed runs PHP itself, the startup scripts that need these are only in the php-fpm image
+	var startupFuncs []string
+	if !strings.Contains(strings.ToLower(webserver.GetEnvFileValue(userContext, "WEB_SERVER")), "litespeed") {
+		startupFuncs = fpmStartupFunctions
+		if blocked := blockedStartupFunctions(currentConfig["disable_functions"]); len(blocked) > 0 {
+			phpIniIssues = append(phpIniIssues, HealthIssue{
+				ID: "php-disable-functions:" + version, Severity: "error",
+				Message: fmt.Sprintf("disable_functions includes %s. PHP-FPM %s needs these to start, remove them from disable_functions.", strings.Join(blocked, ", "), version),
+			})
+		}
+	}
+
 	fields := make([]OptionField, 0, len(availableKeys))
 	for _, key := range availableKeys {
 		fields = append(fields, buildOptionField(key, currentConfig[key], timezones))
 	}
 
-	renderPHPOptionsPage(a, w, r, version, title, fields, phpIniIssues)
+	renderPHPOptionsPage(a, w, r, version, title, fields, phpIniIssues, startupFuncs)
+}
+
+// fpmStartupFunctions are called by the php-fpm image's startup scripts, disabling any of them stops PHP-FPM from starting
+var fpmStartupFunctions = []string{"exec", "shell_exec", "ini_get_all"}
+
+// blockedStartupFunctions returns which of fpmStartupFunctions a disable_functions value lists
+func blockedStartupFunctions(value string) []string {
+	listed := map[string]bool{}
+	for _, f := range strings.FieldsFunc(strings.ToLower(strings.Trim(value, `"'`)), func(r rune) bool { return r == ',' || r == ' ' }) {
+		listed[f] = true
+	}
+	var blocked []string
+	for _, f := range fpmStartupFunctions {
+		if listed[f] {
+			blocked = append(blocked, f)
+		}
+	}
+	return blocked
 }

@@ -69,3 +69,64 @@ if [ -f "$MYSQL_KEYS" ]; then
         fi
     done
 fi
+
+# nginx and openresty saw every visitor as the container's own 10.x address, rootless podman forwards the published port from inside the container network and only 172.x was trusted for X-Forwarded-For
+realip_main_conf() {
+    local f="$1"
+    [ -f "$f" ] || return 1
+    if grep -qE "set_real_ip_from[[:space:]]+10\.0\.0\.0/8" "$f"; then
+        return 1
+    elif grep -qE "^[[:space:]]*set_real_ip_from[[:space:]]+172\.16\.0\.0/12;" "$f"; then
+        sed -i -E 's#^([[:space:]]*)set_real_ip_from([[:space:]]+)172\.16\.0\.0/12;#\1set_real_ip_from\210.0.0.0/8;\n&#' "$f"
+    elif ! grep -q "set_real_ip_from" "$f" && grep -qE "^[[:space:]]*http[[:space:]]*\{" "$f"; then
+        sed -i -E '0,/^[[:space:]]*http[[:space:]]*\{/s##&\n    set_real_ip_from  10.0.0.0/8;\n    set_real_ip_from  172.16.0.0/12;\n    set_real_ip_from  127.0.0.1;\n    real_ip_header    X-Forwarded-For;#' "$f"
+    else
+        return 1
+    fi
+}
+realip_vhost() {
+    local f="$1"
+    grep -qE "set_real_ip_from[[:space:]]+172\.17\.0\.0/16;" "$f" && ! grep -qE "set_real_ip_from[[:space:]]+10\.0\.0\.0/8" "$f" || return 1
+    sed -i -E 's#^([[:space:]]*)set_real_ip_from([[:space:]]+)172\.17\.0\.0/16;#\1set_real_ip_from\210.0.0.0/8;\n\1set_real_ip_from\2172.16.0.0/12;\n\1set_real_ip_from\2127.0.0.1;#' "$f"
+}
+
+echo "Trusting the container network for the visitor IP in nginx and openresty templates..."
+for f in /etc/openpanel/nginx/user-nginx.conf /etc/openpanel/nginx/nginx.conf /etc/openpanel/openresty/nginx.conf; do
+    realip_main_conf "$f" && echo "  updated $f"
+done
+for f in /etc/openpanel/nginx/vhosts/1.1/docker_nginx_domain.conf /etc/openpanel/nginx/vhosts/1.1/docker_openresty_domain.conf; do
+    [ -f "$f" ] && realip_vhost "$f" && echo "  updated $f"
+done
+
+for home in /home/*/; do
+    ctx=$(basename "$home")
+    [ -f "$home.env" ] || continue
+    changed=()
+    for f in "${home}nginx.conf" "${home}openresty.conf"; do
+        [ -f "$f" ] || continue
+        # backup only kept when the file changes, so a rerun doesn't drop the first run's one
+        cp -p "$f" "$f.realip-tmp"
+        if realip_main_conf "$f"; then mv -f "$f.realip-tmp" "$f.bak-2.0.14"; changed+=("$f"); else rm -f "$f.realip-tmp"; fi
+    done
+    for f in "${home}docker-data/volumes/${ctx}_webserver_data/_data/"*.conf; do
+        [ -f "$f" ] || continue
+        # backup only kept when the file changes, so a rerun doesn't drop the first run's one
+        cp -p "$f" "$f.realip-tmp"
+        if realip_vhost "$f"; then mv -f "$f.realip-tmp" "$f.bak-2.0.14"; changed+=("$f"); else rm -f "$f.realip-tmp"; fi
+    done
+    [ ${#changed[@]} -eq 0 ] && continue
+    echo "Fixed visitor IP for $ctx in ${#changed[@]} file(s)"
+
+    ws=$(grep -E '^WEB_SERVER=' "${home}.env" | cut -d= -f2 | tr -d '"')
+    [ "$ws" = nginx ] || [ "$ws" = openresty ] || continue
+    uid=$(stat -c '%u' "$home")
+    sock="unix:///run/user/${uid}/podman/podman.sock"
+    [ "$(CONTAINER_HOST=$sock timeout 10 podman --remote inspect "$ws" --format '{{.State.Status}}' 2>/dev/null)" = running ] || continue
+    if CONTAINER_HOST=$sock timeout 20 podman --remote exec "$ws" nginx -t >/dev/null 2>&1; then
+        CONTAINER_HOST=$sock timeout 20 podman --remote exec "$ws" nginx -s reload >/dev/null 2>&1
+    else
+        # leave the user exactly as before if the new config doesn't pass
+        echo "  $ws config test failed for $ctx, restoring the previous files"
+        for f in "${changed[@]}"; do mv -f "$f.bak-2.0.14" "$f"; done
+    fi
+done

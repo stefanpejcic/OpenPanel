@@ -212,6 +212,31 @@ func TestRenderPHPOptionsPage(t *testing.T) {
 			t.Errorf("expected an optimize button per option, got %d", n)
 		}
 	})
+
+	t.Run("disable_functions warning", func(t *testing.T) {
+		data := PHPOptionsPageData{
+			LayoutData: baseLayout(mgr, "/php/php8.2/options"), Version: "8.2",
+			Fields:           []OptionField{buildOptionField("disable_functions", "exec,system", nil)},
+			StartupFunctions: fpmStartupFunctions,
+		}
+		w := httptest.NewRecorder()
+		if err := optionsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, want := range []string{`name="disable_functions" x-model="v"`, "ini_get_all", "is needed by PHP-FPM to start"} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in body", want)
+			}
+		}
+		// on LiteSpeed there's no php-fpm, so plain input and no warning
+		data.StartupFunctions = nil
+		w = httptest.NewRecorder()
+		_ = optionsPage.Render(w, 200, data)
+		if strings.Contains(w.Body.String(), "is needed by PHP-FPM to start") {
+			t.Error("no warning expected without StartupFunctions")
+		}
+	})
 }
 
 func TestRenderPHPExtensionsPage(t *testing.T) {

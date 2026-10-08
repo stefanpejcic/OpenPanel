@@ -99,6 +99,32 @@ OOM kills are read from the kernel log with `journalctl -k`, at most once an hou
 ```
 </details>
 
+### User containers
+
+Once an hour Sentinel starts any stopped containers for root and every non-suspended user. Some user containers only run when they're needed, and Sentinel starts or stops them to match:
+
+- `cron` and `docker-proxy` run while `crons.ini` has at least one enabled job (fully commented-out, disabled jobs don't count).
+- `backup` and `docker-proxy` run while `backup.env` has a remote backup destination set. `docker-proxy` is left running while a backup from `opencli docker-backup` is in progress.
+- `mysql` or `mariadb` (the one set in `MYSQL_TYPE` in the user's `.env`) runs while the user has at least one database. Databases are counted from folders in the user's MySQL data volume, so Sentinel never connects to the user's MySQL to check. If there are no databases and the account is older than 2 hours, it's stopped. It's started again when the user opens the Databases page. The type the account doesn't use is never started, since both share the same data volume.
+
+Containers Sentinel stopped this way aren't counted or emailed to the user as restarted.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+stefan: stopping cron (not needed)
+stefan: stopping docker-proxy (not needed)
+stefan: stopping mariadb (not needed)
+john: starting required container mysql
+...
+[!] Started/restarted 0 container(s) for root and 1 container(s) across 1 user(s) in 3s. Per user: john: 1.
+...
+```
+</details>
+
 ### Timeouts
 
 So a hung `podman` command can't stop monitoring, every podman call Sentinel makes has a timeout, each check in the parallel part (logins, disk, load, RAM, CPU, SWAP, DNS, user containers) is stopped after 10 minutes, and the whole run is stopped after 15 minutes. A stopped check sends a *Sentinel checks did not finish* alert listing which checks hung, and a stopped run sends a critical *Sentinel checks timed out!* alert. Both are resolved on the next run that finishes in time. If a previous run is still going, the new one exits with *Error: Another instance is already running.*

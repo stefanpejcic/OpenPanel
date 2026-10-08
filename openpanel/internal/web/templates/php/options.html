@@ -76,6 +76,11 @@
                             </div>
                         {{else if eq .Kind "number"}}
                             <input type="number" min="0" name="{{.Key}}" value="{{.Value}}" step="any" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        {{else if and (eq .Key "disable_functions") $.StartupFunctions}}
+                            <div class="w-full" x-data="{ v: {{toJSON .Value}}, need: {{toJSON $.StartupFunctions}}, get blocked() { const l = this.v.toLowerCase().replace(/[&quot;']/g, '').split(/[\s,]+/); return this.need.filter(f => l.includes(f)); } }">
+                                <input type="text" name="{{.Key}}" x-model="v" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                                <p x-show="blocked.length" x-cloak class="mt-1 text-xs text-wrap text-red-600 dark:text-red-400"><i class="bi bi-exclamation-triangle-fill"></i> <span x-text="blocked.join(', ')"></span> {{$.T.Get "is needed by PHP-FPM to start. Saving with it disabled will stop PHP-FPM and all sites using this PHP version."}}</p>
+                            </div>
                         {{else}}
                             <input type="text" name="{{.Key}}" value="{{.Value}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                         {{end}}

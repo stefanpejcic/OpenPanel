@@ -207,6 +207,7 @@ type PHPOptionsPageData struct {
 	InstalledVersions []string
 	Fields            []OptionField
 	Issues            []HealthIssue
+	StartupFunctions  []string // disable_functions entries that stop PHP-FPM from starting, warned about live on the field
 }
 
 func renderPHPOptionsSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, title string, installedVersions []string) {
@@ -221,13 +222,13 @@ func renderPHPOptionsSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Re
 	}
 }
 
-func renderPHPOptionsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, version, title string, fields []OptionField, issues []HealthIssue) {
+func renderPHPOptionsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, version, title string, fields []OptionField, issues []HealthIssue, startupFuncs []string) {
 	layout, _, err := web.BuildLayoutData(a, w, r, title)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := PHPOptionsPageData{LayoutData: layout, Version: version, Fields: fields, Issues: issues}
+	data := PHPOptionsPageData{LayoutData: layout, Version: version, Fields: fields, Issues: issues, StartupFunctions: startupFuncs}
 	if err := optionsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("PHP - options template render error: %v", err)
 	}
