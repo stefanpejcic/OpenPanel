@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -22,8 +21,6 @@ import (
 
 // errorLogTail is how many container log lines are scanned for known problems
 const errorLogTail = 1000
-
-var maxChildrenRE = regexp.MustCompile(`pm\.max_children\s*=\s*(\d+)`)
 
 // phpContainer is the service that runs PHP for this version, the web server itself on LiteSpeed
 func phpContainer(userContext, version string) string {
@@ -51,20 +48,6 @@ func effectiveIni(ctx context.Context, userContext, container string, keys []str
 		_ = json.Unmarshal(res, &out)
 	}
 	return out
-}
-
-// fpmMaxChildren sums pm.max_children over the pools php-fpm actually loaded
-func fpmMaxChildren(ctx context.Context, userContext, container string) int {
-	cctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-	argv := podmanmanager.PodmanArgv(userContext, "exec", container, "php-fpm", "-tt")
-	res, _ := podmanmanager.Command(cctx, userContext, argv).CombinedOutput()
-	total := 0
-	for _, m := range maxChildrenRE.FindAllStringSubmatch(string(res), -1) {
-		n, _ := strconv.Atoi(m[1])
-		total += n
-	}
-	return total
 }
 
 // envSize reads compose style limits like 1.0G from .env
@@ -106,7 +89,7 @@ func gatherPHPTuningStats(ctx context.Context, a *appctx.App, userID int, userCo
 			}
 		}
 		if strings.HasPrefix(container, "php-fpm-") {
-			s.MaxChildren = fpmMaxChildren(ctx, userContext, container)
+			s.MaxChildren = dbtuning.FPMMaxChildren(ctx, userContext, container)
 		}
 		c := dbtuning.InspectContainer(ctx, userContext, container)
 		s.RAMLimit, s.MemUsage, s.CPUs, s.OOMKilled = c.MemLimit, c.MemUsage, c.CPUs, c.OOMKilled

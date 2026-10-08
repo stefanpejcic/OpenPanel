@@ -18,23 +18,26 @@ const (
 
 // confLabels are the human names shown in the confirm dialog
 var confLabels = map[string]string{
-	"key_buffer_size":         "Key Buffer Size",
-	"innodb_buffer_pool_size": "InnoDB Buffer Pool Size",
-	"innodb_log_file_size":    "InnoDB Log File Size",
-	"innodb_log_buffer_size":  "InnoDB Log Buffer Size",
-	"max_heap_table_size":     "Max Heap Table Size",
-	"tmp_table_size":          "Temporary Table Size",
-	"max_connections":         "Max Connections",
-	"thread_cache_size":       "Thread Cache Size",
-	"performance_schema":      "Performance Schema",
-	"wait_timeout":            "Wait Timeout",
-	"interactive_timeout":     "Interactive Timeout",
-	"max_allowed_packet":      "Max Allowed Packet",
-	"sort_buffer_size":        "Sort Buffer Size",
-	"join_buffer_size":        "Join Buffer Size",
-	"read_buffer_size":        "Read Buffer Size",
-	"read_rnd_buffer_size":    "Read Random Buffer Size",
-	"long_query_time":         "Long Query Time",
+	"key_buffer_size":                "Key Buffer Size",
+	"innodb_buffer_pool_size":        "InnoDB Buffer Pool Size",
+	"innodb_log_file_size":           "InnoDB Log File Size",
+	"innodb_log_buffer_size":         "InnoDB Log Buffer Size",
+	"max_heap_table_size":            "Max Heap Table Size",
+	"tmp_table_size":                 "Temporary Table Size",
+	"max_connections":                "Max Connections",
+	"thread_cache_size":              "Thread Cache Size",
+	"performance_schema":             "Performance Schema",
+	"wait_timeout":                   "Wait Timeout",
+	"interactive_timeout":            "Interactive Timeout",
+	"max_allowed_packet":             "Max Allowed Packet",
+	"sort_buffer_size":               "Sort Buffer Size",
+	"join_buffer_size":               "Join Buffer Size",
+	"read_buffer_size":               "Read Buffer Size",
+	"read_rnd_buffer_size":           "Read Random Buffer Size",
+	"long_query_time":                "Long Query Time",
+	"table_open_cache":               "Table Open Cache",
+	"table_definition_cache":         "Table Definition Cache",
+	"innodb_flush_log_at_trx_commit": "InnoDB Flush Log at Commit",
 }
 
 // sizeKeys hold byte sizes, the rest are counts, seconds or ON/OFF
@@ -61,6 +64,13 @@ type TuningStats struct {
 	PerfSchemaMem int64
 	LogLines      []string
 	AvailableKeys []string
+	PHPWorkers    int
+
+	// findings for the insights list, not settings
+	MyISAMTables []string
+	NoPKTables   []string
+	Fragmented   []string
+	WPAutoload   []string
 }
 
 var sizeRE = regexp.MustCompile(`^(\d+(?:\.\d+)?)\s*([KMGT]?)B?$`)
@@ -135,6 +145,14 @@ func (s *TuningStats) flavor() string {
 		return "MariaDB"
 	}
 	return "MySQL"
+}
+
+func (s *TuningStats) totalTables() int64 {
+	var n int64
+	for _, c := range s.EngineTables {
+		n += c
+	}
+	return n
 }
 
 // perConnectionMemory is roughly what one busy connection can allocate on its own
@@ -221,7 +239,7 @@ func BuildRecommendations(s TuningStats) dbtuning.Report {
 		if c, ok := s.varSize("innodb_buffer_pool_chunk_size"); ok && c > 0 {
 			chunk = c
 		}
-		need := max(innodbUsed*3/2, 128*mb)
+		need := max(dbtuning.RoundUp(innodbUsed*13/10, chunk), 128*mb)
 		reads, requests := s.status("Innodb_buffer_pool_reads"), s.status("Innodb_buffer_pool_read_requests")
 		missRate := 0.0
 		if requests > 0 {
@@ -242,6 +260,9 @@ func BuildRecommendations(s TuningStats) dbtuning.Report {
 		case need > cur && cur < ramShare:
 			poolTarget = min(dbtuning.RoundUp(need, chunk), dbtuning.RoundUp(ramShare-chunk+1, chunk))
 			reason = fmt.Sprintf("Your InnoDB tables use %s for data and indexes, more than the buffer pool can hold. A larger buffer pool allows the database to hold more data in memory and reduces disk I/O.", dbtuning.HumanSize(innodbUsed))
+		case cur > need*2 && cur > 256*mb && !(trustCounters && missRate > 0.01):
+			poolTarget = need
+			reason = fmt.Sprintf("Your InnoDB tables use only %s for data and indexes, but the buffer pool can grow to %s of the %s memory limit. %s leaves room for the data to grow by about a third and frees the rest for connections and temporary tables.", dbtuning.HumanSize(innodbUsed), dbtuning.HumanSize(cur), dbtuning.HumanSize(ram), formatSize(need))
 		}
 		if poolTarget > 0 && poolTarget != cur && s.usable("innodb_buffer_pool_size") {
 			add("innodb_buffer_pool_size", formatSize(poolTarget), reason)
@@ -254,18 +275,25 @@ func BuildRecommendations(s TuningStats) dbtuning.Report {
 		effectivePool, _ = s.varSize("innodb_buffer_pool_size")
 	}
 
-	// innodb_log_file_size, not used when the server sizes redo logs with innodb_redo_log_capacity
+	// innodb_log_file_size, sized to hold about an hour of redo writes, not used when the server sizes redo logs with innodb_redo_log_capacity
 	if cur, ok := s.varSize("innodb_log_file_size"); ok && s.usable("innodb_log_file_size") && s.Vars["innodb_redo_log_capacity"] == "" {
-		target := dbtuning.Clamp(dbtuning.RoundUp(effectivePool/4, mb), 48*mb, 2*gb)
-		tooSmall := s.logCount("greater than 10% of redo log size") > 0
-		if tooSmall {
-			target = max(target, dbtuning.Clamp(cur*2, 48*mb, 2*gb))
+		files := int64(1)
+		if n, err := strconv.ParseInt(s.Vars["innodb_log_files_in_group"], 10, 64); err == nil && n > 0 {
+			files = n
 		}
-		if target > cur*6/5 {
-			reason := fmt.Sprintf("To reduce disk I/O caused by flushing checkpoint activity, increase InnoDB Log File Size. This is based on the value %s for InnoDB Buffer Pool Size.", formatSize(effectivePool))
-			if tooSmall {
-				reason = "The error log shows transactions that are too large for the redo log. " + reason
+		target, reason := int64(0), ""
+		if written := s.status("Innodb_os_log_written"); trustCounters && written > 0 {
+			perHour := written * 3600 / uptime
+			if perHour > cur*files*6/5 {
+				target = dbtuning.Clamp(dbtuning.RoundUp(perHour/files, mb), 48*mb, 2*gb)
+				reason = fmt.Sprintf("InnoDB writes about %s of redo log per hour, but the redo log only holds %s, so it fills in about %d minutes and forces extra flushing to disk. Sizing it for about an hour of writes reduces disk I/O.", dbtuning.HumanSize(perHour), dbtuning.HumanSize(cur*files), max(cur*files*60/perHour, 1))
 			}
+		}
+		if s.logCount("greater than 10% of redo log size") > 0 {
+			target = max(target, dbtuning.Clamp(cur*2, 48*mb, 2*gb))
+			reason = strings.TrimSpace("The error log shows transactions that are too large for the redo log. " + reason)
+		}
+		if target > cur {
 			add("innodb_log_file_size", formatSize(target), reason)
 		}
 	}
@@ -299,28 +327,23 @@ func BuildRecommendations(s TuningStats) dbtuning.Report {
 	// tmp_table_size and max_heap_table_size work together, the lower one wins
 	tmpCur, ok1 := s.varSize("tmp_table_size")
 	heapCur, ok2 := s.varSize("max_heap_table_size")
-	if ok1 && ok2 && ram > 0 {
-		target := dbtuning.Clamp(dbtuning.RoundUp(ram/100, mb), 16*mb, 256*mb)
-		reasonTmp := "We recommend raising this setting's value to 1% of the available memory. It prevents temporary tables from being created on disk, which is slower."
-		reasonHeap := "We recommend raising this setting's value to 1% of the available memory. It will better accommodate MEMORY tables as they become necessary."
-		if trustCounters {
-			disk, all := s.status("Created_tmp_disk_tables"), s.status("Created_tmp_tables")
-			if all > 100 && float64(disk)/float64(all) > 0.25 {
-				target = dbtuning.Clamp(max(target, min(tmpCur, heapCur)*2), 16*mb, min(256*mb, ram/16))
-				pct := float64(disk) * 100 / float64(all)
-				reasonTmp = fmt.Sprintf("%.0f%% of temporary tables were written to disk because they didn't fit in memory. Raising this lets more of them stay in memory.", pct)
-				reasonHeap = "Temporary tables are limited by the lower of Temporary Table Size and Max Heap Table Size, so both need to be raised together."
+	if ok1 && ok2 && ram > 0 && trustCounters {
+		disk, all := s.status("Created_tmp_disk_tables"), s.status("Created_tmp_tables")
+		if all > 100 && float64(disk)/float64(all) > 0.25 {
+			target := dbtuning.Clamp(max(min(tmpCur, heapCur)*2, 32*mb), 16*mb, min(256*mb, ram/16))
+			pct := float64(disk) * 100 / float64(all)
+			reasonTmp := fmt.Sprintf("%.0f%% of temporary tables were written to disk because they didn't fit in memory. Raising this lets more of them stay in memory.", pct)
+			reasonHeap := "Temporary tables are limited by the lower of Temporary Table Size and Max Heap Table Size, so both need to be raised together."
+			if target > tmpCur && s.usable("tmp_table_size") {
+				add("tmp_table_size", formatSize(target), reasonTmp)
 			}
-		}
-		if target > tmpCur*11/10 && s.usable("tmp_table_size") {
-			add("tmp_table_size", formatSize(target), reasonTmp)
-		}
-		if target > heapCur*11/10 && s.usable("max_heap_table_size") {
-			add("max_heap_table_size", formatSize(target), reasonHeap)
+			if target > heapCur && s.usable("max_heap_table_size") {
+				add("max_heap_table_size", formatSize(target), reasonHeap)
+			}
 		}
 	}
 
-	// max_connections
+	// max_connections, every PHP worker can hold a connection so they set the floor
 	if curStr, ok := s.Vars["max_connections"]; ok && s.usable("max_connections") {
 		cur, _ := strconv.ParseInt(curStr, 10, 64)
 		maxUsed := s.status("Max_used_connections")
@@ -330,24 +353,72 @@ func BuildRecommendations(s TuningStats) dbtuning.Report {
 		if ram > 0 && perConn > 0 {
 			maxByRAM = (ram - s.globalMemory(effectivePool) - 64*mb) / perConn
 		}
+		floor := int64(0)
+		if s.PHPWorkers > 0 {
+			floor = dbtuning.RoundUp(int64(s.PHPWorkers)+10, 10)
+		}
+		capByRAM := func(target int64) int64 {
+			if maxByRAM > 0 {
+				return min(target, dbtuning.RoundUp(maxByRAM, 10)-10)
+			}
+			return target
+		}
 		switch {
 		case cur > 0 && (refused > 0 || (trustCounters && maxUsed*100 >= cur*85)):
-			target := dbtuning.RoundUp(max(maxUsed*3/2, cur+50), 10)
-			if maxByRAM > 0 {
-				target = min(target, dbtuning.RoundUp(maxByRAM, 10)-10)
-			}
+			target := capByRAM(max(dbtuning.RoundUp(max(maxUsed*3/2, cur+50), 10), floor))
 			if target > cur {
-				reason := fmt.Sprintf("Up to %d of the %d allowed connections were in use at the same time.", maxUsed, cur)
+				reason := fmt.Sprintf("Up to %d of the %d allowed connections were in use at the same time since the last restart.", maxUsed, cur)
 				if refused > 0 {
 					reason = fmt.Sprintf("%d connections were refused because the limit of %d was reached.", refused, cur)
 				}
 				add("max_connections", strconv.FormatInt(target, 10), reason+" Raising the limit prevents \"Too many connections\" errors on your websites.")
 			}
-		case maxByRAM > 0 && cur > maxByRAM && trustCounters && maxUsed < maxByRAM:
-			target := max(dbtuning.RoundUp(maxByRAM*9/10, 10)-10, dbtuning.RoundUp(maxUsed*3/2, 10), 20)
-			if target < cur {
-				add("max_connections", strconv.FormatInt(target, 10), fmt.Sprintf("If all %d connections were busy at once they could use about %s, more than the %s memory limit. At most %d connections were used at the same time, so a lower limit keeps the service from running out of memory.", cur, dbtuning.HumanSize(s.globalMemory(effectivePool)+cur*perConn), dbtuning.HumanSize(ram), maxUsed))
+		case floor > cur:
+			if target := capByRAM(floor); target > cur {
+				add("max_connections", strconv.FormatInt(target, 10), fmt.Sprintf("Your PHP-FPM pools can run up to %d workers at once and each one can open a database connection, but only %d connections are allowed. A traffic spike would end in \"Too many connections\" errors on your websites.", s.PHPWorkers, cur))
 			}
+		case maxByRAM > 0 && cur > maxByRAM && trustCounters && maxUsed < maxByRAM:
+			target := max(dbtuning.RoundUp(maxByRAM*9/10, 10)-10, dbtuning.RoundUp(maxUsed*3/2, 10), floor, 20)
+			if target < cur {
+				add("max_connections", strconv.FormatInt(target, 10), fmt.Sprintf("If all %d connections were busy at once they could use about %s, more than the %s memory limit. At most %d connections were used at the same time since the last restart, so a lower limit keeps the service from running out of memory.", cur, dbtuning.HumanSize(s.globalMemory(effectivePool)+cur*perConn), dbtuning.HumanSize(ram), maxUsed))
+			}
+		}
+	}
+
+	// table_open_cache, when every slot is taken and tables keep getting opened
+	if curStr, ok := s.Vars["table_open_cache"]; ok && s.usable("table_open_cache") && trustCounters {
+		cur, _ := strconv.ParseInt(curStr, 10, 64)
+		open, perHour := s.status("Open_tables"), s.status("Opened_tables")*3600/uptime
+		if cur > 0 && open*100 >= cur*95 && perHour > 60 {
+			target := dbtuning.Clamp(dbtuning.RoundUp(max(cur*2, s.totalTables()*2), 100), 400, 16384)
+			if n, err := strconv.ParseInt(s.Vars["open_files_limit"], 10, 64); err == nil && n > 0 {
+				target = min(target, dbtuning.RoundUp(n/2, 100)-100)
+			}
+			if target > cur {
+				add("table_open_cache", strconv.FormatInt(target, 10), fmt.Sprintf("All %d table cache slots are in use and tables are still opened about %d times per hour. Each reopen reads the table from disk again, a bigger cache keeps them open.", cur, perHour))
+			}
+		}
+	}
+
+	// table_definition_cache, should fit every table
+	if curStr, ok := s.Vars["table_definition_cache"]; ok && s.usable("table_definition_cache") {
+		cur, _ := strconv.ParseInt(curStr, 10, 64)
+		tables := s.totalTables()
+		if cur > 0 && tables > cur*9/10 && s.status("Open_table_definitions")*100 >= cur*95 {
+			target := dbtuning.Clamp(dbtuning.RoundUp(tables+400, 100), 400, 65536)
+			if target > cur {
+				add("table_definition_cache", strconv.FormatInt(target, 10), fmt.Sprintf("Your databases have %d tables but only %d table definitions can be cached, so definitions are read from disk again and again. Sites with many tables, like WordPress multisite, benefit the most.", tables, cur))
+			}
+		}
+	}
+
+	// innodb_flush_log_at_trx_commit=2 is a speed for safety trade, so only optional
+	if v, ok := s.Vars["innodb_flush_log_at_trx_commit"]; ok && v == "1" && s.usable("innodb_flush_log_at_trx_commit") && trustCounters {
+		if perSec := s.status("Innodb_os_log_fsyncs") / uptime; perSec >= 5 {
+			report.Recommendations = append(report.Recommendations, dbtuning.Recommendation{
+				Key: "innodb_flush_log_at_trx_commit", Label: confLabels["innodb_flush_log_at_trx_commit"], Current: v, Recommended: "2", Optional: true,
+				Reason: fmt.Sprintf("InnoDB flushes the redo log to disk about %d times per second, once for every commit. With 2 it writes on every commit but flushes once per second, which is much faster for sites that write a lot. If the server crashes or loses power, up to the last second of changes can be lost, so only apply this if that's acceptable.", perSec),
+			})
 		}
 	}
 
@@ -421,5 +492,77 @@ func BuildRecommendations(s TuningStats) dbtuning.Report {
 		}
 	}
 
+	report.Insights = buildInsights(s, trustCounters, uptime)
 	return report
+}
+
+func plural(n int64, what string) string {
+	if n == 1 {
+		return "1 " + what
+	}
+	return fmt.Sprintf("%d %ss", n, what)
+}
+
+// listed shows the first few names of a finding and how many more there are
+func listed(names []string, total int64) []string {
+	const show = 10
+	if len(names) > show {
+		names = names[:show]
+	}
+	out := append([]string{}, names...)
+	if total > int64(len(out)) {
+		out = append(out, fmt.Sprintf("and %d more", total-int64(len(out))))
+	}
+	return out
+}
+
+// buildInsights are the findings a setting can't fix, the user or their app has to act on them
+func buildInsights(s TuningStats, trustCounters bool, uptime int64) []dbtuning.Insight {
+	insights := []dbtuning.Insight{}
+	if n := s.EngineTables["MyISAM"]; n > 0 {
+		insights = append(insights, dbtuning.Insight{
+			Title:  plural(n, "MyISAM table"),
+			Detail: "MyISAM locks the whole table on every write and isn't crash safe. Converting these tables to InnoDB (ALTER TABLE name ENGINE=InnoDB) makes them faster under load, and the Key Buffer Size can then be lowered.",
+			Items:  listed(s.MyISAMTables, n),
+		})
+	}
+	if len(s.NoPKTables) > 0 {
+		insights = append(insights, dbtuning.Insight{
+			Title:  plural(int64(len(s.NoPKTables)), "table") + " without a primary key",
+			Detail: "InnoDB stores rows in primary key order, without one it uses a hidden key that can't be used in queries, and updates and deletes have to scan the whole table. Add a primary key, usually an auto increment id column.",
+			Items:  listed(s.NoPKTables, int64(len(s.NoPKTables))),
+		})
+	}
+	if len(s.WPAutoload) > 0 {
+		insights = append(insights, dbtuning.Insight{
+			Title:  "Large WordPress autoloaded options",
+			Detail: "WordPress loads every autoloaded option on every page view. Above 800 KB this slows down every request, usually because of leftovers from removed plugins or plugins storing caches in the options table.",
+			Items:  s.WPAutoload,
+		})
+	}
+	if len(s.Fragmented) > 0 {
+		insights = append(insights, dbtuning.Insight{
+			Title:  "Fragmented tables",
+			Detail: "These tables have a lot of unused space left over from deleted rows. Optimizing them on the Databases page reclaims the disk space and makes full table scans faster.",
+			Items:  s.Fragmented,
+		})
+	}
+	if trustCounters {
+		if joins := s.status("Select_full_join"); joins*3600/uptime >= 10 {
+			insights = append(insights, dbtuning.Insight{
+				Title:  "Queries joining tables without an index",
+				Detail: fmt.Sprintf("%d queries since the last restart (about %d per hour) joined tables without using an index, which reads every row of the joined table. This usually means a missing index in a plugin or app.", joins, joins*3600/uptime),
+			})
+		}
+		if slow := s.status("Slow_queries"); slow > 0 {
+			detail := fmt.Sprintf("%d queries since the last restart took longer than %s seconds.", slow, strings.TrimRight(strings.TrimRight(s.Vars["long_query_time"], "0"), "."))
+			if strings.EqualFold(s.Vars["slow_query_log"], "ON") {
+				detail += " They are recorded in the slow query log."
+			} else {
+				detail += " Turn on slow_query_log on this page to record which queries they are."
+			}
+			insights = append(insights, dbtuning.Insight{Title: "Slow queries", Detail: detail})
+		}
+	}
+	return insights
 }

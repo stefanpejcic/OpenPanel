@@ -18,8 +18,8 @@
                     <p class="text-gray-500 dark:text-gray-400">{{.T.Get .Intro}}</p>
                 </div>
             </div>
-            <button type="button" @click="review()" class="relative inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                <i class="bi bi-lightning-charge"></i> <span x-text="{{toJSON (.T.Get "Review all")}} + ' (' + recs.length + ')'"></span>
+            <button type="button" x-show="main.length > 0" @click="review()" class="relative inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                <i class="bi bi-lightning-charge"></i> <span x-text="{{toJSON (.T.Get "Review all")}} + ' (' + main.length + ')'"></span>
             </button>
         </div>
         <div x-show="!loading && !error && recs.length === 0" x-cloak class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
@@ -40,6 +40,24 @@
         <template x-for="note in notes">
             <p x-show="!loading" class="mt-1 text-xs text-gray-500 dark:text-gray-400"><i class="bi bi-info-circle"></i> <span x-text="note"></span></p>
         </template>
+        <div x-show="!loading && !error && insights.length > 0" x-cloak class="mt-3" x-data="{ showInsights: false }">
+            <button type="button" @click="showInsights = !showInsights" class="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-50">
+                <i class="bi bi-search"></i> <span x-text="{{toJSON (.T.Get "Other findings")}} + ' (' + insights.length + ')'"></span>
+                <i class="bi" :class="showInsights ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            </button>
+            <p x-show="!showInsights" class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Things a setting can't fix, your apps or tables need a change."}}</p>
+            <div x-show="showInsights" class="mt-2 space-y-2">
+                <template x-for="item in insights" :key="item.title">
+                    <div class="rounded border border-gray-200 dark:border-gray-800 p-3">
+                        <p class="font-semibold text-gray-900 dark:text-gray-50" x-text="item.title"></p>
+                        <p class="text-gray-600 dark:text-gray-400 text-wrap" x-text="item.detail"></p>
+                        <ul x-show="item.items && item.items.length" class="mt-1 list-disc pl-5 font-mono text-xs text-gray-500 dark:text-gray-400">
+                            <template x-for="name in (item.items || [])"><li x-text="name"></li></template>
+                        </ul>
+                    </div>
+                </template>
+            </div>
+        </div>
     </div>
 {{end}}
 
@@ -60,7 +78,7 @@
             <div class="overflow-y-auto px-5 py-4 space-y-4">
                 <template x-for="rec in selected" :key="rec.key">
                     <div class="rounded border border-gray-200 dark:border-gray-800 p-4 text-sm">
-                        <p class="font-semibold text-gray-900 dark:text-gray-50"><span x-text="rec.label || rec.key"></span> </p>
+                        <p class="font-semibold text-gray-900 dark:text-gray-50"><span x-text="rec.label || rec.key"></span> <span x-show="rec.optional" class="ml-1 rounded bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">{{.T.Get "Trade-off"}}</span></p>
                         <p class="text-xs font-mono text-gray-500 dark:text-gray-400" x-text="rec.key"></p>
                         <dl class="mt-2 grid grid-cols-2 gap-2">
                             <div>

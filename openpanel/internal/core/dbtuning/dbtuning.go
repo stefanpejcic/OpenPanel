@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -28,17 +29,27 @@ type Recommendation struct {
 	Current     string `json:"current"`
 	Recommended string `json:"recommended"`
 	Reason      string `json:"reason"`
+	// Optional ones trade safety for speed, so Review all leaves them out and they're only applied one by one
+	Optional bool `json:"optional,omitempty"`
+}
+
+// Insight is a finding that can't be fixed with a setting on the page, like tables that need converting
+type Insight struct {
+	Title  string   `json:"title"`
+	Detail string   `json:"detail"`
+	Items  []string `json:"items,omitempty"`
 }
 
 // Report is the recommendations plus the facts they were based on
 type Report struct {
 	Recommendations []Recommendation  `json:"recommendations"`
+	Insights        []Insight         `json:"insights"`
 	Facts           map[string]string `json:"facts"`
 	Notes           []string          `json:"notes"`
 }
 
 func NewReport() Report {
-	return Report{Recommendations: []Recommendation{}, Facts: map[string]string{}, Notes: []string{}}
+	return Report{Recommendations: []Recommendation{}, Insights: []Insight{}, Facts: map[string]string{}, Notes: []string{}}
 }
 
 const (
@@ -147,4 +158,38 @@ func HostMemory() int64 {
 		}
 	}
 	return 0
+}
+
+var maxChildrenRE = regexp.MustCompile(`pm\.max_children\s*=\s*(\d+)`)
+
+// FPMMaxChildren sums pm.max_children over every pool of one php-fpm container
+func FPMMaxChildren(ctx context.Context, userContext, container string) int {
+	cctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	argv := podmanmanager.PodmanArgv(userContext, "exec", container, "php-fpm", "-tt")
+	res, _ := podmanmanager.Command(cctx, userContext, argv).CombinedOutput()
+	total := 0
+	for _, m := range maxChildrenRE.FindAllStringSubmatch(string(res), -1) {
+		n, _ := strconv.Atoi(m[1])
+		total += n
+	}
+	return total
+}
+
+// PHPWorkers is how many PHP-FPM workers the user's running php-fpm containers can start at once, each one can hold a database connection
+func PHPWorkers(ctx context.Context, userContext string) int {
+	cctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	argv := podmanmanager.PodmanArgv(userContext, "ps", "--format", "{{.Names}}")
+	out, err := podmanmanager.Command(cctx, userContext, argv).Output()
+	if err != nil {
+		return 0
+	}
+	total := 0
+	for _, name := range strings.Fields(string(out)) {
+		if strings.HasPrefix(name, "php-fpm-") {
+			total += FPMMaxChildren(ctx, userContext, name)
+		}
+	}
+	return total
 }

@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"strconv"
 	"strings"
 	"testing"
 
@@ -85,7 +86,7 @@ func TestKeyBufferLoweredWithoutMyISAM(t *testing.T) {
 	}
 }
 
-func TestBigServerGrowsBufferPoolAndRelatedSettings(t *testing.T) {
+func TestBigServerGrowsBufferPoolFromData(t *testing.T) {
 	s := baseStats()
 	s.RAMLimit = 8 * gb
 	s.MariaDB = true
@@ -94,18 +95,147 @@ func TestBigServerGrowsBufferPoolAndRelatedSettings(t *testing.T) {
 	s.EngineIndex["InnoDB"] = 512 * mb
 	r := BuildRecommendations(s)
 
-	pool := recFor(r, "innodb_buffer_pool_size")
-	if pool == nil || pool.Recommended != "3840M" {
+	// 2.5G of data plus 30%, rounded up to the 128M chunk
+	if pool := recFor(r, "innodb_buffer_pool_size"); pool == nil || pool.Recommended != "3328M" {
 		t.Fatalf("pool: got %+v", pool)
 	}
-	logf := recFor(r, "innodb_log_file_size")
-	if logf == nil || logf.Recommended != "960M" || !strings.Contains(logf.Reason, "3840M") {
-		t.Errorf("log file should be a quarter of the new pool: got %+v", logf)
+	if rec := recFor(r, "innodb_log_file_size"); rec != nil {
+		t.Errorf("log file must follow redo writes, not the pool size: got %+v", rec)
 	}
 	for _, k := range []string{"tmp_table_size", "max_heap_table_size"} {
-		if rec := recFor(r, k); rec == nil || rec.Recommended != "82M" {
-			t.Errorf("%s: got %+v", k, rec)
+		if rec := recFor(r, k); rec != nil {
+			t.Errorf("%s: no temp tables on disk, nothing to suggest, got %+v", k, rec)
 		}
+	}
+}
+
+func TestBufferPoolShrinksWhenFarBiggerThanData(t *testing.T) {
+	s := baseStats()
+	s.Vars["innodb_buffer_pool_size"] = "536870912"
+	rec := recFor(BuildRecommendations(s), "innodb_buffer_pool_size")
+	if rec == nil || rec.Recommended != "128M" || !strings.Contains(rec.Reason, "only 12 MB") {
+		t.Fatalf("got %+v", rec)
+	}
+	// lots of reads from disk means the pool is in use, leave it
+	s.Status["Innodb_buffer_pool_reads"] = "5000"
+	s.Status["Innodb_buffer_pool_read_requests"] = "100000"
+	if rec := recFor(BuildRecommendations(s), "innodb_buffer_pool_size"); rec != nil && rec.Recommended == "128M" {
+		t.Errorf("should not shrink a pool that misses: got %+v", rec)
+	}
+}
+
+func TestRedoLogSizedFromWrites(t *testing.T) {
+	s := baseStats()
+	s.Vars["innodb_log_file_size"] = "50331648"
+	// 24h uptime, 12G written is 512M per hour
+	s.Status["Innodb_os_log_written"] = "12884901888"
+	rec := recFor(BuildRecommendations(s), "innodb_log_file_size")
+	if rec == nil || rec.Recommended != "512M" || !strings.Contains(rec.Reason, "512 MB of redo log per hour") || !strings.Contains(rec.Reason, "5 minutes") {
+		t.Fatalf("got %+v", rec)
+	}
+	// MySQL before 8.0.30 splits it over two files
+	s.Vars["innodb_log_files_in_group"] = "2"
+	if rec := recFor(BuildRecommendations(s), "innodb_log_file_size"); rec == nil || rec.Recommended != "256M" {
+		t.Errorf("two files: got %+v", rec)
+	}
+	s.Status["Innodb_os_log_written"] = "1073741824"
+	if rec := recFor(BuildRecommendations(s), "innodb_log_file_size"); rec != nil {
+		t.Errorf("about 43M per hour fits in 96M, got %+v", rec)
+	}
+}
+
+func TestMaxConnectionsCoversPHPWorkers(t *testing.T) {
+	s := baseStats()
+	s.RAMLimit = 4 * gb
+	s.PHPWorkers = 200
+	rec := recFor(BuildRecommendations(s), "max_connections")
+	if rec == nil || rec.Recommended != "210" || !strings.Contains(rec.Reason, "200 workers") {
+		t.Fatalf("got %+v", rec)
+	}
+	s.PHPWorkers = 40
+	if rec := recFor(BuildRecommendations(s), "max_connections"); rec != nil {
+		t.Errorf("151 already covers 40 workers, got %+v", rec)
+	}
+}
+
+func TestMaxConnectionsNotLoweredBelowPHPWorkers(t *testing.T) {
+	s := baseStats()
+	s.RAMLimit = 512 * mb
+	s.Vars["max_connections"] = "500"
+	s.Vars["sort_buffer_size"] = "2097152"
+	s.Status["Max_used_connections"] = "10"
+	s.PHPWorkers = 120
+	rec := recFor(BuildRecommendations(s), "max_connections")
+	if rec == nil {
+		t.Fatal("expected max_connections to be lowered")
+	}
+	if n, _ := strconv.Atoi(rec.Recommended); n < 130 {
+		t.Errorf("lowered below the PHP workers: got %+v", rec)
+	}
+}
+
+func TestTableCaches(t *testing.T) {
+	s := baseStats()
+	s.EngineTables["InnoDB"] = 3000
+	s.Vars["table_open_cache"] = "2000"
+	s.Vars["table_definition_cache"] = "1400"
+	s.Vars["open_files_limit"] = "32768"
+	s.Status["Open_tables"] = "2000"
+	s.Status["Opened_tables"] = "48000"
+	s.Status["Open_table_definitions"] = "1400"
+	r := BuildRecommendations(s)
+	if rec := recFor(r, "table_open_cache"); rec == nil || rec.Recommended != "6000" || !strings.Contains(rec.Reason, "2000 times per hour") {
+		t.Errorf("table_open_cache: got %+v", rec)
+	}
+	if rec := recFor(r, "table_definition_cache"); rec == nil || rec.Recommended != "3400" {
+		t.Errorf("table_definition_cache: got %+v", rec)
+	}
+	s.Status["Open_tables"] = "500"
+	if rec := recFor(BuildRecommendations(s), "table_open_cache"); rec != nil {
+		t.Errorf("cache isn't full, got %+v", rec)
+	}
+}
+
+func TestFlushAtCommitIsOptional(t *testing.T) {
+	s := baseStats()
+	s.Vars["innodb_flush_log_at_trx_commit"] = "1"
+	s.Status["Innodb_os_log_fsyncs"] = "1728000"
+	rec := recFor(BuildRecommendations(s), "innodb_flush_log_at_trx_commit")
+	if rec == nil || rec.Recommended != "2" || !rec.Optional || !strings.Contains(rec.Reason, "last second") {
+		t.Fatalf("got %+v", rec)
+	}
+	s.Status["Innodb_os_log_fsyncs"] = "1000"
+	if recFor(BuildRecommendations(s), "innodb_flush_log_at_trx_commit") != nil {
+		t.Error("few writes, nothing to gain")
+	}
+}
+
+func TestInsights(t *testing.T) {
+	s := baseStats()
+	if r := BuildRecommendations(s); len(r.Insights) != 0 {
+		t.Errorf("healthy server: got %+v", r.Insights)
+	}
+	s.EngineTables["MyISAM"] = 14
+	s.MyISAMTables = []string{"a.t1", "a.t2", "a.t3", "a.t4", "a.t5", "a.t6", "a.t7", "a.t8", "a.t9", "a.t10"}
+	s.NoPKTables = []string{"b.log"}
+	s.WPAutoload = []string{"wp.wp_options: 2.1 MB autoloaded"}
+	s.Status["Select_full_join"] = "4800"
+	s.Status["Slow_queries"] = "3"
+	s.Vars["long_query_time"] = "10.000000"
+	titles := map[string]dbtuning.Insight{}
+	for _, in := range BuildRecommendations(s).Insights {
+		titles[in.Title] = in
+	}
+	if in, ok := titles["14 MyISAM tables"]; !ok || len(in.Items) != 11 || in.Items[10] != "and 4 more" {
+		t.Errorf("myisam: got %+v", in)
+	}
+	for _, want := range []string{"1 table without a primary key", "Large WordPress autoloaded options", "Queries joining tables without an index", "Slow queries"} {
+		if _, ok := titles[want]; !ok {
+			t.Errorf("missing insight %q in %v", want, titles)
+		}
+	}
+	if !strings.Contains(titles["Slow queries"].Detail, "longer than 10 seconds") || !strings.Contains(titles["Slow queries"].Detail, "Turn on slow_query_log") {
+		t.Errorf("slow: got %+v", titles["Slow queries"])
 	}
 }
 

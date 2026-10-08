@@ -57,3 +57,15 @@ if [ -f "$OPENPANEL_CONFIG" ] && ! grep -q "^mysql_enforce_username_prefix=" "$O
         printf '\n[PANEL]\nmysql_enforce_username_prefix=no\n' >> "$OPENPANEL_CONFIG"
     fi
 fi
+
+# new MySQL settings with usage based suggestions on the MySQL Configuration page, new in 2.0.14
+MYSQL_KEYS="/etc/openpanel/mysql/keys.txt"
+if [ -f "$MYSQL_KEYS" ]; then
+    for key in table_open_cache table_definition_cache innodb_flush_log_at_trx_commit; do
+        if ! grep -qx "$key" "$MYSQL_KEYS"; then
+            echo "Adding $key to $MYSQL_KEYS..."
+            [ -n "$(tail -c1 "$MYSQL_KEYS")" ] && echo >> "$MYSQL_KEYS"
+            echo "$key" >> "$MYSQL_KEYS"
+        fi
+    done
+fi

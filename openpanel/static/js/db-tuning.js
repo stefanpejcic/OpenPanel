@@ -7,9 +7,14 @@ function dbTuning(url) {
         recs: [],
         facts: {},
         notes: [],
+        insights: [],
         open: false,
         selected: [],
         applied: {},
+        // optional suggestions trade safety for speed, Review all leaves them out
+        get main() {
+            return this.recs.filter(r => !r.optional);
+        },
         byKey(key) {
             return this.recs.find(r => r.key === key);
         },
@@ -21,6 +26,7 @@ function dbTuning(url) {
                 this.recs = data.recommendations || [];
                 this.facts = data.facts || {};
                 this.notes = data.notes || [];
+                this.insights = data.insights || [];
             } catch (e) {
                 this.error = e.message;
             } finally {
@@ -28,7 +34,7 @@ function dbTuning(url) {
             }
         },
         review(key) {
-            this.selected = key ? this.recs.filter(r => r.key === key) : this.recs.slice();
+            this.selected = key ? this.recs.filter(r => r.key === key) : this.main;
             this.open = true;
         },
         // fills a suggested value into whatever control the page uses for that key

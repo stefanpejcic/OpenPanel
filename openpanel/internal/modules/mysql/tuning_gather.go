@@ -78,6 +78,9 @@ func gatherTuningStats(ctx context.Context, a *appctx.App, userContext string) (
 		}
 	}
 
+	gatherInsights(ctx, userContext, &s)
+	s.PHPWorkers = dbtuning.PHPWorkers(ctx, userContext)
+
 	service := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
 	if service == "mysql" || service == "mariadb" {
 		c := dbtuning.InspectContainer(ctx, userContext, service)
@@ -99,6 +102,51 @@ func gatherTuningStats(ctx context.Context, a *appctx.App, userContext string) (
 		}
 	}
 	return s, nil
+}
+
+// wpAutoloadWarn is where WordPress Site Health starts warning about autoloaded options
+const wpAutoloadWarn = 800 * kb
+
+// gatherInsights looks for table level problems that settings can't fix
+func gatherInsights(ctx context.Context, userContext string, s *TuningStats) {
+	names := func(query string) []string {
+		var out []string
+		if rows, err := mysqlmanager.Exec(ctx, userContext, query, ""); err == nil {
+			for _, row := range rows {
+				out = append(out, toStringCell(row[0]))
+			}
+		}
+		return out
+	}
+	userTables := "FROM information_schema.TABLES t WHERE t.TABLE_SCHEMA NOT IN (" + restricted.dbsSQL + ") AND t.TABLE_TYPE = 'BASE TABLE'"
+
+	if s.EngineTables["MyISAM"] > 0 {
+		s.MyISAMTables = names("SELECT CONCAT(t.TABLE_SCHEMA, '.', t.TABLE_NAME) " + userTables + " AND t.ENGINE = 'MyISAM' ORDER BY t.DATA_LENGTH + t.INDEX_LENGTH DESC LIMIT 10")
+	}
+	s.NoPKTables = names("SELECT CONCAT(t.TABLE_SCHEMA, '.', t.TABLE_NAME) " + userTables + " AND t.ENGINE = 'InnoDB' AND NOT EXISTS (SELECT 1 FROM information_schema.TABLE_CONSTRAINTS c WHERE c.TABLE_SCHEMA = t.TABLE_SCHEMA AND c.TABLE_NAME = t.TABLE_NAME AND c.CONSTRAINT_TYPE = 'PRIMARY KEY') ORDER BY t.TABLE_ROWS DESC LIMIT 200")
+
+	if rows, err := mysqlmanager.Exec(ctx, userContext, "SELECT CONCAT(t.TABLE_SCHEMA, '.', t.TABLE_NAME), t.DATA_FREE "+userTables+" AND t.DATA_FREE >= 52428800 AND t.DATA_FREE > (t.DATA_LENGTH + t.INDEX_LENGTH) / 5 ORDER BY t.DATA_FREE DESC LIMIT 10", ""); err == nil {
+		for _, row := range rows {
+			s.Fragmented = append(s.Fragmented, toStringCell(row[0])+": "+dbtuning.HumanSize(int64(toFloatCell(row[1])))+" unused")
+		}
+	}
+
+	// every WordPress install has an <prefix>options table with an autoload column
+	optionTables, err := mysqlmanager.Exec(ctx, userContext, "SELECT TABLE_SCHEMA, TABLE_NAME FROM information_schema.COLUMNS WHERE COLUMN_NAME = 'autoload' AND TABLE_NAME LIKE '%options' AND TABLE_SCHEMA NOT IN ("+restricted.dbsSQL+") LIMIT 30", "")
+	if err != nil {
+		return
+	}
+	quote := func(id string) string { return "`" + strings.ReplaceAll(id, "`", "``") + "`" }
+	for _, row := range optionTables {
+		db, table := toStringCell(row[0]), toStringCell(row[1])
+		sizeRows, err := mysqlmanager.Exec(ctx, userContext, "SELECT COALESCE(SUM(LENGTH(option_value)), 0) FROM "+quote(db)+"."+quote(table)+" WHERE autoload IN ('yes', 'on', 'auto-on', 'auto')", "")
+		if err != nil || len(sizeRows) == 0 {
+			continue
+		}
+		if size := int64(toFloatCell(sizeRows[0][0])); size >= wpAutoloadWarn {
+			s.WPAutoload = append(s.WPAutoload, db+"."+table+": "+dbtuning.HumanSize(size)+" autoloaded")
+		}
+	}
 }
 
 // handleMySQLConfigRecommendations returns tuning suggestions for the configuration page, loaded with ajax so the page itself stays fast

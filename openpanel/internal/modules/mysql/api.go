@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"os/exec"
 	"strconv"
 	"strings"
 
@@ -1232,17 +1231,18 @@ func apiMySQLUpdateConfig(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	updateMySQLConfigFile(userContext, newConfig, availableConfKeys)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "updated MySQL configuration via API", reqip.ClientIP(r))
 
 	mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
-	restarted := false
-	if mysqlVersion == "mysql" || mysqlVersion == "mariadb" {
-		argv := podmanmanager.PodmanArgv(userContext, "restart", mysqlVersion)
-		if runErr := exec.CommandContext(ctx, argv[0], argv[1:]...).Run(); runErr == nil {
-			restarted = true
-		}
+	if mysqlVersion != "mysql" && mysqlVersion != "mariadb" {
+		updateMySQLConfigFile(userContext, newConfig, availableConfKeys)
+		writeAPIMySQLJSON(w, http.StatusOK, map[string]any{"updated": true, "restarted": false, "configuration": newConfig})
+		return
 	}
-
-	writeAPIMySQLJSON(w, http.StatusOK, map[string]any{"updated": true, "restarted": restarted, "configuration": newConfig})
+	res := applyMySQLConfig(ctx, userContext, mysqlVersion, newConfig)
+	if !res.OK {
+		writeAPIMySQLJSON(w, http.StatusUnprocessableEntity, map[string]any{"updated": false, "rolled_back": true, "running": res.Running, "error": strings.TrimSpace("The database did not start with these settings, the previous configuration was restored. " + res.Reason)})
+		return
+	}
+	writeAPIMySQLJSON(w, http.StatusOK, map[string]any{"updated": true, "restarted": true, "configuration": newConfig})
 }
