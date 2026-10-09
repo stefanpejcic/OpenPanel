@@ -114,6 +114,17 @@ const faq = [
         answer: "Yes, you can import accounts using the 'cPanel Backup Importer'.",
     },
     {
+        question: "Do you offer free migration from cPanel/WHM?",
+        answer: (
+            <>
+                Yes, with an annual Enterprise license our team migrates up to
+                20 accounts and 500 GB of data for free.{" "}
+                <a href="/migrations/">See migration conditions</a>.
+            </>
+        ),
+        schemaAnswer: "Yes, with an annual Enterprise license our team migrates up to 20 accounts and 500 GB of data for free.",
+    },
+    {
         question: "How does the pricing work for the Enterprise edition?",
         answer: "Pricing is per server, not per number of end users.",
     },

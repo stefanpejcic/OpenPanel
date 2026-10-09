@@ -193,6 +193,12 @@ const SITE_PAGES: SitePageOgEntry[] = [
             "OpenPanel Enterprise pricing for NOC partners with their own IP ranges, priced by network prefix length.",
     },
     {
+        permalink: "/migrations/",
+        title: "Free Migration to OpenPanel | OpenPanel",
+        description:
+            "Free migration from cPanel, Plesk, DirectAdmin and CyberPanel to OpenPanel for annual Enterprise license holders - up to 20 accounts and 500 GB included.",
+    },
+    {
         permalink: "/patches/",
         title: "OpenPanel Patches | OpenPanel",
         description:

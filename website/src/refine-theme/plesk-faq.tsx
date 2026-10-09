@@ -114,6 +114,17 @@ const faq = [
         answer: "There is no automatic import tool, migration needs to be performed manually.",
     },
     {
+        question: "Do you offer free migration from Plesk?",
+        answer: (
+            <>
+                Yes, with an annual Enterprise license our team migrates up to
+                20 accounts and 500 GB of data for free.{" "}
+                <a href="/migrations/">See migration conditions</a>.
+            </>
+        ),
+        schemaAnswer: "Yes, with an annual Enterprise license our team migrates up to 20 accounts and 500 GB of data for free.",
+    },
+    {
         question: "How does the pricing work for the Enterprise edition?",
         answer: "Pricing is per server, not per number of end users.",
     },
