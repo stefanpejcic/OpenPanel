@@ -773,12 +773,33 @@ export const pages = {
       bulkShot('#system_backups_table', 2, 'Two system backup archives selected with the bulk actions bar offering Delete'),
     ],
   },
+  // the Rules/Domains/Logs tabs are new in 2.0.15, shot on the test server until the demo has them:
+  // ADMIN_URL=http://host:2087 node shoot.mjs --admin security/waf_server
   'security/waf_server': {
     as: 'security/waf',
-    url: '/security/waf/rules',
+    url: '/security/waf',
     shots: [
-      { name: 'rules', alt: 'WAF rule sets page listing each rule set with its number of rules, status and the View and Disable actions', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(10)', fromTop: true } },
-      bulkShot('#waf_sets', ['REQUEST-911-METHOD-ENFORCEMENT', 'REQUEST-913-SCANNER-DETECTION'], 'Two WAF rule sets selected with the bulk actions bar offering Enable and Disable', { rows: 6 }),
+      { name: 'page', alt: 'Web Firewall Overview tab with the module status, domains per mode, active rule sets and recently stopped requests', crop: { from: 'main', to: 'main form#waf-status-form', fromTop: true, pad: 24 } },
+      { name: 'crs', alt: 'OWASP Core Rule Set section with the installed version, the up to date status and the Check for updates button', crop: { from: 'main div.grid:has(> div > #crs)', pad: 16 } },
+      { name: 'profiles', alt: 'App profiles section listing each CRS exclusion plugin with its status, the number of domains using it and the Re-download button', crop: { from: 'main div.grid:has(> div > #profiles)', pad: 16 } },
+      { name: 'activity', alt: 'Most hit domains and the rules triggered most across all domains on the server', crop: { from: 'main div.grid:has(> div > #activity)', pad: 16 } },
+      { name: 'rules', url: '/security/waf/rules', alt: 'WAF Rules tab listing each rule set with its number of rules, status and the View and Disable actions', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(10)', fromTop: true } },
+      { ...bulkShot('#waf_sets', ['REQUEST-911-METHOD-ENFORCEMENT', 'REQUEST-913-SCANNER-DETECTION'], 'Two WAF rule sets selected with the bulk actions bar offering Enable and Disable', { rows: 6 }), url: '/security/waf/rules' },
+      {
+        name: 'server-wide',
+        url: '/security/waf/rules',
+        alt: 'Disabled on all domains section with the rule IDs and tags turned off server-wide and the Save button',
+        prepare: fill({ '#global_rules': '920350 942100', '#global_tags': 'attack-xss' }),
+        crop: { from: 'main section:has(#server-wide)', pad: 16 },
+      },
+      { name: 'domains', url: '/security/waf/domains', alt: 'WAF Domains tab listing every domain with its user, mode, protection level and number of disabled rules, with the user filter and Manage and Logs actions', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(10)', fromTop: true } },
+      { name: 'domain', url: '/security/waf/rules/drupal.tests.openpanel.org', alt: 'WAF settings of a single domain with its mode, level, app profiles and the disabled rule IDs and tags', crop: 'content' },
+      { name: 'user', url: '/security/waf/rules/testinguser', alt: 'WAF settings for all domains of a user with the mode for all domains, the rule ID to disable or enable on all of them and the table of the user domains', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(6)', fromTop: true } },
+      { name: 'logs', url: '/security/waf/logs', alt: 'WAF Logs tab with the user filter, the blocked, would block and flagged totals and the domains hit the most', crop: { from: 'main', to: '#waf-domains tbody tr:nth-of-type(6)', fromTop: true, pad: 16 } },
+      { name: 'logs-rules', url: '/security/waf/logs', viewportWidth: 1500, alt: 'Rules triggered table with the reason, hits, blocked requests, domains, paths and the Disable server-wide action', crop: { from: '#waf-rules > div', to: '#waf-rules tbody tr:nth-of-type(6)', pad: 8, right: true } },
+      { name: 'logs-ips', url: '/security/waf/logs', alt: 'Top IP addresses table with the hits and blocked requests of each address', crop: { from: '#waf-ips > h2', to: '#waf-ips tbody tr:nth-of-type(5)', pad: 8, right: true } },
+      { name: 'logs-requests', url: '/security/waf/logs', viewportWidth: 1500, alt: 'Latest requests table with the time, domain, IP address, request, status, result and the rules that matched', crop: { from: '#waf-events > h2', to: '#waf-events tbody tr:nth-of-type(8)', pad: 8, right: true } },
+      { name: 'logs-domain', url: '/security/waf/logs/drupal.tests.openpanel.org', alt: 'WAF logs of a single domain with the Manage rules and Clear logs buttons and the rules triggered with Disable for domain and Disable server-wide actions', crop: { from: 'main', to: '#waf-rules tbody tr:last-of-type', fromTop: true, pad: 8 } },
     ],
   },
   'settings/locales_server': {
