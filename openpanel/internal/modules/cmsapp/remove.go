@@ -1,6 +1,7 @@
 package cmsapp
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -92,12 +93,8 @@ func (app *App) HandleRemove(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	if app.RemoveFiles != nil {
 		app.RemoveFiles(ctx, s)
-	} else if entries := installmanifest.EntriesViaContainer(ctx, userContext, s.PHPContainer, installPath); entries != nil {
-		// remove exactly what the install recorded creating, not the domain's docroot itself
-		_ = installmanifest.RemoveViaContainer(ctx, userContext, s.PHPContainer, installPath, entries)
 	} else {
-		// installs made before the manifest existed
-		_ = podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "exec", s.PHPContainer, "rm", "-rf", installPath)).Run()
+		removeSiteFiles(ctx, s)
 	}
 
 	if _, delErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE id = ?", id); delErr != nil {
@@ -138,4 +135,18 @@ func (app *App) dropDBFromConfig(a *appctx.App, w http.ResponseWriter, r *http.R
 	_, _ = mysqlmanager.Exec(ctx, s.UserContext, "DROP DATABASE IF EXISTS `"+dbName+"`", "")
 	_, _ = mysqlmanager.Exec(ctx, s.UserContext, "DROP USER IF EXISTS '"+dbUser+"'@'%'", "")
 	appkit.InvalidateMySQLCaches(ctx, a, s.UserContext, s.Username)
+}
+
+// removeSiteFiles deletes what the install recorded creating, not the domain's docroot itself
+func removeSiteFiles(ctx context.Context, s *Site) {
+	// host-side first, the container rm silently left composer-built drupal/flarum trees behind
+	if entries := installmanifest.Entries(s.HostPath); entries != nil && installmanifest.Remove(s.HostPath, entries) == nil {
+		return
+	}
+	if entries := installmanifest.EntriesViaContainer(ctx, s.UserContext, s.PHPContainer, s.InstallPath); entries != nil {
+		_ = installmanifest.RemoveViaContainer(ctx, s.UserContext, s.PHPContainer, s.InstallPath, entries)
+		return
+	}
+	// installs made before the manifest existed
+	_ = podmanmanager.Command(ctx, s.UserContext, podmanmanager.PodmanArgv(s.UserContext, "exec", s.PHPContainer, "rm", "-rf", s.InstallPath)).Run()
 }

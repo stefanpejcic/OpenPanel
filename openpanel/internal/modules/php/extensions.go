@@ -262,6 +262,15 @@ func toggleExtension(ctx context.Context, userContext, service, extension string
 	return true, ""
 }
 
+// ensureXZ installs xz in the php-fpm container if it's missing, phpaddmod unpacks the php source .tar.xz and the shinsenter images don't ship it
+func ensureXZ(ctx context.Context, userContext, service string) {
+	cctx, cancel := context.WithTimeout(ctx, 3*time.Minute)
+	defer cancel()
+	script := "command -v xz >/dev/null 2>&1 || { if command -v apt-get >/dev/null 2>&1; then apt-get update -qq && apt-get install -y -qq xz-utils; elif command -v apk >/dev/null 2>&1; then apk add --no-cache xz; fi; }"
+	argv := podmanmanager.PodmanArgv(userContext, "exec", "--user", "root", service, "sh", "-c", script)
+	_ = podmanmanager.Command(cctx, userContext, argv).Run()
+}
+
 // EnsureExtensionInstalled makes sure a PHP extension is present and enabled before some other module's installer runs (e.g. OJS requires "ftp"), reusing this file's own phpaddmod install machinery so results match the browser-driven Extensions flow
 // three cases cheapest first: already active is a no-op, installed-but-disabled just gets re-enabled, not-installed runs phpaddmod - all restart cases block until the service reports running again
 func EnsureExtensionInstalled(ctx context.Context, userContext, service, extension string) error {
@@ -280,6 +289,7 @@ func EnsureExtensionInstalled(ctx context.Context, userContext, service, extensi
 			return fmt.Errorf("enabling PHP extension %q: %s", extension, errMsg)
 		}
 	} else {
+		ensureXZ(ctx, userContext, service)
 		installCtx, cancel := context.WithTimeout(ctx, 10*time.Minute)
 		defer cancel()
 		argv := podmanmanager.PodmanArgv(userContext, "exec", service, "phpaddmod", extension)
@@ -458,6 +468,7 @@ func runExtensionInstall(installID string) {
 	if strings.Contains(strings.ToLower(webServer), "litespeed") {
 		argv = installLitespeedExtensionsArgv(info.Context, info.Service, info.Version, info.Extensions)
 	} else {
+		ensureXZ(context.Background(), info.Context, info.Service)
 		argv = append(podmanmanager.PodmanArgv(info.Context, "exec", info.Service, "phpaddmod"), info.Extensions...)
 	}
 

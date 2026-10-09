@@ -225,6 +225,7 @@ func StartInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) (*Insta
 		return nil, false
 	}
 	if !a.CheckDomainBelongsToUser(ctx, userID, dom.DomainURL) {
+		emit(map[string]any{"error": "You do not own this domain."})
 		return nil, false
 	}
 	in.Domain = dom

@@ -34,6 +34,35 @@ func Record(dir string) error {
 	return os.WriteFile(filepath.Join(dir, Name), []byte(strings.Join(names, "\n")), 0o644)
 }
 
+// Entries reads back dir's manifest from the host, nil if there's none
+func Entries(dir string) []string {
+	out, err := os.ReadFile(filepath.Join(dir, Name))
+	if err != nil {
+		return nil
+	}
+	var names []string
+	for _, line := range strings.Split(string(out), "\n") {
+		if line = strings.TrimSpace(line); line != "" {
+			names = append(names, line)
+		}
+	}
+	return names
+}
+
+// Remove deletes the given top-level entries plus the manifest from dir on the host, leaving dir in place - host-side so files a composer run created under another uid inside the container still go
+func Remove(dir string, entries []string) error {
+	for _, e := range entries {
+		// manifest lines are plain names, never let one climb out of dir
+		if e == "" || e == "." || e == ".." || strings.Contains(e, "/") {
+			continue
+		}
+		if err := os.RemoveAll(filepath.Join(dir, e)); err != nil {
+			return err
+		}
+	}
+	return os.Remove(filepath.Join(dir, Name))
+}
+
 // EntriesViaContainer reads back the manifest for containerPath (as seen inside phpContainer) via podman
 // exec, returning nil if none exists - e.g. an install made before this mechanism existed.
 func EntriesViaContainer(ctx context.Context, userContext, phpContainer, containerPath string) []string {

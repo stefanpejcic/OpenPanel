@@ -235,6 +235,14 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	emit(map[string]any{"status": "Linking web root to OJS app directory"})
 	_ = os.Remove(hostOSPath)
+	// the domain docroot can be missing (deleted from the file manager), the link needs its parent dir
+	if mkErr := os.MkdirAll(filepath.Dir(hostOSPath), 0o755); mkErr != nil {
+		emit(map[string]any{"error": "Error creating web root parent directory: " + mkErr.Error()})
+		_ = os.RemoveAll(approotHostPath)
+		_ = os.RemoveAll(filesHostPath)
+		return
+	}
+	_ = exec.Command("chown", uidStr+":"+uidStr, filepath.Dir(hostOSPath)).Run()
 	// the symlink target must be the container-visible path, not the host filesystem path, since php-fpm only sees its own /var/www/html/ bind mount - same gotcha as moodle/install.go
 	if symErr := os.Symlink(approotContainerPath, hostOSPath); symErr != nil {
 		emit(map[string]any{"error": "Error creating web root symlink: " + symErr.Error()})
