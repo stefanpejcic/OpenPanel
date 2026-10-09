@@ -23,7 +23,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// unpackMoodleArchive extracts download.moodle.org's packaged tarball (a single top-level "moodle/" directory containing config-dist.php, admin/, lib/, and a public/ subdirectory that is the actual web root) directly into destDir, stripping that wrapper directory so destDir itself becomes the Moodle "app root" (approot) - config.php ends up at destDir/config.php, the web-served files at destDir/public/
+// unpackMoodleArchive extracts the GitHub tag tarball (a single top-level "moodle-X.Y.Z/" directory containing config-dist.php, admin/, lib/, and a public/ subdirectory that is the actual web root) directly into destDir, stripping that wrapper directory so destDir itself becomes the Moodle "app root" (approot) - config.php ends up at destDir/config.php, the web-served files at destDir/public/
 func unpackMoodleArchive(ctx context.Context, archivePath, destDir string) error {
 	if err := os.MkdirAll(destDir, 0o755); err != nil {
 		return err
@@ -44,22 +44,12 @@ type execError struct {
 func (e *execError) Error() string { return e.msg }
 func (e *execError) Unwrap() error { return e.err }
 
-// moodleBranch converts a "vX.Y.Z"-style GitHub tag into download.moodle.org's packaging branch token (e.g. v5.0.2 -> "500", v4.5.3 -> "405")
-func moodleBranch(version string) string {
-	v := strings.TrimPrefix(version, "v")
-	parts := strings.SplitN(v, ".", 3)
-	if len(parts) < 2 {
-		return ""
-	}
-	major := parts[0]
-	minor := parts[1]
-	if len(minor) == 1 {
-		minor = "0" + minor
-	}
-	return major + minor
+// moodleArchiveURL is GitHub's source tarball for a "X.Y.Z" tag, same tree as download.moodle.org's package
+func moodleArchiveURL(version string) string {
+	return "https://github.com/moodle/moodle/archive/refs/tags/v" + strings.TrimPrefix(version, "v") + ".tar.gz"
 }
 
-// handleInstallStream drives a Moodle install end to end over NDJSON: download the packaged tarball from download.moodle.org, extract it into a sibling "app root" directory (see moodle.go's package doc comment for why - Moodle 5.x's public/ split), symlink the domain's actual docroot to <approot>/public, create a MySQL database, run Moodle's own `admin/cli/install.php` non-interactively, then register a per-minute admin/cli/cron.php job via crons.AddJob (Moodle does nothing - no mail, no enrolments, no scheduled tasks - without this running)
+// handleInstallStream drives a Moodle install end to end over NDJSON: download the tag tarball from GitHub, extract it into a sibling "app root" directory (see moodle.go's package doc comment for why - Moodle 5.x's public/ split), symlink the domain's actual docroot to <approot>/public, create a MySQL database, run Moodle's own `admin/cli/install.php` non-interactively, then register a per-minute admin/cli/cron.php job via crons.AddJob (Moodle does nothing - no mail, no enrolments, no scheduled tasks - without this running)
 func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	in, ok := cmsapp.StartInstall(a, w, r)
 	if !ok {
@@ -153,17 +143,11 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			return
 		}
 	}
-	branch := moodleBranch(version)
-	if branch == "" {
-		emit(map[string]any{"error": "Could not determine Moodle release branch for version " + version})
-		return
-	}
-
-	archiveName := "moodle-latest-" + branch + ".tgz"
+	archiveName := "moodle-" + version + ".tar.gz"
 	archiveDir := "/etc/openpanel/moodle/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
 	if _, statErr := os.Stat(archivePath); statErr != nil {
-		downloadURL := "https://download.moodle.org/download.php/direct/stable" + branch + "/" + archiveName
+		downloadURL := moodleArchiveURL(version)
 		emit(map[string]any{"status": "Downloading " + downloadURL})
 		_ = os.MkdirAll(archiveDir, 0o755)
 		if runErr := exec.CommandContext(ctx, "wget", "-q", "-O", archivePath, downloadURL).Run(); runErr != nil {

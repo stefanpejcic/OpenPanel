@@ -20,7 +20,7 @@ type githubTag struct {
 	Name string `json:"name"`
 }
 
-// listMoodleVersions hits the GitHub tags API and returns every stable "vX.Y.Z" tag (prerelease tags carry a "-rcN"/"-beta" suffix and are excluded by the exact-three-part regex), newest first - unlike prestashop/nextcloud's releases-API approach, Moodle's GitHub tags aren't filtered on release-asset presence, since the real download artifact lives on download.moodle.org instead (see install.go's moodleBranch)
+// listMoodleVersions hits the GitHub tags API and returns every stable "vX.Y.Z" tag (prerelease tags carry a "-rcN"/"-beta" suffix and are excluded by the exact-three-part regex), newest first - the tarball itself is GitHub's tag archive too (see install.go's moodleArchiveURL)
 func listMoodleVersions(ctx context.Context) ([]string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/moodle/moodle/tags?per_page=100", nil)
 	if err != nil {

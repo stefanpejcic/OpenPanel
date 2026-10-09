@@ -101,25 +101,20 @@ func handleMoodleUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		emit(map[string]any{"error": "Could not determine latest Moodle version: " + latestErr.Error()})
 		return
 	}
-	branch := moodleBranch(version)
-	if branch == "" {
-		emit(map[string]any{"error": "Could not determine Moodle packaging branch for version " + version})
-		return
-	}
-
 	slug := appkit.SiteSlug(selectedDomain)
 	htmlVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
 	approotHostPath := filepath.Join(htmlVolume, slug+"_moodleapp")
 	approotContainerPath := "/var/www/html/" + slug + "_moodleapp"
 
-	archiveName := "moodle-" + version + ".tgz"
+	archiveName := "moodle-" + version + ".tar.gz"
 	archiveDir := "/etc/openpanel/moodle/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
 	if _, statErr := os.Stat(archivePath); statErr != nil {
-		downloadURL := "https://download.moodle.org/download.php/direct/stable" + branch + "/" + archiveName
+		downloadURL := moodleArchiveURL(version)
 		emit(map[string]any{"status": "Downloading " + downloadURL})
 		_ = os.MkdirAll(archiveDir, 0o755)
 		if runErr := exec.CommandContext(ctx, "wget", "-q", "-O", archivePath, downloadURL).Run(); runErr != nil {
+			_ = os.Remove(archivePath)
 			emit(map[string]any{"error": "Error downloading Moodle " + version + ": " + runErr.Error()})
 			return
 		}
