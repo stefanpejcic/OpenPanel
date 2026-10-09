@@ -10,7 +10,7 @@
         php: {{if .UserAllowed.php}}true{{else}}false{{end}},
         database: {{if .UserAllowed.change_db}}true{{else}}false{{end}},
         varnish: {{if .UserAllowed.varnish}}true{{else}}false{{end}},
-        backups: {{if .UserAllowed.backups}}true{{else}}false{{end}},
+        backups: {{if and .UserAllowed.backups (not .BackupsAdminManaged)}}true{{else}}false{{end}},
         waf: {{if .UserAllowed.waf}}true{{else}}false{{end}},
         ipBlocker: {{if .UserAllowed.ip_blocker}}true{{else}}false{{end}},
         twofa: {{if .UserAllowed.twofa}}true{{else}}false{{end}},

@@ -207,6 +207,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		Sections:              buildDashboardSections(t, userAllowed, upsellAllowed, menuStyle, dashboardAppKeys),
 		TourShow:              d.TourShow,
 		OnboardingShow:        d.OnboardingShow,
+		BackupsAdminManaged:   d.BackupsAdminManaged,
 		CustomMessage:         template.HTML(d.CustomMessage), //nolint:gosec // matches Jinja's `custom_message|safe`: admin-authored HTML from a local file, not user input
 		CustomSectionTitle:    d.CustomSectionTitle,
 		CustomSectionItems:    convertCustomSectionItems(d.CustomSectionItems),
@@ -412,6 +413,7 @@ type DashboardData struct {
 	FTPCount              int
 	TourShow              bool
 	OnboardingShow        bool
+	BackupsAdminManaged   bool
 }
 
 type UserWebsite struct {
@@ -519,6 +521,8 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 				_ = os.WriteFile(onboardingDoneFile, nil, 0o644)
 			} else {
 				d.OnboardingShow = true
+				// admin owns the backup destination, so skip that wizard step
+				d.BackupsAdminManaged = userAllowed["backups"] && web.BackupsAdminManaged(userContext)
 			}
 		}
 	}

@@ -29,6 +29,8 @@ type DashboardPageData struct {
 	TourShow       bool
 	OnboardingShow bool
 
+	BackupsAdminManaged bool
+
 	CustomMessage template.HTML
 
 	CustomSectionTitle    string
