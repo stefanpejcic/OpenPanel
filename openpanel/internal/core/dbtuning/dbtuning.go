@@ -99,6 +99,7 @@ type Container struct {
 	MemUsage  int64
 	CPUs      float64
 	OOMKilled bool
+	StartedAt time.Time
 }
 
 // parseMemUsage reads the "232.6MB" half of podman's MemUsage column
@@ -126,14 +127,19 @@ func InspectContainer(ctx context.Context, userContext, service string) Containe
 	var c Container
 	cctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
-	argv := podmanmanager.PodmanArgv(userContext, "inspect", service, "--format", "{{.HostConfig.Memory}} {{.HostConfig.NanoCpus}} {{.State.OOMKilled}}")
+	argv := podmanmanager.PodmanArgv(userContext, "inspect", service, "--format", "{{.HostConfig.Memory}} {{.HostConfig.NanoCpus}} {{.State.OOMKilled}} {{.State.StartedAt.Unix}}")
 	if out, err := podmanmanager.Command(cctx, userContext, argv).Output(); err == nil {
-		if f := strings.Fields(string(out)); len(f) == 3 {
+		if f := strings.Fields(string(out)); len(f) >= 3 {
 			c.MemLimit, _ = strconv.ParseInt(f[0], 10, 64)
 			if nano, _ := strconv.ParseInt(f[1], 10, 64); nano > 0 {
 				c.CPUs = float64(nano) / 1e9
 			}
 			c.OOMKilled = f[2] == "true"
+			if len(f) == 4 {
+				if secs, _ := strconv.ParseInt(f[3], 10, 64); secs > 0 {
+					c.StartedAt = time.Unix(secs, 0)
+				}
+			}
 		}
 	}
 	argv = podmanmanager.PodmanArgv(userContext, "stats", "--no-stream", "--format", "{{.MemUsage}}", service)

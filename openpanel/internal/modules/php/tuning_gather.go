@@ -93,7 +93,15 @@ func gatherPHPTuningStats(ctx context.Context, a *appctx.App, userID int, userCo
 		}
 		c := dbtuning.InspectContainer(ctx, userContext, container)
 		s.RAMLimit, s.MemUsage, s.CPUs, s.OOMKilled = c.MemLimit, c.MemUsage, c.CPUs, c.OOMKilled
-		if body, status := docker.FetchContainerLog(ctx, a, userContext, container, errorLogTail); status == http.StatusOK {
+		// only errors since the last restart, so a setting that was already raised stops being flagged
+		var body string
+		var status int
+		if c.StartedAt.IsZero() {
+			body, status = docker.FetchContainerLog(ctx, a, userContext, container, errorLogTail)
+		} else {
+			body, status = docker.FetchContainerLogSince(ctx, userContext, container, errorLogTail, time.Since(c.StartedAt)+time.Minute)
+		}
+		if status == http.StatusOK {
 			for _, line := range strings.Split(body, "\n") {
 				if strings.Contains(line, "PHP ") || strings.Contains(line, "WARNING") || strings.Contains(line, "exceeds the limit") {
 					s.LogLines = append(s.LogLines, line)

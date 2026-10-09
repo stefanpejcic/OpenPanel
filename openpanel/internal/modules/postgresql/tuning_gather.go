@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -76,7 +77,8 @@ func gatherPgTuningStats(ctx context.Context, a *appctx.App, userContext string)
 			s.RAMLimit = dbtuning.HostMemory()
 		}
 	}
-	if body, status := docker.FetchContainerLog(ctx, a, userContext, "postgres", errorLogTail); status == http.StatusOK {
+	// only errors since the last restart, so a raised limit stops being flagged
+	if body, status := docker.FetchContainerLogSince(ctx, userContext, "postgres", errorLogTail, time.Duration(s.UptimeSecs+60)*time.Second); status == http.StatusOK {
 		for _, line := range strings.Split(body, "\n") {
 			l := strings.ToLower(line)
 			if strings.Contains(l, "error") || strings.Contains(l, "fatal") || strings.Contains(l, "log:") {

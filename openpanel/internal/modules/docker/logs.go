@@ -21,20 +21,29 @@ func FetchContainerLog(ctx context.Context, a *appctx.App, userContext, serviceN
 	}
 	key := "_fetch_container_log:" + userContext + ":" + serviceName + ":" + strconv.Itoa(tail)
 	r, _ := cache.Memoize(ctx, a.Cache, key, 60*time.Second, func() (result, error) {
-		argv := podmanmanager.PodmanArgv(userContext, "logs", "--tail", strconv.Itoa(tail), serviceName)
-		cmdCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
-		defer cancel()
-		cmd := podmanmanager.Command(cmdCtx, userContext, argv)
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			if _, ok := err.(*exec.ExitError); ok {
-				return result{Body: "Error: " + string(out), Status: http.StatusInternalServerError}, nil
-			}
-			return result{Body: "Unhandled error: " + err.Error(), Status: http.StatusInternalServerError}, nil
-		}
-		return result{Body: string(out), Status: http.StatusOK}, nil
+		body, status := runPodmanLogs(ctx, userContext, "logs", "--tail", strconv.Itoa(tail), serviceName)
+		return result{Body: body, Status: status}, nil
 	})
 	return r.Body, r.Status
+}
+
+// FetchContainerLogSince is uncached and skips lines older than since, podman keeps logs from before a restart
+func FetchContainerLogSince(ctx context.Context, userContext, serviceName string, tail int, since time.Duration) (string, int) {
+	return runPodmanLogs(ctx, userContext, "logs", "--since", strconv.FormatInt(int64(since.Seconds()), 10)+"s", "--tail", strconv.Itoa(tail), serviceName)
+}
+
+func runPodmanLogs(ctx context.Context, userContext string, args ...string) (string, int) {
+	argv := podmanmanager.PodmanArgv(userContext, args...)
+	cmdCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	out, err := podmanmanager.Command(cmdCtx, userContext, argv).CombinedOutput()
+	if err != nil {
+		if _, ok := err.(*exec.ExitError); ok {
+			return "Error: " + string(out), http.StatusInternalServerError
+		}
+		return "Unhandled error: " + err.Error(), http.StatusInternalServerError
+	}
+	return string(out), http.StatusOK
 }
 
 func handleContainerLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -85,7 +86,9 @@ func gatherTuningStats(ctx context.Context, a *appctx.App, userContext string) (
 	if service == "mysql" || service == "mariadb" {
 		c := dbtuning.InspectContainer(ctx, userContext, service)
 		s.RAMLimit, s.MemUsage, s.OOMKilled = c.MemLimit, c.MemUsage, c.OOMKilled
-		if body, status := docker.FetchContainerLog(ctx, a, userContext, service, errorLogTail); status == http.StatusOK {
+		// only errors since the last restart, otherwise old "too many connections" lines keep asking for a higher limit
+		since := time.Duration(mysqlmanager.ToInt(s.Status["Uptime"])+60) * time.Second
+		if body, status := docker.FetchContainerLogSince(ctx, userContext, service, errorLogTail, since); status == http.StatusOK {
 			for _, line := range strings.Split(body, "\n") {
 				l := strings.ToLower(line)
 				if strings.Contains(l, "error") || strings.Contains(l, "warning") || strings.Contains(l, "too many connections") || strings.Contains(l, "max_allowed_packet") {
