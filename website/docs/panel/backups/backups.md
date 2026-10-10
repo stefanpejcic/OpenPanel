@@ -12,6 +12,10 @@ As a result, administrators have fewer tasks to manage, and users gain greater c
 ![Backups page with the three setup steps: connect a destination, configure settings, and set limits](/img/openpanel-screenshots/files/backups-page.png#gh-light-mode-only)
 ![Backups page with the three setup steps: connect a destination, configure settings, and set limits](/img/openpanel-screenshots/files/backups-page_dark.png#gh-dark-mode-only)
 
+:::note Attribution
+User backups are powered by [offen/docker-volume-backup](https://github.com/offen/docker-volume-backup). Large parts of the configuration reference on this page (destinations, encryption, rotation, schedule, compression, names, exclude and notifications) are adapted from its [documentation](https://offen.github.io/docker-volume-backup/reference/), Copyright © offen.software and contributors, licensed under the [Mozilla Public License 2.0](https://github.com/offen/docker-volume-backup/blob/main/LICENSE). See [Credits & License](#credits--license) below.
+:::
+
 :::info Admin Configured mode
 If your administrator runs backups centrally for all users (**Admin Configured** mode, see [User Backups](/docs/admin/backups/user/)), the **Destinations** and **Settings** pages below aren't available to you - the destination and its credentials are managed by the administrator. You can still use **List Backups** and **Restore Logs** to browse and restore your own backups.
 :::
@@ -462,3 +466,10 @@ Error *error copying archive: ssh.(*sshStorage).Copy: error creating file: file 
 ```
 time=2025-07-22T11:21:05.117Z level=ERROR msg="Fatal error running command: file does not exist" error="main.(*command).runAsCommand: error running script: main.runScript.func4: error running script: main.(*script).copyArchive: error copying archive: ssh.(*sshStorage).Copy: error creating file: file does not exist"
 ```
+
+## Credits & License
+
+The backup functionality in OpenPanel uses [offen/docker-volume-backup](https://github.com/offen/docker-volume-backup) by [offen.software](https://www.offen.software/). Thank you to its authors and contributors.
+
+- Setting descriptions in the [Destinations](#destinations), [Encryption](#encryption), [Rotation](#rotation), [Source](#source), [Schedule](#schedule), [Compression](#compression), [Names](#names), [Exclude](#exclude) and [Notifications](#notifications) sections are adapted from the [docker-volume-backup configuration reference](https://offen.github.io/docker-volume-backup/reference/) and [how-to guides](https://offen.github.io/docker-volume-backup/how-tos/), Copyright © offen.software and contributors. That content is licensed under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/), and the source is available at [github.com/offen/docker-volume-backup](https://github.com/offen/docker-volume-backup).
+- Notification service URL formats and options are adapted from the [shoutrrr documentation](https://containrrr.dev/shoutrrr/), Copyright © containrrr contributors, licensed under the [MIT License](https://github.com/containrrr/shoutrrr/blob/main/LICENSE).
