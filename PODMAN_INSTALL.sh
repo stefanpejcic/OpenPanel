@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org/)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           09.10.2026
+# Last Modified:           10.10.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -925,7 +925,10 @@ configure_waf() {
     /usr/local/bin/opencli waf "$([[ "$CORAZA" == true ]] && printf '%s' enable || printf '%s' disable)" > /dev/null 2>&1
 }
 
-setup_redis() { install -d -m 777 /tmp/redis; }
+setup_redis() { 
+    install -d -m 777 /tmp/redis
+    echo "d /tmp/redis 0777 root root -" > /etc/tmpfiles.d/openpanel-redis.conf
+}
 
 enable_disk_quotas() {
     echo "Enabling disk quotas..."
