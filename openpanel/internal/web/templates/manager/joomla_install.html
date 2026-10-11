@@ -241,7 +241,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
               } else if (data.error) {
                 markStepError(currentStepIndex);
                 showInstallError(_installDomain);
-                showToast(`${data.error} — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">Retry</a>`, 'error');
+                showToast(`${data.error} — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">{{$.T.Get "Retry"}}</a>`, 'error');
                 button.disabled = false;
               }
             } catch(e) { /* non-JSON line, ignore */ }
@@ -251,7 +251,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
         }).catch(streamErr => {
           markStepError(currentStepIndex);
           showInstallError(_installDomain);
-          showToast({{toJSON (.T.Get "Connection lost during installation.")}} + ` — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">Retry</a>`, 'error');
+          showToast({{toJSON (.T.Get "Connection lost during installation.")}} + ` — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">{{$.T.Get "Retry"}}</a>`, 'error');
           button.disabled = false;
           console.error("Stream read error:", streamErr);
         });
@@ -291,7 +291,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
             latestVersions.forEach((version, i) => {
                 const option = document.createElement('option');
                 option.value = version;
-                option.textContent = i === 0 ? `${version} (latest)` : version;
+                option.textContent = i === 0 ? `${version} ({{$.T.Get "latest"}})` : version;
                 selectElement.appendChild(option);
             });
         })

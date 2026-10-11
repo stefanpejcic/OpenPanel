@@ -648,7 +648,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                             if (apiMessage.toLowerCase().includes('exceeded for quota metric')) {
                                 if (!cachedError || (now - cachedError.timestamp) > quotaErrorCacheDuration) {
-                                    toastMessage = "Quota limit exceeded for Google PageSpeed API. Please add an API Key.";
+                                    toastMessage = "{{.T.Get "Quota limit exceeded for Google PageSpeed API. Please add an API Key."}}";
 
                                     localStorage.setItem(quotaErrorKey, JSON.stringify({
                                         shown: true,

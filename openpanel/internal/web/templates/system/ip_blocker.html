@@ -66,7 +66,7 @@ function ipBlocker() {
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (line && !this.validateIP(line)) {
-                    this.errorMessage = `Invalid IP or CIDR on line ${i+1}: "${line}"`;
+                    this.errorMessage = '{{.T.Get "Invalid IP or CIDR on line {n}:"}}'.replace('{n}', i + 1) + ` "${line}"`;
                     break;
                 }
             }

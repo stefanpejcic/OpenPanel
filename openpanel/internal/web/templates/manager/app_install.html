@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(response => response.json())
                     .then(data => populateVersionSelect(data, versionSelect))
                     .catch(error => {
-                        versionSelect.innerHTML = `<option>Error fetching versions: ${error}</option>`;
+                        versionSelect.innerHTML = `<option>{{.T.Get "Error fetching versions:"}} ${error}</option>`;
                     });
             }
 
@@ -805,7 +805,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
                 // innerHTML sink. isPermanent=true because that detail is
                 // too much to read before the default 5s auto-dismiss.
                 const safeError = _escapeHtml(data.error).replace(/\n/g, '<br>');
-                showToast(`${safeError} — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">Retry</a>`, 'error', true);
+                showToast(`${safeError} — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">{{$.T.Get "Retry"}}</a>`, 'error', true);
                 button.disabled = false;
               }
             } catch(e) { /* non-JSON line, ignore */ }
@@ -815,7 +815,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
         }).catch(streamErr => {
           markStepError(currentStepIndex);
           showInstallError(_installDomain);
-          showToast({{toJSON (.T.Get "Connection lost during installation.")}} + ` — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">Retry</a>`, 'error');
+          showToast({{toJSON (.T.Get "Connection lost during installation.")}} + ` — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">{{$.T.Get "Retry"}}</a>`, 'error');
           button.disabled = false;
           console.error("Stream read error:", streamErr);
         });

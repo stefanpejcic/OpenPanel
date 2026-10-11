@@ -269,7 +269,7 @@
         Promise.all(rows.map(function (row) {
             return request(row)
                 .then(function (r) { return r.json(); })
-                .then(function (data) { if (!data.success) throw new Error(data.error || 'Unknown error'); })
+                .then(function (data) { if (!data.success) throw new Error(data.error || '{{.T.Get "Unknown error"}}'); })
                 .catch(function (e) { failed++; showToast(row.dataset.file + ': ' + e.message, 'error'); });
         })).then(function () {
             showToast(failed ? i18n.failed : doneMsg, failed ? 'warning' : 'success');
@@ -309,7 +309,7 @@
             fetch('/json/trash-size?name=' + encodeURIComponent(link.dataset.folder), { headers: { 'X-CSRF-Token': csrf_token } })
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
-                    if (!data.size) throw new Error(data.error || 'Unknown error');
+                    if (!data.size) throw new Error(data.error || '{{.T.Get "Unknown error"}}');
                     link.closest('td').textContent = data.size;
                 })
                 .catch(function (err) {

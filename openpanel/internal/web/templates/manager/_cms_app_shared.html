@@ -920,10 +920,10 @@
                         }))
                         .then(response => {
                             if (response.status === 'success') {
-                                showToast(`Cloned to ${response.target} successfully!`, 'success');
+                                showToast('{{.T.Get "Cloned to {target} successfully!"}}'.replace('{target}', response.target), 'success');
                                 btn.textContent = {{toJSON (.T.Get "Clone Complete")}};
                             } else {
-                                showToast(`Error cloning site`, 'error');
+                                showToast('{{.T.Get "Error cloning site"}}', 'error');
                                 btn.disabled = false;
                                 btn.textContent = {{toJSON (.T.Get "Try Again")}};
                             }

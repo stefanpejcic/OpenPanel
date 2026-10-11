@@ -44,6 +44,28 @@
         }
     }
 
+    var i18n = {};
+
+    function tr(str) {
+        return i18n[str] || str;
+    }
+
+    // fetched once per locale and kept in sessionStorage so cross-page steps don't refetch
+    function loadI18n() {
+        var key = 'op_tour_i18n_' + (window.TourLocale || 'en');
+        try {
+            var cached = sessionStorage.getItem(key);
+            if (cached) { i18n = JSON.parse(cached); return Promise.resolve(); }
+        } catch (e) {}
+        return fetch('/dashboard/tour/i18n', { credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.json() : {}; })
+            .then(function (data) {
+                i18n = data || {};
+                try { sessionStorage.setItem(key, JSON.stringify(i18n)); } catch (e) {}
+            })
+            .catch(function () {});
+    }
+
     var driverObj = null;
     var currentPageStartIndex = 0;
     var currentPageEndIndex = 0;
@@ -82,7 +104,7 @@
         var hint = document.createElement('div');
         hint.className = 'op-tour-hint';
         hint.style.cssText = 'width:100%;font-size:11px;color:#9ca3af;margin-top:6px;text-align:center;';
-        hint.textContent = '← → steps · ↑ ↓ pages';
+        hint.textContent = '← → ' + tr('steps') + ' · ↑ ↓ ' + tr('pages');
         popover.footer.appendChild(hint);
     }
 
@@ -114,12 +136,12 @@
             var crossesToNextPage = isLastOnPage && !isFinalStep;
 
             var popover = {
-                title: step.title,
-                description: step.description,
+                title: tr(step.title),
+                description: tr(step.description),
                 side: step.side || 'bottom',
                 align: step.align || 'start',
                 showButtons: ['next', 'close'],
-                nextBtnText: isFinalStep ? 'Finish' : 'Next'
+                nextBtnText: isFinalStep ? tr('Finish') : tr('Next')
                 // onNextClick/onCloseClick must be omitted entirely (not set to undefined)
                 // when not overridden - driver.js spreads the original popover config over
                 // its own computed defaults, so an explicit `undefined` here would wipe out
@@ -190,11 +212,11 @@
             window.location.href = targetPath;
             return;
         }
-        buildAndShow(idx);
+        loadI18n().then(function () { buildAndShow(idx); });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        if (isActive()) buildAndShow(getStoredIndex());
+        if (isActive()) loadI18n().then(function () { buildAndShow(getStoredIndex()); });
     });
 
     window.OPTour = { start: start, markComplete: markComplete };

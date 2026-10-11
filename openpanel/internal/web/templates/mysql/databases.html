@@ -127,7 +127,7 @@ function populateDatabasesTable() {
         .catch(function () {
             console.error('Failed to fetch database size info');
             document.querySelectorAll('.db_size_cell').forEach(cell => {
-                cell.textContent = 'Error';
+                cell.textContent = '{{.T.Get "Error"}}';
             });
         });
 }

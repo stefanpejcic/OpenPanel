@@ -175,7 +175,7 @@ addDomainForm.addEventListener("submit", function(event) {
     if (domainDocrootInput) {
         const requiredPath = `/var/www/html/`;
         if (!domainDocrootInput.value.startsWith(requiredPath)) {
-            const toastMessage = `Invalid document root. Directory must be inside ${requiredPath}`;
+            const toastMessage = '{{.T.Get "Invalid document root. Directory must be inside"}} ' + requiredPath;
             showToast(toastMessage, 'error');
 
             event.preventDefault();

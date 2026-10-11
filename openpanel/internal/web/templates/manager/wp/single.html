@@ -86,7 +86,7 @@
         loginButton.disabled = true;
         buttonText.innerHTML = '<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Generating..';
 
-        showToast(`Generating auto-login link..`, 'loading', true);
+        showToast('{{.T.Get "Generating auto-login link.."}}', 'loading', true);
 
         var phpVersion = document.getElementById('php-version').textContent.trim();
         var url = '/wp-cli/login?domain={{.CurrentDomain}}&docroot={{.Docroot}}&php_version=' + encodeURIComponent(phpVersion);
@@ -802,7 +802,7 @@
                                             .then(response => {
                                                 if (response.message) {
                                                     showToast(`${response.message}`, 'success');
-                                                    suffleSaltsButton.innerHTML = `Shuffle Salts`;
+                                                    suffleSaltsButton.innerHTML = '{{.T.Get "Shuffle Salts"}}';
                                                 } else if (response.error) {
                                                     showToast(`${response.message}`, 'error');
                                                     suffleSaltsButton.innerHTML = `Retry`;
@@ -870,7 +870,7 @@
                                 .then(({ ok, data }) => {
                                     if (ok && data.message) {
                                         showToast(data.message, 'success');
-                                        verifyChecksumsButton.innerHTML = `Check WP Core`;
+                                        verifyChecksumsButton.innerHTML = '{{.T.Get "Check WP Core"}}';
                                         verifyChecksumsButton.disabled = false;
                                         verifyPluginsChecksumsButton.disabled = false;
                                         document.getElementById('checksumResults').innerHTML = `<pre>${escapeHtml(data.output || '')}</pre>`;
@@ -906,7 +906,7 @@
                                 .then(({ ok, data }) => {
                                     if (ok && data.message) {
                                         showToast(data.message, 'success');
-                                        verifyPluginsChecksumsButton.innerHTML = `Check All Plugins`;
+                                        verifyPluginsChecksumsButton.innerHTML = '{{.T.Get "Check All Plugins"}}';
                                         verifyPluginsChecksumsButton.disabled = false;
                                         verifyChecksumsButton.disabled = false;
                                         document.getElementById('checksumResults').innerHTML = `<pre>${escapeHtml(data.output || '')}</pre>`;
@@ -972,7 +972,7 @@
                                 .then(response => {
                                     if (response.message) {
                                         showToast(`${response.message}`, 'success');
-                                        reinstallCoreButton.innerHTML = `Reinstall WP Core files`;
+                                        reinstallCoreButton.innerHTML = '{{.T.Get "Reinstall WP Core files"}}';
                                     } else if (response.error) {
                                         showToast(`${response.message}`, 'error');
                                         reinstallCoreButton.innerHTML = `Retry`;
@@ -1000,7 +1000,7 @@
                                 .then(response => {
                                     if (response.message) {
                                         showToast(`${response.message}`, 'success');
-                                        reinstallPluginsButton.innerHTML = `Reinstall All Plugins`;
+                                        reinstallPluginsButton.innerHTML = '{{.T.Get "Reinstall All Plugins"}}';
                                     } else if (response.error) {
                                         showToast(`${response.message}`, 'error');
                                         reinstallPluginsButton.innerHTML = `Retry`;
@@ -1662,10 +1662,10 @@
                         }))
                         .then(response => {
                             if (response.status === 'success') {
-                                showToast(`Cloned to ${response.target} successfully!`, 'success');
+                                showToast('{{.T.Get "Cloned to {target} successfully!"}}'.replace('{target}', response.target), 'success');
                                 btn.textContent = {{toJSON (.T.Get "Clone Complete")}};
                             } else {
-                                showToast(`Error cloning site`, 'error');
+                                showToast('{{.T.Get "Error cloning site"}}', 'error');
                                 btn.disabled = false;
                                 btn.textContent = {{toJSON (.T.Get "Try Again")}};
                             }
@@ -2073,7 +2073,7 @@ if (restoreButton) {
                     });
                 } else {
                     const option = document.createElement("option");
-                    option.textContent = "No backups available";
+                    option.textContent = "{{.T.Get "No backups available"}}";
                     option.disabled = true;
                     restoreBackupDateSelect.appendChild(option);
                 }

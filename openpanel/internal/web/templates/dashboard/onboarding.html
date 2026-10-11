@@ -2,6 +2,7 @@
 <!-- START templates/dashboard/onboarding.html -->
 
 <script src="{{static "vendor/qrcodejs/qrcode.min.js"}}"></script>
+<script>window.PasskeyI18n = { registerStart: '{{.T.Get "Failed to start passkey registration."}}', save: '{{.T.Get "Failed to save passkey."}}', loginStart: '{{.T.Get "Failed to start passkey login."}}', login: '{{.T.Get "Passkey login failed."}}' };</script>
 <script src="{{static "js/passkeys.js"}}"></script>
 
 <div

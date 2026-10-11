@@ -43,7 +43,7 @@ func handleMongoImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	urlDBName := r.PathValue("dbname")
 
 	if !docker.IsServiceRunning(ctx, userContext, "mongodb") {
-		web.Flash(a, w, r, "warning", "mongodb container is not running. Please allow a few moments for initialization..")
+		web.Flash(a, w, r, "warning", "MongoDB container is not running. Please allow a few moments for the initialization..")
 		docker.StartComposeServiceIfNotRunning(ctx, userContext, "mongodb")
 	}
 

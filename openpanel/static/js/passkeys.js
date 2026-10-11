@@ -1,5 +1,9 @@
 // passkeys.js - WebAuthn client helpers (registration + usernameless login)
 
+function passkeyMsg(key, fallback) {
+    return (window.PasskeyI18n && window.PasskeyI18n[key]) || fallback;
+}
+
 function base64urlToBuffer(base64url) {
     const padding = '='.repeat((4 - (base64url.length % 4)) % 4);
     const base64 = (base64url + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -21,7 +25,7 @@ async function registerPasskey(name) {
         method: 'POST',
         headers: { 'X-CSRF-Token': csrf_token }
     });
-    if (!beginResp.ok) throw new Error('Failed to start passkey registration.');
+    if (!beginResp.ok) throw new Error(passkeyMsg('registerStart', 'Failed to start passkey registration.'));
     const options = await beginResp.json();
 
     options.challenge = base64urlToBuffer(options.challenge);
@@ -53,7 +57,7 @@ async function registerPasskey(name) {
         body: JSON.stringify(payload)
     });
     const result = await completeResp.json();
-    if (!completeResp.ok || result.error) throw new Error(result.error || 'Failed to save passkey.');
+    if (!completeResp.ok || result.error) throw new Error(result.error || passkeyMsg('save', 'Failed to save passkey.'));
     return result;
 }
 
@@ -62,7 +66,7 @@ async function loginWithPasskey() {
         method: 'POST',
         headers: { 'X-CSRF-Token': csrf_token }
     });
-    if (!beginResp.ok) throw new Error('Failed to start passkey login.');
+    if (!beginResp.ok) throw new Error(passkeyMsg('loginStart', 'Failed to start passkey login.'));
     const options = await beginResp.json();
 
     options.challenge = base64urlToBuffer(options.challenge);
@@ -94,6 +98,6 @@ async function loginWithPasskey() {
         body: JSON.stringify(payload)
     });
     const result = await completeResp.json();
-    if (!completeResp.ok || result.error) throw new Error(result.error || 'Passkey login failed.');
+    if (!completeResp.ok || result.error) throw new Error(result.error || passkeyMsg('login', 'Passkey login failed.'));
     return result;
 }

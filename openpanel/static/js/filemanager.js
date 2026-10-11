@@ -503,7 +503,7 @@ function initDirectorySizeCalculate() {
                 .then(r => r.json())
                 .then(data => { cell.textContent = data.size; })
                 .catch(error => {
-                    showToast(`Error fetching folder size: ${error.message || error}`, 'error');
+                    showToast(`${FM.i18n.folderSizeError} ${error.message || error}`, 'error');
                     if (button.isConnected) {
                         button.dataset.loading = 'false';
                         button.style.pointerEvents = '';
@@ -556,7 +556,7 @@ function initActionButtons() {
                 })
                 .then(r => r.json())
                 .then(data => { if (!data.success) throw new Error(data.error); })
-                .catch(e => { failed++; showToast(`Error deleting "${fileName}": ${e.message}`, 'error'); })
+                .catch(e => { failed++; showToast(`${FM.i18n.deleteError} "${fileName}": ${e.message}`, 'error'); })
                 .finally(() => {
                     done++;
                     if (total > 1) saveBtn.innerHTML = `<i class="bi bi-trash"></i> ${done}/${total}`;
@@ -584,7 +584,7 @@ function initActionButtons() {
         const row  = document.querySelector('#filemanager_table tbody tr.selected-row');
         const cell = row.querySelector('td[data-download-url]');
         if (row.dataset.type !== 'directory' && cell?.dataset.downloadUrl) {
-            showToast(`Download for ${row.dataset.file} started.`, 'loading');
+            showToast(FM.i18n.downloadStarted.replace('{file}', row.dataset.file), 'loading');
             window.location.href = cell.dataset.downloadUrl;
         }
     });
@@ -829,7 +829,7 @@ function openPicker(action, items) {
                     method: 'POST', headers: { 'X-CSRF-Token': csrf_token }
                 })
                 .then(r => r.json())
-                .then(data => { if (!data.success) throw new Error(data.error || 'Unknown error'); })
+                .then(data => { if (!data.success) throw new Error(data.error || FM.i18n.unknownError); })
                 .catch(e => errors.push(`${fileName}: ${e.message}`))
                 .finally(() => { done++; showStatus('info', `${FM.i18n.working} ${done}/${items.length}`); })
             ));

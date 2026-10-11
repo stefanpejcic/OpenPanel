@@ -192,7 +192,7 @@
       };
 
       ws.onclose = (evt) => {
-        term.write(`\r\n\x1b[33m[Connection closed${evt.reason ? ': ' + evt.reason : ''}]\x1b[0m\r\n`);
+        term.write(`\r\n\x1b[33m[{{.T.Get "Connection closed"}}${evt.reason ? ': ' + evt.reason : ''}]\x1b[0m\r\n`);
         setStatus('closed');
       };
 

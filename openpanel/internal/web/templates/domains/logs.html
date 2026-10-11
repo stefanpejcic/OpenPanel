@@ -186,10 +186,10 @@
                     const formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
                     element.innerText = formattedDate;
                 } else {
-                    element.innerText = 'Invalid Date';
+                    element.innerText = '{{.T.Get "Invalid Date"}}';
                 }
             } else {
-                element.innerText = 'Invalid Timestamp';
+                element.innerText = '{{.T.Get "Invalid Timestamp"}}';
             }
         });
     });

@@ -76,6 +76,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /dashboard/tour/complete", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleTourComplete(a, w, r)
 	})))
+	mux.Handle("GET /dashboard/tour/i18n", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleTourI18n(a, w, r)
+	})))
 	mux.Handle("POST /dashboard/onboarding/complete", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleOnboardingComplete(a, w, r)
 	})))

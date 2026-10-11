@@ -373,7 +373,7 @@ if (restoreButton) {
                     });
                 } else {
                     const option = document.createElement("option");
-                    option.textContent = "No backups available";
+                    option.textContent = "{{.T.Get "No backups available"}}";
                     option.disabled = true;
                     restoreBackupDateSelect.appendChild(option);
                 }

@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function () {
         reportHealthIssues('dashboard-upsell', [{
             id: 'upsell:' + {{toJSON .UpgradePlanName}},
             severity: 'info',
-            message: {{toJSON (printf "You've reached one or more limits of your current plan. Upgrade to %s for higher limits." .UpgradePlanName)}}
+            message: {{toJSON (.T.Get "You've reached one or more limits of your current plan. Upgrade to %(plan)s for higher limits." "plan" .UpgradePlanName)}}
         }], 168); // once a week
     }
 });

@@ -610,7 +610,7 @@
     const type = {{toJSON .Type}};
     const versionI18n = { error: {{toJSON (.T.Get "Error")}} };
 
-    versionSelect.innerHTML = '<option>Loading versions...</option>';
+    versionSelect.innerHTML = '<option>{{.T.Get "Loading versions..."}}</option>';
 
     fetch(`/docker/tags/${type}`)
         .then(response => response.json())
@@ -1153,7 +1153,7 @@
                                 const modalBody = document.getElementById('app-log');
                                 window.__loadedLogs = data;
 
-                                modalTitle.textContent = "Container log for application: " + domain;
+                                modalTitle.textContent = "{{.T.Get "Container log for application:"}} " + domain;
                                 modalBody.innerHTML = '';
 
                                 const rawMode = Alpine.store('logs').rawMode;

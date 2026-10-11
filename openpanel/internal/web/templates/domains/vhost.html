@@ -39,6 +39,17 @@
 </form>
 
 <script>
+const vhostI18n = {
+    unexpectedClose: {{toJSON (.T.Get "Line %(line)s: Unexpected closing tag </%(tag)s> with no matching opening tag." "line" "{line}" "tag" "{tag}")}},
+    mismatch: {{toJSON (.T.Get "Line %(line)s: Closing tag </%(tag)s> does not match <%(open)s> opened on line %(open_line)s." "line" "{line}" "tag" "{tag}" "open" "{open}" "open_line" "{openLine}")}},
+    neverClosed: {{toJSON (.T.Get "Line %(line)s: Tag <%(tag)s> is never closed." "line" "{line}" "tag" "{tag}")}},
+    unexpectedBrace: {{toJSON (.T.Get "Line %(line)s: Unexpected closing brace with no matching opening brace." "line" "{line}")}},
+    unterminatedQuote: {{toJSON (.T.Get "Line %(line)s: Unterminated quote (missing closing %(quote)s)." "line" "{line}" "quote" "{quote}")}},
+    unclosedBrace: {{toJSON (.T.Get "Line %(line)s: Unclosed opening brace, missing matching closing brace." "line" "{line}")}},
+};
+function vfmt(msg, vals) {
+    return msg.replace(/\{(\w+)\}/g, (m, k) => (k in vals ? vals[k] : m));
+}
 var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
     mode: "javascript",
     lineNumbers: true,
@@ -66,10 +77,10 @@ function validateVhostConfig(content, serverType) {
 
                 if (closing) {
                     if (stack.length === 0) {
-                        errors.push('Line ' + (i + 1) + ': Unexpected closing tag </' + m[2] + '> with no matching opening tag.');
+                        errors.push(vfmt(vhostI18n.unexpectedClose, { line: i + 1, tag: m[2] }));
                     } else if (stack[stack.length - 1].tag !== tag) {
                         var top = stack[stack.length - 1];
-                        errors.push('Line ' + (i + 1) + ': Closing tag </' + m[2] + '> does not match <' + top.tag + '> opened on line ' + top.line + '.');
+                        errors.push(vfmt(vhostI18n.mismatch, { line: i + 1, tag: m[2], open: top.tag, openLine: top.line }));
                         stack.pop();
                     } else {
                         stack.pop();
@@ -81,7 +92,7 @@ function validateVhostConfig(content, serverType) {
         }
 
         stack.forEach(function (item) {
-            errors.push('Line ' + item.line + ': Tag <' + item.tag + '> is never closed.');
+            errors.push(vfmt(vhostI18n.neverClosed, { line: item.line, tag: item.tag }));
         });
 
     } else {
@@ -120,7 +131,7 @@ function validateVhostConfig(content, serverType) {
                 } else if (ch === '}') {
                     braceDepth--;
                     if (braceDepth < 0) {
-                        errors.push('Line ' + (i + 1) + ": Unexpected closing brace '}' with no matching '{'.");
+                        errors.push(vfmt(vhostI18n.unexpectedBrace, { line: i + 1 }));
                         braceDepth = 0;
                     } else {
                         openStack.pop();
@@ -129,14 +140,14 @@ function validateVhostConfig(content, serverType) {
             }
 
             if (inSingle || inDouble) {
-                errors.push('Line ' + (i + 1) + ': Unterminated quote (missing closing ' + (inDouble ? '"' : "'") + ').');
+                errors.push(vfmt(vhostI18n.unterminatedQuote, { line: i + 1, quote: inDouble ? '"' : "'" }));
                 inSingle = false;
                 inDouble = false;
             }
         }
 
         openStack.forEach(function (ln) {
-            errors.push("Line " + ln + ": Unclosed '{' - missing matching '}'.");
+            errors.push(vfmt(vhostI18n.unclosedBrace, { line: ln }));
         });
     }
 

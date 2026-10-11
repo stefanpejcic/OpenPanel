@@ -156,7 +156,7 @@ func handleEditPostgresConfig(a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 	var currentConfig map[string]string
 	if !docker.IsServiceRunning(ctx, userContext, "postgres") {
-		web.Flash(a, w, r, "warning", "postgres container is not running. Please allow a few moments for initialization..")
+		web.Flash(a, w, r, "warning", "Postgres container is not running. Please allow a few moments for the initialization..")
 		docker.StartComposeServiceIfNotRunning(ctx, userContext, "postgres")
 		currentConfig = map[string]string{}
 	} else {

@@ -563,7 +563,7 @@
             latestVersions.forEach((version, i) => {
                 const option = document.createElement('option');
                 option.value = version;
-                option.textContent = i === 0 ? `${version} (latest)` : version;
+                option.textContent = i === 0 ? `${version} ({{$.T.Get "latest"}})` : version;
                 selectElement.appendChild(option);
             });
         })

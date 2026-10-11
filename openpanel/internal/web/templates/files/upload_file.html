@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentDownloadId = null;
     let notFoundRetries = 0;
 
-    function showDownloadUI(startHeaderText = 'Starting download...') {
+    function showDownloadUI(startHeaderText = '{{.T.Get "Starting download..."}}') {
         const progressDiv = document.getElementById('download-progress-div');
         const progressBar = document.getElementById('download-progress-bar-inner');
         const progressLabel = document.getElementById('download-progress-label');
@@ -261,11 +261,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     updateDownloadUI(
                         0,
-                        'Reconnecting to download status...'
+                        '{{.T.Get "Reconnecting to download status..."}}'
                     );
 
                     if (notFoundRetries >= 8) {
-                        const msg = (data && data.error) ? data.error : 'Download not found.';
+                        const msg = (data && data.error) ? data.error : '{{.T.Get "Download not found."}}';
                         document.getElementById('download-progress-header').innerText = msg;
                         showToast(msg, 'error');
                         setDownloadButtonsState(false);
@@ -280,14 +280,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 notFoundRetries = 0;
 
                 const percent = data.progress || 0;
-                updateDownloadUI(percent, data.message || 'Download in progress...');
+                updateDownloadUI(percent, data.message || '{{.T.Get "Download in progress..."}}');
 
                 if (data.status === 'downloading' || data.status === 'queued' || data.status === 'starting') {
                     scheduleNextPoll(downloadId, 1000);
                 } else if (data.status === 'done') {
                     document.getElementById('download-progress-header').innerText =
-                        data.message || 'Download finished successfully.';
-                    showToast(data.message || 'File downloaded successfully!', 'success');
+                        data.message || '{{.T.Get "Download finished successfully."}}';
+                    showToast(data.message || '{{.T.Get "File downloaded successfully!"}}', 'success');
 
                     setDownloadButtonsState(false);
                     clearDownloadState();
@@ -298,13 +298,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     }, 5000);
                 } else if (data.status === 'error') {
                     document.getElementById('download-progress-header').innerText =
-                        data.message || 'Download failed.';
-                    showToast(data.message || 'Error downloading file.', 'error');
+                        data.message || '{{.T.Get "Download failed."}}';
+                    showToast(data.message || '{{.T.Get "Error downloading file."}}', 'error');
 
                     setDownloadButtonsState(false);
                     clearDownloadState();
                 } else {
-                    document.getElementById('download-progress-header').innerText = 'Unknown download status.';
+                    document.getElementById('download-progress-header').innerText = '{{.T.Get "Unknown download status."}}';
                     setDownloadButtonsState(false);
                     clearDownloadState();
                 }
@@ -314,7 +314,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 notFoundRetries += 1;
                 const delay = Math.min(1000 * Math.pow(2, Math.min(notFoundRetries, 3)), 10000);
-                document.getElementById('download-progress-header').innerText = 'Reconnecting...';
+                document.getElementById('download-progress-header').innerText = '{{.T.Get "Reconnecting..."}}';
                 scheduleNextPoll(downloadId, delay);
             });
     }
@@ -323,7 +323,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const state = loadDownloadState();
         if (state && state.download_id) {
             currentDownloadId = state.download_id;
-            showDownloadUI('Resuming download status...');
+            showDownloadUI('{{.T.Get "Resuming download status..."}}');
             setDownloadButtonsState(true);
             pollDownloadProgress(currentDownloadId);
         }
@@ -362,7 +362,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const csrf = getCsrfToken();
         if (csrf) xhr.setRequestHeader('X-CSRF-Token', csrf);
 
-        showDownloadUI('Starting download...');
+        showDownloadUI('{{.T.Get "Starting download..."}}');
         setDownloadButtonsState(true);
 
         xhr.onload = function () {
@@ -371,14 +371,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 try {
                     data = JSON.parse(xhr.responseText);
                 } catch (e) {
-                    document.getElementById('download-progress-header').innerText = 'Unexpected server response.';
+                    document.getElementById('download-progress-header').innerText = '{{.T.Get "Unexpected server response."}}';
                     showToast("{{.T.Get "Unexpected server response from download endpoint."}}", 'error');
                     setDownloadButtonsState(false);
                     return;
                 }
 
                 if (!data.download_id) {
-                    document.getElementById('download-progress-header').innerText = 'Missing download ID.';
+                    document.getElementById('download-progress-header').innerText = '{{.T.Get "Missing download ID."}}';
                     showToast("{{.T.Get "Server did not return a download ID."}}", 'error');
                     setDownloadButtonsState(false);
                     return;
@@ -390,14 +390,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 pollDownloadProgress(currentDownloadId);
             } else {
-                document.getElementById('download-progress-header').innerText = 'Download request failed.';
+                document.getElementById('download-progress-header').innerText = '{{.T.Get "Download request failed."}}';
                 showToast("{{.T.Get "Error starting download:"}} " + xhr.statusText + ' - ' + xhr.responseText, "error");
                 setDownloadButtonsState(false);
             }
         };
 
         xhr.onerror = function () {
-            document.getElementById('download-progress-header').innerText = 'Network error.';
+            document.getElementById('download-progress-header').innerText = '{{.T.Get "Network error."}}';
             showToast("{{.T.Get "Network error during file download. Please try again."}}", 'error');
             setDownloadButtonsState(false);
         };
@@ -417,7 +417,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const files_submit = Array.from(document.getElementById('fileUpload').files);
         const totalSize = files_submit.reduce((sum, file) => sum + file.size, 0);
         if (totalSize > MAX_UPLOAD_SIZE_BYTES) {
-            showToast(`Total file size exceeds ${MAX_UPLOAD_SIZE_MB}MB limit.`, 'warning');
+            showToast('{{.T.Get "Total file size exceeds {max}MB limit."}}'.replace('{max}', MAX_UPLOAD_SIZE_MB), 'warning');
             return;
         }
         {{end}}
@@ -552,12 +552,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener('beforeunload', function (e) {
         if (uploadInProgress) {
-            const confirmationMessage = 'An upload is in progress. Are you sure you want to leave?';
+            const confirmationMessage = '{{.T.Get "An upload is in progress. Are you sure you want to leave?"}}';
             e.returnValue = confirmationMessage;
             return confirmationMessage;
         }
         if (downloadInProgress) {
-            const confirmationMessage = 'A download is in progress. Are you sure you want to leave?';
+            const confirmationMessage = '{{.T.Get "A download is in progress. Are you sure you want to leave?"}}';
             e.returnValue = confirmationMessage;
             return confirmationMessage;
         }

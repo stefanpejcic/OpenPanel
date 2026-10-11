@@ -159,7 +159,7 @@
             vulnerabilities.forEach(v => {
             	const firstSource = v.source && v.source.length > 0 ? v.source[0] : {};
 
-				let rawDescription = v.description || firstSource.description || 'No description available.';
+				let rawDescription = v.description || firstSource.description || '{{.T.Get "No description available."}}';
 	            let displayDate = v.date || firstSource.date || 'N/A';
 	            const displayDesc = rawDescription.replace(/^\[en\]\s*/i, '');
 

@@ -55,7 +55,7 @@ script.onload = function () {
     });
 
     clipboard.on("success", function () {
-        const toastMessage = "Path copied to clipboard!";
+        const toastMessage = (typeof FM !== "undefined" && FM.i18n.pathCopied) || "Path copied to clipboard!";
         showToast(toastMessage, 'success');
     });
 };

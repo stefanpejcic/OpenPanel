@@ -73,8 +73,8 @@
                 function updateGauges() {
                     const cpuPercentage = "{{.Stats.CPU.Usage.Pct}}";
                     const ramPercentage = "{{.Stats.Memory.UsagePct}}";
-                    createGauge('cpuGauge', cpuPercentage, 'CPU Usage %');
-                    createGauge('ramGauge', ramPercentage, 'RAM Usage %');
+                    createGauge('cpuGauge', cpuPercentage, '{{.T.Get "CPU Usage %"}}');
+                    createGauge('ramGauge', ramPercentage, '{{.T.Get "RAM Usage %"}}');
                 }
 
                 updateGauges();

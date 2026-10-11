@@ -98,7 +98,7 @@
         >
             <template x-for="[label, value] in Object.entries(stats)" :key="label">
                 <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                    <span class="text-sm capitalize text-gray-600 dark:text-gray-400" x-text="label"></span>
+                    <span class="text-sm capitalize text-gray-600 dark:text-gray-400" x-text="statLabels[label] || label"></span>
                     <span class="font-medium min-w-0" :class="{ truncate: label === 'ID' }" x-text="value"></span>
                 </div>
             </template>
@@ -110,6 +110,7 @@
         Alpine.data('containerStats', () => ({
             serviceName: '{{.Service}}',
             stats: { ID:'--', Name:'--', 'CPU Usage':'--', 'Memory Usage':'--', 'Memory %':'--', 'Network I/O':'--', 'Block I/O':'--', PIDs:'--' },
+            statLabels: { ID: '{{.T.Get "ID"}}', Name: '{{.T.Get "Name"}}', 'CPU Usage': '{{.T.Get "CPU Usage"}}', 'Memory Usage': '{{.T.Get "Memory Usage"}}', 'Memory %': '{{.T.Get "Memory %"}}', 'Network I/O': '{{.T.Get "Network I/O"}}', 'Block I/O': '{{.T.Get "Block I/O"}}', PIDs: '{{.T.Get "PIDs"}}' },
 
             async fetchStats() {
                 try {

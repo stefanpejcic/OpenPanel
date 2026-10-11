@@ -31,7 +31,7 @@ function recordTable(label, record) {
         ok: ['bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400', 'OK'],
         missing: ['bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-400', 'Missing'],
         mismatch: ['bg-orange-300 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400', 'Mismatch'],
-        wrong_ip: ['bg-orange-300  text-amber-800 dark:bg-amber-900/40 dark:text-amber-400', 'Wrong IP'],
+        wrong_ip: ['bg-orange-300  text-amber-800 dark:bg-amber-900/40 dark:text-amber-400', '{{.T.Get "Wrong IP"}}'],
     };
     const [cls, statusLabel] = map[record.status] || ['bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300', record.status];
 

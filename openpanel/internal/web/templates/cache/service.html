@@ -78,7 +78,7 @@
         <div x-data="varnishStats()" x-init="fetchStats()" class="grid grid-cols-1 gap-4 sm:max-w-3xl sm:grid-cols-2 md:col-span-2">
             <template x-for="[label, value] in Object.entries(stats)" :key="label">
                 <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                    <span class="text-sm text-gray-600 dark:text-gray-400" x-text="label"></span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400" x-text="statLabels[label] || label"></span>
                     <span class="font-medium text-gray-900 dark:text-gray-50" x-text="value"></span>
                 </div>
             </template>
@@ -88,6 +88,7 @@
     <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('varnishStats', () => ({
+            statLabels: { 'Hit Ratio': '{{.T.Get "Hit Ratio"}}', 'Hits': '{{.T.Get "Hits"}}', 'Misses': '{{.T.Get "Misses"}}', 'Pass': '{{.T.Get "Pass"}}', 'Requests': '{{.T.Get "Requests"}}', 'Backend Requests': '{{.T.Get "Backend Requests"}}', 'Backend Failures': '{{.T.Get "Backend Failures"}}', 'Efficiency Score': '{{.T.Get "Efficiency Score"}}' },
             stats: {
                 'Hit Ratio': '--',
                 'Hits': '--',
@@ -215,7 +216,7 @@
         >
             <template x-for="[label, value] in Object.entries(stats)" :key="label">
                 <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                    <span class="text-sm capitalize text-gray-600 dark:text-gray-400" x-text="label"></span>
+                    <span class="text-sm capitalize text-gray-600 dark:text-gray-400" x-text="statLabels[label] || label"></span>
                     <span class="font-medium min-w-0" :class="{ truncate: label === 'ID' }" x-text="value"></span>
                 </div>
             </template>
@@ -227,6 +228,7 @@
         Alpine.data('containerStats', () => ({
             serviceName: {{toJSON .Service}},
             stats: { ID:'--', Name:'--', 'CPU Usage':'--', 'Memory Usage':'--', 'Memory %':'--', 'Network I/O':'--', 'Block I/O':'--', PIDs:'--' },
+            statLabels: { ID: '{{.T.Get "ID"}}', Name: '{{.T.Get "Name"}}', 'CPU Usage': '{{.T.Get "CPU Usage"}}', 'Memory Usage': '{{.T.Get "Memory Usage"}}', 'Memory %': '{{.T.Get "Memory %"}}', 'Network I/O': '{{.T.Get "Network I/O"}}', 'Block I/O': '{{.T.Get "Block I/O"}}', PIDs: '{{.T.Get "PIDs"}}' },
 
             async fetchStats() {
                 try {

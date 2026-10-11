@@ -52,6 +52,7 @@
 
 {{if not .TwofaEnabled}}
 <button type="button" id="passkey-login-btn" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 text-gray-900 bg-white hover:bg-gray-100 dark:border-gray-700 dark:text-white dark:bg-gray-800 dark:hover:bg-gray-700 mt-3 w-full">{{.T.Get "Sign in with a passkey"}}</button>
+<script>window.PasskeyI18n = { registerStart: '{{.T.Get "Failed to start passkey registration."}}', save: '{{.T.Get "Failed to save passkey."}}', loginStart: '{{.T.Get "Failed to start passkey login."}}', login: '{{.T.Get "Passkey login failed."}}' };</script>
 <script src="{{static "js/passkeys.js"}}"></script>
 <script>
     document.getElementById('passkey-login-btn').addEventListener('click', async function () {

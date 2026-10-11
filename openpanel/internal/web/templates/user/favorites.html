@@ -112,13 +112,13 @@
                     location.reload();
                 } else {
                     return response.json().then(data => {
-                        alert(data.error || 'Error deleting favorite');
+                        alert(data.error || '{{.T.Get "Error deleting favorite"}}');
                     });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error deleting favorite');
+                alert('{{.T.Get "Error deleting favorite"}}');
             });
     }
 </script>
