@@ -38,6 +38,8 @@ Customize the appearance of OpenPanel to match your brand:
 
 [Guide on how to properly configure nameservers](/docs/articles/domains/how-to-configure-nameservers-in-openpanel)
 
+If no nameservers are set but the DNS module is enabled, a recommendation is shown to either set at least ns1 and ns2, or [disable the DNS module](/docs/admin/settings/modules) if it won't be used, so BIND9 isn't autostarted and DNS zone files aren't created for every domain.
+
 ## Users
 
 Settings for OpenPanel user accounts:
@@ -57,7 +59,7 @@ Additional display settings include:
 - **Menu Style:** The default menu for OpenPanel users - **Classic** (expandable groups) or **Modern** (one link per area, with that area's pages as tabs at the top of each page). Users can still switch to the other style for themselves, see [Menu Style](/docs/panel/dashboard/menu-style/). The same setting also switches OpenAdmin's own menu, right after saving.
 - **Avatar Type:** Choose between Gravatar, Letter, or Icon for user avatars.
 - **Charts Mode for Resource Usage:** Select to show 1 chart, 2 charts, or no charts on the Resource Usage page.
-- **Enable Password Reset:** Allow users to reset passwords via the login form (not recommended for security reasons).
+- **Enable Password Reset:** Allow users to reset passwords via the login form (not recommended for security reasons). When enabled without SMTP configured, a warning links to [SMTP settings](/docs/admin/settings/notifications#smtp-settings), since reset emails won't reach users until it's set up.
 - **Display 2FA Widget:** Show a message on users' dashboards encouraging them to enable Two-Factor Authentication for enhanced security.
 - **Display How-to Guides Widget:** Display helpful how-to articles on users’ dashboard pages. When enabled, a **How-to Articles** field appears below to edit the Knowledge Base articles shown (requires an active Enterprise license and a non-reseller account to edit).
 - **Display Link to Report Bugs:** Show a “Found a bug? Let us know” link at the bottom of all user pages for easy bug reporting.
@@ -99,6 +101,12 @@ Configure the following settings for the File Manager:
 - **Enable View Option for (base64 image) Extensions:** Specify image file extensions that can be displayed using base64 encoding in the Viewer.
 - **Enable Extract and Archive Options for (archives) Extensions:** Specify archive file extensions that can be extracted using the File Manager.
 
+A warning is shown when:
+
+- a max file size for the Viewer, Editor, Upload or Download is bigger than the RAM limit of the OpenPanel container (set on [Service Limits](/docs/admin/services/limits)), since files that big can fail.
+- Auto-Purge Trash is set to 0, since deleted files then pile up in users' Trash folders until they empty it themselves.
+- Auto-Purge Trash is over 30 days, recommending to change the `opencli files-purge_trash` schedule to weekly on [Scheduled Actions](/docs/admin/advanced/crons).
+
 ![File Manager section with the file manager options](/img/openadmin-screenshots/settings/openpanel-filemanager.png#gh-light-mode-only)
 ![File Manager section with the file manager options](/img/openadmin-screenshots/settings/openpanel-filemanager_dark.png#gh-dark-mode-only)
 
@@ -110,6 +118,11 @@ Settings for user's databases:
 - **Max File Size for MySQL Import:** Maximum file size (in GB) allowed for a MySQL import.
 - **Restricted MySQL (system) Users:** List of MySQL usernames that users are not allowed to access/manage.
 - **Restricted MySQL (system) Databases:** List of MySQL databases that users are not allowed to access/manage.
+
+A warning is shown when:
+
+- Max Startup Time for MySQL is under 10 seconds, since MySQL needs time to initialize on first start. If a custom `MYSQL_VERSION` is set for new users, at least 60 seconds is recommended, since the first start downloads that image from Docker Hub.
+- Max File Size for MySQL Import is bigger than the RAM limit of the OpenPanel container.
 
 ![Databases section with the database options](/img/openadmin-screenshots/settings/openpanel-databases.png#gh-light-mode-only)
 ![Databases section with the database options](/img/openadmin-screenshots/settings/openpanel-databases_dark.png#gh-dark-mode-only)
@@ -133,6 +146,8 @@ Captcha requires the [captcha plugin](https://github.com/stefanpejcic/captcha/) 
 - **Enforce 2FA:** On login redirects users to 2FA setup page and prevents them from accessing other pages until 2FA is configured.
 - **Validate IP Address on Session Cookie:** When enabled, a session cookie is rejected if the request's IP address doesn't match the IP it was issued to.
 
+A warning is shown when Minimum Password Strength is below 50 (weak passwords are accepted), when the Weakpass.com check is off (passwords found in data breaches can be used), and when Validate IP Address on Session Cookie is off (a cookie stolen from a user, for example through phishing, can be reused from any IP).
+
 ## Statistics
 
 Configure the following settings related to user login attempts, session management, and data retention:
@@ -149,6 +164,8 @@ Configure the following settings related to user login attempts, session managem
 - **Domains per Page:** Number of domain entries displayed per page in domain management lists.
 - **Terminal Commands Timeout (in Seconds):** Maximum number of seconds a Docker Terminal command can run before being timed out.
 - **PageSpeed API Key:** If set, this API key is used to fetch data from Google PageSpeed Insights.
+
+A warning is shown when Terminal Commands Timeout is under 30 seconds (it applies to both the OpenPanel web terminal and OpenAdmin), and when there are more than 10 sites on the server but no PageSpeed API key.
 
 ![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics.png#gh-light-mode-only)
 ![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics_dark.png#gh-dark-mode-only)

@@ -377,7 +377,7 @@ Updated permit_subdomain_sharing to yes
 </details>
 
 ### `email`
-Administrator email address used for notifications. Also set as `LF_ALERT_TO` in the CSF configuration.
+Administrator email address used for notifications. Multiple addresses can be separated by commas, every address gets the notifications and daily usage reports. Only the first address is set as `LF_ALERT_TO` in the CSF configuration and used as the contact in DNS zone SOA records.
 
 **Check current value**:
 ```bash
@@ -406,6 +406,11 @@ opencli config update email admin@example.com
 Updated email to admin@example.com
 ```
 </details>
+
+**Set multiple addresses**:
+```bash
+opencli config update email "admin@example.com,ops@example.com"
+```
 
 ### `password_strength`
 Minimum password strength (`1`-`100`) for all password fields in OpenPanel: account, FTP, emails, databases. Default is `50`.

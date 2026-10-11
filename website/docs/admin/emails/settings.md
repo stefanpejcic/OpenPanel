@@ -16,6 +16,8 @@ Emails are only available on [OpenPanel Enterprise edition](/enterprise)
 
 The status of the Mail Server service is displayed at the top of the page, where administrators can start, stop, or restart the service as needed.
 
+If the mail server is running but the Emails module is disabled, a warning links to [Modules](/docs/admin/settings/modules), since users can't manage email in OpenPanel until it's enabled.
+
 ![MailServer Status section with the running status and the Start, Restart and Stop buttons](/img/openadmin-screenshots/emails/settings-status.png#gh-light-mode-only)
 ![MailServer Status section with the running status and the Start, Restart and Stop buttons](/img/openadmin-screenshots/emails/settings-status_dark.png#gh-dark-mode-only)
 
@@ -33,6 +35,8 @@ Displays the total number of email accounts currently active on the server. This
 - Current Software - displays current selected client
 - Select Webmail Client - Choose the webmail client your users will interact with. The service will be restarted to apply any changes made.
 - Set Webmail domain - Configure domain to be used for webmail service. Webmail will be available on this domain and /webmail on every user domain will redirect to this domain.
+
+If webmail isn't running but email accounts exist, a warning links to [Service Status](/docs/admin/services/status) to start it, since users can't read their mail in the browser until then.
 
 ![Webmail section with the webmail status, client dropdown and webmail domain](/img/openadmin-screenshots/emails/settings-webmail.png#gh-light-mode-only)
 ![Webmail section with the webmail status, client dropdown and webmail domain](/img/openadmin-screenshots/emails/settings-webmail_dark.png#gh-dark-mode-only)
@@ -79,6 +83,12 @@ Configure services for the MailServer stack:
 
 
 Changes to this service will interrupt current email traffic and restart the mailserver.
+
+A warning is shown as you toggle the services:
+
+- **Postfwd** off: the hourly email limits set on plans aren't enforced, so domains and users can send any number of emails.
+- **Only SMTP** on: receiving email won't work, since IMAP and POP3 are disabled.
+- **Rspamd**, **Amavis** and **ClamAV** all off: incoming mail isn't checked for spam or viruses, so enabling at least one of them is recommended.
 
 ## Relay Hosts
 

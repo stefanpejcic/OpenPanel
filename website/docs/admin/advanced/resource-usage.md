@@ -16,6 +16,8 @@ Use **OpenAdmin > Server > Resource Usage** to view it.
 - **Disk** – Disk space usage per mounted volume.
 - **Network** – Network I/O.
 
+A warning is shown above the tabs, and updates live, when CPU, RAM, swap or disk `/` usage is at 90% or more, or when the 5-minute load average is at 90% or more of the number of CPU cores.
+
 ![Resource Usage page with the Load, RAM, CPU, Disk and Network tabs and a live chart of the average load](/img/openadmin-screenshots/advanced/resource-usage-page.png#gh-light-mode-only)
 ![Resource Usage page with the Load, RAM, CPU, Disk and Network tabs and a live chart of the average load](/img/openadmin-screenshots/advanced/resource-usage-page_dark.png#gh-dark-mode-only)
 

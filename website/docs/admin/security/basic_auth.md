@@ -15,6 +15,8 @@ To enable Basic Auth, select **Yes** under **Enable** and click **Save settings*
 
 To disable Basic Auth, select **No** under **Enable** and click **Save settings**.
 
+While Basic Auth is off and the OpenAdmin port is open to everyone in the [firewall](/docs/admin/security/firewall) (listed in CSF's `TCP_IN`, or there's no CSF), enabling it is recommended as an extra login step in front of OpenAdmin.
+
 ## Logins
 
 When Basic Auth is enabled, a username and password are required.

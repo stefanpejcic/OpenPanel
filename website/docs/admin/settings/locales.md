@@ -28,6 +28,8 @@ Click an action, confirm it, and it runs on the selected locales one after anoth
 
 By default, only the **EN** locale is installed. To enable other locales, they must be installed first.
 
+OpenAdmin also recommends locales to install, based on the country of each user's last login to OpenPanel (from their `.lastlogin` file). For example, if users log in from Serbia, it recommends installing `sr-rs` with an **Install** button, listing those users. Only locales that are available and not yet installed are recommended, and logins from the server's own IP (OpenAdmin's autologin) or private IPs are skipped.
+
 <Tabs>
   <TabItem value="openadmin-install-locale" label="With OpenAdmin" default>
 

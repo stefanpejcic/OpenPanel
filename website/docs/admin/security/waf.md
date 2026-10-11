@@ -34,6 +34,8 @@ Pick **Enabled** or **Disabled** and click **Save** next to the dropdown.
 - **Enabled** runs `opencli waf enable`: it downloads the rules and app profiles, enables [the WAF module](/docs/admin/settings/modules/#waf) so users can manage the firewall, turns the firewall on for every domain and restarts the web server with the Coraza image. New domains get the firewall automatically.
 - **Disabled** runs `opencli waf disable -y`: it disables the WAF module and turns the firewall off on all existing and new domains.
 
+While **Disabled** is selected, a recommendation to enable it is shown, since the WAF blocks common attacks like SQL injection and XSS before they reach user sites.
+
 ### OWASP Core Rule Set
 
 Shows the installed CRS version. OpenAdmin checks GitHub for new rules in the background every few hours, and **Check for updates** checks right away.
@@ -55,6 +57,8 @@ The table lists WordPress, Drupal, Nextcloud, DokuWiki, phpBB, XenForo and phpMy
 - **Status** – **Installed**, or **Missing** when the plugin wasn't downloaded.
 - **Domains using it** – how many domains have the profile turned on.
 - **Re-download** (or **Download** for a missing one) – downloads the plugin again, for example when its files were changed or deleted. If the download fails, the old copy is kept, so domains using the profile keep working.
+
+When any profile is missing, a recommendation to install them is shown above the table.
 
 **Download missing profiles** downloads every profile that isn't installed yet.
 

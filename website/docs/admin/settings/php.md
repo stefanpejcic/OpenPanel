@@ -46,6 +46,8 @@ zlib.output_compression
 
 Here you can edit the PHP.INI configuration files that will be applied to new user accounts.
 
+If a PHP version that is released and still supported has no PHP.INI file on the server, a recommendation lists it with a link to install it with [`opencli update --php`](/docs/articles/opencli/update/#php). The supported versions come from the same list the [Edit User Defaults](/docs/admin/settings/defaults/) page uses. Unreleased and end-of-life versions aren't recommended.
+
 ![Default PHP.INI Files section with a php.ini per PHP version and Restore Default and Save buttons](/img/openadmin-screenshots/settings/php-ini.png#gh-light-mode-only)
 ![Default PHP.INI Files section with a php.ini per PHP version and Restore Default and Save buttons](/img/openadmin-screenshots/settings/php-ini_dark.png#gh-dark-mode-only)
 

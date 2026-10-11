@@ -20,6 +20,8 @@ Enter your [OpenPanel Enterprise edition](https://my.openpanel.com/clientarea.ph
 
 For a step-by-step activation process, see the [Upgrading to OpenPanel Enterprise and activating License guide](/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/).
 
+When the license's next due date is 3 days away or less, a warning is shown under the license details: the license gets suspended on that date, so either renew it or remove the license key to downgrade to the Community edition.
+
 ## Contact Support
 
 When reaching out to support, generate a system report to provide detailed information about your setup.

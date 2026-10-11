@@ -47,6 +47,7 @@ Examples:
   opencli admin notifications update reboot yes
   opencli admin notifications update load 10
   opencli admin notifications update webhook_url https://discord.com/api/webhooks/XXXX/YYYYYYY
+  opencli admin notifications update webhook_url "https://discord.com/api/webhooks/XXXX/YYYYYYY https://hooks.slack.com/services/XXX"
 ```
 
 
@@ -404,7 +405,7 @@ Any option from `notifications.ini` can be read or updated. The main options are
 | `ram`         | Notify when RAM usage (%) is above this value.                     | `85`    |
 | `du`          | Notify when disk usage (%) is above this value.                    | `85`    |
 | `swap`        | Notify when SWAP usage (%) is above this value.                    | `85`    |
-| `webhook_url` | Also send notifications to this webhook (e.g. Discord).            | empty   |
+| `webhook_url` | Also send notifications to these webhooks (e.g. Discord), multiple URLs are separated by spaces. | empty   |
 
 The `[ACTIONS]` section of the file has a `yes`/`no` option for each OpenCLI action that sends a notification, for example `user_create`, `domains_add` or `admin_api`.
 

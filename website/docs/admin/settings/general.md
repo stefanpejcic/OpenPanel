@@ -13,6 +13,8 @@ Both OpenAdmin and OpenPanel are accessed through the same single **Hostname** f
 ![Domain section of General Settings with the hostname field](/img/openadmin-screenshots/settings/general-domain.png#gh-light-mode-only)
 ![Domain section of General Settings with the hostname field](/img/openadmin-screenshots/settings/general-domain_dark.png#gh-dark-mode-only)
 
+If the Hostname is an IP address, a recommendation is shown to use a domain instead if the mail server will be used, since the hostname is also used for the SSL certificate on SMTP.
+
 To enable access to both OpenAdmin and OpenPanel through a domain name, such as srv.your-domain.com:2083, follow these three steps:
 
 1. Set hostname:

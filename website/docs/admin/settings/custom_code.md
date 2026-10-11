@@ -153,6 +153,8 @@ HTML message that is placed straight into a new mailbox when the user ticks **Se
 
 Click **Restore Default** to load the [default template](https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/custom_code/welcome.html) into the editor, then click Save.
 
+A live preview of the HTML is shown next to the editor and updates as you type. The preview is sandboxed, so scripts in the HTML don't run.
+
 These placeholders are replaced when the message is created:
 
 | Placeholder | Replaced with |

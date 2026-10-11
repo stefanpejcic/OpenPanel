@@ -36,6 +36,13 @@ You can select the update policy that best fits your needs:
 
 Choosing the appropriate auto-update setting ensures that OpenPanel remains as stable, secure, and feature-rich as you need it to be.
 
+A recommendation is shown under the dropdown for the two options that skip security patches:
+
+- **Never:** update manually at least once a month.
+- **Major Versions Only:** update manually at least once a quarter, to get the minor versions with bug fixes and security patches.
+
+Both link to [how to update manually](/docs/articles/opencli/update/), and also say how many days ago the last update ran when that's over a month (Never) or 90 days (Major Versions Only).
+
 ## Update Logs
 The Update Logs section provides a record of all updates that have been applied to OpenPanel.
 

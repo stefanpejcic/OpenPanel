@@ -11,6 +11,17 @@ From **OpenAdmin > Settings > User Defaults** Administrators can edit values for
 
 These files determine services and limits for new users.
 
+### Recommendations
+
+The page shows recommendations based on the sites, plans and services already on the server, only when the current setting differs from them:
+
+- **Webserver:** based on the most common site type on the server. WordPress sites perform best on OpenLiteSpeed, or Apache if they rely on `.htaccess` rules. Node.js and Python apps run best behind Nginx, the fastest reverse proxy. Java and Ruby apps run best on OpenResty, since it can be scripted with Lua. Other CMS and PHP sites run well on Apache or Nginx.
+- **Database:** MySQL uses about 100 MB more RAM per user than MariaDB, so MariaDB is recommended.
+- **Varnish Cache:** recommended for new users when there are WordPress sites on the server, since WordPress pages cache well behind it.
+- **Default PHP version:** the latest stable PHP version installed on the server.
+- **Autostart services:** recommended to leave off, since autostarted services use resources on every new account whether it uses them or not. By default services only start when needed, for example when the user creates a cronjob, a database or adds a domain.
+- **Service CPU/RAM limits:** for PHP-FPM, the webservers and MySQL/MariaDB, a limit below the smallest plan in use (by CPU and RAM) means that service can't use everything the plan allows, so the plan's values are recommended as the minimum. `0` means unlimited and never shows a recommendation.
+
 > [How to setup Apache, Nginx, OpenResty, OpenLiteSpeed, and Varnish as default webserver](/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 > [How to setup MySQL, MariaDB or Percona for default database type](/docs/articles/containers/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 

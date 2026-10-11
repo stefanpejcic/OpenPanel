@@ -15,6 +15,8 @@ This interface allows you to edit the VirtualHosts templates and default landing
 - Varnish Template: The `default.vcl` template applied to Varnish instances created for new user accounts.
 - Caddy VHosts: The template applied to all newly added domains for the front-facing Caddy webserver.
 
+The Apache, Nginx, OpenResty, Varnish and Caddy templates have no live preview, so when any of them is changed from its default a warning is shown under the editor: editing them is recommended for advanced users only, and after changing one you should test that everything still works by adding a new user and domain.
+
 ## Default Page
 
 This is the HTML page shown on new domains that do **not** have `index.html` or `index.php` in their document root.

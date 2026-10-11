@@ -8,6 +8,8 @@ sidebar_position: 2
 
 Each job shows a one-line description of what that command does and a **Learn more** link to its [OpenCLI](/docs/articles/opencli/) docs page.
 
+A warning is shown above the table for any job with an invalid schedule, or a schedule that can never run (for example `59 23 31 2 *`, the 31st of February), since that job is effectively disabled. `opencli docker-backup` is skipped when it uses its default *Disabled* schedule, since admin-configured backups are off by default.
+
 ![Scheduler page listing OpenPanel system jobs with their cron schedule fields and command](/img/openadmin-screenshots/advanced/crons-page.png#gh-light-mode-only)
 ![Scheduler page listing OpenPanel system jobs with their cron schedule fields and command](/img/openadmin-screenshots/advanced/crons-page_dark.png#gh-dark-mode-only)
 

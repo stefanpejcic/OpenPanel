@@ -1212,13 +1212,14 @@ Starts `opencli update --force` in the background.
 ```json
 {
   "cpu": "90",
-  "webhook_url": "https://example.com/hook",
+  "webhook_url": ["https://example.com/hook", "https://discord.com/api/webhooks/XXXX/YYYY"],
+  "email": "admin@example.com, ops@example.com",
   "update": "on",
   "ssh_whitelist": "1.2.3.4/32\n5.6.7.0/24"
 }
 ```
 
-Supports numeric thresholds (`load`, `cpu`, `ram`, `du`, `swap`, `max_total_conn`, `max_conn_per_ip`), `webhook_url`, `email`, SMTP fields (`mail_server`, `mail_port`, `mail_use_tls`, `mail_use_ssl`, `mail_debug`, `mail_username`, `mail_password`, `mail_default_sender`), the `services` toggle, boolean event toggles (`update`, `attack`, `limit`, `login`, `ssh`, `reboot`, `dns`, plus the `ACTIONS` section like `admin_create`, `user_delete`, `domains_ssl`, etc — pass `"on"`/`"off"`), and `ssh_whitelist` (newline-separated IPs/CIDRs).
+Supports numeric thresholds (`load`, `cpu`, `ram`, `du`, `swap`, `max_total_conn`, `max_conn_per_ip`), `webhook_url` (a list of URLs or one space-separated string, returns 400 if any URL isn't http/https), `email` (comma-separated for multiple addresses), SMTP fields (`mail_server`, `mail_port`, `mail_use_tls`, `mail_use_ssl`, `mail_debug`, `mail_username`, `mail_password`, `mail_default_sender`), the `services` toggle, boolean event toggles (`update`, `attack`, `limit`, `login`, `ssh`, `reboot`, `dns`, plus the `ACTIONS` section like `admin_create`, `user_delete`, `domains_ssl`, etc — pass `"on"`/`"off"`), and `ssh_whitelist` (newline-separated IPs/CIDRs).
 
 ---
 
