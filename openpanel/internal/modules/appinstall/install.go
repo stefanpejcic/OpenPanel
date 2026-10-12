@@ -451,7 +451,10 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		editApacheConfig(userContext, topDomain, subdirectory, serviceName, appPort, kind.NeedsWebSocket)
 	case webServerType == "nginx":
 		emit(map[string]any{"status": "Editing Nginx configuration: creating reverse proxy from " + selectedDomain + " to container " + serviceName})
-		editNginxConfig(userContext, topDomain, subdirectory, serviceName, appPort, kind.NeedsWebSocket)
+		if nginxErr := editNginxConfig(ctx, userContext, topDomain, subdirectory, serviceName, webServerType, appPort, kind.NeedsWebSocket); nginxErr != "" {
+			// app is already running so keep going, the user can add the proxy by hand
+			emit(map[string]any{"status": nginxErr})
+		}
 	case strings.Contains(strings.ToLower(webServerType), "litespeed"):
 		emit(map[string]any{"status": "Editing Litespeed configuration: creating reverse proxy from " + selectedDomain + " to container " + serviceName})
 		if lswsErr := editLswsConfig(userContext, topDomain, subdirectory, serviceName, appPort); lswsErr != "" {
@@ -459,7 +462,10 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		}
 	case webServerType == "openresty":
 		emit(map[string]any{"status": "Editing OpenResty configuration: creating reverse proxy from " + selectedDomain + " to container " + serviceName})
-		editNginxConfig(userContext, topDomain, subdirectory, serviceName, appPort, kind.NeedsWebSocket)
+		if nginxErr := editNginxConfig(ctx, userContext, topDomain, subdirectory, serviceName, webServerType, appPort, kind.NeedsWebSocket); nginxErr != "" {
+			// app is already running so keep going, the user can add the proxy by hand
+			emit(map[string]any{"status": nginxErr})
+		}
 	default:
 		emit(map[string]any{"status": "Unknown webserver for user, no domain conf will be edited! Create proxy manually."})
 		return

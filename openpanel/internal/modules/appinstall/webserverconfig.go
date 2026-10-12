@@ -1,9 +1,13 @@
 package appinstall
 
 import (
+	"context"
 	"os"
 	"strconv"
 	"strings"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
 // vhostConfPath is the shared vhost config path used by all of this file's edit_*Config() functions
@@ -131,28 +135,32 @@ func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, 
 	}
 }
 
-// editNginxConfig inserts a location/proxy_pass block into every "server {" block's "location / {" section. Like editApacheConfig, every failure path here just logs and reports nothing back.
-func editNginxConfig(userContext, domainURL, subdirectory, serviceName string, port int, wsUpgrade bool) {
+// editNginxConfig inserts a location/proxy_pass block into every "server {" block's "location / {" section, then runs nginx -t and restores the old file if it fails, returning the error or ""
+func editNginxConfig(ctx context.Context, userContext, domainURL, subdirectory, serviceName, webServer string, port int, wsUpgrade bool) string {
 	confPath := vhostConfPath(userContext, domainURL)
 	content, err := os.ReadFile(confPath)
 	if err != nil {
-		return
+		return "Error: vhost configuration file does not exist."
 	}
 	nginxConfigData := string(content)
 
 	serverBlocks := strings.Split(nginxConfigData, "server {")
 	if len(serverBlocks) < 2 {
-		return
+		return "Error: no server block found in vhost configuration."
 	}
 
 	proxyHeadersRaw, phErr := os.ReadFile("/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt")
 	if phErr != nil {
-		return
+		return "Error: " + phErr.Error()
 	}
 	proxyHeaders := string(proxyHeadersRaw)
 	// no LoadModule needed for nginx (unlike Apache's mod_proxy_wstunnel) - ngx_http_proxy_module handles the Upgrade handshake natively once these headers are forwarded and HTTP/1.1 is used towards the upstream. Needed by apps like n8n whose UI depends on a WebSocket connection back through the proxy (its real-time push channel).
 	if wsUpgrade {
-		proxyHeaders += "\n            proxy_http_version 1.1;\n            proxy_set_header Upgrade $http_upgrade;\n            proxy_set_header Connection \"upgrade\";"
+		// default headers file already has proxy_http_version, nginx fails on a duplicate
+		if !strings.Contains(proxyHeaders, "proxy_http_version") {
+			proxyHeaders += "\n            proxy_http_version 1.1;"
+		}
+		proxyHeaders += "\n            proxy_set_header Upgrade $http_upgrade;\n            proxy_set_header Connection \"upgrade\";"
 	}
 
 	proxyURL := "http://" + serviceName
@@ -174,14 +182,14 @@ func editNginxConfig(userContext, domainURL, subdirectory, serviceName string, p
 		block := "server {" + serverBlocks[i]
 		markerPos := strings.Index(strings.ToLower(block), "location / {")
 		if markerPos == -1 {
-			return
+			return "Error: no location / block found in vhost configuration."
 		}
 		if subdirectory != "" {
 			block = block[:markerPos] + configLines + "\n" + block[markerPos:]
 		} else {
 			locationBlockEnd := strings.Index(block[markerPos:], "}")
 			if locationBlockEnd == -1 {
-				return
+				return "Error: location / block is not closed in vhost configuration."
 			}
 			locationBlockEnd += markerPos
 			block = block[:locationBlockEnd] + "\n" + configLines + block[locationBlockEnd:]
@@ -190,7 +198,19 @@ func editNginxConfig(userContext, domainURL, subdirectory, serviceName string, p
 	}
 
 	updated := strings.Join(updatedBlocks, "")
-	_ = os.WriteFile(confPath, []byte(updated), 0o644)
+	if err := os.WriteFile(confPath, []byte(updated), 0o644); err != nil {
+		_ = os.WriteFile(confPath, content, 0o644)
+		return "Error: " + err.Error()
+	}
+
+	// nginx -t only works inside a running container
+	if docker.IsServiceRunning(ctx, userContext, webServer) {
+		if ok, out := webserver.TestWebserverConfig(ctx, userContext, webServer); !ok {
+			_ = os.WriteFile(confPath, content, 0o644)
+			return "Error: proxy config failed " + webServer + " syntax check and was reverted: " + out
+		}
+	}
+	return ""
 }
 
 func copyFile(src, dst string) error {
