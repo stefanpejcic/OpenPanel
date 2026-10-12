@@ -102,7 +102,11 @@ func isAppInstallPath(path string) bool {
 }
 
 func isWebsitesPath(path string) bool {
-	return isSitesPath(path) || isAppInstallPath(path) || hasAnyPrefix(path, "/drupal", "/joomla", "/opencart", "/nextcloud", "/prestashop", "/matomo", "/moodle", "/mediawiki")
+	return isSitesPath(path) || isAppInstallPath(path) || isGitPath(path) || hasAnyPrefix(path, "/drupal", "/joomla", "/opencart", "/nextcloud", "/prestashop", "/matomo", "/moodle", "/mediawiki")
+}
+
+func isGitPath(path string) bool {
+	return path == "/git" || strings.HasPrefix(path, "/git/")
 }
 
 func isMySQLPath(path string) bool {
@@ -202,7 +206,7 @@ func mongodbTabs(g navGate, path string) []NavLink {
 }
 
 // WebsiteAppKeys are the features that make the Websites area worth showing, /sites itself is always on
-var WebsiteAppKeys = []string{"wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "website_builder", "nodejs", "python"}
+var WebsiteAppKeys = []string{"wordpress", "drupal", "joomla", "opencart", "nextcloud", "prestashop", "matomo", "moodle", "mediawiki", "website_builder", "nodejs", "python", "git"}
 
 // sidebarAreas is the sidebar in display order
 var sidebarAreas = []navArea{
@@ -224,9 +228,10 @@ var sidebarAreas = []navArea{
 	{label: "Websites", icon: websitesIcon, menuID: "websites-menu", match: isWebsitesPath,
 		keys: WebsiteAppKeys,
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
-			tabs := []NavLink{{Href: "/sites", Label: "Sites", Active: isWebsitesPath(path) && !strings.HasPrefix(path, "/wordpress") && !isAppInstallPath(path)}}
+			tabs := []NavLink{{Href: "/sites", Label: "Sites", Active: isWebsitesPath(path) && !strings.HasPrefix(path, "/wordpress") && !isAppInstallPath(path) && !isGitPath(path)}}
 			tabs = g.add(tabs, "wordpress", "/wordpress", "WordPress", strings.HasPrefix(path, "/wordpress"), "")
 			tabs = g.add(tabs, "autoinstaller", "/auto-installer", "Install App", isAppInstallPath(path), "")
+			tabs = g.add(tabs, "git", "/git", "Git", isGitPath(path), "")
 			return tabs
 		}},
 

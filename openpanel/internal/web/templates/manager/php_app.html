@@ -34,7 +34,7 @@
         <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="php-tab" data-tabs-toggle="#php-tab-content" role="tablist" class="grid grid-cols-4 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+        <ul id="php-tab" data-tabs-toggle="#php-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="grid grid-cols-4 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
             <li role="presentation">
                 <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
                    @click="activeTab = 'dashboard'"
@@ -62,6 +62,7 @@
                     <span class="hidden md:inline">{{.T.Get "Logs"}}</span>
                 </a>
             </li>
+            {{template "site_git_tabbtn" .}}
             <li role="presentation">
                 <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
                    @click="activeTab = 'remove'"
@@ -135,6 +136,8 @@
         <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
             <pre id="php-app-logs" class="text-xs bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded p-3 overflow-x-auto max-h-[32rem]">{{.T.Get "Loading..."}}</pre>
         </div>
+
+        {{template "site_git_panel" .}}
 
         <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
             <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">

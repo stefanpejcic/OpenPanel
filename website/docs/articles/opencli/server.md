@@ -73,6 +73,19 @@ Recalculating disk and inodes usage for all users on 203.0.113.20 ...
 ```
 </details>
 
+If the destination is this same server (its IP, hostname or `localhost`), the migration stops before anything is copied:
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli server-migrate -h 198.51.100.10 --user root --password 'DestinationPass'
+Migration started, log file: /var/log/openpanel/admin/migrations/198.51.100.10_2026-10-12_10-00-00.log
+PID: 12345
+FATAL ERROR: 198.51.100.10 is this server. Set the IP of the destination server.
+```
+</details>
+
 All available flags:
 ```bash
 opencli server-migrate -h <remote_host> -u <remote_user> [--password <password>] [--force] [--exclude-home] [--exclude-logs] [--exclude-csf] [--exclude-mail] [--exclude-bind] [--exclude-openpanel] [--exclude-mysql] [--exclude-stack] [--exclude-postupdate] [--exclude-users] [--exclude-contexts]
@@ -81,7 +94,7 @@ opencli server-migrate -h <remote_host> -u <remote_user> [--password <password>]
 - `-h`, `--host` - destination server IP.
 - `-u`, `--user` - SSH user on the destination server.
 - `--password` - SSH password for the destination server.
-- `--force` - skip checking if the destination server already has users.
+- `--force` - skip checking if the destination server already has users. It doesn't skip the check that the destination isn't this same server.
 - `--exclude-csf` - don't sync `/etc/csf/` firewall configuration.
 - `--exclude-contexts` - don't set up rootless Podman for users on the destination server.
 - `--exclude-*` - skip syncing that part of the data (home directories, logs, mail, DNS zones, OpenPanel configuration, MySQL, root docker stack, post-update scripts, users).

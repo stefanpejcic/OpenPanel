@@ -125,22 +125,22 @@
 {{define "cms_block_6"}}<div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" class="grid {{if .UserAllowed.malware_scan}}grid-cols-8{{else}}grid-cols-7{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">{{end}}
+        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="grid {{if .UserAllowed.malware_scan}}grid-cols-8{{else}}grid-cols-7{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">{{end}}
 
 {{define "cms_block_7"}}<div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" class="grid {{if .UserAllowed.malware_scan}}grid-cols-7{{else}}grid-cols-6{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">{{end}}
+        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="grid {{if .UserAllowed.malware_scan}}grid-cols-7{{else}}grid-cols-6{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">{{end}}
 
 {{define "cms_block_8"}}<div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" class="grid {{if .UserAllowed.malware_scan}}grid-cols-6{{else}}grid-cols-5{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">{{end}}
+        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="grid {{if .UserAllowed.malware_scan}}grid-cols-6{{else}}grid-cols-5{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">{{end}}
 
 {{define "cms_block_9"}}<div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" class="grid {{if .UserAllowed.malware_scan}}grid-cols-4{{else}}grid-cols-3{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">{{end}}
+        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="grid {{if .UserAllowed.malware_scan}}grid-cols-4{{else}}grid-cols-3{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">{{end}}
 
 {{define "cms_tabbtn_dashboard"}}<li role="presentation">
                 <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
@@ -213,7 +213,8 @@
                 </a>
             </li>{{end}}
 
-{{define "cms_tab_security"}}<li role="presentation">
+{{define "cms_tab_security"}}{{template "site_git_tabbtn" .}}
+            <li role="presentation">
                 <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
                    @click="activeTab = 'remove'"
                    :class="activeTab === 'remove' ? 'bg-white text-red-600 shadow-sm dark:bg-gray-900 dark:text-red-400' : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
@@ -232,6 +233,7 @@
             {{template "malware_scan_panel" .}}
         </div>
         {{end}}
+        {{template "site_git_panel" .}}
 {{end}}
 
 {{define "cms_tab_dashboard"}}<div class="hidden p-4 rounded" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
@@ -242,7 +244,8 @@
                     </div>
                 </div>{{end}}
 
-{{define "cms_tab_security_2"}}<li role="presentation">
+{{define "cms_tab_security_2"}}{{template "site_git_tabbtn" .}}
+            <li role="presentation">
                 <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
                    @click="activeTab = 'remove'"
                    :class="activeTab === 'remove' ? 'bg-white text-red-600 shadow-sm dark:bg-gray-900 dark:text-red-400' : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
@@ -261,6 +264,7 @@
             {{template "malware_scan_panel" .}}
         </div>
         {{end}}
+        {{template "site_git_panel" .}}
 
 {{end}}
 

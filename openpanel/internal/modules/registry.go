@@ -27,6 +27,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/fixpermissions"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/flarum"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/ftp"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/git"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/goaccess"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/inodes"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/ipblocker"
@@ -126,6 +127,12 @@ var configured = map[string]Registrar{
 	"backup_wizard": func(mux *http.ServeMux, a *appctx.App) {
 		backupwizard.Register(mux, a)
 		backupwizard.RegisterAPI(mux, a)
+	},
+	"git": func(mux *http.ServeMux, a *appctx.App) {
+		git.Register(mux, a)
+		git.RegisterAPI(mux, a)
+		appinstall.RegisterGitDetect(mux, a)
+		appinstall.RegisterGitDetectAPI(mux, a)
 	},
 	"backups":  func(mux *http.ServeMux, a *appctx.App) { backups.Register(mux, a); backups.RegisterAPI(mux, a) },
 	"domains":  func(mux *http.ServeMux, a *appctx.App) { domains.Register(mux, a); domains.RegisterAPI(mux, a) },

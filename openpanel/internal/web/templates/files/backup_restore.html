@@ -103,7 +103,7 @@
                     <div class="flex items-center gap-x-3">
                         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore & Download"}}</h1>
                         <template x-if="reindexing">
-                            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:text-amber-300">
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-yellow-100 dark:bg-yellow-400/10 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-300">
                                 <svg class="animate-spin size-3" viewBox="0 0 24 24" fill="none">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
@@ -131,7 +131,7 @@
             </div>
 
             {{if .ReindexError}}
-            <div class="mt-3 flex gap-2 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-3 py-2">
+            <div class="mt-3 flex gap-2 rounded-md bg-red-50 dark:bg-red-900/40 border border-red-500 dark:border-red-900 px-3 py-2">
                 <svg viewBox="0 0 24 24" fill="currentColor" class="size-4 shrink-0 text-red-500 mt-0.5">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                 </svg>
@@ -143,7 +143,7 @@
 
     <!-- Search bar -->
     <div class="px-4 pt-4 sm:px-6 lg:px-8">
-        <div class="relative max-w-sm">
+        <div class="relative" style="max-width: 24rem;">
             <svg class="pointer-events-none absolute left-2.5 top-2.5 size-4 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"/>
             </svg>
@@ -160,7 +160,7 @@
     <div class="mt-4 px-4 sm:px-6 lg:px-8 pb-8">
         {{if .Backups}}
         <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
-            <table class="w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <table class="w-full divide-y divide-gray-200 dark:divide-gray-800">
                 <thead class="bg-gray-50 dark:bg-gray-900">
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -186,7 +186,7 @@
                         <!-- Filename -->
                         <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-50 font-mono">
                             <div class="flex items-center gap-2">
-                                <svg viewBox="0 0 24 24" fill="currentColor" class="size-4 shrink-0 text-indigo-400">
+                                <svg viewBox="0 0 24 24" fill="currentColor" class="size-4 shrink-0 text-blue-500">
                                     <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
                                 </svg>
                                 {{.BackupFile}}
@@ -201,7 +201,7 @@
                             {{if .Types}}
                                 <div class="flex flex-wrap gap-1">
                                 {{range .Types}}
-                                    <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 ring-1 ring-inset ring-indigo-600/20">
+                                    <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-300">
                                         {{.}}
                                     </span>
                                 {{end}}
@@ -289,7 +289,7 @@
         x-transition:leave="ease-in duration-150"
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50"
         @click.self="restoreModal = false"
         style="display: none;"
     >
@@ -301,7 +301,7 @@
             x-transition:leave="ease-in duration-150"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="relative w-full max-w-lg rounded-lg bg-white dark:bg-gray-900 shadow-xl ring-1 ring-black/5 dark:ring-white/10"
+            class="relative w-full rounded-lg bg-white dark:bg-gray-900 shadow-xl ring-1 ring-gray-200 dark:ring-gray-800" style="max-width: 28rem;"
         >
             <!-- Modal header -->
             <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-5 py-4">
@@ -320,11 +320,11 @@
             <div class="px-5 py-4 space-y-4" x-show="!restoreResult">
 
                 <!-- Warning -->
-                <div class="flex gap-3 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 px-3 py-3">
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="size-5 shrink-0 text-amber-500 mt-0.5">
+                <div class="flex gap-3 rounded-md bg-yellow-50 dark:bg-yellow-400/10 border border-yellow-500 dark:border-gray-800 px-3 py-3">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="size-5 shrink-0 text-yellow-500 mt-0.5">
                         <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
                     </svg>
-                    <p class="text-xs text-amber-800 dark:text-amber-300">
+                    <p class="text-xs text-yellow-800 dark:text-yellow-300">
                         {{.T.Get "Restoring will overwrite existing data. This action cannot be undone."}}
                     </p>
                 </div>
@@ -335,15 +335,15 @@
                     <div class="space-y-2">
                         <label class="flex items-center gap-2.5 cursor-pointer">
                             <input type="radio" x-model="restoreTarget" value="all" class="size-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"/>
-                            <span class="text-sm text-gray-900 dark:text-gray-100">{{.T.Get "Everything"}}</span>
+                            <span class="text-sm text-gray-900 dark:text-gray-50">{{.T.Get "Everything"}}</span>
                         </label>
                         <label class="flex items-center gap-2.5 cursor-pointer" x-show="selectedBackup?.databases?.length > 0">
                             <input type="radio" x-model="restoreTarget" value="database" class="size-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"/>
-                            <span class="text-sm text-gray-900 dark:text-gray-100">{{.T.Get "Specific database only"}}</span>
+                            <span class="text-sm text-gray-900 dark:text-gray-50">{{.T.Get "Specific database only"}}</span>
                         </label>
                         <label class="flex items-center gap-2.5 cursor-pointer">
                             <input type="radio" x-model="restoreTarget" value="files" class="size-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"/>
-                            <span class="text-sm text-gray-900 dark:text-gray-100">{{.T.Get "Files only (no databases)"}}</span>
+                            <span class="text-sm text-gray-900 dark:text-gray-50">{{.T.Get "Files only (no databases)"}}</span>
                         </label>
                     </div>
                 </div>
@@ -365,7 +365,7 @@
             <!-- Result -->
             <div class="px-5 py-4" x-show="restoreResult">
                 <template x-if="restoreResult?.success">
-                    <div class="flex gap-3 rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/40 px-3 py-3">
+                    <div class="flex gap-3 rounded-md bg-green-50 dark:bg-gray-800 border border-green-500 dark:border-gray-800 px-3 py-3">
                         <svg viewBox="0 0 24 24" fill="currentColor" class="size-5 shrink-0 text-green-500 mt-0.5">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
                         </svg>
@@ -376,7 +376,7 @@
                     </div>
                 </template>
                 <template x-if="restoreResult?.error">
-                    <div class="flex gap-3 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-3 py-3">
+                    <div class="flex gap-3 rounded-md bg-red-50 dark:bg-red-900/40 border border-red-500 dark:border-red-900 px-3 py-3">
                         <svg viewBox="0 0 24 24" fill="currentColor" class="size-5 shrink-0 text-red-500 mt-0.5">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                         </svg>
@@ -424,7 +424,7 @@
         x-transition:leave="ease-in duration-150"
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50"
         @click.self="downloadModal = false"
         style="display: none;"
     >
@@ -436,7 +436,7 @@
             x-transition:leave="ease-in duration-150"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="relative w-full max-w-xl rounded-lg bg-white dark:bg-gray-900 shadow-xl ring-1 ring-black/5 dark:ring-white/10"
+            class="relative w-full max-w-xl rounded-lg bg-white dark:bg-gray-900 shadow-xl ring-1 ring-gray-200 dark:ring-gray-800"
         >
             <!-- Modal header -->
             <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-5 py-4">
@@ -464,7 +464,7 @@
             <!-- Result -->
             <div class="px-5 py-4" x-show="downloadResult">
                 <template x-if="downloadResult?.success">
-                    <div class="flex gap-3 rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/40 px-3 py-3">
+                    <div class="flex gap-3 rounded-md bg-green-50 dark:bg-gray-800 border border-green-500 dark:border-gray-800 px-3 py-3">
                         <svg viewBox="0 0 24 24" fill="currentColor" class="size-5 shrink-0 text-green-500 mt-0.5">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
                         </svg>
@@ -472,7 +472,7 @@
                     </div>
                 </template>
                 <template x-if="downloadResult?.error">
-                    <div class="flex gap-3 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-3 py-3">
+                    <div class="flex gap-3 rounded-md bg-red-50 dark:bg-red-900/40 border border-red-500 dark:border-red-900 px-3 py-3">
                         <svg viewBox="0 0 24 24" fill="currentColor" class="size-5 shrink-0 text-red-500 mt-0.5">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                         </svg>

@@ -13,7 +13,7 @@
         <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="sofawiki-tab" data-tabs-toggle="#sofawiki-tab-content" role="tablist" class="grid {{if .UserAllowed.malware_scan}}grid-cols-5{{else}}grid-cols-4{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
+        <ul id="sofawiki-tab" data-tabs-toggle="#sofawiki-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="grid {{if .UserAllowed.malware_scan}}grid-cols-5{{else}}grid-cols-4{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
             {{template "cms_tabbtn_dashboard" .}}
             {{template "cms_tabbtn_clone" .}}
             {{template "cms_tabbtn_backups" .}}

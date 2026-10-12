@@ -41,3 +41,24 @@ CREATE TABLE IF NOT EXISTS mcp_tokens (
   last_used_at timestamp NULL DEFAULT NULL,
   KEY idx_user_id (user_id)
 ) ENGINE=InnoDB;" || echo "Failed to create the mcp_tokens table, MCP tokens won't work until it exists"
+
+# git module is new in 2.0.15, list it under OpenAdmin > Settings > Modules so admins can turn it on
+FEATURES_JSON="/etc/openpanel/openadmin/config/features.json"
+if [ -f "$FEATURES_JSON" ] && ! jq -e '.[] | select(.name == "git")' "$FEATURES_JSON" >/dev/null 2>&1; then
+    echo "Adding the Git module to $FEATURES_JSON..."
+    tmp=$(mktemp)
+    if jq '. + [{
+        "name": "git",
+        "title": "Git",
+        "description": "If enabled, users can deploy websites from Git repositories: clone from GitHub, GitLab or Bitbucket, or push to repositories hosted on the server over HTTPS.",
+        "link": "/git",
+        "type": "community",
+        "help_link": "https://openpanel.com/docs/panel/applications/git/"
+    }]' "$FEATURES_JSON" > "$tmp"; then
+        # write in place so the file keeps its owner and permissions
+        cat "$tmp" > "$FEATURES_JSON"
+    else
+        echo "Failed to add the Git module to $FEATURES_JSON"
+    fi
+    rm -f "$tmp"
+fi

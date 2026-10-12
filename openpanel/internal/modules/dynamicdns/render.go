@@ -1,14 +1,10 @@
 package dynamicdns
 
 import (
-	"context"
 	"log"
-	"net"
 	"net/http"
-	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -31,35 +27,6 @@ type DynamicDNSPageData struct {
 	BaseURL string
 }
 
-// publicBaseURL reconstructs the scheme+host+port the same way enforceAccessDomain() (internal/auth/loaduser.go) does for the canonical-domain redirect - by render time, the request's host has already passed that check
-func publicBaseURL(ctx context.Context, a *appctx.App, r *http.Request) string {
-	requestHost, requestPort := r.Host, ""
-	if h, p, err := net.SplitHostPort(requestHost); err == nil {
-		requestHost, requestPort = h, p
-	}
-
-	host := strings.TrimSpace(a.ForceDomain)
-	if host == "" {
-		host = requestHost
-	}
-
-	scheme := "http"
-	if sysinfo.HasSSL(ctx, a.Cache, host) {
-		scheme = "https"
-	}
-
-	// a.ForcePort comes from `opencli port`, which can fail to resolve in some deployments - fall back to the port this request came in on rather than omitting it, since that's the port actually in use right now
-	portSuffix := ""
-	switch {
-	case a.ForcePort != "":
-		portSuffix = ":" + a.ForcePort
-	case requestPort != "":
-		portSuffix = ":" + requestPort
-	}
-
-	return scheme + "://" + host + portSuffix + "/"
-}
-
 func renderDynamicDNSPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainEntries []DomainEntries, domains []appctx.Domain) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Dynamic DNS")
 	if err != nil {
@@ -73,7 +40,7 @@ func renderDynamicDNSPage(a *appctx.App, w http.ResponseWriter, r *http.Request,
 
 	data := DynamicDNSPageData{
 		LayoutData: layout, DomainEntries: domainEntries, Domains: domains, AllEntries: allEntries,
-		BaseURL: publicBaseURL(r.Context(), a, r),
+		BaseURL: web.PublicBaseURL(r.Context(), a, r),
 	}
 	if err := dynamicDNSPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DYNAMICDNS - template render error: %v", err)

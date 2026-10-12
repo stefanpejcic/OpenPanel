@@ -10,8 +10,41 @@ import (
 	"github.com/go-git/go-git/v5"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
+
+// RegisterGitDetect wires the startup-file detect helper, only registered when the "git" module is enabled
+func RegisterGitDetect(mux *http.ServeMux, a *appctx.App) {
+	mux.Handle("POST /json/detect_git_startup_file", auth.RequireLogin(a, "git")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		HandleDetectGitStartupFile(a, w, r)
+	})))
+}
+
+// RegisterGitDetectAPI is RegisterGitDetect's /api/ twin
+func RegisterGitDetectAPI(mux *http.ServeMux, a *appctx.App) {
+	apiregistry.Handle(mux, a, "git", "POST /api/helpers/detect-git-startup-file", func(w http.ResponseWriter, r *http.Request) { apiDetectGitStartupFile(a, w, r) })
+}
+
+// gitAllowed reports whether the git module is enabled and on this user's plan
+func gitAllowed(a *appctx.App, r *http.Request) bool {
+	if !a.ModuleEnabled("git") {
+		return false
+	}
+	userID, _ := auth.UserID(r)
+	injected, err := a.InjectData(r.Context(), userID)
+	if err != nil {
+		return false
+	}
+	allowed, _ := injected["user_allowed"].([]string)
+	for _, m := range allowed {
+		if m == "git" {
+			return true
+		}
+	}
+	return false
+}
 
 // nodeEntryCandidates/pythonEntryCandidates/rubyEntryCandidates/javaEntryCandidates are checked in order when there's no manifest to read (or package.json has no "main"), matching the default filenames buildAppRunCommand() falls back to
 var (

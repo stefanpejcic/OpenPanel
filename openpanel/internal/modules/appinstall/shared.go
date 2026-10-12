@@ -273,14 +273,13 @@ func HandleCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": file + " exists."})
 }
 
-// RegisterShared wires the two always-on routes only the Python/NodeJS install forms use. Gated on "helpers", not "python"/"nodejs" - "helpers" is unconditionally granted (see baselineFeatures), so in practice this is login-only.
+// RegisterShared wires the always-on routes only the Python/NodeJS install forms use. Gated on "helpers", not "python"/"nodejs" - "helpers" is unconditionally granted (see baselineFeatures), so in practice this is login-only.
 func RegisterShared(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "helpers")(h)
 	}
 	mux.Handle("GET /docker/tags/{type}", requireLogin(func(w http.ResponseWriter, r *http.Request) { HandleDockerTags(a, w, r) }))
 	mux.Handle("POST /json/check_if_file_exists", requireLogin(func(w http.ResponseWriter, r *http.Request) { HandleCheckFileExists(a, w, r) }))
-	mux.Handle("POST /json/detect_git_startup_file", requireLogin(func(w http.ResponseWriter, r *http.Request) { HandleDetectGitStartupFile(a, w, r) }))
 }
 
 func injectedContext(a *appctx.App, r *http.Request) (username, userContext string, err error) {

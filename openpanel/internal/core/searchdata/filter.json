@@ -108,6 +108,12 @@
       "name": "WordPress Manager"
     },
     {
+      "description": "Deploy websites from Git repositories (GitHub, GitLab, Bitbucket or push over HTTPS).",
+      "link": "/git",
+      "module": "git",
+      "name": "Git"
+    },
+    {
       "description": "Install Drupal CMS.",
       "link": "/drupal/install",
       "module": "drupal",

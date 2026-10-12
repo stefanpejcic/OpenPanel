@@ -49,7 +49,8 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 		links = append(links, NavLink{Href: "/sites", Label: "Site Manager",
 			Active: hasAnyPrefix(path, "/sites") || (strings.HasPrefix(path, "/website") && !strings.HasPrefix(path, "/website-builder"))})
 		links = add(links, "wordpress", "/wordpress", "WordPress Manager", strings.HasPrefix(path, "/wordpress"), "")
-		open := hasAnyPrefix(path, "/auto-installer", "/sites", "/website", "/wordpress", "/drupal", "/joomla", "/opencart", "/nextcloud", "/prestashop", "/matomo", "/moodle", "/mediawiki", "/pm2", "/nodejs", "/python", "/ruby", "/java", "/n8n")
+		links = add(links, "git", "/git", "Git", isGitPath(path), "")
+		open := isGitPath(path) || hasAnyPrefix(path, "/auto-installer", "/sites", "/website", "/wordpress", "/drupal", "/joomla", "/opencart", "/nextcloud", "/prestashop", "/matomo", "/moodle", "/mediawiki", "/pm2", "/nodejs", "/python", "/ruby", "/java", "/n8n")
 		groups = append(groups, NavGroup{"Websites", websitesIcon, "websites-menu", links, open, open})
 	}
 

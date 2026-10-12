@@ -140,7 +140,7 @@ func enforceAccessDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		scheme = "https"
 	}
 
-	// a.ForcePort can fail to resolve, so fall back to the port this request came in on rather than dropping it - see dynamicdns.publicBaseURL for the same trick
+	// a.ForcePort can fail to resolve, so fall back to the port this request came in on rather than dropping it - see web.PublicBaseURL for the same trick
 	portSuffix := ""
 	switch {
 	case a.ForcePort != "":

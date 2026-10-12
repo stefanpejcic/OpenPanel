@@ -145,7 +145,7 @@
 
     <!-- tabs -->
     <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist"
+        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}"
             class="grid grid-cols-10 w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
 
             <li role="presentation">
@@ -238,6 +238,7 @@
                 </a>
             </li>
 
+            {{template "site_git_tabbtn" .}}
             <li role="presentation">
                 <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
                    @click="activeTab = 'remove'"
@@ -1743,6 +1744,8 @@
         <!-- END BACKUPS -->
 
         <!-- REMOVE -->
+        {{template "site_git_panel" .}}
+
         <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
 
             <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">

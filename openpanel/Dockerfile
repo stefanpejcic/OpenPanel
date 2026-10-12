@@ -30,7 +30,10 @@ RUN apk add --no-cache \
     acl \
     attr \
     shadow \
-    quota-tools
+    quota-tools \
+    git \
+    git-daemon \
+    openssh-client
 
 
 # OpenCLI

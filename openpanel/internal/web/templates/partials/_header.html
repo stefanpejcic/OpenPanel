@@ -149,7 +149,7 @@
                                                 '/wordpress',
                                                 '/auto-installer',
                                                 '/website',
-                                            ].some(p => currentPath.startsWith(p))
+                                            ].some(p => currentPath.startsWith(p)) || currentPath === '/git'
                                         }
                                     ]
                                 }

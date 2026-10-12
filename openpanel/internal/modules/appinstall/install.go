@@ -197,6 +197,9 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	customCmd := r.FormValue("custom_cmd")
 	requirements := normalizeRequirements(r.FormValue("requirements"))
 	gitRepoURL := strings.TrimSpace(r.FormValue("git_repo_url"))
+	if !gitAllowed(a, r) {
+		gitRepoURL = ""
+	}
 
 	if !cmsapp.IsValidSubdirectory(subdirectory) {
 		emit(map[string]any{"error": "Invalid subdirectory."})

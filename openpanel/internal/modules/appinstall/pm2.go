@@ -443,6 +443,10 @@ func handlePM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request, curr
 		PIDs:         strings.TrimSpace(r.FormValue("pids")),
 		GitRepoURL:   strings.TrimSpace(r.FormValue("git_repo_url")),
 	}
+	// form has no git field without the git module, so keep whatever was set before
+	if !gitAllowed(a, r) {
+		settings.GitRepoURL, _ = docker.GetEnvValue(userContext, strings.ToUpper(containerName)+"_"+kind.PyOrNode+"_GIT_URL")
+	}
 
 	if errs := validatePM2Settings(settings); len(errs) > 0 {
 		flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Error saving: %(errs)s", "errs", errs[0]), redirectPath)

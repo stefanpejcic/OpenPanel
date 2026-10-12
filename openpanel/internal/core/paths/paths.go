@@ -235,3 +235,10 @@ func resolveNonStrict(path string) (string, error) {
 	}
 	return filepath.Join(resolvedDir, base), nil
 }
+
+// SetHomeVolumeForTest points HOME lookups at dir for other packages' tests, call the returned func to undo
+func SetHomeVolumeForTest(dir string) func() {
+	old := homeVolumeOverride
+	homeVolumeOverride = dir
+	return func() { homeVolumeOverride = old }
+}

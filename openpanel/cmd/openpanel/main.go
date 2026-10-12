@@ -23,6 +23,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/backups"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/git"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -149,11 +150,11 @@ func main() {
 	}
 }
 
-// exemptAPIFromCSRF skips CSRF checks for /api/* and /mcp - gorilla/csrf has no built-in path exemption, and those routes use a Bearer token instead of the session cookie anyway.
+// exemptAPIFromCSRF skips CSRF for /api/*, /mcp and git push/webhook URLs since those bring their own credentials instead of the session cookie
 func exemptAPIFromCSRF(csrfMiddleware func(http.Handler) http.Handler, next http.Handler) http.Handler {
 	protected := csrfMiddleware(next)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/api/") || r.URL.Path == "/mcp" {
+		if strings.HasPrefix(r.URL.Path, "/api/") || r.URL.Path == "/mcp" || git.IsPublicPath(r.URL.Path) {
 			next.ServeHTTP(w, r)
 			return
 		}

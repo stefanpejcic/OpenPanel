@@ -2,6 +2,7 @@ package websites
 
 import (
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
@@ -100,4 +101,44 @@ func TestRenderPythonNodeAppsPage(t *testing.T) {
 	t.Run("python running", func(t *testing.T) { render(t, "true", "python") })
 	t.Run("nodejs stopped", func(t *testing.T) { render(t, "false", "nodejs") })
 	t.Run("unknown status", func(t *testing.T) { render(t, "unknown", "python") })
+}
+
+// every site manager page with a Git tab shows it only when the git module is allowed
+func TestSiteManagerGitTab(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	for _, gitOn := range []bool{true, false} {
+		layout := baseLayout(mgr, "/website")
+		layout.UserAllowed["git"] = gitOn
+		pd := pageData{LayoutData: layout, CurrentDomain: "example.com", Docroot: "/var/www/html/example.com"}
+
+		pages := map[string]func(*httptest.ResponseRecorder) error{
+			"wordpress": func(w *httptest.ResponseRecorder) error {
+				return wpSinglePage.Render(w, 200, WPSinglePageData{pageData: pd, Container: ContainerInfo{SiteName: "example.com"}})
+			},
+			"php": func(w *httptest.ResponseRecorder) error {
+				return phpAppPage.Render(w, 200, PHPAppPageData{pageData: pd})
+			},
+		}
+		for cmsType, p := range cmsPages {
+			cmsType, p := cmsType, p
+			pages[cmsType] = func(w *httptest.ResponseRecorder) error {
+				return p.page.Render(w, 200, CMSAppPageData{pageData: pd, App: web.NewAppNames(cmsType, p.name), DBInfo: map[string]string{}})
+			}
+		}
+
+		for name, render := range pages {
+			w := httptest.NewRecorder()
+			if err := render(w); err != nil {
+				t.Fatalf("%s: Render: %v", name, err)
+			}
+			body := w.Body.String()
+			hasTab := strings.Contains(body, `id="git-tab"`) && strings.Contains(body, `id="git" role="tabpanel"`)
+			if hasTab != gitOn {
+				t.Errorf("%s: git tab shown = %v, want %v", name, hasTab, gitOn)
+			}
+			if !strings.Contains(body, "data-tab-overflow") {
+				t.Errorf("%s: tab bar is missing data-tab-overflow", name)
+			}
+		}
+	}
 }

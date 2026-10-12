@@ -317,6 +317,11 @@ func serviceNamesFromCompose(compose map[string]any, filter func(map[string]any)
 	return names, true
 }
 
+// Containers is the account's user-facing compose services, also used by the git module's deploy actions picker
+func Containers(ctx context.Context, userContext string) []string {
+	return cronContainers(ctx, userContext)
+}
+
 // cronContainers is the container list for the new and edit forms and the bulk bar
 func cronContainers(ctx context.Context, userContext string) []string {
 	compose, err := podmanmanager.LoadComposeConfig(ctx, userContext)

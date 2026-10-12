@@ -64,7 +64,11 @@ func processBackup(client *ssh.Client, backup, remotePath string) BackupInfo {
 	}
 
 	remoteFilePath := remotePath + "/" + backup
-	out, _ := runSSHCommand(client, "tar -tzf "+shellQuoteArg(remoteFilePath)+" 2>/dev/null")
+	out, err := runSSHCommand(client, "tar -tzf "+shellQuoteArg(remoteFilePath)+" 2>/dev/null")
+	if err != nil && strings.TrimSpace(out) == "" {
+		// used to be swallowed, which left the row with no contents and no hint why
+		return BackupInfo{BackupFile: backup, Types: []string{}, Databases: []string{}, Error: "Could not read archive contents: " + err.Error()}
+	}
 	return classifyTarListing(backup, out)
 }
 
@@ -74,12 +78,14 @@ func classifyTarListing(backup, listing string) BackupInfo {
 
 	seenTypes := map[string]bool{}
 	seenDBs := map[string]bool{}
+	sawEntries := false
 
 	for _, entry := range strings.Split(listing, "\n") {
 		entry = strings.Trim(strings.TrimSpace(entry), "/")
 		if entry == "" {
 			continue
 		}
+		sawEntries = true
 		parts := strings.Split(entry, "/")
 		if len(parts) < 2 || parts[0] != "backup" {
 			continue
@@ -115,6 +121,9 @@ func classifyTarListing(backup, listing string) BackupInfo {
 		}
 	}
 
+	if len(info.Types) == 0 && sawEntries {
+		info.Error = "Archive is not in the backup/ layout this page can restore (for example a full account backup made by the administrator)."
+	}
 	return info
 }
 

@@ -82,6 +82,7 @@ func allSections() []Section {
 			{"websites", "/sites", "bi-app-indicator", "Sites", "", false},
 			{"wordpress", "/wordpress", "bi-wordpress", "WordPress", "", false},
 			{"autoinstaller", "/auto-installer", "bi-download", "Install App", "", false},
+			{"git", "/git", "bi-git", "Git", "", false},
 		}},
 		{Key: "emails", Title: "Email", Icon: "bi-envelope", Items: []SectionItem{
 			{"emails", "/emails", "bi-envelope", "Email Accounts", "", false},
@@ -265,6 +266,7 @@ func classicSections() []Section {
 			{"websites", "/sites", "bi-app-indicator", "Site Manager", "", false},
 			{"autoinstaller", "/auto-installer", "bi-download", "Auto Installer", "", false},
 			{"wordpress", "/wordpress", "bi-wordpress", "WP Manager", "", false},
+			{"git", "/git", "bi-git", "Git", "", false},
 		}},
 		{Key: "cache", Title: "Cache", Items: []SectionItem{
 			{"redis", "/cache/redis", "bi-database-fill-lock", "Redis", "", false},
