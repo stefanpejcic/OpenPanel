@@ -294,7 +294,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "Deploying admin login helper"})
 	loginFilePath := filepath.Join(hostOSPath, adminDirName, openpanelLoginFileName)
 	if writeErr := os.WriteFile(loginFilePath, []byte(openpanelLoginPHP), 0o644); writeErr == nil {
-		_ = os.Chown(loginFilePath, uid, uid)
+		_ = os.Lchown(loginFilePath, uid, uid)
 	}
 
 	// record exactly what this install created so a later uninstall can remove precisely that, not the whole docroot

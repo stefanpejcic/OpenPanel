@@ -118,7 +118,7 @@ func chownToUser(ctx context.Context, a *appctx.App, path, userContext string) e
 	if err != nil || uid <= 0 {
 		return err
 	}
-	return os.Chown(path, uid, uid)
+	return os.Lchown(path, uid, uid)
 }
 
 // chownRecursive sets ownership of root and everything beneath it, used after extract/copy/move so the destination ends up owned by the target user rather than the panel process
@@ -127,12 +127,12 @@ func chownRecursive(ctx context.Context, a *appctx.App, root, userContext string
 	if err != nil || uid <= 0 {
 		return
 	}
-	_ = os.Chown(root, uid, uid)
+	// Lchown so a symlink in the tree never hands its target over to the user
 	_ = filepath.Walk(root, func(p string, info os.FileInfo, walkErr error) error {
 		if walkErr != nil {
 			return nil //nolint:nilerr // best-effort: a walk error here shouldn't abort chowning the rest of the tree
 		}
-		_ = os.Chown(p, uid, uid)
+		_ = os.Lchown(p, uid, uid)
 		return nil
 	})
 }

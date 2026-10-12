@@ -34,7 +34,7 @@ func moveItemToTrash(ctx context.Context, a *appctx.App, itemPath, itemName, use
 	}
 
 	if uid, uidErr := a.GetUID(ctx, userContext); uidErr == nil && uid > 0 {
-		_ = os.Chown(trashInfoPath, uid, uid)
+		_ = os.Lchown(trashInfoPath, uid, uid)
 	}
 
 	return trashedPath, nil

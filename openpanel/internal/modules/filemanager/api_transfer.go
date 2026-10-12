@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -170,9 +169,9 @@ func apiExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	case strings.HasSuffix(selectedFile, ".zip"):
 		extractErr = runCommand(timeoutCtx, "unzip", "-o", archivePath, "-d", destinationPath)
 	case strings.HasSuffix(selectedFile, ".tar.gz"), strings.HasSuffix(selectedFile, ".tgz"):
-		extractErr = runCommand(timeoutCtx, "tar", "-xzf", archivePath, "-C", destinationPath)
+		extractErr = runCommand(timeoutCtx, "tar", "--no-same-owner", "--no-same-permissions", "-xzf", archivePath, "-C", destinationPath)
 	case strings.HasSuffix(selectedFile, ".tar"):
-		extractErr = runCommand(timeoutCtx, "tar", "-xf", archivePath, "-C", destinationPath)
+		extractErr = runCommand(timeoutCtx, "tar", "--no-same-owner", "--no-same-permissions", "-xf", archivePath, "-C", destinationPath)
 	case strings.HasSuffix(selectedFile, ".gz"):
 		extractErr = extractSingleGzip(archivePath, selectedFile, destinationPath)
 	default:
@@ -264,28 +263,12 @@ func apiCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		validatedFiles = append(validatedFiles, filepath.Base(filePath))
 	}
 
-	maxTime := a.Config.Get("filemanager_compress_max_time", "5")
-	quotedFiles := make([]string, len(validatedFiles))
-	for i, f := range validatedFiles {
-		quotedFiles[i] = shellQuote(f)
-	}
-	fileList := strings.Join(quotedFiles, " ")
-
-	var archiveCmd string
-	switch ext {
-	case "zip":
-		archiveCmd = fmt.Sprintf("cd %s && timeout %sm zip -r %s %s", shellQuote(parentPath), maxTime, shellQuote(archivePath), fileList)
-	case "tar":
-		archiveCmd = fmt.Sprintf("cd %s && timeout %sm tar -cf %s %s", shellQuote(parentPath), maxTime, shellQuote(archivePath), fileList)
-	case "tar.gz":
-		archiveCmd = fmt.Sprintf("cd %s && timeout %sm tar -czf %s %s", shellQuote(parentPath), maxTime, shellQuote(archivePath), fileList)
-	default:
+	if !supportedArchiveExt(ext) {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Unsupported archive format."})
 		return
 	}
-
-	cmd := exec.CommandContext(ctx, "sh", "-c", archiveCmd)
-	out, cmdErr := cmd.CombinedOutput()
+	maxTime := atoiDefault(a.Config.Get("filemanager_compress_max_time", "5"), 5)
+	out, cmdErr := createArchive(ctx, ext, parentPath, archivePath, validatedFiles, maxTime)
 	if cmdErr != nil {
 		errMsg := strings.TrimSpace(string(out))
 		if errMsg == "" {

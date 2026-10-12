@@ -7,14 +7,15 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -57,8 +58,12 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.HandleFunc("/login_autologin", func(w http.ResponseWriter, r *http.Request) {
 		handleAutologin(a, w, r)
 	})
-	mux.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /logout", func(w http.ResponseWriter, r *http.Request) {
 		handleLogout(a, w, r)
+	})
+	// plain links to /logout land here, POST only so another site can't log the user out
+	mux.HandleFunc("GET /logout", func(w http.ResponseWriter, r *http.Request) {
+		handleLogoutConfirm(a, w, r)
 	})
 }
 
@@ -214,6 +219,8 @@ func handleLoginPassword(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	}
 
 	if result.TwofaEnabled {
+		setTwofaPending(sess, result.UserID)
+		_ = a.Sessions.Save(r, w, sess)
 		data.TwofaEnabled = true
 		data.UserID = result.UserID
 		renderLogin(w, http.StatusOK, data)
@@ -224,11 +231,16 @@ func handleLoginPassword(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 }
 
 func handleLoginTwofa(a *appctx.App, w http.ResponseWriter, r *http.Request, sess *sessions.Session, t i18n.Translator) {
-	userIDStr := r.Form.Get("user_id")
-	code := r.Form.Get("twofa_code")
-	userID, _ := strconv.Atoi(userIDStr)
+	code := strings.TrimSpace(r.Form.Get("twofa_code"))
 
 	data := basePageData(a, r, t)
+	userID, ok := takeTwofaAttempt(sess)
+	_ = a.Sessions.Save(r, w, sess)
+	if !ok {
+		data.ErrorMessage = t.Get("Your login session expired. Please enter your username and password again.")
+		renderLogin(w, http.StatusOK, data)
+		return
+	}
 	data.TwofaEnabled = true
 	data.UserID = userID
 
@@ -243,12 +255,13 @@ func handleLoginTwofa(a *appctx.App, w http.ResponseWriter, r *http.Request, ses
 		return
 	}
 
-	if !totp.Validate(code, otp.String) {
+	if !totp.Validate(code, otp.String) || !claimTOTPCode(r.Context(), a, userID, code) {
 		data.ErrorMessage = t.Get("Invalid 2FA code. Please try again.")
 		renderLogin(w, http.StatusOK, data)
 		return
 	}
 
+	clearTwofaPending(sess)
 	completeLogin(a, w, r, sess, userID, username, "logged in with 2FA code", "2fa")
 }
 
@@ -308,29 +321,16 @@ func finishLoginSession(a *appctx.App, w http.ResponseWriter, r *http.Request, s
 	notifyLogin(a, r.Context(), userID, username, loginNotifyMessage(a, r, notifyKind, ip), knownIP)
 }
 
-// logUserLogin appends to the user's .lastlogin history file, then creates the Redis-backed session record RequireLogin validates on every later request
+// logUserLogin creates the Redis-backed session record RequireLogin validates on every later request, the .lastlogin history is written in the background
 func logUserLogin(a *appctx.App, r *http.Request, sess *sessions.Session, userID int, username, ip string) error {
 	userFolder := filepath.Join("/etc/openpanel/openpanel/core/users", username)
 	if err := os.MkdirAll(userFolder, 0o755); err != nil {
 		return err
 	}
-	lastLoginFile := filepath.Join(userFolder, ".lastlogin")
-
-	var records []string
-	if data, err := os.ReadFile(lastLoginFile); err == nil {
-		records = strings.Split(strings.TrimRight(string(data), "\n"), "\n")
-	}
-
-	country := getCountryCode(a, r.Context(), ip)
-	records = append(records, fmt.Sprintf("IP: %s - Country: %s - Login Time: %s", ip, country, time.Now().Format("2006-01-02 15:04:05")))
-
 	maxRecords := web.AtoiDefault(a.Config.Get("max_login_records", ""), 20)
-	if len(records) > maxRecords {
-		records = records[len(records)-maxRecords:]
-	}
-	if err := os.WriteFile(lastLoginFile, []byte(strings.Join(records, "\n")+"\n"), 0o644); err != nil {
-		return err
-	}
+	loginTime := time.Now()
+	// the country lookup can take seconds, the login shouldn't wait for it
+	go appendLastLogin(a, filepath.Join(userFolder, ".lastlogin"), ip, loginTime, maxRecords)
 
 	sessionToken := uuid.NewString()
 	sessionKey := fmt.Sprintf("session:%d:%s", userID, sessionToken)
@@ -349,6 +349,29 @@ func logUserLogin(a *appctx.App, r *http.Request, sess *sessions.Session, userID
 
 	sess.Values["session_token"] = sessionToken
 	return nil
+}
+
+var lastLoginMu sync.Mutex
+
+// appendLastLogin adds one "IP - Country - Login Time" line to .lastlogin and trims it to maxRecords
+func appendLastLogin(a *appctx.App, lastLoginFile, ip string, loginTime time.Time, maxRecords int) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	country := getCountryCode(a, ctx, ip)
+
+	lastLoginMu.Lock()
+	defer lastLoginMu.Unlock()
+	var records []string
+	if data, err := os.ReadFile(lastLoginFile); err == nil {
+		records = strings.Split(strings.TrimRight(string(data), "\n"), "\n")
+	}
+	records = append(records, fmt.Sprintf("IP: %s - Country: %s - Login Time: %s", ip, country, loginTime.Format("2006-01-02 15:04:05")))
+	if len(records) > maxRecords {
+		records = records[len(records)-maxRecords:]
+	}
+	if err := os.WriteFile(lastLoginFile, []byte(strings.Join(records, "\n")+"\n"), 0o644); err != nil {
+		log.Printf("LOGIN - failed to write %s: %v", lastLoginFile, err)
+	}
 }
 
 // getCountryCode looks up the country for an IP via a public geolocation API, cached for 6 minutes to avoid hitting it on every login
@@ -470,12 +493,34 @@ func handleLogout(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		_ = logger.RecordUserAction(a.Config, username, "logged out.", reqip.ClientIP(r))
 	}
 
+	// kill the server side record too, otherwise a copied cookie keeps working until the TTL runs out
+	if userID, ok := auth.UserID(r); ok && userID != 0 {
+		if token := auth.SessionToken(r); token != "" {
+			_ = a.Cache.Raw().Del(r.Context(), fmt.Sprintf("session:%d:%s", userID, token)).Err()
+		}
+	}
+
 	for k := range sess.Values {
 		delete(sess.Values, k)
 	}
 	_ = a.Sessions.Save(r, w, sess)
 
 	http.Redirect(w, r, a.Config.Get("logout_redirect", "/login"), http.StatusFound)
+}
+
+var logoutConfirmPage = template.Must(template.New("logout").Parse(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sign out</title></head>
+<body style="font-family:sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0">
+<form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{.}}"><button type="submit" style="padding:.6rem 1.2rem;font-size:1rem;cursor:pointer">Sign out</button></form>
+</body></html>`))
+
+// handleLogoutConfirm is the no-JS fallback for GET /logout, the layout JS turns logout links into a POST directly
+func handleLogoutConfirm(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	if userID, ok := auth.UserID(r); !ok || userID == 0 {
+		http.Redirect(w, r, a.Config.Get("logout_redirect", "/login"), http.StatusFound)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_ = logoutConfirmPage.Execute(w, csrf.Token(r))
 }
 
 func firstNonEmpty(vals ...string) string {

@@ -88,7 +88,7 @@ func ensureUserToken(ctx context.Context, a *appctx.App, userContext string) (st
 	if err != nil {
 		return "", err
 	}
-	_ = os.Chown(tokenFile, uid, uid)
+	_ = os.Lchown(tokenFile, uid, uid)
 	return token, nil
 }
 

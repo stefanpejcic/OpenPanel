@@ -284,8 +284,8 @@ func handleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr == nil {
-		_ = os.Chown(htmlVolume, uid, uid)
-		_ = os.Chown(mysqlDumpVolume, uid, uid)
+		_ = os.Lchown(htmlVolume, uid, uid)
+		_ = os.Lchown(mysqlDumpVolume, uid, uid)
 	}
 
 	timestamp := time.Now().Format("2006-01-02_15-04-05")

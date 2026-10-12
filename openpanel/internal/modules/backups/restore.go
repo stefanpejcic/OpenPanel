@@ -82,7 +82,7 @@ func restoreSQLMember(ctx context.Context, userContext string, member tarSQLMemb
 // chownAncestors chowns dir and every parent directory up to (but not including) root - root is already correctly owned, this just fixes up new subdirectories os.MkdirAll created as real host root beneath it
 func chownAncestors(dir, root string, uid int) {
 	for dir != root && dir != "." && dir != string(filepath.Separator) && strings.HasPrefix(dir, root) {
-		_ = os.Chown(dir, uid, uid)
+		_ = os.Lchown(dir, uid, uid)
 		dir = filepath.Dir(dir)
 	}
 }
@@ -162,7 +162,7 @@ func restoreFilesFromTar(localPath, userContext string, uid int) ([]string, erro
 		}
 		out.Close()
 		if uid > 0 {
-			_ = os.Chown(dest, uid, uid)
+			_ = os.Lchown(dest, uid, uid)
 		}
 		extracted = append(extracted, dest)
 	}

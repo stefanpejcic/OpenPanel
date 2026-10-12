@@ -1,6 +1,10 @@
 package auth
 
 import (
+	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"log"
 	"net"
 	"net/http"
@@ -18,6 +22,8 @@ import (
 const (
 	jwtAlgorithm = "HS256"
 	jwtSubClaim  = "sub"
+	// JWTPwdClaim ties a token to the password it was issued under, so a password change revokes it
+	JWTPwdClaim = "pwd"
 )
 
 // LoadUser resolves the caller's identity from a Bearer token (MCP or JWT), falling back to the session cookie, then enforces the configured access domain
@@ -53,12 +59,12 @@ func resolveIdentity(a *appctx.App, r *http.Request) *http.Request {
 			return withAuth(r, 0, ViaNone)
 		}
 
-		userID, err := parseJWT(token, a.SecretKey)
+		userID, pwd, err := parseJWT(token, a.SecretKey)
 		if err != nil {
 			log.Printf("APP - JWT auth failed: %v", err)
 			return withAuth(r, 0, ViaNone)
 		}
-		return withAuth(r, userID, ViaJWT)
+		return withJWTPwd(withAuth(r, userID, ViaJWT), pwd)
 	}
 
 	sess, _ := a.Sessions.Get(r, session.CookieName)
@@ -68,31 +74,44 @@ func resolveIdentity(a *appctx.App, r *http.Request) *http.Request {
 	return withSessionToken(r, token)
 }
 
-func parseJWT(tokenString string, secret []byte) (int, error) {
+func parseJWT(tokenString string, secret []byte) (int, string, error) {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 		return secret, nil
-	}, jwt.WithValidMethods([]string{jwtAlgorithm}))
+	}, jwt.WithValidMethods([]string{jwtAlgorithm}), jwt.WithExpirationRequired())
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return 0, jwt.ErrTokenInvalidClaims
+		return 0, "", jwt.ErrTokenInvalidClaims
 	}
 	sub, ok := claims[jwtSubClaim]
 	if !ok {
-		return 0, jwt.ErrTokenInvalidClaims
+		return 0, "", jwt.ErrTokenInvalidClaims
 	}
+	pwd, _ := claims[JWTPwdClaim].(string)
 
 	switch v := sub.(type) {
 	case string:
-		return strconv.Atoi(v)
+		id, err := strconv.Atoi(v)
+		return id, pwd, err
 	case float64:
-		return int(v), nil
+		return int(v), pwd, nil
 	default:
-		return 0, jwt.ErrTokenInvalidClaims
+		return 0, "", jwt.ErrTokenInvalidClaims
 	}
+}
+
+// PasswordFingerprint is a keyed hash of the user's current password hash, it changes whenever the password does and leaks nothing about it
+func PasswordFingerprint(ctx context.Context, a *appctx.App, userID int) (string, error) {
+	var pwHash string
+	if err := a.DB.QueryRowContext(ctx, "SELECT password FROM users WHERE id = ?", userID).Scan(&pwHash); err != nil {
+		return "", err
+	}
+	mac := hmac.New(sha256.New, a.SecretKey)
+	mac.Write([]byte("api-token:" + pwHash))
+	return hex.EncodeToString(mac.Sum(nil))[:32], nil
 }
 
 // enforceAccessDomain redirects to the configured access domain if the request's Host doesn't match, returning true if it wrote a redirect - skipped entirely when ForceDomain is empty

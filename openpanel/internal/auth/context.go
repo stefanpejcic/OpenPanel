@@ -13,6 +13,7 @@ const (
 	authViaKey
 	mcpReadOnlyKey
 	sessionTokenKey
+	jwtPwdKey
 )
 
 // AuthVia identifies how the caller's identity was established.
@@ -61,4 +62,13 @@ func withMCPReadOnly(r *http.Request, readOnly bool) *http.Request {
 
 func withSessionToken(r *http.Request, token string) *http.Request {
 	return r.WithContext(context.WithValue(r.Context(), sessionTokenKey, token))
+}
+
+func withJWTPwd(r *http.Request, fp string) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), jwtPwdKey, fp))
+}
+
+func jwtPwd(r *http.Request) string {
+	v, _ := r.Context().Value(jwtPwdKey).(string)
+	return v
 }

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"crypto/hmac"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -192,6 +193,20 @@ func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handl
 				log.Printf("APP - API user %d: failed to load user details: %v", userID, err)
 				http.Error(w, "internal error", http.StatusInternalServerError)
 				return
+			}
+
+			if !details.Found || strings.HasPrefix(details.Username, "SUSPENDED_") {
+				log.Printf("APP - API user %d (%s): account suspended or deleted, rejecting token", userID, details.Username)
+				writeJSONError(w, http.StatusUnauthorized, "Account is suspended or no longer exists", "")
+				return
+			}
+			if via == ViaJWT {
+				fp, err := PasswordFingerprint(ctx, a, userID)
+				if err != nil || !hmac.Equal([]byte(fp), []byte(jwtPwd(r))) {
+					log.Printf("APP - API user %d (%s): JWT issued before the last password change, rejecting", userID, details.Username)
+					writeJSONError(w, http.StatusUnauthorized, "Token is no longer valid", "Log in again to get a new token")
+					return
+				}
 			}
 
 			userFeatures, err := a.LoadUserFeatures(ctx, details.Username, details.Context)

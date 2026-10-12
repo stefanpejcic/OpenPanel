@@ -130,6 +130,10 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}
+	if volErr := checkHostPaths(composeData, volNames); volErr != nil {
+		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
+		return
+	}
 	declareNewVolumes(composeData, volNames, serviceName)
 	mappedVolumes := ParseVolumeEntries(volNames, volMounts, volReadonly, body.AddSocket)
 
@@ -226,6 +230,10 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = SaveEnvFile(userContext, currentEnv)
 
 	if volErr := checkNewVolumes(GetAvailableVolumes(composeData), volNames); volErr != nil {
+		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
+		return
+	}
+	if volErr := checkHostPaths(composeData, volNames); volErr != nil {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}

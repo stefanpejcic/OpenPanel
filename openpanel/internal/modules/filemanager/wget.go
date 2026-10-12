@@ -3,15 +3,17 @@ package filemanager
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -121,10 +123,10 @@ func validateWgetURL(rawURL string) error {
 	if err != nil || len(ips) == 0 {
 		return fmt.Errorf("Could not resolve host")
 	}
-	ip := ips[0]
-	if ip.IsPrivate() || ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() ||
-		ip.IsMulticast() || ip.IsUnspecified() {
-		return fmt.Errorf("Internal IP ranges are not permitted")
+	for _, ip := range ips {
+		if !isPublicIP(ip) {
+			return fmt.Errorf("Internal IP ranges are not permitted")
+		}
 	}
 	return nil
 }
@@ -182,16 +184,20 @@ func handleWgetFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	web.WriteJSON(w, http.StatusOK, map[string]any{"download_id": downloadID})
 }
 
-// runWgetWithProgress runs the actual `wget` download and updates the persisted state as it progresses - it runs detached from the triggering request (context.Background()) so the download continues even after the HTTP response that started it has been sent
+// runWgetWithProgress downloads the URL in the background with the SSRF-safe client, it runs detached from the request so the download continues after the response is sent
 func runWgetWithProgress(a *appctx.App, downloadID string) {
 	info, ok := loadDownloadState(downloadID)
 	if !ok {
 		return
 	}
+	fail := func(msg string) {
+		cur, _ := loadDownloadState(downloadID)
+		cur.Status, cur.Message = "error", msg
+		_ = saveDownloadState(downloadID, cur)
+	}
 
 	if err := os.MkdirAll(info.ParentPath, 0o755); err != nil {
-		info.Status, info.Message = "error", "Internal server error during download."
-		_ = saveDownloadState(downloadID, info)
+		fail("Internal server error during download.")
 		return
 	}
 
@@ -201,68 +207,44 @@ func runWgetWithProgress(a *appctx.App, downloadID string) {
 	info.Status, info.Message, info.Progress = "downloading", "Starting download...", 0
 	_ = saveDownloadState(downloadID, info)
 
-	ctx := context.Background()
-	cmd := exec.CommandContext(ctx, "wget", "--progress=dot:mega", "-O", downloadedFilePath, info.URL)
-	stderr, err := cmd.StderrPipe()
+	maxTime := time.Duration(atoiDefault(a.Config.Get("filemanager_download_max_time", "60"), 60)) * time.Minute
+	maxBytes := int64(atoiDefault(a.Config.Get("filemanager_upload_size", "2000"), 2000)) << 20
+	ctx, cancel := context.WithTimeout(context.Background(), maxTime)
+	defer cancel()
+
+	lastPct := -1
+	err := downloadToFile(ctx, info.URL, downloadedFilePath, maxBytes, func(pct int) {
+		if pct == lastPct {
+			return
+		}
+		lastPct = pct
+		cur, _ := loadDownloadState(downloadID)
+		cur.Progress, cur.Status, cur.Message = pct, "downloading", "Download in progress..."
+		_ = saveDownloadState(downloadID, cur)
+	})
 	if err != nil {
-		info.Status, info.Message = "error", "Internal server error during download."
-		_ = saveDownloadState(downloadID, info)
-		return
-	}
-	if startErr := cmd.Start(); startErr != nil {
-		info.Status, info.Message = "error", "Internal server error during download."
-		_ = saveDownloadState(downloadID, info)
+		log.Printf("FILEMANAGER - download of %s failed: %v", info.URL, err)
+		msg := "Failed to download the file"
+		switch {
+		case errors.Is(err, errDownloadTooLarge):
+			msg = fmt.Sprintf("Failed to download the file: it is larger than %d MB", maxBytes>>20)
+		case errors.Is(err, errBlockedAddress):
+			msg = "Failed to download the file: internal IP ranges are not permitted"
+		case errors.Is(err, context.DeadlineExceeded):
+			msg = "Failed to download the file: it took too long"
+		}
+		fail(msg)
 		return
 	}
 
-	buf := make([]byte, 4096)
-	var lineBuf strings.Builder
-	for {
-		n, readErr := stderr.Read(buf)
-		if n > 0 {
-			lineBuf.Write(buf[:n])
-			for {
-				chunk := lineBuf.String()
-				idx := strings.IndexAny(chunk, "\r\n")
-				if idx == -1 {
-					break
-				}
-				line := chunk[:idx]
-				lineBuf.Reset()
-				lineBuf.WriteString(chunk[idx+1:])
-				if m := wgetPercentRE.FindStringSubmatch(line); m != nil {
-					if pct := atoiDefault(m[1], -1); pct >= 0 {
-						cur, _ := loadDownloadState(downloadID)
-						cur.Progress, cur.Status, cur.Message = pct, "downloading", "Download in progress..."
-						_ = saveDownloadState(downloadID, cur)
-					}
-				}
-			}
-		}
-		if readErr != nil {
-			break
-		}
-	}
-
-	waitErr := cmd.Wait()
 	final, _ := loadDownloadState(downloadID)
-	if waitErr == nil {
-		final.Progress, final.Status = 100, "done"
-		final.Message = "File downloaded from URL successfully to " + final.DisplayPath
-		_ = saveDownloadState(downloadID, final)
-
-		if chownErr := chownToUser(ctx, a, downloadedFilePath, final.Context); chownErr != nil {
-			cur, _ := loadDownloadState(downloadID)
-			cur.Message += " (Failed to set ownership for the downloaded file.)"
-			_ = saveDownloadState(downloadID, cur)
-		}
-	} else {
-		final.Status, final.Message = "error", "Failed to download the file"
-		_ = saveDownloadState(downloadID, final)
+	final.Progress, final.Status = 100, "done"
+	final.Message = "File downloaded from URL successfully to " + final.DisplayPath
+	if chownErr := chownToUser(ctx, a, downloadedFilePath, final.Context); chownErr != nil {
+		final.Message += " (Failed to set ownership for the downloaded file.)"
 	}
+	_ = saveDownloadState(downloadID, final)
 }
-
-var wgetPercentRE = regexp.MustCompile(`(\d+)%`)
 
 // handleWgetStatus reports the current progress/status of a download, logging the completed action exactly once the first time it's seen done
 func handleWgetStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {

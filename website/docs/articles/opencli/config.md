@@ -163,12 +163,12 @@ Set maximum number of lines (table rows) to display **when user selects *show_al
 domain_log_max_for_show_all=10000
 ```
 
-### acccess_logs_per_page
+### access_logs_per_page
 
 Set number of lines to show per page from the domains activity log.
 
 ```bash
-acccess_logs_per_page=1000
+access_logs_per_page=1000
 ```
 
 ### resource_usage_items_per_page

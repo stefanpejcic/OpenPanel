@@ -95,7 +95,17 @@ func TestRegisterAllWiresRoutes(t *testing.T) {
 		}
 	})
 
-	t.Run("GET /logout clears session and redirects to /login", func(t *testing.T) {
+	t.Run("POST /logout clears session and redirects to /login", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/logout", nil)
+		w := httptest.NewRecorder()
+		mux.ServeHTTP(w, req)
+
+		if w.Code != http.StatusFound || w.Header().Get("Location") != "/login" {
+			t.Fatalf("status = %d, Location = %q, want 302 to /login", w.Code, w.Header().Get("Location"))
+		}
+	})
+
+	t.Run("GET /logout without a session redirects to /login", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/logout", nil)
 		w := httptest.NewRecorder()
 		mux.ServeHTTP(w, req)

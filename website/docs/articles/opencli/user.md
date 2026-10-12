@@ -464,6 +464,8 @@ To reset the password for a OpenPanel user, you can use the `user-password` comm
 opencli user-password <USERNAME> <NEW_PASSWORD>
 ```
 
+Changing the password also logs the user out of all active sessions, revokes all of their MCP tokens, and invalidates any API tokens issued before the change.
+
 <details>
   <summary>Example output</summary>
 

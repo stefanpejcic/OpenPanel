@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -87,6 +88,62 @@ func checkNewVolumes(available, names []string) error {
 		}
 	}
 	return nil
+}
+
+const podmanSocketVolume = "/run/user/${USER_ID}/podman/podman.sock"
+
+// hostPathDenied are entries in the account's home the panel itself reads and trusts, so they can't be mounted into a container
+var hostPathDenied = map[string]bool{"features.txt": true, "docker-compose.yml": true}
+
+// checkHostPaths only lets bind mounts point inside the account's home (./folder), anything already in the compose file stays allowed so editing a template service still works
+func checkHostPaths(composeData map[string]any, names []string) error {
+	existing := existingVolumeSources(composeData)
+	for _, n := range names {
+		n = strings.TrimSpace(n)
+		isPath := strings.ContainsAny(n, "/\\") || strings.HasPrefix(n, ".") || strings.HasPrefix(n, "~")
+		if n == "" || !isPath || existing[n] || n == podmanSocketVolume {
+			continue
+		}
+		if !safeRelativeHostPath(n) {
+			return fmt.Errorf("Volume %q is not allowed. Use a named volume or a folder inside your account like ./data.", n)
+		}
+	}
+	return nil
+}
+
+func safeRelativeHostPath(n string) bool {
+	rest, ok := strings.CutPrefix(n, "./")
+	if !ok || strings.ContainsAny(rest, ":$~\\") {
+		return false
+	}
+	cleaned := path.Clean(rest)
+	if cleaned == "." || cleaned == ".." || strings.HasPrefix(cleaned, "../") || strings.HasPrefix(cleaned, "/") {
+		return false
+	}
+	first, _, _ := strings.Cut(cleaned, "/")
+	return !strings.HasPrefix(first, ".") && !hostPathDenied[first]
+}
+
+// existingVolumeSources collects the source side of every service's volumes already in the compose file
+func existingVolumeSources(composeData map[string]any) map[string]bool {
+	out := map[string]bool{}
+	services, _ := composeData["services"].(map[string]any)
+	for _, raw := range services {
+		svc, _ := raw.(map[string]any)
+		vols, _ := svc["volumes"].([]any)
+		for _, v := range vols {
+			switch e := v.(type) {
+			case string:
+				src, _, _ := strings.Cut(e, ":")
+				out[src] = true
+			case map[string]any:
+				if src, ok := e["source"].(string); ok {
+					out[src] = true
+				}
+			}
+		}
+	}
+	return out
 }
 
 // declareNewVolumes adds the named volumes the compose file doesn't have yet

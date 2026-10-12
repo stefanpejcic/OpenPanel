@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"crypto/sha256"
+	"crypto/tls"
 	"fmt"
 	"io/fs"
 	"log"
@@ -113,11 +114,20 @@ func main() {
 	}
 
 	certFile, keyFile, useTLS := tlsCertPaths(listenAddr)
+	if useTLS {
+		reloader, err := newCertReloader(certFile, keyFile)
+		if err != nil {
+			log.Printf("BOOTSTRAP - could not load %s: %v, running plain HTTP.", certFile, err)
+			useTLS = false
+		} else {
+			srv.TLSConfig = &tls.Config{MinVersion: tls.VersionTLS12, GetCertificate: reloader.GetCertificate}
+		}
+	}
 	go func() {
 		log.Printf("BOOTSTRAP - listening on %s (tls=%v)", listenAddr, useTLS)
 		var serveErr error
 		if useTLS {
-			serveErr = srv.ListenAndServeTLS(certFile, keyFile)
+			serveErr = srv.ListenAndServeTLS("", "")
 		} else {
 			serveErr = srv.ListenAndServe()
 		}

@@ -14,28 +14,11 @@ import (
 
 const TokenPrefix = "op_mcp_"
 
-const createTableSQL = `
-CREATE TABLE IF NOT EXISTS mcp_tokens (
-	id INT AUTO_INCREMENT PRIMARY KEY,
-	user_id INT NOT NULL,
-	name VARCHAR(100) NOT NULL,
-	token_prefix VARCHAR(20) NOT NULL,
-	token_hash CHAR(64) NOT NULL UNIQUE,
-	read_only TINYINT(1) NOT NULL DEFAULT 0,
-	expires_at TIMESTAMP NULL DEFAULT NULL,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	last_used_at TIMESTAMP NULL,
-	INDEX idx_user_id (user_id)
-) ENGINE=InnoDB`
+const lastUsedInterval = time.Minute
 
 func hashToken(raw string) string {
 	sum := sha256.Sum256([]byte(raw))
 	return hex.EncodeToString(sum[:])
-}
-
-func EnsureTable(db *sql.DB) error {
-	_, err := db.Exec(createTableSQL)
-	return err
 }
 
 type AuthResult struct {
@@ -48,21 +31,18 @@ func Authenticate(db *sql.DB, rawToken string) (*AuthResult, error) {
 	if rawToken == "" || !strings.HasPrefix(rawToken, TokenPrefix) {
 		return nil, nil
 	}
-	if err := EnsureTable(db); err != nil {
-		return nil, err
-	}
-
 	var (
 		tokenID   int
 		userID    int
 		readOnly  bool
 		expiresAt sql.NullTime
+		lastUsed  sql.NullTime
 	)
 	row := db.QueryRow(
-		"SELECT id, user_id, read_only, expires_at FROM mcp_tokens WHERE token_hash = ?",
+		"SELECT id, user_id, read_only, expires_at, last_used_at FROM mcp_tokens WHERE token_hash = ?",
 		hashToken(rawToken),
 	)
-	if err := row.Scan(&tokenID, &userID, &readOnly, &expiresAt); err != nil {
+	if err := row.Scan(&tokenID, &userID, &readOnly, &expiresAt, &lastUsed); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
@@ -74,8 +54,9 @@ func Authenticate(db *sql.DB, rawToken string) (*AuthResult, error) {
 		return nil, nil
 	}
 
-	if _, err := db.Exec("UPDATE mcp_tokens SET last_used_at = NOW() WHERE id = ?", tokenID); err != nil {
-		return nil, err
+	// only bump last_used_at once a minute, a busy MCP client would otherwise write on every call
+	if !lastUsed.Valid || time.Since(lastUsed.Time) > lastUsedInterval {
+		_, _ = db.Exec("UPDATE mcp_tokens SET last_used_at = NOW() WHERE id = ?", tokenID)
 	}
 
 	return &AuthResult{UserID: userID, ReadOnly: readOnly}, nil
@@ -94,9 +75,6 @@ type Token struct {
 
 // GetTokensForUser returns every token row belonging to userID.
 func GetTokensForUser(ctx context.Context, db *sql.DB, userID int) ([]Token, error) {
-	if err := EnsureTable(db); err != nil {
-		return nil, err
-	}
 	rows, err := db.QueryContext(ctx,
 		"SELECT id, name, token_prefix, created_at, last_used_at, read_only, expires_at FROM mcp_tokens WHERE user_id = ? ORDER BY created_at DESC",
 		userID)
@@ -139,9 +117,6 @@ func CreateTokenForUser(ctx context.Context, db *sql.DB, userID int, name string
 		expiresAt = sql.NullTime{Time: time.Now().Add(time.Duration(expiresInDays) * 24 * time.Hour), Valid: true}
 	}
 
-	if err := EnsureTable(db); err != nil {
-		return "", err
-	}
 	_, err = db.ExecContext(ctx,
 		"INSERT INTO mcp_tokens (user_id, name, token_prefix, token_hash, read_only, expires_at) VALUES (?, ?, ?, ?, ?, ?)",
 		userID, name, tokenPrefix, hashToken(rawToken), readOnly, expiresAt)
@@ -153,9 +128,6 @@ func CreateTokenForUser(ctx context.Context, db *sql.DB, userID int, name string
 
 // RevokeToken deletes the token row matching tokenID and userID; false means "not found", not an error
 func RevokeToken(ctx context.Context, db *sql.DB, tokenID, userID int) (bool, error) {
-	if err := EnsureTable(db); err != nil {
-		return false, err
-	}
 	result, err := db.ExecContext(ctx, "DELETE FROM mcp_tokens WHERE id = ? AND user_id = ?", tokenID, userID)
 	if err != nil {
 		return false, err

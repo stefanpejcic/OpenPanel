@@ -292,9 +292,9 @@ func (app *App) HandleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr == nil {
-		_ = os.Chown(htmlVol, uid, uid)
+		_ = os.Lchown(htmlVol, uid, uid)
 		if app.DBMode != DBNone {
-			_ = os.Chown(mysqlDumpVolume, uid, uid)
+			_ = os.Lchown(mysqlDumpVolume, uid, uid)
 		}
 	}
 

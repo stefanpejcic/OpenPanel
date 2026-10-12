@@ -808,7 +808,7 @@ func setOpcacheForSite(ctx context.Context, s *wpCacheSite, on bool) (string, er
 		if !existed {
 			if info, statErr := os.Stat(s.HostPath); statErr == nil {
 				if st, ok := info.Sys().(*syscall.Stat_t); ok {
-					_ = os.Chown(path, int(st.Uid), int(st.Gid))
+					_ = os.Lchown(path, int(st.Uid), int(st.Gid))
 				}
 			}
 		}

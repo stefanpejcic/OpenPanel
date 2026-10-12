@@ -13,18 +13,19 @@ func TestParseJWT(t *testing.T) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": "42",
 		"exp": time.Now().Add(time.Hour).Unix(),
+		"pwd": "abc",
 	})
 	signed, err := token.SignedString(secret)
 	if err != nil {
 		t.Fatalf("signing test token: %v", err)
 	}
 
-	userID, err := parseJWT(signed, secret)
+	userID, pwd, err := parseJWT(signed, secret)
 	if err != nil {
 		t.Fatalf("parseJWT: %v", err)
 	}
-	if userID != 42 {
-		t.Errorf("userID = %d, want 42", userID)
+	if userID != 42 || pwd != "abc" {
+		t.Errorf("userID, pwd = %d, %q, want 42, abc", userID, pwd)
 	}
 }
 
@@ -35,7 +36,7 @@ func TestParseJWTWrongSecret(t *testing.T) {
 		t.Fatalf("signing test token: %v", err)
 	}
 
-	if _, err := parseJWT(signed, []byte("secret-b")); err == nil {
+	if _, _, err := parseJWT(signed, []byte("secret-b")); err == nil {
 		t.Error("expected an error validating a token against the wrong secret")
 	}
 }
@@ -51,7 +52,7 @@ func TestParseJWTExpired(t *testing.T) {
 		t.Fatalf("signing test token: %v", err)
 	}
 
-	if _, err := parseJWT(signed, secret); err == nil {
+	if _, _, err := parseJWT(signed, secret); err == nil {
 		t.Error("expected an error for an expired token")
 	}
 }
@@ -59,7 +60,18 @@ func TestParseJWTExpired(t *testing.T) {
 func TestParseJWTRejectsAlgNone(t *testing.T) {
 	// alg=none is the classic JWT attack - an unsigned token a naive verifier accepts anyway
 	unsigned := "eyJhbGciOiJub25lIn0.eyJzdWIiOiIxIn0."
-	if _, err := parseJWT(unsigned, []byte("test-secret")); err == nil {
+	if _, _, err := parseJWT(unsigned, []byte("test-secret")); err == nil {
 		t.Error("expected alg=none token to be rejected")
+	}
+}
+
+func TestParseJWTRequiresExp(t *testing.T) {
+	secret := []byte("test-secret")
+	signed, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"sub": "1"}).SignedString(secret)
+	if err != nil {
+		t.Fatalf("signing test token: %v", err)
+	}
+	if _, _, err := parseJWT(signed, secret); err == nil {
+		t.Error("expected a token without exp to be rejected")
 	}
 }

@@ -321,7 +321,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "Deploying admin login helper"})
 	loginFilePath := filepath.Join(approotHostPath, openpanelLoginFileName)
 	if writeErr := os.WriteFile(loginFilePath, []byte(openpanelLoginPHP), 0o644); writeErr == nil {
-		_ = os.Chown(loginFilePath, uid, uid)
+		_ = os.Lchown(loginFilePath, uid, uid)
 	}
 
 	emit(map[string]any{"status": "Registering cron job (lib/pkp/tools/scheduler.php, every minute)"})

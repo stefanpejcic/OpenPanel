@@ -10,7 +10,7 @@ import (
 // handleAPISwagger renders the Swagger UI page, pre-authorized with a freshly minted Bearer token so "Try it out" works immediately without another login
 func handleAPISwagger(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
-	token, err := mintAPIToken(a, userID)
+	token, err := mintAPIToken(r.Context(), a, userID)
 	if err != nil {
 		token = ""
 	}

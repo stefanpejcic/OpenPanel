@@ -1,6 +1,7 @@
 package account
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"github.com/pquerna/otp/totp"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -72,7 +74,7 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			writeAPIJSON(w, http.StatusUnauthorized, map[string]any{"twofa_required": true, "user_id": result.UserID})
 			return
 		}
-		if !totp.Validate(body.TwofaCode, otp.String) {
+		if !totp.Validate(body.TwofaCode, otp.String) || !claimTOTPCode(ctx, a, result.UserID, body.TwofaCode) {
 			writeAPIJSON(w, http.StatusUnauthorized, map[string]any{"error": "invalid_2fa"})
 			return
 		}
@@ -89,7 +91,7 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	clearFailedAttempts(ip)
 	notifyLogin(a, ctx, result.UserID, result.Username, loginNotifyMessage(a, r, "api", ip), knownIP)
 
-	token, signErr := mintAPIToken(a, result.UserID)
+	token, signErr := mintAPIToken(ctx, a, result.UserID)
 	if signErr != nil {
 		writeAPIJSON(w, http.StatusInternalServerError, map[string]any{"error": "token_generation_failed"})
 		return
@@ -101,11 +103,16 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 }
 
 // mintAPIToken signs a Bearer JWT for userID, same shape as handleAPILogin issues - reused by the /account/api Swagger page to pre-authorize "Try it out" for an already-logged-in user
-func mintAPIToken(a *appctx.App, userID int) (string, error) {
+func mintAPIToken(ctx context.Context, a *appctx.App, userID int) (string, error) {
+	pwd, err := auth.PasswordFingerprint(ctx, a, userID)
+	if err != nil {
+		return "", err
+	}
 	claims := jwt.MapClaims{
-		"sub": strconv.Itoa(userID),
-		"iat": time.Now().Unix(),
-		"exp": time.Now().Add(jwtExpSeconds * time.Second).Unix(),
+		auth.JWTPwdClaim: pwd,
+		"sub":            strconv.Itoa(userID),
+		"iat":            time.Now().Unix(),
+		"exp":            time.Now().Add(jwtExpSeconds * time.Second).Unix(),
 	}
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(a.SecretKey)
 }

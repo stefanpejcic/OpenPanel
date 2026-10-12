@@ -13,7 +13,8 @@ import (
 type FlashDisplay struct {
 	Index  int
 	ZClass string
-	Text   template.HTML
+	// plain text, flashes often carry user input (file names, usernames, command output) so the template escapes them
+	Text string
 }
 
 var flashZClasses = []string{"z-10", "z-20", "z-30", "z-40", "z-50"}
@@ -28,7 +29,7 @@ func BuildFlashDisplay(messages []flash.Message) []FlashDisplay {
 			zClass = flashZClasses[i]
 		}
 		cleaned := strings.Replace(src.Text, "<br>", "", 1)
-		result[i] = FlashDisplay{Index: i + 1, ZClass: zClass, Text: template.HTML(cleaned)} //nolint:gosec // flash text is server-generated, not raw user input
+		result[i] = FlashDisplay{Index: i + 1, ZClass: zClass, Text: cleaned}
 	}
 	return result
 }

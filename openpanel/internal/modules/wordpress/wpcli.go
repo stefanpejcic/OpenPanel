@@ -522,12 +522,12 @@ func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 		return
 	}
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		_ = os.Chown(muPluginDir, uid, uid)
+		_ = os.Lchown(muPluginDir, uid, uid)
 		if writeErr := os.WriteFile(muFilePath, []byte(openpanelMuPluginPHP), 0o644); writeErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed deploying login handler", "details": writeErr.Error()})
 			return
 		}
-		_ = os.Chown(muFilePath, uid, uid)
+		_ = os.Lchown(muFilePath, uid, uid)
 	} else if writeErr := os.WriteFile(muFilePath, []byte(openpanelMuPluginPHP), 0o644); writeErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed deploying login handler", "details": writeErr.Error()})
 		return

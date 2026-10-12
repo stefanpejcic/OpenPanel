@@ -11,7 +11,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -83,9 +82,9 @@ func handleExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	case strings.HasSuffix(selectedFile, ".zip"):
 		extractErr = runCommand(timeoutCtx, "unzip", "-o", archivePath, "-d", destinationPath)
 	case strings.HasSuffix(selectedFile, ".tar.gz"), strings.HasSuffix(selectedFile, ".tgz"):
-		extractErr = runCommand(timeoutCtx, "tar", "-xzf", archivePath, "-C", destinationPath)
+		extractErr = runCommand(timeoutCtx, "tar", "--no-same-owner", "--no-same-permissions", "-xzf", archivePath, "-C", destinationPath)
 	case strings.HasSuffix(selectedFile, ".tar"):
-		extractErr = runCommand(timeoutCtx, "tar", "-xf", archivePath, "-C", destinationPath)
+		extractErr = runCommand(timeoutCtx, "tar", "--no-same-owner", "--no-same-permissions", "-xf", archivePath, "-C", destinationPath)
 	case strings.HasSuffix(selectedFile, ".gz"):
 		extractErr = extractSingleGzip(archivePath, selectedFile, destinationPath)
 	default:
@@ -107,41 +106,67 @@ func handleExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	web.FlashRedirect(a, w, r, "success", "File extracted successfully", filesRedirectPath(pathParam))
 }
 
-// isSafeMember reports whether an extracted member resolves to somewhere inside destinationPath - a zip-slip / tar-slip guard
+// isSafeMember reports whether an extracted member resolves to somewhere inside destinationPath and doesn't pass through a symlink that's already there
 func isSafeMember(destinationPath, memberName string) bool {
 	target := filepath.Join(destinationPath, memberName)
 	rel, err := filepath.Rel(destinationPath, target)
-	if err != nil {
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
 		return false
 	}
-	return rel == "." || (rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)))
+	current := destinationPath
+	for _, part := range strings.Split(rel, string(filepath.Separator)) {
+		if part == "" || part == "." {
+			continue
+		}
+		current = filepath.Join(current, part)
+		if fi, err := os.Lstat(current); err == nil && fi.Mode()&os.ModeSymlink != 0 {
+			return false
+		}
+	}
+	return true
 }
 
-// validateArchiveMembers pre-checks every entry in the archive before shelling out to unzip/tar, so a malicious archive can't write outside destinationPath
+// isSafeLink reports whether a symlink member's target stays inside destinationPath
+func isSafeLink(destinationPath, memberName, linkTarget string) bool {
+	if linkTarget == "" || filepath.IsAbs(linkTarget) {
+		return false
+	}
+	resolved := filepath.Join(destinationPath, filepath.Dir(memberName), linkTarget)
+	rel, err := filepath.Rel(destinationPath, resolved)
+	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
+}
+
+// validateArchiveMembers pre-checks every entry (paths and link targets) before shelling out to unzip/tar, and fails closed if the archive can't be read
 func validateArchiveMembers(archivePath, selectedFile, destinationPath string) error {
 	switch {
 	case strings.HasSuffix(selectedFile, ".zip"):
 		zr, err := zip.OpenReader(archivePath)
 		if err != nil {
-			return nil //nolint:nilerr // only member-path safety is validated here, not archive integrity (the extract step below reports real failures)
+			return fmt.Errorf("Could not read archive: %v", err)
 		}
 		defer zr.Close()
 		for _, f := range zr.File {
 			if !isSafeMember(destinationPath, f.Name) {
 				return fmt.Errorf("Unsafe file path in archive: %s", f.Name)
 			}
+			if f.Mode()&os.ModeSymlink != 0 {
+				target, err := readZipLink(f)
+				if err != nil || !isSafeLink(destinationPath, f.Name, target) {
+					return fmt.Errorf("Unsafe symlink in archive: %s", f.Name)
+				}
+			}
 		}
 	case strings.HasSuffix(selectedFile, ".tar.gz"), strings.HasSuffix(selectedFile, ".tgz"), strings.HasSuffix(selectedFile, ".tar"):
 		f, err := os.Open(archivePath)
 		if err != nil {
-			return nil //nolint:nilerr
+			return fmt.Errorf("Could not read archive: %v", err)
 		}
 		defer f.Close()
 		var reader io.Reader = f
 		if strings.HasSuffix(selectedFile, ".tar.gz") || strings.HasSuffix(selectedFile, ".tgz") {
 			gz, gzErr := gzip.NewReader(f)
 			if gzErr != nil {
-				return nil //nolint:nilerr
+				return fmt.Errorf("Could not read archive: %v", gzErr)
 			}
 			defer gz.Close()
 			reader = gz
@@ -153,10 +178,22 @@ func validateArchiveMembers(archivePath, selectedFile, destinationPath string) e
 				break
 			}
 			if err != nil {
-				return nil //nolint:nilerr
+				return fmt.Errorf("Could not read archive: %v", err)
 			}
 			if !isSafeMember(destinationPath, hdr.Name) {
 				return fmt.Errorf("Unsafe file path in archive: %s", hdr.Name)
+			}
+			switch hdr.Typeflag {
+			case tar.TypeSymlink:
+				if !isSafeLink(destinationPath, hdr.Name, hdr.Linkname) {
+					return fmt.Errorf("Unsafe symlink in archive: %s", hdr.Name)
+				}
+			case tar.TypeLink:
+				if !isSafeMember(destinationPath, hdr.Linkname) {
+					return fmt.Errorf("Unsafe hard link in archive: %s", hdr.Name)
+				}
+			case tar.TypeChar, tar.TypeBlock, tar.TypeFifo:
+				return fmt.Errorf("Device files are not allowed in archive: %s", hdr.Name)
 			}
 		}
 	case strings.HasSuffix(selectedFile, ".gz"):
@@ -166,6 +203,17 @@ func validateArchiveMembers(archivePath, selectedFile, destinationPath string) e
 		}
 	}
 	return nil
+}
+
+// readZipLink returns a zip symlink entry's target, which is stored as the entry's content
+func readZipLink(f *zip.File) (string, error) {
+	rc, err := f.Open()
+	if err != nil {
+		return "", err
+	}
+	defer rc.Close()
+	b, err := io.ReadAll(io.LimitReader(rc, 4096))
+	return string(b), err
 }
 
 func extractSingleGzip(archivePath, selectedFile, destinationPath string) error {
@@ -193,17 +241,35 @@ func extractSingleGzip(archivePath, selectedFile, destinationPath string) error 
 	return err
 }
 
-var shellArgQuoteRE = regexp.MustCompile(`[^\w@%+=:,./-]`)
+func supportedArchiveExt(ext string) bool {
+	return ext == "zip" || ext == "tar" || ext == "tar.gz"
+}
 
-// shellQuote is the minimal POSIX-shell single-quoting needed to safely embed an argument in the "sh -c" command string this route builds - compression shells out to zip/tar rather than reimplementing archive creation in Go
-func shellQuote(s string) string {
-	if s == "" {
-		return "''"
+// createArchive runs zip/tar without a shell, the ./ prefix stops a file named like --checkpoint-action from being read as an option and zip -y stores symlinks instead of following them
+func createArchive(ctx context.Context, ext, dir, archivePath string, files []string, maxMinutes int) ([]byte, error) {
+	var name string
+	var args []string
+	switch ext {
+	case "zip":
+		name, args = "zip", []string{"-r", "-y", archivePath}
+	case "tar":
+		name, args = "tar", []string{"-cf", archivePath}
+	case "tar.gz":
+		name, args = "tar", []string{"-czf", archivePath}
+	default:
+		return nil, fmt.Errorf("unsupported archive format %q", ext)
 	}
-	if !shellArgQuoteRE.MatchString(s) {
-		return s
+	for _, f := range files {
+		args = append(args, "./"+f)
 	}
-	return "'" + strings.ReplaceAll(s, "'", `'"'"'`) + "'"
+	if maxMinutes <= 0 {
+		maxMinutes = 5
+	}
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(maxMinutes)*time.Minute)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, name, args...)
+	cmd.Dir = dir
+	return cmd.CombinedOutput()
 }
 
 // handleCompressFiles archives the selected files into a new zip/tar/tar.gz by shelling out to the corresponding command-line tool
@@ -265,28 +331,12 @@ func handleCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		validatedFiles = append(validatedFiles, filepath.Base(filePath))
 	}
 
-	maxTime := a.Config.Get("filemanager_compress_max_time", "5")
-	quotedFiles := make([]string, len(validatedFiles))
-	for i, f := range validatedFiles {
-		quotedFiles[i] = shellQuote(f)
-	}
-	fileList := strings.Join(quotedFiles, " ")
-
-	var archiveCmd string
-	switch ext {
-	case "zip":
-		archiveCmd = fmt.Sprintf("cd %s && timeout %sm zip -r %s %s", shellQuote(parentPath), maxTime, shellQuote(archivePath), fileList)
-	case "tar":
-		archiveCmd = fmt.Sprintf("cd %s && timeout %sm tar -cf %s %s", shellQuote(parentPath), maxTime, shellQuote(archivePath), fileList)
-	case "tar.gz":
-		archiveCmd = fmt.Sprintf("cd %s && timeout %sm tar -czf %s %s", shellQuote(parentPath), maxTime, shellQuote(archivePath), fileList)
-	default:
+	if !supportedArchiveExt(ext) {
 		web.FlashRedirect(a, w, r, "error", "Unsupported archive format.", filesRedirectPath(pathParam))
 		return
 	}
-
-	cmd := exec.CommandContext(ctx, "sh", "-c", archiveCmd)
-	out, cmdErr := cmd.CombinedOutput()
+	maxTime := atoiDefault(a.Config.Get("filemanager_compress_max_time", "5"), 5)
+	out, cmdErr := createArchive(ctx, ext, parentPath, archivePath, validatedFiles, maxTime)
 	if cmdErr != nil {
 		errMsg := strings.TrimSpace(string(out))
 		if errMsg == "" {

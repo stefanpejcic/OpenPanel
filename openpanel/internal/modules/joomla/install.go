@@ -215,7 +215,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	loginFilePath := filepath.Join(hostOSPath, openpanelLoginFileName)
 	if writeErr := os.WriteFile(loginFilePath, []byte(openpanelLoginPHP), 0o644); writeErr == nil {
 		if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-			_ = os.Chown(loginFilePath, uid, uid)
+			_ = os.Lchown(loginFilePath, uid, uid)
 		}
 	}
 

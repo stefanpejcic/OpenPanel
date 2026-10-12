@@ -497,6 +497,9 @@ install_openadmin() {
         [[ -f "$f" ]] || { openssl rand -hex 32 > "$f"; chmod 600 "$f"; }
     done
 
+    # the template ships a fixed mail_security_token, give every server its own
+    sed -i "s|^mail_security_token=.*|mail_security_token=$(openssl rand -hex 16)|" "$CONFIG_FILE"
+
     cp "${ETC_DIR}openadmin/service/openadmin.service" "${SERVICES_DIR}admin.service"
     run systemctl daemon-reload
     run systemctl enable --now admin

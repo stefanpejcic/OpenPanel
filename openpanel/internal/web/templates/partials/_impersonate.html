@@ -14,7 +14,7 @@
             link.addEventListener('click', function(e) {
                 e.preventDefault();
 
-                fetch('/logout')
+                fetch('/logout', { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf_token } })
                     .finally(() => {
                         window.location.href = adminUrl;
                     });
