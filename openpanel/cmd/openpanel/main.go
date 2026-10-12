@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"crypto/sha256"
+	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
@@ -20,6 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/backups"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -34,6 +36,16 @@ const (
 var licenseErrorPage = web.MustLoadPage("system/license_error.html")
 
 func main() {
+	// opencli docker-backup runs this after each user's backup so /backups/list shows it without a manual reindex
+	if len(os.Args) == 3 && os.Args[1] == "backups-reindex" {
+		if err := backups.ReindexUser(os.Args[2]); err != nil {
+			fmt.Fprintln(os.Stderr, "reindex failed:", err)
+			os.Exit(1)
+		}
+		fmt.Println("reindexed backups for", os.Args[2])
+		return
+	}
+
 	a, err := appctx.New()
 	if err != nil {
 		fatalLogger.Fatalf("BOOTSTRAP - failed to initialize app: %v", err)

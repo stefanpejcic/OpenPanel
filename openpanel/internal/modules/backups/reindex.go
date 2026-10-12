@@ -5,6 +5,8 @@ import (
 	"compress/gzip"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -185,6 +187,37 @@ func filterBackupNames(names []string, prefix string) []string {
 }
 
 // doReindex runs in a background goroutine, connects to whichever destination is currently configured, lists the remote backups, classifies each archive (3 at a time), writes jsonFile, and always removes lockFile
+// ReindexUser rebuilds a user's available_backups.json in the foreground, for opencli docker-backup after it uploads a backup
+func ReindexUser(userContext string) error {
+	if !validReindexContext.MatchString(userContext) {
+		return fmt.Errorf("invalid user context %q", userContext)
+	}
+	config, userHome := readBackupEnv(userContext)
+	if _, err := os.Stat(userHome); err != nil {
+		return err
+	}
+	jsonFile := filepath.Join(userHome, "available_backups.json")
+	lockFile := filepath.Join(userHome, "reindex.lock")
+	if _, err := os.Stat(lockFile); err == nil {
+		return errors.New("reindex already in progress")
+	}
+	if err := os.WriteFile(lockFile, []byte("running"), 0o644); err != nil {
+		return err
+	}
+	doReindex(userHome, config, backupNamePrefix(config, userContext), jsonFile, lockFile)
+
+	// doReindex reports failures inside the index file, pass them on so docker-backup can log them
+	var failed struct {
+		Error string `json:"error"`
+	}
+	if content, err := os.ReadFile(jsonFile); err == nil && json.Unmarshal(content, &failed) == nil && failed.Error != "" {
+		return errors.New(failed.Error)
+	}
+	return nil
+}
+
+var validReindexContext = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+
 func doReindex(userHome string, config map[string]string, prefix, jsonFile, lockFile string) {
 	defer os.Remove(lockFile)
 
