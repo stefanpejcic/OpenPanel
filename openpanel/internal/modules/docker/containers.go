@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -160,6 +161,13 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	availableVolumes := GetAvailableVolumes(composeData)
 	availableNetworks := GetAvailableNetworks(composeData)
 	existingServices := serviceNames(composeData)
+	var domainNames []string
+	if domains, err := a.AllDomainsForUser(ctx, userID); err == nil {
+		for _, d := range domains {
+			domainNames = append(domainNames, d.DomainURL)
+		}
+		sort.Strings(domainNames)
+	}
 
 	if r.Method != http.MethodPost {
 		if r.URL.Query().Get("output") == "json" {
@@ -170,9 +178,11 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+		prefill := templateFormValues(r.URL.Query(), availableNetworks)
 		renderContainerFormPage(a, w, r, containerFormView{
 			Volumes: availableVolumes, Networks: availableNetworks,
 			ExistingServices: existingServices, Title: "Add service", Editing: false,
+			FormData: prefill, Domains: domainNames,
 		})
 		return
 	}
@@ -185,10 +195,12 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	pids := strings.TrimSpace(r.Form.Get("pids"))
 	networks := selectedNetworks(r.Form["network"], availableNetworks)
 	healthcheck := strings.TrimSpace(r.Form.Get("healthcheck"))
+	domain := strings.ToLower(strings.TrimSpace(r.Form.Get("domain")))
 
 	formView := containerFormView{
 		Volumes: availableVolumes, Networks: availableNetworks,
 		ExistingServices: existingServices, FormData: r.Form, Title: "Add service", Editing: false,
+		Domains: domainNames,
 	}
 
 	// the page's JS asks for a stream so it can show each step, a plain form post still gets the redirect
@@ -245,11 +257,32 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		fail("PIDs limit must be a positive whole number.")
 		return
 	}
+	if err := checkNewVolumes(availableVolumes, r.Form["volume_name"]); err != nil {
+		fail(err.Error())
+		return
+	}
+	var port int
+	if domain != "" {
+		if port, err = validateContainerDomain(ctx, a, userID, composeData, domain, r.Form.Get("port")); err != nil {
+			fail(err.Error())
+			return
+		}
+		// the webserver reaches the container by name over this network
+		if containsString(availableNetworks, proxyNetwork) && !containsString(networks, proxyNetwork) {
+			networks = append(networks, proxyNetwork)
+		}
+	}
 
 	emit(map[string]any{"step": "save", "status": "Saving container to docker-compose.yml"})
 
 	servicePrefix := ServiceKeyPrefix(serviceName)
-	environmentVars, newEnvVars := ParseEnvVars(strings.Split(r.Form.Get("environment"), "\n"), servicePrefix)
+	// templates write {domain} so the same link works for whichever domain gets picked
+	envDomain := domain
+	if envDomain == "" {
+		envDomain = "localhost"
+	}
+	environment := strings.ReplaceAll(r.Form.Get("environment"), "{domain}", envDomain)
+	environmentVars, newEnvVars := ParseEnvVars(strings.Split(environment, "\n"), servicePrefix)
 
 	cpuKey, ramKey, pidsKey := servicePrefix+"_CPU", servicePrefix+"_RAM", servicePrefix+"_PIDS"
 	newEnvVars[cpuKey] = cpu
@@ -280,6 +313,10 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 		newService["healthcheck"] = hc
 	}
+	if domain != "" {
+		setServiceDomain(newService, domain, port)
+	}
+	declareNewVolumes(composeData, r.Form["volume_name"], serviceName)
 
 	services := servicesRaw(composeData)
 	services[serviceName] = newService
@@ -300,6 +337,21 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		emit(map[string]any{"error": "Container saved, but the image could not be downloaded: " + lastLines(string(out), 5), "saved": true})
 		return
+	}
+
+	if domain != "" {
+		emit(map[string]any{"step": "start", "status": "Starting container " + serviceName})
+		if res := StartOrStopContainer(ctx, userContext, serviceName, "activate", ""); !res.Success {
+			emit(map[string]any{"error": "Container saved, but it failed to start: " + res.Message, "saved": true})
+			return
+		}
+		emit(map[string]any{"step": "proxy", "status": "Pointing " + domain + " to the container"})
+		if err := AttachDomainProxy(ctx, userContext, domain, serviceName, port); err != nil {
+			emit(map[string]any{"error": "Container is running, but " + domain + " could not be pointed to it: " + err.Error(), "saved": true})
+			return
+		}
+		registerContainerSite(ctx, a, userID, domain, serviceName, image, port)
+		_ = logger.RecordUserAction(a.Config, username, "pointed domain "+domain+" to container "+serviceName, reqip.ClientIP(r))
 	}
 	emit(map[string]any{"done": true, "status": fmt.Sprintf("Container %s created successfully!", serviceName)})
 }
@@ -384,6 +436,11 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			renderContainerFormPage(a, w, r, formView)
 			return
 		}
+		if err := checkNewVolumes(availableVolumes, r.Form["volume_name"]); err != nil {
+			formView.Error = err.Error()
+			renderContainerFormPage(a, w, r, formView)
+			return
+		}
 
 		servicePrefix := ServiceKeyPrefix(serviceName)
 		environmentVars, newEnvVars := ParseEnvVars(strings.Split(r.Form.Get("environment"), "\n"), servicePrefix)
@@ -419,6 +476,10 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		if len(environmentVars) > 0 {
 			updatedService["environment"] = environmentVars
 		}
+		// keep the domain labels or delete won't know to remove the proxy
+		if labels, ok := svc["labels"]; ok {
+			updatedService["labels"] = labels
+		}
 		if healthcheck != "" {
 			hc, err := parseYAMLString(healthcheck)
 			if err != nil {
@@ -429,6 +490,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			updatedService["healthcheck"] = hc
 		}
 
+		declareNewVolumes(composeData, r.Form["volume_name"], service)
 		services[service] = updatedService
 		composeData["services"] = services
 		_ = SaveCompose(userContext, composeData)
@@ -504,13 +566,18 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		healthcheck = strings.TrimSpace(dumpYAML(hc))
 	}
 
+	domain, port := serviceDomain(svc)
+	portStr := ""
+	if port > 0 {
+		portStr = strconv.Itoa(port)
+	}
 	renderContainerFormPage(a, w, r, containerFormView{
 		Volumes: availableVolumes, Networks: availableNetworks,
 		ExistingServices: existingServices, Title: title, Editing: true,
 		PrefilledForm: &prefilledContainerForm{
 			ServiceName: service, Image: toStr(svc["image"]), Environment: strings.Join(envLines, "\n"),
 			CPU: cpu, RAM: ram, PIDs: pids, Volumes: volumeEntries, AddSocket: addSocket,
-			Networks: networks, Healthcheck: healthcheck,
+			Networks: networks, Healthcheck: healthcheck, Domain: domain, Port: portStr,
 		},
 	})
 }
@@ -543,7 +610,7 @@ func handleDeleteContainer(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	if r.Method == http.MethodPost {
-		removeService(ctx, userContext, composeData, service, svcRaw)
+		_ = removeService(ctx, a, userID, userContext, composeData, service, svcRaw)
 		_ = logger.RecordUserAction(a.Config, username, "deleted container "+service, reqip.ClientIP(r))
 		http.Redirect(w, r, "/containers/new", http.StatusFound)
 		return
@@ -553,7 +620,7 @@ func handleDeleteContainer(a *appctx.App, w http.ResponseWriter, r *http.Request
 }
 
 // removeService stops a service, drops its image and .env keys, and removes it from the compose file
-func removeService(ctx context.Context, userContext string, composeData map[string]any, service string, svcRaw any) error {
+func removeService(ctx context.Context, a *appctx.App, userID int, userContext string, composeData map[string]any, service string, svcRaw any) error {
 	svc, _ := svcRaw.(map[string]any)
 	containerName := service
 	if cn, ok := svc["container_name"].(string); ok && cn != "" {
@@ -561,6 +628,11 @@ func removeService(ctx context.Context, userContext string, composeData map[stri
 	}
 	imageName, _ := svc["image"].(string)
 
+	// any domain could proxy to it, not just the one we set, so check every vhost
+	if RemoveServiceProxies != nil {
+		RemoveServiceProxies(ctx, userContext, service, containerName)
+	}
+	unregisterContainerSite(ctx, a, userID, service)
 	StartOrStopContainer(ctx, userContext, containerName, "deactivate", "")
 	if imageName != "" {
 		removeImage(ctx, userContext, imageName)

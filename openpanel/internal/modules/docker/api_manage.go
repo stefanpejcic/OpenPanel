@@ -126,6 +126,11 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	newEnvVars[ramKey] = ram
 	UpdateEnvFileWithVars(userContext, newEnvVars)
 
+	if volErr := checkNewVolumes(GetAvailableVolumes(composeData), volNames); volErr != nil {
+		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
+		return
+	}
+	declareNewVolumes(composeData, volNames, serviceName)
 	mappedVolumes := ParseVolumeEntries(volNames, volMounts, volReadonly, body.AddSocket)
 
 	newService := map[string]any{
@@ -220,6 +225,11 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	_ = SaveEnvFile(userContext, currentEnv)
 
+	if volErr := checkNewVolumes(GetAvailableVolumes(composeData), volNames); volErr != nil {
+		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
+		return
+	}
+	declareNewVolumes(composeData, volNames, serviceName)
 	mappedVolumes := ParseVolumeEntries(volNames, volMounts, volReadonly, body.AddSocket)
 
 	updatedService := map[string]any{
@@ -276,7 +286,8 @@ func apiContainerDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = removeService(ctx, userContext, composeData, service, svcRaw)
+	userID, _ := auth.UserID(r)
+	_ = removeService(ctx, a, userID, userContext, composeData, service, svcRaw)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "deleted container "+service, reqip.ClientIP(r))
 	writeAPIDockerJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("Service '%s' deleted successfully.", service)})

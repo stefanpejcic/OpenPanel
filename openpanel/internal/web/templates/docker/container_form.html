@@ -22,6 +22,8 @@
         networks: {{toJSON .Networks}},
         volumes: {{toJSON .VolumeEntries}},
         healthcheck: {{toJSON .Healthcheck}},
+        domain: {{toJSON .Domain}},
+        port: {{toJSON .Port}},
         existing: {{if .ExistingServicesJSON}}{{.ExistingServicesJSON}}{{else}}[]{{end}},
         availableVolumes: {{toJSON .AvailableVolumes}}
     })">
@@ -161,16 +163,22 @@
                     <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Storage"}}</span>
                     <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
                 </div>
-                <button type="button" @click="addVolume()" class="{{$ghost}}" :disabled="!availableVolumes.length"><i class="bi bi-plus-lg"></i> {{.T.Get "Add volume"}}</button>
+                <button type="button" @click="addVolume()" class="{{$ghost}}"><i class="bi bi-plus-lg"></i> {{.T.Get "Add volume"}}</button>
             </div>
 
             <template x-for="(v, i) in volumes" :key="v.id">
                 <div class="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <select name="volume_name" x-model="v.Name" required class="{{$sel}} sm:w-64">
+                    <select x-show="!v.isNew" :name="v.isNew ? '' : 'volume_name'" x-model="v.Name" @change="if (v.Name === '__new__') { v.isNew = true; v.Name = ''; $nextTick(() => $el.nextElementSibling.querySelector('input').focus()); }" class="{{$sel}} sm:w-64">
                         <template x-for="name in availableVolumes" :key="name">
                             <option :value="name" :selected="name === v.Name" x-text="name"></option>
                         </template>
+                        <option value="__new__">{{.T.Get "+ New volume"}}</option>
                     </select>
+                    <div x-show="v.isNew" x-cloak class="flex shrink-0 items-center gap-1 sm:w-64">
+                        <input type="text" :name="v.isNew ? 'volume_name' : ''" x-model.trim="v.Name" :required="v.isNew" :pattern="v.isNew ? '[a-z][a-z0-9_]{2,63}' : null" placeholder="app_data" spellcheck="false" autocomplete="off"
+                               title="{{.T.Get "3 to 64 lowercase letters, digits or _, starting with a letter"}}" class="{{$in}} font-mono">
+                        <button type="button" x-show="availableVolumes.length" @click="v.isNew = false; v.Name = availableVolumes[0]" class="shrink-0 rounded p-1.5 text-gray-400 hover:text-gray-700" title="{{.T.Get "Use an existing volume"}}"><i class="bi bi-list-ul"></i></button>
+                    </div>
                     <input type="text" name="volume_mount" x-model.trim="v.Mount" required placeholder="/data" spellcheck="false" class="{{$in}} font-mono">
                     <input type="hidden" name="volume_readonly" :value="v.ReadOnly ? 'on' : 'off'">
                     <label class="flex shrink-0 cursor-pointer items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300">
@@ -179,10 +187,8 @@
                     <button type="button" @click="volumes.splice(i, 1)" class="shrink-0 rounded p-1.5 text-gray-400 hover:text-gray-700" title="{{.T.Get "Remove"}}"><i class="bi bi-trash3"></i></button>
                 </div>
             </template>
-            <p x-show="!volumes.length" class="text-sm text-gray-500 dark:text-gray-400">
-                <span x-show="availableVolumes.length">{{.T.Get "No volumes, data written by the container is lost when it's recreated."}}</span>
-                <span x-show="!availableVolumes.length">{{.T.Get "No volumes are defined for your account."}}</span>
-            </p>
+            <p x-show="!volumes.length" class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No volumes, data written by the container is lost when it's recreated."}}</p>
+            <p x-show="volumes.some(v => v.isNew)" x-cloak class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "New volumes are created when you save, and keep their data if the container is deleted."}}</p>
 
             <label class="mt-3 flex cursor-pointer items-start gap-3 rounded border border-gray-200 dark:border-gray-700 p-3 text-sm">
                 <input type="checkbox" name="add_socket" class="mt-0.5" {{if .AddSocket}}checked{{end}}>
@@ -221,14 +227,53 @@
                 <textarea x-model="bulkText" rows="6" spellcheck="false" placeholder="REDIS_PASSWORD: secret&#10;TZ: Europe/Belgrade" class="{{$in}} font-mono"></textarea>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "One variable per line, as KEY: value or KEY=value."}}</p>
             </div>
+            <div x-show="!editing && envText().includes('{domain}')" x-cloak>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "{domain} is replaced with the domain chosen below, or localhost if none."}}</p>
+            </div>
             <textarea name="environment" class="hidden" :value="envText()"></textarea>
         </div>
 
-        <!-- 6: health check -->
+        <!-- 6: domain -->
+        <div class="{{$card}}">
+            <div class="flex items-center gap-2.5 mb-3">
+                <div class="{{$step}}">6</div>
+                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domain"}}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
+            </div>
+            {{if .Editing}}
+            {{if .Domain}}
+            <p class="text-sm text-gray-900 dark:text-gray-50">
+                <a href="https://{{.Domain}}" target="_blank" rel="noopener" class="font-mono text-blue-600 hover:underline dark:text-blue-500">{{.Domain}}</a>
+                <span class="text-gray-500 dark:text-gray-400">&rarr; {{.ServiceName}}:{{.Port}}</span>
+            </p>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Deleting the container removes the proxy from the domain."}}</p>
+            {{else}}
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "This container is not reachable from a domain. A domain can only be set when the container is created."}}</p>
+            {{end}}
+            {{else}}
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="sm:col-span-2">
+                    <label class="{{$label}}" for="domain"><span>{{.T.Get "Domain"}}</span></label>
+                    <select id="domain" name="domain" x-model="domain" class="{{$sel}}">
+                        <option value="">{{.T.Get "None, only reachable by other containers"}}</option>
+                        {{range .Domains}}<option value="{{.}}">{{.}}</option>{{end}}
+                    </select>
+                </div>
+                <div x-show="domain" x-cloak>
+                    <label class="{{$label}}" for="port"><span>{{.T.Get "Container port"}}<span class="text-red-500">*</span></span></label>
+                    <input type="number" id="port" name="port" x-model="port" min="1" max="65535" step="1" placeholder="80" :required="!!domain" class="{{$in}}">
+                </div>
+            </div>
+            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400" x-show="!domain">{{.T.Get "Pick a domain to make the app reachable from outside, the web server will proxy it to this container."}}</p>
+            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400" x-show="domain" x-cloak>{{.T.Get "All requests to this domain go to the container on the port the app listens on, any website files on the domain stop being served. The container joins the www network."}}</p>
+            {{end}}
+        </div>
+
+        <!-- 7: health check -->
         <div class="{{$card}}" x-data="{ openHc: {{if .Healthcheck}}true{{else}}false{{end}} }">
             <button type="button" @click="openHc = !openHc" class="flex w-full items-center justify-between gap-2">
                 <span class="flex items-center gap-2.5">
-                    <span class="{{$step}}">6</span>
+                    <span class="{{$step}}">7</span>
                     <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Health check"}}</span>
                     <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
                 </span>
@@ -295,13 +340,15 @@ function containerForm(init) {
         ramAmount: String(ramGB),
         pids: init.pids || '500',
         networks: init.networks || [],
-        volumes: (init.volumes || []).map(v => ({ id: nextId++, Name: v.Name, Mount: v.Mount, ReadOnly: v.ReadOnly })),
+        volumes: (init.volumes || []).map(v => ({ id: nextId++, Name: v.Name, Mount: v.Mount, ReadOnly: v.ReadOnly, isNew: !!v.Name && !(init.availableVolumes || []).includes(v.Name) && !v.Name.includes('/') })),
         availableVolumes: init.availableVolumes || [],
         existing: init.existing || [],
         envRows: parseEnv(init.env),
         bulk: false,
         bulkText: '',
         healthcheck: init.healthcheck || '',
+        domain: init.domain || '',
+        port: init.port || '',
         get nextId() { return nextId; },
         set nextId(v) { nextId = v; },
         presets: [
@@ -332,7 +379,8 @@ function containerForm(init) {
         },
 
         addVolume() {
-            this.volumes.push({ id: nextId++, Name: this.availableVolumes[0] || '', Mount: '', ReadOnly: false });
+            const isNew = !this.availableVolumes.length;
+            this.volumes.push({ id: nextId++, Name: isNew ? '' : this.availableVolumes[0], Mount: '', ReadOnly: false, isNew });
         },
 
         toggleBulk() {
@@ -357,15 +405,19 @@ function containerForm(init) {
         },
 
         canSubmit() {
+            if (!this.editing && this.domain && !(this.port >= 1 && this.port <= 65535)) return false;
             return this.image && this.name && !this.nameError && this.networks.length > 0;
         },
         phase: 'form',
         saved: false,
         errorText: '',
-        steps: [
+        steps: [],
+        allSteps: [
             { id: 'validate', label: {{toJSON (.T.Get "Validating container details")}}, state: 'pending' },
             { id: 'save', label: {{toJSON (.T.Get "Saving container to docker-compose.yml")}}, state: 'pending' },
             { id: 'pull', label: {{toJSON (.T.Get "Downloading image")}}, state: 'pending' },
+            { id: 'start', label: {{toJSON (.T.Get "Starting container")}}, state: 'pending', domainOnly: true },
+            { id: 'proxy', label: {{toJSON (.T.Get "Pointing the domain to the container")}}, state: 'pending', domainOnly: true },
             { id: 'done', label: {{toJSON (.T.Get "Container created")}}, state: 'pending' },
         ],
         progress() {
@@ -383,6 +435,7 @@ function containerForm(init) {
             event.preventDefault();
             const data = new FormData(event.target);
             data.set('stream', '1');
+            this.steps = this.allSteps.filter(s => !s.domainOnly || this.domain);
             this.steps.forEach(s => s.state = 'pending');
             this.errorText = '';
             this.saved = false;

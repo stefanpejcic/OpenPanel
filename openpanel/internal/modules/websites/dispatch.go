@@ -131,6 +131,15 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.NotFound(w, r)
 		return
 	}
+	// a domain proxied to a custom container is managed on the containers page
+	if strings.EqualFold(container.Type, "docker") {
+		target := "/containers/edit/"
+		if r.URL.Query().Get("tab") == "remove" {
+			target = "/containers/delete/"
+		}
+		http.Redirect(w, r, target+url.PathEscape(strings.ToLower(container.Container)), http.StatusFound)
+		return
+	}
 
 	domainNameUsed, idnaErr := idna.ToASCII(domain)
 	if idnaErr != nil {

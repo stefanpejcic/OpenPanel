@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/dockertemplates"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -20,6 +21,8 @@ type AutoinstallerPageData struct {
 	UpsellAllowed  map[string]bool
 	UpsellPlanName string
 	UpsellURL      string
+
+	DockerTemplates []dockertemplates.Template
 }
 
 func renderAutoinstallerPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain, counts map[string]int, upsell upsellData) {
@@ -31,6 +34,10 @@ func renderAutoinstallerPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	data := AutoinstallerPageData{
 		LayoutData: layout, Domains: domains, Counts: counts,
 		UpsellAllowed: upsell.Allowed, UpsellPlanName: upsell.PlanName, UpsellURL: upsell.URL,
+	}
+	// only fetched for users who can actually run containers
+	if layout.UserAllowed["docker"] {
+		data.DockerTemplates = dockertemplates.Load(r.Context(), a)
 	}
 	if err := autoinstallerPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("AUTOINSTALLER - template render error: %v", err)

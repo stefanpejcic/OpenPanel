@@ -244,7 +244,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		}
 	} else {
 		var rootAppType string
-		if scanErr := a.DB.QueryRowContext(ctx, "SELECT type FROM sites WHERE site_name = ? AND type IN ('NodeJS','Python','Ruby','Java','n8n')", topDomain).Scan(&rootAppType); scanErr == nil {
+		if scanErr := a.DB.QueryRowContext(ctx, "SELECT type FROM sites WHERE site_name = ? AND type IN ('NodeJS','Python','Ruby','Java','n8n','Docker')", topDomain).Scan(&rootAppType); scanErr == nil {
 			emit(map[string]any{"error": "This domain already has a " + rootAppType + " application installed at its root. That root app's reverse proxy catches every request on the domain, so a new site in a subdirectory would never actually be reachable - remove the root application first, or choose a different domain."})
 			return
 		}

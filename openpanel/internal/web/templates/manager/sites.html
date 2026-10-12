@@ -237,6 +237,7 @@
                             {{else if contains $group.Type "ruby"}}{{$.T.Get "Ruby Applications"}}
                             {{else if contains $group.Type "java"}}{{$.T.Get "Java Applications"}}
                             {{else if contains $group.Type "n8n"}}n8n
+                            {{else if eq $group.Type "docker"}}{{$.T.Get "Docker Containers"}}
                             {{else if contains $group.Type "mautic"}}Mautic
                             {{else if contains $group.Type "fossbilling"}}FOSSBilling
                             {{else if eq $group.Type "php"}}{{$.T.Get "PHP Applications"}}
@@ -370,6 +371,10 @@ c6.183-2.355,12.954,0.883,15.31,7.066c7.066,19.138,10.6,39.453,10.6,60.063C653.7
 <a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="5" r="2" /><circle cx="5" cy="19" r="2" /><circle cx="19" cy="19" r="2" /><path d="M12 7v3.5a3.5 3.5 0 0 1 -3.5 3.5h-1.5M12 10.5a3.5 3.5 0 0 0 3.5 3.5h1.5" /><path d="M5 17v-1.5M19 17v-1.5" /></svg>
 </a>
+                            {{else if eq $typeLower "docker"}}
+<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Edit container"}}">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mx-auto"><path d="M22.033 9.98c-.607-.428-2.006-.588-3.094-.385a4.336 4.336 0 0 0-.617-1.71l-.293-.44-.44.294a2.836 2.836 0 0 0-1.187 1.885c-.106.578-.02 1.203.24 1.71-.294.16-.755.294-1.43.294H1.24l-.053.32c-.16 1.05-.16 4.316 1.897 6.815 1.55 1.884 3.874 2.844 6.92 2.844 6.573 0 11.437-3.026 13.735-8.526 1.056.026 3.286 0 4.395-2.15l.16-.32-.293-.16c-1.216-.658-2.79-.712-3.694-.63l-.213.02M4.128 9.928h2.24v2.24h-2.24zm2.844 0h2.24v2.24h-2.24zm2.844 0h2.24v2.24H9.816zm2.845 0h2.24v2.24h-2.24zM6.972 7.084h2.24v2.24h-2.24zm2.844 0h2.24v2.24H9.816zm2.845 0h2.24v2.24h-2.24zm0-2.844h2.24v2.24h-2.24zM6.972 12.772h2.24v2.24h-2.24z"/></svg>
+</a>
                             {{else if eq $typeLower "websitebuilder"}}
 <a href="/website-builder/edit?domain={{$site.SiteName}}" title="{{$.T.Get "Open Website Builder"}}" target="_blank">
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-brush-fill" viewBox="0 0 16 16">
@@ -412,9 +417,10 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
                             {{$hasBackupOnly := or (eq $typeLower "tinyphotogallery") (eq $typeLower "tinyfilemanager")}}
                             {{$hasAutologin := or (eq $typeLower "wordpress") (eq $typeLower "joomla") (eq $typeLower "opencart") (eq $typeLower "nextcloud") (eq $typeLower "prestashop") (eq $typeLower "drupal") (eq $typeLower "matomo") (eq $typeLower "mediawiki") (eq $typeLower "ojs")}}
                             {{$isN8N := eq $typeLower "n8n"}}
+                            {{$isDocker := eq $typeLower "docker"}}
                             {{$hasClone := or $isCMS $isPM2}}
                             {{$hasBackup := or $isCMS $isPM2 $hasBackupOnly}}
-                            {{$hasDelete := or $isCMS $isPM2 $hasBackupOnly $isN8N}}
+                            {{$hasDelete := or $isCMS $isPM2 $hasBackupOnly $isN8N $isDocker}}
                             <div class="flex items-center justify-end gap-1.5">
                                 {{if $hasAutologin}}
                                 <button type="button" class="autologin-btn inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white"

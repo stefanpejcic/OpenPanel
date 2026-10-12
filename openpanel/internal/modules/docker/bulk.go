@@ -134,7 +134,7 @@ func handleContainersBulk(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			if !canDeleteService(service) {
 				return web.BulkResult{Message: "Built-in containers can't be deleted."}
 			}
-			if err := removeService(ctx, userContext, composeData, service, svcRaw); err != nil {
+			if err := removeService(ctx, a, userID, userContext, composeData, service, svcRaw); err != nil {
 				return web.BulkResult{Message: "Failed to update docker-compose.yml."}
 			}
 			return web.BulkResult{OK: true, Message: "Deleted."}

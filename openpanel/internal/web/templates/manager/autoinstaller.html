@@ -860,6 +860,41 @@
         </div>
         </dl>
     </div>
+    {{if .DockerTemplates}}
+    <div class="mb-6 mt-8" x-show="sectionMatch($el)">
+        <div class="mb-4 w-full border-b border-gray-200 dark:border-gray-800"></div>
+        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">{{.T.Get "Docker Applications"}}</h2>
+        <dl class="grid gap-4 md:gap-4 lg:grid-cols-3">
+        {{range .DockerTemplates}}
+        <div class="group relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 flex flex-col justify-between overflow-hidden !p-0" data-app x-show="match($el)">
+            <div class="p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="relative flex size-12 shrink-0 items-center justify-center rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#090E1A]">
+                            {{if .Logo}}<img src="{{.Logo}}" alt="" width="32" height="32" loading="lazy" referrerpolicy="no-referrer">{{else}}<i class="bi bi-box-seam text-gray-500" style="font-size:1.5rem"></i>{{end}}
+                        </span>
+                        <dt class="text-gray-900 dark:text-gray-50 text-sm font-medium">
+                            <a href="{{.InstallURL}}">{{.Name}}</a>
+                            {{if .Category}}<span class="ml-1 rounded bg-gray-100 px-1.5 py-0.5 text-xs font-normal text-gray-600 dark:bg-gray-800 dark:text-gray-400">{{.Category}}</span>{{end}}
+                        </dt>
+                    </div>
+                </div>
+                <dd class="text-gray-600 dark:text-gray-400 mt-3 text-sm/6">{{.Description}}</dd>
+            </div>
+            <div class="border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-900 dark:bg-[#090E1A]">
+                <div class="flex items-center justify-between gap-2 text-sm text-gray-500 dark:text-gray-500">
+                    <span class="truncate font-mono text-xs">{{.Image}}</span>
+                    {{if .Docs}}<a href="{{.Docs}}" target="_blank" rel="noopener" class="shrink-0 hover:underline">{{$.T.Get "Docs"}}</a>{{end}}
+                </div>
+            </div>
+            <div class="border-t border-gray-200 px-6 py-3 dark:border-gray-900">
+                <a href="{{.InstallURL}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{$.T.Get "Install"}} {{.Name}}</a>
+            </div>
+        </div>
+        {{end}}
+        </dl>
+    </div>
+    {{end}}
 </div>
 </section>
 

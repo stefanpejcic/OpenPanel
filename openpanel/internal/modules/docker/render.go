@@ -221,6 +221,8 @@ type prefilledContainerForm struct {
 	AddSocket   bool
 	Networks    []string
 	Healthcheck string
+	Domain      string
+	Port        string
 }
 
 // containerFormView is what the add/edit container handlers pass to renderContainerFormPage: either a fresh form (GET add, neither FormData nor PrefilledForm set), a failed-validation redisplay (FormData set to the submitted values), or a GET-edit prefill (PrefilledForm set)
@@ -233,6 +235,7 @@ type containerFormView struct {
 	Error            string
 	FormData         url.Values
 	PrefilledForm    *prefilledContainerForm
+	Domains          []string
 }
 
 // ContainerFormPageData is container_form.html's template context.
@@ -255,6 +258,9 @@ type ContainerFormPageData struct {
 	Healthcheck          string
 	AddSocket            bool
 	VolumeEntries        []VolumeEntry
+	Domains              []string
+	Domain               string
+	Port                 string
 }
 
 func toJSONStrings(v []string) template.JS {
@@ -285,6 +291,7 @@ func renderContainerFormPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		AvailableNetworks:    v.Networks,
 		ExistingServicesJSON: toJSONStrings(v.ExistingServices),
 		ServiceNameReadonly:  v.Editing,
+		Domains:              v.Domains,
 	}
 
 	switch {
@@ -300,6 +307,8 @@ func renderContainerFormPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		data.Healthcheck = p.Healthcheck
 		data.AddSocket = p.AddSocket
 		data.VolumeEntries = p.Volumes
+		data.Domain = p.Domain
+		data.Port = p.Port
 	case v.FormData != nil:
 		data.ServiceName = v.FormData.Get("service_name")
 		data.Image = v.FormData.Get("image")
@@ -310,6 +319,8 @@ func renderContainerFormPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		data.Networks = v.FormData["network"]
 		data.Healthcheck = v.FormData.Get("healthcheck")
 		data.AddSocket = v.FormData.Get("add_socket") != ""
+		data.Domain = v.FormData.Get("domain")
+		data.Port = v.FormData.Get("port")
 		names, mounts, ro := v.FormData["volume_name"], v.FormData["volume_mount"], v.FormData["volume_readonly"]
 		for i := range names {
 			e := VolumeEntry{Name: names[i]}

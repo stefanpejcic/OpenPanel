@@ -102,6 +102,12 @@ func dispatchBulkItem(a *appctx.App, mux *http.ServeMux, r *http.Request, action
 		switch {
 		case isPM2Type(typeLower):
 			return internalDispatch(mux, r, item.SiteName, "POST", "/pm2/delete/"+item.SiteName, nil, nil)
+		case typeLower == "docker":
+			c, found := getContainerFromDatabase(a, r, item.SiteName)
+			if !found || c.Container == "" {
+				return bulkResult{SiteName: item.SiteName, OK: false, Message: "Container for this site was not found."}
+			}
+			return internalDispatch(mux, r, item.SiteName, "POST", "/containers/delete/"+url.PathEscape(strings.ToLower(c.Container)), nil, nil)
 		case typeLower == "websitebuilder":
 			return internalDispatch(mux, r, item.SiteName, "POST", "/website-builder/remove", url.Values{"id": {strconv.Itoa(item.ID)}}, nil)
 		case cmsRemoveTypes[typeLower]:
