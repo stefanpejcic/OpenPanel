@@ -1250,7 +1250,7 @@ Owner of 'example.com': stefan | docroot: /var/www/html/example.com
 
 ## Cloudflare
 
-Restrict access to Cloudflare-only IPs for domains or check the current configuration status.
+Restrict access to Cloudflare-only IPs for domains or check the current configuration status. Besides Cloudflare ranges, the OpenPanel API IPs (screenshots, temporary links) and the server's own IPs are also allowed, so requests the server makes to its own sites (wp-cron, loopback) keep working.
 
 To check status for a domain:
 
@@ -1316,6 +1316,11 @@ Retrieved 15 IPv4 Cloudflare ranges:
   ...
 Retrieved 7 IPv6 Cloudflare ranges:
   ...
+Allowing OpenPanel API IPs:
+  185.119.90.100
+Allowing server IPs:
+  192.168.1.8
+  203.0.113.10
 Updated: /etc/openpanel/caddy/templates/cloudflare.only
 Reloading Caddy to apply the setting...
 SUCCESS: Caddy reloaded successfully.
