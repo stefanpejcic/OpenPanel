@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -385,6 +386,7 @@ func handleAutologin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	usernameToLogin := firstNonEmpty(r.Form.Get("username"), r.URL.Query().Get("username"))
 	impersonate := firstNonEmpty(r.Form.Get("impersonate"), r.URL.Query().Get("impersonate"))
 	adminPort := firstNonEmpty(r.Form.Get("admin_port"), r.URL.Query().Get("admin_port"))
+	next := firstNonEmpty(r.Form.Get("next"), r.URL.Query().Get("next"))
 
 	if usernameToLogin == "" || !validAutologinUsername.MatchString(usernameToLogin) {
 		data.ErrorMessage = t.Get("Autologin failed: Invalid username.")
@@ -438,7 +440,19 @@ func handleAutologin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = a.Sessions.Save(r, w, sess)
 	_ = logger.RecordUserAction(a.Config, loginUsername, "logged in via admin API", ip)
 
-	http.Redirect(w, r, "/dashboard", http.StatusFound)
+	if !safeLocalPath(next) {
+		next = "/dashboard"
+	}
+	http.Redirect(w, r, next, http.StatusFound)
+}
+
+// safeLocalPath only lets through same-site paths like /website?domain=x, so next can't redirect off the panel
+func safeLocalPath(p string) bool {
+	if !strings.HasPrefix(p, "/") || strings.HasPrefix(p, "//") || strings.ContainsAny(p, "\\\r\n") {
+		return false
+	}
+	u, err := url.Parse(p)
+	return err == nil && u.Scheme == "" && u.Host == ""
 }
 
 // handleLogout only clears the browser-side session cookie - the server-side Redis record is left to expire on its own TTL instead of being deleted immediately

@@ -46,3 +46,20 @@ func TestValidAutologinUsername(t *testing.T) {
 		}
 	}
 }
+
+func TestSafeLocalPath(t *testing.T) {
+	for p, want := range map[string]bool{
+		"/website?domain=example.com": true,
+		"/dashboard":                  true,
+		"":                            false,
+		"//evil.com":                  false,
+		"/\\evil.com":                 false,
+		"https://evil.com":            false,
+		"website":                     false,
+		"/a\r\nSet-Cookie: x":         false,
+	} {
+		if got := safeLocalPath(p); got != want {
+			t.Errorf("safeLocalPath(%q) = %v, want %v", p, got, want)
+		}
+	}
+}
