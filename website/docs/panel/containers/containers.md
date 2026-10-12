@@ -119,11 +119,14 @@ Click **New Service** on the Containers page to run any Docker image next to you
 
 4. **Storage (optional)**
    - **Add volume** – Pick one of your Docker volumes, enter the path it's mounted at inside the container, and optionally mark it **Read-only**.
+   - **+ New volume** – The last option in the volume list. It switches the row to a name field so you can create a new volume for this container, for example `uptimekuma_data`. Names are 3 to 64 lowercase letters, digits or `_`, starting with a letter. The volume is created when you save, and it keeps its data if the container is deleted later.
    - **Give access to the Docker socket** – Only for tools that manage containers, like Portainer or Watchtower. The container can then control all your other containers. Unchecked by default.
 
-5. **Environment variables (optional)** – Add a key and value per row, or click **Paste as text** to paste them as `KEY: value` lines, one per line.
+5. **Environment variables (optional)** – Add a key and value per row, or click **Paste as text** to paste them as `KEY: value` lines, one per line. `{domain}` in a value is replaced with the domain chosen in the next step (or `localhost` if none), for example `WEBHOOK_URL: https://{domain}/`.
 
-6. **Health check (optional)** – A docker compose `healthcheck` block. Click **Insert example** to get one that fits the image, for example:
+6. **Domain (optional)** – Pick one of your domains to make the app reachable from outside, and enter the **Container port** the app listens on inside the container, for example `3001` for Uptime Kuma. The web server then proxies the whole domain to the container, WebSockets included, so you don't have to edit any web server config yourself. See [Pointing a domain to a container](#pointing-a-domain-to-a-container).
+
+7. **Health check (optional)** – A docker compose `healthcheck` block. Click **Insert example** to get one that fits the image, for example:
     ```yaml
     test: ["CMD", "redis-cli", "ping"]
     interval: 30s
@@ -137,12 +140,14 @@ Click **Create container** and the progress of each step is shown on the page:
 1. **Validating container details** – The name, image, limits and networks are checked.
 2. **Saving container to docker-compose.yml** – The service is added to your `docker-compose.yml` and its limits are saved to `.env`.
 3. **Downloading image** – The image is pulled, so starting the container later is quick.
-4. **Container created** – You're taken back to the Containers page.
+4. **Starting container** – Only when a domain is set.
+5. **Pointing the domain to the container** – Only when a domain is set, the reverse proxy is added to the domain and the web server is restarted.
+6. **Container created** – You're taken back to the Containers page.
 
 If the details are invalid the step turns red with the reason, and **Back to the form** returns you to the form with everything still filled in. If only the image download fails, the container is already saved, and the error from the registry is shown so you can fix the image from its **Edit** page.
 
 :::info
-The new container isn't started automatically. Start it from the Containers page when you're ready.
+Without a domain the new container isn't started automatically. Start it from the Containers page when you're ready. With a domain it's started right away, since the domain needs it running.
 :::
 
 Each service gets an **uppercase prefix** for its environment variable keys, and its CPU, memory and process limits are stored as variables in `.env`. For example, a service named `nginx` gets:
@@ -153,3 +158,41 @@ Each service gets an **uppercase prefix** for its environment variable keys, and
   NGINX_PIDS
   ```
 
+## Pointing a Domain to a Container
+
+When a domain is chosen in the **Domain** step of the form, OpenPanel wires it up for you:
+
+- The container joins the `www` network, so the web server can reach it by its name.
+- A reverse proxy from the domain to `name:port` is added to the domain's Apache, Nginx, OpenResty or OpenLiteSpeed configuration, with WebSocket support, and the web server is restarted.
+- The domain is added to [Site Manager](/docs/panel/applications/sites/) as a **Docker Containers** site. Its **Manage** button opens the container's **Edit** page, and **Delete** deletes the container.
+
+All requests to the domain go to the container, so any website files on that domain are no longer served. A domain can't be used if it already points to another container, has a NodeJS, Python, Ruby, Java or n8n application at its root, or has sites in subfolders.
+
+The **Edit** page of the container shows which domain and port it's reachable on. A domain can only be set when the container is created.
+
+When the container is deleted, from its **Delete** button, [bulk actions](#bulk-actions) or Site Manager, the reverse proxy is removed from **every** domain that points to it, not only the one chosen in the form, so no domain is left proxying to a container that no longer exists. Its Site Manager entry is removed too. Volumes created for the container are kept.
+
+## Templates
+
+The **Add a container** form can be filled in from a link, so an app can be set up in one click. The [Auto Installer](/docs/panel/applications/autoinstaller/#docker-applications) uses this for its **Docker Applications**, and you can make your own links:
+
+```
+/containers/new?image=louislam/uptime-kuma:2&name=uptimekuma&cpu=0.5&ram=0.5&volume=uptimekuma_data:/app/data&port=3001
+```
+
+| Parameter | Fills in | Example |
+|---|---|---|
+| `image` | Docker image | `louislam/uptime-kuma:2` |
+| `name` or `service_name` | Name | `uptimekuma` |
+| `cpu` | CPU cores | `0.5` |
+| `ram` | Memory, a plain number is GB | `1`, `512M` |
+| `pids` | Max processes | `300` |
+| `network` | Networks, repeat it or separate with commas | `www,db` |
+| `volume` | A volume as `name:/path` or `name:/path:ro`, repeat for more. Names that don't exist yet become new volumes | `uptimekuma_data:/app/data` |
+| `env` | An environment variable as `KEY=value`, repeat for more | `TZ=UTC` |
+| `socket` | Ticks **Give access to the Docker socket** | `1` |
+| `healthcheck` | Health check YAML | |
+| `domain` | Domain | `example.com` |
+| `port` | Container port | `3001` |
+
+Remember to URL-encode the values, for example `{domain}` in an `env` value becomes `%7Bdomain%7D`. Everything can still be changed on the form before clicking **Create container**.
