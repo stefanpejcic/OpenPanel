@@ -95,6 +95,12 @@ const bulkShot = (table, keys, alt, { action, value, name = 'bulk', keep } = {})
   crop: { from: `${table} thead`, to: '#bulk-actions-bar' },
 });
 
+// rows opened in prepare() can push the page past the height shoot.mjs set from the first render
+const growToPage = async page => {
+  await page.setViewportSize({ width: page.viewportSize().width, height: await page.evaluate(() => document.documentElement.scrollHeight) });
+  await page.waitForTimeout(300);
+};
+
 // turn off table columns through the page's Alpine controller, so wide tables fit the shot width
 const hideColumns = keys => async page => {
   await page.evaluate(keys => {
@@ -1621,6 +1627,106 @@ export const pages = {
   'applications/wp_install': {
     url: '/wordpress/install',
     shots: [{ name: 'form', alt: 'Install WordPress form with site details, domain and location, and admin credentials', prepare: all(fillVisible(['My Coffee Shop', 'Fresh coffee, every day']), async page => { await page.locator('main input[type=email]').first().fill('owner@example.com').catch(() => {}); }), crop: 'content' }],
+  },
+  // git isn't on the demo yet, shoot these with PANEL_URL set to a test server that has repos
+  'applications/git': {
+    url: '/git',
+    prepare: async page => {
+      // webhook tokens are live credentials
+      await page.evaluate(() => document.querySelectorAll('main *').forEach(el => {
+        for (const n of el.childNodes) if (n.nodeType === 3) n.textContent = n.textContent.replace(/(git-webhook\/[^/\s]+\/)[A-Za-z0-9]+/g, '$1a1b2c3d4e5f6…');
+      }));
+    },
+    shots: [
+      { name: 'list', alt: 'Git page with the repositories table showing each repository, its website, deployment mode, latest commit and last deploy', crop: 'content', viewportWidth: 1800 },
+      {
+        name: 'add',
+        alt: 'Add Repository form with the remote and local source options, repository URL, name, branch, website, deploy directory, deployment mode and deploy actions',
+        prepare: all(click('#add-repository', 600), async page => {
+          await page.evaluate(() => document.querySelector('[x-show="panel === \'create\'"]').setAttribute('data-shot', 'create'));
+          await fill({ '#remote_url': 'https://github.com/example/blog-theme.git' })(page);
+          await page.waitForTimeout(400);
+        }),
+        crop: { from: '[data-shot=create]' },
+      },
+      {
+        name: 'columns',
+        alt: 'Show Columns menu with switches for each column of the repositories table',
+        prepare: async page => {
+          await page.evaluate(() => {
+            const btn = [...document.querySelectorAll('main button')].find(b => b.textContent.trim() === 'Show Columns');
+            btn.click();
+            btn.closest('section').firstElementChild.setAttribute('data-shot', 'toolbar');
+          });
+          await page.waitForTimeout(500);
+          await page.evaluate(() => document.querySelector('[x-show="colsOpen"]').setAttribute('data-shot', 'cols'));
+        },
+        crop: { from: '[data-shot=toolbar]', to: '[data-shot=cols]', pad: 12 },
+      },
+      {
+        name: 'settings',
+        alt: 'Settings row of a local repository with its clone URL, branch, deploy directory, deployment mode, deploy actions and the output of the last deploy',
+        prepare: async page => {
+          await page.evaluate(() => {
+            window.Alpine.$data(document.querySelector('[x-data^="gitRepos"]')).open = 'git-demo-theme';
+            const row = document.getElementById('repo-git-demo-theme');
+            row.setAttribute('data-shot', 'row');
+            row.nextElementSibling.setAttribute('data-shot', 'settings');
+          });
+          await page.waitForTimeout(600);
+          await growToPage(page);
+        },
+        crop: { from: '[data-shot=row]', to: '[data-shot=settings]' },
+        viewportWidth: 1800,
+      },
+      {
+        name: 'remove',
+        alt: 'Remove confirmation under a repository row with Cancel and Remove buttons',
+        prepare: async page => {
+          await page.evaluate(() => {
+            window.Alpine.$data(document.querySelector('[x-data^="gitRepos"]')).removing = 'demo-local-empty';
+            const row = document.getElementById('repo-demo-local-empty');
+            row.setAttribute('data-shot', 'row');
+            row.nextElementSibling.nextElementSibling.setAttribute('data-shot', 'remove');
+          });
+          await page.waitForTimeout(600);
+          await growToPage(page);
+        },
+        crop: { from: '[data-shot=row]', to: '[data-shot=remove]' },
+        viewportWidth: 1800,
+      },
+      (() => {
+        const shot = bulkShot('#git-table', ['demo-remote-auto', 'demo-remote-manual', 'demo-local-manual'], 'Repositories selected with the bulk actions bar showing Pull Updates, Deploy, Change deployment mode and Remove');
+        return { ...shot, prepare: all(shot.prepare, growToPage), viewportWidth: 1800 };
+      })(),
+    ],
+  },
+  'applications/git_log': {
+    as: 'applications/git',
+    url: '/git?log=git-demo-theme',
+    shots: [{ name: 'log', alt: 'Commit log of a repository with each commit, its message, author and date, and the deployed commit marked', crop: 'content' }],
+  },
+  'applications/git_tab': {
+    as: 'applications/git',
+    url: '/website?domain=example.test.rs',
+    shots: [{
+      name: 'tab',
+      alt: 'Git tab in the Site Manager with a theme repository and a remote repository, their deploy buttons, clone URL and webhook URL',
+      prepare: all(tab('Git'), async page => {
+        await page.waitForTimeout(1500);
+        await page.evaluate(() => {
+          const keep = ['git-demo-theme', 'demo-remote-auto'];
+          document.querySelectorAll('#git .space-y-3 > div').forEach(card => {
+            const name = card.querySelector('span.font-medium')?.textContent.trim();
+            if (!keep.includes(name)) card.remove();
+          });
+          document.querySelectorAll('#git *').forEach(el => {
+            for (const n of el.childNodes) if (n.nodeType === 3) n.textContent = n.textContent.replace(/(git-webhook\/[^/\s]+\/)[A-Za-z0-9]+/g, '$1a1b2c3d4e5f6…');
+          });
+        });
+      }, growToPage),
+      crop: { from: 'main', to: '[data-shot=tabs]', fromTop: true, pad: 16 },
+    }],
   },
   'applications/wordpress': {
     url: '/website?domain=wp.tests.openpanel.org',

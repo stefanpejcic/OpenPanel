@@ -396,3 +396,37 @@ func TestParseFormMultipart(t *testing.T) {
 		t.Fatalf("urlencoded fields lost: %v", req.Form)
 	}
 }
+
+func TestRunCLI(t *testing.T) {
+	userContext, volume := withFakeAccount(t)
+	ctx := context.Background()
+	r := Repo{Name: "cli", Source: SourceLocal, Branch: "main", TargetDir: "/var/www/html/cli.example.com", DeployMode: DeployManual}
+	if err := initRepo(ctx, userContext, &r); err != nil {
+		t.Fatal(err)
+	}
+	updateRepos(userContext, func(rs []Repo) ([]Repo, error) { return append(rs, r), nil })
+	work := t.TempDir()
+	gitIn(t, work, "init", "-q", "-b", "main")
+	os.WriteFile(filepath.Join(work, "index.html"), []byte("cli"), 0o644)
+	gitIn(t, work, "add", ".")
+	gitIn(t, work, "commit", "-q", "-m", "one")
+	gitIn(t, work, "push", "-q", repoDir(userContext, "cli"), "main")
+
+	var out strings.Builder
+	if code := RunCLI([]string{"deploy", userContext, "cli"}, &out); code != 0 {
+		t.Fatalf("deploy exit %d: %s", code, out.String())
+	}
+	if got, _ := os.ReadFile(filepath.Join(volume, "cli.example.com", "index.html")); string(got) != "cli" {
+		t.Fatalf("not deployed: %q", got)
+	}
+	out.Reset()
+	if code := RunCLI([]string{"pull", userContext, "cli"}, &out); code != 1 || !strings.Contains(out.String(), "local repository") {
+		t.Fatalf("pull on a local repo should fail, got %d %q", code, out.String())
+	}
+	for _, bad := range [][]string{{"deploy", "../etc", "cli"}, {"deploy", userContext, "../x"}, {"nuke", userContext, "cli"}, {"deploy"}} {
+		out.Reset()
+		if code := RunCLI(bad, &out); code == 0 {
+			t.Errorf("RunCLI(%v) should fail", bad)
+		}
+	}
+}

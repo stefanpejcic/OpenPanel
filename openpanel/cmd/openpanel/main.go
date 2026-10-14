@@ -48,6 +48,11 @@ func main() {
 		return
 	}
 
+	// OpenAdmin runs repo actions through this so it doesn't need its own copy of the deploy code
+	if len(os.Args) > 1 && os.Args[1] == "git" {
+		os.Exit(git.RunCLI(os.Args[2:], os.Stdout))
+	}
+
 	a, err := appctx.New()
 	if err != nil {
 		fatalLogger.Fatalf("BOOTSTRAP - failed to initialize app: %v", err)

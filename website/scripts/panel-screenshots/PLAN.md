@@ -144,6 +144,7 @@ MongoDB has no processlist, remote or configuration pages, and the docs don't ha
 | applications/sites | `/sites` | ✅ page · detail: bulk actions |
 | applications/autoinstaller | `/auto-installer` | ✅ page |
 | applications/wordpress | `/wordpress`, `/website?domain=` | ✅ install · site manager overview (currently 20 images, cut to ~6 key ones) |
+| applications/git | `/git`, `/git?log=`, `/website?domain=` | ✅ list · add form · show columns · settings row · remove row · bulk bar · commit log · site manager Git tab (shot on a test server via `PANEL_URL`, the demo has no Git module yet) |
 | nodejs / python / ruby / java | `/{lang}/install`, `/sites` | ✅ install form · manage page |
 | builder | `/website-builder/install`, `/website-builder/edit` | ✅ create · editor |
 | 15 app managers (drupal, joomla, moodle…) | `/{app}/install`, `/website?domain=` | ✅ install form · manage page. They share one layout, so 2 shots each and the loop is cheap |

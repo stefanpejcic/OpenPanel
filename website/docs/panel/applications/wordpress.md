@@ -333,6 +333,15 @@ Create a clone:
 ![Clone tab with the destination location and database for the copy](/img/openpanel-screenshots/applications/wordpress-clone.png#gh-light-mode-only)
 ![Clone tab with the destination location and database for the copy](/img/openpanel-screenshots/applications/wordpress-clone_dark.png#gh-dark-mode-only)
 
+### Git
+
+When the Git module is enabled, the **Git** tab lists the repositories that deploy to this website and lets you add one with the website's folder already filled in. A typical WordPress setup keeps a custom theme or plugin in Git and deploys it into `wp-content/themes/<theme>` or `wp-content/plugins/<plugin>`, with a deploy action that activates it with WP-CLI. WordPress core, uploads and other plugins are left alone.
+
+![Git tab in the Site Manager with a theme repository and a remote repository, their deploy buttons, clone URL and webhook URL](/img/openpanel-screenshots/applications/git-tab.png#gh-light-mode-only)
+![Git tab in the Site Manager with a theme repository and a remote repository, their deploy buttons, clone URL and webhook URL](/img/openpanel-screenshots/applications/git-tab_dark.png#gh-dark-mode-only)
+
+See [Git](/docs/panel/applications/git) for pushing, webhooks and deploy actions.
+
 ### Remove
 
 Want to stop managing a site in WP Manager (without deleting it)?
