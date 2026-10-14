@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -74,5 +76,17 @@ func TestWPCLIParamsFromJSON(t *testing.T) {
 	params := wpCLIParams(req)
 	if params["domain"] != "example.com" {
 		t.Errorf("params[domain] = %q, want example.com", params["domain"])
+	}
+}
+
+func TestInstalledWordPressVersion(t *testing.T) {
+	dir := t.TempDir()
+	if got := installedWordPressVersion(dir, "latest"); got != "latest" {
+		t.Fatalf("missing version.php should fall back, got %q", got)
+	}
+	os.MkdirAll(filepath.Join(dir, "wp-includes"), 0o755)
+	os.WriteFile(filepath.Join(dir, "wp-includes", "version.php"), []byte("<?php\n/**\n * @global string $wp_version\n */\n$wp_version = '6.8.1';\n$wp_db_version = 60421;\n"), 0o644)
+	if got := installedWordPressVersion(dir, "latest"); got != "6.8.1" {
+		t.Fatalf("got %q, want 6.8.1", got)
 	}
 }

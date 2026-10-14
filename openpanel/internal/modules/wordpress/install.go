@@ -353,7 +353,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "Saving website information to SiteManager"})
 	if _, insertErr := a.DB.ExecContext(ctx,
 		"INSERT INTO sites (site_name, domain_id, admin_email, version, type) VALUES (?, ?, ?, ?, ?)",
-		selectedDomain, domainID, adminEmail, wordpressVersion, "wordpress"); insertErr != nil {
+		selectedDomain, domainID, adminEmail, installedWordPressVersion(hostOSPath, wordpressVersion), "wordpress"); insertErr != nil {
 		emit(map[string]any{"error": "WordPress installed, but error occurred while saving data to WP Manager: " + insertErr.Error()})
 		return
 	}
@@ -525,4 +525,17 @@ func copyFile(src, dst string) error {
 		return err
 	}
 	return os.WriteFile(dst, data, 0o644)
+}
+
+var wpVersionRE = regexp.MustCompile(`\$wp_version\s*=\s*'([0-9][0-9A-Za-z.\-]*)'`)
+
+// installedWordPressVersion reads the real version from the extracted files, "latest" in the form would otherwise end up in Site Manager
+func installedWordPressVersion(hostPath, requested string) string {
+	data, err := os.ReadFile(filepath.Join(hostPath, "wp-includes", "version.php"))
+	if err == nil {
+		if m := wpVersionRE.FindSubmatch(data); m != nil {
+			return string(m[1])
+		}
+	}
+	return requested
 }
