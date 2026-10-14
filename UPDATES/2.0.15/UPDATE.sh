@@ -62,3 +62,30 @@ if [ -f "$FEATURES_JSON" ] && ! jq -e '.[] | select(.name == "git")' "$FEATURES_
     fi
     rm -f "$tmp"
 fi
+
+# ftp quotas are new in 2.0.15, the container's start script now runs the quota checker and points vsftpd at per-user configs
+FTP_START="/etc/openpanel/ftp/start_vsftpd.sh"
+if [ -f "$FTP_START" ] && ! grep -q -- "--check-quotas" "$FTP_START"; then
+    echo "Updating $FTP_START for FTP quotas..."
+    tmp=$(mktemp)
+    if wget -q -O "$tmp" "https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/ftp/start_vsftpd.sh" && grep -q -- "--check-quotas" "$tmp" && sh -n "$tmp"; then
+        cp -p "$FTP_START" "${FTP_START}.bak-2.0.14"
+        # write in place, the file is bind-mounted into the container
+        cat "$tmp" > "$FTP_START"
+        chmod +x "$FTP_START"
+
+        # existing accounts have no 6th field so they stay unlimited, just rebuild all.users so OpenAdmin lists every account
+        opencli ftp-users >/dev/null 2>&1
+
+        if podman ps --format '{{.Names}}' | grep -qx openadmin_ftp; then
+            echo "Restarting the FTP service..."
+            source /usr/local/opencli/lib/podman.sh
+            podman restart -t 10 openadmin_ftp >/dev/null 2>&1
+            # a restart can leave the container stuck in "stopping", recreate it then
+            podman_ensure_running openadmin_ftp /root openadmin_ftp 60 || echo "FTP service did not come back up, start it with: cd /root && podman-compose up -d openadmin_ftp"
+        fi
+    else
+        echo "Failed to download the new $FTP_START, FTP quotas won't be enforced until it's updated"
+    fi
+    rm -f "$tmp"
+fi

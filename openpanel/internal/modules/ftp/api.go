@@ -22,13 +22,14 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 
 	apiregistry.Add("PATCH /api/ftp/{username}/password")
 	apiregistry.Add("PATCH /api/ftp/{username}/path")
+	apiregistry.Add("PATCH /api/ftp/{username}/quota")
 	mux.Handle("PATCH /api/ftp/{rest...}", auth.RequireAPI(a, "ftp")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiFTPPatchDispatch(a, w, r) })))
 
 	apiregistry.Handle(mux, a, "ftp", "GET /api/ftp/connections", func(w http.ResponseWriter, r *http.Request) { apiFTPConnections(a, w, r) })
 	apiregistry.Handle(mux, a, "ftp", "GET /api/ftp/configuration/{config_type}/{account...}", func(w http.ResponseWriter, r *http.Request) { apiFTPConfiguration(a, w, r) })
 }
 
-// apiFTPPatchDispatch dispatches PATCH /api/ftp/{username}/password|path.
+// apiFTPPatchDispatch dispatches PATCH /api/ftp/{username}/password|path|quota.
 func apiFTPPatchDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	rest := r.PathValue("rest")
 	switch {
@@ -38,6 +39,9 @@ func apiFTPPatchDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	case strings.HasSuffix(rest, "/path"):
 		r.SetPathValue("username", strings.TrimSuffix(rest, "/path"))
 		apiFTPPath(a, w, r)
+	case strings.HasSuffix(rest, "/quota"):
+		r.SetPathValue("username", strings.TrimSuffix(rest, "/quota"))
+		apiFTPQuota(a, w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -78,6 +82,9 @@ type apiAccountEntry struct {
 	Path     string  `json:"path"`
 	UID      *string `json:"uid"`
 	GID      *string `json:"gid"`
+	QuotaMB  int     `json:"quota_mb"`
+	UsedKB   *int64  `json:"used_kb"`
+	Over     bool    `json:"over_quota"`
 }
 
 // apiFTPList returns the FTP accounts configured for the current user.
@@ -92,7 +99,11 @@ func apiFTPList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	accounts := loadAccounts(usersListFile)
 	entries := make([]apiAccountEntry, 0, len(accounts))
 	for _, acc := range accounts {
-		e := apiAccountEntry{Username: acc.Username, Path: acc.Path}
+		e := apiAccountEntry{Username: acc.Username, Path: acc.Path, QuotaMB: acc.QuotaMB, Over: acc.OverQuota}
+		if acc.HasUsage {
+			used := acc.UsedKB
+			e.UsedKB = &used
+		}
 		if acc.UID != "" {
 			uid := acc.UID
 			e.UID = &uid
@@ -125,17 +136,27 @@ func apiFTPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	var body struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Domain   string `json:"domain"`
-		Path     string `json:"path"`
+		Username string          `json:"username"`
+		Password string          `json:"password"`
+		Domain   string          `json:"domain"`
+		Path     string          `json:"path"`
+		Quota    json.RawMessage `json:"quota"`
 	}
+	rawQuota := ""
 	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
 		_ = r.ParseForm()
 		body.Username = r.Form.Get("username")
 		body.Password = r.Form.Get("password")
 		body.Domain = r.Form.Get("domain")
 		body.Path = r.Form.Get("path")
+		rawQuota = r.Form.Get("quota")
+	} else {
+		rawQuota = rawQuotaString(body.Quota)
+	}
+	ftpQuota, quotaOK := normalizeQuota(rawQuota, "M")
+	if !quotaOK {
+		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "quota must be a number of MB, a value like 500M or 2G, or 'unlimited'"})
+		return
 	}
 	ftpUser := strings.TrimSpace(body.Username)
 	ftpPassword := strings.TrimSpace(body.Password)
@@ -163,7 +184,11 @@ func apiFTPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out, cmdErr := exec.CommandContext(ctx, "opencli", "ftp-add", fullUsername, ftpPassword, ftpPath, currentUsername).CombinedOutput()
+	args := []string{"ftp-add", fullUsername, ftpPassword, ftpPath, currentUsername}
+	if ftpQuota != "unlimited" {
+		args = append(args, "--quota="+ftpQuota)
+	}
+	out, cmdErr := exec.CommandContext(ctx, "opencli", args...).CombinedOutput()
 	if cmdErr != nil {
 		writeAPIFTPJSON(w, http.StatusInternalServerError, map[string]string{"error": strings.TrimSpace(string(out))})
 		return

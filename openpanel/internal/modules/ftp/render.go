@@ -14,6 +14,7 @@ var ftpConnectionsPage = web.LoadPage("files/ftp_connections.html")
 var ftpNewPage = web.LoadPage("files/ftp_new.html")
 var ftpPasswordPage = web.LoadPage("files/ftp_password.html")
 var ftpPathPage = web.LoadPage("files/ftp_path.html")
+var ftpQuotaPage = web.LoadPage("files/ftp_quota.html")
 
 // FTPAccountsPageData is ftp.html's template context.
 type FTPAccountsPageData struct {
@@ -100,5 +101,25 @@ func renderFTPPathPage(a *appctx.App, w http.ResponseWriter, r *http.Request, us
 	data := FTPUsernamePageData{LayoutData: layout, Username: username}
 	if err := ftpPathPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("FTP - path template render error: %v", err)
+	}
+}
+
+// FTPQuotaPageData is ftp_quota.html's template context.
+type FTPQuotaPageData struct {
+	web.LayoutData
+	Account               Account
+	QuotaValue, QuotaUnit string
+}
+
+func renderFTPQuotaPage(a *appctx.App, w http.ResponseWriter, r *http.Request, account Account) {
+	layout, _, err := web.BuildLayoutData(a, w, r, "Change FTP Quota")
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	value, unit := account.QuotaInput()
+	data := FTPQuotaPageData{LayoutData: layout, Account: account, QuotaValue: value, QuotaUnit: unit}
+	if err := ftpQuotaPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("FTP - quota template render error: %v", err)
 	}
 }

@@ -54,6 +54,10 @@
                         </th>
 
                         <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{template "sort_header" (dict "Label" (.T.Get "Quota") "Key" "quota" "Type" "number")}}
+                        </th>
+
+                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
                             {{template "sort_header" (dict "Label" (.T.Get "UID") "Key" "uid" "Type" "number")}}
                         </th>
 
@@ -73,7 +77,7 @@
         <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
 {{if not .Accounts}}
             <tr>
-                <td colspan="7" class="p-6 text-center">{{.T.Get "No accounts yet."}} <a href="/ftp/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Add your first account"}}</a></td>
+                <td colspan="8" class="p-6 text-center">{{.T.Get "No accounts yet."}} <a href="/ftp/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Add your first account"}}</a></td>
             </tr>
 
 {{else}}
@@ -82,6 +86,21 @@
 {{template "bulk_row_checkbox" (dict "T" $.T "Key" .Username "Label" .Username)}}
                             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="username" data-sort-value="{{.Username}}"><i class="bi bi-person-fill"></i> {{.Username}}</td>
                             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="path" data-sort-value="{{.Path}}">{{if $.UserAllowed.filemanager}}<a href="/files{{replace .Path "/var/www/html" ""}}">{{end}}<i style="color: orange;" class="bi bi-folder-fill"></i> {{.Path}}{{if $.UserAllowed.filemanager}}</a>{{end}}</td>
+                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="quota" data-sort-value="{{.QuotaMB}}">
+                                {{if .HasQuota}}
+                                <div class="w-48">
+                                    <div class="flex justify-between gap-1 text-xs mb-1">
+                                        <span>{{if .HasUsage}}{{.UsedLabel}}{{else}}-{{end}} / {{.QuotaLabel}}</span>
+                                        {{if .OverQuota}}<span class="font-medium text-red-600 dark:text-red-400">{{$.T.Get "Over quota"}}</span>{{end}}
+                                    </div>
+                                    <div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+                                        <div class="h-1.5 rounded-full {{if .OverQuota}}bg-red-500{{else if ge .UsedPercent 90}}bg-orange-500{{else}}bg-blue-600{{end}}" style="width: {{.UsedPercent}}%"></div>
+                                    </div>
+                                </div>
+                                {{else}}
+                                {{$.T.Get "Unlimited"}}
+                                {{end}}
+                            </td>
                             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="uid">{{.UID}}</td>
                             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="gid">{{.GID}}</td>
 
@@ -109,6 +128,8 @@
             <a href="/ftp/password/{{.Username}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><i class="bi bi-key-fill"></i>{{$.T.Get "Change Password"}}</a>
 
             <a href="/ftp/path/{{.Username}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><i class="bi bi-pencil-fill"></i>{{$.T.Get "Change Path"}}</a>
+
+            <a href="/ftp/quota/{{.Username}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><i class="bi bi-hdd-fill"></i>{{$.T.Get "Change Quota"}}</a>
 
         <form method="POST" action="/ftp/delete">
             <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>

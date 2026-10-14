@@ -159,6 +159,18 @@ function updateDocroot() {
     </div>
   </div>
 
+  <div class="col-span-full mb-5">
+    <label for="quota" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Disk quota"}}</label>
+    <div class="flex rounded-lg shadow-sm">
+      <input type="number" min="0" step="1" name="quota" id="quota" value="" placeholder="{{.T.Get "Unlimited"}}" class="w-full py-2 px-3 block border-gray-200 shadow-sm rounded-l-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600">
+      <select name="quota_unit" id="quota_unit" aria-label="{{.T.Get "Unit"}}" class="w-24 py-2 px-3 block border-gray-200 shadow-sm rounded-r-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400">
+        <option value="M">MB</option>
+        <option value="G">GB</option>
+      </select>
+    </div>
+    <p class="mt-1 text-xs text-gray-500">{{.T.Get "Leave empty or set 0 for no limit. Uploads are blocked once the folder grows past the quota, files can still be deleted."}}</p>
+  </div>
+
 
         </div>
 

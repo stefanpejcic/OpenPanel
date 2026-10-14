@@ -40,6 +40,10 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 				return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/ftp/password/" + url.PathEscape(account), Form: url.Values{"new_password": {value}}})
 			case "path":
 				return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/ftp/path/" + url.PathEscape(account), Form: url.Values{"username": {account}, "new_path": {value}}})
+			case "quota":
+				return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/ftp/quota/" + url.PathEscape(account), Form: url.Values{"quota": {value}}})
+			case "quota_remove":
+				return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/ftp/quota/" + url.PathEscape(account), Form: url.Values{"quota": {"unlimited"}}})
 			case "delete":
 				return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/ftp/delete", Form: url.Values{"username": {account}}})
 			}
@@ -51,6 +55,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}))
 	mux.Handle("/ftp/path/{username}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleChangeFTPPath(a, w, r, r.PathValue("username"))
+	}))
+	mux.Handle("/ftp/quota/{username}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		handleChangeFTPQuota(a, w, r, r.PathValue("username"))
 	}))
 	mux.Handle("GET /ftp/configuration/{type}/{account}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleFTPConfiguration(a, w, r, r.PathValue("type"), r.PathValue("account"))
@@ -109,9 +116,12 @@ func requireFTPRunning(a *appctx.App, w http.ResponseWriter, r *http.Request) bo
 	return false
 }
 
-// Account is one users.list row.
+// Account is one users.list row, QuotaMB 0 means unlimited.
 type Account struct {
 	Username, Path, UID, GID string
+	QuotaMB                  int
+	UsedKB                   int64
+	HasUsage, OverQuota      bool
 }
 
 // loadAccounts parses an FTP users.list file into Account records.
@@ -130,11 +140,22 @@ func loadAccounts(usersListFile string) []Account {
 		parts := strings.Split(line, "|")
 		switch {
 		case len(parts) >= 5:
-			accounts = append(accounts, Account{Username: parts[0], Path: parts[2], UID: parts[3], GID: parts[4]})
+			acc := Account{Username: parts[0], Path: parts[2], UID: parts[3], GID: parts[4]}
+			if len(parts) >= 6 {
+				acc.QuotaMB = parseQuotaMB(parts[5])
+			}
+			accounts = append(accounts, acc)
 		case len(parts) == 3:
 			accounts = append(accounts, Account{Username: parts[0], Path: parts[2]})
 		default:
 			continue
+		}
+	}
+
+	usage := loadQuotaUsage(usersListFile)
+	for i := range accounts {
+		if u, ok := usage[accounts[i].Username]; ok && accounts[i].HasQuota() {
+			accounts[i].UsedKB, accounts[i].OverQuota, accounts[i].HasUsage = u.UsedKB, u.Over, true
 		}
 	}
 	return accounts
@@ -212,6 +233,7 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		ftpPassword := r.Form.Get("password")
 		ftpDomain := r.Form.Get("domain")
 		ftpPath := r.Form.Get("path")
+		ftpQuota, quotaOK := normalizeQuota(r.Form.Get("quota"), r.Form.Get("quota_unit"))
 
 		if ftpUsername == "" {
 			web.FlashRedirect(a, w, r, "error", "FTP username not provided.", "/ftp/new")
@@ -233,6 +255,10 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			web.FlashRedirect(a, w, r, "error", "FTP password not provided.", "/ftp/new")
 			return
 		}
+		if !quotaOK {
+			web.FlashRedirect(a, w, r, "error", "Invalid quota, use a whole number of MB or GB.", "/ftp/new")
+			return
+		}
 
 		const realPath = "/var/www/html/"
 		if !strings.HasPrefix(ftpPath, realPath) {
@@ -246,7 +272,11 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		out, cmdErr := exec.CommandContext(ctx, "opencli", "ftp-add", ftpUsername, ftpPassword, ftpPath, currentUsername).CombinedOutput()
+		args := []string{"ftp-add", ftpUsername, ftpPassword, ftpPath, currentUsername}
+		if ftpQuota != "unlimited" {
+			args = append(args, "--quota="+ftpQuota)
+		}
+		out, cmdErr := exec.CommandContext(ctx, "opencli", args...).CombinedOutput()
 		if cmdErr != nil {
 			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error creating FTP user %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), "/ftp/new")
 			return
@@ -470,6 +500,8 @@ func ftpBulkActions(t i18n.Translator) []web.BulkAction {
 	return []web.BulkAction{
 		{Key: "password", Label: t.Get("Change password"), Confirm: t.Get("Set this password for the selected FTP accounts:"), Input: &web.BulkInput{Type: "password", Placeholder: t.Get("New password")}},
 		{Key: "path", Label: t.Get("Change path"), Confirm: t.Get("New home folder for the selected FTP accounts:"), Input: &web.BulkInput{Type: "text", Default: "/var/www/html/", Placeholder: "/var/www/html/"}},
+		{Key: "quota", Label: t.Get("Change quota"), Confirm: t.Get("Disk quota for the selected FTP accounts, e.g. 500M or 2G:"), Input: &web.BulkInput{Type: "text", Placeholder: "500M"}},
+		{Key: "quota_remove", Label: t.Get("Remove quota"), Confirm: t.Get("Remove the disk quota from the selected FTP accounts?")},
 		{Key: "delete", Label: t.Get("Delete"), Confirm: t.Get("Delete the selected FTP accounts? Their files are kept."), Danger: true},
 	}
 }

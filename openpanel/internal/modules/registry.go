@@ -7,6 +7,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/account"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/aiassistant"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/api"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/appinstall"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/autoinstaller"
@@ -279,6 +280,7 @@ var configured = map[string]Registrar{
 		account.RegisterMCPAPI(mux, a)
 	},
 	"api":               account.RegisterAPIDocs,
+	"ai_assistant":      aiassistant.Register,
 	"postgresql":        func(mux *http.ServeMux, a *appctx.App) { postgresql.Register(mux, a); postgresql.RegisterAPI(mux, a) },
 	"postgresql_conf":   postgresql.RegisterConf,
 	"postgresql_import": postgresql.RegisterImport,
