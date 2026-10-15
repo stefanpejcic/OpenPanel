@@ -162,7 +162,7 @@ func TestTakeRequestEnforcesLimit(t *testing.T) {
 
 func TestSystemPrompt(t *testing.T) {
 	s := LoadSettings(config.Config{"brand_name": "AcmeHost", "ai_instructions": "Support email is help@acme.test"})
-	p := buildSystemPrompt(s, "Pro", []string{"wordpress", "dns"}, "/domains", "Domains", []chunk{{Path: "panel/domains/add", Title: "Add Domain", Text: "Click Add domain."}})
+	p := buildSystemPrompt(s, "Pro", []string{"wordpress", "dns"}, []string{"Domains"}, "/domains", "Domains", []chunk{{Path: "panel/domains/add", Title: "Add Domain", Text: "Click Add domain."}})
 	for _, want := range []string{"AcmeHost", "help@acme.test", "Hosting plan: Pro", "dns, wordpress", "/domains (Domains)", "Click Add domain."} {
 		if !strings.Contains(p, want) {
 			t.Errorf("system prompt missing %q", want)

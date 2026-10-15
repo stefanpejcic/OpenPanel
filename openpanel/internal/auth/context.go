@@ -24,6 +24,7 @@ const (
 	ViaSession AuthVia = "session"
 	ViaJWT     AuthVia = "jwt"
 	ViaMCP     AuthVia = "mcp_token"
+	ViaAI      AuthVia = "ai_assistant"
 )
 
 // UserID returns the authenticated user's ID and whether one is set.
@@ -54,6 +55,11 @@ func withAuth(r *http.Request, userID int, via AuthVia) *http.Request {
 	ctx := context.WithValue(r.Context(), userIDKey, userID)
 	ctx = context.WithValue(ctx, authViaKey, via)
 	return r.WithContext(ctx)
+}
+
+// WithAIAssistant marks an internal request the AI Assistant replays for a logged in user, it can only be set in code, never from a header
+func WithAIAssistant(r *http.Request, userID int) *http.Request {
+	return withAuth(r, userID, ViaAI)
 }
 
 func withMCPReadOnly(r *http.Request, readOnly bool) *http.Request {

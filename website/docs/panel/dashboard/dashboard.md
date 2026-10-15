@@ -127,11 +127,23 @@ Ask a question in your own words, for example *How do I add a new domain?* or *W
 
 The assistant answers using the panel documentation and knows which features are available on your plan and which page you are on, so you can also ask *What can I do on this page?*.
 
-The assistant only explains how to do things. It can't see your files, websites or emails, and it can't make changes for you. AI can make mistakes, so double-check important steps before you apply them.
+Depending on what your hosting provider allows, the assistant can also look things up in your account, like your domains, websites, email accounts or disk usage, and make changes for you, like adding a domain or creating an email account. Ask for it in your own words, for example *Which domains do I have?* or *Create info@example.com with a 2 GB quota*. Click **Info** to see what it can do on your account.
+
+Looking things up happens right away. Before the assistant changes anything, it shows a card with the action and the exact values it will use:
+
+- **Approve**: runs the action once.
+- **Always allow**: runs the action and doesn't ask again for the same kind of action, for example adding a domain.
+- **Decline**: skips it, and the assistant won't try it again unless you ask.
+
+Actions that delete or overwrite data, like removing a domain, deleting files or changing a password, are marked **Destructive** and always ask, even if you allowed a similar action before. The assistant also asks again for every change after it has read files or logs in the same chat, because those can contain text written by others.
+
+Everything the assistant looks up or changes is recorded in your [Activity log](/docs/panel/security/account_activity/), together with whether you approved it.
+
+AI can make mistakes, so check the details on each card before you approve it.
 
 Buttons at the top of the assistant:
 
-- **Info**: shows what the assistant can do and how many questions you've asked this month. Your hosting provider can set a monthly limit.
+- **Info**: shows what the assistant can do, how many questions you've asked this month, and the actions you've set to **Always allow**. Click **Remove** next to an action to have the assistant ask again. Your hosting provider can set a monthly limit.
 - **New chat**: clears the conversation and starts over.
 - **Close**: hides the assistant. You can also press **Esc**.
 

@@ -263,8 +263,9 @@ func apiDomainsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	domainURL := strings.ToLower(strings.TrimSuffix(strings.TrimSpace(body.Domain), "."))
 	docroot := strings.TrimSpace(body.Docroot)
+	// same default the add domain form fills in, opencli rejects the bare /var/www/html
 	if docroot == "" {
-		docroot = "/var/www/html/"
+		docroot = "/var/www/html/" + domainURL
 	}
 
 	if domainURL == "" {

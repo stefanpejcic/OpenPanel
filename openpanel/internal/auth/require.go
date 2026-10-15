@@ -174,7 +174,7 @@ func contains(list []string, want string) bool {
 	return false
 }
 
-// RequireAPI is middleware for API routes: Bearer-token auth only (JWT or MCP), feature-gated like RequireLogin
+// RequireAPI is middleware for API routes: Bearer-token auth only (JWT or MCP) or an AI Assistant replay, feature-gated like RequireLogin
 func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -182,7 +182,7 @@ func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handl
 			userID, hasUser := UserID(r)
 			via := Via(r)
 
-			if (via != ViaJWT && via != ViaMCP) || !hasUser || userID == 0 {
+			if (via != ViaJWT && via != ViaMCP && via != ViaAI) || !hasUser || userID == 0 {
 				log.Printf("APP - API %s %s: missing or invalid bearer token (via=%v)", r.Method, r.URL.Path, via)
 				writeJSONError(w, http.StatusUnauthorized, "Authentication required", "Provide a valid Bearer token")
 				return
@@ -216,9 +216,14 @@ func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handl
 				return
 			}
 
-			if featureName != "api" && !contains(userFeatures, "api") {
+			// the ai assistant acts for a logged in user, so it only needs the route's own feature
+			if featureName != "api" && via != ViaAI && !contains(userFeatures, "api") {
 				log.Printf("APP - API user %d (%s): API access not enabled for this account", userID, details.Username)
 				writeJSONError(w, http.StatusForbidden, "Access denied", "API access is not enabled for your account")
+				return
+			}
+			if via == ViaAI && !contains(userFeatures, "ai_assistant") {
+				writeJSONError(w, http.StatusForbidden, "Access denied", "")
 				return
 			}
 			if !contains(userFeatures, featureName) {

@@ -1,4 +1,4 @@
-// Package aiassistant is the chat drawer users open from the top bar: it answers questions about the panel using the OpenPanel docs and an LLM provider the admin configures in openpanel.config's [AI] section.
+// Package aiassistant is the chat drawer users open from the top bar: it answers questions using the OpenPanel docs and, if the admin allows it, looks up or changes things in the account through the panel's own /api/ routes. The provider is set in openpanel.config's [AI] section.
 package aiassistant
 
 import (
@@ -27,6 +27,7 @@ type Settings struct {
 	MonthlyLimit int // requests per user per month, 0 is unlimited
 	MaxTokens    int
 	BrandName    string
+	Actions      string // off, read or all
 }
 
 func LoadSettings(cfg config.Config) Settings {
@@ -41,6 +42,10 @@ func LoadSettings(cfg config.Config) Settings {
 		MonthlyLimit: atoiDefault(cfg.Get("ai_monthly_limit", ""), defaultLimit),
 		MaxTokens:    atoiDefault(cfg.Get("ai_max_tokens", ""), defaultMaxTokens),
 		BrandName:    strings.TrimSpace(unquote(cfg.Get("brand_name", ""))),
+		Actions:      strings.ToLower(strings.TrimSpace(unquote(cfg.Get("ai_actions", modeRead)))),
+	}
+	if s.Actions != modeOff && s.Actions != modeAll {
+		s.Actions = modeRead
 	}
 	if s.Provider == "" {
 		s.Provider = "openrouter"

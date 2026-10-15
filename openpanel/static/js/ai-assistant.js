@@ -26,22 +26,22 @@
     try { return JSON.parse(sessionStorage.getItem(STORE)) || []; } catch (e) { return []; }
   }
   function save() {
-    try { sessionStorage.setItem(STORE, JSON.stringify(messages.slice(-40))); } catch (e) {}
+    try { sessionStorage.setItem(STORE, JSON.stringify(messages.slice(-60))); } catch (e) {}
   }
 
   function escapeHTML(s) {
-    return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  // small markdown subset, everything is escaped first so the model can't inject html
+  // small markdown subset, everything is escaped first so the model can't inject html, only panel links become clickable
   function inline(s) {
     return s
       .replace(/`([^`]+)`/g, '<code>$1</code>')
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>')
       .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g, (m, text, url) => {
-        const ext = /^https?:/.test(url);
-        return '<a href="' + url + '"' + (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' + text + '</a>';
+        if (/^\/(?!\/)/.test(url)) return '<a href="' + url + '">' + text + '</a>';
+        return text + ' (' + url + ')';
       });
   }
 
@@ -87,6 +87,39 @@
     return el;
   }
 
+  function actionLine(m) {
+    const el = document.createElement('div');
+    const state = m.declined ? 'declined' : (m.ok === false ? 'failed' : 'ok');
+    el.className = 'ai-action ai-action-' + state;
+    el.textContent = (state === 'ok' ? '✓ ' : '✕ ') + m.content;
+    list.appendChild(el);
+  }
+
+  // the card is built only from the confirm event the server sends, never from model text
+  function card(m) {
+    const c = m.card;
+    const el = document.createElement('div');
+    el.className = 'ai-card ai-card-' + c.kind;
+    let html = '<div class="ai-card-head"><span class="ai-card-kind">' + escapeHTML(c.kind === 'destructive' ? S.destructive : S.change) + '</span>' +
+      '<strong>' + escapeHTML(c.title) + '</strong></div>' +
+      '<code class="ai-card-req">' + escapeHTML(c.request) + '</code>';
+    if (c.fields && c.fields.length) {
+      html += '<dl class="ai-card-fields">' + c.fields.map(f => '<dt>' + escapeHTML(f[0]) + '</dt><dd>' + escapeHTML(f[1]) + '</dd>').join('') + '</dl>';
+    }
+    if (c.kind === 'destructive') html += '<p class="ai-card-note">' + escapeHTML(S.destructiveNote) + '</p>';
+    if (c.tainted) html += '<p class="ai-card-note">' + escapeHTML(S.taintedNote) + '</p>';
+    if (m.state === 'pending') {
+      html += '<div class="ai-card-actions"><button type="button" data-d="allow" class="ai-btn-primary">' + escapeHTML(S.approve) + '</button>' +
+        (c.remember ? '<button type="button" data-d="always">' + escapeHTML(S.always) + '</button>' : '') +
+        '<button type="button" data-d="deny">' + escapeHTML(S.deny) + '</button></div>';
+    } else {
+      html += '<p class="ai-card-state">' + escapeHTML(S['state_' + m.state] || '') + '</p>';
+    }
+    el.innerHTML = html;
+    el.querySelectorAll('[data-d]').forEach(b => b.addEventListener('click', () => decide(m, b.dataset.d)));
+    list.appendChild(el);
+  }
+
   function render() {
     list.innerHTML = '';
     if (info && !info.configured) {
@@ -97,7 +130,8 @@
       bubble('assistant', S.greeting);
       const wrap = document.createElement('div');
       wrap.className = 'ai-suggestions';
-      ['s1', 's2', 's3', 's4'].forEach(k => {
+      const keys = info && info.actions === 'all' ? ['s1', 's5', 's6', 's4'] : ['s1', 's2', 's3', 's4'];
+      keys.forEach(k => {
         const b = document.createElement('button');
         b.type = 'button';
         b.textContent = S[k];
@@ -106,13 +140,46 @@
       });
       list.appendChild(wrap);
     }
-    messages.forEach(m => bubble(m.role, m.content));
+    messages.forEach(m => {
+      if (m.role === 'action') actionLine(m);
+      else if (m.role === 'confirm') card(m);
+      else bubble(m.role, m.content);
+    });
     list.scrollTop = list.scrollHeight;
   }
 
-  function showUsage() {
+  function showInfo() {
     if (!info) return;
     about.querySelector('[data-ai-usage]').textContent = info.limit > 0 ? info.used + ' / ' + info.limit : info.used + ' (' + S.unlimited + ')';
+    about.querySelector('[data-ai-mode]').textContent = S['mode_' + info.actions] || '';
+    const box = about.querySelector('[data-ai-allowed]');
+    box.innerHTML = '';
+    if (info.actions !== 'all') return;
+    const h = document.createElement('p');
+    h.className = 'ai-allowed-title';
+    h.textContent = S.allowedTitle;
+    box.appendChild(h);
+    if (!info.allowed || !info.allowed.length) {
+      const p = document.createElement('p');
+      p.textContent = S.allowedNone;
+      box.appendChild(p);
+      return;
+    }
+    info.allowed.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'ai-allowed-row';
+      const t = document.createElement('span');
+      t.textContent = item.title;
+      const rm = document.createElement('button');
+      rm.type = 'button';
+      rm.textContent = S.forget;
+      rm.addEventListener('click', () => {
+        fetch('/ai/permissions/forget', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token }, body: JSON.stringify({ action: item.action }) })
+          .then(r => { if (r.ok) { info.allowed = info.allowed.filter(a => a.action !== item.action); showInfo(); } });
+      });
+      row.append(t, rm);
+      box.appendChild(row);
+    });
   }
 
   function loadInfo() {
@@ -122,8 +189,8 @@
         if (!d) return;
         info = d;
         if (d.name) document.getElementById('ai-assistant-title').textContent = d.name;
-        showUsage();
-        render();
+        showInfo();
+        if (!busy) render();
       })
       .catch(() => {});
   }
@@ -133,7 +200,7 @@
     requestAnimationFrame(() => drawer.classList.add('ai-open'));
     btn.setAttribute('aria-expanded', 'true');
     try { sessionStorage.setItem(OPEN, '1'); } catch (e) {}
-    if (!info) loadInfo();
+    loadInfo();
     render();
     setTimeout(() => input.focus(), 50);
   }
@@ -145,27 +212,31 @@
     setTimeout(() => { if (!drawer.classList.contains('ai-open')) drawer.hidden = true; }, 200);
   }
 
-  async function ask(question) {
-    question = (question || '').trim();
-    if (!question || busy) return;
-    busy = true;
-    send.disabled = true;
-    input.value = '';
-    messages.push({ role: 'user', content: question });
-    save();
-    render();
+  function setBusy(b) {
+    busy = b;
+    send.disabled = b;
+  }
 
-    const el = bubble('assistant', '');
-    el.innerHTML = '<span class="ai-thinking">' + escapeHTML(S.thinking) + '</span>';
-    list.scrollTop = list.scrollHeight;
-
+  // stream reads the ndjson answer: text, action lines, a confirmation card or an error
+  async function stream(url, payload) {
+    let el = null;
     let answer = '';
     let failed = '';
+    const thinking = bubble('assistant', '');
+    thinking.innerHTML = '<span class="ai-thinking">' + escapeHTML(S.thinking) + '</span>';
+    list.scrollTop = list.scrollHeight;
+
+    const flushAnswer = () => {
+      if (answer.trim()) { messages.push({ role: 'assistant', content: answer }); save(); }
+      answer = '';
+      el = null;
+    };
+
     try {
-      const res = await fetch('/ai/chat', {
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token },
-        body: JSON.stringify({ messages: messages, page: { path: location.pathname, title: document.title.split(' - ')[0] } })
+        body: JSON.stringify(payload)
       });
       if (!res.ok || !res.body) {
         const d = await res.json().catch(() => ({}));
@@ -186,33 +257,82 @@
             let ev;
             try { ev = JSON.parse(line); } catch (e) { continue; }
             if (ev.text) {
+              thinking.remove();
+              if (!el) el = bubble('assistant', '');
               answer += ev.text;
               el.innerHTML = markdown(answer);
-              list.scrollTop = list.scrollHeight;
+            }
+            if (ev.step && answer) answer += '\n\n';
+            if (ev.action) {
+              flushAnswer();
+              const m = { role: 'action', content: ev.action.note, ok: ev.action.ok, declined: !!ev.action.declined };
+              messages.push(m); save();
+              render(); list.appendChild(thinking);
+            }
+            if (ev.confirm) {
+              flushAnswer();
+              messages.push({ role: 'confirm', card: ev.confirm, state: 'pending' }); save();
+              thinking.remove(); render();
             }
             if (ev.error) failed = ev.error;
-            if (ev.done && info) { info.used = ev.used; info.limit = ev.limit; showUsage(); }
+            if (ev.done && info) { info.used = ev.used; info.limit = ev.limit; showInfo(); }
+            list.scrollTop = list.scrollHeight;
           }
         }
       }
     } catch (e) {
       failed = S.error;
     }
+    thinking.remove();
+    flushAnswer();
+    return failed;
+  }
 
-    if (answer) {
-      messages.push({ role: 'assistant', content: answer });
-      save();
-    }
+  async function ask(question) {
+    question = (question || '').trim();
+    if (!question || busy) return;
+    setBusy(true);
+    input.value = '';
+    // a card left unanswered is dropped on the server once a new question comes in
+    messages.forEach(m => { if (m.role === 'confirm' && m.state === 'pending') m.state = 'skipped'; });
+    messages.push({ role: 'user', content: question });
+    const sent = messages.length;
+    save();
+    render();
+
+    const history = messages.filter(m => m.role === 'user' || m.role === 'assistant' || m.role === 'action').map(m => ({ role: m.role, content: m.content }));
+    const failed = await stream('/ai/chat', { messages: history, page: { path: location.pathname, title: document.title.split(' - ')[0] } });
     if (failed) {
-      if (!answer) el.remove();
-      bubble('error', failed);
       // drop the unanswered question so it doesn't get sent twice
-      if (!answer) { messages.pop(); save(); input.value = question; }
+      if (messages.length === sent) { messages.pop(); input.value = question; }
+      save();
+      render();
+      bubble('error', failed);
+    } else {
+      render();
     }
-    busy = false;
-    send.disabled = false;
+    setBusy(false);
     list.scrollTop = list.scrollHeight;
     input.focus();
+  }
+
+  async function decide(m, decision) {
+    if (busy || m.state !== 'pending') return;
+    setBusy(true);
+    m.state = decision === 'deny' ? 'declined' : 'approved';
+    save();
+    render();
+    const failed = await stream('/ai/confirm', { id: m.card.id, decision: decision });
+    if (failed) {
+      if (/expired/i.test(failed)) { m.state = 'expired'; save(); }
+      render();
+      bubble('error', failed);
+    } else {
+      render();
+    }
+    if (decision === 'always') loadInfo();
+    setBusy(false);
+    list.scrollTop = list.scrollHeight;
   }
 
   btn.addEventListener('click', () => drawer.classList.contains('ai-open') ? close() : open());

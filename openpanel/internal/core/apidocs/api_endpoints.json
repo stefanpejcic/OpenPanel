@@ -374,7 +374,7 @@
       {
         "method": "POST",
         "path": "/api/domains",
-        "description": "Add a new domain (docroot defaults to /var/www/html/; .onion domains also require hs_ed25519_public_key and hs_ed25519_secret_key).",
+        "description": "Add a new domain (docroot defaults to /var/www/html/<domain>; .onion domains also require hs_ed25519_public_key and hs_ed25519_secret_key).",
         "body": {
           "domain": "example.com"
         }

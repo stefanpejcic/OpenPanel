@@ -97,7 +97,7 @@ if [ -f "$FEATURES_JSON" ] && ! jq -e '.[] | select(.name == "ai_assistant")' "$
     if jq '. + [{
         "name": "ai_assistant",
         "title": "AI Assistant",
-        "description": "If enabled, users get an AI chat assistant in the top bar that answers questions about the panel using the OpenPanel documentation. Configure the provider on Settings > OpenPanel.",
+        "description": "If enabled, users get an AI chat assistant in the top bar that answers questions using the OpenPanel documentation and, if allowed on Settings > OpenPanel, looks things up or makes changes in their account after they approve them.",
         "link": "",
         "type": "community",
         "help_link": "https://openpanel.com/docs/panel/dashboard/dashboard/#ai-assistant"
@@ -110,7 +110,17 @@ if [ -f "$FEATURES_JSON" ] && ! jq -e '.[] | select(.name == "ai_assistant")' "$
 fi
 
 # default [AI] settings so they show up in openpanel.config, the module stays off until enabled
-if [ -f "$OPENPANEL_CONFIG" ] && ! grep -q "^\[AI\]" "$OPENPANEL_CONFIG"; then
-    echo "Adding the [AI] section to $OPENPANEL_CONFIG..."
-    printf '\n[AI]\nai_provider=openrouter\nai_api_key=\nai_model=\nai_base_url=\nai_name=\nai_instructions=\nai_monthly_limit=100\nai_max_tokens=2048\n' >> "$OPENPANEL_CONFIG"
+if [ -f "$OPENPANEL_CONFIG" ]; then
+    if ! grep -q "^\[AI\]" "$OPENPANEL_CONFIG"; then
+        echo "Adding the [AI] section to $OPENPANEL_CONFIG..."
+        printf '\n[AI]\nai_provider=openrouter\nai_api_key=\nai_model=\nai_base_url=\nai_name=\nai_instructions=\nai_monthly_limit=100\nai_max_tokens=2048\nai_actions=read\n' >> "$OPENPANEL_CONFIG"
+    else
+        # section is there, add any key it's missing right under the header and keep the values already set
+        for kv in ai_actions=read ai_max_tokens=2048 ai_monthly_limit=100 ai_instructions= ai_name= ai_base_url= ai_model= ai_api_key= ai_provider=openrouter; do
+            if ! grep -q "^${kv%%=*}=" "$OPENPANEL_CONFIG"; then
+                echo "Adding ${kv%%=*} to the [AI] section of $OPENPANEL_CONFIG..."
+                sed -i "/^\[AI\]/a $kv" "$OPENPANEL_CONFIG"
+            fi
+        done
+    fi
 fi

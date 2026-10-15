@@ -172,10 +172,14 @@ A warning is shown when Terminal Commands Timeout is under 30 seconds (it applie
 
 ## AI Assistant
 
-Settings for the [AI Assistant](/docs/panel/dashboard/dashboard#ai-assistant), the chat users open from the **AI** button in the OpenPanel header. It answers questions about the panel using the OpenPanel documentation, the user's plan features and the page they're on. It can't see user data or make changes.
+Settings for the [AI Assistant](/docs/panel/dashboard/dashboard#ai-assistant), the chat users open from the **AI** button in the OpenPanel header. It answers questions about the panel using the OpenPanel documentation, the user's plan features and the page they're on, and can look things up or make changes in the user's account.
 
 To use it, enable the **AI Assistant** module on [Settings > Modules](/docs/admin/settings/modules/), add it to the feature sets of the plans that should have it, and set an API key here.
 
+- **What the assistant can do:**
+  - *Answer questions only*: it can't see the user's data, it only explains how to do things.
+  - *Answer questions and look up account data* (default): it can list domains, websites, email accounts, usage and similar, but can't change anything.
+  - *Answer questions, look up data and make changes*: it can also add, edit and remove things, after the user approves each change.
 - **Provider:** OpenRouter, OpenAI, Anthropic (Claude), or Custom for any OpenAI-compatible API such as Ollama.
 - **API key:** The key from your provider. Optional for Custom providers that don't need one.
 - **Model:** Model name, for example `gpt-5-mini`. Leave empty to use `openrouter/auto` with OpenRouter or `claude-opus-5-5` with Anthropic. Required for OpenAI and Custom.
@@ -185,6 +189,22 @@ To use it, enable the **AI Assistant** module on [Settings > Modules](/docs/admi
 - **Max tokens per answer:** Upper limit for the length of each answer. Default is 2048.
 - **Extra instructions:** Added to the assistant's instructions, for example your support email or policies.
 
+### Actions
+
+The assistant uses the same actions as the [OpenPanel API](/docs/panel/account/api/), but only those for features on the user's plan, and every action goes through the same checks as the API. Logins, account email and password changes, 2FA, passkeys, sessions, MCP tokens, the MySQL root password, autologin links, downloads and uploads are never available to it.
+
+- Looking things up runs right away.
+- Changes are shown to the user as a card with the exact values, and run only after they click **Approve**. Users can click **Always allow** to skip the card next time for the same kind of action.
+- Actions that delete or overwrite data, like removing a domain, deleting files, restoring backups or changing passwords, always ask and can't be set to **Always allow**.
+- After the assistant reads content others can write, like files or logs, every change asks again for the rest of that question, even if the user set it to **Always allow**. This stops text hidden in a file from triggering changes.
+- Each question can run at most 12 actions.
+
+Everything the assistant does is written to the user's activity log, for example `used the AI Assistant to run: Add a new domain (POST /api/domains {"domain":"example.com"}), approved by the user`. Passwords and other secrets are hidden.
+
+### Usage
+
+Below the settings, **Usage this month** lists every user who used the assistant this month, with the number of questions, actions, input and output tokens, and when they last used it. Tokens are what your provider bills for. Use it to find users who use it heavily, for example to give them a lower limit.
+
 The settings are saved in the `[AI]` section of `/etc/openpanel/openpanel/conf/openpanel.config`. OpenPanel needs a restart to use the new values.
 
-Each question sends the matching parts of the documentation along with the conversation to the provider, so API usage is billed by your provider. Use **Requests per user per month** to keep costs in check.
+Each question sends the matching parts of the documentation along with the conversation to the provider, and every action adds another call, so API usage is billed by your provider. Use **Requests per user per month** to keep costs in check.
