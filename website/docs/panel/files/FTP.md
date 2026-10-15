@@ -6,8 +6,8 @@ sidebar_position: 5
 
 OpenPanel accounts can create FTP sub-users that share the FTP service with all other FTP users on the server. Connect using the server IP address and port `21`.
 
-![FTP Accounts page with the FTP server and port, and a table of accounts with their path and configuration downloads](/img/openpanel-screenshots/files/ftp-list.png#gh-light-mode-only)
-![FTP Accounts page with the FTP server and port, and a table of accounts with their path and configuration downloads](/img/openpanel-screenshots/files/ftp-list_dark.png#gh-dark-mode-only)
+![FTP Accounts page with the FTP server and port, and a table of accounts with their path, quota and configuration downloads](/img/openpanel-screenshots/files/ftp-list.png#gh-light-mode-only)
+![FTP Accounts page with the FTP server and port, and a table of accounts with their path, quota and configuration downloads](/img/openpanel-screenshots/files/ftp-list_dark.png#gh-dark-mode-only)
 
 :::info
 FTP is available in the [OpenPanel Enterprise](/enterprise/) edition. Administrator setup guide: [How to setup FTP in OpenPanel](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/)
@@ -30,6 +30,7 @@ Go to **OpenPanel > Files > FTP Accounts** to see all FTP accounts, the director
    | **Domain** | Select one of your domains |
    | **Password** | Password for the FTP account |
    | **Path (folder)** | Directory the account is restricted to: must start with `/var/www/html/` |
+   | **Disk quota** | Optional, the most the folder can hold in MB or GB. Leave empty for no limit |
 
 3. Click **Create Account** to create the user.
 
@@ -42,7 +43,7 @@ FTP usernames may only contain letters, numbers, and the characters `-`, `_`, `@
 
 ## Change Password
 
-1. Go to **OpenPanel > Files > FTP Accounts** and click **Change Password** next to the account.
+1. Go to **OpenPanel > Files > FTP Accounts** and click the key icon (**Change Password**) next to the account.
 2. Enter the new password, confirm it, and click **Update**.
 
 ![Change FTP password form with a new password field](/img/openpanel-screenshots/files/ftp_password-form.png#gh-light-mode-only)
@@ -54,30 +55,44 @@ FTP passwords must be 8-30 characters long and contain at least one uppercase le
 
 ## Change Path
 
-1. Go to **OpenPanel > Files > FTP Accounts** and click **Change Path** next to the account.
+1. Go to **OpenPanel > Files > FTP Accounts** and click the pencil icon (**Change Path**) next to the account.
 2. Enter the new directory path and click **Update**. The path must start with `/var/www/html/`.
 
 ![Change FTP path form with the folder field](/img/openpanel-screenshots/files/ftp_path-form.png#gh-light-mode-only)
 ![Change FTP path form with the folder field](/img/openpanel-screenshots/files/ftp_path-form_dark.png#gh-dark-mode-only)
 
+## Change Quota
+
+A disk quota limits how big the account's folder can grow. The **Quota** column on the FTP accounts page shows the space used and the quota, or **Unlimited**.
+
+1. Go to **OpenPanel > Files > FTP Accounts** and click the disk icon (**Change Quota**) next to the account.
+2. Enter the quota, pick **MB** or **GB**, and click **Update**. Leave the field empty or enter `0` to remove the quota.
+
+![Change FTP quota form with the current quota and usage, and the quota field with a MB/GB unit](/img/openpanel-screenshots/files/ftp_quota-form.png#gh-light-mode-only)
+![Change FTP quota form with the current quota and usage, and the quota field with a MB/GB unit](/img/openpanel-screenshots/files/ftp_quota-form_dark.png#gh-dark-mode-only)
+
+The quota counts everything in the account's folder, also files added from the File Manager or by your website. Usage is checked every minute. Once the folder is over the quota the account is marked **Over quota**, uploads are refused and open FTP sessions of that account are closed. Downloading and deleting files still works, so the account can free up space, and uploads work again within a minute after the folder is back under the quota.
+
 ## Delete User
 
-Go to **OpenPanel > Files > FTP Accounts** and click **Delete** next to the account. The button turns into **Confirm** with a 5-second countdown; click it again before the countdown ends to delete the account.
+Go to **OpenPanel > Files > FTP Accounts** and click the trash icon (**Delete**) next to the account. The icon turns into **Confirm** with a 5-second countdown; click it again before the countdown ends to delete the account.
 
-![Delete button of an FTP account turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/files/ftp_actions-delete.png#gh-light-mode-only)
-![Delete button of an FTP account turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/files/ftp_actions-delete_dark.png#gh-dark-mode-only)
+![Delete icon of an FTP account turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/files/ftp_actions-delete.png#gh-light-mode-only)
+![Delete icon of an FTP account turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/files/ftp_actions-delete_dark.png#gh-dark-mode-only)
 
 ## Bulk Actions
 
 Tick the checkbox of one or more accounts, or the checkbox in the table header to select every account shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
-![Two FTP accounts selected with the bulk actions bar offering Change password, Change path and Delete](/img/openpanel-screenshots/files/ftp-bulk.png#gh-light-mode-only)
-![Two FTP accounts selected with the bulk actions bar offering Change password, Change path and Delete](/img/openpanel-screenshots/files/ftp-bulk_dark.png#gh-dark-mode-only)
+![Two FTP accounts selected with the bulk actions bar offering Change password, Change path, Change quota, Remove quota and Delete](/img/openpanel-screenshots/files/ftp-bulk.png#gh-light-mode-only)
+![Two FTP accounts selected with the bulk actions bar offering Change password, Change path, Change quota, Remove quota and Delete](/img/openpanel-screenshots/files/ftp-bulk_dark.png#gh-dark-mode-only)
 
 | Action | What it does |
 |---|---|
 | **Change password** | Sets the same new password on the selected accounts. |
 | **Change path** | Sets the home folder of the selected accounts, inside `/var/www/html/`. |
+| **Change quota** | Sets the same disk quota on the selected accounts, e.g. `500M` or `2G`. |
+| **Remove quota** | Removes the disk quota from the selected accounts. |
 | **Delete** | Deletes the selected accounts. Their files are kept. |
 
 Click an action, confirm it, and it runs on the selected accounts one after another. When it's done the page reloads with a notice listing the accounts it worked for, or which ones failed and why.

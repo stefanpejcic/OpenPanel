@@ -204,7 +204,7 @@ Usage: opencli files-purge_trash [--user USERNAME] [--force] [--dry-run]
 ------------------------
 opencli ftp-add
 Description: Create FTP sub-user for openpanel user.
-Usage: opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--debug]
+Usage: opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--quota=<MB>] [--debug]
 ------------------------
 opencli ftp-connections
 Description: Display all active FTP connection or for particular OpenPanel user.
@@ -229,6 +229,10 @@ Usage: opencli ftp-password <username> <new_password> <openpanel_username> [--de
 opencli ftp-path
 Description: Change FTP path for a user.
 Usage: opencli ftp-path <username> <path> <openpanel_username> [--debug]
+------------------------
+opencli ftp-quota
+Description: Show or set the disk quota for an FTP sub-user.
+Usage: opencli ftp-quota <username> [<quota>] <openpanel_username> [--debug]
 ------------------------
 opencli imunify
 Description: Install and manage ImunifyAV service.

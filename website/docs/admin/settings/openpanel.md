@@ -169,3 +169,22 @@ A warning is shown when Terminal Commands Timeout is under 30 seconds (it applie
 
 ![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics.png#gh-light-mode-only)
 ![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics_dark.png#gh-dark-mode-only)
+
+## AI Assistant
+
+Settings for the [AI Assistant](/docs/panel/dashboard/dashboard#ai-assistant), the chat users open from the **AI** button in the OpenPanel header. It answers questions about the panel using the OpenPanel documentation, the user's plan features and the page they're on. It can't see user data or make changes.
+
+To use it, enable the **AI Assistant** module on [Settings > Modules](/docs/admin/settings/modules/), add it to the feature sets of the plans that should have it, and set an API key here.
+
+- **Provider:** OpenRouter, OpenAI, Anthropic (Claude), or Custom for any OpenAI-compatible API such as Ollama.
+- **API key:** The key from your provider. Optional for Custom providers that don't need one.
+- **Model:** Model name, for example `gpt-5-mini`. Leave empty to use `openrouter/auto` with OpenRouter or `claude-opus-5-5` with Anthropic. Required for OpenAI and Custom.
+- **API base URL:** Only for Custom, the URL that serves `/chat/completions`, for example `http://ollama:11434/v1`.
+- **Assistant name:** Shown at the top of the chat. Defaults to *AI Assistant*.
+- **Requests per user per month:** How many questions each user can ask per month, `0` for unlimited. Default is 100.
+- **Max tokens per answer:** Upper limit for the length of each answer. Default is 2048.
+- **Extra instructions:** Added to the assistant's instructions, for example your support email or policies.
+
+The settings are saved in the `[AI]` section of `/etc/openpanel/openpanel/conf/openpanel.config`. OpenPanel needs a restart to use the new values.
+
+Each question sends the matching parts of the documentation along with the conversation to the provider, so API usage is billed by your provider. Use **Requests per user per month** to keep costs in check.

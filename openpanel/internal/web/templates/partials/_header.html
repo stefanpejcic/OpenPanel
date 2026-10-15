@@ -180,6 +180,9 @@
 
                     {{template "search" .}}
 
+                    {{if .UserAllowed.ai_assistant}}
+                        {{template "ai_assistant" .}}
+                    {{end}}
 
                      {{if .UserAllowed.favorites}}
                      <!-- Favorites -->

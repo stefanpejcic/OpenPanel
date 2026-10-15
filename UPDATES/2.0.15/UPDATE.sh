@@ -89,3 +89,28 @@ if [ -f "$FTP_START" ] && ! grep -q -- "--check-quotas" "$FTP_START"; then
     fi
     rm -f "$tmp"
 fi
+
+# ai assistant module is new in 2.0.15, list it under OpenAdmin > Settings > Modules so admins can turn it on
+if [ -f "$FEATURES_JSON" ] && ! jq -e '.[] | select(.name == "ai_assistant")' "$FEATURES_JSON" >/dev/null 2>&1; then
+    echo "Adding the AI Assistant module to $FEATURES_JSON..."
+    tmp=$(mktemp)
+    if jq '. + [{
+        "name": "ai_assistant",
+        "title": "AI Assistant",
+        "description": "If enabled, users get an AI chat assistant in the top bar that answers questions about the panel using the OpenPanel documentation. Configure the provider on Settings > OpenPanel.",
+        "link": "",
+        "type": "community",
+        "help_link": "https://openpanel.com/docs/panel/dashboard/dashboard/#ai-assistant"
+    }]' "$FEATURES_JSON" > "$tmp"; then
+        cat "$tmp" > "$FEATURES_JSON"
+    else
+        echo "Failed to add the AI Assistant module to $FEATURES_JSON"
+    fi
+    rm -f "$tmp"
+fi
+
+# default [AI] settings so they show up in openpanel.config, the module stays off until enabled
+if [ -f "$OPENPANEL_CONFIG" ] && ! grep -q "^\[AI\]" "$OPENPANEL_CONFIG"; then
+    echo "Adding the [AI] section to $OPENPANEL_CONFIG..."
+    printf '\n[AI]\nai_provider=openrouter\nai_api_key=\nai_model=\nai_base_url=\nai_name=\nai_instructions=\nai_monthly_limit=100\nai_max_tokens=2048\n' >> "$OPENPANEL_CONFIG"
+fi

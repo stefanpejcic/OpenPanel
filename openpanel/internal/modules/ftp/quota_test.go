@@ -154,7 +154,7 @@ func TestRenderFTPAccountsPageQuotaColumn(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	for _, want := range []string{"Over quota", "Unlimited", "/ftp/quota/full@example.com", "2.0 MB / 1 MB", "width: 100%"} {
+	for _, want := range []string{"Over quota", "Unlimited", "/ftp/quota/full@example.com", "2.0 MB / 1 MB", "width: 100%", "ftpColumnsVisibility", "uid: false", "gid: false", `x-model="columns.uid"`} {
 		if !strings.Contains(body, want) {
 			t.Errorf("expected %q in accounts page", want)
 		}

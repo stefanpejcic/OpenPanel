@@ -119,6 +119,24 @@ Click the magnifying glass icon in the top-right corner of the header to open th
 ![Search box opened from the magnifying glass icon in the header, with results for mysql](/img/openpanel-screenshots/dashboard/dashboard-search.png#gh-light-mode-only)
 ![Search box opened from the magnifying glass icon in the header, with results for mysql](/img/openpanel-screenshots/dashboard/dashboard-search_dark.png#gh-dark-mode-only)
 
+## AI Assistant
+
+When the AI Assistant is enabled by your hosting provider, an **AI** button is shown in the top-right corner of the header, next to the search icon. Click it to open the assistant on the right side of the page. It's available on every page, so you can keep it open while you follow its steps.
+
+Ask a question in your own words, for example *How do I add a new domain?* or *Why does my website show a 502 error?*, and press **Enter** to send it. Use **Shift + Enter** for a new line. When the chat is empty, a few example questions are shown that you can click.
+
+The assistant answers using the panel documentation and knows which features are available on your plan and which page you are on, so you can also ask *What can I do on this page?*.
+
+The assistant only explains how to do things. It can't see your files, websites or emails, and it can't make changes for you. AI can make mistakes, so double-check important steps before you apply them.
+
+Buttons at the top of the assistant:
+
+- **Info**: shows what the assistant can do and how many questions you've asked this month. Your hosting provider can set a monthly limit.
+- **New chat**: clears the conversation and starts over.
+- **Close**: hides the assistant. You can also press **Esc**.
+
+The conversation is kept in your browser while the tab is open, so it stays when you move between pages and is cleared when you close the tab.
+
 ## Getting Started Tour
 
 On first login, a short guided tour highlights the main areas of the interface. You can skip it at any time; it won't reappear once dismissed.

@@ -735,11 +735,23 @@ export const pages = {
       bulkShot('#domains_table', ['example.test.rs', 'shop.test.rs'], 'Change PHP version step of the bulk actions bar with a dropdown of the installed PHP versions', { name: 'bulk-php', action: 'php' }),
     ],
   },
-  // FTP owners of user@domain accounts come from the domain lookup, the demo doesn't have that yet
+  // FTP owners and quotas (new in 2.0.15) aren't on the demo yet
   'services/ftp_server': {
     as: 'services/ftp',
     url: '/services/ftp',
-    shots: [{ name: 'accounts', alt: 'FTP page on the Accounts tab with the FTP service status and the table of FTP accounts with their owner', crop: 'content' }],
+    shots: [
+      { name: 'accounts', alt: 'FTP page on the Accounts tab with the FTP service status and the table of FTP accounts with their owner, path and quota', crop: 'content' },
+      {
+        name: 'quota',
+        alt: 'FTP Accounts tab with the quota field of an account open',
+        prepare: async page => {
+          await page.locator('#ftp_accounts_table tbody tr:nth-of-type(2) button:has-text("Set quota")').click();
+          await page.waitForTimeout(300);
+        },
+        crop: { from: '#ftp_accounts_table thead', to: '#ftp_accounts_table tbody tr:last-of-type', pad: 8 },
+      },
+      bulkShot('#ftp_accounts_table', ['backup@example.test.rs', 'designer@example.test.rs'], 'Two FTP accounts selected with the bulk actions bar offering Set quota and Remove quota'),
+    ],
   },
   'services/status_server': {
     as: 'services/status',

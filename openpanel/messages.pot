@@ -15394,3 +15394,79 @@ msgstr ""
 #: internal/modules/waf/handlers_list.go
 msgid "set to monitor only"
 msgstr ""
+
+#: internal/modules/ftp/ftp.go internal/modules/ftp/quota.go
+msgid "Invalid quota, use a whole number of MB or GB."
+msgstr ""
+
+#: internal/modules/ftp/ftp.go
+msgid "Disk quota for the selected FTP accounts, e.g. 500M or 2G:"
+msgstr ""
+
+#: internal/modules/ftp/ftp.go
+msgid "Remove quota"
+msgstr ""
+
+#: internal/modules/ftp/ftp.go
+msgid "Remove the disk quota from the selected FTP accounts?"
+msgstr ""
+
+#: internal/modules/ftp/quota.go
+msgid "Failed to change FTP quota for user %(username)s: %(output)s"
+msgstr ""
+
+#: internal/modules/ftp/quota.go
+msgid "FTP quota removed for user %(username)s"
+msgstr ""
+
+#: internal/modules/ftp/quota.go
+msgid "FTP quota changed successfully for user %(username)s"
+msgstr ""
+
+#: internal/modules/ftp/render.go
+msgid "Change FTP Quota"
+msgstr ""
+
+#: internal/web/templates/files/ftp.html internal/web/templates/files/ftp_quota.html
+msgid "Over quota"
+msgstr ""
+
+#: internal/web/templates/files/ftp.html internal/web/templates/files/ftp_new.html internal/web/templates/files/ftp_quota.html
+msgid "Unlimited"
+msgstr ""
+
+#: internal/web/templates/files/ftp.html
+msgid "Change Quota"
+msgstr ""
+
+#: internal/web/templates/files/ftp_new.html internal/web/templates/files/ftp_quota.html
+msgid "Disk quota"
+msgstr ""
+
+#: internal/web/templates/files/ftp_new.html internal/web/templates/files/ftp_quota.html
+msgid "Unit"
+msgstr ""
+
+#: internal/web/templates/files/ftp_new.html internal/web/templates/files/ftp_quota.html
+msgid "Leave empty or set 0 for no limit. Uploads are blocked once the folder grows past the quota, files can still be deleted."
+msgstr ""
+
+#: internal/web/templates/files/ftp_quota.html
+msgid "FTP Quota Header"
+msgstr ""
+
+#: internal/web/templates/files/ftp_quota.html
+msgid "FTP Quota"
+msgstr ""
+
+#: internal/web/templates/files/ftp_quota.html
+msgid "Change disk quota for FTP user"
+msgstr ""
+
+#: internal/web/templates/files/ftp_quota.html
+msgid "Current quota"
+msgstr ""
+
+#: internal/web/templates/files/ftp_quota.html
+msgid "Used"
+msgstr ""

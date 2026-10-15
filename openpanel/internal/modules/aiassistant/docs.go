@@ -232,6 +232,8 @@ var stopwords = map[string]bool{
 	"does": true, "why": true, "who": true, "was": true, "will": true, "into": true, "there": true, "should": true,
 	"would": true, "could": true, "about": true, "then": true, "than": true, "them": true, "they": true, "its": true,
 	"use": true, "using": true, "get": true, "want": true, "need": true, "please": true, "doc": true, "docs": true,
+	"do": true, "is": true, "it": true, "to": true, "in": true, "on": true, "of": true, "my": true, "me": true,
+	"an": true, "or": true, "be": true, "if": true, "at": true, "by": true, "as": true, "so": true, "we": true,
 }
 
 func tokenize(s string) []string {
@@ -288,6 +290,10 @@ func (idx *docIndex) search(query string) []chunk {
 			df := float64(idx.df[t])
 			idf := math.Log(1 + (n-df+0.5)/(df+0.5))
 			score += idf * tf * (k1 + 1) / (tf + k1*(1-b+b*float64(c.size)/idx.avgLen))
+		}
+		// panel/ pages describe the ui the user is looking at, articles are more general
+		if strings.HasPrefix(c.Path, "panel/") {
+			score *= 1.5
 		}
 		if score > 0 {
 			results = append(results, scored{i, score})

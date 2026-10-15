@@ -16,11 +16,11 @@ opencli ftp-list
 ```bash
 # opencli ftp-list
 FTP sub-users for 'stefan':
-backup@example.com | /var/www/html/example.com
-dev@example.com | /var/www/html/example.com/dev
+backup@example.com | /var/www/html/example.com | 2048M
+dev@example.com | /var/www/html/example.com/dev | unlimited
 
 FTP sub-users for 'demo':
-upload@demo.net | /var/www/html/demo.net
+upload@demo.net | /var/www/html/demo.net | unlimited
 ```
 </details>
 
@@ -36,33 +36,47 @@ opencli ftp-list <OPENPANEL_USERNAME>
 ```bash
 # opencli ftp-list stefan
 FTP sub-users for 'stefan':
-backup@example.com | /var/www/html/example.com
-dev@example.com | /var/www/html/example.com/dev
+backup@example.com | /var/www/html/example.com | 2048M
+dev@example.com | /var/www/html/example.com/dev | unlimited
 ```
 </details>
 
-Add `--json` to either command for JSON output.
+The last column is the account's disk quota, see [Quota](#quota).
+
+Add `--json` to either command for JSON output. `quota_mb` is `0` for unlimited accounts, `used_kb` is the disk usage from the last quota check and is empty for accounts without a quota.
 
 <details>
   <summary>Example output</summary>
 
 ```bash
 # opencli ftp-list stefan --json
-[{"openpanel_user":"stefan","username":"backup@example.com","password":"$6$rounds=656000$...","directory":"/var/www/html/example.com","uid":"1001","gid":"1001"}]
+[{"openpanel_user":"stefan","username":"backup@example.com","password":"$6$rounds=656000$...","directory":"/var/www/html/example.com","uid":"1001","gid":"1001","quota_mb":"2048","used_kb":"524288"}]
 ```
 </details>
 
 ## Add
 Create FTP sub-user for openpanel user:
 ```bash
-opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--debug]
+opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--quota=<MB>] [--debug]
 ```
+
+`--quota` sets a disk quota right away, in MB (`500`) or with a unit (`500M`, `2G`), see [Quota](#quota).
 
 <details>
   <summary>Example output</summary>
 
 ```bash
 # opencli ftp-add backup@example.com 'StrongPass1' /var/www/html/example.com stefan
+Success: FTP user 'backup@example.com' created successfully (UID: 1001, GID: 1001).
+```
+</details>
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli ftp-add backup@example.com 'StrongPass1' /var/www/html/example.com stefan --quota=2G
+    FTP quota for user 'backup@example.com' set to 2G.
 Success: FTP user 'backup@example.com' created successfully (UID: 1001, GID: 1001).
 ```
 </details>
@@ -96,6 +110,43 @@ opencli ftp-path <username> <path> <openpanel_username> [--debug]
 Success: FTP path for user 'backup@example.com' changed successfully.
 ```
 </details>
+
+## Quota
+Show the disk quota and usage of an FTP sub-user:
+```bash
+opencli ftp-quota <username> <openpanel_username>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli ftp-quota backup@example.com stefan
+FTP user 'backup@example.com' quota: 2G, used: 512M
+```
+</details>
+
+Set or remove the disk quota:
+```bash
+opencli ftp-quota <username> <quota> <openpanel_username> [--debug]
+```
+
+`<quota>` is in MB (`500`) or with a unit (`500M`, `2G`). `0` or `unlimited` removes the quota.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli ftp-quota backup@example.com 2G stefan
+Success: FTP quota for user 'backup@example.com' set to 2G.
+# opencli ftp-quota backup@example.com unlimited stefan
+Success: Quota removed for FTP user 'backup@example.com'.
+```
+</details>
+
+The quota is the size of the account's folder (everything under its path, also files uploaded by other means). The FTP service checks it when it starts and then every 60 seconds. Once the folder is over the quota, uploads and new folders are refused and open sessions of that account are closed, deleting and downloading files still works. Uploads are allowed again on the next check after the folder is back under the quota. `opencli ftp-quota` runs a check right away.
+
+Quotas are stored as the 6th field in `/etc/openpanel/ftp/users/<openpanel_username>/users.list`, and the usage from the last check in `quota.usage` next to it.
 
 ## Delete
 Delete FTP sub-user for openpanel user:
@@ -160,7 +211,16 @@ Wed Sep 24 10:31:02 2026 [pid 413] [backup@example.com] OK UPLOAD: Client "203.0
 </details>
 
 ## Users
-Recreate list of all ftp users *(internal helper, not available as an `opencli` command)*:
+Recreate the list of all FTP users in `/etc/openpanel/ftp/all.users`, used by OpenAdmin *(internal helper, not listed in `opencli --help`)*:
 ```bash
-bash /usr/local/opencli/ftp/users.sh
+opencli ftp-users
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli ftp-users
+backup@example.com|$6$...|/home/stefan/docker-data/volumes/stefan_html_data/_data/example.com|1001|1001|2048 upload@demo.net|$6$...|/home/demo/docker-data/volumes/demo_html_data/_data/demo.net|1002|1002
+```
+</details>

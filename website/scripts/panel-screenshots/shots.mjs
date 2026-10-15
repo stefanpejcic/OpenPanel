@@ -44,6 +44,8 @@ const DOMAINS = {
   'waf4.tests.openpanel.org': 'shop.example.com',
   'waf.tests.openpanel.org': 'blog.example.com',
   'tests.openpanel.org': 'example.com',
+  // test server domain, for pages shot there with PANEL_URL
+  'example.test.rs': 'example.com',
   'aliasexample@': 'sales@',
   'something@gmail.com': 'team@example.org',
   'test1@': 'john@',
@@ -1039,17 +1041,29 @@ export const pages = {
       },
     ],
   },
-  // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs files/ftp
+  // quotas are new in 2.0.15, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs files/ftp files/ftp_new files/ftp_quota
   'files/ftp': {
     url: '/ftp',
     shots: [
-      { name: 'list', alt: 'FTP Accounts page with the FTP server and port, and a table of accounts with their path and configuration downloads', crop: 'content' },
-      bulkShot('#ftp-table', 2, 'Two FTP accounts selected with the bulk actions bar offering Change password, Change path and Delete'),
+      { name: 'list', alt: 'FTP Accounts page with the FTP server and port, and a table of accounts with their path, quota and configuration downloads', crop: 'content' },
+      bulkShot('#ftp-table', 2, 'Two FTP accounts selected with the bulk actions bar offering Change password, Change path, Change quota, Remove quota and Delete'),
     ],
   },
   'files/ftp_new': {
     url: '/ftp/new',
-    shots: [{ name: 'form', alt: 'New FTP Account form with the username, domain, password and path fields', prepare: fillVisible(['deploy']), crop: 'content' }],
+    shots: [{
+      name: 'form',
+      alt: 'New FTP Account form with the username, domain, password, path and disk quota fields',
+      prepare: all(fillVisible(['deploy']), fill({ '#quota': '2' }), async page => page.selectOption('#quota_unit', 'G'),
+        // the domain select shows its options' label attribute, which rename() doesn't touch
+        async page => page.evaluate(map => document.querySelectorAll('#domain option[label]').forEach(o => o.label = map[o.label] || o.label), DOMAINS)),
+      crop: 'content',
+    }],
+  },
+  // FTP_QUOTA_USER picks an account on the server the page is shot from
+  'files/ftp_quota': {
+    url: `/ftp/quota/${process.env.FTP_QUOTA_USER || 'stefan@wp.tests.openpanel.org'}`,
+    shots: [{ name: 'form', alt: 'Change FTP quota form with the current quota and usage, and the quota field with a MB/GB unit', crop: 'content' }],
   },
   'files/ftp_connections': {
     url: '/ftp/connections',
@@ -2031,14 +2045,17 @@ export const pages = {
     shots: [
       {
         name: 'delete',
-        alt: 'Delete button of an FTP account turned into a Confirm button with a countdown after the first click',
+        alt: 'Delete icon of an FTP account turned into a Confirm button with a countdown after the first click',
         prepare: async page => {
           // the actions column is past the right edge, so scroll the table to it first
           await page.evaluate(() => document.querySelectorAll('main .overflow-x-auto, main .overflow-auto').forEach(e => (e.scrollLeft = e.scrollWidth)));
-          await page.locator('main table tbody tr:first-of-type button:has-text("Delete")').click();
+          await page.locator('main table tbody tr:first-of-type form[action="/ftp/delete"] button').click();
+          await page.mouse.move(0, 0);
+          // Confirm is wider than the icon, scroll again so it isn't cut off
+          await page.evaluate(() => document.querySelectorAll('main .overflow-x-auto, main .overflow-auto').forEach(e => (e.scrollLeft = e.scrollWidth)));
           await page.waitForTimeout(300);
         },
-        crop: { from: 'main table thead', to: 'main table tbody tr:first-of-type', pad: 8 },
+        crop: { from: 'main table tbody tr:first-of-type a[href^="/ftp/password/"]', to: 'main table tbody tr:first-of-type form[action="/ftp/delete"]', pad: 16 },
       },
       {
         name: 'config',
