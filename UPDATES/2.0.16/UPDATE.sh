@@ -115,8 +115,24 @@ fi
 for copy in /etc/openpanel/caddy/suspended_domains/*.conf; do
     [ -f "$copy" ] || continue
     live="/etc/openpanel/caddy/domains/$(basename "$copy")"
-    if [ -f "$live" ] && ! grep -q "suspended_domain.html" "$live"; then
+    if [ -f "$live" ] && ! grep -qE '^# suspended_by:|suspended_domain\.html' "$live"; then
         echo "Removing stale suspended copy $copy..."
         rm -f "$copy"
+    fi
+done
+
+# suspension reason pages are new in 2.0.16, only fetch missing ones so admin edits are kept
+mkdir -p /etc/openpanel/caddy/templates/suspended
+for reason in dmca billing phishing; do
+    dest="/etc/openpanel/caddy/templates/suspended/$reason.html"
+    [ -f "$dest" ] && continue
+    tmp=$(mktemp)
+    if wget --timeout=15 --tries=2 -q -O "$tmp" "$CONFIG_RAW/caddy/templates/suspended/$reason.html" && [ -s "$tmp" ]; then
+        echo "Adding suspension reason page $dest..."
+        mv "$tmp" "$dest"
+        chmod 644 "$dest"
+    else
+        rm -f "$tmp"
+        echo "Failed to download $CONFIG_RAW/caddy/templates/suspended/$reason.html"
     fi
 done
