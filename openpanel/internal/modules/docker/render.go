@@ -496,7 +496,7 @@ func renderChangeWebserverPage(a *appctx.App, w http.ResponseWriter, r *http.Req
 	}
 	data := ChangeWebserverPageData{
 		LayoutData: layout, Title: "Webserver", Webserver: webserver,
-		Choices:     serverChoicesFor(userContext, webserverChoices, webserver, func(v string) string { return v }),
+		Choices:     webserverChoicesFor(userContext, webserver),
 		DomainCount: len(userDomains),
 	}
 	if err := changeWebserverPage.Render(w, http.StatusOK, data); err != nil {

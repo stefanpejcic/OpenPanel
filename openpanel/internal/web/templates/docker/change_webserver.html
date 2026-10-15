@@ -27,13 +27,13 @@
             <label class="flex items-center gap-3 rounded border p-4 {{if .Current}}border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900{{else}}cursor-pointer{{end}}"
                    {{if not .Current}}:class="choice === {{toJSON .Value}} ? 'border-indigo-500 shadow-md' : 'border-gray-200 dark:border-gray-700'"{{end}}>
                 <input type="radio" name="new_ws" value="{{.Value}}" {{if .Current}}checked disabled{{else}}x-model="choice" @change="label = {{toJSON .Label}}"{{end}} {{if $.DomainCount}}disabled{{end}}>
-                <span class="shrink-0 rounded-md bg-white p-1 shadow-sm"><img src="{{static (printf "img/servers/%s.svg" .Icon)}}" alt="" class="w-8 h-8"></span>
+                <span class="shrink-0 rounded-md bg-white p-1 shadow-sm">{{if .Icon}}<img src="{{static (printf "img/servers/%s.svg" .Icon)}}" alt="" class="w-8 h-8">{{else}}<i class="bi bi-hdd-stack flex items-center justify-center w-8 h-8 text-xl text-gray-500"></i>{{end}}</span>
                 <span>
                     <span class="flex items-center gap-1.5">
                         <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.Label}}</span>
                         {{if .Current}}<span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400">{{$.T.Get "Current"}}</span>{{end}}
                     </span>
-                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{$.T.Get .Description}}</span>
+                    {{if .Description}}<span class="block text-xs text-gray-500 dark:text-gray-400">{{$.T.Get .Description}}</span>{{end}}
                 </span>
             </label>
             {{end}}

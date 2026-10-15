@@ -684,10 +684,16 @@ function onboardingWizard(opts) {
             this.open = true;
 
             if (this.opts.webserver) {
-                this.getJSON('/containers/webserver?output=json').then(({ ok, data }) => {
-                    if (ok && typeof data === 'string') {
-                        this.currentWebserver = data;
-                        this.webserverChoice = data;
+                this.getJSON('/containers/webserver?output=json&available=1').then(({ ok, data }) => {
+                    if (ok && data && typeof data.current === 'string') {
+                        this.currentWebserver = data.current;
+                        this.webserverChoice = data.current;
+                        const available = Array.isArray(data.available) ? data.available : [];
+                        // only offer webservers defined in the user's docker-compose.yml, plus ones we have no card for
+                        const known = this.webserverOptions.map(o => o.value);
+                        this.webserverOptions = this.webserverOptions
+                            .filter(o => available.includes(o.value) || o.value === data.current)
+                            .concat(available.filter(v => !known.includes(v)).map(v => ({ value: v, label: v, description: '', icon: '' })));
                     }
                 });
             }

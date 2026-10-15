@@ -18,7 +18,7 @@ Each web server is shown as a card with a short description of what it's best fo
 | **OpenLiteSpeed** | WordPress websites, but only one PHP version. |
 | **OpenResty** | Nginx core bundled with Lua scripting for custom logic. |
 
-The web server you're using now is marked **Current**. Only web servers available on your account are listed.
+The web server you're using now is marked **Current**. Only web servers defined in your account's `docker-compose.yml` are listed, so your hosting provider may offer fewer than the four above.
 
 ## Requirements
 

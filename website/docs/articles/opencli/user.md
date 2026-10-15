@@ -172,7 +172,7 @@ Optional flags:
 - `--send-email` - send an email with login credentials to the user's email address.
 - `--private-note=<NOTE>` - save a private note for this user (visible only in OpenAdmin).
 - `--reseller=<RESELLER_USERNAME>` - assign a reseller as the owner of this user.
-- `--webserver=<TYPE>` - webserver to use: `nginx`, `apache`, `openresty`, `openlitespeed` or `litespeed`, optionally prefixed with `varnish+` (e.g. `varnish+nginx`). Defaults to the plan/server setting.
+- `--webserver=<TYPE>` - webserver to use, one of the webservers defined in the default `docker-compose.yml` template (by default `nginx`, `apache`, `openresty` or `openlitespeed`), optionally prefixed with `varnish+` (e.g. `varnish+nginx`). A webserver not in the template is ignored with a warning and the default is used.
 - `--sql=<mysql|mariadb>` - database type to use.
 - `--no-sentinel` - don't send the *user_create* notification.
 - `--skip-images` - don't pull container images for the new user.

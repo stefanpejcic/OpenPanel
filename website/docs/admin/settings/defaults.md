@@ -25,6 +25,12 @@ The page shows recommendations based on the sites, plans and services already on
 > [How to setup Apache, Nginx, OpenResty, OpenLiteSpeed, and Varnish as default webserver](/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 > [How to setup MySQL, MariaDB or Percona for default database type](/docs/articles/containers/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 
+### Available webservers
+
+The webservers offered on this page, on the **Add User** form and to users are the ones defined in the `docker-compose.yml` template, not a fixed list. A service counts as a webserver if it mounts the `webserver_data` volume and publishes ports.
+
+To stop offering a webserver, for example OpenLiteSpeed, remove its service block from the default `docker-compose.yml` using the 'Advanced' option. New accounts won't get it and it disappears from the Defaults page and the Add User form. Existing accounts keep their own copy of the file, so their current webserver isn't affected. To hide it from one existing user, remove the block from that user's `docker-compose.yml`.
+
 ---
 
 Using the 'Advanced' option you can directly edit the files.

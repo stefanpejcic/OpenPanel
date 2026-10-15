@@ -172,8 +172,6 @@ func handleContainersMySQL(a *appctx.App, w http.ResponseWriter, r *http.Request
 	renderChangeMySQLPage(a, w, r, userContext, flavor, blocked, dbCount)
 }
 
-var webserverOptions = []string{"apache", "nginx", "openresty", "openlitespeed", "litespeed"}
-
 // handleContainersWebserver swaps the active webserver container. Same clean-early-return choice as handleContainersMySQL above: every failure branch redirects immediately with its specific error message.
 func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -188,7 +186,7 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 
 	webserver, _ := GetEnvValue(userContext, "WEB_SERVER")
 	var available []string
-	for _, ws := range webserverOptions {
+	for _, ws := range AvailableWebservers(userContext) {
 		if ws != webserver {
 			available = append(available, ws)
 		}
@@ -270,6 +268,10 @@ func handleContainersWebserver(a *appctx.App, w http.ResponseWriter, r *http.Req
 	}
 
 	if r.URL.Query().Get("output") == "json" {
+		if r.URL.Query().Get("available") == "1" {
+			writeJSON(w, map[string]any{"current": webserver, "available": AvailableWebservers(userContext)})
+			return
+		}
 		writeJSON(w, webserver)
 		return
 	}

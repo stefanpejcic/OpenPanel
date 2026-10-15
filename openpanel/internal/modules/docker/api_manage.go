@@ -390,7 +390,7 @@ func apiContainerSwitchWebserver(a *appctx.App, w http.ResponseWriter, r *http.R
 
 	webserver, _ := GetEnvValue(userContext, "WEB_SERVER")
 	var available []string
-	for _, ws := range webserverOptions {
+	for _, ws := range AvailableWebservers(userContext) {
 		if ws != webserver {
 			available = append(available, ws)
 		}
