@@ -3,8 +3,7 @@ package backups
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
+	"io"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 )
@@ -51,13 +50,13 @@ func (s *azureStore) client() (*azblob.Client, string, error) {
 	return c, container, nil
 }
 
-func (s *azureStore) List(ctx context.Context) ([]string, error) {
+func (s *azureStore) List(ctx context.Context) ([]remoteFile, error) {
 	client, container, err := s.client()
 	if err != nil {
 		return nil, err
 	}
 
-	var names []string
+	var files []remoteFile
 	pager := client.NewListBlobsFlatPager(container, nil)
 	for pager.More() {
 		page, err := pager.NextPage(ctx)
@@ -68,42 +67,27 @@ func (s *azureStore) List(ctx context.Context) ([]string, error) {
 			continue
 		}
 		for _, item := range page.Segment.BlobItems {
-			if item.Name != nil {
-				names = append(names, *item.Name)
+			if item.Name == nil {
+				continue
 			}
+			f := remoteFile{Name: *item.Name}
+			if item.Properties != nil && item.Properties.ContentLength != nil {
+				f.Size = *item.Properties.ContentLength
+			}
+			files = append(files, f)
 		}
 	}
-	return names, nil
+	return files, nil
 }
 
-func (s *azureStore) Fetch(ctx context.Context, filename string) (localPath string, cleanup func(), err error) {
+func (s *azureStore) Open(ctx context.Context, filename string) (io.ReadCloser, error) {
 	client, container, err := s.client()
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
-
-	tmpDir, err := os.MkdirTemp("", "backup_restore_")
+	resp, err := client.DownloadStream(ctx, container, filename, nil)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
-	cleanup = func() { _ = os.RemoveAll(tmpDir) }
-
-	localPath = filepath.Join(tmpDir, filename)
-	localFile, err := os.Create(localPath)
-	if err != nil {
-		cleanup()
-		return "", nil, err
-	}
-	defer localFile.Close()
-
-	if _, err := client.DownloadFile(ctx, container, filename, localFile, nil); err != nil {
-		cleanup()
-		return "", nil, err
-	}
-
-	return localPath, cleanup, nil
-}
-
-func (s *azureStore) Classify(ctx context.Context, filename string) (BackupInfo, error) {
-	return classifyViaDownload(ctx, s, filename)
+	return resp.Body, nil
 }

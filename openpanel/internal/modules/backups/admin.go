@@ -31,5 +31,5 @@ func respondBackupsAdminManaged(a *appctx.App, w http.ResponseWriter, r *http.Re
 		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": msg})
 		return
 	}
-	web.FlashRedirect(a, w, r, "error", msg, "/backups")
+	web.FlashRedirect(a, w, r, "error", msg, "/backups/list")
 }

@@ -15470,3 +15470,243 @@ msgstr ""
 #: internal/web/templates/files/ftp_quota.html
 msgid "Used"
 msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Virtual Hosts"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Select one or more databases. The newest backup is used unless you choose another one."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Select a backup to restore only the cron jobs from it."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Search..."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Latest"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "No backups found."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "backups found"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "No databases found in the backups."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Clear Selection"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Restore Summary"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Items to restore"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Website files"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Virtual hosts"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Cron jobs"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Restore Selected Items"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Total Backups"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Latest Backup"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Total Size"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "DNS Zones"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Select a backup to restore all its website files, or pick single files and folders with Choose files."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "This backup was made before single items could be restored."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Choose files"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "This folder is empty."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Will be added"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Restore the domain first"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "messages"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Restore selected"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Selected files"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Selected mailboxes"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Selected domains"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Selected DNS zones"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Select one or more email accounts. The newest backup is used unless you choose another one."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Select a backup to restore everything in it: files, databases, emails, domains with their DNS zones and cron jobs."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Select one or more domains to restore their configuration and DNS zone. Domains you deleted are added back to your account first."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "DNS zone"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "VirtualHost"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Backup types"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "What do you want to restore?"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Pick a type to see its backups."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "backups"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "databases"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "email accounts"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Nothing found in the backups. Backups made before this version don't list emails and domains, restore those from the Everything tab."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Added to the queue."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Queue"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Restores run one at a time, the rest wait here."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "What"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "From backup"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Waiting"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Nothing is being restored right now."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Your latest restores, newest first."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Restored"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Took"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "No restores yet."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "The items are added to the queue and restored one at a time."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Last Restore"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "in queue"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Restore activity"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Restores run one at a time, the rest wait in the queue."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "restores"
+msgstr ""

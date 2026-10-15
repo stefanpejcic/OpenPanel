@@ -2,6 +2,7 @@ package backups
 
 import (
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -128,21 +129,24 @@ func TestRenderBackupRestorePage(t *testing.T) {
 	})
 
 	t.Run("with backups", func(t *testing.T) {
-		rows := []RestoreBackupRow{{
-			BackupInfo: BackupInfo{BackupFile: "site_2026-01-01.tar.gz", Types: []string{"html", "mysql"}, Databases: []string{"wp_db"}, HasFiles: true},
-		}}
-		rows[0].JSON = jsonJS(rows[0].BackupInfo)
-		data := BackupRestorePageData{LayoutData: baseLayout(mgr, "/backups/list"), Backups: rows}
+		items := restoreItems([]BackupInfo{{
+			BackupFile: "site-2026-01-01T02-03-04.tar.gz", Types: []string{"html", "mysql"}, Databases: []string{"wp_db"}, HasFiles: true,
+			Size: 48303368, DatabaseSizes: map[string]int64{"wp_db": 4504538}, DatabaseEngines: map[string]string{"wp_db": "mysql"},
+		}}, "", nil)
+		data := BackupRestorePageData{LayoutData: baseLayout(mgr, "/backups/list"), Backups: items, PageJSON: jsonJS(items)}
 		w := httptest.NewRecorder()
 		if err := backupRestorePage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		if !strings.Contains(body, "site_2026-01-01.tar.gz") {
+		if !strings.Contains(body, "site-2026-01-01T02-03-04.tar.gz") {
 			t.Error("expected backup filename")
 		}
 		if !strings.Contains(body, "wp_db") {
 			t.Error("expected database badge")
+		}
+		if !strings.Contains(body, "46.1 MB") || !strings.Contains(body, "4.3 MB") {
+			t.Error("expected archive and database sizes")
 		}
 	})
 
@@ -156,4 +160,47 @@ func TestRenderBackupRestorePage(t *testing.T) {
 			t.Error("expected reindex error message")
 		}
 	})
+}
+
+func TestRestoreItemsNewestFirst(t *testing.T) {
+	items := restoreItems([]BackupInfo{
+		{BackupFile: "u-2026-10-14T02-00-00.tar.gz", Databases: []string{"a"}, DatabaseEngines: map[string]string{"a": "postgres"}},
+		{BackupFile: "u-2026-10-15T09-35-02.tar.gz", Lists: []string{"files", "mail"}},
+		{BackupFile: "renamed.tar.gz"},
+	}, "", nil)
+	// the page enables the Choose buttons from lists
+	if !reflect.DeepEqual(items[0].Lists, []string{"files", "mail"}) || items[1].Lists == nil {
+		t.Errorf("lists not passed to the page: %+v", items)
+	}
+	if items[0].File != "u-2026-10-15T09-35-02.tar.gz" || items[0].Created != "2026-10-15T09:35:02Z" {
+		t.Errorf("expected newest first with its date, got %+v", items[0])
+	}
+	if items[2].File != "renamed.tar.gz" || items[2].Created != "" {
+		t.Errorf("archive without a date in its name goes last, got %+v", items[2])
+	}
+	if items[1].Databases[0].Engine != "postgres" || items[1].Types == nil {
+		t.Errorf("unexpected item %+v", items[1])
+	}
+}
+
+func TestRestoreItemsReadsCachedLists(t *testing.T) {
+	home := t.TempDir()
+	name := "u-2026-10-15T10-58-27.tar.gz"
+	if err := saveList(home, name, "mail", strings.NewReader("152\t1\texample.com/info\n")); err != nil {
+		t.Fatal(err)
+	}
+	if err := saveList(home, name, "vhosts", strings.NewReader("1800\t1\texample.com.conf\n1800\t1\tgone.com.conf\n")); err != nil {
+		t.Fatal(err)
+	}
+	items := restoreItems([]BackupInfo{{BackupFile: name, Lists: []string{"files", "mail", "vhosts"}}}, home, map[string]bool{"example.com": true})
+	it := items[0]
+	if len(it.Mailboxes) != 1 || it.Mailboxes[0].Count != 1 || !it.Mailboxes[0].OnServer {
+		t.Errorf("mailboxes = %+v", it.Mailboxes)
+	}
+	if len(it.Domains) != 2 || it.Domains[1].Name != "gone.com" || it.Domains[1].OnServer {
+		t.Errorf("domains = %+v", it.Domains)
+	}
+	if it.Zones == nil || len(it.Zones) != 0 {
+		t.Errorf("zones should be an empty list, got %+v", it.Zones)
+	}
 }

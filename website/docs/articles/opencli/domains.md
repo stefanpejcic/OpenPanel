@@ -71,6 +71,8 @@ Domain example.com added successfully
 ```
 </details>
 
+The domain's mail folder and DNS zone are also mounted read-only into the user's `backup` service (`backup/emails/<domain>` and `backup/dns/<domain>.zone` in the user's `docker-compose.yml`), so both end up in their backups. If the user runs backups on their own schedule and the backup container is running, it's recreated to pick up the new mounts.
+
 ### Custom Docroot
 
 To add a domain name with custom docroot:
@@ -410,6 +412,8 @@ opencli domains-delete <DOMAIN_NAME> [--debug]
 Domain example.com deleted successfully
 ```
 </details>
+
+The domain's mail and DNS zone mounts are removed from the user's `backup` service again, and its link in the user's mail volume is deleted (the other domains keep theirs).
 
 ## SSL
 

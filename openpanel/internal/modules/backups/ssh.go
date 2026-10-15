@@ -5,7 +5,6 @@ import (
 	"io"
 	"net"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -77,7 +76,7 @@ type sshStore struct {
 }
 
 // List reports the remote backup directory's entries via SFTP rather than shelling out to `ls`, so it works the same regardless of what shell (or lack thereof) the SSH destination provides
-func (s *sshStore) List(ctx context.Context) ([]string, error) {
+func (s *sshStore) List(ctx context.Context) ([]remoteFile, error) {
 	client, err := dialSSH(s.config)
 	if err != nil {
 		return nil, err
@@ -96,69 +95,59 @@ func (s *sshStore) List(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	var names []string
+	var files []remoteFile
 	for _, entry := range entries {
 		if !entry.IsDir() {
-			names = append(names, entry.Name())
+			files = append(files, remoteFile{Name: entry.Name(), Size: entry.Size()})
 		}
 	}
-	return names, nil
+	return files, nil
 }
 
-// Fetch downloads one backup archive from the SSH/SFTP destination into a local temp file. The caller must call cleanup() once done with the local copy.
-func (s *sshStore) Fetch(ctx context.Context, filename string) (localPath string, cleanup func(), err error) {
+// sftpFile closes the sftp session and ssh connection along with the file
+type sftpFile struct {
+	*sftp.File
+	sftpClient *sftp.Client
+	client     *ssh.Client
+}
+
+func (f *sftpFile) Close() error {
+	err := f.File.Close()
+	f.sftpClient.Close()
+	f.client.Close()
+	return err
+}
+
+func (s *sshStore) Open(ctx context.Context, filename string) (io.ReadCloser, error) {
 	client, err := dialSSH(s.config)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
-	defer client.Close()
 
 	sftpClient, err := sftp.NewClient(client)
 	if err != nil {
-		return "", nil, err
+		client.Close()
+		return nil, err
 	}
-	defer sftpClient.Close()
 
 	remotePath := strings.TrimRight(s.config["SSH_REMOTE_PATH"], "/")
-	remoteFilePath := remotePath + "/" + filename
-
-	tmpDir, err := os.MkdirTemp("", "backup_restore_")
+	remoteFile, err := sftpClient.Open(remotePath + "/" + filename)
 	if err != nil {
-		return "", nil, err
+		sftpClient.Close()
+		client.Close()
+		return nil, err
 	}
-	cleanup = func() { _ = os.RemoveAll(tmpDir) }
-
-	remoteFile, err := sftpClient.Open(remoteFilePath)
-	if err != nil {
-		cleanup()
-		return "", nil, err
-	}
-	defer remoteFile.Close()
-
-	localPath = filepath.Join(tmpDir, filename)
-	localFile, err := os.Create(localPath)
-	if err != nil {
-		cleanup()
-		return "", nil, err
-	}
-	defer localFile.Close()
-
-	if _, err := io.Copy(localFile, remoteFile); err != nil {
-		cleanup()
-		return "", nil, err
-	}
-
-	return localPath, cleanup, nil
+	return &sftpFile{File: remoteFile, sftpClient: sftpClient, client: client}, nil
 }
 
-// Classify lists one remote archive's members with a remote `tar -tzf` instead of downloading it first - a meaningful savings for large archives, and the reason SSH keeps its own connection-based Classify instead of falling back to classifyViaDownload like every other backend
-func (s *sshStore) Classify(ctx context.Context, filename string) (BackupInfo, error) {
+// ListMembers runs `tar -tzf` on the remote host, so archives without a manifest can still be indexed without downloading them
+func (s *sshStore) ListMembers(ctx context.Context, filename string) (string, error) {
 	client, err := dialSSH(s.config)
 	if err != nil {
-		return BackupInfo{}, err
+		return "", err
 	}
 	defer client.Close()
 
 	remotePath := strings.TrimRight(s.config["SSH_REMOTE_PATH"], "/")
-	return processBackup(client, filename, remotePath), nil
+	return runSSHCommand(client, "tar -tzf "+shellQuoteArg(remotePath+"/"+filename)+" 2>/dev/null")
 }

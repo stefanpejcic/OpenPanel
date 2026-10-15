@@ -160,6 +160,8 @@ opencli docker-backup --parallel=4
 
 To skip a user, create `/home/<context>/backup.off`. Everything is logged to `/var/log/openpanel/admin/docker-backup.log`.
 
+Before backing up a user, a running `mysql`, `mariadb` or `postgres` container that was created before the `backup_meta` volume was added to the user's `docker-compose.yml` is recreated once (`Recreating mysql for context: stefan to add the backup_meta volume`), so its dumps get listed in the archive's `backup/00-meta/` folder.
+
 If the backup fails for any user, or the list of active users can't be read from the database, a critical **Backup failed** notification is added in OpenAdmin with the failed usernames and the log path. Set `docker_backup=no` in `/etc/openpanel/openadmin/config/notifications.ini` (or turn off *Backup failed* under OpenAdmin > Settings > Notifications) to disable it.
 
 ### logs

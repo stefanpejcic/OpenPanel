@@ -25,6 +25,11 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/backups/list", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleListBackupsFromDestination(a, w, r) }))
 	mux.Handle("POST /backups/restore", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRestoreFromBackup(a, w, r) }))
 	mux.Handle("POST /backups/download", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDownloadBackup(a, w, r) }))
+	mux.Handle("GET /backups/files", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleBackupFiles(a, w, r) }))
+	mux.Handle("POST /backups/download-file", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDownloadBackupFile(a, w, r) }))
+	mux.Handle("POST /backups/download-items", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDownloadItems(a, w, r) }))
+	mux.Handle("POST /backups/queue", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleQueueRestore(a, w, r) }))
+	mux.Handle("GET /backups/jobs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRestoreJobs(a, w, r) }))
 }
 
 func envFilePath(userContext string) string {
@@ -321,6 +326,11 @@ func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	adminManaged := AdminManagedBackups(userContext)
+	// nothing to configure on an admin-managed account, so the restore page is the landing page
+	if adminManaged && r.URL.Query().Get("output") != "json" {
+		http.Redirect(w, r, "/backups/list", http.StatusFound)
+		return
+	}
 	path := envFilePath(userContext)
 
 	if _, statErr := os.Stat(path); statErr != nil {

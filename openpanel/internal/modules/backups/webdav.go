@@ -9,9 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"path"
-	"path/filepath"
 	"strings"
 )
 
@@ -81,6 +79,16 @@ type davProp struct {
 	ResourceType struct {
 		Collection *struct{} `xml:"collection"`
 	} `xml:"resourcetype"`
+	ContentLength int64 `xml:"getcontentlength"`
+}
+
+func (r davResponse) size() int64 {
+	for _, ps := range r.Propstat {
+		if ps.Prop.ContentLength > 0 {
+			return ps.Prop.ContentLength
+		}
+	}
+	return 0
 }
 
 func (r davResponse) isCollection() bool {
@@ -93,7 +101,7 @@ func (r davResponse) isCollection() bool {
 }
 
 // List issues a Depth:1 PROPFIND against the target folder and returns the non-directory entries' filenames.
-func (s *webdavStore) List(ctx context.Context) ([]string, error) {
+func (s *webdavStore) List(ctx context.Context) ([]remoteFile, error) {
 	target, err := s.targetURL()
 	if err != nil {
 		return nil, err
@@ -123,7 +131,7 @@ func (s *webdavStore) List(ctx context.Context) ([]string, error) {
 
 	targetPath := strings.TrimRight(target.Path, "/")
 
-	var names []string
+	var files []remoteFile
 	for _, r := range ms.Responses {
 		if r.isCollection() {
 			continue
@@ -136,58 +144,34 @@ func (s *webdavStore) List(ctx context.Context) ([]string, error) {
 		if entryPath == "" || entryPath == targetPath {
 			continue
 		}
-		names = append(names, path.Base(entryPath))
+		files = append(files, remoteFile{Name: path.Base(entryPath), Size: r.size()})
 	}
-	return names, nil
+	return files, nil
 }
 
-// Fetch downloads one file from the target folder into a local temp file.
-func (s *webdavStore) Fetch(ctx context.Context, filename string) (localPath string, cleanup func(), err error) {
+// Open streams one file from the target folder.
+func (s *webdavStore) Open(ctx context.Context, filename string) (io.ReadCloser, error) {
 	target, err := s.targetURL()
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 	fileURL, err := target.Parse(filename)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
 	req, err := s.newRequest(ctx, http.MethodGet, fileURL, nil)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
 	resp, err := s.httpClient().Do(req)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
-	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return "", nil, fmt.Errorf("GET %s: unexpected status %s", fileURL, resp.Status)
+		resp.Body.Close()
+		return nil, fmt.Errorf("GET %s: unexpected status %s", fileURL, resp.Status)
 	}
-
-	tmpDir, err := os.MkdirTemp("", "backup_restore_")
-	if err != nil {
-		return "", nil, err
-	}
-	cleanup = func() { _ = os.RemoveAll(tmpDir) }
-
-	localPath = filepath.Join(tmpDir, filename)
-	localFile, err := os.Create(localPath)
-	if err != nil {
-		cleanup()
-		return "", nil, err
-	}
-	defer localFile.Close()
-
-	if _, err := io.Copy(localFile, resp.Body); err != nil {
-		cleanup()
-		return "", nil, err
-	}
-
-	return localPath, cleanup, nil
-}
-
-func (s *webdavStore) Classify(ctx context.Context, filename string) (BackupInfo, error) {
-	return classifyViaDownload(ctx, s, filename)
+	return resp.Body, nil
 }

@@ -100,9 +100,10 @@ func apiSwitchBackupDestination(a *appctx.App, w http.ResponseWriter, r *http.Re
 // apiRestoreFromBackup translates the API's JSON body into the backup_file/restore_target/database form fields handleRestoreFromBackup expects from the UI's multipart POST, then delegates to it
 func apiRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		BackupFile    string `json:"backup_file"`
-		RestoreTarget string `json:"restore_target"`
-		Database      string `json:"database"`
+		BackupFile    string   `json:"backup_file"`
+		RestoreTarget string   `json:"restore_target"`
+		Database      string   `json:"database"`
+		Items         []string `json:"items"`
 	}
 	if err := decodeJSONBody(r, &body); err != nil {
 		writeAPIError(w, http.StatusBadRequest, "invalid JSON body")
@@ -113,6 +114,7 @@ func apiRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		"backup_file":    {body.BackupFile},
 		"restore_target": {body.RestoreTarget},
 		"database":       {body.Database},
+		"items":          body.Items,
 	}
 	handleRestoreFromBackup(a, w, web.WithForm(r, form))
 }

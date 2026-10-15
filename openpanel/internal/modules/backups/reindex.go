@@ -11,10 +11,9 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
-
-	"golang.org/x/crypto/ssh"
 )
 
 // readBackupEnv returns the full backup.env key/value map (commented lines excluded, quotes stripped), with SSH_IDENTITY_FILE rewritten from its /var/www/html/ docroot-relative form to the real host path - it's absent entirely for any non-SSH destination, and a Go map just returns "" for a missing key so the "ok" check below handles that without special-casing
@@ -53,26 +52,22 @@ type BackupInfo struct {
 	HasFiles   bool     `json:"has_files"`
 	HasCrons   bool     `json:"has_crons"`
 	Error      string   `json:"error,omitempty"`
+	// Size is the archive size reported by the destination, DatabaseSizes the uncompressed dump size per database
+	Size          int64            `json:"size,omitempty"`
+	DatabaseSizes map[string]int64 `json:"database_sizes,omitempty"`
+	// DatabaseEngines is mysql or postgres per database
+	DatabaseEngines map[string]string `json:"database_engines,omitempty"`
+	// Lists are the 00-meta/<kind>.tsv lists (files, mail, vhosts, dns) saved for picking single items to restore
+	Lists []string `json:"lists,omitempty"`
+	// IndexVersion lets a reindex redo entries indexed before a field was added
+	IndexVersion int `json:"index_version,omitempty"`
 }
+
+const indexVersion = 3
 
 var dbTimestampSuffixRE = regexp.MustCompile(`_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$`)
 
-// processBackup lists one remote .tar.gz's members (without downloading it) and classifies what's inside
-func processBackup(client *ssh.Client, backup, remotePath string) BackupInfo {
-	if !strings.HasSuffix(backup, ".tar.gz") && !strings.HasSuffix(backup, ".tgz") {
-		return BackupInfo{BackupFile: backup, Types: []string{}, Databases: []string{}}
-	}
-
-	remoteFilePath := remotePath + "/" + backup
-	out, err := runSSHCommand(client, "tar -tzf "+shellQuoteArg(remoteFilePath)+" 2>/dev/null")
-	if err != nil && strings.TrimSpace(out) == "" {
-		// used to be swallowed, which left the row with no contents and no hint why
-		return BackupInfo{BackupFile: backup, Types: []string{}, Databases: []string{}, Error: "Could not read archive contents: " + err.Error()}
-	}
-	return classifyTarListing(backup, out)
-}
-
-// classifyTarListing works out which sections (html/vhosts/mail/mysql/postgres/crons) and database dumps are present, given a `tar -tzf` listing's stdout. Split out from processBackup so it's testable without a live SSH session.
+// classifyTarListing works out which sections (html/vhosts/mail/mysql/postgres/crons) and database dumps are present, given a `tar -tzf` style listing, for archives made before the 00-meta/ manifest existed.
 func classifyTarListing(backup, listing string) BackupInfo {
 	info := BackupInfo{BackupFile: backup, Types: []string{}, Databases: []string{}}
 
@@ -101,8 +96,12 @@ func classifyTarListing(backup, listing string) BackupInfo {
 			continue
 		}
 
+		// emails/ holds the real mail dirs, mail/ is the legacy volume of symlinks
+		if section == "emails" {
+			section = "mail"
+		}
 		switch section {
-		case "html", "vhosts", "mail", "mysql", "postgres":
+		case "html", "vhosts", "mail", "mysql", "postgres", "dns":
 			info.HasFiles = true
 			if !seenTypes[section] {
 				seenTypes[section] = true
@@ -110,13 +109,18 @@ func classifyTarListing(backup, listing string) BackupInfo {
 			}
 		}
 
+		// only dumps count, a site's own .sql files under html/ aren't databases
 		filename := parts[len(parts)-1]
-		if strings.HasSuffix(filename, ".sql") || strings.HasSuffix(filename, ".sql.gz") {
+		if (section == "mysql" || section == "postgres") && (strings.HasSuffix(filename, ".sql") || strings.HasSuffix(filename, ".sql.gz")) {
 			dbName := strings.TrimSuffix(strings.TrimSuffix(filename, ".sql.gz"), ".sql")
 			dbName = dbTimestampSuffixRE.ReplaceAllString(dbName, "")
 			if dbName != "" && !seenDBs[dbName] {
 				seenDBs[dbName] = true
 				info.Databases = append(info.Databases, dbName)
+				if info.DatabaseEngines == nil {
+					info.DatabaseEngines = map[string]string{}
+				}
+				info.DatabaseEngines[dbName] = section
 			}
 		}
 	}
@@ -131,21 +135,46 @@ func shellQuoteArg(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
 }
 
-// classifyLocalArchive is classifyTarListing's counterpart for an archive already downloaded to a local file, used by any remoteStore backend that can't inspect contents without downloading first (see classifyViaDownload in store.go). Walks the same tar+gzip structure restoreFilesFromTar/scanSQLMembers read, then reuses classifyTarListing so both paths agree on what "html"/"mysql"/"crons" mean.
-func classifyLocalArchive(backup, localPath string) (BackupInfo, error) {
-	f, err := os.Open(localPath)
-	if err != nil {
-		return BackupInfo{}, err
-	}
-	defer f.Close()
+const metaDir = "backup/00-meta"
 
-	gz, err := gzip.NewReader(f)
+// listKinds are the 00-meta/<kind>.tsv lists the backup container's files-list.sh hook writes
+var listKinds = map[string]bool{"files": true, "mail": true, "vhosts": true, "dns": true}
+
+// listKind returns the kind of a 00-meta/<kind>.tsv member, "" for anything else
+func listKind(name string) string {
+	file, ok := strings.CutPrefix(name, metaDir+"/")
+	if !ok {
+		return ""
+	}
+	kind, ok := strings.CutSuffix(file, ".tsv")
+	if !ok || !listKinds[kind] {
+		return ""
+	}
+	return kind
+}
+
+// backupMeta is one engine's file in backup/00-meta/, written by the db dump hooks right before the archive is made
+type backupMeta struct {
+	Format    int              `json:"format"`
+	Engine    string           `json:"engine"`
+	Databases []string         `json:"databases"`
+	Sizes     map[string]int64 `json:"sizes"`
+}
+
+// classifyArchiveStream reads the archive's 00-meta/ files (always the first members) and stops there, without a usable manifest it either lists every member or, with listAll false, reports found=false so the caller can list it some other way
+// saveList gets each 00-meta/<kind>.tsv the archive has, nil skips them
+func classifyArchiveStream(backup string, r io.Reader, listAll bool, saveList func(kind string, r io.Reader) error) (info BackupInfo, found bool, err error) {
+	gz, err := gzip.NewReader(r)
 	if err != nil {
-		return BackupInfo{}, err
+		return BackupInfo{}, false, err
 	}
 	defer gz.Close()
 
 	var names []string
+	var metas []backupMeta
+	dbSizes := map[string]int64{}
+	pastMeta := false
+	var saved []string
 	tr := tar.NewReader(gz)
 	for {
 		header, err := tr.Next()
@@ -153,12 +182,116 @@ func classifyLocalArchive(backup, localPath string) (BackupInfo, error) {
 			break
 		}
 		if err != nil {
-			return BackupInfo{}, err
+			return BackupInfo{}, false, err
 		}
 		names = append(names, header.Name)
+		name := strings.Trim(header.Name, "/")
+		if strings.HasPrefix(name, "backup/mysql/") || strings.HasPrefix(name, "backup/postgres/") {
+			if db, ok := dumpDBName(name); ok {
+				dbSizes[db] += header.Size
+			}
+		}
+		if pastMeta {
+			continue
+		}
+
+		if name == "backup" || name == metaDir {
+			continue
+		}
+		if kind := listKind(name); kind != "" && header.Typeflag == tar.TypeReg && saveList != nil {
+			if err := saveList(kind, tr); err != nil {
+				return BackupInfo{}, false, err
+			}
+			saved = append(saved, kind)
+			continue
+		}
+		if strings.HasPrefix(name, metaDir+"/") {
+			if header.Typeflag == tar.TypeReg && strings.HasSuffix(name, ".json") {
+				var m backupMeta
+				if json.NewDecoder(io.LimitReader(tr, 1<<20)).Decode(&m) == nil && m.Format >= 1 {
+					metas = append(metas, m)
+				}
+			}
+			continue
+		}
+
+		if info, ok := infoFromMeta(backup, metas); ok {
+			return withLists(info, saved), true, nil
+		}
+		if !listAll {
+			return BackupInfo{}, false, nil
+		}
+		pastMeta = true
 	}
 
-	return classifyTarListing(backup, strings.Join(names, "\n")), nil
+	if info, ok := infoFromMeta(backup, metas); ok {
+		return withLists(info, saved), true, nil
+	}
+	if !listAll {
+		return BackupInfo{}, false, nil
+	}
+	info = classifyTarListing(backup, strings.Join(names, "\n"))
+	info = withLists(info, saved)
+	for _, db := range info.Databases {
+		if size, ok := dbSizes[db]; ok {
+			if info.DatabaseSizes == nil {
+				info.DatabaseSizes = map[string]int64{}
+			}
+			info.DatabaseSizes[db] = size
+		}
+	}
+	return info, false, nil
+}
+
+// withLists records the saved lists, a dns list also means the archive has dns zones
+func withLists(info BackupInfo, saved []string) BackupInfo {
+	info.Lists = saved
+	for _, kind := range saved {
+		if kind == "dns" && !slices.Contains(info.Types, "dns") {
+			info.Types = append(info.Types, "dns")
+		}
+	}
+	return info
+}
+
+// infoFromMeta needs mysql.json, it's missing when the db container still runs without the 00-meta mount and then its dumps would go unlisted
+func infoFromMeta(backup string, metas []backupMeta) (BackupInfo, bool) {
+	byEngine := map[string]backupMeta{}
+	for _, m := range metas {
+		byEngine[m.Engine] = m
+	}
+	if _, ok := byEngine["mysql"]; !ok {
+		return BackupInfo{}, false
+	}
+
+	// html, mail, vhosts and crons.ini are always mounted into the backup container, same order classifyTarListing finds them in
+	info := BackupInfo{BackupFile: backup, Types: []string{"crons", "html", "mail"}, Databases: []string{}, HasFiles: true, HasCrons: true}
+	seen := map[string]bool{}
+	for _, engine := range []string{"mysql", "postgres"} {
+		m, ok := byEngine[engine]
+		if !ok {
+			continue
+		}
+		info.Types = append(info.Types, engine)
+		for _, db := range m.Databases {
+			if db != "" && !seen[db] {
+				seen[db] = true
+				info.Databases = append(info.Databases, db)
+				if info.DatabaseEngines == nil {
+					info.DatabaseEngines = map[string]string{}
+				}
+				info.DatabaseEngines[db] = engine
+				if size, ok := m.Sizes[db]; ok {
+					if info.DatabaseSizes == nil {
+						info.DatabaseSizes = map[string]int64{}
+					}
+					info.DatabaseSizes[db] = size
+				}
+			}
+		}
+	}
+	info.Types = append(info.Types, "vhosts")
+	return info, true
 }
 
 // backupNamePrefix returns the fixed start of this account's archive names (BACKUP_PRUNING_PREFIX, else BACKUP_FILENAME up to its first format verb), or "" if it can't be worked out
@@ -242,26 +375,52 @@ func doReindex(userHome string, config map[string]string, prefix, jsonFile, lock
 	}
 
 	ctx := context.Background()
-	backupNames, err := store.List(ctx)
+	files, err := store.List(ctx)
 	if err != nil {
 		writeError(err.Error())
 		return
 	}
-	backupNames = filterBackupNames(backupNames, prefix)
+	sizes := map[string]int64{}
+	var allNames []string
+	for _, f := range files {
+		sizes[f.Name] = f.Size
+		allNames = append(allNames, f.Name)
+	}
+	backupNames := filterBackupNames(allNames, prefix)
+	pruneFileLists(userHome, backupNames)
+
+	// archive names carry a timestamp and never change, so anything indexed fine last time is reused while its size still matches
+	known := map[string]BackupInfo{}
+	if content, err := os.ReadFile(jsonFile); err == nil {
+		var previous []BackupInfo
+		if json.Unmarshal(content, &previous) == nil {
+			for _, info := range previous {
+				if info.Error == "" && info.BackupFile != "" {
+					known[info.BackupFile] = info
+				}
+			}
+		}
+	}
 
 	results := make([]BackupInfo, len(backupNames))
 	sem := make(chan struct{}, 3)
 	var wg sync.WaitGroup
 	for i, name := range backupNames {
+		if info, ok := known[name]; ok && info.IndexVersion == indexVersion && info.Size == sizes[name] && info.Size > 0 && listsExist(userHome, name, info.Lists) {
+			results[i] = info
+			continue
+		}
 		wg.Add(1)
 		sem <- struct{}{}
 		go func(i int, name string) {
 			defer wg.Done()
 			defer func() { <-sem }()
-			info, err := store.Classify(ctx, name)
+			info, err := classifyArchive(ctx, store, name, func(kind string, r io.Reader) error { return saveList(userHome, name, kind, r) })
 			if err != nil {
 				info = BackupInfo{BackupFile: name, Types: []string{}, Databases: []string{}, Error: err.Error()}
 			}
+			info.Size = sizes[name]
+			info.IndexVersion = indexVersion
 			results[i] = info
 		}(i, name)
 	}

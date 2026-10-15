@@ -162,9 +162,9 @@ func TestBuildPageTabsBackups(t *testing.T) {
 	if tabLabels(tabs) != "Overview,Restore,Configuration,Destination,Backup Wizard" || activeTab(tabs) != "Configuration" {
 		t.Errorf("unexpected backup tabs: %+v", tabs)
 	}
-	tabs = BuildPageTabs(allowed, nil, "/backups", TabContext{BackupsAdminManaged: true})
-	if tabLabels(tabs) != "Overview,Restore,Backup Wizard" {
-		t.Errorf("expected Configuration/Destination hidden when admin-managed, got %s", tabLabels(tabs))
+	tabs = BuildPageTabs(allowed, nil, "/backups/list", TabContext{BackupsAdminManaged: true})
+	if tabLabels(tabs) != "Restore,Backup Wizard" {
+		t.Errorf("expected Overview/Configuration/Destination hidden when admin-managed, got %s", tabLabels(tabs))
 	}
 }
 

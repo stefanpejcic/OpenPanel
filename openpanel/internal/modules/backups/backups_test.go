@@ -83,6 +83,7 @@ func TestClassifyTarListing(t *testing.T) {
 	listing := "backup/\n" +
 		"backup/html/\n" +
 		"backup/html/index.php\n" +
+		"backup/html/install/sample.sql\n" +
 		"backup/mysql/\n" +
 		"backup/mysql/wp_db_2026-01-01_00-00-00.sql\n" +
 		"backup/mysql/analytics.sql.gz\n" +

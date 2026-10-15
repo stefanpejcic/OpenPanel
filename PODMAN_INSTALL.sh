@@ -663,7 +663,7 @@ setup_compose() {
     cp "${ETC_DIR}docker/compose/docker-compose.yml" /root/docker-compose.yml
     cp "${ETC_DIR}docker/compose/.env"               /root/.env
     cp "${ETC_DIR}mysql/initialize/1.1/plans.sql"    /root/initialize.sql 2>/dev/null || true
-    chmod +x "${ETC_DIR}mysql/scripts/dump.sh" "${ETC_DIR}openlitespeed/start.sh"
+    chmod +x "${ETC_DIR}mysql/scripts/dump.sh" "${ETC_DIR}postgres/scripts/dump.sh" "${ETC_DIR}backups/scripts/files-list.sh" "${ETC_DIR}openlitespeed/start.sh"
 
     sed -i "s/^VERSION=.*$/VERSION=\"$PANEL_VERSION\"/" /root/.env
 

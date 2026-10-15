@@ -17,7 +17,7 @@ User backups are powered by [offen/docker-volume-backup](https://github.com/offe
 :::
 
 :::info Admin Configured mode
-If your administrator runs backups centrally for all users (**Admin Configured** mode, see [User Backups](/docs/admin/backups/user/)), the **Destinations** and **Settings** pages below aren't available to you - the destination and its credentials are managed by the administrator. You can still use **List Backups** and **Restore Logs** to browse and restore your own backups.
+If your administrator runs backups centrally for all users (**Admin Configured** mode, see [User Backups](/docs/admin/backups/user/)), the **Destinations** and **Settings** pages below aren't available to you - the destination and its credentials are managed by the administrator. You can still browse and restore your own backups, and the **Backups** page takes you straight to [Restore & Download](#restore--download).
 :::
 
 ## Destinations
@@ -170,6 +170,10 @@ By default, everything will be backed up. In case you need to backup only a spec
 | **PostgreSQL Databases**    |  Backups only PostgreSQL databases. |
 | **Cron Jobs**    |  Backups only the `crons.ini` file. |
 
+Databases are not copied from their live data directories. Right before the archive is created, every MySQL/MariaDB database is dumped with `mysqldump`/`mariadb-dump` (`--single-transaction --routines --triggers --events`) and every PostgreSQL database with `pg_dump`, into `backup/mysql/<database>.sql` and `backup/postgres/<database>.sql`. If any database fails to dump, the whole backup run fails so it doesn't go unnoticed. The names of the dumped databases are also written to a small `backup/00-meta/` folder that is always the first thing in the archive, so the panel can index a backup without downloading it.
+
+Emails and DNS zones are backed up too. Each domain's mailboxes are mounted into the backup at `backup/emails/<domain>/` (the older `backup/mail/` folder only holds links to them) and each domain's DNS zone at `backup/dns/<domain>.zone`. The `backup/00-meta/` folder also lists the website files, mailboxes, domains and DNS zones in the backup, so single items can be restored without downloading the whole archive.
+
 
 ## Schedule
 
@@ -210,6 +214,8 @@ Options here are available byt disabled by default and need to be manually enabl
 ## Exclude
 
 `BACKUP_EXCLUDE_REGEXP` - When a value is given, all files in `BACKUP_SOURCES` whose full path matches the regular expression will be excluded from the archive. Regular Expressions can be used as from [the Go standard library](https://pkg.go.dev/regexp). Example: `\.log$`.
+
+The default is `\.(log|tar\.gz)$`, which skips log files and `.tar.gz` archives, such as the full account backups that `opencli user-backup` stores in `_backups/`.
 
 ## Notifications
 
@@ -444,20 +450,24 @@ backup
 
 ## Restore & Download
 
-The **Restore & Download** page (`/backups/list`) lets you browse the backup files that already exist on your configured destination, restore them back onto your account, or download them to your computer. This currently works only for the **SSH/SFTP** destination.
+The **Restore & Download** page (`/backups/list`) lets you browse the backup files that already exist on your configured destination, restore them back onto your account, or download them to your computer. It works with every destination: SSH/SFTP, S3, WebDAV, Azure Blob Storage and Dropbox.
 
 ![Restore & Download page with the backup search and the Reindex Destination button](/img/openpanel-screenshots/files/backups_list-list.png#gh-light-mode-only)
 ![Restore & Download page with the backup search and the Reindex Destination button](/img/openpanel-screenshots/files/backups_list-list_dark.png#gh-dark-mode-only)
 
-1. Click **Reindex Destination** to connect to the remote destination and list the available backup archives. Reindexing runs in the background and the page updates automatically once it finishes.
-2. Each indexed backup shows its filename, detected contents (`html`, `vhosts`, `mail`, `mysql`, `postgres`, `crons`) and the databases found inside it.
-3. Click **Restore** on a backup to open the restore modal, then choose what to restore:
-   - **Everything** – restores files and all databases from the archive.
-   - **Specific database only** – restores a single database selected from the archive (only shown when the archive contains databases).
-   - **Files only (no databases)** – restores website files, vhosts, mail and cron jobs without touching any database.
+1. Click **Reindex Destination** to connect to the remote destination and list the available backup archives. Reindexing runs in the background and the page updates automatically once it finishes. Only the `backup/00-meta/` folder at the start of each archive is read, and archives that were already indexed are not read again. Older archives without that folder are still listed in full (on SSH/SFTP with `tar -tzf` on the remote server, on other destinations by reading the whole archive).
+2. The page opens with an overview: the number of backups, the latest backup, their total size and the last restore, followed by a tile for each type of data you can restore. Click a tile to see its backups, newest first, each with the date it was taken (shown in your browser's time zone) and its size. The tabs at the top switch between types, and **Overview** goes back to the tiles:
+   - **Everything** – every backup. Restores everything in it: website files, databases, emails, domains with their DNS zones and cron jobs.
+   - **Website Files** and **Cron Jobs** – the backups that contain that part. Restores only that part of the selected backup; restoring cron jobs also restarts the cron container. On **Website Files**, select a backup and click **Choose files** to browse it folder by folder and tick single files or whole folders (or download a single file). Only the part of the archive up to the last picked item is read from the destination.
+   - **Databases**, **Emails** and **Domains** – every database, email account and domain found in your backups, listed once with the size (and message count for email accounts) and how many backups contain it. The newest backup is used unless you pick another one from the dropdown, and you can select several to restore them together.
+     - Restoring a domain brings back its webserver configuration and, when the backup has it, its DNS zone (marked **+ DNS zone**), then restarts your webserver and reloads the zone with a new serial number. A domain you deleted from your account is added back first.
+     - Email accounts can only be restored for domains on your account, so restore a deleted domain first.
+3. Select a backup (or databases, email accounts, domains or files) and click **Restore**. The **Restore Summary** lists the items that will be restored; click **Restore Selected Items** to add them to the queue. Restores run in the background, one at a time per account, so you can close the page while they run. Each database is dropped, recreated and its dump is piped into the `mysql`/`mariadb` or `psql` client inside your database container.
+
+   Under **Restore activity** on the overview (or the tabs at the top), **Queue** shows what is waiting or being restored and **Logs** shows your latest 100 restores with when they finished, how long they took, whether they worked and the result. The summary at the top shows when the last restore finished, or how many are in the queue. A restore that was running when the panel restarted is logged as failed, the ones still waiting in the queue continue.
 
    Restoring overwrites existing data and cannot be undone.
-4. Click **Download** on a backup to fetch the archive from the destination and download it to your browser.
+4. Select a backup and click **Download** to stream the archive from the destination straight to your browser. On **Databases**, **Emails** and **Domains**, **Download** gives you only what you selected: a single database as its `.sql` dump, anything else as a `.tar.gz` with just those items (one per backup you picked from).
 
 ## Troubleshooting
 

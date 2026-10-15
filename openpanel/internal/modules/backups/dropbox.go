@@ -9,8 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -74,6 +72,7 @@ func (s *dropboxStore) accessToken(ctx context.Context) (string, error) {
 type dropboxEntry struct {
 	Tag  string `json:".tag"`
 	Name string `json:"name"`
+	Size int64  `json:"size"`
 }
 
 type dropboxListFolderResponse struct {
@@ -82,13 +81,13 @@ type dropboxListFolderResponse struct {
 	Cursor  string         `json:"cursor"`
 }
 
-func (s *dropboxStore) List(ctx context.Context) ([]string, error) {
+func (s *dropboxStore) List(ctx context.Context) ([]remoteFile, error) {
 	token, err := s.accessToken(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var names []string
+	var files []remoteFile
 
 	body, _ := json.Marshal(map[string]any{"path": s.remotePath()})
 	endpoint := "https://api.dropboxapi.com/2/files/list_folder"
@@ -116,7 +115,7 @@ func (s *dropboxStore) List(ctx context.Context) ([]string, error) {
 		}
 		for _, entry := range page.Entries {
 			if entry.Tag == "file" {
-				names = append(names, entry.Name)
+				files = append(files, remoteFile{Name: entry.Name, Size: entry.Size})
 			}
 		}
 
@@ -127,13 +126,13 @@ func (s *dropboxStore) List(ctx context.Context) ([]string, error) {
 		body, _ = json.Marshal(map[string]any{"cursor": page.Cursor})
 	}
 
-	return names, nil
+	return files, nil
 }
 
-func (s *dropboxStore) Fetch(ctx context.Context, filename string) (localPath string, cleanup func(), err error) {
+func (s *dropboxStore) Open(ctx context.Context, filename string) (io.ReadCloser, error) {
 	token, err := s.accessToken(ctx)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
 	remote := s.remotePath()
@@ -146,43 +145,19 @@ func (s *dropboxStore) Fetch(ctx context.Context, filename string) (localPath st
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://content.dropboxapi.com/2/files/download", nil)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Dropbox-API-Arg", string(apiArg))
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
-	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return "", nil, fmt.Errorf("dropbox files/download: unexpected status %s: %s", resp.Status, string(body))
+		resp.Body.Close()
+		return nil, fmt.Errorf("dropbox files/download: unexpected status %s: %s", resp.Status, string(body))
 	}
-
-	tmpDir, err := os.MkdirTemp("", "backup_restore_")
-	if err != nil {
-		return "", nil, err
-	}
-	cleanup = func() { _ = os.RemoveAll(tmpDir) }
-
-	localPath = filepath.Join(tmpDir, filename)
-	localFile, err := os.Create(localPath)
-	if err != nil {
-		cleanup()
-		return "", nil, err
-	}
-	defer localFile.Close()
-
-	if _, err := io.Copy(localFile, resp.Body); err != nil {
-		cleanup()
-		return "", nil, err
-	}
-
-	return localPath, cleanup, nil
-}
-
-func (s *dropboxStore) Classify(ctx context.Context, filename string) (BackupInfo, error) {
-	return classifyViaDownload(ctx, s, filename)
+	return resp.Body, nil
 }

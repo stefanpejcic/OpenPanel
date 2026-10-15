@@ -2,11 +2,16 @@ package backups
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"regexp"
+	"sort"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -133,16 +138,109 @@ func renderBackupDestinationsPage(a *appctx.App, w http.ResponseWriter, r *http.
 	}
 }
 
-// RestoreBackupRow is one backup_restore.html table row.
-type RestoreBackupRow struct {
-	BackupInfo
-	JSON template.JS
+// restoreItem is one backup as the restore page's Alpine code sees it
+type restoreItem struct {
+	File      string      `json:"file"`
+	Created   string      `json:"created,omitempty"`
+	Size      int64       `json:"size"`
+	SizeText  string      `json:"size_text,omitempty"`
+	Types     []string    `json:"types"`
+	Databases []restoreDB `json:"databases"`
+	Lists     []string    `json:"lists"`
+	// small per-backup lists read from the reindex cache, the website file list stays behind /backups/files
+	Mailboxes []backupItem `json:"mailboxes"`
+	Domains   []backupItem `json:"domains"`
+	Zones     []backupItem `json:"zones"`
+	Error     string       `json:"error,omitempty"`
+}
+
+type restoreDB struct {
+	Name     string `json:"name"`
+	Engine   string `json:"engine,omitempty"`
+	SizeText string `json:"size_text,omitempty"`
+}
+
+// docker-volume-backup names archives <user>-%Y-%m-%dT%H-%M-%S, in the container's UTC
+var archiveTimeRE = regexp.MustCompile(`(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2})`)
+
+func archiveCreated(name string) string {
+	m := archiveTimeRE.FindStringSubmatch(name)
+	if m == nil {
+		return ""
+	}
+	t, err := time.Parse("2006-01-02T15:04:05", m[1]+"T"+m[2]+":"+m[3]+":"+m[4])
+	if err != nil {
+		return ""
+	}
+	return t.UTC().Format(time.RFC3339)
+}
+
+// restoreItems turns the index into the page's data, newest backup first, userHome "" skips the mailbox/domain/zone lists
+func restoreItems(backups []BackupInfo, userHome string, domains map[string]bool) []restoreItem {
+	items := make([]restoreItem, 0, len(backups))
+	for _, b := range backups {
+		item := restoreItem{File: b.BackupFile, Created: archiveCreated(b.BackupFile), Size: b.Size, Types: b.Types, Databases: []restoreDB{}, Lists: b.Lists, Error: b.Error}
+		if item.Lists == nil {
+			item.Lists = []string{}
+		}
+		item.Mailboxes, item.Domains, item.Zones = []backupItem{}, []backupItem{}, []backupItem{}
+		for _, kind := range item.Lists {
+			if userHome == "" || kind == "files" {
+				continue
+			}
+			list, err := readItems(listPath(userHome, b.BackupFile, kind), kind, domains)
+			if err != nil {
+				continue
+			}
+			switch kind {
+			case "mail":
+				item.Mailboxes = list
+			case "vhosts":
+				item.Domains = list
+			case "dns":
+				item.Zones = list
+			}
+		}
+		if item.Types == nil {
+			item.Types = []string{}
+		}
+		if b.Size > 0 {
+			item.SizeText = formatSize(b.Size)
+		}
+		for _, db := range b.Databases {
+			row := restoreDB{Name: db, Engine: b.DatabaseEngines[db]}
+			if size, ok := b.DatabaseSizes[db]; ok {
+				row.SizeText = formatSize(size)
+			}
+			item.Databases = append(item.Databases, row)
+		}
+		items = append(items, item)
+	}
+	sort.SliceStable(items, func(i, j int) bool {
+		if items[i].Created != items[j].Created {
+			return items[i].Created > items[j].Created
+		}
+		return items[i].File > items[j].File
+	})
+	return items
+}
+
+func formatSize(numBytes int64) string {
+	size := float64(numBytes)
+	for _, unit := range []string{"B", "KB", "MB", "GB"} {
+		if size < 1024.0 {
+			return fmt.Sprintf("%.1f %s", size, unit)
+		}
+		size /= 1024.0
+	}
+	return fmt.Sprintf("%.1f TB", size)
 }
 
 // BackupRestorePageData is backup_restore.html's template context.
 type BackupRestorePageData struct {
 	web.LayoutData
-	Backups      []RestoreBackupRow
+	Backups      []restoreItem
+	PageJSON     template.JS
 	Reindexing   bool
 	ReindexError string
 }
@@ -154,12 +252,15 @@ func renderBackupRestorePage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	rows := make([]RestoreBackupRow, len(backups))
-	for i, b := range backups {
-		rows[i] = RestoreBackupRow{BackupInfo: b, JSON: jsonJS(b)}
+	userHome, domains := "", map[string]bool{}
+	if userID, _, userContext, injErr := auth.Injected(a, r); injErr == nil {
+		userHome = "/home/" + userContext
+		if plan, planErr := newRestorePlan(r.Context(), a, userID, userContext); planErr == nil {
+			domains = plan.domains
+		}
 	}
-
-	data := BackupRestorePageData{LayoutData: layout, Backups: rows, Reindexing: reindexing, ReindexError: reindexError}
+	items := restoreItems(backups, userHome, domains)
+	data := BackupRestorePageData{LayoutData: layout, Backups: items, PageJSON: jsonJS(items), Reindexing: reindexing, ReindexError: reindexError}
 	if err := backupRestorePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("BACKUPS - restore template render error: %v", err)
 	}

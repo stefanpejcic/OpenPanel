@@ -264,7 +264,10 @@ var sidebarAreas = []navArea{
 	{label: "Backups", icon: backupsIcon, menuID: "backups-menu", match: isBackupsPath,
 		tabs: func(g navGate, path string, ctx TabContext) []NavLink {
 			var tabs []NavLink
-			tabs = g.add(tabs, "backups", "/backups", "Overview", path == "/backups", "")
+			// admin-managed accounts get redirected from /backups to the restore page, so no overview tab for them
+			if !ctx.BackupsAdminManaged {
+				tabs = g.add(tabs, "backups", "/backups", "Overview", path == "/backups", "")
+			}
 			tabs = g.add(tabs, "backups", "/backups/list", "Restore", strings.HasPrefix(path, "/backups/list"), "")
 			if !ctx.BackupsAdminManaged {
 				tabs = g.add(tabs, "backups", "/backups/settings", "Configuration", strings.HasPrefix(path, "/backups/settings"), "")

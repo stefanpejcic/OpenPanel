@@ -3,9 +3,8 @@ package backups
 import (
 	"context"
 	"errors"
-	"os"
+	"io"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"github.com/minio/minio-go/v7"
@@ -47,7 +46,7 @@ func (s *s3Store) client() (*minio.Client, string, string, error) {
 	return c, bucket, prefix, nil
 }
 
-func (s *s3Store) List(ctx context.Context) ([]string, error) {
+func (s *s3Store) List(ctx context.Context) ([]remoteFile, error) {
 	client, bucket, prefix, err := s.client()
 	if err != nil {
 		return nil, err
@@ -58,7 +57,7 @@ func (s *s3Store) List(ctx context.Context) ([]string, error) {
 		listPrefix += "/"
 	}
 
-	var names []string
+	var files []remoteFile
 	for object := range client.ListObjects(ctx, bucket, minio.ListObjectsOptions{Prefix: listPrefix, Recursive: false}) {
 		if object.Err != nil {
 			return nil, object.Err
@@ -66,37 +65,21 @@ func (s *s3Store) List(ctx context.Context) ([]string, error) {
 		if strings.HasSuffix(object.Key, "/") {
 			continue // a "folder" placeholder, not a backup file
 		}
-		names = append(names, path.Base(object.Key))
+		files = append(files, remoteFile{Name: path.Base(object.Key), Size: object.Size})
 	}
-	return names, nil
+	return files, nil
 }
 
-func (s *s3Store) Fetch(ctx context.Context, filename string) (localPath string, cleanup func(), err error) {
+// GetObject is lazy, so this only downloads as much as the caller actually reads
+func (s *s3Store) Open(ctx context.Context, filename string) (io.ReadCloser, error) {
 	client, bucket, prefix, err := s.client()
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
 	objectKey := filename
 	if prefix != "" {
 		objectKey = prefix + "/" + filename
 	}
-
-	tmpDir, err := os.MkdirTemp("", "backup_restore_")
-	if err != nil {
-		return "", nil, err
-	}
-	cleanup = func() { _ = os.RemoveAll(tmpDir) }
-
-	localPath = filepath.Join(tmpDir, filename)
-	if err := client.FGetObject(ctx, bucket, objectKey, localPath, minio.GetObjectOptions{}); err != nil {
-		cleanup()
-		return "", nil, err
-	}
-
-	return localPath, cleanup, nil
-}
-
-func (s *s3Store) Classify(ctx context.Context, filename string) (BackupInfo, error) {
-	return classifyViaDownload(ctx, s, filename)
+	return client.GetObject(ctx, bucket, objectKey, minio.GetObjectOptions{})
 }

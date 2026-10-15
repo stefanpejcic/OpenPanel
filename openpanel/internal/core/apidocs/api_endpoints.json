@@ -3088,7 +3088,7 @@
       {
         "method": "POST",
         "path": "/api/backups/restore",
-        "description": "Restore all files, a single database, or files only from a backup archive.",
+        "description": "Restore from a backup archive. restore_target is all, database (set database), files, one part: html, mail, vhosts, dns, crons, or single items in items: paths, mailboxes, domains, dns_zones.",
         "body": {
           "backup_file": "user-2026-08-01T00-00-00.tar.gz",
           "restore_target": "all",

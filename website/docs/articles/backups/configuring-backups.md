@@ -43,32 +43,32 @@ This does two things: it schedules `opencli docker-backup` to run centrally for 
 Modify the backup configuration template that applies to new accounts. This file defines default backup settings, such as remote storage destinations.
 
 **File path:**
-`/etc/openpanel/backups/backups.env`
+`/etc/openpanel/backups/backup.env`
 
-To enable and configure a remote SSH destination, uncomment and update the following variables:
+To enable and configure a remote SSH destination, uncomment and update the following variables. Don't wrap values in quotes, podman passes them to the backup container as they are.
 
 ```env
 ########### SSH/SFTP STORAGE
-# SSH_HOST_NAME=""
-# SSH_PORT="22"
-# SSH_REMOTE_PATH=""
-# SSH_USER=""
-# SSH_PASSWORD=""
-# SSH_IDENTITY_FILE="/var/www/html/id_rsa"
-# SSH_IDENTITY_PASSPHRASE=""
+# SSH_HOST_NAME=
+# SSH_PORT=22
+# SSH_REMOTE_PATH=
+# SSH_USER=
+# SSH_PASSWORD=
+# SSH_IDENTITY_FILE=/var/www/html/id_rsa
+# SSH_IDENTITY_PASSPHRASE=
 ```
 
 **Example:**
 
 ```env
 ########### SSH/SFTP STORAGE
-SSH_HOST_NAME="185.119.22.54"
-SSH_PORT="22"
-SSH_REMOTE_PATH="/backups/"
-SSH_USER="root"
-SSH_PASSWORD="NotSoStrongP@ssword"
-# SSH_IDENTITY_FILE="/var/www/html/id_rsa"
-# SSH_IDENTITY_PASSPHRASE=""
+SSH_HOST_NAME=185.119.22.54
+SSH_PORT=22
+SSH_REMOTE_PATH=/backups/
+SSH_USER=root
+SSH_PASSWORD=NotSoStrongP@ssword
+# SSH_IDENTITY_FILE=/var/www/html/id_rsa
+# SSH_IDENTITY_PASSPHRASE=
 ```
 
 > 🔗 For more destination types and examples, see [Backups Documentation](/docs/panel/backups/#destinations)

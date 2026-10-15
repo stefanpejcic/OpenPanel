@@ -9,7 +9,7 @@ sidebar_position: 1
 There are two mutually exclusive modes, controlled entirely by the schedule of the `opencli docker-backup` [System Cron Job](/docs/admin/advanced/crons/):
 
 - **User Configured** (default) — each user manages their own backup from their own account, when the Backups module is enabled for them. Nothing runs centrally; the cron entry is set to a disabled placeholder schedule.
-- **Admin Configured** — the Administrator runs backups for *every* user centrally, on one schedule, via `opencli docker-backup`. Users can no longer view or change their own backup destination or settings in the panel — they can still list existing backups and restore from them, but where and how backups are stored is entirely up to the Administrator.
+- **Admin Configured** — the Administrator runs backups for *every* user centrally, on one schedule, via `opencli docker-backup`. Users can no longer view or change their own backup destination or settings in the panel — they can still list existing backups and restore from them (their **Backups** page opens the Restore & Download page directly), but where and how backups are stored is entirely up to the Administrator.
 
 See the [Configuring OpenPanel Backups](/docs/articles/backups/configuring-backups/) article for the fuller comparison between the two approaches.
 

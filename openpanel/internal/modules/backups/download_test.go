@@ -1,0 +1,90 @@
+package backups
+
+import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
+	"io"
+	"net/http/httptest"
+	"sort"
+	"testing"
+)
+
+func downloadArchive(t *testing.T) []byte {
+	return makeArchive(t, []tarEntry{
+		{name: "/backup", body: nil},
+		{name: "/backup/emails/a.com/info/new/1", body: []byte("hello info")},
+		{name: "/backup/emails/a.com/sales/new/1", body: []byte("hello sales")},
+		{name: "/backup/emails/b.com/x/new/1", body: []byte("hello x")},
+		{name: "/backup/html/big.bin", body: randomBytes(t, 2<<20)},
+		// sorted like docker-volume-backup writes them, the early stop relies on it
+		{name: "/backup/mysql/shop.sql", body: []byte("CREATE TABLE shop;")},
+		{name: "/backup/mysql/wp.sql", body: []byte("CREATE TABLE wp;")},
+	})
+}
+
+func TestStreamItemsSingleDump(t *testing.T) {
+	targets, err := downloadTargets("databases", []string{"mysql/shop"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	w := httptest.NewRecorder()
+	sent, err := streamItems(w, bytes.NewReader(downloadArchive(t)), "databases", "u-2026.tar.gz", targets)
+	if err != nil || sent != 1 {
+		t.Fatalf("sent=%d err=%v", sent, err)
+	}
+	if w.Body.String() != "CREATE TABLE shop;" || w.Header().Get("Content-Disposition") != `attachment; filename="shop.sql"` {
+		t.Errorf("got %q, %s", w.Body.String(), w.Header().Get("Content-Disposition"))
+	}
+}
+
+func TestStreamItemsPacksMailboxes(t *testing.T) {
+	targets, err := downloadTargets("mailboxes", []string{"a.com/info", "a.com/sales"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	archive := downloadArchive(t)
+	cr := &countingReader{r: bytes.NewReader(archive)}
+	w := httptest.NewRecorder()
+	if _, err := streamItems(w, cr, "mailboxes", "u-2026.tar.gz", targets); err != nil {
+		t.Fatal(err)
+	}
+	gz, err := gzip.NewReader(w.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var files []string
+	tr := tar.NewReader(gz)
+	for {
+		h, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		if h.Typeflag == tar.TypeReg {
+			files = append(files, h.Name)
+		}
+	}
+	sort.Strings(files)
+	if len(files) != 2 || files[0] != "emails/a.com/info/new/1" || files[1] != "emails/a.com/sales/new/1" {
+		t.Errorf("files = %v", files)
+	}
+	if cr.n > len(archive)/2 {
+		t.Errorf("read %d of %d bytes, should stop after the mailboxes", cr.n, len(archive))
+	}
+}
+
+func TestDownloadTargetsRejectsBadItems(t *testing.T) {
+	for kind, items := range map[string][]string{
+		"databases": {"mysql/../etc"},
+		"mailboxes": {"a.com/.."},
+		"paths":     {"../x"},
+		"other":     {"x"},
+	} {
+		if _, err := downloadTargets(kind, items); err == nil {
+			t.Errorf("%s %v should be refused", kind, items)
+		}
+	}
+}
