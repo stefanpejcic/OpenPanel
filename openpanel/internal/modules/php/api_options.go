@@ -62,9 +62,11 @@ func apiPHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body map[string]any
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	newConfig := map[string]string{}
+	var providedKeys []string
 	for _, key := range availableKeys {
 		if v, ok := body[key]; ok && v != nil {
 			newConfig[key] = strings.TrimSpace(toStringValue(v))
+			providedKeys = append(providedKeys, key)
 		}
 	}
 	if len(newConfig) == 0 {
@@ -72,7 +74,7 @@ func apiPHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if writeErr := updatePHPConfigFile(userContext, version, availableKeys, newConfig); writeErr != nil {
+	if writeErr := updatePHPConfigFile(userContext, version, providedKeys, newConfig); writeErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not save PHP " + version + " configuration: " + writeErr.Error()})
 		return
 	}
