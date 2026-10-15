@@ -142,3 +142,25 @@ func TestSiteManagerGitTab(t *testing.T) {
 		}
 	}
 }
+
+// the WordPress debugging tab shows the site's latest errors only when error_logs is allowed
+func TestWPDebuggingErrorLogs(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	for _, on := range []bool{true, false} {
+		layout := baseLayout(mgr, "/website")
+		layout.UserAllowed["error_logs"] = on
+		pd := pageData{LayoutData: layout, CurrentDomain: "example.com/blog", Docroot: "/var/www/html/example.com/blog"}
+		w := httptest.NewRecorder()
+		if err := wpSinglePage.Render(w, 200, WPSinglePageData{pageData: pd, Container: ContainerInfo{SiteName: "example.com/blog"}}); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		shown := strings.Contains(body, `href="/error-logs?domain=example.com%2fblog&exact=1"`) && strings.Contains(body, "exact: 1, limit: 10, format: 'json'")
+		if shown != on {
+			t.Errorf("error logs block shown = %v, want %v", shown, on)
+		}
+		if on && strings.Index(body, "exact: 1, limit: 10") > strings.Index(body, `id="updateDebugForm"`) {
+			t.Error("error logs block should come before the debugging settings")
+		}
+	}
+}

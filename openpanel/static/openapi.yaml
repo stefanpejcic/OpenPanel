@@ -141,6 +141,8 @@ tags:
   description: Requires the `dns` feature to be enabled on the account's plan.
 - name: Traffic Stats (GoAccess)
   description: Requires the `goaccess` feature to be enabled on the account's plan.
+- name: Error Logs
+  description: Requires the `error_logs` feature to be enabled on the account's plan.
 - name: System Services
   description: Requires the `services` feature to be enabled on the account's plan.
 - name: Webmail
@@ -11072,6 +11074,73 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/error-logs:
+    get:
+      summary: List PHP, webserver, database and HTTP 5xx errors.
+      description: Newest first, from every PHP version, the active webserver and database, and 5xx responses
+        in the domain access logs. range is 1h, 6h, 24h (default), 7d, 30d or custom with from/to as RFC3339.
+        level is warning or error, service is a name from the returned sources, limit is 1-5000 (default
+        500).
+      operationId: error_logs
+      tags:
+      - Error Logs
+      parameters:
+      - name: range
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: domain
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: service
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: level
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: Unknown service.
+        '403':
+          description: You do not own this domain.
         default:
           $ref: '#/components/responses/Error'
       security:

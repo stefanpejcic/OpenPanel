@@ -24,6 +24,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/drupal"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dynamicdns"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/emails"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/errorlogs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/filemanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/fixpermissions"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/flarum"
@@ -159,6 +160,7 @@ var configured = map[string]Registrar{
 	"ojs":        func(mux *http.ServeMux, a *appctx.App) { ojs.Register(mux, a); ojs.RegisterAPI(mux, a) },
 	"mediawiki":  func(mux *http.ServeMux, a *appctx.App) { mediawiki.Register(mux, a); mediawiki.RegisterAPI(mux, a) },
 	"goaccess":   func(mux *http.ServeMux, a *appctx.App) { goaccess.Register(mux, a); goaccess.RegisterAPI(mux, a) },
+	"error_logs": func(mux *http.ServeMux, a *appctx.App) { errorlogs.Register(mux, a); errorlogs.RegisterAPI(mux, a) },
 	"php": func(mux *http.ServeMux, a *appctx.App) {
 		php.Register(mux, a)
 		php.RegisterOptionsAPI(mux, a)

@@ -387,7 +387,7 @@ func TestRenderActivityPage(t *testing.T) {
 		if !strings.Contains(body, `href="/account/activity?from=2026-08-01&amp;page=2&amp;type=danger"`) {
 			t.Error("expected pagination link to keep filters")
 		}
-		if !strings.Contains(body, `activityDateRange(&#34;2026-08-01&#34;`) && !strings.Contains(body, `activityDateRange("2026-08-01"`) {
+		if !strings.Contains(body, `dateRange(&#34;2026-08-01&#34;`) && !strings.Contains(body, `dateRange("2026-08-01"`) {
 			t.Error("expected date picker prefilled with the from date")
 		}
 		if !strings.Contains(body, "Clear filters") || !strings.Contains(body, "Last 7 days") {

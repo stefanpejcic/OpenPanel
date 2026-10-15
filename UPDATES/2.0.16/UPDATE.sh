@@ -9,7 +9,7 @@ fi
 
 # backups: postgres gets a dump hook instead of copying its live data dir, and db dumps get listed in a 00-meta/ folder at the start of every archive so the panel can index backups without downloading them
 CONFIG_RAW="https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main"
-for script in mysql/scripts/dump.sh postgres/scripts/dump.sh backups/scripts/files-list.sh; do
+for script in mysql/scripts/dump.sh postgres/scripts/dump.sh backups/scripts/files-list.sh php/fpm-tuning.sh systemd/iocost.sh; do
     tmp=$(mktemp)
     if wget --timeout=15 --tries=2 -q -O "$tmp" "$CONFIG_RAW/$script" && [ -s "$tmp" ]; then
         echo "Updating /etc/openpanel/$script..."
@@ -73,9 +73,24 @@ migrate_backup_env() {
     fi
 }
 
+# ENABLE_TUNING_FPM sized php-fpm from host cores (18 cores -> 90 children in a 1G container), so one busy site thrashed and took the server down; fpm-tuning.sh sizes it from the container's own memory limit instead
+migrate_compose_fpm_tuning() {
+    local f="$1"
+    [ -f "$f" ] || return 0
+    grep -q "^      - ENABLE_TUNING_FPM=1$" "$f" || return 0
+    [ -x /etc/openpanel/php/fpm-tuning.sh ] || return 0
+    echo "Replacing ENABLE_TUNING_FPM with container-sized php-fpm tuning in $f..."
+    [ -f "$f.bak-2.0.16" ] || cp -a "$f" "$f.bak-2.0.16"
+    sed -i \
+        -e '/^      - ENABLE_TUNING_FPM=1$/d' \
+        -e 's|^\(      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro\) *$|\1\n      - /etc/openpanel/php/fpm-tuning.sh:/etc/hooks/bootstrap/05-openpanel-fpm-tuning:ro|' \
+        "$f"
+}
+
 migrate_compose_backups /etc/openpanel/docker/compose/1.0/docker-compose.yml
 migrate_compose_files_list /etc/openpanel/docker/compose/1.0/docker-compose.yml
 migrate_backup_env /etc/openpanel/backups/backup.env
+migrate_compose_fpm_tuning /etc/openpanel/docker/compose/1.0/docker-compose.yml
 
 source /usr/local/opencli/db.sh
 contexts=$(mariadb --defaults-extra-file="$config_file" -D "$mysql_database" -N -e "SELECT DISTINCT server FROM users;" 2>/dev/null)
@@ -84,6 +99,7 @@ for ctx in $contexts; do
     migrate_compose_backups "/home/$ctx/docker-compose.yml"
     migrate_compose_files_list "/home/$ctx/docker-compose.yml"
     migrate_backup_env "/home/$ctx/backup.env"
+    migrate_compose_fpm_tuning "/home/$ctx/docker-compose.yml"
 done
 
 # mail_data only has symlinks to the real mail dirs, which the backup container stored as links without any mail, so each domain's mail dir gets mounted at /backup/emails/<domain>, and its dns zone at /backup/dns/<domain>.zone
@@ -109,6 +125,7 @@ if [ -f /usr/local/opencli/lib/backups.sh ]; then
 else
     echo "opencli lib/backups.sh missing, mail backup mounts not added - run opencli update first."
 fi
+# running php-fpm containers keep their old pool size until they are recreated, a plain restart keeps the old mounts
 # running db containers pick up the new volume on their next recreate, opencli docker-backup does that before it backs the user up
 
 # domains-unsuspend used to copy the vhost back and leave it in suspended_domains, which made the next domains-suspend think the domain was already suspended
@@ -136,3 +153,110 @@ for reason in dmca billing phishing; do
         echo "Failed to download $CONFIG_RAW/caddy/templates/suspended/$reason.html"
     fi
 done
+
+# tenants run rootless in user.slice, sshd and OpenAdmin in system.slice, caddy/openpanel/mysql as rootful containers in machine.slice
+# weights only matter under contention, so one overloaded account can't starve the host services; MemoryLow keeps their memory from being reclaimed for it
+# set-property applies live and persists in /etc/systemd/system.control, no service is restarted
+ram_mb=$(awk '/^MemTotal:/{print int($2/1024)}' /proc/meminfo)
+low_mb=$(( ram_mb / 8 ))
+(( low_mb > 2048 )) && low_mb=2048
+(( low_mb < 256 )) && low_mb=256
+echo "Prioritising system.slice and machine.slice over user.slice (MemoryLow=${low_mb}M)..."
+systemctl set-property system.slice CPUWeight=1000 IOWeight=1000 MemoryLow=${low_mb}M
+systemctl set-property machine.slice CPUWeight=1000 IOWeight=1000 MemoryLow=${low_mb}M
+systemctl set-property user.slice CPUWeight=100 IOWeight=100
+
+# systemd-oomd kills the thrashing cgroup under user.slice once its memory pressure stays above the limit, instead of the whole server freezing
+if [ ! -r /proc/pressure/memory ]; then
+    echo "Kernel PSI is disabled (add psi=1 to the kernel cmdline), skipping systemd-oomd."
+else
+    if ! systemctl cat systemd-oomd.service >/dev/null 2>&1; then
+        echo "Installing systemd-oomd..."
+        if command -v apt-get >/dev/null 2>&1; then
+            # --no-upgrade so it never pulls a newer systemd, NEEDRESTART_SUSPEND so needrestart doesn't restart running services
+            DEBIAN_FRONTEND=noninteractive NEEDRESTART_SUSPEND=1 apt-get install -y --no-upgrade systemd-oomd >/dev/null 2>&1
+        elif command -v dnf >/dev/null 2>&1; then
+            dnf install -y systemd-oomd >/dev/null 2>&1
+        fi
+    fi
+    if systemctl cat systemd-oomd.service >/dev/null 2>&1; then
+        echo "Enabling systemd-oomd for user.slice..."
+        systemctl set-property user.slice ManagedOOMMemoryPressure=kill ManagedOOMMemoryPressureLimit=60%
+        systemctl enable --now systemd-oomd >/dev/null 2>&1
+    else
+        echo "systemd-oomd is not available on this OS, a thrashing account will not be killed automatically."
+    fi
+fi
+
+# no swap for accounts, a container at its memory limit gets oom-killed and restarted instead of swapping and saturating the disk for every account
+# set-property applies live to running containers, nothing is restarted; new accounts and plan changes get it from opencli plan-apply / user-change_plan
+for ctx in $contexts; do
+    case "$ctx" in ""|default|root) continue ;; esac
+    [ -d "/home/$ctx" ] || continue
+    uid=$(stat -c '%u' "/home/$ctx")
+    echo "Disabling swap for user-${uid}.slice ($ctx)..."
+    systemctl set-property "user-${uid}.slice" MemorySwapMax=0
+done
+
+# accounts on plans with unlimited cpu/ram got no slice limit at all, so one busy site could take the whole server; give them the same safety ceiling opencli plan-apply now sets
+if [ -f /usr/local/opencli/lib/podman.sh ] && grep -q "^unlimited_slice_ceiling()" /usr/local/opencli/lib/podman.sh && grep -q "^derive_io_weight()" /usr/local/opencli/lib/podman.sh; then
+    . /usr/local/opencli/lib/podman.sh
+    read -r cpu_ceiling mem_high_mb mem_max_mb < <(unlimited_slice_ceiling)
+    mariadb --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT u.server, p.cpu, p.ram FROM users u JOIN plans p ON p.id = u.plan_id;" 2>/dev/null \
+        | while IFS=$'\t' read -r ctx cpu ram; do
+            case "$ctx" in ""|default|root) continue ;; esac
+            [ -d "/home/$ctx" ] || continue
+            uid=$(stat -c '%u' "/home/$ctx")
+            if awk -v v="${cpu%[Gg]}" 'BEGIN{exit !(v+0 == 0)}'; then
+                echo "Setting CPU safety ceiling ${cpu_ceiling}% for user-${uid}.slice ($ctx)..."
+                systemctl set-property "user-${uid}.slice" CPUQuota="${cpu_ceiling}%"
+            fi
+            systemctl set-property "user-${uid}.slice" IOWeight="$(derive_io_weight "$cpu")"
+            if awk -v v="${ram%[Gg]}" 'BEGIN{exit !(v+0 == 0)}'; then
+                echo "Setting RAM safety ceiling ${mem_high_mb}M/${mem_max_mb}M for user-${uid}.slice ($ctx)..."
+                systemctl set-property "user-${uid}.slice" MemoryHigh="${mem_high_mb}M" MemoryMax="${mem_max_mb}M" TasksMax="$(derive_tasks_max $(( mem_max_mb / 1024 )) "$ctx")"
+            fi
+        done
+else
+    echo "opencli lib/podman.sh has no unlimited_slice_ceiling, safety ceilings and io weights not set - run opencli update first."
+fi
+
+# io.weight is ignored by the none/mq-deadline schedulers NVMe and VPS disks use, io.cost enforces the slice and per-plan IOWeight on any scheduler
+# enabling it is a live write to /sys/fs/cgroup/io.cost.qos, nothing is restarted; the unit reapplies it at boot
+unit_tmp=$(mktemp)
+if wget --timeout=15 --tries=2 -q -O "$unit_tmp" "$CONFIG_RAW/systemd/openpanel-iocost.service" && [ -s "$unit_tmp" ] && [ -f /etc/openpanel/systemd/iocost.sh ]; then
+    echo "Enabling io.cost so per-account IOWeight is enforced..."
+    install -m 644 "$unit_tmp" /etc/systemd/system/openpanel-iocost.service
+    systemctl daemon-reload
+    systemctl enable --now openpanel-iocost >/dev/null 2>&1
+    systemctl status openpanel-iocost --no-pager -n 5 2>/dev/null | grep -E "io.cost|Could not" || true
+else
+    echo "Failed to download $CONFIG_RAW/systemd/openpanel-iocost.service, io.cost not enabled."
+fi
+rm -f "$unit_tmp"
+
+# rate limiting: openpanel/caddy-coraza now has the caddy-ratelimit module, new installs ship 300/min per ip and 6000/min per domain
+# existing servers stay off until an admin runs opencli domains-ratelimit: the default snippet is empty, so the domain imports added below are no-ops,
+# they are valid on the old caddy image too, and caddy is neither reloaded nor restarted here; the new image is only pulled for the next recreate
+RL_CONF=/etc/openpanel/caddy/ratelimit.conf
+if [ -f /etc/openpanel/caddy/Caddyfile ]; then
+    if [ ! -f "$RL_CONF" ]; then
+        echo "Adding $RL_CONF with rate limiting off..."
+        printf '# opencli domains-ratelimit\n# default: 0 0\n(ratelimit) {\n}\n' > "$RL_CONF"
+    fi
+    if ! grep -q "import $RL_CONF" /etc/openpanel/caddy/Caddyfile; then
+        echo "Adding the rate limit snippets import to /etc/openpanel/caddy/Caddyfile..."
+        # written in place, caddy bind-mounts this single file and would keep seeing the old inode after sed -i, then fail its next reload on the domain imports
+        sed "s|^import /etc/openpanel/caddy/domains/\*|# import rate limit snippets (opencli domains-ratelimit)\nimport $RL_CONF\n\n&|" /etc/openpanel/caddy/Caddyfile > /tmp/op_2016_caddyfile \
+            && cat /tmp/op_2016_caddyfile > /etc/openpanel/caddy/Caddyfile
+        rm -f /tmp/op_2016_caddyfile
+    fi
+    for conf in /etc/openpanel/caddy/domains/*.conf; do
+        [ -f "$conf" ] || continue
+        grep -qE '^[[:space:]]*(import[[:space:]]+ratelimit|# ratelimit off)' "$conf" && continue
+        grep -q 'import /etc/openpanel/caddy/redirects.conf' "$conf" || continue
+        domain=$(basename "$conf" .conf)
+        sed -i -E "s|^([[:space:]]*)import /etc/openpanel/caddy/redirects.conf[[:space:]]*\$|&\n\n\1# rate limit (opencli domains-ratelimit)\n\1import ratelimit $domain|" "$conf"
+    done
+    podman pull docker.io/openpanel/caddy-coraza:latest >/dev/null 2>&1 || echo "Failed to pull the new caddy image, it will be pulled on the next caddy recreate."
+fi

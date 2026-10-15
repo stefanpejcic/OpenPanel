@@ -183,6 +183,7 @@ func allSections() []Section {
 			{"inodes", "/inodes-explorer", "bi-folder-x", "Inode Usage", "", false},
 			{"goaccess", "/domains/stats", "bi-graph-up", "Visitor Statistics", "", false},
 			{"domain_logs", "/domains/log", "bi-file-text", "Access Logs", "", false},
+			{"error_logs", "/error-logs", "bi-bug", "Error Logs", "", false},
 			{"info", "/server/info", "bi-info-square", "Server Info", "", false},
 		}},
 		{Key: "processes", Title: "Processes & Services", Icon: "bi-cpu", Items: []SectionItem{
@@ -307,6 +308,7 @@ func classicSections() []Section {
 			{"ip_blocker", "/security/ip-blocker", "bi-ban", "IP Blocker", "", false},
 			{"usage", "/server/usage", "bi-speedometer2", "Resource Usage", "", false},
 			{"usage", "/server/usage/history", "bi-speedometer2", "Resource Usage History", "", false},
+			{"error_logs", "/error-logs", "bi-bug", "Error Logs", "", false},
 			{"process_manager", "/process-manager", "bi-cpu", "Process Manager", "", false},
 			{"timezone", "/server/timezone", "bi-clock", "Change TimeZone", "", false},
 			{"webserver_conf", "/server/webserver_conf", "bi-hdd-network", "Webserver Configuration", "", false},

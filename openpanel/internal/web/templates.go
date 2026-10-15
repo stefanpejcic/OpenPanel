@@ -97,6 +97,8 @@ var funcMap = template.FuncMap{
 
 const bulkPartial = "partials/_bulk.html"
 
+const dateRangePartial = "partials/_date_range.html"
+
 const aiPartial = "partials/_ai_assistant.html"
 
 // Page is a parsed, ready-to-execute template set for one route.
@@ -107,17 +109,21 @@ type Page struct {
 // MustLoadPage parses files (relative to web/templates/) into a single template set - by convention the layout file among them defines a top-level {{define "layout"}} that Render executes. Panics on a parse error, since a broken template is a startup-time bug, not a runtime condition to recover from.
 func MustLoadPage(files ...string) *Page {
 	paths := make([]string, 0, len(files)+1)
-	hasBase, hasBulk, hasHeader, hasAI := false, false, false, false
+	hasBase, hasBulk, hasDateRange, hasHeader, hasAI := false, false, false, false, false
 	for _, f := range files {
 		paths = append(paths, "templates/"+f)
 		hasBase = hasBase || f == "base.html"
 		hasBulk = hasBulk || f == bulkPartial
+		hasDateRange = hasDateRange || f == dateRangePartial
 		hasHeader = hasHeader || f == "partials/_header.html"
 		hasAI = hasAI || f == aiPartial
 	}
 	// every panel page can use the bulk selection partial without listing it
 	if hasBase && !hasBulk {
 		paths = append(paths, "templates/"+bulkPartial)
+	}
+	if hasBase && !hasDateRange {
+		paths = append(paths, "templates/"+dateRangePartial)
 	}
 	// the header calls the AI drawer, so it comes along with it
 	if hasHeader && !hasAI {

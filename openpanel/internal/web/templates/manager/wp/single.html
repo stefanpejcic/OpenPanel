@@ -1416,6 +1416,65 @@
                 });
             </script>
 
+            {{if .UserAllowed.error_logs}}
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3"
+                x-data="{
+                    loading: false, loaded: false, failed: false, entries: [], total: 0,
+                    load() {
+                        this.loading = true; this.failed = false;
+                        fetch('/error-logs?' + new URLSearchParams({ domain: {{toJSON .CurrentDomain}}, exact: 1, limit: 10, format: 'json' }))
+                            .then(r => r.ok ? r.json() : Promise.reject(r.status))
+                            .then(d => { this.entries = d.entries || []; this.total = d.total || 0; })
+                            .catch(() => { this.failed = true; })
+                            .finally(() => { this.loading = false; this.loaded = true; });
+                    },
+                    when(t) {
+                        const d = new Date(t), p = n => String(n).padStart(2, '0');
+                        return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+                    }
+                }"
+                x-effect="if (activeTab === 'debugging' && !loaded && !loading) load()">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Error Logs"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Latest PHP, web server and HTTP 5xx errors for this website."}}</p>
+                    <div class="mt-3 flex items-center gap-3 text-sm">
+                        <a href="/error-logs?domain={{.CurrentDomain}}&exact=1" class="text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500">{{.T.Get "View Logs"}}</a>
+                        <button type="button" @click="load()" :disabled="loading" class="text-gray-500 hover:text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-400 dark:hover:text-gray-50">{{.T.Get "Refresh"}}</button>
+                    </div>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2 min-w-0">
+                    <p x-show="loading" class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Loading..."}}</p>
+                    <p x-show="!loading && failed" x-cloak class="text-sm text-red-600 dark:text-red-400">{{.T.Get "Error"}}</p>
+                    <p x-show="!loading && !failed && loaded && entries.length === 0" x-cloak class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No errors found for these filters."}}</p>
+                    <ul x-show="!loading && entries.length > 0" x-cloak class="divide-y divide-gray-200 rounded border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                        <template x-for="(e, i) in entries" :key="i">
+                            <li x-data="{ open: false }" @click="open = !open" class="cursor-pointer px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-900">
+                                <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                    <span class="rounded-sm px-2 py-0.5 font-medium"
+                                        :class="{
+                                            'bg-red-600 text-white': e.level === 'critical',
+                                            'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': e.level === 'error',
+                                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': e.level === 'warning',
+                                            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300': e.level === 'notice',
+                                            'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300': e.level === 'info'
+                                        }" x-text="e.level"></span>
+                                    <span x-text="when(e.time)"></span>
+                                    <span x-text="e.service"></span>
+                                </div>
+                                <div x-show="!open" class="mt-1 truncate font-mono text-xs text-gray-900 dark:text-gray-100" x-text="e.message"></div>
+                                <pre x-show="open" x-cloak class="mt-1 whitespace-pre-wrap break-all font-mono text-xs text-gray-900 dark:text-gray-100" x-text="e.message"></pre>
+                            </li>
+                        </template>
+                    </ul>
+                    <p x-show="!loading && total > entries.length" x-cloak class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        {{.T.Get "Showing"}} <span x-text="entries.length"></span> {{.T.Get "out of"}} <span x-text="total"></span> {{.T.Get "rows"}} &middot;
+                        <a href="/error-logs?domain={{.CurrentDomain}}&exact=1" class="text-blue-500 hover:underline dark:text-blue-500">{{.T.Get "View Logs"}}</a>
+                    </p>
+                </div>
+            </div>
+            <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+            {{end}}
+
             <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "The options below allow you to manage the native WordPress debugging tools, enabling and disabling these tools in the wp-config.php file. It is not recommended to use these options on production websites since they are meant for development and test installations. Refer to"}} <a href="https://wordpress.org/support/article/debugging-in-wordpress/" target="_blank"  class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500" rel="noopener noreferrer">{{.T.Get "Debugging in WordPress"}} <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg></a> {{.T.Get "article for more information on these options."}}</p>
 
             <form id="updateDebugForm">

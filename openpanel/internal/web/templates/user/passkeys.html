@@ -40,7 +40,7 @@
         </thead>
         <tbody>
             {{range .Passkeys}}
-            <tr class="border-b dark:border-gray-700">
+            <tr class="border-b dark:border-gray-700 border-gray-200">
                 <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{.Name}}</td>
                 <td class="px-4 py-3">{{.CreatedAt}}</td>
                 <td class="px-4 py-3">{{if .LastUsedAt.Valid}}{{.LastUsedAt.String}}{{else}}{{$.T.Get "Never"}}{{end}}</td>

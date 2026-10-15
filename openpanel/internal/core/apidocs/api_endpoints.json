@@ -2903,6 +2903,17 @@
     ]
   },
   {
+    "group": "Error Logs",
+    "feature": "error_logs",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/error-logs",
+        "description": "List PHP, webserver, database and HTTP 5xx errors."
+      }
+    ]
+  },
+  {
     "group": "System Services",
     "feature": "services",
     "endpoints": [

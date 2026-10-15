@@ -1157,6 +1157,20 @@ Customize options:
 * To **force regeneration of the reports* refer to: [*OpenCLI Documentation > Parse domain access logs*](https://dev.openpanel.com/cli/domains.html#Parse-domain-access-logs).
 
 
+## Error Logs
+
+The **`error_logs`** module lets users see PHP, webserver, database and HTTP 5xx errors for all of their websites on a single page, without opening individual containers.
+
+When enabled:
+* Users can access the [**Statistics > Error Logs** page](/docs/panel/statistics/error_logs/).
+* The same data is available from the `/api/error-logs` API endpoint.
+
+When disabled:
+* Users can not access the *Statistics > Error Logs* page.
+
+Errors are read live from the user's PHP-FPM, webserver and database containers (for OpenLiteSpeed and LiteSpeed, from `/usr/local/lsws/logs/error.log` inside the container) and from the Caddy domain access logs (5xx responses only), so nothing extra runs in the background.
+
+
 ## Docroot
 
 The **`docroot`** module allows users to set a custom docroot (folder) when adding domains, and later change the path.

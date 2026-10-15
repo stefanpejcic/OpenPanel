@@ -42,17 +42,17 @@
                     <table class="mt-2 w-full text-sm border border-gray-300">
                         <thead>
                             <tr class="bg-gray-200">
-                            <th class="px-2 py-1 border">{{.T.Get "Email"}}</th>
-                            <th class="px-2 py-1 border">{{.T.Get "Password"}}</th>
-                            <th class="px-2 py-1 border">{{.T.Get "Quota"}}</th>
+                            <th class="px-2 py-1 border border-gray-200 dark:border-gray-800">{{.T.Get "Email"}}</th>
+                            <th class="px-2 py-1 border border-gray-200 dark:border-gray-800">{{.T.Get "Password"}}</th>
+                            <th class="px-2 py-1 border border-gray-200 dark:border-gray-800">{{.T.Get "Quota"}}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {{range .ValidUsers}}
                             <tr>
-                                <td class="px-2 py-1 border">{{.Email}}</td>
-                                <td class="px-2 py-1 border">{{.Password}}</td>
-                                <td class="px-2 py-1 border">{{if .Quota}}{{.Quota}}{{else}}—{{end}}</td>
+                                <td class="px-2 py-1 border border-gray-200 dark:border-gray-800">{{.Email}}</td>
+                                <td class="px-2 py-1 border border-gray-200 dark:border-gray-800">{{.Password}}</td>
+                                <td class="px-2 py-1 border border-gray-200 dark:border-gray-800">{{if .Quota}}{{.Quota}}{{else}}—{{end}}</td>
                             </tr>
                             {{end}}
                         </tbody>

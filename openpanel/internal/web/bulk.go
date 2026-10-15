@@ -30,6 +30,7 @@ type BulkAction struct {
 	Input   *BulkInput // asks for a value on confirm, e.g. a new CPU limit
 	Feature string     // only offered when the user has this feature
 	Icon    string     // bootstrap icon class, falls back to bulkIcons by Key
+	Client  bool       // runs in the browser, the page listens for the bulk-<Key> window event instead of a POST
 }
 
 // bulkIcons is what the bar shows instead of the label on small screens

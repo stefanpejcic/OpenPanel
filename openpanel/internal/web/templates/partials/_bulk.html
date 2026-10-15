@@ -59,7 +59,7 @@
     </div>
     <div x-show="!bulkConfirming" class="flex flex-wrap items-center gap-2">
         {{range .BulkActions}}{{if .Usable}}
-        <button type="button" data-bulk-action="{{.Key}}" :disabled="bulkRunning" :class="bulkRunning && 'opacity-50 pointer-events-none'" @click="bulkStart({{toJSON .Key}}, {{if .Input}}{{toJSON .Input.Initial}}{{else}}''{{end}})" aria-label="{{.Label}}"
+        <button type="button" data-bulk-action="{{.Key}}" :disabled="bulkRunning" :class="bulkRunning && 'opacity-50 pointer-events-none'" @click="{{if .Client}}bulkClient({{toJSON .Key}}){{else}}bulkStart({{toJSON .Key}}, {{if .Input}}{{toJSON .Input.Initial}}{{else}}''{{end}}){{end}}" aria-label="{{.Label}}"
             class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out {{if .Danger}}border-transparent bg-red-600 text-white hover:bg-red-700{{else}}border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60{{end}}">
             <i class="bi {{.IconClass}}" aria-hidden="true"></i><span class="bulk-btn-label">{{.Label}}</span>
         </button>

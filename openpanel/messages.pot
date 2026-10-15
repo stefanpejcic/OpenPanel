@@ -15718,3 +15718,87 @@ msgstr ""
 #: templates/files/backup_restore.html
 msgid "Unsuspend the domain to restore its VirtualHost."
 msgstr ""
+
+#: templates/system/error_logs.html
+msgid "Error Logs"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "PHP, web server, database and HTTP 5xx errors for all your websites in one place."
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "All domains"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "All services"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "Severity"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "Warnings and errors"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "Errors only"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "Time range"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "Last hour"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "Last 6 hours"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "Last 24 hours"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "e.g. Fatal error, wp-content, 502"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "Showing newest"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "entries, narrow the filters to see the rest."
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "entries"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "Click a row to see the full message, tick rows to copy only those."
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "Critical"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "Notice"
+msgstr ""
+
+#: templates/system/error_logs.html
+msgid "No errors found for these filters."
+msgstr ""
+
+#: modules/errorlogs
+msgid "Unknown service."
+msgstr ""
+
+#: modules/errorlogs
+msgid "HTTP 5xx responses"
+msgstr ""

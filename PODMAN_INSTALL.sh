@@ -284,6 +284,7 @@ pkg_install_with_retry() {
         iptables)     $PACKAGE_MANAGER install -y iptables-nft >/dev/null 2>&1 && return ;;
         netavark|aardvark-dns|crun) warn "Could not install $pkg — podman may fall back to CNI/runc."; return ;;
         quota|systemd-container|slirp4netns|fuse-overlayfs|passt) warn "Could not install $pkg — you may need to install it manually."; return ;;
+        systemd-oomd) warn "systemd-oomd is not available on this OS, a thrashing account will not be killed automatically."; return ;;
     esac
 
     local attempt=1 max=10 delay=5
@@ -357,7 +358,7 @@ install_packages() {
                 run ln -sf /opt/podman-compose/bin/podman-compose /usr/local/bin/podman-compose
                 run hash -r
             fi
-            packages=(curl openssl cron tar dbus-user-session systemd dbus systemd-container quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client sqlite3)
+            packages=(curl openssl cron tar dbus-user-session systemd dbus systemd-container systemd-oomd quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client sqlite3)
             ;;
         yum)
             run yum install -y dnf-plugins-core yum-utils epel-release
@@ -366,7 +367,7 @@ install_packages() {
         dnf)
             if [[ "$OS_ID" == "openeuler" ]]; then
                 run dnf install -y dnf-plugins-core yum-utils perl gcc tar
-                packages=(tar curl openssl ncurses wget cronie systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns passt slirp4netns fuse-overlayfs mariadb sqlite perl-Math-BigInt)
+                packages=(tar curl openssl ncurses wget cronie systemd dbus systemd-container systemd-oomd quota shadow-utils podman podman-compose crun netavark aardvark-dns passt slirp4netns fuse-overlayfs mariadb sqlite perl-Math-BigInt)
                 wait_for_pkg_lock
                 install_pkgs_batch "${packages[@]}"
                 return
@@ -379,9 +380,9 @@ install_packages() {
             fi
             run dnf install -y yum-utils epel-release perl gcc
             if [[ -f /etc/fedora-release ]]; then
-                packages=(tar openssl wget dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mysql sqlite perl-Math-BigInt)
+                packages=(tar openssl wget dbus-user-session systemd dbus systemd-container systemd-oomd quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mysql sqlite perl-Math-BigInt)
             else
-                packages=(tar openssl ncurses wget systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb sqlite perl-Math-BigInt)
+                packages=(tar openssl ncurses wget systemd dbus systemd-container systemd-oomd quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb sqlite perl-Math-BigInt)
             fi
             ;;
     esac
@@ -953,6 +954,34 @@ set_container_cpu_limits() {
     run systemctl daemon-reload
 }
 
+# tenants run rootless in user.slice, sshd and OpenAdmin in system.slice, caddy/openpanel/mysql as rootful containers in machine.slice
+# weights only matter under contention, so one overloaded account can't starve the host services; MemoryLow keeps their memory from being reclaimed for it
+set_slice_priorities() {
+    local ram_mb low_mb
+    ram_mb=$(awk '/^MemTotal:/{print int($2/1024)}' /proc/meminfo)
+    low_mb=$(( ram_mb / 8 ))
+    (( low_mb > 2048 )) && low_mb=2048
+    (( low_mb < 256 )) && low_mb=256
+    run systemctl set-property system.slice CPUWeight=1000 IOWeight=1000 MemoryLow=${low_mb}M
+    run systemctl set-property machine.slice CPUWeight=1000 IOWeight=1000 MemoryLow=${low_mb}M
+    run systemctl set-property user.slice CPUWeight=100 IOWeight=100
+}
+
+# systemd-oomd kills the thrashing cgroup under user.slice once its memory pressure stays above the limit, instead of the whole server freezing
+setup_oomd() {
+    [[ -r /proc/pressure/memory ]] || { warn "Kernel PSI is disabled (add psi=1 to the kernel cmdline), skipping systemd-oomd."; return 0; }
+    systemctl cat systemd-oomd.service &>/dev/null || return 0
+    run systemctl set-property user.slice ManagedOOMMemoryPressure=kill ManagedOOMMemoryPressureLimit=60%
+    run systemctl enable --now systemd-oomd
+}
+
+# io.weight is ignored by the none/mq-deadline schedulers NVMe and VPS disks use, io.cost enforces the slice and per-plan IOWeight on any scheduler, reapplied at boot by the unit
+setup_iocost() {
+    cp "${ETC_DIR}systemd/openpanel-iocost.service" /etc/systemd/system/openpanel-iocost.service
+    run systemctl daemon-reload
+    run systemctl enable --now openpanel-iocost
+}
+
 configure_premium() {
     [[ "$SET_PREMIUM" != true ]] && return
     LICENSE="Enterprise"
@@ -1057,6 +1086,9 @@ run_housekeeping_parallel() {
     _run_bg "redis"      setup_redis
     _run_bg "quotas"     enable_disk_quotas
     _run_bg "cpu_limits" set_container_cpu_limits
+    _run_bg "slices"     set_slice_priorities
+    _run_bg "oomd"       setup_oomd
+    _run_bg "iocost"     setup_iocost
     _run_bg "modprobe"   setup_modprobe
 
     local failed=0

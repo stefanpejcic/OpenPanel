@@ -185,3 +185,9 @@ func unregisterContainerSite(ctx context.Context, a *appctx.App, userID int, ser
 	_, _ = a.DB.ExecContext(ctx, `DELETE FROM sites WHERE type = ? AND container = ?
 		AND domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?)`, containerSiteType, service, userID)
 }
+
+// ServiceDomain is the domain a compose service is proxied to, empty if none
+func ServiceDomain(svc map[string]any) string {
+	d, _ := serviceDomain(svc)
+	return d
+}

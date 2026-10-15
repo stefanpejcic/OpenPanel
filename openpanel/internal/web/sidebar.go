@@ -126,7 +126,7 @@ func isContainersPath(path string) bool {
 }
 
 func isStatsPath(path string) bool {
-	return hasAnyPrefix(path, "/server/usage", "/disk-usage", "/inodes-explorer", "/domains/stats", "/domains/log")
+	return hasAnyPrefix(path, "/server/usage", "/disk-usage", "/inodes-explorer", "/domains/stats", "/domains/log", "/error-logs")
 }
 
 func isProcessesPath(path string) bool {
@@ -352,6 +352,7 @@ var sidebarAreas = []navArea{
 			tabs = g.add(tabs, "inodes", "/inodes-explorer/", "Inode Usage", strings.HasPrefix(path, "/inodes-explorer"), "")
 			tabs = g.add(tabs, "goaccess", "/domains/stats", "Visitor Statistics", strings.HasPrefix(path, "/domains/stats"), "")
 			tabs = g.add(tabs, "domain_logs", "/domains/log", "Access Logs", strings.HasPrefix(path, "/domains/log"), "")
+			tabs = g.add(tabs, "error_logs", "/error-logs", "Error Logs", strings.HasPrefix(path, "/error-logs"), "")
 			return tabs
 		}},
 

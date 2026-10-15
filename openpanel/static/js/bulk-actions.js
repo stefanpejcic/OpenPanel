@@ -72,6 +72,11 @@ function bulkActions(cfg) {
                 if (input) input.focus();
             });
         },
+        // browser-only actions like copy, no confirm step, the page does the work
+        bulkClient(action) {
+            const items = Object.keys(this.bulkSelected);
+            if (items.length) window.dispatchEvent(new CustomEvent('bulk-' + action, { detail: { items: items } }));
+        },
         bulkCancel() {
             if (!this.bulkRunning) this.bulkConfirming = null;
         },
