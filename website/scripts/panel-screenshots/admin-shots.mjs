@@ -449,6 +449,12 @@ export const pages = {
       { name: 'statistics', alt: 'Statistics section with the resource usage and statistics options', prepare: markSectionId('Statistics'), crop: { from: '[data-shot=section]', pad: 16 } },
     ],
   },
+  // the AI Assistant section is shot on a test server with ADMIN_URL until the demo has it
+  'settings/openpanel-ai': {
+    as: 'settings/openpanel',
+    url: '/settings/open-panel',
+    shots: [{ name: 'ai', alt: 'AI Assistant section with what the assistant can do, the provider, API key, model, limits and the usage per user this month', prepare: markSectionId('AI Assistant'), crop: { from: '[data-shot=section]', pad: 16 } }],
+  },
   'settings/modules': {
     url: '/settings/modules',
     shots: [{ name: 'page', alt: 'Modules page with a card per module showing its path, type, description and Activate toggle', crop: { content: 'main', maxHeight: 1000 } }],

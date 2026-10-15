@@ -189,6 +189,9 @@ To use it, enable the **AI Assistant** module on [Settings > Modules](/docs/admi
 - **Max tokens per answer:** Upper limit for the length of each answer. Default is 2048.
 - **Extra instructions:** Added to the assistant's instructions, for example your support email or policies.
 
+![AI Assistant section with what the assistant can do, the provider, API key, model, limits and the usage per user this month](/img/openadmin-screenshots/settings/openpanel-ai.png#gh-light-mode-only)
+![AI Assistant section with what the assistant can do, the provider, API key, model, limits and the usage per user this month](/img/openadmin-screenshots/settings/openpanel-ai_dark.png#gh-dark-mode-only)
+
 ### Actions
 
 The assistant uses the same actions as the [OpenPanel API](/docs/panel/account/api/), but only those for features on the user's plan, and every action goes through the same checks as the API. Logins, account email and password changes, 2FA, passkeys, sessions, MCP tokens, the MySQL root password, autologin links, downloads and uploads are never available to it.
@@ -203,7 +206,7 @@ Everything the assistant does is written to the user's activity log, for example
 
 ### Usage
 
-Below the settings, **Usage this month** lists every user who used the assistant this month, with the number of questions, actions, input and output tokens, and when they last used it. Tokens are what your provider bills for. Use it to find users who use it heavily, for example to give them a lower limit.
+Below the settings, **Usage this month** lists every user who used the assistant this month, with the number of questions, actions, input and output tokens, and when they last used it. Tokens are what your provider bills for, so this shows who uses the assistant most and what it costs you.
 
 The settings are saved in the `[AI]` section of `/etc/openpanel/openpanel/conf/openpanel.config`. OpenPanel needs a restart to use the new values.
 

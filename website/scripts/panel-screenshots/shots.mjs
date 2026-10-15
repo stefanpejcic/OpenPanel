@@ -57,6 +57,50 @@ const DOMAINS = {
   bd37zzjy: 'wp_blog',
   u1pd6u5s: 'wp_blog_user',
 };
+// AI Assistant fixtures: the drawer reads its chat from sessionStorage, and /ai/info is answered here so nothing reaches the model
+const AI_INFO = { name: 'AI Assistant', configured: true, used: 12, limit: 100, actions: 'all', allowed: [{ action: 'emails_post', title: 'Create mailbox' }, { action: 'domains_post', title: 'Add a new domain' }] };
+const AI_CHAT = [
+  { role: 'user', content: 'How do I point my domain to this server?' },
+  { role: 'assistant', content: 'Set the nameservers at the company where you registered the domain:\n\n1. Log in to your domain registrar.\n2. Open the DNS or nameserver settings for the domain.\n3. Replace the nameservers with `ns1.example.net` and `ns2.example.net`.\n\nChanges can take up to 24 hours to work everywhere.' },
+  { role: 'user', content: 'Which domains do I have?' },
+  { role: 'action', content: 'Looked up: List all domains', ok: true },
+  { role: 'assistant', content: 'You have 2 domains: **example.com** and **blog.example.com**. Both are active and have an SSL certificate.' },
+];
+const AI_CONFIRM = [
+  { role: 'user', content: 'Create info@example.com with a 2 GB quota' },
+  { role: 'action', content: 'Looked up: List all domains', ok: true },
+  { role: 'assistant', content: 'I\'ll create **info@example.com** with a 2 GB quota. I generated this password for it, save it somewhere safe: `hT9#vQ2m!Lx7pR4z`' },
+  { role: 'confirm', state: 'pending', card: { id: 'x', title: 'Create mailbox', kind: 'change', request: 'POST /api/emails', fields: [['domain', 'example.com'], ['format', 'GB'], ['gb', '2'], ['password', '••••••••'], ['username', 'info']], remember: true, tainted: false } },
+];
+const AI_DESTRUCTIVE = [
+  { role: 'user', content: 'Remove old.example.com, I don\'t use it anymore' },
+  { role: 'assistant', content: 'This removes **old.example.com** from your account.' },
+  { role: 'confirm', state: 'pending', card: { id: 'x', title: 'Remove a domain', kind: 'destructive', request: 'DELETE /api/domains/old.example.com', fields: [['domain', 'old.example.com']], remember: false, tainted: false } },
+];
+// fit: shrink the drawer to its messages so a crop of it has no empty space
+const aiDrawer = (chat, info = false, fit = false) => async page => {
+  await page.route('**/ai/info', route => route.fulfill({ json: AI_INFO }));
+  // the drawer reads the chat once on load, so store it and load the page again
+  await page.evaluate(c => sessionStorage.setItem('ai_assistant_chat', JSON.stringify(c)), chat);
+  await page.reload({ waitUntil: 'load' });
+  await page.waitForTimeout(800);
+  await hideOnboarding(page);
+  await page.locator('#ai-assistant-btn').click();
+  await page.mouse.move(0, 0);
+  await page.waitForTimeout(800);
+  if (info) {
+    await page.locator('#ai-assistant-info').click();
+    await page.waitForTimeout(300);
+  }
+  await page.locator('#ai-assistant-input').blur();
+  if (fit) {
+    await page.evaluate(() => {
+      document.getElementById('ai-assistant-drawer').style.bottom = 'auto';
+      document.getElementById('ai-assistant-messages').style.flex = 'none';
+    });
+  }
+};
+
 const MAIL_HOST = { 'demo.openpanel.com': 'mail.example.com' };
 
 // runs on every shot after its own prepare(), so selectors there can still use the real names
@@ -1579,6 +1623,51 @@ export const pages = {
         },
         viewportHeight: 820,
         crop: { from: '#searchGroup', to: '#filteredDropdown', clamp: false, pad: 8 },
+      },
+    ],
+  },
+  // the AI Assistant isn't on the demo, so these are shot on a test server with PANEL_URL and the chat is filled in from fixtures
+  'dashboard/dashboard-ai': {
+    as: 'dashboard/dashboard',
+    url: '/dashboard',
+    prepare: hideOnboarding,
+    shots: [
+      {
+        name: 'ai-button',
+        alt: 'AI button in the page header, next to the search icon and the favorites star',
+        viewportHeight: 820,
+        crop: { from: '#openSearchBtn', to: '#addFavoriteBtn', clamp: false, pad: 14 },
+      },
+      {
+        name: 'ai-window',
+        alt: 'AI Assistant open on the right side of the dashboard, answering how to point a domain to the server and listing the account domains',
+        viewportWidth: 1440,
+        viewportHeight: 820,
+        prepare: aiDrawer(AI_CHAT),
+      },
+      {
+        name: 'ai-confirm',
+        alt: 'AI Assistant asking for approval to create an email account, with the request details and Approve, Always allow and Decline buttons',
+        viewportWidth: 1440,
+        viewportHeight: 820,
+        prepare: aiDrawer(AI_CONFIRM, false, true),
+        crop: { from: '#ai-assistant-drawer', clamp: false },
+      },
+      {
+        name: 'ai-destructive',
+        alt: 'Destructive action card in the AI Assistant for removing a domain, with only Approve and Decline buttons',
+        viewportWidth: 1440,
+        viewportHeight: 820,
+        prepare: aiDrawer(AI_DESTRUCTIVE, false, true),
+        crop: { from: '#ai-assistant-drawer', clamp: false },
+      },
+      {
+        name: 'ai-info',
+        alt: 'AI Assistant info panel with what the assistant can do, questions used this month and the always allowed actions with Remove buttons',
+        viewportWidth: 1440,
+        viewportHeight: 820,
+        prepare: aiDrawer(AI_CHAT, true),
+        crop: { from: '#ai-assistant-drawer .ai-drawer-head', to: '#ai-assistant-about', clamp: false, pad: 1 },
       },
     ],
   },

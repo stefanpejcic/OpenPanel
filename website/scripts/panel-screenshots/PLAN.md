@@ -37,6 +37,7 @@ Legend: ✅ route exists · ⚠️ route missing or differs · — no screenshot
 |---|---|---|
 | 000_intro | `/login`, `/reset_password` | ✅ login form · reset form · reset sent (the email shot stays manual) |
 | dashboard/dashboard | `/dashboard` | ✅ page · detail: usage widgets · favorites · search open · tour popover |
+| dashboard/dashboard (AI) | `/dashboard` | ✅ AI button · drawer window · change card · destructive card · info panel, shot on a test server with `PANEL_URL` from chat fixtures, as `dashboard/dashboard-ai` |
 | dashboard/dark-mode | any page | ✅ window light · window dark (`data-theme` toggle) |
 | dashboard/onboarding | `/dashboard` (first login) | ⚠️ needs a user with no `onboarding.completed` · steps 1–N |
 

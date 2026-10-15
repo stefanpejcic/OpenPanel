@@ -123,9 +123,15 @@ Click the magnifying glass icon in the top-right corner of the header to open th
 
 When the AI Assistant is enabled by your hosting provider, an **AI** button is shown in the top-right corner of the header, next to the search icon. Click it to open the assistant on the right side of the page. It's available on every page, so you can keep it open while you follow its steps.
 
+![AI button in the page header, next to the search icon and the favorites star](/img/openpanel-screenshots/dashboard/dashboard-ai-button.png#gh-light-mode-only)
+![AI button in the page header, next to the search icon and the favorites star](/img/openpanel-screenshots/dashboard/dashboard-ai-button_dark.png#gh-dark-mode-only)
+
 Ask a question in your own words, for example *How do I add a new domain?* or *Why does my website show a 502 error?*, and press **Enter** to send it. Use **Shift + Enter** for a new line. When the chat is empty, a few example questions are shown that you can click.
 
 The assistant answers using the panel documentation and knows which features are available on your plan and which page you are on, so you can also ask *What can I do on this page?*.
+
+![AI Assistant open on the right side of the dashboard, answering how to point a domain to the server and listing the account domains](/img/openpanel-screenshots/dashboard/dashboard-ai-window.png#gh-light-mode-only)
+![AI Assistant open on the right side of the dashboard, answering how to point a domain to the server and listing the account domains](/img/openpanel-screenshots/dashboard/dashboard-ai-window_dark.png#gh-dark-mode-only)
 
 Depending on what your hosting provider allows, the assistant can also look things up in your account, like your domains, websites, email accounts or disk usage, and make changes for you, like adding a domain or creating an email account. Ask for it in your own words, for example *Which domains do I have?* or *Create info@example.com with a 2 GB quota*. Click **Info** to see what it can do on your account.
 
@@ -135,7 +141,13 @@ Looking things up happens right away. Before the assistant changes anything, it 
 - **Always allow**: runs the action and doesn't ask again for the same kind of action, for example adding a domain.
 - **Decline**: skips it, and the assistant won't try it again unless you ask.
 
-Actions that delete or overwrite data, like removing a domain, deleting files or changing a password, are marked **Destructive** and always ask, even if you allowed a similar action before. The assistant also asks again for every change after it has read files or logs in the same chat, because those can contain text written by others.
+![AI Assistant asking for approval to create an email account, with the request details and Approve, Always allow and Decline buttons](/img/openpanel-screenshots/dashboard/dashboard-ai-confirm.png#gh-light-mode-only)
+![AI Assistant asking for approval to create an email account, with the request details and Approve, Always allow and Decline buttons](/img/openpanel-screenshots/dashboard/dashboard-ai-confirm_dark.png#gh-dark-mode-only)
+
+Actions that delete or overwrite data, like removing a domain, deleting files or changing a password, are marked **Destructive** and always ask, even if you allowed a similar action before. The assistant also asks again for every change after it has read files or logs while answering the same question, because those can contain text written by others.
+
+![Destructive action card in the AI Assistant for removing a domain, with only Approve and Decline buttons](/img/openpanel-screenshots/dashboard/dashboard-ai-destructive.png#gh-light-mode-only)
+![Destructive action card in the AI Assistant for removing a domain, with only Approve and Decline buttons](/img/openpanel-screenshots/dashboard/dashboard-ai-destructive_dark.png#gh-dark-mode-only)
 
 Everything the assistant looks up or changes is recorded in your [Activity log](/docs/panel/security/account_activity/), together with whether you approved it.
 
@@ -146,6 +158,9 @@ Buttons at the top of the assistant:
 - **Info**: shows what the assistant can do, how many questions you've asked this month, and the actions you've set to **Always allow**. Click **Remove** next to an action to have the assistant ask again. Your hosting provider can set a monthly limit.
 - **New chat**: clears the conversation and starts over.
 - **Close**: hides the assistant. You can also press **Esc**.
+
+![AI Assistant info panel with what the assistant can do, questions used this month and the always allowed actions with Remove buttons](/img/openpanel-screenshots/dashboard/dashboard-ai-info.png#gh-light-mode-only)
+![AI Assistant info panel with what the assistant can do, questions used this month and the always allowed actions with Remove buttons](/img/openpanel-screenshots/dashboard/dashboard-ai-info_dark.png#gh-dark-mode-only)
 
 The conversation is kept in your browser while the tab is open, so it stays when you move between pages and is cleared when you close the tab.
 
