@@ -29,11 +29,12 @@ import (
 
 // backupItem is one pickable thing in a backup: a mailbox, a domain or a dns zone
 type backupItem struct {
-	Name     string `json:"name"`
-	Size     int64  `json:"size"`
-	Count    int64  `json:"count,omitempty"`
-	Mtime    int64  `json:"mtime,omitempty"`
-	OnServer bool   `json:"on_server"`
+	Name      string `json:"name"`
+	Size      int64  `json:"size"`
+	Count     int64  `json:"count,omitempty"`
+	Mtime     int64  `json:"mtime,omitempty"`
+	OnServer  bool   `json:"on_server"`
+	Suspended bool   `json:"suspended,omitempty"`
 }
 
 var domainNameRE = regexp.MustCompile(`^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$`)
@@ -69,6 +70,7 @@ func readItems(listFile, kind string, domains map[string]bool) ([]backupItem, er
 				continue
 			}
 			item.Name, item.Mtime, item.OnServer = domain, second, domains[domain]
+			item.Suspended = kind == "vhosts" && domainSuspended(domain)
 		}
 		items = append(items, item)
 	}
@@ -101,6 +103,9 @@ func selectiveTargets(restoreTarget string, values []string, plan *restorePlan) 
 			domain := strings.ToLower(v)
 			if !domainNameRE.MatchString(domain) {
 				return nil, fmt.Errorf("invalid domain: %s", v)
+			}
+			if plan.suspended != nil && plan.suspended(domain) {
+				return nil, fmt.Errorf("%s is suspended, unsuspend it before restoring its VirtualHost", domain)
 			}
 			// the domain's dns zone comes along when the backup has it
 			targets = append(targets, "backup/dns/"+domain+".zone", "backup/vhosts/"+domain+".conf")
@@ -165,6 +170,16 @@ func collectEntries(ctx context.Context, store remoteStore, backup string, targe
 	return found, nil
 }
 
+var vhostPHPRE = regexp.MustCompile(`php-fpm-(\d+\.\d+)`)
+
+// vhostPHPVersion is the php-fpm version a vhost hands .php files to, "" for webservers that run php themselves
+func vhostPHPVersion(content []byte) string {
+	if m := vhostPHPRE.FindSubmatch(content); m != nil {
+		return string(m[1])
+	}
+	return ""
+}
+
 var vhostDocrootRE = regexp.MustCompile(`(?mi)^\s*(?:DocumentRoot|root|docRoot)\s+"?([^";\s]+)`)
 
 // vhostDocroot reads the docroot out of an apache/nginx/openlitespeed vhost, falling back to the panel's default
@@ -179,7 +194,7 @@ func vhostDocroot(content []byte, domain string) string {
 }
 
 // ensureDomain adds a domain from the backup back to the account when it's gone, the plan's domain limit still applies
-func ensureDomain(ctx context.Context, a *appctx.App, userID int, username, domain, docroot string, plan *restorePlan) error {
+func ensureDomain(ctx context.Context, a *appctx.App, userID int, username, domain, docroot, phpVersion string, plan *restorePlan) error {
 	if plan.domains[domain] {
 		return nil
 	}
@@ -207,7 +222,11 @@ func ensureDomain(ctx context.Context, a *appctx.App, userID int, username, doma
 		}
 	}
 
-	out, err := exec.CommandContext(ctx, "opencli", "domains-add", domain, username, "--docroot", docroot).CombinedOutput()
+	args := []string{"domains-add", domain, username, "--docroot", docroot}
+	if phpVersion != "" {
+		args = append(args, "--php_version", phpVersion)
+	}
+	out, err := exec.CommandContext(ctx, "opencli", args...).CombinedOutput()
 	if err != nil {
 		lines := strings.Split(strings.TrimSpace(string(out)), "\n")
 		return fmt.Errorf("adding %s failed: %s", domain, lines[len(lines)-1])
@@ -239,7 +258,7 @@ func restoreSelectedItems(ctx context.Context, a *appctx.App, req restoreRequest
 			if !isVhost || !ok {
 				continue
 			}
-			if err := ensureDomain(ctx, a, userID, username, domain, vhostDocroot(content, domain), plan); err != nil {
+			if err := ensureDomain(ctx, a, userID, username, domain, vhostDocroot(content, domain), vhostPHPVersion(content), plan); err != nil {
 				failed = append(failed, err.Error())
 				continue
 			}
@@ -277,6 +296,7 @@ func applyRestored(ctx context.Context, userContext string, extracted []string, 
 	cronsPath := plan.sections["backup/crons.ini"]
 	vhostsDir := plan.sections["backup/vhosts"]
 	cronsDone, vhostsDone := false, false
+	var phpDomains []string
 	for _, p := range extracted {
 		switch {
 		case p == cronsPath && !cronsDone:
@@ -286,6 +306,18 @@ func applyRestored(ctx context.Context, userContext string, extracted []string, 
 			dns.RestartDNSService(strings.TrimSuffix(filepath.Base(p), ".zone"))
 		case strings.HasPrefix(p, vhostsDir+"/"):
 			vhostsDone = true
+			phpDomains = append(phpDomains, p)
+		}
+	}
+	// the restored vhost picks the php version, php-domain also starts that php-fpm and records it on the domain
+	for _, p := range phpDomains {
+		content, err := os.ReadFile(p)
+		if err != nil {
+			continue
+		}
+		domain := strings.TrimSuffix(filepath.Base(p), ".conf")
+		if version := vhostPHPVersion(content); version != "" && plan.domains[domain] {
+			_ = exec.CommandContext(ctx, "opencli", "php-domain", domain, "--update", version).Run()
 		}
 	}
 	if vhostsDone {

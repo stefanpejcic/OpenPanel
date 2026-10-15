@@ -15604,10 +15604,6 @@ msgid "Select a backup to restore everything in it: files, databases, emails, do
 msgstr ""
 
 #: templates/files/backup_restore.html
-msgid "Select one or more domains to restore their configuration and DNS zone. Domains you deleted are added back to your account first."
-msgstr ""
-
-#: templates/files/backup_restore.html
 msgid "DNS zone"
 msgstr ""
 
@@ -15709,4 +15705,16 @@ msgstr ""
 
 #: templates/files/backup_restore.html
 msgid "restores"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Select one or more domains to restore their configuration, PHP version and DNS zone. Domains you deleted are added back to your account first, suspended domains can't be restored."
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "PHP version"
+msgstr ""
+
+#: templates/files/backup_restore.html
+msgid "Unsuspend the domain to restore its VirtualHost."
 msgstr ""

@@ -138,3 +138,29 @@ func TestListKindAndPrune(t *testing.T) {
 		t.Error("prune kept or dropped the wrong lists")
 	}
 }
+
+func TestSuspendedDomainVhostIsBlocked(t *testing.T) {
+	plan, _ := testPlan(t)
+	plan.suspended = func(d string) bool { return d == "example.com" }
+	if _, _, _, ok := plan.dest("backup/vhosts/example.com.conf"); ok {
+		t.Error("vhost of a suspended domain should not be restored")
+	}
+	if _, err := selectiveTargets("domains", []string{"example.com"}, plan); err == nil {
+		t.Error("picking a suspended domain should be refused")
+	}
+	if _, _, _, ok := plan.dest("backup/vhosts/other.com.conf"); !ok {
+		t.Error("vhosts of other domains still restore")
+	}
+}
+
+func TestVhostPHPVersion(t *testing.T) {
+	if v := vhostPHPVersion([]byte(`SetHandler "proxy:fcgi://php-fpm-8.5:9000"`)); v != "8.5" {
+		t.Errorf("apache = %q", v)
+	}
+	if v := vhostPHPVersion([]byte("fastcgi_pass php-fpm-7.4:9000;")); v != "7.4" {
+		t.Errorf("nginx = %q", v)
+	}
+	if v := vhostPHPVersion([]byte("extprocessor lsphp {}")); v != "" {
+		t.Errorf("litespeed = %q", v)
+	}
+}

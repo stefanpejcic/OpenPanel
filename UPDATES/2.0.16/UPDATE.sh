@@ -110,3 +110,13 @@ else
     echo "opencli lib/backups.sh missing, mail backup mounts not added - run opencli update first."
 fi
 # running db containers pick up the new volume on their next recreate, opencli docker-backup does that before it backs the user up
+
+# domains-unsuspend used to copy the vhost back and leave it in suspended_domains, which made the next domains-suspend think the domain was already suspended
+for copy in /etc/openpanel/caddy/suspended_domains/*.conf; do
+    [ -f "$copy" ] || continue
+    live="/etc/openpanel/caddy/domains/$(basename "$copy")"
+    if [ -f "$live" ] && ! grep -q "suspended_domain.html" "$live"; then
+        echo "Removing stale suspended copy $copy..."
+        rm -f "$copy"
+    fi
+done

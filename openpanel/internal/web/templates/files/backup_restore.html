@@ -204,7 +204,7 @@
             for (const it of (b[field] || [])) {
                 const engine = kind === 'databases' ? (it.engine || 'mysql') : '';
                 const key = kind + ':' + engine + ':' + it.name;
-                if (!byKey[key]) byKey[key] = { key: key, name: it.name, engine: engine, on_server: kind === 'databases' || !!it.on_server, backups: [] };
+                if (!byKey[key]) byKey[key] = { key: key, name: it.name, engine: engine, on_server: kind === 'databases' || !!it.on_server, suspended: !!it.suspended, backups: [] };
                 // a domain restore brings its dns zone along when that backup has it
                 const zone = kind === 'vhosts' && (b.zones || []).some(z => z.name === it.name);
                 byKey[key].backups.push({ file: b.file, created: b.created, size_text: it.size_text || (it.size ? this.fmtSize(it.size) : ''), count: it.count || 0, zone: zone });
@@ -224,6 +224,7 @@
     },
     // mailboxes and zones need their domain on the account, a missing domain gets added back by the Domains restore
     pickable(row) {
+        if (row.suspended) return false;
         return row.on_server || this.tab === 'vhosts';
     },
     chosenBackup(row) {
@@ -689,7 +690,7 @@
             <span x-show="tab === 'html'" x-cloak>{{.T.Get "Select a backup to restore all its website files, or pick single files and folders with Choose files."}}</span>
             <span x-show="tab === 'databases'" x-cloak>{{.T.Get "Select one or more databases. The newest backup is used unless you choose another one."}}</span>
             <span x-show="tab === 'mail'" x-cloak>{{.T.Get "Select one or more email accounts. The newest backup is used unless you choose another one."}}</span>
-            <span x-show="tab === 'vhosts'" x-cloak>{{.T.Get "Select one or more domains to restore their configuration and DNS zone. Domains you deleted are added back to your account first."}}</span>
+            <span x-show="tab === 'vhosts'" x-cloak>{{.T.Get "Select one or more domains to restore their configuration, PHP version and DNS zone. Domains you deleted are added back to your account first, suspended domains can't be restored."}}</span>
             <span x-show="tab === 'crons'" x-cloak>{{.T.Get "Select a backup to restore only the cron jobs from it."}}</span>
         </p>
 
@@ -777,7 +778,9 @@
                                     <span x-show="d.engine === 'mysql'" class="rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-gray-700 dark:text-white">MySQL</span>
                                     <span x-show="d.engine === 'postgres'" class="rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-gray-700 dark:text-white">PostgreSQL</span>
                                     <span x-show="tab === 'vhosts'" class="rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">+ {{.T.Get "VirtualHost"}}</span>
+                                    <span x-show="tab === 'vhosts'" class="rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">+ {{.T.Get "PHP version"}}</span>
                                     <span x-show="tab === 'vhosts' && chosenBackup(d).zone" class="rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">+ {{.T.Get "DNS zone"}}</span>
+                                    <span x-show="tab === 'vhosts' && d.suspended" :title="$el.dataset.hint" data-hint="{{.T.Get "Unsuspend the domain to restore its VirtualHost."}}" class="rounded bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-gray-700 dark:text-white">{{.T.Get "Suspended"}}</span>
                                     <span x-show="tab === 'vhosts' && !d.on_server" class="rounded bg-yellow-50 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-400/10 dark:text-yellow-300">{{.T.Get "Will be added"}}</span>
                                     <span x-show="tab === 'mail' && !d.on_server" class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Restore the domain first"}}</span>
                                 </div>

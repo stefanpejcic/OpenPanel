@@ -19,6 +19,14 @@ type restorePlan struct {
 	domains   map[string]bool
 	mailStore func(domain string) string
 	zonesDir  string
+	// suspended reports a suspended domain, its vhost is never restored
+	suspended func(domain string) bool
+}
+
+// domainSuspended reads the live caddy file, opencli domains-suspend swaps it for one serving suspended_domain.html
+func domainSuspended(domain string) bool {
+	content, err := os.ReadFile(filepath.Join("/etc/openpanel/caddy/domains", domain+".conf"))
+	return err == nil && strings.Contains(string(content), "suspended_domain.html")
 }
 
 // mailStoreRoot mirrors opencli's backup_mail_dir: email_storage_location when it's absolute, else the account's own mail dir
@@ -40,7 +48,7 @@ func mailStoreRoot(userContext string) func(string) string {
 }
 
 func newRestorePlan(ctx context.Context, a *appctx.App, userID int, userContext string) (*restorePlan, error) {
-	plan := &restorePlan{sections: restoreFilesPathMap(userContext), domains: map[string]bool{}, mailStore: mailStoreRoot(userContext), zonesDir: "/etc/bind/zones"}
+	plan := &restorePlan{sections: restoreFilesPathMap(userContext), domains: map[string]bool{}, mailStore: mailStoreRoot(userContext), zonesDir: "/etc/bind/zones", suspended: domainSuspended}
 	domains, err := a.AllDomainsForUser(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -67,6 +75,11 @@ func (p *restorePlan) dest(name string) (dest, root string, chown, ok bool) {
 			return "", "", false, false
 		}
 		return filepath.Join(p.zonesDir, file), p.zonesDir, false, true
+	}
+	if file, found := strings.CutPrefix(name, "backup/vhosts/"); found {
+		if domain, isConf := strings.CutSuffix(file, ".conf"); isConf && p.suspended != nil && p.suspended(strings.ToLower(domain)) {
+			return "", "", false, false
+		}
 	}
 	for prefix, hostPath := range p.sections {
 		if name == prefix {
