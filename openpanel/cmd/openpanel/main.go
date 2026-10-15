@@ -23,6 +23,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/backups"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/errorlogs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/git"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -58,6 +59,11 @@ func main() {
 		fatalLogger.Fatalf("BOOTSTRAP - failed to initialize app: %v", err)
 	}
 	defer a.Close()
+
+	// opencli's daily error report reads a user's errors through this, so it uses the same parsing as the Error Logs page
+	if len(os.Args) > 1 && os.Args[1] == "error-logs-digest" {
+		os.Exit(errorlogs.RunDigestCLI(context.Background(), a, os.Args[2:], os.Stdout))
+	}
 
 	configureLogging(a)
 	setGOMAXPROCSFromCgroup()

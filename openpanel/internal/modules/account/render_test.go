@@ -254,7 +254,7 @@ func TestRenderNotificationsPage(t *testing.T) {
 		LayoutData: baseLayout(mgr, "/account/notifications"),
 	}
 	data.Notifications = []NotificationPref{{Key: "notify_password_change", Value: "1"}, {Key: "notify_account_login", Value: "0"}}
-	data.Cards = buildNotificationCards(data.Notifications)
+	data.Cards = buildNotificationCards(data.Notifications, nil)
 	w := httptest.NewRecorder()
 	if err := notificationsPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)

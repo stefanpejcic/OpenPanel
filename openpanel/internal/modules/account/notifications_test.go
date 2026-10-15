@@ -4,9 +4,9 @@ import "testing"
 
 func TestBuildNotificationCards(t *testing.T) {
 	prefs := []NotificationPref{{Key: "notify_account_login", Value: "1"}, {Key: "notify_account_login_for_known_netblock", Value: "0"}}
-	cards := buildNotificationCards(prefs)
-	if len(cards) != 12 {
-		t.Fatalf("got %d cards, want 12", len(cards))
+	cards := buildNotificationCards(prefs, nil)
+	if len(cards) != 15 {
+		t.Fatalf("got %d cards, want 15", len(cards))
 	}
 	if !cards[0].On || len(cards[0].Subs) != 2 || cards[0].Subs[0].On {
 		t.Errorf("login card wrong: %+v", cards[0])
@@ -47,5 +47,22 @@ func TestTokenScope(t *testing.T) {
 	}
 	if got := tokenScope(false, 0); got != " with full access that never expires" {
 		t.Errorf("got %q", got)
+	}
+}
+
+func TestHiddenNotificationKeys(t *testing.T) {
+	prefs := []NotificationPref{{Key: "notify_account_login", Value: "1"}}
+	hidden := hiddenNotificationKeys(map[string]bool{"wordpress": true})
+	if !hidden["notify_error_logs"] || hidden["notify_wp_vulnerability"] || hidden["notify_ratelimit"] {
+		t.Errorf("hidden = %v", hidden)
+	}
+	for _, c := range buildNotificationCards(prefs, hidden) {
+		if c.Key == "notify_error_logs" {
+			t.Error("error report card shown without the error_logs feature")
+		}
+	}
+	all := len(buildNotificationCards(prefs, nil))
+	if got := len(buildNotificationCards(prefs, hiddenNotificationKeys(map[string]bool{}))); got != all-2 {
+		t.Errorf("got %d cards without features, want %d", got, all-2)
 	}
 }

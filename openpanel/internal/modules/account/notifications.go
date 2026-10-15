@@ -26,6 +26,7 @@ type notificationDef struct {
 	Key, Default, Title, Description string
 	Group, Anchor                    string
 	Parent                           string
+	Feature                          string // only shown to users who have this feature
 }
 
 // notificationDefs are the only keys the page shows and saves, in the order they get written back
@@ -44,11 +45,14 @@ var notificationDefs = []notificationDef{
 	{Key: "notify_api_token_change", Default: "1", Title: "API token created or revoked", Description: "Get an email when an AI Assistant (MCP) token is created or revoked for your account.", Group: "Security", Anchor: "api-token-created-or-revoked"},
 	{Key: "notify_api_token_change_notification_disabled", Default: "1", Title: "Email me if this alert gets turned off", Parent: "notify_api_token_change"},
 	{Key: "notify_ssl_expiry", Default: "1", Title: "SSL certificate problem", Description: "Get an email when an SSL certificate fails to renew or is about to expire, before visitors see a security warning.", Group: "Security", Anchor: "ssl-certificate-problem"},
-	{Key: "notify_malware_found", Default: "1", Title: "Malware found", Description: "Get an email when the scheduled malware scan finds infected files and moves them to quarantine.", Group: "Security", Anchor: "malware-found"},
+	{Key: "notify_malware_found", Default: "1", Title: "Malware found", Description: "Get an email when a malware scan finds infected files on your account.", Group: "Security", Anchor: "malware-found"},
+	{Key: "notify_wp_vulnerability", Default: "1", Title: "Vulnerable WordPress site", Description: "Get an email when WordPress, a plugin or a theme on one of your websites has a known security vulnerability.", Group: "Security", Anchor: "vulnerable-wordpress-site", Feature: "wordpress"},
 	{Key: "notify_disk_limit", Default: "1", Title: "Disk space running out", Description: "Get an email when your account uses 85% of its disk space or 95% of its inodes.", Group: "Usage", Anchor: "disk-space-running-out"},
 	{Key: "notify_email_quota_limit", Default: "1", Title: "Mailbox almost full", Description: "Get an email when one of your email accounts uses 90% of its quota.", Group: "Usage", Anchor: "mailbox-almost-full"},
 	{Key: "notify_email_ratelimit", Default: "1", Title: "Hourly email limit reached", Description: "Get an email when your account reaches its limit of emails sent per hour and new emails are rejected.", Group: "Usage", Anchor: "hourly-email-limit-reached"},
 	{Key: "notify_service_failed", Default: "1", Title: "Service stopped", Description: "Get an email when a service like MySQL or PHP stopped or ran out of memory and had to be restarted.", Group: "Usage", Anchor: "service-stopped"},
+	{Key: "notify_ratelimit", Default: "0", Title: "Visitors blocked by rate limit", Description: "Get an email when visitors to one of your domains were blocked for sending too many requests per minute.", Group: "Usage", Anchor: "visitors-blocked-by-rate-limit"},
+	{Key: "notify_error_logs", Default: "0", Title: "Daily error report", Description: "Get one email a day with the errors found in your websites' logs in the last 24 hours, the same ones shown on the Error Logs page.", Group: "Usage", Anchor: "daily-error-report", Feature: "error_logs"},
 }
 
 // readNotificationsPrefs returns every known key, a key missing from the file gets its default
@@ -71,6 +75,17 @@ func readNotificationsPrefs(username string) []NotificationPref {
 		prefs = append(prefs, NotificationPref{Key: d.Key, Value: v, Label: d.Title})
 	}
 	return prefs
+}
+
+// hiddenNotificationKeys are the options for features the user doesn't have, a sub-option goes with its parent
+func hiddenNotificationKeys(allowed map[string]bool) map[string]bool {
+	hidden := map[string]bool{}
+	for _, d := range notificationDefs {
+		if d.Feature != "" && !allowed[d.Feature] || d.Parent != "" && hidden[d.Parent] {
+			hidden[d.Key] = true
+		}
+	}
+	return hidden
 }
 
 // criticalNotificationKeys always fire a notification themselves when flipped from '1' to '0', so the user doesn't silently lose visibility into a security-relevant setting being turned off
@@ -124,8 +139,15 @@ func handleAccountNotifications(a *appctx.App, w http.ResponseWriter, r *http.Re
 		return
 	}
 	username, _ := data["current_username"].(string)
+	allowed := map[string]bool{}
+	if list, ok := data["user_allowed"].([]string); ok {
+		for _, f := range list {
+			allowed[f] = true
+		}
+	}
 
 	prefs := readNotificationsPrefs(username)
+	hidden := hiddenNotificationKeys(allowed)
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
@@ -136,6 +158,10 @@ func handleAccountNotifications(a *appctx.App, w http.ResponseWriter, r *http.Re
 		}
 
 		for i := range prefs {
+			// options the page doesn't show keep their saved value
+			if hidden[prefs[i].Key] {
+				continue
+			}
 			if _, checked := r.Form[prefs[i].Key]; checked {
 				prefs[i].Value = "1"
 			} else {
@@ -172,7 +198,7 @@ func handleAccountNotifications(a *appctx.App, w http.ResponseWriter, r *http.Re
 	}
 
 	email, _ := data["current_email"].(string)
-	renderNotificationsPage(a, w, r, prefs, email)
+	renderNotificationsPage(a, w, r, prefs, hidden, email)
 }
 
 // RegisterNotifications wires the notification-preferences route onto mux, gated behind the "notifications" feature flag

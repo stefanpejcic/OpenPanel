@@ -19,8 +19,14 @@ Requests above a limit get HTTP `429 Too Many Requests` until the minute passes.
 
 Click **Server Default** to set the limits used by every domain set to **Default**. New installations start with 300 requests per minute per IP and 6000 per domain. On servers updated from an older version, rate limiting stays off until you set a default.
 
+![Server Default form open with the requests per minute per visitor IP and per domain and the Save default button](/img/openadmin-screenshots/domains/ratelimit-default.png#gh-light-mode-only)
+![Server Default form open with the requests per minute per visitor IP and per domain and the Save default button](/img/openadmin-screenshots/domains/ratelimit-default_dark.png#gh-dark-mode-only)
+
 ## Domains Table
 
+
+![Rate Limiting page with the current server default, the Server Default button and each domain's setting, limits and usage over the last 24 hours](/img/openadmin-screenshots/domains/ratelimit-list.png#gh-light-mode-only)
+![Rate Limiting page with the current server default, the Server Default button and each domain's setting, limits and usage over the last 24 hours](/img/openadmin-screenshots/domains/ratelimit-list_dark.png#gh-dark-mode-only)
 Each domain shows its setting (**Default**, **Custom** or **Off**), the limits that apply to it, and its usage over the last 24 hours:
 
 - **Requests**: all requests to the domain.
@@ -34,6 +40,9 @@ Usage is read from the domain's access logs and refreshed every 5 minutes, click
 
 ## Change a Domain
 
+
+![Rate limit window of a domain with Server default, Custom limits and No limits, its usage over the last 24 hours and the most blocked IP addresses](/img/openadmin-screenshots/domains/ratelimit-edit.png#gh-light-mode-only)
+![Rate limit window of a domain with Server default, Custom limits and No limits, its usage over the last 24 hours and the most blocked IP addresses](/img/openadmin-screenshots/domains/ratelimit-edit_dark.png#gh-dark-mode-only)
 Click **Edit** on a domain and pick:
 
 - **Server default**: use the limits from **Server Default**.
@@ -42,7 +51,17 @@ Click **Edit** on a domain and pick:
 
 The window also shows the domain's usage and the IP addresses that were blocked most often. A scraper or attacker can be blocked completely in the [firewall](/docs/admin/security/firewall).
 
-To change several domains at once, select them and use **Use server default**, **Custom limits** (for example `600/6000`) or **No limits** in the bar at the bottom.
+## Bulk Actions
+
+Tick the checkbox of one or more domains, or the one in the table header to select all shown, and use **Use server default**, **Custom limits** or **No limits** in the bar at the bottom. All selected domains are changed with a single Caddy reload.
+
+![Two domains selected with the bulk actions bar offering Use server default, Custom limits and No limits](/img/openadmin-screenshots/domains/ratelimit-bulk.png#gh-light-mode-only)
+![Two domains selected with the bulk actions bar offering Use server default, Custom limits and No limits](/img/openadmin-screenshots/domains/ratelimit-bulk_dark.png#gh-dark-mode-only)
+
+**Custom limits** takes both limits as `per IP/per domain`, for example `600/20000`:
+
+![Custom limits step of the bulk actions bar with 600 requests per minute per IP and 20000 per domain entered](/img/openadmin-screenshots/domains/ratelimit-bulk-custom.png#gh-light-mode-only)
+![Custom limits step of the bulk actions bar with 600 requests per minute per IP and 20000 per domain entered](/img/openadmin-screenshots/domains/ratelimit-bulk-custom_dark.png#gh-dark-mode-only)
 
 ## From the Terminal
 

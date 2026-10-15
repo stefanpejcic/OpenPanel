@@ -23,6 +23,10 @@ const DEMO_NAMES = {
   'example.test.rs': 'example.com',
   'sfdddfdf@': 'support@',
   'shop.test.rs': 'shop.example.com',
+  'ols.test.rs': 'store.example.com',
+  ols_test_rs: 'store_example_com',
+  example_test_rs: 'example_com',
+  olstest: 'emma',
   // bulk action fixtures on the test server
   bulkuser: 'maria',
   'bulk@example.com': 'maria@example.com',
@@ -102,6 +106,31 @@ const bulkShot = (table, keys, alt, { name = 'bulk', keep, rows, wait, action, f
   ),
   crop: { from: `${table} thead`, to: '#bulk-actions-bar' },
 });
+
+// /domains/ratelimit loads usage after the page, refresh it so the cached numbers don't lag behind the test traffic
+const rlUsage = async page => {
+  await page.locator('main button:has-text("Refresh")').click();
+  await page.waitForFunction(() => !document.body.innerText.includes('Reading access logs'), null, { timeout: 30000 }).catch(() => {});
+  await page.waitForTimeout(600);
+};
+
+// the test server's postfwd.cf has one rule twice and no live counters, drop the copy and give the rows a believable hourly count
+const dlRows = async page => {
+  await page.evaluate(() => {
+    const seen = new Set();
+    const usage = { 'example.test.rs': 37, 'ols.test.rs': 86 };
+    document.querySelectorAll('#domain_limits_table tbody tr[data-domain]').forEach(tr => {
+      const d = tr.dataset.domain;
+      if (seen.has(d)) { tr.nextElementSibling?.remove(); tr.remove(); return; }
+      seen.add(d);
+      if (usage[d] != null) Alpine.$data(tr).current = usage[d];
+    });
+    const left = seen.size;
+    const footer = [...document.querySelectorAll('main p')].find(p => p.textContent.includes('Showing'));
+    if (footer) footer.innerHTML = `Showing <span class="font-medium text-gray-900 dark:text-gray-50">${left}</span> of ${left}`;
+  });
+  await page.waitForTimeout(300);
+};
 
 export const globalPrepare = all(rename(DEMO_NAMES, 'body'), maskIPs('main'), hideNotices, maskSecrets);
 
@@ -776,8 +805,46 @@ export const pages = {
     url: '/domains',
     shots: [
       { name: 'list', alt: 'Domains page listing all domains with their status, PHP version, webserver, SSL, WAF and owner', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
-      bulkShot('#domains_table', ['example.test.rs', 'shop.test.rs'], 'Two domains selected with the bulk actions bar offering Change PHP version, Enable HSTS, Disable HSTS, Enable WAF, Disable WAF, Suspend, Unsuspend and Delete'),
-      bulkShot('#domains_table', ['example.test.rs', 'shop.test.rs'], 'Change PHP version step of the bulk actions bar with a dropdown of the installed PHP versions', { name: 'bulk-php', action: 'php' }),
+      bulkShot('#domains_table', ['example.test.rs', 'ols.test.rs'], 'Two domains selected with the bulk actions bar offering Change PHP version, HSTS, WAF, Rate limit, Cloudflare, Suspend, Unsuspend and Delete'),
+      bulkShot('#domains_table', ['example.test.rs', 'ols.test.rs'], 'Change PHP version step of the bulk actions bar with a dropdown of the installed PHP versions', { name: 'bulk-php', action: 'php' }),
+    ],
+  },
+  // Rate Limiting and Domain Limits (new in 2.0.16) aren't on the demo yet, the test server has a 300/6000 default and custom limits on one domain
+  // ADMIN_URL=https://host:2087 node shoot.mjs --admin domains/ratelimit_server emails/domain-limits_server
+  'domains/ratelimit_server': {
+    as: 'domains/ratelimit',
+    url: '/domains/ratelimit',
+    shots: [
+      { name: 'list', alt: "Rate Limiting page with the current server default, the Server Default button and each domain's setting, limits and usage over the last 24 hours", prepare: rlUsage, viewportWidth: 1440, crop: { from: 'main', to: '#ratelimit_table tbody tr:last-of-type', fromTop: true, pad: 24 } },
+      {
+        name: 'default',
+        alt: 'Server Default form open with the requests per minute per visitor IP and per domain and the Save default button',
+        prepare: all(rlUsage, click('main a:has-text("Server Default")', 500)),
+        crop: { from: 'main', to: 'main form[action="/domains/ratelimit"] p', fromTop: true, pad: 20 },
+      },
+      {
+        name: 'edit',
+        alt: 'Rate limit window of a domain with Server default, Custom limits and No limits, its usage over the last 24 hours and the most blocked IP addresses',
+        prepare: all(rlUsage, async page => {
+          await page.locator('#ratelimit_table tbody tr:has-text("example.test.rs") button:has-text("Edit")').click();
+          await page.waitForTimeout(500);
+        }, rename({ '127.0.0.1': '198.51.100.23' }, 'body')),
+        viewportHeight: 820,
+        crop: { from: 'div[x-show="edit"] form h3', to: 'div[x-show="edit"] form button[type=submit]', clamp: false, pad: 10 },
+      },
+      { ...bulkShot('#ratelimit_table', ['example.test.rs', 'ols.test.rs'], 'Two domains selected with the bulk actions bar offering Use server default, Custom limits and No limits'), prepare: all(rlUsage, bulkShot('#ratelimit_table', ['example.test.rs', 'ols.test.rs'], '').prepare), viewportWidth: 1440 },
+      { ...bulkShot('#ratelimit_table', ['example.test.rs', 'ols.test.rs'], 'Custom limits step of the bulk actions bar with 600 requests per minute per IP and 20000 per domain entered', { name: 'bulk-custom', action: 'custom', value: '600/20000' }), prepare: all(rlUsage, bulkShot('#ratelimit_table', ['example.test.rs', 'ols.test.rs'], '', { action: 'custom', value: '600/20000' }).prepare), viewportWidth: 1440 },
+    ],
+  },
+  'emails/domain-limits_server': {
+    as: 'emails/domain-limits',
+    url: '/emails/domain-limits',
+    shots: [
+      { name: 'list', alt: 'Domain Limits page with the emails sent this hour against the hourly limit of each domain, its owner and Postfwd rule', prepare: dlRows, crop: { from: 'main', to: 'main p:has-text("Showing")', fromTop: true, pad: 16 } },
+      { name: 'restore', alt: 'Restore from plan section with All users or one user to restore the hourly limits for', prepare: all(dlRows, click('main a:has-text("Restore from plan")', 500)), crop: { from: 'main', to: 'main p:has-text("custom limits set here are replaced")', fromTop: true, pad: 20 } },
+      { name: 'remove', alt: 'Remove rules section with All users or one user and the Remove button', prepare: all(dlRows, click('main a:has-text("Remove rules")', 500)), crop: { from: 'main', to: 'main p:has-text("until the rules are restored")', fromTop: true, pad: 20 } },
+      { ...bulkShot('#domain_limits_table', ['example.test.rs', 'ols.test.rs'], 'Two domains selected with the bulk actions bar offering Set limit, Restore from plan and Remove rules'), prepare: all(dlRows, bulkShot('#domain_limits_table', ['example.test.rs', 'ols.test.rs'], '').prepare) },
+      { ...bulkShot('#domain_limits_table', ['example.test.rs', 'ols.test.rs'], 'Set limit step of the bulk actions bar with 250 emails per hour entered for two selected domains', { name: 'bulk-limit', action: 'limit', value: '250' }), prepare: all(dlRows, bulkShot('#domain_limits_table', ['example.test.rs', 'ols.test.rs'], '', { action: 'limit', value: '250' }).prepare) },
     ],
   },
   // FTP owners and quotas (new in 2.0.15) aren't on the demo yet

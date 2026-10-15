@@ -1,6 +1,7 @@
 package errorlogs
 
 import (
+	"fmt"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -314,5 +315,37 @@ func TestParseApp(t *testing.T) {
 	}
 	if n := len(parseApp("x", "y", "2026-10-15T20:00:00Z Everything is fine, every request served")); n != 0 {
 		t.Errorf("plain words starting with e matched as errno, got %d", n)
+	}
+}
+
+func TestSummarizeDigest(t *testing.T) {
+	base := time.Date(2026, 10, 15, 12, 0, 0, 0, time.UTC)
+	long := strings.Repeat("x", 400)
+	entries := []Entry{
+		{Time: base.Add(3 * time.Minute), Level: "critical", Service: "php-fpm-8.2", Domain: "b.com", Message: "Fatal error: y\nStack trace:\n#0 {main}"},
+		{Time: base.Add(2 * time.Minute), Level: "error", Service: "apache", Domain: "", Message: long},
+		{Time: base.Add(1 * time.Minute), Level: "error", Service: "php-fpm-8.2", Domain: "a.com", Message: "x"},
+		{Time: base, Level: "error", Service: "php-fpm-8.2", Domain: "b.com", Message: "z"},
+	}
+	d := summarize(Digest{Websites: []WebsiteCount{}, Entries: []DigestEntry{}}, entries)
+	if d.Total != 4 || len(d.Entries) != 4 {
+		t.Fatalf("digest = %+v", d)
+	}
+	if got := fmt.Sprint(d.Websites); got != "[{b.com 2} {a.com 1} { 1}]" {
+		t.Errorf("websites order = %s", got)
+	}
+	if d.Entries[0].Message != "Fatal error: y" {
+		t.Errorf("only the first line should be kept: %q", d.Entries[0].Message)
+	}
+	if len(d.Entries[1].Message) != digestMessageMax+3 {
+		t.Errorf("long message not shortened: %d", len(d.Entries[1].Message))
+	}
+
+	many := make([]Entry, 30)
+	for i := range many {
+		many[i] = Entry{Level: "error", Domain: "a.com", Message: "m"}
+	}
+	if d := summarize(Digest{}, many); d.Total != 30 || len(d.Entries) != digestEntries {
+		t.Errorf("entries not capped: total %d entries %d", d.Total, len(d.Entries))
 	}
 }

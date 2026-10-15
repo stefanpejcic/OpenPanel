@@ -86,7 +86,7 @@ Changes to this service will interrupt current email traffic and restart the mai
 
 A warning is shown as you toggle the services:
 
-- **Postfwd** off: the hourly email limits set on plans aren't enforced, so domains and users can send any number of emails.
+- **Postfwd** off: the hourly email limits set on plans and in [Domain Limits](/docs/admin/emails/domain-limits) aren't enforced, so domains and users can send any number of emails.
 - **Only SMTP** on: receiving email won't work, since IMAP and POP3 are disabled.
 - **Rspamd**, **Amavis** and **ClamAV** all off: incoming mail isn't checked for spam or viruses, so enabling at least one of them is recommended.
 

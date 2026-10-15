@@ -100,15 +100,15 @@ To create a new hosting package, click the **'Create New'** button and configure
 * **Description** – Optional plan description. It is visible to users on their Server Information page, not just to admins.
 * **Disk** – Disk space in GB to allocate for user services, files and logs. Use `0` for unlimited.
 * **Inodes** – Total number of files to allow the user on this plan. Use `0` for unlimited.
-* **CPU cores** – Limits the total CPU (cores) used by all of the user's running services combined. Set to `0` for unlimited.
-* **Memory** – Limits the total memory (in GB) used by all of the user's running services combined. Set to `0` for unlimited.
+* **CPU cores** – Limits the total CPU (cores) used by all of the user's running services combined. Set to `0` for unlimited, the user can then use all cores but 2.
+* **Memory** – Limits the total memory (in GB) used by all of the user's running services combined, swap isn't used. Set to `0` for unlimited, the user is then slowed down above 80% of the server's RAM and stopped at 90%. The process limit follows the memory limit.
 * **Port Speed** – Bandwidth (port speed) limit, in Mbit/s, for the user's services.
 * **Domains** – Total number of domains: primary, addons, aliases. Subdomains are excluded.
 * **Websites** – Max number of websites the user can install/manage on this plan. Includes WordPress, NodeJS, Python and Website Builder. Use `0` for unlimited.
 * **Databases** – Max number of MySQL and PostgreSQL databases the user can have on this plan. The limit applies separately to each engine (e.g. a value of `10` allows up to 10 MySQL databases *and* up to 10 PostgreSQL databases). Use `0` for unlimited.
 * **Email Accounts** – Max number of email accounts the user can create and manage on this plan. Use `0` for unlimited.
 * **Mailbox quota** – Max mailbox size for email accounts that user can set on this plan. Examples: `100k`, `250M`, `3G`, `1T`, or `0` for unlimited.
-* **Max hourly emails** – Max number of emails that all addresses under this account can send within one hour. Use `0` for unlimited.
+* **Max hourly emails** – Max number of emails that all addresses under this account can send within one hour. Use `0` for unlimited. The limit of each domain can be changed in [Emails > Domain Limits](/docs/admin/emails/domain-limits).
 * **FTP Accounts** – Max number of FTP accounts the user can create and manage on this plan. Use `0` for unlimited.
 * **Feature set** – Feature set that determines which features users on this plan have access to.
 

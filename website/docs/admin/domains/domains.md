@@ -38,6 +38,7 @@ Click **Show Columns** to show or hide columns. These optional columns are hidde
 | **ID**                                    | The internal ID of the domain.                                 |
 | **Docroot**                               | The document root directory of the domain.                     |
 | **HTTP Strict Transport Security (HSTS)** | Toggle to enable or disable HSTS for the domain, like WAF.     |
+| **Rate limit**                            | **Default**, **Custom** or **Off**, click it to open [Rate Limiting](/docs/admin/domains/ratelimit). |
 
 Any default column except Actions can be hidden the same way. Column visibility is remembered for your browser.
 
@@ -71,16 +72,16 @@ my.openpanel.com
 
 Tick the checkbox of one or more domains, or the checkbox in the table header to select all domains shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
-![Two domains selected with the bulk actions bar offering Change PHP version, Enable HSTS, Disable HSTS, Enable WAF, Disable WAF, Suspend, Unsuspend and Delete](/img/openadmin-screenshots/domains/domains-bulk.png#gh-light-mode-only)
-![Two domains selected with the bulk actions bar offering Change PHP version, Enable HSTS, Disable HSTS, Enable WAF, Disable WAF, Suspend, Unsuspend and Delete](/img/openadmin-screenshots/domains/domains-bulk_dark.png#gh-dark-mode-only)
+![Two domains selected with the bulk actions bar offering Change PHP version, HSTS, WAF, Rate limit, Cloudflare, Suspend, Unsuspend and Delete](/img/openadmin-screenshots/domains/domains-bulk.png#gh-light-mode-only)
+![Two domains selected with the bulk actions bar offering Change PHP version, HSTS, WAF, Rate limit, Cloudflare, Suspend, Unsuspend and Delete](/img/openadmin-screenshots/domains/domains-bulk_dark.png#gh-dark-mode-only)
 
 | Action | What it does |
 |---|---|
 | **Change PHP version** | Sets the PHP version you pick from the versions installed for the domains' owners. A domain whose owner doesn't have that version is skipped with an error. |
-| **Enable HSTS** | Turns on HSTS for the selected domains. |
-| **Disable HSTS** | Turns off HSTS for the selected domains. |
-| **Enable WAF** | Turns on the CorazaWAF for the selected domains. |
-| **Disable WAF** | Turns off the CorazaWAF for the selected domains. |
+| **HSTS** | Turns HSTS on or off for the selected domains. |
+| **WAF** | Turns the CorazaWAF on or off for the selected domains. |
+| **Rate limit** | Puts the selected domains on the server default [rate limit](/docs/admin/domains/ratelimit), or removes their limits. Custom limits are set on the Rate Limiting page. |
+| **Cloudflare** | Restricts the selected domains to Cloudflare, or removes the restriction. Restricted domains that aren't proxied through Cloudflare return 403 to visitors. |
 | **Suspend** | Suspends the selected domains with the [reason](#suspend-a-domain) you pick. Users can't unsuspend or change them. |
 | **Unsuspend** | Unsuspends the selected domains. |
 | **Delete** | Deletes the selected domains with their DNS zones, SSL and web server configuration, the files are kept. |
