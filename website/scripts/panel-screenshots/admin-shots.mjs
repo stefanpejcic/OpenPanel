@@ -291,6 +291,29 @@ export const pages = {
         crop: { from: 'main table thead', to: 'main [id^="dropdown-"]:visible >> nth=0', pad: 12, right: true },
       },
       {
+        name: 'suspend',
+        alt: 'Suspend Domain dialog with the Reason dropdown, an optional comment for the user and the Suspend button',
+        prepare: async page => {
+          await page.evaluate(() => document.querySelectorAll('main .overflow-x-auto, main .overflow-auto').forEach(e => (e.scrollLeft = e.scrollWidth)));
+          await page.locator('main tbody tr:has(button:has-text("Suspend domain")) button[data-dropdown-toggle]').first().click();
+          await page.waitForTimeout(400);
+          await page.locator('main button:has-text("Suspend domain") >> visible=true').first().click();
+          await page.waitForTimeout(600);
+          await page.evaluate(() => document.querySelectorAll('main [id^="dropdown-"]').forEach(d => d.classList.add('hidden')));
+          await page.selectOption('#suspend_template', 'dmca');
+          await page.fill('#suspend_comment', 'Complaint #4821 from the copyright holder');
+        },
+        viewportHeight: 820,
+        crop: { from: 'main h3:has-text("Suspend Domain")', to: 'main [x-show="showSuspendModal"] button[type=submit]', clamp: false, pad: 10 },
+      },
+      {
+        // ADMIN_URL=https://host:2087 node shoot.mjs --admin domains/domains, with php.tests.openpanel.org suspended by admin
+        name: 'suspended',
+        alt: 'Domains list with one domain marked Suspended by admin and its reason Copyright / DMCA Violation below the badge',
+        prepare: onlyRows('#domains_table', ['wp.tests.openpanel.org', 'php.tests.openpanel.org', 'nodejs.tests.openpanel.org']),
+        crop: { from: 'main table thead', to: 'main table tbody tr:last-of-type', pad: 8 },
+      },
+      {
         name: 'delete',
         alt: 'Delete domain confirmation asking to type the domain name before deleting it permanently',
         prepare: async page => {
@@ -320,13 +343,29 @@ export const pages = {
   'domains/file_templates': {
     url: '/domains/file-templates',
     shots: [
-      { name: 'default', url: '/domains/file-templates', alt: 'Default Page template editor with a live preview of the page shown on new domains', prepare: markSection('Default Page'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'suspended-website', url: '/domains/file-templates', alt: 'Suspended Website template editor with a live preview', prepare: markSection('Suspended Website'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'suspended-user', url: '/domains/file-templates', alt: 'Suspended User template editor with a live preview', prepare: markSection('Suspended User'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'apache', url: '/domains/file-templates', alt: 'Apache VirtualHost template editor', prepare: markSection('Apache VirtualHost'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'nginx', url: '/domains/file-templates', alt: 'Nginx VirtualHost template editor', prepare: markSection('Nginx VirtualHost'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'openresty', url: '/domains/file-templates', alt: 'OpenResty VirtualHost template editor', prepare: markSection('OpenResty VirtualHost'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'varnish', url: '/domains/file-templates', alt: 'Varnish template editor', prepare: markSection('Varnish Template'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'default', alt: 'Default Page template editor with a live preview of the page shown on new domains', prepare: markSection('Default Page'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'suspended-website', alt: 'Suspended Website template editor with a live preview', prepare: markSection('Suspended Website'), crop: { from: '[data-shot=section]', pad: 16 } },
+      {
+        name: 'suspension-reasons',
+        alt: 'Suspension Reasons with the Copyright / DMCA Violation reason open showing its name, Delete button, HTML and live preview, and the Add suspension reason row',
+        prepare: async page => {
+          await markSection('Suspension Reasons')(page);
+          await page.evaluate(() => { const d = document.querySelector('[data-shot=section] details'); if (d) d.open = true; });
+          await page.waitForTimeout(600);
+        },
+        crop: { from: '[data-shot=section]', pad: 16 },
+      },
+      { name: 'suspended-user', alt: 'Suspended User template editor with a live preview', prepare: markSection('Suspended User'), crop: { from: '[data-shot=section]', pad: 16 } },
+    ],
+  },
+  'domains/vhost_templates': {
+    url: '/domains/vhost-templates',
+    shots: [
+      { name: 'apache', alt: 'Apache VirtualHost template editor', prepare: markSection('Apache VirtualHost'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'nginx', alt: 'Nginx VirtualHost template editor', prepare: markSection('Nginx VirtualHost'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'openresty', alt: 'OpenResty VirtualHost template editor', prepare: markSection('OpenResty VirtualHost'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'varnish', alt: 'Varnish template editor', prepare: markSection('Varnish Template'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'caddy', alt: 'Caddy VHosts template editor', prepare: markSection('Caddy VHosts'), crop: { from: '[data-shot=section]', pad: 16 } },
     ],
   },
   'domains/dns-cluster': {

@@ -23,7 +23,7 @@ The table shows these columns by default:
 | Column          | Description                                                                 |
 |-----------------|-----------------------------------------------------------------------------|
 | **Domain**      | The domain name.                                                            |
-| **Status**      | Whether the domain is **Active** or **Suspended**.                          |
+| **Status**      | **Active**, or **Suspended by admin** / **Suspended by user** with the [suspension reason](#suspend-a-domain) below it. Hover over the badge to see the comment. |
 | **PHP version** | The PHP version configured for the domain. Hover over it and click the pencil icon to change it. |
 | **Webserver**   | The webserver of the account that owns the domain (Apache, Nginx, OpenResty or OpenLiteSpeed). |
 | **SSL**         | Whether the domain has an SSL certificate.                                  |
@@ -81,7 +81,7 @@ Tick the checkbox of one or more domains, or the checkbox in the table header to
 | **Disable HSTS** | Turns off HSTS for the selected domains. |
 | **Enable WAF** | Turns on the CorazaWAF for the selected domains. |
 | **Disable WAF** | Turns off the CorazaWAF for the selected domains. |
-| **Suspend** | Suspends the selected domains. |
+| **Suspend** | Suspends the selected domains with the [reason](#suspend-a-domain) you pick. Users can't unsuspend or change them. |
 | **Unsuspend** | Unsuspends the selected domains. |
 | **Delete** | Deletes the selected domains with their DNS zones, SSL and web server configuration, the files are kept. |
 
@@ -177,7 +177,7 @@ Click **Adding just one domain?** to go back to the single domain form.
 Each row in the Domains table has an actions menu (the `⋮` button) with the following options:
 
 - **Edit DNS Zone** — opens the [DNS Zone Editor](/docs/admin/domains/dns) for this domain. Only shown if the **dns** module is enabled.
-- **Suspend domain** / **Unsuspend domain** — toggles the domain's status.
+- **Suspend domain** / **Unsuspend domain** — suspends the domain with a reason, see [Suspend a domain](#suspend-a-domain) below, or unsuspends it.
 - **Manage SSL** — opens the SSL page for the domain. Not shown for suspended domains.
 - **Edit Virtual Host** — opens the VirtualHost config editor for the domain.
 - **Edit Apache Config** — opens the webserver configuration file of the domain owner (the label follows the owner's webserver).
@@ -186,6 +186,29 @@ Each row in the Domains table has an actions menu (the `⋮` button) with the fo
 
 ![Actions menu of a domain with Edit DNS Zone, Manage SSL, Edit Virtual Host, Edit Apache Config, Edit Caddyfile, Suspend domain and Delete domain](/img/openadmin-screenshots/domains/domains-actions.png#gh-light-mode-only)
 ![Actions menu of a domain with Edit DNS Zone, Manage SSL, Edit Virtual Host, Edit Apache Config, Edit Caddyfile, Suspend domain and Delete domain](/img/openadmin-screenshots/domains/domains-actions_dark.png#gh-dark-mode-only)
+
+## Suspend a domain
+
+Suspending a domain replaces its website with a suspended page, email and other services keep working. To suspend a domain:
+
+1. Open the domain's actions menu (`⋮`) and click **Suspend domain**.
+2. Pick a **Reason**. **Default suspended page** shows the [Suspended Website](/docs/admin/domains/file_templates/#suspended-website) page, the other options are the [suspension reasons](/docs/admin/domains/file_templates/#suspension-reasons) from **Domains > Domain Templates**, such as *Copyright / DMCA Violation* or *Overdue Payment / Billing*.
+3. Optionally enter a **Comment**, for example a ticket number. The user sees it in OpenPanel.
+4. Click **Suspend**.
+
+![Suspend Domain dialog with the Reason dropdown, an optional comment for the user and the Suspend button](/img/openadmin-screenshots/domains/domains-suspend.png#gh-light-mode-only)
+![Suspend Domain dialog with the Reason dropdown, an optional comment for the user and the Suspend button](/img/openadmin-screenshots/domains/domains-suspend_dark.png#gh-dark-mode-only)
+
+The Status column then shows **Suspended by admin** with the reason below it:
+
+![Domains list with one domain marked Suspended by admin and its reason Copyright / DMCA Violation below the badge](/img/openadmin-screenshots/domains/domains-suspended.png#gh-light-mode-only)
+![Domains list with one domain marked Suspended by admin and its reason Copyright / DMCA Violation below the badge](/img/openadmin-screenshots/domains/domains-suspended_dark.png#gh-dark-mode-only)
+
+A domain suspended by an Administrator is locked for the user. In OpenPanel the user sees **Suspended by Admin** and the reason, and can't unsuspend, delete or edit the domain: changing its docroot, VirtualHost, redirect, SSL, Cloudflare setting or DNS zone is refused, from the panel and from the API, until an Administrator unsuspends it. Users can still suspend and unsuspend their own domains, these show as **Suspended by user**. Suspending a domain the user already suspended turns it into an admin suspension.
+
+To unsuspend, open the actions menu and click **Unsuspend domain**. The domain's original configuration is put back.
+
+From the terminal, use [`opencli domains-suspend`](/docs/articles/opencli/domains/#suspend) with `--by=admin`, `--template=<reason>` and `--comment="..."`, and `opencli domains-unsuspend <domain> --by=admin`. Without `--by=admin` the suspension counts as the user's own.
 
 ## Move domain
 

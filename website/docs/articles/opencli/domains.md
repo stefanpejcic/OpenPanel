@@ -205,13 +205,34 @@ Domain suspended successfully.
 ```
 </details>
 
+By default the suspension counts as the user's own, the same as suspending from OpenPanel. Add `--by=admin` to lock the domain: the user can't unsuspend it, and OpenPanel refuses any change to the domain until an Administrator unsuspends it. Suspending a domain the user already suspended with `--by=admin` turns it into an admin suspension.
+
+Show a [suspension reason](/docs/admin/domains/file_templates/#suspension-reasons) page, by its file name in `/etc/openpanel/caddy/templates/suspended/` without `.html`:
+
+```bash
+opencli domains-suspend <DOMAIN_NAME> --by=admin --template=<REASON> [--comment="<COMMENT>"]
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-suspend example.com --by=admin --template=dmca --comment="Complaint #4821"
+Domain suspended successfully.
+```
+</details>
+
+The comment is saved on one line, line breaks and other control characters are removed.
+
 ## Unsuspend
 
 Unsuspend a domain name:
 
 ```bash
-opencli domains-unsuspend <DOMAIN_NAME>
+opencli domains-unsuspend <DOMAIN_NAME> [--by=admin]
 ```
+
+A domain suspended with `--by=admin` can only be unsuspended with `--by=admin`, otherwise the command fails with `ERROR: Domain example.com was suspended by the administrator and can only be unsuspended by them.`
 
 <details>
   <summary>Example output</summary>

@@ -99,8 +99,9 @@ Manually editing these files can break the panel or be overwritten during update
 |---|---|---|
 | `/etc/openpanel/caddy/Caddyfile` (mounted as `/etc/caddy/Caddyfile` in container) | Caddyfile | Main reverse-proxy config for all websites |
 | `/etc/openpanel/caddy/domains/<domain>.conf` | Caddyfile snippet | Per-domain vhost config, incl. WAF toggles |
-| `/etc/openpanel/caddy/suspended_domains/<domain>.conf` | Caddyfile snippet | Vhost for suspended domains |
+| `/etc/openpanel/caddy/suspended_domains/<domain>.conf` | Caddyfile snippet | Original vhost of a suspended domain, put back on unsuspend |
 | `/etc/openpanel/caddy/templates/*.conf`, `*.html`, `wp.rules` | templates | Domain, suspended-user/domain, WordPress vhost templates |
+| `/etc/openpanel/caddy/templates/suspended/<reason>.html` | HTML | [Suspension reason](/docs/admin/domains/file_templates/#suspension-reasons) pages, first line holds the reason name |
 | `/etc/openpanel/caddy/redirects.conf` | Caddyfile snippet | Global HTTP redirects (webmail, OpenAdmin port) |
 | `/etc/openpanel/caddy/coraza_rules.conf`, `check.conf` | Coraza rules | WAF rule set |
 | `/etc/openpanel/caddy/coreruleset/rules/*.conf[.disabled]` | OWASP CRS | WAF (Coraza) core rule set |

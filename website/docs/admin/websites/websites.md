@@ -21,6 +21,7 @@ The table shows these columns:
 | **Type**            | Icon of the application, for example WordPress, Joomla, Website Builder or Node.js. Hover over it to see the name. |
 | **Owner**           | The OpenPanel user who owns the website, marked **SUSPENDED** when that user is suspended. |
 | **Version**         | Installed version of the application. WordPress sites show when a newer WordPress version is available. |
+| **Git**             | Name and branch of the [Git](/docs/panel/applications/git/) repository that deploys to the website, whether it's remote or local, its deploy mode and when it was last deployed. **Error** marks a failed pull (hover for details) and **+N more** other repositories deploying to the same site. Shown only when the Git module is enabled. |
 | **Vulnerabilities** | Known vulnerable plugins, themes or core versions from the last [vulnerability scan](#scan-for-vulnerabilities). WordPress only. |
 | **ImunifyAV**       | Result of the last [ImunifyAV scan](#scan-with-imunifyav) of the owner's files. Shown only when ImunifyAV is installed. |
 | **PageSpeed**       | Google PageSpeed score from the last [PageSpeed check](#check-pagespeed). |

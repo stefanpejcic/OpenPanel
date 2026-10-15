@@ -228,10 +228,11 @@ Only the notifications daily report example (an email) is left as an old image.
 | accounts/resellers | `/resellers` | list |
 | plans/hosting_plans | `/plans` | list, menu, new, edit, usage |
 | plans/feature-manager | `/features` | index, edit |
-| domains/domains | `/domains` | list, add, actions, delete |
+| domains/domains | `/domains` | list, add, actions, suspend, delete · suspended (test server, a domain suspended by admin, `domains/domains:suspended`) |
 | domains/dns | `/domains/dns` | select, edit |
 | domains/dns_templates | `/domains/zone-templates` | page |
-| domains/file_templates | `/domains/file-templates` | default, suspended-website, suspended-user, apache, nginx, openresty, varnish |
+| domains/file_templates | `/domains/file-templates` | default, suspended-website, suspension-reasons, suspended-user |
+| domains/vhost_templates | `/domains/vhost-templates` | apache, nginx, openresty, varnish, caddy |
 | domains/dns-cluster | `/domains/dns-cluster` | page |
 | security/2fa | `/security/2fa` | page |
 | security/basic_auth | `/security/basic_auth` | page |

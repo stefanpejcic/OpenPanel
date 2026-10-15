@@ -272,9 +272,22 @@ This is the same single-click whole-account backup OpenPanel's own self-service 
 
 `POST /api/domains/suspend/{domain}`
 
+Suspends the domain as an Administrator, so the user can't unsuspend or change it. The JSON body is optional:
+
+```json
+{
+  "template": "dmca",
+  "comment": "Complaint #4821"
+}
+```
+
+`template` is a [suspension reason](/docs/admin/domains/file_templates/#suspension-reasons) file name without `.html`, leave it out or send `default` for the Suspended Website page. An unknown template returns `400`. `comment` is shown to the user.
+
 ### Unsuspend Domain
 
 `POST /api/domains/unsuspend/{domain}`
+
+Unsuspends the domain, also when the user suspended it.
 
 ### Delete Domain
 
@@ -417,7 +430,18 @@ Checks reachability of a slave node via `rndc` first, falling back to SSH.
 `GET /api/domains/file-templates`
 `POST /api/domains/file-templates`
 
-Default templates used for new domains: `default_page`, `suspended_user`, `suspended_website`, `docker_nginx_domain`, `docker_openresty_domain`, `docker_apache_domain`, `docker_varnish`, `docker_caddy`. Send only the keys you want to update.
+HTML pages for domains: `default_page`, `suspended_user`, `suspended_website`. Send only the keys you want to update.
+
+### VirtualHost Templates
+
+`GET /api/domains/vhost-templates`
+`POST /api/domains/vhost-templates`
+
+Configuration templates used for new domains: `docker_nginx_domain`, `docker_openresty_domain`, `docker_apache_domain`, `docker_varnish`, `docker_caddy`. Send only the keys you want to update.
+
+:::note
+Before 2.0.16 the VirtualHost keys were read and saved through `/api/domains/file-templates`, which now ignores them.
+:::
 
 ---
 

@@ -16,3 +16,9 @@ To suspend a domain:
 
 ![Suspend domain confirmation with an optional reason field and the Confirm Suspend button](/img/openpanel-screenshots/domains/suspend-form.png#gh-light-mode-only)
 ![Suspend domain confirmation with an optional reason field and the Confirm Suspend button](/img/openpanel-screenshots/domains/suspend-form_dark.png#gh-dark-mode-only)
+
+## Suspended by the Administrator
+
+The Administrator can also suspend a domain, for example after a copyright complaint or an overdue payment. The domain's status then shows **Suspended by Admin** with the reason below it, and the Administrator's comment if there is one. Visitors see the page for that reason.
+
+While a domain is suspended by the Administrator it is locked: the **Actions** menu only says *Suspended by the administrator, contact support to make changes.*, and unsuspending, deleting, or changing the domain's docroot, VirtualHosts, redirect, SSL, Cloudflare setting or DNS zone is refused, also through the API and bulk actions. Contact support to have it unsuspended.

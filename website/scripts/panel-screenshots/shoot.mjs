@@ -1,4 +1,4 @@
-// usage: node shoot.mjs [--admin] [page-key ...]   e.g. node shoot.mjs mysql/databases
+// usage: node shoot.mjs [--admin] [--dark] [page-key[:shot,...] ...]   e.g. node shoot.mjs mysql/databases domains/domains:suspend
 import { chromium } from 'playwright';
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -79,7 +79,9 @@ async function cropBox(page, crop) {
 }
 
 let failed = 0;
-for (const key of keys) {
+for (const arg of keys) {
+  // page:shot1,shot2 retakes just those shots, e.g. ones that need a test server
+  const [key, only] = arg.split(':');
   const def = pages[key];
   if (!def) {
     console.error(`unknown page: ${key}`);
@@ -87,6 +89,7 @@ for (const key of keys) {
     continue;
   }
   for (const shot of def.shots) {
+    if (only && !only.split(',').includes(shot.name)) continue;
     const page = await (def.anonymous ? anonCtx : ctx).newPage();
     try {
       // init runs before any page script, e.g. to set the theme in localStorage

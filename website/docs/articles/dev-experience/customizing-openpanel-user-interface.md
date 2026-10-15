@@ -62,9 +62,9 @@ You can customize all templates that are displayed to users, from [OpenAdmin > D
 - [Default Landing Page](/docs/admin/domains/file_templates/#default-page)
 - [Suspended Website Template](/docs/admin/domains/file_templates/#suspended-website)
 - [Suspended User Template](/docs/admin/domains/file_templates/#suspended-user)
-- [Apache VirtualHost Template](/docs/admin/domains/file_templates/#apache-virtualhost)
-- [Nginx VirtualHost Template](/docs/admin/domains/file_templates/#nginx-virtualhost)
-- [OpenResty VirtualHost Template](/docs/admin/domains/file_templates/#openresty-virtualhost)
+- [Apache VirtualHost Template](/docs/admin/domains/vhost_templates/#apache-virtualhost)
+- [Nginx VirtualHost Template](/docs/admin/domains/vhost_templates/#nginx-virtualhost)
+- [OpenResty VirtualHost Template](/docs/admin/domains/vhost_templates/#openresty-virtualhost)
 
 ## Create OpenPanel Module
 

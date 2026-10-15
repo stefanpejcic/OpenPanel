@@ -128,7 +128,7 @@ Usage: opencli domains-stats [USERNAME] [--debug]
 ------------------------
 opencli domains-suspend
 Description: Suspend a domain name
-Usage: opencli domains-suspend <DOMAIN-NAME> [--comment="<COMMENT>"]
+Usage: opencli domains-suspend <DOMAIN-NAME> [--comment="<COMMENT>"] [--by=admin|user] [--template=<NAME>]
 ------------------------
 opencli domains-test
 Description: Test a website speed through every layer (DNS, Caddy/WAF, Varnish, webserver, PHP, database), check limits and settings, and show the biggest issue with a fix.
@@ -136,7 +136,7 @@ Usage: opencli domains-test <DOMAIN_NAME>[/SUBFOLDER] [RUNS]
 ------------------------
 opencli domains-unsuspend
 Description: Unsuspend a domain name
-Usage: opencli domains-unsuspend <DOMAIN-NAME>
+Usage: opencli domains-unsuspend <DOMAIN-NAME> [--by=admin|user]
 ------------------------
 opencli domains-update_ns
 Description: Change nameservers for a single or all dns zones.

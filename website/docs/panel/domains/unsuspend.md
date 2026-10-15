@@ -8,6 +8,10 @@ To restore access to a suspended website, you can unsuspend the domain from the 
 
 Unsuspending a domain will remove the *Suspended Website* page and restore the original website content, making it publicly accessible again. All other services - such as email and FTP - will continue to function as they did during suspension.
 
+:::info
+Only domains you suspended yourself can be unsuspended. A domain marked **Suspended by Admin** can only be unsuspended by the Administrator, see [Suspended by the Administrator](/docs/panel/domains/suspend/#suspended-by-the-administrator).
+:::
+
 To unsuspend a domain:
 
 1. Open the **Actions** menu for the suspended domain on the **Domains** page and click **Unsuspend**.

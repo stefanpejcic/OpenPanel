@@ -115,7 +115,7 @@ Customize options:
 * To **enable/disable Varnish for all new users** use [*OpenAdmin > Settings > User Defaults* page and *Enable Varnish Proxy* option](/docs/admin/settings/defaults/).
 * To **enable/disable Varnish for a single user** when creating their account use the [**Enable Varnish Cache** option](/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/).
 * To **change default CPU/RAM for service** use the [*OpenAdmin > Settings > User Defaults* page](/docs/admin/settings/defaults/).
-* To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Domains > Domain Templates* page](/docs/admin/settings/defaults/) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
+* To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Domains > VirtualHost Templates* page](/docs/admin/domains/vhost_templates/#varnish-template) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
 * To **purge Varnish cache** refer to [How-to Guides > Purging Varnish Cache](/docs/articles/websites/purge-varnish-cache-from-terminal/)
 
 
@@ -1202,7 +1202,7 @@ When disabled:
 * Users can not access the *Domains > Edit VHosts File* page.
 
 Customize options:
-* To **customize the vhost files for Apache/Nginx/OpenLiteSpeed** refer to: [*OpenAdmin > Domains > Domain Templates*](/docs/admin/domains/file_templates/#apache-virtualhost)
+* To **customize the vhost files for Apache/Nginx/OpenLiteSpeed** refer to: [*OpenAdmin > Domains > VirtualHost Templates*](/docs/admin/domains/vhost_templates/#apache-virtualhost)
 
 
 ## Webserver
