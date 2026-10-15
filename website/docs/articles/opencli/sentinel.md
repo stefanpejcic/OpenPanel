@@ -86,7 +86,7 @@ Load, CPU and RAM only alert after they stay over the threshold for **2 checks i
 ```
 </details>
 
-OOM kills are read from the kernel log with `journalctl -k`, at most once an hour, covering everything since the previous check (the last hour on the first run after a reboot). Both kills inside a container's memory limit and system-wide out of memory kills are counted, and the alert lists them per system service and per user.
+OOM kills are read from the kernel log with `journalctl -k`, at most once an hour, covering everything since the previous check (the last hour on the first run after a reboot). Both kills inside a container's memory limit and system-wide out of memory kills are counted, and the alert lists each killed process with its user, PID, container name (or short ID if the container no longer exists), memory used, time and whether it hit the container's memory limit or the server ran out of memory (at most 10, the rest are counted). Kills inside a user's rootless containers are matched to that user by the cgroup path, since the kernel reports them with a subuid.
 
 <details>
   <summary>Example output</summary>
@@ -95,6 +95,8 @@ OOM kills are read from the kernel log with `journalctl -k`, at most once an hou
 # opencli sentinel
 ...
 [✘] 2 user process(es) killed by OOM since 2026-10-02 14:05
+    - user stefan: php-fpm8.3 (pid 4321, container php-fpm-8.3, 512 MB) at 2026-10-02 14:31, container memory limit
+    - user stefan: php-fpm8.3 (pid 4388, container php-fpm-8.3, 498 MB) at 2026-10-02 14:47, container memory limit
 ...
 ```
 </details>
