@@ -6,12 +6,14 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // Register wires all domain management routes onto mux - "domains" gates the base list/add/delete flow, the satellite pages are individually gated to match the sidebar's own feature-conditional links
 func Register(mux *http.ServeMux, a *appctx.App) {
+	// admin-suspended domains are read-only for the user, guard covers bulk too since it replays through mux
 	requireLogin := func(feature string, h http.HandlerFunc) http.Handler {
-		return auth.RequireLogin(a, feature)(h)
+		return auth.RequireLogin(a, feature)(web.BlockAdminSuspended(a)(h))
 	}
 
 	mux.Handle("GET /domains", requireLogin("domains", func(w http.ResponseWriter, r *http.Request) { handleDomainsPage(a, w, r) }))

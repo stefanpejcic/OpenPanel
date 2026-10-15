@@ -73,6 +73,8 @@ type SSLStatus struct {
 	HTTPS          string // "Unknown" | "Automatic" | "Custom"
 	Suspended      string // "Not Suspended" | "Suspended"
 	SuspendComment string
+	SuspendedBy    string // "admin" locks the domain for the user
+	SuspendReason  string
 	Cloudflare     bool // conf imports the cloudflare-only snippet
 }
 
@@ -101,6 +103,11 @@ func computeRewriteCondEnabled(domainURL string) SSLStatus {
 
 		if lineNum == 0 && strings.HasPrefix(line, "# comment:") {
 			status.SuspendComment = strings.TrimSpace(strings.SplitN(line, ":", 2)[1])
+		}
+		if v, ok := strings.CutPrefix(line, "# suspended_by:"); ok {
+			status.SuspendedBy = strings.TrimSpace(v)
+		} else if v, ok := strings.CutPrefix(line, "# reason:"); ok {
+			status.SuspendReason = strings.TrimSpace(v)
 		}
 		if cloudflareOnlyRE.MatchString(line) {
 			status.Cloudflare = true

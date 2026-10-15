@@ -31,7 +31,7 @@ The Overview tab shows the state of the firewall at a glance:
 
 Pick **Enabled** or **Disabled** and click **Save** next to the dropdown.
 
-- **Enabled** runs `opencli waf enable`: it downloads the rules and app profiles, enables [the WAF module](/docs/admin/settings/modules/#waf) so users can manage the firewall, turns the firewall on for every domain and restarts the web server with the Coraza image. New domains get the firewall automatically.
+- **Enabled** runs `opencli waf enable`: it downloads the rules and app profiles, enables [the WAF module](/docs/admin/settings/modules/#waf) so users can manage the firewall, turns the firewall on for every domain (except domains of users turned off with [`opencli waf user USERNAME disable`](/docs/articles/opencli/waf/#user)) and restarts the web server with the Coraza image. New domains get the firewall automatically.
 - **Disabled** runs `opencli waf disable -y`: it disables the WAF module and turns the firewall off on all existing and new domains.
 
 While **Disabled** is selected, a recommendation to enable it is shown, since the WAF blocks common attacks like SQL injection and XSS before they reach user sites.

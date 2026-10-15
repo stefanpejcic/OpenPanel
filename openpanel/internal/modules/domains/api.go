@@ -31,7 +31,7 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Add("POST /api/domains/{domain}/ssl")
 	apiregistry.Add("POST /api/domains/{domain}/dns/records")
 	apiregistry.Add("POST /api/domains/{domain}/dns/restart")
-	mux.Handle("POST /api/domains/{rest...}", auth.RequireAPI(a, "domains")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDomainsPostDispatch(a, w, r) })))
+	mux.Handle("POST /api/domains/{rest...}", auth.RequireAPI(a, "domains")(web.BlockAdminSuspended(a)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDomainsPostDispatch(a, w, r) }))))
 
 	apiregistry.Add("GET /api/domains/{domain}/status")
 	apiregistry.Add("GET /api/domains/{domain}/docroot")
@@ -51,12 +51,12 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Add("PUT /api/domains/{domain}/dns")
 	apiregistry.Add("PUT /api/domains/{domain}/dns/records/{row_id}")
 	apiregistry.Add("PUT /api/domains/{domain}/capitalize")
-	mux.Handle("PUT /api/domains/{rest...}", auth.RequireAPI(a, "domains")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDomainsPutDispatch(a, w, r) })))
+	mux.Handle("PUT /api/domains/{rest...}", auth.RequireAPI(a, "domains")(web.BlockAdminSuspended(a)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDomainsPutDispatch(a, w, r) }))))
 
 	apiregistry.Add("DELETE /api/domains/{domain}")
 	apiregistry.Add("DELETE /api/domains/{domain}/redirect")
 	apiregistry.Add("DELETE /api/domains/{domain}/dns/records/{row_id}")
-	mux.Handle("DELETE /api/domains/{rest...}", auth.RequireAPI(a, "domains")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDomainsDeleteDispatch(a, w, r) })))
+	mux.Handle("DELETE /api/domains/{rest...}", auth.RequireAPI(a, "domains")(web.BlockAdminSuspended(a)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDomainsDeleteDispatch(a, w, r) }))))
 }
 
 func writeAPIDomainsJSON(w http.ResponseWriter, status int, v any) {
@@ -228,6 +228,8 @@ func apiDomainsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		SSL            string `json:"ssl"`
 		Status         string `json:"status"`
 		SuspendComment string `json:"suspend_comment"`
+		SuspendedBy    string `json:"suspended_by"`
+		SuspendReason  string `json:"suspend_reason"`
 		HasDNSZone     bool   `json:"has_dns_zone"`
 	}
 
@@ -237,7 +239,7 @@ func apiDomainsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		result = append(result, apiDomainEntry{
 			Domain: d.DomainURL, Docroot: d.Docroot, PHPVersion: d.PHPVersion, SiteCount: d.SiteCount,
 			RedirectURL: getRedirectURL(d.DomainURL), SSL: status.HTTPS, Status: status.Suspended,
-			SuspendComment: status.SuspendComment, HasDNSZone: apiFileExists("/etc/bind/zones/" + d.DomainURL + ".zone"),
+			SuspendComment: status.SuspendComment, SuspendedBy: status.SuspendedBy, SuspendReason: status.SuspendReason, HasDNSZone: apiFileExists("/etc/bind/zones/" + d.DomainURL + ".zone"),
 		})
 	}
 	writeAPIDomainsJSON(w, http.StatusOK, map[string]any{"domains": result, "total": len(result)})
@@ -371,7 +373,8 @@ func apiDomainsStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	status := isRewriteCondEnabled(ctx, a, domain)
 	writeAPIDomainsJSON(w, http.StatusOK, map[string]any{
 		"domain": domain, "ssl": status.HTTPS, "status": status.Suspended,
-		"suspend_comment": status.SuspendComment, "redirect_url": getRedirectURL(domain),
+		"suspend_comment": status.SuspendComment, "suspended_by": status.SuspendedBy, "suspend_reason": status.SuspendReason,
+		"redirect_url": getRedirectURL(domain),
 	})
 }
 
@@ -391,7 +394,7 @@ func apiDomainsSuspend(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-suspend", domain).CombinedOutput()
+	out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-suspend", domain, "--by=user").CombinedOutput()
 	if cmdErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": strings.TrimSpace(string(out))})
 		return
@@ -416,7 +419,7 @@ func apiDomainsUnsuspend(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-unsuspend", domain).CombinedOutput()
+	out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-unsuspend", domain, "--by=user").CombinedOutput()
 	if cmdErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": strings.TrimSpace(string(out))})
 		return

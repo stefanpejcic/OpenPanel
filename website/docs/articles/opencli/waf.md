@@ -25,6 +25,8 @@ Response body inspection is turned off (`SecResponseBodyAccess Off` in `/etc/ope
 
 This also disables OWASP CRS rulesets for stacks OpenPanel doesn't use or rarely hosts, by renaming them to `.conf.disabled`: `REQUEST-944-APPLICATION-ATTACK-JAVA`, `RESPONSE-952-DATA-LEAKAGES-JAVA`, `RESPONSE-954-DATA-LEAKAGES-IIS` and `RESPONSE-956-DATA-LEAKAGES-RUBY`. They can be re-enabled from OpenAdmin > Security > CorazaWAF.
 
+WAF is turned on for all existing domains, except domains of users that have it turned off with [`opencli waf user USERNAME disable`](#user).
+
 It also downloads the official OWASP CRS rule exclusion plugins for WordPress, Drupal, Nextcloud, DokuWiki, phpBB, XenForo and phpMyAdmin into `/etc/openpanel/caddy/coreruleset-plugins/`. Users can turn these on per domain as *App profiles* in OpenPanel > WAF, so the app's normal requests are not blocked as false positives.
 
 ```bash
@@ -187,6 +189,64 @@ opencli waf domain <DOMAIN_NAME> plugins
 Protection level for domain example.com: standard
 App profiles active for domain example.com:
  - wordpress
+```
+</details>
+
+## User
+
+Users can have CorazaWAF turned off for all their domains, including domains they add later. Turning it off creates `/home/<CONTEXT>/waf.disabled`, and `opencli domains-add` sets `SecRuleEngine Off` for new domains of that user while the file exists.
+
+### Status
+Check if CorazaWAF is used for new domains of a user and show the status of each of their domains:
+
+```bash
+opencli waf user <USERNAME>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf user stefan
+CorazaWAF is enabled for new domains of user stefan
+SecRuleEngine is set to On for domain example.com
+SecRuleEngine is set to Off for domain example.net
+```
+</details>
+
+### Enable
+Enable CorazaWAF for all current and new domains of a user (sets `SecRuleEngine On`, monitor only domains too). If the `waf` module is not enabled, only the user's `waf.disabled` file is removed and existing domains are left as they are:
+
+```bash
+opencli waf user <USERNAME> enable
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf user stefan enable
+- SecRuleEngine On is now set for domain example.com
+- SecRuleEngine On is now set for domain example.net
+CorazaWAF is now enabled for all current and new domains of user stefan
+```
+</details>
+
+### Disable
+Disable CorazaWAF for all current and new domains of a user:
+
+```bash
+opencli waf user <USERNAME> disable
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf user stefan disable
+- SecRuleEngine Off is now set for domain example.com
+- SecRuleEngine Off is now set for domain example.net
+CorazaWAF is now disabled for all current and new domains of user stefan
 ```
 </details>
 

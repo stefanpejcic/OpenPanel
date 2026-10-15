@@ -5,12 +5,13 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // Register wires the DNS zone editor routes onto mux.
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := func(h http.HandlerFunc) http.Handler {
-		return auth.RequireLogin(a, "dns")(h)
+		return auth.RequireLogin(a, "dns")(web.BlockAdminSuspended(a)(h))
 	}
 
 	mux.Handle("GET /domains/edit-dns-zone", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEditDNSZone(a, w, r) }))

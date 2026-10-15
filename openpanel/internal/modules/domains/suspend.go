@@ -32,7 +32,7 @@ func handleSuspendDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		args := []string{"domains-suspend", domainName}
+		args := []string{"domains-suspend", domainName, "--by=user"}
 		if comment != "" {
 			args = append(args, "--comment="+comment)
 		}
@@ -79,7 +79,7 @@ func handleUnsuspendDomain(a *appctx.App, w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-unsuspend", domainName).CombinedOutput()
+		out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-unsuspend", domainName, "--by=user").CombinedOutput()
 		if cmdErr == nil {
 			invalidateRewriteCondCache(ctx, a, domainName)
 			web.FlashRedirect(a, w, r, "success", string(out), "/domains")

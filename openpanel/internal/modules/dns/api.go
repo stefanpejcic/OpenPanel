@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI wires the DNS REST endpoints onto mux. Several routes share a domain prefix with a literal suffix (e.g. /api/dns/<domain>/raw), but http.ServeMux needs a "{...}" wildcard to be the final segment - so each verb gets one "{rest...}" catch-all and the dispatch funcs below strip the known suffix by hand. apiregistry.Add still records each logical route separately.
@@ -27,11 +28,11 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /api/dns/{rest...}", auth.RequireAPI(a, "dns")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDNSGetDispatch(a, w, r) })))
 
 	apiregistry.Add("PUT /api/dns/{domain}/raw")
-	mux.Handle("PUT /api/dns/{rest...}", auth.RequireAPI(a, "dns")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDNSPutDispatch(a, w, r) })))
+	mux.Handle("PUT /api/dns/{rest...}", auth.RequireAPI(a, "dns")(web.BlockAdminSuspended(a)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDNSPutDispatch(a, w, r) }))))
 
 	apiregistry.Add("POST /api/dns/{domain}/records")
 	apiregistry.Add("POST /api/dns/{domain}/reset")
-	mux.Handle("POST /api/dns/{rest...}", auth.RequireAPI(a, "dns")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDNSPostDispatch(a, w, r) })))
+	mux.Handle("POST /api/dns/{rest...}", auth.RequireAPI(a, "dns")(web.BlockAdminSuspended(a)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { apiDNSPostDispatch(a, w, r) }))))
 
 	apiregistry.Handle(mux, a, "dns", "PATCH /api/dns/{domain}/records/{row_id}", func(w http.ResponseWriter, r *http.Request) { apiDNSUpdateRecord(a, w, r) })
 	apiregistry.Handle(mux, a, "dns", "DELETE /api/dns/{domain}/records/{row_id}", func(w http.ResponseWriter, r *http.Request) { apiDNSDeleteRecord(a, w, r) })
