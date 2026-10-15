@@ -407,7 +407,7 @@ Any option from `notifications.ini` can be read or updated. The main options are
 | `swap`        | Notify when SWAP usage (%) is above this value.                    | `85`    |
 | `webhook_url` | Also send notifications to these webhooks (e.g. Discord), multiple URLs are separated by spaces. | empty   |
 
-The `[ACTIONS]` section of the file has a `yes`/`no` option for each OpenCLI action that sends a notification, for example `user_create`, `domains_add` or `admin_api`.
+The `[ACTIONS]` section of the file has a `yes`/`no` option for each OpenCLI action that sends a notification, for example `user_create`, `domains_add`, `admin_api` or `docker_backup` (sent when `opencli docker-backup` fails).
 
 
 ### Port

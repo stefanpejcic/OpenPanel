@@ -135,6 +135,33 @@ opencli docker-backup
 ```
 </details>
 
+- `--parallel=N` - number of users backed up at the same time. Default is one per 4 CPU cores, at least 1 and at most the number of users.
+
+```bash
+opencli docker-backup --parallel=4
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-backup --parallel=4
+2026-09-24 02:00:01 : === Backup started at 2026-09-24 02:00:01 ===
+2026-09-24 02:00:01 : Fetching list of active users...
+2026-09-24 02:00:01 : Found 2 active users to process
+2026-09-24 02:00:01 : Running up to 2 user backups in parallel
+2026-09-24 02:00:01 : Processing user: stefan (1/2)
+2026-09-24 02:00:01 : Processing user: demo (2/2)
+...
+2026-09-24 02:00:45 : Successfully processed all 2 users
+2026-09-24 02:00:45 : === Backup finished at 2026-09-24 02:00:45 | Total time: 44s ===
+```
+</details>
+
+To skip a user, create `/home/<context>/backup.off`. Everything is logged to `/var/log/openpanel/admin/docker-backup.log`.
+
+If the backup fails for any user, or the list of active users can't be read from the database, a critical **Backup failed** notification is added in OpenAdmin with the failed usernames and the log path. Set `docker_backup=no` in `/etc/openpanel/openadmin/config/notifications.ini` (or turn off *Backup failed* under OpenAdmin > Settings > Notifications) to disable it.
+
 ### logs
 
 View logs sizes for user and system containers.

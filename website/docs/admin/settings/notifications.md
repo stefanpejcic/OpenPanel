@@ -149,7 +149,7 @@ Receive notifications when specific server-level actions are detected:
 
 Get notified whenever an action occurs in the admin or user panels.
 
-Actions are grouped into **OpenAdmin**, **Web Firewall**, **Users**, **FTP** and **Domains**. Each group shows how many are on and has **All on** / **All off** buttons to toggle the whole group at once.
+Actions are grouped into **OpenAdmin**, **Web Firewall**, **Users**, **FTP**, **Domains**, **ImunifyAV** and **Backups**. Each group shows how many are on and has **All on** / **All off** buttons to toggle the whole group at once.
 
 ![User actions section with toggles for account and domain change notifications](/img/openadmin-screenshots/settings/notifications-users.png#gh-light-mode-only)
 ![User actions section with toggles for account and domain change notifications](/img/openadmin-screenshots/settings/notifications-users_dark.png#gh-dark-mode-only)
@@ -171,6 +171,7 @@ Actions are grouped into **OpenAdmin**, **Web Firewall**, **Users**, **FTP** and
 - User IP changed
 - User password changed
 - User renamed
+- User transferred
 - FTP account created
 - FTP account deleted
 - FTP account password change
@@ -179,6 +180,8 @@ Actions are grouped into **OpenAdmin**, **Web Firewall**, **Users**, **FTP** and
 - Domain suspended/unsuspended
 - SSL type changed
 - HSTS enabled/disabled
+- ImunifyAV scan started/finished
+- Backup failed (the scheduled `opencli docker-backup` run failed for one or more users)
 
 ---
 
