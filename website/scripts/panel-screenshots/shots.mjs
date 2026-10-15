@@ -101,6 +101,41 @@ const aiDrawer = (chat, info = false, fit = false) => async page => {
   }
 };
 
+// /backups/list: click rows of the visible table (selects a backup, or ticks an item)
+const bkRows = (...idx) => async page => {
+  const rows = page.locator('main tbody:visible > tr:visible');
+  for (const i of idx) await rows.nth(i).locator('td').last().click();
+  await page.waitForTimeout(400);
+};
+const bkKeepRows = keep => async page => {
+  await page.evaluate(keep => document.querySelectorAll('main tbody').forEach(tb => { if (tb.offsetParent) [...tb.children].filter(tr => tr.tagName === 'TR').forEach((tr, i) => { if (!keep.includes(i)) tr.remove(); }); }), keep);
+};
+const bkFirstRows = n => bkKeepRows([...Array(n).keys()]);
+// the test server's databases
+const BK_NAMES = rename({ bt_shop: 'shop_db', bt_pg: 'app_pg', does_not_exist: 'old_db' }, 'body');
+// the action bar is fixed to the window bottom, put it back in the flow under the table
+const bkBar = async page => {
+  await page.evaluate(() => {
+    const bar = document.querySelector('[x-init="placeBar()"]');
+    bar.style.position = 'static';
+    bar.previousElementSibling.style.display = 'none';
+  });
+  await page.waitForTimeout(300);
+};
+// Choose files on the newest backup, the test server's root has scratch files, so show the site folder and index.php
+const bkPicker = async page => {
+  await bkRows(0)(page);
+  await page.locator('main button[aria-label="Choose files"]').click();
+  await page.waitForFunction(() => { const p = Alpine.$data(document.querySelector('[role=tab]')).picker; return !p.loading && (p.dirs.length || p.files.length); }, null, { timeout: 30000 });
+  await page.evaluate(() => {
+    const p = Alpine.$data(document.querySelector('[role=tab]')).picker;
+    p.dirs = p.dirs.filter(d => d.name.includes('.'));
+    p.files = p.files.filter(f => ['index.php', '20MB.zip'].includes(f.name));
+    p.picked[p.dirs[0].name] = true;
+  });
+  await page.waitForTimeout(400);
+};
+
 const MAIL_HOST = { 'demo.openpanel.com': 'mail.example.com' };
 
 // runs on every shot after its own prepare(), so selectors there can still use the real names
@@ -1129,9 +1164,17 @@ export const pages = {
     url: '/backups/destination',
     shots: [{ name: 'page', alt: 'Backup destination picker with S3-compatible, WebDAV, SSH, Azure and Dropbox options', crop: 'content' }],
   },
+  // needs a server with indexed backups, the demo has none: PANEL_URL=https://<test server>:2083
   'files/backups_list': {
     url: '/backups/list',
-    shots: [{ name: 'list', alt: 'Restore & Download page with the backup search and the Reindex Destination button', crop: 'content' }],
+    shots: [
+      { name: 'list', alt: 'Restore & Download overview with backup totals, a tile per type of data and the restore queue and logs', crop: 'content' },
+      { name: 'everything', url: '/backups/list?tab=full', alt: 'Everything tab listing backups with their contents and size, one selected with the Download and Restore buttons', prepare: all(bkRows(0), bkFirstRows(3), bkBar), crop: { content: 'nav[aria-label="Backup types"]' } },
+      { name: 'files', url: '/backups/list?tab=html', alt: 'Choose files dialog browsing a website files backup with a folder ticked for restore', prepare: bkPicker, crop: { from: '[x-show="picker.open"] > div', clamp: false } },
+      { name: 'domains', url: '/backups/list?tab=vhosts', alt: 'Domains tab with two domains selected, each tagged with VirtualHost, PHP version and DNS zone and a dropdown to pick the backup', prepare: all(bkRows(0, 1), bkFirstRows(4), bkBar), crop: { content: 'nav[aria-label="Backup types"]' } },
+      { name: 'summary', url: '/backups/list?tab=databases', alt: 'Restore Summary dialog listing the selected databases and the Restore Selected Items button', prepare: all(bkRows(0, 1), click('main button[aria-label="Restore"]', 600), BK_NAMES), crop: { from: '[x-show="summaryOpen"] > div', clamp: false } },
+      { name: 'logs', url: '/backups/list?tab=logs', alt: 'Logs tab with the latest restores, the backup each came from, how long it took and whether it worked', prepare: all(bkKeepRows([0, 1, 5, 9, 10]), BK_NAMES), crop: { content: 'nav[aria-label="Backup types"]' } },
+    ],
   },
   'files/backup-wizard': {
     url: '/backup-wizard',

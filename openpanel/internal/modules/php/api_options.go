@@ -72,9 +72,18 @@ func apiPHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatePHPConfigFile(ctx, userContext, version, availableKeys, newConfig)
+	if writeErr := updatePHPConfigFile(userContext, version, availableKeys, newConfig); writeErr != nil {
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not save PHP " + version + " configuration: " + writeErr.Error()})
+		return
+	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "edited PHP "+version+" configuration using PHP Selector", reqip.ClientIP(r))
 	container := apiPHPContainer(userContext, version)
+	if strings.HasPrefix(container, "php-fpm-") && signalPHPFPMReload(ctx, userContext, container) {
+		web.WriteJSON(w, http.StatusOK, map[string]any{
+			"message": "Options updated and " + container + " reloaded", "version": version, "updated": newConfig,
+		})
+		return
+	}
 	if result := docker.RestartContainer(ctx, userContext, container); !result.Success {
 		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"message": "Options updated, but " + container + " failed to restart. Try restarting it manually from Services.", "version": version, "updated": newConfig,

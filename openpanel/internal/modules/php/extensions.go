@@ -262,6 +262,21 @@ func toggleExtension(ctx context.Context, userContext, service, extension string
 	return true, ""
 }
 
+// signalPHPFPMReload sends USR2 to the php-fpm master so ini changes apply without recreating the container
+func signalPHPFPMReload(ctx context.Context, userContext, service string) bool {
+	script := `for d in /proc/[0-9]*; do case "$(tr '\0' ' ' < $d/cmdline 2>/dev/null)" in "php-fpm: master"*) kill -USR2 ${d#/proc/} && exit 0;; esac; done; exit 1`
+	argv := podmanmanager.PodmanArgv(userContext, "exec", service, "sh", "-c", script)
+	_, err := runShort(ctx, userContext, argv)
+	return err == nil
+}
+
+// reloadPHPFPM reloads php-fpm, falls back to a restart if that fails
+func reloadPHPFPM(ctx context.Context, userContext, service string) {
+	if !signalPHPFPMReload(ctx, userContext, service) {
+		docker.ComposeContainer(ctx, userContext, service, "restart")
+	}
+}
+
 // ensureXZ installs xz in the php-fpm container if it's missing, phpaddmod unpacks the php source .tar.xz and the shinsenter images don't ship it
 func ensureXZ(ctx context.Context, userContext, service string) {
 	cctx, cancel := context.WithTimeout(ctx, 3*time.Minute)
@@ -626,14 +641,18 @@ func handlePHPExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			ok, errMsg = toggleExtension(ctx, userContext, service, extension, enable)
 		}
 		if ok {
-			docker.ComposeContainer(ctx, userContext, service, "restart")
+			if isLitespeed {
+				docker.ComposeContainer(ctx, userContext, service, "restart")
+			} else {
+				reloadPHPFPM(ctx, userContext, service)
+			}
 			actionWord := "disabled"
 			if enable {
 				actionWord = "enabled"
 			}
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, fmt.Sprintf("%s PHP extension %s for PHP %s", actionWord, extension, version), ipAddress)
-			web.Flash(a, w, r, "success", web.Tr(a, r, "Extension %(extension)s %(action_word)s, PHP %(version)s restarted to apply changes.", "extension", extension, "action_word", actionWord, "version", version))
+			web.Flash(a, w, r, "success", web.Tr(a, r, "Extension %(extension)s %(action_word)s, PHP %(version)s reloaded to apply changes.", "extension", extension, "action_word", actionWord, "version", version))
 		} else {
 			web.Flash(a, w, r, "error", web.Tr(a, r, "Could not change extension %(extension)s: %(err_msg)s", "extension", extension, "err_msg", errMsg))
 		}

@@ -28,18 +28,22 @@ func apiIniPath(userContext, version string) string {
 	return "/home/" + userContext + "/php.ini/" + version + ".ini"
 }
 
-// apiRestartPHP restarts the PHP container for a version (or the LiteSpeed container, if that's what's serving PHP), if it's currently running
-func apiRestartPHP(ctx context.Context, userContext, version string) string {
+// apiRestartPHP reloads php-fpm for a version, or restarts the LiteSpeed container if that's what's serving PHP, only if it's currently running
+func apiRestartPHP(ctx context.Context, userContext, version string) (container, action string) {
 	ws := strings.ToLower(webserver.GetEnvFileValue(userContext, "WEB_SERVER"))
-	container := "php-fpm-" + version
-	if strings.Contains(ws, "litespeed") {
+	isLitespeed := strings.Contains(ws, "litespeed")
+	container = "php-fpm-" + version
+	if isLitespeed {
 		container = ws
 	}
 	if docker.ComposeContainer(ctx, userContext, container, "status") {
+		if !isLitespeed && signalPHPFPMReload(ctx, userContext, container) {
+			return container, "reloaded"
+		}
 		docker.ComposeContainer(ctx, userContext, container, "stop")
 		docker.ComposeContainer(ctx, userContext, container, "start")
 	}
-	return container
+	return container, "restarted"
 }
 
 // apiPHPVersions returns the list of installed PHP versions.
@@ -95,7 +99,7 @@ func apiPHPIni(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	container := apiRestartPHP(ctx, userContext, version)
+	container, action := apiRestartPHP(ctx, userContext, version)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "edited php.ini for PHP "+version, reqip.ClientIP(r))
-	web.WriteJSON(w, http.StatusOK, map[string]any{"message": "php.ini updated and " + container + " restarted", "version": version})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"message": "php.ini updated and " + container + " " + action, "version": version})
 }

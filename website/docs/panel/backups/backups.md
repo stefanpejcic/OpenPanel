@@ -452,22 +452,67 @@ backup
 
 The **Restore & Download** page (`/backups/list`) lets you browse the backup files that already exist on your configured destination, restore them back onto your account, or download them to your computer. It works with every destination: SSH/SFTP, S3, WebDAV, Azure Blob Storage and Dropbox.
 
-![Restore & Download page with the backup search and the Reindex Destination button](/img/openpanel-screenshots/files/backups_list-list.png#gh-light-mode-only)
-![Restore & Download page with the backup search and the Reindex Destination button](/img/openpanel-screenshots/files/backups_list-list_dark.png#gh-dark-mode-only)
+![Restore & Download overview with backup totals, a tile per type of data and the restore queue and logs](/img/openpanel-screenshots/files/backups_list-list.png#gh-light-mode-only)
+![Restore & Download overview with backup totals, a tile per type of data and the restore queue and logs](/img/openpanel-screenshots/files/backups_list-list_dark.png#gh-dark-mode-only)
 
-1. Click **Reindex Destination** to connect to the remote destination and list the available backup archives. Reindexing runs in the background and the page updates automatically once it finishes. Only the `backup/00-meta/` folder at the start of each archive is read, and archives that were already indexed are not read again. Older archives without that folder are still listed in full (on SSH/SFTP with `tar -tzf` on the remote server, on other destinations by reading the whole archive).
-2. The page opens with an overview: the number of backups, the latest backup, their total size and the last restore, followed by a tile for each type of data you can restore. Click a tile to see its backups, newest first, each with the date it was taken (shown in your browser's time zone) and its size. The tabs at the top switch between types, and **Overview** goes back to the tiles:
-   - **Everything** – every backup. Restores everything in it: website files, databases, emails, domains with their DNS zones and cron jobs.
-   - **Website Files** and **Cron Jobs** – the backups that contain that part. Restores only that part of the selected backup; restoring cron jobs also restarts the cron container. On **Website Files**, select a backup and click **Choose files** to browse it folder by folder and tick single files or whole folders (or download a single file). Only the part of the archive up to the last picked item is read from the destination.
-   - **Databases**, **Emails** and **Domains** – every database, email account and domain found in your backups, listed once with the size (and message count for email accounts) and how many backups contain it. The newest backup is used unless you pick another one from the dropdown, and you can select several to restore them together.
-     - Restoring a domain brings back its webserver configuration (**+ VirtualHost**), the PHP version it uses (**+ PHP version**, that PHP is started and set for the domain) and, when the backup has it, its DNS zone (**+ DNS zone**), then restarts your webserver and reloads the zone with a new serial number. A domain you deleted from your account is added back first. Suspended domains are marked **Suspended** and can't be restored until they are unsuspended.
-     - Email accounts can only be restored for domains on your account, so restore a deleted domain first.
-3. Select a backup (or databases, email accounts, domains or files) and click **Restore**. The **Restore Summary** lists the items that will be restored; click **Restore Selected Items** to add them to the queue. Restores run in the background, one at a time per account, so you can close the page while they run. Each database is dropped, recreated and its dump is piped into the `mysql`/`mariadb` or `psql` client inside your database container.
+Click **Reindex Destination** to connect to the remote destination and list the available backup archives. Reindexing runs in the background and the page updates automatically once it finishes. Only the `backup/00-meta/` folder at the start of each archive is read, and archives that were already indexed are not read again. Older archives without that folder are still listed in full (on SSH/SFTP with `tar -tzf` on the remote server, on other destinations by reading the whole archive).
 
-   Under **Restore activity** on the overview (or the tabs at the top), **Queue** shows what is waiting or being restored and **Logs** shows your latest 100 restores with when they finished, how long they took, whether they worked and the result. The summary at the top shows when the last restore finished, or how many are in the queue. A restore that was running when the panel restarted is logged as failed, the ones still waiting in the queue continue.
+The page opens with an overview: the number of backups, the latest backup, their total size and the last restore, followed by a tile for each type of data you can restore. Click a tile to see its backups, newest first, each with the date it was taken (shown in your browser's time zone) and its size. The tabs at the top switch between types, **Overview** goes back to the tiles, and the **Search** box above each list filters it.
 
-   Restoring overwrites existing data and cannot be undone.
-4. Select a backup and click **Download** to stream the archive from the destination straight to your browser. On **Databases**, **Emails** and **Domains**, **Download** gives you only what you selected: a single database as its `.sql` dump, anything else as a `.tar.gz` with just those items (one per backup you picked from).
+:::info Backups made before 2.0.16
+Older backups don't list their emails and domains, so the **Emails** and **Domains** tabs don't show them: restore those from the **Everything** tab. **Choose files** is also unavailable for them (the button is greyed out with *This backup was made before single items could be restored.*), but you can still restore all website files from them.
+:::
+
+### Everything, Website Files and Cron Jobs
+
+![Everything tab listing backups with their contents and size, one selected with the Download and Restore buttons](/img/openpanel-screenshots/files/backups_list-everything.png#gh-light-mode-only)
+![Everything tab listing backups with their contents and size, one selected with the Download and Restore buttons](/img/openpanel-screenshots/files/backups_list-everything_dark.png#gh-dark-mode-only)
+
+These tabs list whole backups. Select one and the bar at the bottom shows **Download** and **Restore**.
+
+- **Everything** – every backup, with a **Contents** column showing what is in it (website files, databases, emails, domains and cron jobs, with how many of each). Restores everything in it: website files, databases, emails, domains with their DNS zones and cron jobs.
+- **Website Files** and **Cron Jobs** – the backups that contain that part. Restores only that part of the selected backup; restoring cron jobs also restarts the cron container.
+
+### Choosing single files
+
+![Choose files dialog browsing a website files backup with a folder ticked for restore](/img/openpanel-screenshots/files/backups_list-files.png#gh-light-mode-only)
+![Choose files dialog browsing a website files backup with a folder ticked for restore](/img/openpanel-screenshots/files/backups_list-files_dark.png#gh-dark-mode-only)
+
+On **Website Files**, select a backup and click **Choose files** to browse it folder by folder. Tick single files or whole folders and click **Restore selected**, or click the download icon next to a file to download just that file. Only the part of the archive up to the last picked item is read from the destination.
+
+### Databases, Emails and Domains
+
+![Domains tab with two domains selected, each tagged with VirtualHost, PHP version and DNS zone and a dropdown to pick the backup](/img/openpanel-screenshots/files/backups_list-domains.png#gh-light-mode-only)
+![Domains tab with two domains selected, each tagged with VirtualHost, PHP version and DNS zone and a dropdown to pick the backup](/img/openpanel-screenshots/files/backups_list-domains_dark.png#gh-dark-mode-only)
+
+These tabs list every database, email account and domain found in your backups, once each, with the size (and message count for email accounts) and how many backups contain it. The newest backup is used unless you pick another one from the dropdown, and you can select several to restore them together.
+
+- Restoring a domain brings back its webserver configuration (**+ VirtualHost**), the PHP version it uses (**+ PHP version**, that PHP is started and set for the domain) and, when the backup has it, its DNS zone (**+ DNS zone**), then restarts your webserver and reloads the zone with a new serial number.
+- A domain you deleted from your account is marked **Will be added** and is added back first.
+- Suspended domains are marked **Suspended** and can't be restored until they are unsuspended.
+- Email accounts can only be restored for domains on your account. An email account whose domain is gone is marked **Restore the domain first**.
+
+### Restoring
+
+![Restore Summary dialog listing the selected databases and the Restore Selected Items button](/img/openpanel-screenshots/files/backups_list-summary.png#gh-light-mode-only)
+![Restore Summary dialog listing the selected databases and the Restore Selected Items button](/img/openpanel-screenshots/files/backups_list-summary_dark.png#gh-dark-mode-only)
+
+Select a backup (or databases, email accounts, domains or files) and click **Restore**. The **Restore Summary** lists the items that will be restored; click **Restore Selected Items** to add them to the queue. Restores run in the background, one at a time per account, so you can close the page while they run. Each database is dropped, recreated and its dump is piped into the `mysql`/`mariadb` or `psql` client inside your database container.
+
+:::danger
+Restoring overwrites existing data and cannot be undone.
+:::
+
+### Queue and logs
+
+![Logs tab with the latest restores, the backup each came from, how long it took and whether it worked](/img/openpanel-screenshots/files/backups_list-logs.png#gh-light-mode-only)
+![Logs tab with the latest restores, the backup each came from, how long it took and whether it worked](/img/openpanel-screenshots/files/backups_list-logs_dark.png#gh-dark-mode-only)
+
+Under **Restore activity** on the overview (or the tabs at the top), **Queue** shows what is waiting or being restored and **Logs** shows your latest 100 restores: what was restored, from which backup, when it finished, how long it took and whether it worked, with the result or the error. The summary at the top shows when the last restore finished, or how many are in the queue. A restore that was running when the panel restarted is logged as failed, the ones still waiting in the queue continue.
+
+### Downloading
+
+Select a backup and click **Download** to stream the archive from the destination straight to your browser. On **Databases**, **Emails** and **Domains**, **Download** gives you only what you selected: a single database as its `.sql` dump, anything else as a `.tar.gz` with just those items (one per backup you picked from).
 
 ## Troubleshooting
 

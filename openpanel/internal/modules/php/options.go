@@ -1,12 +1,10 @@
 package php
 
 import (
-	"context"
 	"fmt"
 	"io/fs"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -84,52 +82,51 @@ func splitNonEmptyLines(content []byte) []string {
 	return keys
 }
 
-// keyExistsAndNotCommented reports whether key has an active (uncommented) line in the given PHP version's php.ini
-func keyExistsAndNotCommented(userContext, version, key string) bool {
-	content, err := os.ReadFile("/home/" + userContext + "/php.ini/" + version + ".ini")
-	if err != nil {
-		return false
-	}
-	for _, line := range strings.Split(string(content), "\n") {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "#") {
-			continue
-		}
-		if strings.HasPrefix(line, key+"=") || strings.HasPrefix(line, key+" ") {
-			return true
-		}
-	}
-	return false
+// activeIniKeyLine reports whether line is an uncommented "key = ..." directive for exactly this key
+func activeIniKeyLine(line, key string) bool {
+	rest, ok := strings.CutPrefix(strings.TrimLeft(line, " \t"), key)
+	return ok && strings.HasPrefix(strings.TrimLeft(rest, " \t"), "=")
 }
 
-// updatePHPConfigFile deletes, updates, or appends each key in keyOrder by shelling out to sed rather than reimplementing the line matching in Go, since a hand-rolled parser could diverge from behavior admins may depend on for hand-edited files
-func updatePHPConfigFile(ctx context.Context, userContext, version string, keyOrder []string, values map[string]string) {
+var iniValueNewlines = strings.NewReplacer("\r", "", "\n", "")
+
+// updatePHPConfigFile deletes, updates, or appends each key in keyOrder, then overwrites the file in place so the bind mount in the php container sees it without a restart
+func updatePHPConfigFile(userContext, version string, keyOrder []string, values map[string]string) error {
 	phpIniFile := "/home/" + userContext + "/php.ini/" + version + ".ini"
+	content, err := os.ReadFile(phpIniFile)
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	lines := strings.Split(string(content), "\n")
 
 	for _, key := range keyOrder {
 		if key == "" {
-			// an empty key would build a delete pattern matching almost every active directive - never act on one
 			continue
 		}
-		value := values[key]
-		exists := keyExistsAndNotCommented(userContext, version, key)
-
-		switch {
-		case value == "":
-			sedCmd := fmt.Sprintf("/^[[:space:]]*%s[[:space:]]*[^;]/d", key)
-			_ = exec.CommandContext(ctx, "sed", "-i", sedCmd, phpIniFile).Run()
-		case exists:
-			safeValue := strings.ReplaceAll(value, "&", `\&`)
-			sedCmd := fmt.Sprintf("s/^[[:space:]]*%s[[:space:]]*=.*/%s = %s/", key, key, safeValue)
-			_ = exec.CommandContext(ctx, "sed", "-i", sedCmd, phpIniFile).Run()
-		default:
-			f, err := os.OpenFile(phpIniFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-			if err == nil {
-				_, _ = f.WriteString(key + " = " + value + "\n")
-				_ = f.Close()
+		value := iniValueNewlines.Replace(values[key])
+		found := false
+		out := make([]string, 0, len(lines)+1)
+		for _, line := range lines {
+			if activeIniKeyLine(line, key) {
+				found = true
+				if value == "" {
+					continue
+				}
+				line = key + " = " + value
 			}
+			out = append(out, line)
 		}
+		if !found && value != "" {
+			// keep the trailing newline at the end of the file
+			if n := len(out); n > 0 && out[n-1] == "" {
+				out = out[:n-1]
+			}
+			out = append(out, key+" = "+value, "")
+		}
+		lines = out
 	}
+
+	return os.WriteFile(phpIniFile, []byte(strings.Join(lines, "\n")), 0o644)
 }
 
 // AvailableTimezones lists the IANA timezones available for the date.timezone option - the Go stdlib has no bundled zone list, so this walks /usr/share/zoneinfo and filters out the non-zone metadata files it also contains
@@ -263,18 +260,24 @@ func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, ver
 		for _, key := range availableKeys {
 			values[key] = r.Form.Get(key)
 		}
-		updatePHPConfigFile(ctx, userContext, version, availableKeys, values)
+		if writeErr := updatePHPConfigFile(userContext, version, availableKeys, values); writeErr != nil {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Could not save PHP %(version)s configuration: %(err_msg)s", "version", version, "err_msg", writeErr.Error()), "/php/php"+version+"/options")
+			return
+		}
 
 		webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
+		isLitespeed := strings.Contains(strings.ToLower(webServer), "litespeed")
 		var phpContainer, text string
-		if strings.Contains(strings.ToLower(webServer), "litespeed") {
+		if isLitespeed {
 			phpContainer, text = webServer, "Litespeed"
 		} else {
 			phpContainer, text = "php-fpm-"+version, "PHP-FPM"
 		}
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "edited PHP "+version+" configuration using PHP Selector", ipAddress)
-		if result := docker.RestartContainer(ctx, userContext, phpContainer); result.Success {
+		if !isLitespeed && signalPHPFPMReload(ctx, userContext, phpContainer) {
+			web.Flash(a, w, r, "success", web.Tr(a, r, "Configuration edited successfully and %(text)s reloaded to apply new settings.", "text", text))
+		} else if result := docker.RestartContainer(ctx, userContext, phpContainer); result.Success {
 			web.Flash(a, w, r, "success", web.Tr(a, r, "Configuration edited successfully and %(text)s service restarted to apply new settings.", "text", text))
 		} else {
 			web.Flash(a, w, r, "error", web.Tr(a, r, "Configuration edited successfully, but %(text)s failed to restart. Try restarting it manually from Services.", "text", text))

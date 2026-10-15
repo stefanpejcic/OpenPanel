@@ -53,6 +53,8 @@
 </svg> {{.T.Get "Scanning..."}}
             </button>
 
+            <button id="stop-scan-btn" type="button" style="display: none;" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 mt-2 w-full sm:w-auto whitespace-nowrap border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 sm:mt-0">{{.T.Get "Stop"}}</button>
+
 
 
         </div>
@@ -152,11 +154,7 @@
         scanResultsPre.scrollTop = scanResultsPre.scrollHeight;
     }
 
-    // The backend emits two lines per file: "Scanning: X" (progress only,
-    // not counted) followed by "X - result" (counted). Only malware/error
-    // results are appended to the persistent results list — scans can cover
-    // tens of thousands of files, so appending every "No malware found" line
-    // would grow the DOM unbounded and hang the tab.
+    // one "X - result" line per file, only malware/error lines go in the list so big scans don't hang the tab
     function handleScanLine(line) {
         if (!line) return;
 
@@ -177,7 +175,7 @@
 
         if (!line.endsWith('No malware found')) {
             appendScanResult(line);
-            if (line.endsWith('Malware detected')) {
+            if (line.includes(' - Malware detected')) {
                 malwareCount++;
             }
         }
@@ -208,6 +206,7 @@
     document.getElementById('start-scan-btn').addEventListener('click', function() {
         document.getElementById('start-scan-btn').style.display = 'none';
         document.getElementById('scanning-btn').style.display = 'inline-flex';
+        document.getElementById('stop-scan-btn').style.display = 'inline-flex';
 
         const selectedDirectory = document.getElementById('directory-select').value;
 
@@ -246,8 +245,16 @@
             })
             .finally(() => {
                 document.getElementById('scanning-btn').style.display = 'none';
+                document.getElementById('stop-scan-btn').style.display = 'none';
                 document.getElementById('start-scan-btn').style.display = '';
             });
+    });
+
+    // reloading drops the streaming request, which cancels the scan server-side; strip ?path so it doesn't auto-start again
+    document.getElementById('stop-scan-btn').addEventListener('click', function() {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('path');
+        window.location.replace(url.toString());
     });
 
 

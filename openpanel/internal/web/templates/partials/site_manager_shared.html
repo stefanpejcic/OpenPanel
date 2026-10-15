@@ -756,6 +756,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             <div class="mt-2 gap-2 sm:mt-0 sm:flex">
                 <button type="button" id="malwareScanBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-100">{{.T.Get "Scan for Malware"}}</button>
+                <button type="button" id="malwareStopBtn" style="display: none;" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 mt-2 gap-x-1.5 whitespace-nowrap border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Stop"}}</button>
             </div>
 
             <div id="malwareScanProgress" class="mt-4" style="display: none;">
@@ -788,6 +789,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const btn = document.getElementById('malwareScanBtn');
     if (!btn) return;
+    const stopBtn = document.getElementById('malwareStopBtn');
+    // reloading drops the streaming request, which cancels the scan server-side
+    stopBtn.addEventListener('click', () => window.location.reload());
 
     // files the scheduled scan already quarantined from this site
     fetch(`/malware-scanner/quarantine/site?directory=${encodeURIComponent(scanDirectory)}`)
@@ -820,20 +824,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     let scannedCount = 0;
     let malwareCount = 0;
 
+    // text nodes since file names come from the site and could contain html
     function appendScanResult(line) {
-        resultsEl.innerHTML += (resultsEl.innerHTML ? '<br>' : '') + line;
+        const div = document.createElement('div');
+        div.textContent = line;
+        resultsEl.appendChild(div);
     }
 
-    // The backend emits two lines per file: "Scanning: X" (progress only,
-    // not counted) followed by "X - result" (counted). Only malware/error
-    // results are appended to the results list — a scan can cover
-    // thousands of files, so appending every "No malware found" line would
-    // grow the DOM unbounded.
+    // one "X - result" line per file, only malware/error lines go in the list so big scans don't hang the tab
     function handleScanLine(line) {
         if (!line) return;
 
-        if (line.startsWith('Scanning: ')) {
-            currentEl.textContent = line;
+        if (line.startsWith('Error: ')) {
+            appendScanResult(i18n.scanFailed + line.slice(7));
             return;
         }
 
@@ -843,7 +846,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!line.endsWith('No malware found')) {
             appendScanResult(line);
-            if (line.endsWith('Malware detected')) {
+            if (line.includes(' - Malware detected')) {
                 malwareCount++;
             }
         }
@@ -856,11 +859,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         scanLineBuffer = '';
         scannedCount = 0;
         malwareCount = 0;
-        resultsEl.innerHTML = '';
+        resultsEl.replaceChildren();
         countEl.textContent = '0';
         currentEl.textContent = '';
         progressEl.style.display = 'block';
         completeEl.style.display = 'none';
+        stopBtn.style.display = 'inline-flex';
 
         fetch(`/start-scan?directory=${encodeURIComponent(scanDirectory)}`)
             .then(response => {
@@ -878,7 +882,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         const summary = `${i18n.scanComplete} ${scannedCount} ${i18n.filesScanned}`;
                         completeEl.textContent = summary;
                         completeEl.style.display = 'block';
-                        if (scannedCount > 0 && resultsEl.innerHTML === '') {
+                        if (scannedCount > 0 && !resultsEl.hasChildNodes()) {
                             appendScanResult(i18n.noMalwareFound);
                         }
                         if (typeof showToast === 'function') {
@@ -903,6 +907,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             .finally(() => {
                 btn.disabled = false;
                 btn.innerHTML = i18n.scanLabel;
+                stopBtn.style.display = 'none';
             });
     });
 })();

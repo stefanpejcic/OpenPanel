@@ -71,7 +71,10 @@ func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 				}
 
 				var message string
-				if docker.ComposeContainer(ctx, userContext, containerToRestart, "status") {
+				isRunning := docker.ComposeContainer(ctx, userContext, containerToRestart, "status")
+				if isRunning && text == "PHP-FPM" && signalPHPFPMReload(ctx, userContext, containerToRestart) {
+					message = web.Tr(a, r, "PHP.INI file for %(text)s version %(version)s edited successfully, and %(container_to_restart)s service reloaded to apply.", "text", text, "version", version, "container_to_restart", containerToRestart)
+				} else if isRunning {
 					message = web.Tr(a, r, "PHP.INI file for %(text)s version %(version)s edited successfully, and %(container_to_restart)s service restarted to apply.", "text", text, "version", version, "container_to_restart", containerToRestart)
 					docker.ComposeContainer(ctx, userContext, containerToRestart, "stop")
 					docker.ComposeContainer(ctx, userContext, containerToRestart, "start")

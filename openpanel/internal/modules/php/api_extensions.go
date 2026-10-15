@@ -119,7 +119,11 @@ func apiPHPExtensionToggle(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	docker.ComposeContainer(ctx, userContext, service, "restart")
+	if isLitespeed {
+		docker.ComposeContainer(ctx, userContext, service, "restart")
+	} else {
+		reloadPHPFPM(ctx, userContext, service)
+	}
 
 	action := "disabled"
 	if enable {
@@ -127,7 +131,7 @@ func apiPHPExtensionToggle(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, action+" PHP extension "+extension+" for PHP "+version, reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, map[string]any{
-		"message":   "Extension " + extension + " " + action + ", PHP " + version + " restarted",
+		"message":   "Extension " + extension + " " + action + ", PHP " + version + " reloaded",
 		"extension": extension, "enabled": enable,
 	})
 }
