@@ -329,6 +329,8 @@ Enter your [OpenPanel Enterprise edition](https://my.openpanel.com/clientarea.ph
 
 For a step-by-step activation process, see the [Upgrading to OpenPanel Enterprise and activating License guide](/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/).
 
+When the license's next due date is 3 days away or less, a warning is shown under the license details: the license gets suspended on that date, so either renew it or remove the license key to downgrade to the Community edition.
+
 ## Contact Support
 
 When reaching out to support, generate a system report to provide detailed information about your setup.
@@ -1532,6 +1534,8 @@ Use **OpenAdmin > Server > Resource Usage** to view it.
 - **Disk** – Disk space usage per mounted volume.
 - **Network** – Network I/O.
 
+A warning is shown above the tabs, and updates live, when CPU, RAM, swap or disk `/` usage is at 90% or more, or when the 5-minute load average is at 90% or more of the number of CPU cores.
+
 ![Resource Usage page with the Load, RAM, CPU, Disk and Network tabs and a live chart of the average load](/img/openadmin-screenshots/advanced/resource-usage-page.png#gh-light-mode-only)
 ![Resource Usage page with the Load, RAM, CPU, Disk and Network tabs and a live chart of the average load](/img/openadmin-screenshots/advanced/resource-usage-page_dark.png#gh-dark-mode-only)
 
@@ -1551,6 +1555,8 @@ Click **View Usage History** to open the historical resource usage page, which c
 **OpenAdmin > Server > Scheduled Actions** lets Administrators view the scheduled cron tasks used by OpenPanel, modify their schedules, or enable/disable logging to the file `/var/log/openpanel-cron.log`.
 
 Each job shows a one-line description of what that command does and a **Learn more** link to its [OpenCLI](/docs/articles/opencli/) docs page.
+
+A warning is shown above the table for any job with an invalid schedule, or a schedule that can never run (for example `59 23 31 2 *`, the 31st of February), since that job is effectively disabled. `opencli docker-backup` is skipped when it uses its default *Disabled* schedule, since admin-configured backups are off by default.
 
 ![Scheduler page listing OpenPanel system jobs with their cron schedule fields and command](/img/openadmin-screenshots/advanced/crons-page.png#gh-light-mode-only)
 ![Scheduler page listing OpenPanel system jobs with their cron schedule fields and command](/img/openadmin-screenshots/advanced/crons-page_dark.png#gh-dark-mode-only)
@@ -1594,6 +1600,8 @@ The Web Terminal is available in **OpenAdmin**, allowing Administrators to manag
 3. Use the dropdown menu or selector to choose your preferred shell type: `sh` or `bash`.
 4. The terminal interface will load, and you can begin typing commands immediately.
 
+Other sessions already open on the server are shown next to the page description: web terminals with the admin, IP and start time, and SSH sessions with the IP they're from. On a user's container terminal, other web terminals open on the same container are shown.
+
 ![Web Terminal with a root shell on the server and the shell dropdown](/img/openadmin-screenshots/advanced/terminal-page.png#gh-light-mode-only)
 ![Web Terminal with a root shell on the server and the shell dropdown](/img/openadmin-screenshots/advanced/terminal-page_dark.png#gh-dark-mode-only)
 
@@ -1625,6 +1633,13 @@ The process table includes the following details:
 
 Use this tool to identify resource-heavy or suspicious processes, manage system load, or terminate unresponsive services.
 
+Processes using 90% or more CPU, or 20% or more RAM, are listed above the table:
+
+- for a process in an OpenPanel user's container (owned by the user, or by a UID in their range in `/etc/subuid`), it links to the user and recommends checking their container limits for a misconfiguration or their sites for unusual traffic.
+- for a system process, it links to trace the process to see what it's doing, or recommends restarting its service.
+
+CPU usage is measured between page loads, so a process using a lot of CPU is listed from the second time the page is opened.
+
 ## Bulk Actions
 
 Tick the checkbox of one or more processes, or the checkbox in the table header to select all processes shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
@@ -1651,7 +1666,7 @@ Click an action, confirm it, and it runs on the selected processes one after ano
 There are two mutually exclusive modes, controlled entirely by the schedule of the `opencli docker-backup` [System Cron Job](/docs/admin/advanced/crons/):
 
 - **User Configured** (default) — each user manages their own backup from their own account, when the Backups module is enabled for them. Nothing runs centrally; the cron entry is set to a disabled placeholder schedule.
-- **Admin Configured** — the Administrator runs backups for *every* user centrally, on one schedule, via `opencli docker-backup`. Users can no longer view or change their own backup destination or settings in the panel — they can still list existing backups and restore from them, but where and how backups are stored is entirely up to the Administrator.
+- **Admin Configured** — the Administrator runs backups for *every* user centrally, on one schedule, via `opencli docker-backup`. Users can no longer view or change their own backup destination or settings in the panel — they can still list existing backups and restore from them (their **Backups** page opens the Restore & Download page directly), but where and how backups are stored is entirely up to the Administrator.
 
 See the [Configuring OpenPanel Backups](/docs/articles/backups/configuring-backups/) article for the fuller comparison between the two approaches.
 
@@ -1795,7 +1810,7 @@ The table shows these columns by default:
 | Column          | Description                                                                 |
 |-----------------|-----------------------------------------------------------------------------|
 | **Domain**      | The domain name.                                                            |
-| **Status**      | Whether the domain is **Active** or **Suspended**.                          |
+| **Status**      | **Active**, or **Suspended by admin** / **Suspended by user** with the [suspension reason](#suspend-a-domain) below it. Hover over the badge to see the comment. |
 | **PHP version** | The PHP version configured for the domain. Hover over it and click the pencil icon to change it. |
 | **Webserver**   | The webserver of the account that owns the domain (Apache, Nginx, OpenResty or OpenLiteSpeed). |
 | **SSL**         | Whether the domain has an SSL certificate.                                  |
@@ -1810,6 +1825,7 @@ Click **Show Columns** to show or hide columns. These optional columns are hidde
 | **ID**                                    | The internal ID of the domain.                                 |
 | **Docroot**                               | The document root directory of the domain.                     |
 | **HTTP Strict Transport Security (HSTS)** | Toggle to enable or disable HSTS for the domain, like WAF.     |
+| **Rate limit**                            | **Default**, **Custom** or **Off**, click it to open [Rate Limiting](/docs/admin/domains/ratelimit). |
 
 Any default column except Actions can be hidden the same way. Column visibility is remembered for your browser.
 
@@ -1843,17 +1859,17 @@ my.openpanel.com
 
 Tick the checkbox of one or more domains, or the checkbox in the table header to select all domains shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
-![Two domains selected with the bulk actions bar offering Change PHP version, Enable HSTS, Disable HSTS, Enable WAF, Disable WAF, Suspend, Unsuspend and Delete](/img/openadmin-screenshots/domains/domains-bulk.png#gh-light-mode-only)
-![Two domains selected with the bulk actions bar offering Change PHP version, Enable HSTS, Disable HSTS, Enable WAF, Disable WAF, Suspend, Unsuspend and Delete](/img/openadmin-screenshots/domains/domains-bulk_dark.png#gh-dark-mode-only)
+![Two domains selected with the bulk actions bar offering Change PHP version, HSTS, WAF, Rate limit, Cloudflare, Suspend, Unsuspend and Delete](/img/openadmin-screenshots/domains/domains-bulk.png#gh-light-mode-only)
+![Two domains selected with the bulk actions bar offering Change PHP version, HSTS, WAF, Rate limit, Cloudflare, Suspend, Unsuspend and Delete](/img/openadmin-screenshots/domains/domains-bulk_dark.png#gh-dark-mode-only)
 
 | Action | What it does |
 |---|---|
 | **Change PHP version** | Sets the PHP version you pick from the versions installed for the domains' owners. A domain whose owner doesn't have that version is skipped with an error. |
-| **Enable HSTS** | Turns on HSTS for the selected domains. |
-| **Disable HSTS** | Turns off HSTS for the selected domains. |
-| **Enable WAF** | Turns on the CorazaWAF for the selected domains. |
-| **Disable WAF** | Turns off the CorazaWAF for the selected domains. |
-| **Suspend** | Suspends the selected domains. |
+| **HSTS** | Turns HSTS on or off for the selected domains. |
+| **WAF** | Turns the CorazaWAF on or off for the selected domains. |
+| **Rate limit** | Puts the selected domains on the server default [rate limit](/docs/admin/domains/ratelimit), or removes their limits. Custom limits are set on the Rate Limiting page. |
+| **Cloudflare** | Restricts the selected domains to Cloudflare, or removes the restriction. Restricted domains that aren't proxied through Cloudflare return 403 to visitors. |
+| **Suspend** | Suspends the selected domains with the [reason](#suspend-a-domain) you pick. Users can't unsuspend or change them. |
 | **Unsuspend** | Unsuspends the selected domains. |
 | **Delete** | Deletes the selected domains with their DNS zones, SSL and web server configuration, the files are kept. |
 
@@ -1949,7 +1965,7 @@ Click **Adding just one domain?** to go back to the single domain form.
 Each row in the Domains table has an actions menu (the `⋮` button) with the following options:
 
 - **Edit DNS Zone** — opens the [DNS Zone Editor](/docs/admin/domains/dns) for this domain. Only shown if the **dns** module is enabled.
-- **Suspend domain** / **Unsuspend domain** — toggles the domain's status.
+- **Suspend domain** / **Unsuspend domain** — suspends the domain with a reason, see [Suspend a domain](#suspend-a-domain) below, or unsuspends it.
 - **Manage SSL** — opens the SSL page for the domain. Not shown for suspended domains.
 - **Edit Virtual Host** — opens the VirtualHost config editor for the domain.
 - **Edit Apache Config** — opens the webserver configuration file of the domain owner (the label follows the owner's webserver).
@@ -1958,6 +1974,29 @@ Each row in the Domains table has an actions menu (the `⋮` button) with the fo
 
 ![Actions menu of a domain with Edit DNS Zone, Manage SSL, Edit Virtual Host, Edit Apache Config, Edit Caddyfile, Suspend domain and Delete domain](/img/openadmin-screenshots/domains/domains-actions.png#gh-light-mode-only)
 ![Actions menu of a domain with Edit DNS Zone, Manage SSL, Edit Virtual Host, Edit Apache Config, Edit Caddyfile, Suspend domain and Delete domain](/img/openadmin-screenshots/domains/domains-actions_dark.png#gh-dark-mode-only)
+
+## Suspend a domain
+
+Suspending a domain replaces its website with a suspended page, email and other services keep working. To suspend a domain:
+
+1. Open the domain's actions menu (`⋮`) and click **Suspend domain**.
+2. Pick a **Reason**. **Default suspended page** shows the [Suspended Website](/docs/admin/domains/file_templates/#suspended-website) page, the other options are the [suspension reasons](/docs/admin/domains/file_templates/#suspension-reasons) from **Domains > Domain Templates**, such as *Copyright / DMCA Violation* or *Overdue Payment / Billing*.
+3. Optionally enter a **Comment**, for example a ticket number. The user sees it in OpenPanel.
+4. Click **Suspend**.
+
+![Suspend Domain dialog with the Reason dropdown, an optional comment for the user and the Suspend button](/img/openadmin-screenshots/domains/domains-suspend.png#gh-light-mode-only)
+![Suspend Domain dialog with the Reason dropdown, an optional comment for the user and the Suspend button](/img/openadmin-screenshots/domains/domains-suspend_dark.png#gh-dark-mode-only)
+
+The Status column then shows **Suspended by admin** with the reason below it:
+
+![Domains list with one domain marked Suspended by admin and its reason Copyright / DMCA Violation below the badge](/img/openadmin-screenshots/domains/domains-suspended.png#gh-light-mode-only)
+![Domains list with one domain marked Suspended by admin and its reason Copyright / DMCA Violation below the badge](/img/openadmin-screenshots/domains/domains-suspended_dark.png#gh-dark-mode-only)
+
+A domain suspended by an Administrator is locked for the user. In OpenPanel the user sees **Suspended by Admin** and the reason, and can't unsuspend, delete or edit the domain: changing its docroot, VirtualHost, redirect, SSL, Cloudflare setting or DNS zone is refused, from the panel and from the API, until an Administrator unsuspends it. Users can still suspend and unsuspend their own domains, these show as **Suspended by user**. Suspending a domain the user already suspended turns it into an admin suspension.
+
+To unsuspend, open the actions menu and click **Unsuspend domain**. The domain's original configuration is put back.
+
+From the terminal, use [`opencli domains-suspend`](/docs/articles/opencli/domains/#suspend) with `--by=admin`, `--template=<reason>` and `--comment="..."`, and `opencli domains-unsuspend <domain> --by=admin`. Without `--by=admin` the suspension counts as the user's own.
 
 ## Move domain
 
@@ -2080,6 +2119,82 @@ Click **Disable DNS Clustering** to turn off the feature.
 
 ---
 
+// File: admin/domains/ratelimit
+
+# Rate Limiting
+
+Limit how many requests per minute a single visitor and a whole domain can make, so one busy site or bot can't slow down the server.
+
+Use **OpenAdmin > Domains > Rate Limiting** to access it.
+
+Requests above a limit get HTTP `429 Too Many Requests` until the minute passes. There are two limits:
+
+- **Per IP**: requests per minute from one visitor. This stops scrapers, bots and single attackers.
+- **Per domain**: requests per minute for the whole domain, from all visitors together. This caps how much of the server one domain can use.
+
+`0` turns a limit off. Visitors behind Cloudflare are counted by their real IP address, not by Cloudflare's.
+
+## Server Default
+
+Click **Server Default** to set the limits used by every domain set to **Default**. New installations start with 300 requests per minute per IP and 6000 per domain. On servers updated from an older version, rate limiting stays off until you set a default.
+
+![Server Default form open with the requests per minute per visitor IP and per domain and the Save default button](/img/openadmin-screenshots/domains/ratelimit-default.png#gh-light-mode-only)
+![Server Default form open with the requests per minute per visitor IP and per domain and the Save default button](/img/openadmin-screenshots/domains/ratelimit-default_dark.png#gh-dark-mode-only)
+
+## Domains Table
+
+
+![Rate Limiting page with the current server default, the Server Default button and each domain's setting, limits and usage over the last 24 hours](/img/openadmin-screenshots/domains/ratelimit-list.png#gh-light-mode-only)
+![Rate Limiting page with the current server default, the Server Default button and each domain's setting, limits and usage over the last 24 hours](/img/openadmin-screenshots/domains/ratelimit-list_dark.png#gh-dark-mode-only)
+Each domain shows its setting (**Default**, **Custom** or **Off**), the limits that apply to it, and its usage over the last 24 hours:
+
+- **Requests**: all requests to the domain.
+- **Peak/min per IP**: the most requests a single IP made in one minute. Compare it to the **Per IP** limit.
+- **Peak/min domain**: the busiest minute for the whole domain. Compare it to the **Per domain** limit.
+- **Blocked (429)**: requests answered with 429.
+
+A peak turns yellow when it came within 20% of its limit, and red when it went over it, which means visitors were blocked. If real visitors are hitting the limit, raise it for that domain.
+
+Usage is read from the domain's access logs and refreshed every 5 minutes, click **Refresh** to read it again.
+
+## Change a Domain
+
+
+![Rate limit window of a domain with Server default, Custom limits and No limits, its usage over the last 24 hours and the most blocked IP addresses](/img/openadmin-screenshots/domains/ratelimit-edit.png#gh-light-mode-only)
+![Rate limit window of a domain with Server default, Custom limits and No limits, its usage over the last 24 hours and the most blocked IP addresses](/img/openadmin-screenshots/domains/ratelimit-edit_dark.png#gh-dark-mode-only)
+Click **Edit** on a domain and pick:
+
+- **Server default**: use the limits from **Server Default**.
+- **Custom limits**: set this domain's own limits per IP and per domain.
+- **No limits**: turn rate limiting off for this domain.
+
+The window also shows the domain's usage and the IP addresses that were blocked most often. A scraper or attacker can be blocked completely in the [firewall](/docs/admin/security/firewall).
+
+## Bulk Actions
+
+Tick the checkbox of one or more domains, or the one in the table header to select all shown, and use **Use server default**, **Custom limits** or **No limits** in the bar at the bottom. All selected domains are changed with a single Caddy reload.
+
+![Two domains selected with the bulk actions bar offering Use server default, Custom limits and No limits](/img/openadmin-screenshots/domains/ratelimit-bulk.png#gh-light-mode-only)
+![Two domains selected with the bulk actions bar offering Use server default, Custom limits and No limits](/img/openadmin-screenshots/domains/ratelimit-bulk_dark.png#gh-dark-mode-only)
+
+**Custom limits** takes both limits as `per IP/per domain`, for example `600/20000`:
+
+![Custom limits step of the bulk actions bar with 600 requests per minute per IP and 20000 per domain entered](/img/openadmin-screenshots/domains/ratelimit-bulk-custom.png#gh-light-mode-only)
+![Custom limits step of the bulk actions bar with 600 requests per minute per IP and 20000 per domain entered](/img/openadmin-screenshots/domains/ratelimit-bulk-custom_dark.png#gh-dark-mode-only)
+
+## From the Terminal
+
+```bash
+opencli domains-ratelimit                                  # show the server default and every domain
+opencli domains-ratelimit default 300 6000                 # set the server default
+opencli domains-ratelimit example.com 600 20000            # custom limits for a domain
+opencli domains-ratelimit --user john default              # all of a user's domains back to the default
+opencli domains-ratelimit --all off                        # no limits on any domain
+opencli domains-ratelimit stats                            # usage over the last 24 hours
+```
+
+---
+
 // File: admin/domains/dns_templates
 
 # Edit Zone Templates
@@ -2132,16 +2247,14 @@ To reset a template to its default version:
 
 # Edit Domain Templates
 
-This interface allows you to edit the VirtualHosts templates and default landing pages used for new domains.
+**Domains > Domain Templates** holds the HTML pages visitors see on domains without a website and on suspended domains and accounts:
 
-- Default Page: Template displayed on new domains without any content.
-- Suspended Website: Template displayed on websites (domains) that user suspends.
-- Suspended User: Template displayed on all websites (domains) that suspended user owns.
-- Apache VirtualHost: Template used for creating VirtualHosts of domains added by users with Apache webserver.
-- Nginx VirtualHost: Template used for creating VirtualHosts of domains added by users with Nginx webserver.
-- OpenResty VirtualHost: Template used for creating VirtualHosts of domains added by users with OpenResty webserver.
-- Varnish Template: The `default.vcl` template applied to Varnish instances created for new user accounts.
-- Caddy VHosts: The template applied to all newly added domains for the front-facing Caddy webserver.
+- **Default Page**: shown on new domains without any content.
+- **Suspended Website**: shown on domains the user suspends, and on domains an Administrator suspends without picking a reason.
+- **Suspension Reasons**: pages an Administrator can pick when suspending a domain, such as DMCA or overdue payment.
+- **Suspended User**: shown on all domains of a suspended account.
+
+The webserver, Varnish and Caddy configuration templates are on the [VirtualHost Templates](/docs/admin/domains/vhost_templates/) tab.
 
 ## Default Page
 
@@ -2180,7 +2293,7 @@ To revert to the original template:
 
 ## Suspended Website
 
-This is the HTML page shown on all domains that users suspend **manually**.
+This is the HTML page shown on domains that users suspend **manually**, and on domains an Administrator suspends with the **Default suspended page** reason.
 
 ![Suspended Website template editor with a live preview](/img/openadmin-screenshots/domains/file_templates-suspended-website.png#gh-light-mode-only)
 ![Suspended Website template editor with a live preview](/img/openadmin-screenshots/domains/file_templates-suspended-website_dark.png#gh-dark-mode-only)
@@ -2214,6 +2327,36 @@ To revert to the original template:
 2. Don’t forget to click **Save Files** afterward to confirm the reset.
 
 
+
+## Suspension Reasons
+
+Suspension reasons are pages an Administrator can pick when [suspending a domain](/docs/admin/domains/domains/#suspend-a-domain). Visitors of the suspended domain see the reason's page, and the user sees the reason's name next to the domain in OpenPanel.
+
+![Suspension Reasons with the Copyright / DMCA Violation reason open showing its name, Delete button, HTML and live preview, and the Add suspension reason row](/img/openadmin-screenshots/domains/file_templates-suspension-reasons.png#gh-light-mode-only)
+![Suspension Reasons with the Copyright / DMCA Violation reason open showing its name, Delete button, HTML and live preview, and the Add suspension reason row](/img/openadmin-screenshots/domains/file_templates-suspension-reasons_dark.png#gh-dark-mode-only)
+
+OpenPanel comes with three reasons:
+
+| Reason | File |
+|---|---|
+| Copyright / DMCA Violation | `/etc/openpanel/caddy/templates/suspended/dmca.html` |
+| Overdue Payment / Billing | `/etc/openpanel/caddy/templates/suspended/billing.html` |
+| Phishing / Security Violation | `/etc/openpanel/caddy/templates/suspended/phishing.html` |
+
+Click a reason to open it, then change its **Name** or HTML and click **Save Files**. The preview on the right updates as you type. The name is saved in the first line of the file as `<!-- name: ... -->`, renaming a reason keeps its file, so domains already suspended with it keep their page.
+
+To add a reason:
+
+1. Click **+ Add suspension reason**.
+2. Enter a **Name**, for example *Spam / Abuse Complaint*. The file name is made from it, so this one is saved as `spam-abuse-complaint.html`.
+3. Paste the HTML of the page, or leave it empty to start from a copy of the Suspended Website page.
+4. Click **Save Files**.
+
+To remove a reason, open it and click **Delete**. A reason can't be deleted while any domain is suspended with it, the error lists those domains so you can unsuspend them or suspend them with another reason first.
+
+:::info
+Servers updated from an older version get the three default reasons with the 2.0.16 update, only when the file isn't there yet, so reasons you already edited are kept.
+:::
 
 ## Suspended User
 
@@ -2250,13 +2393,32 @@ To revert to the original template:
 1. Click **Restore Default** to reload the version from GitHub.
 2. Don’t forget to click **Save Files** afterward to confirm the reset.
 
+---
+
+// File: admin/domains/vhost_templates
+
+# Edit VirtualHost Templates
+
+**Domains > VirtualHost Templates** holds the configuration templates used when a domain is added:
+
+- **Apache VirtualHost**: VirtualHost of domains added by users with the Apache webserver.
+- **Nginx VirtualHost**: VirtualHost of domains added by users with the Nginx webserver.
+- **OpenResty VirtualHost**: VirtualHost of domains added by users with the OpenResty webserver.
+- **Varnish Template**: the `default.vcl` applied to Varnish instances created for new user accounts.
+- **Caddy VHosts**: the template applied to all newly added domains for the front-facing Caddy webserver.
+
+Changes apply only to domains added after you save, existing domains keep their configuration.
+
+These templates have no live preview, so when any of them is changed from its default a warning is shown under the editor: editing them is recommended for advanced users only, and after changing one you should test that everything still works by adding a new user and domain.
+
+The default page and the pages shown on suspended domains and accounts are on the [Domain Templates](/docs/admin/domains/file_templates/) tab.
 
 ## Apache VirtualHost
 
 This is the template used for creating VirtualHosts of domains added by users **when using the Apache webserver**.
 
-![Apache VirtualHost template editor](/img/openadmin-screenshots/domains/file_templates-apache.png#gh-light-mode-only)
-![Apache VirtualHost template editor](/img/openadmin-screenshots/domains/file_templates-apache_dark.png#gh-dark-mode-only)
+![Apache VirtualHost template editor](/img/openadmin-screenshots/domains/vhost_templates-apache.png#gh-light-mode-only)
+![Apache VirtualHost template editor](/img/openadmin-screenshots/domains/vhost_templates-apache_dark.png#gh-dark-mode-only)
 
 ```bash
 <VirtualHost *:80>
@@ -2334,8 +2496,8 @@ To revert to the original Apache template:
 
 This is the template used for creating VirtualHosts of domains added by users **when using the Nginx webserver**.
 
-![Nginx VirtualHost template editor](/img/openadmin-screenshots/domains/file_templates-nginx.png#gh-light-mode-only)
-![Nginx VirtualHost template editor](/img/openadmin-screenshots/domains/file_templates-nginx_dark.png#gh-dark-mode-only)
+![Nginx VirtualHost template editor](/img/openadmin-screenshots/domains/vhost_templates-nginx.png#gh-light-mode-only)
+![Nginx VirtualHost template editor](/img/openadmin-screenshots/domains/vhost_templates-nginx_dark.png#gh-dark-mode-only)
 
 ```bash
 # content
@@ -2459,8 +2621,8 @@ To revert to the original Nginx template:
 
 This is the template used for creating VirtualHosts of domains added by users **when using the OpenResty webserver**.
 
-![OpenResty VirtualHost template editor](/img/openadmin-screenshots/domains/file_templates-openresty.png#gh-light-mode-only)
-![OpenResty VirtualHost template editor](/img/openadmin-screenshots/domains/file_templates-openresty_dark.png#gh-dark-mode-only)
+![OpenResty VirtualHost template editor](/img/openadmin-screenshots/domains/vhost_templates-openresty.png#gh-light-mode-only)
+![OpenResty VirtualHost template editor](/img/openadmin-screenshots/domains/vhost_templates-openresty_dark.png#gh-dark-mode-only)
 
 ```bash
 # content
@@ -2595,8 +2757,8 @@ To revert to the original OpenResty template:
 
 This is the template used for creating `default.vcl` file for users **when using the Varnish Caching**.
 
-![Varnish template editor](/img/openadmin-screenshots/domains/file_templates-varnish.png#gh-light-mode-only)
-![Varnish template editor](/img/openadmin-screenshots/domains/file_templates-varnish_dark.png#gh-dark-mode-only)
+![Varnish template editor](/img/openadmin-screenshots/domains/vhost_templates-varnish.png#gh-light-mode-only)
+![Varnish template editor](/img/openadmin-screenshots/domains/vhost_templates-varnish_dark.png#gh-dark-mode-only)
 
 The placeholder `VARNISH_BACKEND_HOST` is automatically replaced with the user's actual web server - Nginx, Apache, or OpenResty. 
 
@@ -2845,6 +3007,9 @@ This is the template applied to **all** newly added domains for the front-facing
 
 The variables `<DOMAIN_NAME>`, `<SSL_PORT>`, and `<NON_SSL_PORT>` are automatically replaced by OpenPanel during domain creation. Do not modify the comments in the file, as they are used as markers for Dedicated IP and Varnish Caching.
 
+![Caddy VHosts template editor](/img/openadmin-screenshots/domains/vhost_templates-caddy.png#gh-light-mode-only)
+![Caddy VHosts template editor](/img/openadmin-screenshots/domains/vhost_templates-caddy_dark.png#gh-dark-mode-only)
+
 ```bash
 # HTTP block (port 80) - Handles HTTP traffic
 http://<DOMAIN_NAME>, http://www.<DOMAIN_NAME> {
@@ -3063,6 +3228,8 @@ Emails are only available on [OpenPanel Enterprise edition](/enterprise)
 
 The status of the Mail Server service is displayed at the top of the page, where administrators can start, stop, or restart the service as needed.
 
+If the mail server is running but the Emails module is disabled, a warning links to [Modules](/docs/admin/settings/modules), since users can't manage email in OpenPanel until it's enabled.
+
 ![MailServer Status section with the running status and the Start, Restart and Stop buttons](/img/openadmin-screenshots/emails/settings-status.png#gh-light-mode-only)
 ![MailServer Status section with the running status and the Start, Restart and Stop buttons](/img/openadmin-screenshots/emails/settings-status_dark.png#gh-dark-mode-only)
 
@@ -3080,6 +3247,8 @@ Displays the total number of email accounts currently active on the server. This
 - Current Software - displays current selected client
 - Select Webmail Client - Choose the webmail client your users will interact with. The service will be restarted to apply any changes made.
 - Set Webmail domain - Configure domain to be used for webmail service. Webmail will be available on this domain and /webmail on every user domain will redirect to this domain.
+
+If webmail isn't running but email accounts exist, a warning links to [Service Status](/docs/admin/services/status) to start it, since users can't read their mail in the browser until then.
 
 ![Webmail section with the webmail status, client dropdown and webmail domain](/img/openadmin-screenshots/emails/settings-webmail.png#gh-light-mode-only)
 ![Webmail section with the webmail status, client dropdown and webmail domain](/img/openadmin-screenshots/emails/settings-webmail_dark.png#gh-dark-mode-only)
@@ -3127,6 +3296,12 @@ Configure services for the MailServer stack:
 
 Changes to this service will interrupt current email traffic and restart the mailserver.
 
+A warning is shown as you toggle the services:
+
+- **Postfwd** off: the hourly email limits set on plans and in [Domain Limits](/docs/admin/emails/domain-limits) aren't enforced, so domains and users can send any number of emails.
+- **Only SMTP** on: receiving email won't work, since IMAP and POP3 are disabled.
+- **Rspamd**, **Amavis** and **ClamAV** all off: incoming mail isn't checked for spam or viruses, so enabling at least one of them is recommended.
+
 ## Relay Hosts
 
 The **Relay Hosts** feature allows you to configure an SMTP relay service (also known as a relay host or smarthost) for relaying (forwarding) outbound email on behalf of third parties. This service does not manage mail domains but helps in routing emails through an external SMTP server.
@@ -3163,6 +3338,69 @@ When both **RELAY_USER** and **RELAY_PASSWORD** are configured, all outbound mai
 Once configured, click the **Save Relay** button to apply the settings and begin routing outbound emails through the specified relay host.
 
 See also: [Port 25 blocked? Use an SMTP relay](/docs/articles/email/port-25-blocked-smtp-relay/) · [Why emails go to spam](/docs/articles/email/why-emails-go-to-spam/)
+
+---
+
+// File: admin/emails/domain-limits
+
+# Domain Limits
+
+Set how many emails each domain can send per hour.
+
+Use **OpenAdmin > Emails > Domain Limits** to access it.
+
+Every domain gets the hourly email limit of its owner's plan. The limits are enforced by Postfwd, so it has to be enabled in [Emails > Settings](/docs/admin/emails/settings). A domain without a rule can send any number of emails.
+
+## Domains Table
+
+Each row is one domain with its owner, the emails sent this hour, its hourly limit and the Postfwd rule ID. Search by domain or user, filter by owner, and click a column name to sort by it.
+
+![Domain Limits page with the emails sent this hour against the hourly limit of each domain, its owner and Postfwd rule](/img/openadmin-screenshots/emails/domain-limits-list.png#gh-light-mode-only)
+![Domain Limits page with the emails sent this hour against the hourly limit of each domain, its owner and Postfwd rule](/img/openadmin-screenshots/emails/domain-limits-list_dark.png#gh-dark-mode-only)
+
+The bar next to **Sent this hour** turns yellow at 80% of the limit and red once it's reached. The count comes from Postfwd and is shared by all domains of the same user.
+
+When a domain hits its limit, a **Limit hit** label appears. Click it to show the last lines from the mail log where Postfwd rejected that domain's emails.
+
+## Change a Limit
+
+- **Edit**: set a custom hourly limit for one domain, then click **Save**.
+- **Restore**: set the domain's limit from its owner's plan again.
+- **Remove**: delete the domain's rule. Click it a second time to confirm.
+
+## Bulk Actions
+
+
+![Two domains selected with the bulk actions bar offering Set limit, Restore from plan and Remove rules](/img/openadmin-screenshots/emails/domain-limits-bulk.png#gh-light-mode-only)
+![Two domains selected with the bulk actions bar offering Set limit, Restore from plan and Remove rules](/img/openadmin-screenshots/emails/domain-limits-bulk_dark.png#gh-dark-mode-only)
+Tick the checkbox of one or more domains, or the one in the table header to select all shown. A bar appears at the bottom of the page with:
+
+| Action | What it does |
+|---|---|
+| **Set limit** | Sets the hourly limit you enter on the selected domains. A domain without a rule is skipped, restore it from the plan first. |
+| **Restore from plan** | Sets the limit of the selected domains from their owner's plan again. |
+| **Remove rules** | Deletes the rules of the selected domains, they can send any number of emails until restored. |
+
+![Set limit step of the bulk actions bar with 250 emails per hour entered for two selected domains](/img/openadmin-screenshots/emails/domain-limits-bulk-limit.png#gh-light-mode-only)
+![Set limit step of the bulk actions bar with 250 emails per hour entered for two selected domains](/img/openadmin-screenshots/emails/domain-limits-bulk-limit_dark.png#gh-dark-mode-only)
+
+Postfwd is reloaded once after the whole selection is changed.
+
+## Restore from Plan
+
+Click **Restore from plan**, pick **All users** or one user, and click **Restore**. Every domain of the selection gets the limit from its owner's plan again, and custom limits are replaced.
+
+![Restore from plan section with All users or one user to restore the hourly limits for](/img/openadmin-screenshots/emails/domain-limits-restore.png#gh-light-mode-only)
+![Restore from plan section with All users or one user to restore the hourly limits for](/img/openadmin-screenshots/emails/domain-limits-restore_dark.png#gh-dark-mode-only)
+
+Use it after changing the hourly email limit of a plan, or to create the rules when the table is empty.
+
+## Remove Rules
+
+Click **Remove rules**, pick **All users** or one user, and click **Remove** twice to confirm. Those domains can send any number of emails until their rules are restored from their plan.
+
+![Remove rules section with All users or one user and the Remove button](/img/openadmin-screenshots/emails/domain-limits-remove.png#gh-light-mode-only)
+![Remove rules section with All users or one user and the Remove button](/img/openadmin-screenshots/emails/domain-limits-remove_dark.png#gh-dark-mode-only)
 
 ---
 
@@ -3266,15 +3504,15 @@ To create a new hosting package, click the **'Create New'** button and configure
 * **Description** – Optional plan description. It is visible to users on their Server Information page, not just to admins.
 * **Disk** – Disk space in GB to allocate for user services, files and logs. Use `0` for unlimited.
 * **Inodes** – Total number of files to allow the user on this plan. Use `0` for unlimited.
-* **CPU cores** – Limits the total CPU (cores) used by all of the user's running services combined. Set to `0` for unlimited.
-* **Memory** – Limits the total memory (in GB) used by all of the user's running services combined. Set to `0` for unlimited.
+* **CPU cores** – Limits the total CPU (cores) used by all of the user's running services combined. Set to `0` for unlimited, the user can then use all cores but 2.
+* **Memory** – Limits the total memory (in GB) used by all of the user's running services combined, swap isn't used. Set to `0` for unlimited, the user is then slowed down above 80% of the server's RAM and stopped at 90%. The process limit follows the memory limit.
 * **Port Speed** – Bandwidth (port speed) limit, in Mbit/s, for the user's services.
 * **Domains** – Total number of domains: primary, addons, aliases. Subdomains are excluded.
 * **Websites** – Max number of websites the user can install/manage on this plan. Includes WordPress, NodeJS, Python and Website Builder. Use `0` for unlimited.
 * **Databases** – Max number of MySQL and PostgreSQL databases the user can have on this plan. The limit applies separately to each engine (e.g. a value of `10` allows up to 10 MySQL databases *and* up to 10 PostgreSQL databases). Use `0` for unlimited.
 * **Email Accounts** – Max number of email accounts the user can create and manage on this plan. Use `0` for unlimited.
 * **Mailbox quota** – Max mailbox size for email accounts that user can set on this plan. Examples: `100k`, `250M`, `3G`, `1T`, or `0` for unlimited.
-* **Max hourly emails** – Max number of emails that all addresses under this account can send within one hour. Use `0` for unlimited.
+* **Max hourly emails** – Max number of emails that all addresses under this account can send within one hour. Use `0` for unlimited. The limit of each domain can be changed in [Emails > Domain Limits](/docs/admin/emails/domain-limits).
 * **FTP Accounts** – Max number of FTP accounts the user can create and manage on this plan. Use `0` for unlimited.
 * **Feature set** – Feature set that determines which features users on this plan have access to.
 
@@ -3594,8 +3832,10 @@ The Overview tab shows the state of the firewall at a glance:
 
 Pick **Enabled** or **Disabled** and click **Save** next to the dropdown.
 
-- **Enabled** runs `opencli waf enable`: it downloads the rules and app profiles, enables [the WAF module](/docs/admin/settings/modules/#waf) so users can manage the firewall, turns the firewall on for every domain and restarts the web server with the Coraza image. New domains get the firewall automatically.
+- **Enabled** runs `opencli waf enable`: it downloads the rules and app profiles, enables [the WAF module](/docs/admin/settings/modules/#waf) so users can manage the firewall, turns the firewall on for every domain (except domains of users turned off with [`opencli waf user USERNAME disable`](/docs/articles/opencli/waf/#user)) and restarts the web server with the Coraza image. New domains get the firewall automatically.
 - **Disabled** runs `opencli waf disable -y`: it disables the WAF module and turns the firewall off on all existing and new domains.
+
+While **Disabled** is selected, a recommendation to enable it is shown, since the WAF blocks common attacks like SQL injection and XSS before they reach user sites.
 
 ### OWASP Core Rule Set
 
@@ -3618,6 +3858,8 @@ The table lists WordPress, Drupal, Nextcloud, DokuWiki, phpBB, XenForo and phpMy
 - **Status** – **Installed**, or **Missing** when the plugin wasn't downloaded.
 - **Domains using it** – how many domains have the profile turned on.
 - **Re-download** (or **Download** for a missing one) – downloads the plugin again, for example when its files were changed or deleted. If the download fails, the old copy is kept, so domains using the profile keep working.
+
+When any profile is missing, a recommendation to install them is shown above the table.
 
 **Download missing profiles** downloads every profile that isn't installed yet.
 
@@ -3832,6 +4074,8 @@ To enable Basic Auth, select **Yes** under **Enable** and click **Save settings*
 
 To disable Basic Auth, select **No** under **Enable** and click **Save settings**.
 
+While Basic Auth is off and the OpenAdmin port is open to everyone in the [firewall](/docs/admin/security/firewall) (listed in CSF's `TCP_IN`, or there's no CSF), enabling it is recommended as an extra login step in front of OpenAdmin.
+
 ## Logins
 
 When Basic Auth is enabled, a username and password are required.
@@ -4016,6 +4260,22 @@ To update limits, enter new values in the fields for the appropriate service.
 
 This list reflects the CPU/RAM entries currently present in `/root/.env` — the page is built dynamically from that file, so any additional `*_CPU`/`*_RAM` (or `*_CPUS`/`*_RAM`) pairs added there will also appear as editable services.
 
+### Recommendations
+
+Under each limit a recommendation is shown when the value is below the recommended minimum or above the recommended maximum, based on the server's CPU and RAM, the enabled modules and the number of users and domains. `0` means unlimited and never shows a recommendation. CPU is in cores, RAM in GB.
+
+| Service | Recommended |
+|---|---|
+| **openpanel** | at least 2 on servers with over 4 GB RAM, otherwise at least 1 |
+| **caddy** | at least 1 per 20 domains so SSL certificates can be issued and renewed, or a third of the server's RAM/CPU on servers under 10 GB RAM. No more than 8 GB RAM and 6 CPU |
+| **mysql** | 0.5 per 10 users, no more than a third of the openpanel container's limit |
+| **bind9** | at least 0.1, only when the DNS module is enabled |
+| **clamav** | 4 (2 is the minimum), no more than 6, only when the malware scanner module is enabled |
+| **ftp** | 0.5 plus 0.1 per 10 users, no more than 3 GB RAM and 2 CPU, only when the FTP module is enabled |
+| **phpmyadmin** | at least 2 CPU, and RAM of at least 1 GB or more to fit `PHPMYADMIN_MEMORY_LIMIT` and `PHPMYADMIN_UPLOAD_LIMIT`, only when the phpMyAdmin module is enabled |
+
+`CLAMD_STARTUP_DELAY` is recommended between 30 and 600 seconds, since ClamAV downloads its malware signature database on startup.
+
 ---
 
 To edit limits via the terminal, modify the `/root/.env` file directly.
@@ -4117,8 +4377,8 @@ FTP management in OpenAdmin is only available on [OpenPanel Enterprise edition](
 
 The *Services > FTP* page lets you review the FTP sub-accounts associated with OpenPanel users, and edit the FTP server configuration. It has two tabs: **Accounts** (`/services/ftp`) and **Configuration** (`/services/ftp/settings`).
 
-![FTP page on the Accounts tab with the FTP service status and the table of FTP accounts with their owner](/img/openadmin-screenshots/services/ftp-accounts.png#gh-light-mode-only)
-![FTP page on the Accounts tab with the FTP service status and the table of FTP accounts with their owner](/img/openadmin-screenshots/services/ftp-accounts_dark.png#gh-dark-mode-only)
+![FTP page on the Accounts tab with the FTP service status and the table of FTP accounts with their owner, path and quota](/img/openadmin-screenshots/services/ftp-accounts.png#gh-light-mode-only)
+![FTP page on the Accounts tab with the FTP service status and the table of FTP accounts with their owner, path and quota](/img/openadmin-screenshots/services/ftp-accounts_dark.png#gh-dark-mode-only)
 
 The FTP service must be running for the accounts list to be available.
 
@@ -4126,8 +4386,20 @@ The **Accounts** tab table includes the following details:
 - **Account** – Username of the FTP account.
 - **Owner** – The OpenPanel user that owns the FTP account, linking to that user's page. For accounts named `ftpuser@domain.com` this is the owner of that domain, the same user shown for it on the **Domains** page. If the domain no longer exists, the owner is shown as `-`.
 - **Path** – The file system path to which the FTP account has access.
+- **Quota** – Space used and the disk quota of the account, or **Unlimited**. Accounts over their quota are marked **Over quota**.
+- **Actions** – **Set quota** opens a field next to the account: enter the quota in MB (`500`) or with a unit (`500M`, `2G`) and click **Save**. Enter `0` to remove the quota.
 
-This list is read-only in OpenAdmin — accounts are created/removed from the OpenPanel user interface, not from here. The data shown is populated by the `opencli ftp-users` command; if no accounts are shown yet, click **Click to refresh data** to run it manually, or wait for its periodic cronjob run.
+![FTP Accounts tab with the quota field of an account open](/img/openadmin-screenshots/services/ftp-quota.png#gh-light-mode-only)
+![FTP Accounts tab with the quota field of an account open](/img/openadmin-screenshots/services/ftp-quota_dark.png#gh-dark-mode-only)
+
+To change many accounts at once, tick their checkboxes (or the one in the table header) and use the bar at the bottom of the page: **Set quota** sets the same quota on all of them, **Remove quota** makes them unlimited.
+
+![Two FTP accounts selected with the bulk actions bar offering Set quota and Remove quota](/img/openadmin-screenshots/services/ftp-bulk.png#gh-light-mode-only)
+![Two FTP accounts selected with the bulk actions bar offering Set quota and Remove quota](/img/openadmin-screenshots/services/ftp-bulk_dark.png#gh-dark-mode-only)
+
+The quota is the size of the account's folder, checked by the FTP service every 60 seconds. Once the folder is over the quota, uploads and new folders are refused and the account's open sessions are closed, downloads and deletes still work. Quotas can also be set with [`opencli ftp-quota`](/docs/articles/opencli/ftp/#quota).
+
+Accounts themselves are created and removed from the OpenPanel user interface, not from here. The data shown is populated by the `opencli ftp-users` command; if no accounts are shown yet, click **Click to refresh data** to run it manually, or wait for its periodic cronjob run.
 
 The **Configuration** tab exposes the raw FTP server configuration file in an editable text area. Edit the file contents and click **Save Configuration** to apply changes.
 
@@ -4148,6 +4420,8 @@ Both OpenAdmin and OpenPanel are accessed through the same single **Hostname** f
 
 ![Domain section of General Settings with the hostname field](/img/openadmin-screenshots/settings/general-domain.png#gh-light-mode-only)
 ![Domain section of General Settings with the hostname field](/img/openadmin-screenshots/settings/general-domain_dark.png#gh-dark-mode-only)
+
+If the Hostname is an IP address, a recommendation is shown to use a domain instead if the mail server will be used, since the hostname is also used for the SSL certificate on SMTP.
 
 To enable access to both OpenAdmin and OpenPanel through a domain name, such as srv.your-domain.com:2083, follow these three steps:
 
@@ -4246,6 +4520,8 @@ Customize the appearance of OpenPanel to match your brand:
 
 [Guide on how to properly configure nameservers](/docs/articles/domains/how-to-configure-nameservers-in-openpanel)
 
+If no nameservers are set but the DNS module is enabled, a recommendation is shown to either set at least ns1 and ns2, or [disable the DNS module](/docs/admin/settings/modules) if it won't be used, so BIND9 isn't autostarted and DNS zone files aren't created for every domain.
+
 ## Users
 
 Settings for OpenPanel user accounts:
@@ -4265,7 +4541,7 @@ Additional display settings include:
 - **Menu Style:** The default menu for OpenPanel users - **Classic** (expandable groups) or **Modern** (one link per area, with that area's pages as tabs at the top of each page). Users can still switch to the other style for themselves, see [Menu Style](/docs/panel/dashboard/menu-style/). The same setting also switches OpenAdmin's own menu, right after saving.
 - **Avatar Type:** Choose between Gravatar, Letter, or Icon for user avatars.
 - **Charts Mode for Resource Usage:** Select to show 1 chart, 2 charts, or no charts on the Resource Usage page.
-- **Enable Password Reset:** Allow users to reset passwords via the login form (not recommended for security reasons).
+- **Enable Password Reset:** Allow users to reset passwords via the login form (not recommended for security reasons). When enabled without SMTP configured, a warning links to [SMTP settings](/docs/admin/settings/notifications#smtp-settings), since reset emails won't reach users until it's set up.
 - **Display 2FA Widget:** Show a message on users' dashboards encouraging them to enable Two-Factor Authentication for enhanced security.
 - **Display How-to Guides Widget:** Display helpful how-to articles on users’ dashboard pages. When enabled, a **How-to Articles** field appears below to edit the Knowledge Base articles shown (requires an active Enterprise license and a non-reseller account to edit).
 - **Display Link to Report Bugs:** Show a “Found a bug? Let us know” link at the bottom of all user pages for easy bug reporting.
@@ -4307,6 +4583,12 @@ Configure the following settings for the File Manager:
 - **Enable View Option for (base64 image) Extensions:** Specify image file extensions that can be displayed using base64 encoding in the Viewer.
 - **Enable Extract and Archive Options for (archives) Extensions:** Specify archive file extensions that can be extracted using the File Manager.
 
+A warning is shown when:
+
+- a max file size for the Viewer, Editor, Upload or Download is bigger than the RAM limit of the OpenPanel container (set on [Service Limits](/docs/admin/services/limits)), since files that big can fail.
+- Auto-Purge Trash is set to 0, since deleted files then pile up in users' Trash folders until they empty it themselves.
+- Auto-Purge Trash is over 30 days, recommending to change the `opencli files-purge_trash` schedule to weekly on [Scheduled Actions](/docs/admin/advanced/crons).
+
 ![File Manager section with the file manager options](/img/openadmin-screenshots/settings/openpanel-filemanager.png#gh-light-mode-only)
 ![File Manager section with the file manager options](/img/openadmin-screenshots/settings/openpanel-filemanager_dark.png#gh-dark-mode-only)
 
@@ -4318,6 +4600,11 @@ Settings for user's databases:
 - **Max File Size for MySQL Import:** Maximum file size (in GB) allowed for a MySQL import.
 - **Restricted MySQL (system) Users:** List of MySQL usernames that users are not allowed to access/manage.
 - **Restricted MySQL (system) Databases:** List of MySQL databases that users are not allowed to access/manage.
+
+A warning is shown when:
+
+- Max Startup Time for MySQL is under 10 seconds, since MySQL needs time to initialize on first start. If a custom `MYSQL_VERSION` is set for new users, at least 60 seconds is recommended, since the first start downloads that image from Docker Hub.
+- Max File Size for MySQL Import is bigger than the RAM limit of the OpenPanel container.
 
 ![Databases section with the database options](/img/openadmin-screenshots/settings/openpanel-databases.png#gh-light-mode-only)
 ![Databases section with the database options](/img/openadmin-screenshots/settings/openpanel-databases_dark.png#gh-dark-mode-only)
@@ -4341,6 +4628,8 @@ Captcha requires the [captcha plugin](https://github.com/stefanpejcic/captcha/) 
 - **Enforce 2FA:** On login redirects users to 2FA setup page and prevents them from accessing other pages until 2FA is configured.
 - **Validate IP Address on Session Cookie:** When enabled, a session cookie is rejected if the request's IP address doesn't match the IP it was issued to.
 
+A warning is shown when Minimum Password Strength is below 50 (weak passwords are accepted), when the Weakpass.com check is off (passwords found in data breaches can be used), and when Validate IP Address on Session Cookie is off (a cookie stolen from a user, for example through phishing, can be reused from any IP).
+
 ## Statistics
 
 Configure the following settings related to user login attempts, session management, and data retention:
@@ -4358,8 +4647,52 @@ Configure the following settings related to user login attempts, session managem
 - **Terminal Commands Timeout (in Seconds):** Maximum number of seconds a Docker Terminal command can run before being timed out.
 - **PageSpeed API Key:** If set, this API key is used to fetch data from Google PageSpeed Insights.
 
+A warning is shown when Terminal Commands Timeout is under 30 seconds (it applies to both the OpenPanel web terminal and OpenAdmin), and when there are more than 10 sites on the server but no PageSpeed API key.
+
 ![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics.png#gh-light-mode-only)
 ![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics_dark.png#gh-dark-mode-only)
+
+## AI Assistant
+
+Settings for the [AI Assistant](/docs/panel/dashboard/dashboard#ai-assistant), the chat users open from the **AI** button in the OpenPanel header. It answers questions about the panel using the OpenPanel documentation, the user's plan features and the page they're on, and can look things up or make changes in the user's account.
+
+To use it, enable the **AI Assistant** module on [Settings > Modules](/docs/admin/settings/modules/), add it to the feature sets of the plans that should have it, and set an API key here.
+
+- **What the assistant can do:**
+  - *Answer questions only*: it can't see the user's data, it only explains how to do things.
+  - *Answer questions and look up account data* (default): it can list domains, websites, email accounts, usage and similar, but can't change anything.
+  - *Answer questions, look up data and make changes*: it can also add, edit and remove things, after the user approves each change.
+- **Provider:** OpenRouter, OpenAI, Anthropic (Claude), or Custom for any OpenAI-compatible API such as Ollama.
+- **API key:** The key from your provider. Optional for Custom providers that don't need one.
+- **Model:** Model name, for example `gpt-5-mini`. Leave empty to use `openrouter/auto` with OpenRouter or `claude-opus-5-5` with Anthropic. Required for OpenAI and Custom.
+- **API base URL:** Only for Custom, the URL that serves `/chat/completions`, for example `http://ollama:11434/v1`.
+- **Assistant name:** Shown at the top of the chat. Defaults to *AI Assistant*.
+- **Requests per user per month:** How many questions each user can ask per month, `0` for unlimited. Default is 100.
+- **Max tokens per answer:** Upper limit for the length of each answer. Default is 2048.
+- **Extra instructions:** Added to the assistant's instructions, for example your support email or policies.
+
+![AI Assistant section with what the assistant can do, the provider, API key, model, limits and the usage per user this month](/img/openadmin-screenshots/settings/openpanel-ai.png#gh-light-mode-only)
+![AI Assistant section with what the assistant can do, the provider, API key, model, limits and the usage per user this month](/img/openadmin-screenshots/settings/openpanel-ai_dark.png#gh-dark-mode-only)
+
+### Actions
+
+The assistant uses the same actions as the [OpenPanel API](/docs/panel/account/api/), but only those for features on the user's plan, and every action goes through the same checks as the API. Logins, account email and password changes, 2FA, passkeys, sessions, MCP tokens, the MySQL root password, autologin links, downloads and uploads are never available to it.
+
+- Looking things up runs right away.
+- Changes are shown to the user as a card with the exact values, and run only after they click **Approve**. Users can click **Always allow** to skip the card next time for the same kind of action.
+- Actions that delete or overwrite data, like removing a domain, deleting files, restoring backups or changing passwords, always ask and can't be set to **Always allow**.
+- After the assistant reads content others can write, like files or logs, every change asks again for the rest of that question, even if the user set it to **Always allow**. This stops text hidden in a file from triggering changes.
+- Each question can run at most 12 actions.
+
+Everything the assistant does is written to the user's activity log, for example `used the AI Assistant to run: Add a new domain (POST /api/domains {"domain":"example.com"}), approved by the user`. Passwords and other secrets are hidden.
+
+### Usage
+
+Below the settings, **Usage this month** lists every user who used the assistant this month, with the number of questions, actions, input and output tokens, and when they last used it. Tokens are what your provider bills for, so this shows who uses the assistant most and what it costs you.
+
+The settings are saved in the `[AI]` section of `/etc/openpanel/openpanel/conf/openpanel.config`. OpenPanel needs a restart to use the new values.
+
+Each question sends the matching parts of the documentation along with the conversation to the provider, and every action adds another call, so API usage is billed by your provider. Use **Requests per user per month** to keep costs in check.
 
 ---
 
@@ -4374,8 +4707,25 @@ From **OpenAdmin > Settings > User Defaults** Administrators can edit values for
 
 These files determine services and limits for new users.
 
+### Recommendations
+
+The page shows recommendations based on the sites, plans and services already on the server, only when the current setting differs from them:
+
+- **Webserver:** based on the most common site type on the server. WordPress sites perform best on OpenLiteSpeed, or Apache if they rely on `.htaccess` rules. Node.js and Python apps run best behind Nginx, the fastest reverse proxy. Java and Ruby apps run best on OpenResty, since it can be scripted with Lua. Other CMS and PHP sites run well on Apache or Nginx.
+- **Database:** MySQL uses about 100 MB more RAM per user than MariaDB, so MariaDB is recommended.
+- **Varnish Cache:** recommended for new users when there are WordPress sites on the server, since WordPress pages cache well behind it.
+- **Default PHP version:** the latest stable PHP version installed on the server.
+- **Autostart services:** recommended to leave off, since autostarted services use resources on every new account whether it uses them or not. By default services only start when needed, for example when the user creates a cronjob, a database or adds a domain.
+- **Service CPU/RAM limits:** for PHP-FPM, the webservers and MySQL/MariaDB, a limit below the smallest plan in use (by CPU and RAM) means that service can't use everything the plan allows, so the plan's values are recommended as the minimum. `0` means unlimited and never shows a recommendation.
+
 > [How to setup Apache, Nginx, OpenResty, OpenLiteSpeed, and Varnish as default webserver](/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 > [How to setup MySQL, MariaDB or Percona for default database type](/docs/articles/containers/how-to-set-mysql-mariadb-per-user-in-openpanel/)
+
+### Available webservers
+
+The webservers offered on this page, on the **Add User** form and to users are the ones defined in the `docker-compose.yml` template, not a fixed list. A service counts as a webserver if it mounts the `webserver_data` volume and publishes ports.
+
+To stop offering a webserver, for example OpenLiteSpeed, remove its service block from the default `docker-compose.yml` using the 'Advanced' option. New accounts won't get it and it disappears from the Defaults page and the Add User form. Existing accounts keep their own copy of the file, so their current webserver isn't affected. To hide it from one existing user, remove the block from that user's `docker-compose.yml`.
 
 ---
 
@@ -4507,7 +4857,7 @@ Customize options:
 * To **enable/disable Varnish for all new users** use [*OpenAdmin > Settings > User Defaults* page and *Enable Varnish Proxy* option](/docs/admin/settings/defaults/).
 * To **enable/disable Varnish for a single user** when creating their account use the [**Enable Varnish Cache** option](/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/).
 * To **change default CPU/RAM for service** use the [*OpenAdmin > Settings > User Defaults* page](/docs/admin/settings/defaults/).
-* To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Domains > Domain Templates* page](/docs/admin/settings/defaults/) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
+* To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Domains > VirtualHost Templates* page](/docs/admin/domains/vhost_templates/#varnish-template) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
 * To **purge Varnish cache** refer to [How-to Guides > Purging Varnish Cache](/docs/articles/websites/purge-varnish-cache-from-terminal/)
 
 
@@ -5549,6 +5899,20 @@ Customize options:
 * To **force regeneration of the reports* refer to: [*OpenCLI Documentation > Parse domain access logs*](https://dev.openpanel.com/cli/domains.html#Parse-domain-access-logs).
 
 
+## Error Logs
+
+The **`error_logs`** module lets users see PHP, webserver, database and HTTP 5xx errors for all of their websites on a single page, without opening individual containers.
+
+When enabled:
+* Users can access the [**Statistics > Error Logs** page](/docs/panel/statistics/error_logs/).
+* The same data is available from the `/api/error-logs` API endpoint.
+
+When disabled:
+* Users can not access the *Statistics > Error Logs* page.
+
+Errors are read live from the user's PHP-FPM, webserver and database containers (for OpenLiteSpeed and LiteSpeed, from `/usr/local/lsws/logs/error.log` inside the container) and from the Caddy domain access logs (5xx responses only), so nothing extra runs in the background.
+
+
 ## Docroot
 
 The **`docroot`** module allows users to set a custom docroot (folder) when adding domains, and later change the path.
@@ -5594,7 +5958,7 @@ When disabled:
 * Users can not access the *Domains > Edit VHosts File* page.
 
 Customize options:
-* To **customize the vhost files for Apache/Nginx/OpenLiteSpeed** refer to: [*OpenAdmin > Domains > Domain Templates*](/docs/admin/domains/file_templates/#apache-virtualhost)
+* To **customize the vhost files for Apache/Nginx/OpenLiteSpeed** refer to: [*OpenAdmin > Domains > VirtualHost Templates*](/docs/admin/domains/vhost_templates/#apache-virtualhost)
 
 
 ## Webserver
@@ -5938,6 +6302,8 @@ zlib.output_compression
 
 Here you can edit the PHP.INI configuration files that will be applied to new user accounts.
 
+If a PHP version that is released and still supported has no PHP.INI file on the server, a recommendation lists it with a link to install it with [`opencli update --php`](/docs/articles/opencli/update/#php). The supported versions come from the same list the [Edit User Defaults](/docs/admin/settings/defaults/) page uses. Unreleased and end-of-life versions aren't recommended.
+
 ![Default PHP.INI Files section with a php.ini per PHP version and Restore Default and Save buttons](/img/openadmin-screenshots/settings/php-ini.png#gh-light-mode-only)
 ![Default PHP.INI Files section with a php.ini per PHP version and Restore Default and Save buttons](/img/openadmin-screenshots/settings/php-ini_dark.png#gh-dark-mode-only)
 
@@ -6016,6 +6382,8 @@ Configure email address to be used for receiving system notifications and alerts
 
 Enter your email address in the **Email address** field. Leave it empty to disable email alerts.
 
+To send alerts to more than one person, click **+** below the field to add another address, and **−** next to an address to remove it. Every address gets the same email. They're stored comma separated, so with `opencli config update email` or the API use `admin@example.com,ops@example.com`. If the mail server rejects one of the addresses, the email is still sent to the rest and the rejected address is skipped.
+
 If email address is set, daily usage report will be sent to the address, schedule is configurable from 'Server > Scheduled Actions'.
 
 ![report example](/img/admin/daily_report.png)
@@ -6025,7 +6393,13 @@ If email address is set, daily usage report will be sent to the address, schedul
 
 ## Webhook
 
-Send notifications to a webhook URL (discord or any other).
+Send notifications to one or more webhook URLs (Discord, Slack or any other service that accepts a JSON POST).
+
+- Each webhook has its own field. Once a field has a URL, a **+** button shows below it to add another one.
+- Click **−** next to a field to remove that webhook (the first field can't be removed, leave it empty to disable webhooks).
+- Click **Test** next to a field to send a test notification to that URL right away, even before saving. The result is shown under the field, with the error or HTTP status if the webhook didn't accept it.
+
+Every alert is sent to all of the webhooks. Only `http://` and `https://` URLs are accepted.
 
 ![Webhook section with the webhook URL field](/img/openadmin-screenshots/settings/notifications-webhook.png#gh-light-mode-only)
 ![Webhook section with the webhook URL field](/img/openadmin-screenshots/settings/notifications-webhook_dark.png#gh-dark-mode-only)
@@ -6047,17 +6421,21 @@ Receive notifications when services are down or unresponsive. Services are check
 - **BIND9:** Notification if DNS service is down or unresponsive.
 - **Sentinel Firewall:** Notification if Sentinel (CSF) is disabled.
 
+When a service is turned off but should be monitored, a recommendation is shown under it: the core services (OpenPanel, OpenAdmin, Caddy, MySQL, Podman), BIND9 when the DNS module is enabled, and Sentinel Firewall when CSF is installed. A note is also shown when BIND9 is on but the DNS module is disabled, or Sentinel Firewall is on but CSF isn't installed.
+
 ---
 
 ## Resource Usage
 
 Get alerts when resource usage exceeds thresholds (checked every 5 minutes):
 
-* Load Average
-* CPU %
-* RAM %
-* Disk Usage %
-* SWAP %
+* **Load Average** - recommended at least 2× the number of CPU cores (max 100).
+* **CPU %** - recommended 85-95%.
+* **RAM %** - recommended 85-95%, cache isn't counted as used.
+* **Disk Usage %** - recommended 85-95% of the `/` disk, leaving at least 5 GB (or 10% on small disks) when the alert fires.
+* **SWAP %** - recommended 40-80%, above it Sentinel clears swap if there's enough free RAM. Skipped on servers without swap.
+
+Under each field the recommended value is calculated for your server (CPU cores, RAM, disk and swap size), and a warning is shown when the value is set too low (alerts on normal usage) or, for disk, too high to react in time.
 
 ![Resource Usage section with the load, CPU, memory, disk and swap thresholds](/img/openadmin-screenshots/settings/notifications-thresholds.png#gh-light-mode-only)
 ![Resource Usage section with the load, CPU, memory, disk and swap thresholds](/img/openadmin-screenshots/settings/notifications-thresholds_dark.png#gh-dark-mode-only)
@@ -6070,6 +6448,8 @@ Receive notifications when specific server-level actions are detected:
 
 * **Server reboot:** Triggered when the server is restarted.
 * **Unusual traffic or SYN flood:** Fires when suspicious traffic or DDoS attacks are detected. When enabled, an additional **Website traffic** section appears where you can set the **Max total connections** and **Max connections per IP** thresholds (on ports 80/443) that trigger the notification.
+
+  Under each field the highest value recorded by Sentinel (it saves the number of connections every 5 minutes, for up to 30 days) is shown with a recommended limit of 2× that peak, at least 500 total and 50 per IP. Click **Use** to fill it in. A warning shows if the limit is at or below the recorded peak, since you'd have been alerted then. Recommendations show once there are domains on the server and Sentinel has collected at least 24 hours of data.
 * **Out of Memory (OOM) errors:** Checks journal logs for system services and user processes killed by OOM in the last 24 hours.
 * **DNS issue detected:** Triggered when the panel domain or nameservers are misconfigured or not resolving to this server. Disable if using external nameservers or a Cloudflare proxy.
 * **OpenAdmin login from new IP:** Triggered when the OpenAdmin panel is accessed from an unrecognized IP address.
@@ -6084,6 +6464,8 @@ Receive notifications when specific server-level actions are detected:
 ## User Actions
 
 Get notified whenever an action occurs in the admin or user panels.
+
+Actions are grouped into **OpenAdmin**, **Web Firewall**, **Users**, **FTP**, **Domains**, **ImunifyAV** and **Backups**. Each group shows how many are on and has **All on** / **All off** buttons to toggle the whole group at once.
 
 ![User actions section with toggles for account and domain change notifications](/img/openadmin-screenshots/settings/notifications-users.png#gh-light-mode-only)
 ![User actions section with toggles for account and domain change notifications](/img/openadmin-screenshots/settings/notifications-users_dark.png#gh-dark-mode-only)
@@ -6105,6 +6487,7 @@ Get notified whenever an action occurs in the admin or user panels.
 - User IP changed
 - User password changed
 - User renamed
+- User transferred
 - FTP account created
 - FTP account deleted
 - FTP account password change
@@ -6113,12 +6496,16 @@ Get notified whenever an action occurs in the admin or user panels.
 - Domain suspended/unsuspended
 - SSL type changed
 - HSTS enabled/disabled
+- ImunifyAV scan started/finished
+- Backup failed (the scheduled `opencli docker-backup` run failed for one or more users)
 
 ---
 
 ## SSH Allowlist
 
-Specify IP addresses (or CIDRs) that will be exempt from SSH login checks.
+Specify IP addresses (or CIDRs) that will be exempt from SSH and OpenAdmin login checks.
+
+Below the list, your current IP and the IPs that logged into OpenAdmin before (from `/var/log/openpanel/admin/login.log`, with the usernames and the last login date) are suggested. Click one to add it to the list. IPs already covered by the list aren't suggested.
 
 ![SSH Allowlist section with the allowed IP addresses](/img/openadmin-screenshots/settings/notifications-ssh.png#gh-light-mode-only)
 ![SSH Allowlist section with the allowed IP addresses](/img/openadmin-screenshots/settings/notifications-ssh_dark.png#gh-dark-mode-only)
@@ -6211,6 +6598,13 @@ You can select the update policy that best fits your needs:
 
 Choosing the appropriate auto-update setting ensures that OpenPanel remains as stable, secure, and feature-rich as you need it to be.
 
+A recommendation is shown under the dropdown for the two options that skip security patches:
+
+- **Never:** update manually at least once a month.
+- **Major Versions Only:** update manually at least once a quarter, to get the minor versions with bug fixes and security patches.
+
+Both link to [how to update manually](/docs/articles/opencli/update/), and also say how many days ago the last update ran when that's over a month (Never) or 90 days (Major Versions Only).
+
 ## Update Logs
 The Update Logs section provides a record of all updates that have been applied to OpenPanel.
 
@@ -6260,6 +6654,8 @@ Click an action, confirm it, and it runs on the selected locales one after anoth
 ## Install Locale
 
 By default, only the **EN** locale is installed. To enable other locales, they must be installed first.
+
+OpenAdmin also recommends locales to install, based on the country of each user's last login to OpenPanel (from their `.lastlogin` file). For example, if users log in from Serbia, it recommends installing `sr-rs` with an **Install** button, listing those users. Only locales that are available and not yet installed are recommended, and logins from the server's own IP (OpenAdmin's autologin) or private IPs are skipped.
 
 <Tabs>
   <TabItem value="openadmin-install-locale" label="With OpenAdmin" default>
@@ -6607,6 +7003,8 @@ HTML message that is placed straight into a new mailbox when the user ticks **Se
 
 Click **Restore Default** to load the [default template](https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/custom_code/welcome.html) into the editor, then click Save.
 
+A live preview of the HTML is shown next to the editor and updates as you type. The preview is sandboxed, so scripts in the HTML don't run.
+
 These placeholders are replaced when the message is created:
 
 | Placeholder | Replaced with |
@@ -6733,6 +7131,12 @@ This tab displays:
 
 You can change any value and click on the save button to apply.
 
+A recommendation is shown as you change the values:
+
+- **SSH Port** 22: the default port is the first one bots try, so block it in the [firewall](/docs/admin/security/firewall) and allow it only for the IPs admins connect from, or move SSH to another port.
+- **Password Authentication** on: turn it off once public key authentication is on, so passwords can't be brute-forced. If there are no authorized keys yet, add yours first or you'll be locked out.
+- **Public Key Authentication** off: enable it, since key logins can't be brute-forced like passwords.
+
 ### Authorized Keys
 
 This tab is only shown when **Public Key Authentication** is enabled. Here you can view current authorized ssh keys, remove them, or add a new key.
@@ -6798,12 +7202,16 @@ Step-by-step guide: [How to Add or Resize Swap](/docs/articles/server/how-to-add
 
 Shows total/used/free swap (as reported by `free -m`) and a table of every active swap device (name, type, size, used, priority, from `swapon --show`). The alert threshold shown here is the same `swap=` value used by Sentinel's own swap check.
 
+When swap is more than 90% used, a warning is shown: the server is short on memory, so add RAM, lower memory usage on [Processes](/docs/admin/advanced/processes), or increase swap.
+
 ![Swap page with the current swap usage, the swap size field with Apply, and the Drop Swap button](/img/openadmin-screenshots/advanced/swap-page.png#gh-light-mode-only)
 ![Swap page with the current swap usage, the swap size field with Apply, and the Drop Swap button](/img/openadmin-screenshots/advanced/swap-page_dark.png#gh-dark-mode-only)
 
 ### Change allocation
 
 Recreates the managed swap file (`/swapfile` by default) at the requested size and re-enables it, adding it to `/etc/fstab` if it isn't already there. This briefly disables swap while the file is recreated.
+
+A recommended swap size is shown when the size is smaller than it, or no swap is set up: 2× RAM on servers with up to 2 GB RAM, otherwise the square root of the RAM in GB (at least 2 GB), for example 4 GB for 16 GB RAM.
 
 ### Drop swap
 
@@ -6852,6 +7260,172 @@ Make sure to configure your demo content and secure the server before enabling t
 :::info
 This page is currently not linked in the OpenAdmin sidebar. It can still be reached directly at `/server/demo-mode`.
 :::
+
+---
+
+// File: admin/websites/websites
+
+# Manage Websites
+
+Websites page lists every website in Site Manager across all users on the server: WordPress and other CMS installs, Website Builder sites and Node.js, Python, Ruby or Java apps.
+
+## List websites
+
+<Tabs>
+  <TabItem value="openadmin-websites-list" label="With OpenAdmin" default>
+
+To list all websites navigate to **Websites** in OpenAdmin.
+
+The table shows these columns:
+
+| Column              | Description                                                                 |
+|---------------------|-----------------------------------------------------------------------------|
+| **Site**            | Favicon and address of the website, with its folder on the server below it. Click the address to open the site. |
+| **Type**            | Icon of the application, for example WordPress, Joomla, Website Builder or Node.js. Hover over it to see the name. |
+| **Owner**           | The OpenPanel user who owns the website, marked **SUSPENDED** when that user is suspended. |
+| **Version**         | Installed version of the application. WordPress sites show when a newer WordPress version is available. |
+| **Git**             | Name and branch of the [Git](/docs/panel/applications/git/) repository that deploys to the website, whether it's remote or local, its deploy mode and when it was last deployed. **Error** marks a failed pull (hover for details) and **+N more** other repositories deploying to the same site. Shown only when the Git module is enabled. |
+| **Vulnerabilities** | Known vulnerable plugins, themes or core versions from the last [vulnerability scan](#scan-for-vulnerabilities). WordPress only. |
+| **ImunifyAV**       | Result of the last [ImunifyAV scan](#scan-with-imunifyav) of the owner's files. Shown only when ImunifyAV is installed. |
+| **PageSpeed**       | Google PageSpeed score from the last [PageSpeed check](#check-pagespeed). |
+| **Created**         | When the website was added to Site Manager.                                 |
+| **Actions**         | Menu with the [website actions](#website-actions).                          |
+
+Click **Show Columns** to show or hide any column except Site and Actions. All columns are shown by default and your choice is remembered for your browser.
+
+Use the search box (**Search sites, owners, domains...**) to filter the list by site address, owner, domain, admin email or type. When more than one type of website exists, buttons above the table (**All**, **WordPress**, **Website Builder**...) filter the list by type.
+
+Click a column header to sort by it.
+
+  </TabItem>
+  <TabItem value="CLI-websites-list" label="With OpenCLI">
+
+To list all websites run:
+
+```bash
+opencli websites-all
+```
+
+  </TabItem>
+</Tabs>
+
+## Scan for websites
+
+Websites installed by users outside of Site Manager, for example uploaded over FTP or the File Manager, are not listed until they are detected.
+
+<Tabs>
+  <TabItem value="openadmin-websites-scan" label="With OpenAdmin" default>
+
+Click **Scan for Websites**, enter a username or leave the field empty to scan all users, and click **Start Scan**. The scan runs in the background and new sites show up in the list once it finishes.
+
+  </TabItem>
+  <TabItem value="CLI-websites-scan" label="With OpenCLI">
+
+To scan a single user run:
+
+```bash
+opencli websites-scan <USERNAME>
+```
+
+To scan all users run:
+
+```bash
+opencli websites-scan -all
+```
+
+  </TabItem>
+</Tabs>
+
+## Website actions
+
+Click the **⋯** button at the end of a row to open the actions menu:
+
+| Action                       | Description                                                                 |
+|------------------------------|-----------------------------------------------------------------------------|
+| **Visit site**               | Opens the website in a new tab.                                             |
+| **Log in to wp-admin**       | Logs you in to the WordPress dashboard as an administrator. WordPress only. |
+| **Manage as owner**          | Logs in to OpenPanel as the owner and opens this website in Site Manager.  |
+| **Owner account**            | Opens the owner's account page in OpenAdmin.                                |
+| **Edit Virtual Host**        | Opens the web server configuration of the website's domain.                 |
+| **Check PageSpeed**          | Runs a [Google PageSpeed check](#check-pagespeed).                          |
+| **Scan with ImunifyAV**      | Queues an [ImunifyAV scan](#scan-with-imunifyav) of the owner's files. Shown only when ImunifyAV is installed. |
+| **Scan for vulnerabilities** | Runs a [vulnerability scan](#scan-for-vulnerabilities). WordPress only.     |
+| **Detach**                   | Removes the website from Site Manager. Its files and databases are kept and it can be added back with [Scan for websites](#scan-for-websites). |
+
+## Check PageSpeed
+
+Hover over the PageSpeed score to see the Performance score, First Contentful Paint, Speed Index and Time to Interactive for desktop and mobile, and click **Update** to run the check again.
+
+<Tabs>
+  <TabItem value="openadmin-websites-pagespeed" label="With OpenAdmin" default>
+
+Select **Check PageSpeed** from the actions menu, or select several websites and use the bulk action with the same name.
+
+  </TabItem>
+  <TabItem value="CLI-websites-pagespeed" label="With OpenCLI">
+
+To check a single website run:
+
+```bash
+opencli websites-pagespeed <DOMAIN>
+```
+
+To check all websites run:
+
+```bash
+opencli websites-pagespeed -all
+```
+
+  </TabItem>
+</Tabs>
+
+## Scan for vulnerabilities
+
+WordPress sites can be scanned for known vulnerabilities in their core version, plugins and themes. When something is found, the Vulnerabilities column shows how many vulnerabilities were found in how many components. Click it to see each vulnerable plugin or theme with details from Wordfence, WPScan, Patchstack and CVE.
+
+<Tabs>
+  <TabItem value="openadmin-websites-vulnerability" label="With OpenAdmin" default>
+
+Select **Scan for vulnerabilities** from the actions menu, or select several websites and use the bulk action with the same name. Websites that are not WordPress are skipped.
+
+  </TabItem>
+  <TabItem value="CLI-websites-vulnerability" label="With OpenCLI">
+
+To scan a single website run:
+
+```bash
+opencli websites-vulnerability <DOMAIN>
+```
+
+To scan all WordPress websites run:
+
+```bash
+opencli websites-vulnerability --all
+```
+
+  </TabItem>
+</Tabs>
+
+## Scan with ImunifyAV
+
+When [ImunifyAV](/docs/admin/security/imunify/) is installed, the ImunifyAV column shows the result of the last malware scan of the owner's files: **Clean**, the number of infected files, or **Scanning...** while a scan is running. Click the number of infected files to open ImunifyAV and handle them.
+
+ImunifyAV scans the whole home directory of a user, so the result is the same for every website of that user.
+
+To start a scan, click the scan icon in the ImunifyAV column or select **Scan with ImunifyAV** from the actions menu. To scan several users at once, select their websites and use the **Scan with ImunifyAV** bulk action. Each owner is scanned once, even when several of their websites are selected.
+
+Users can also be scanned from the **Users** page by selecting them and using the **Scan with ImunifyAV** bulk action.
+
+## Bulk actions
+
+Select websites with the checkboxes, or select all with the checkbox in the table header, and choose an action from the bar at the bottom of the page:
+
+| Action                       | Description                                                       |
+|------------------------------|-------------------------------------------------------------------|
+| **Check PageSpeed**          | Runs a PageSpeed check for each selected website.                 |
+| **Scan for vulnerabilities** | Scans each selected WordPress website, other types are skipped.   |
+| **Scan with ImunifyAV**      | Queues an ImunifyAV scan for the owners of the selected websites. Shown only when ImunifyAV is installed. |
+| **Detach**                   | Removes the selected websites from Site Manager, keeping their files and databases. |
 
 ---
 
@@ -9083,32 +9657,32 @@ This does two things: it schedules `opencli docker-backup` to run centrally for 
 Modify the backup configuration template that applies to new accounts. This file defines default backup settings, such as remote storage destinations.
 
 **File path:**
-`/etc/openpanel/backups/backups.env`
+`/etc/openpanel/backups/backup.env`
 
-To enable and configure a remote SSH destination, uncomment and update the following variables:
+To enable and configure a remote SSH destination, uncomment and update the following variables. Don't wrap values in quotes, podman passes them to the backup container as they are.
 
 ```env
 ########### SSH/SFTP STORAGE
-# SSH_HOST_NAME=""
-# SSH_PORT="22"
-# SSH_REMOTE_PATH=""
-# SSH_USER=""
-# SSH_PASSWORD=""
-# SSH_IDENTITY_FILE="/var/www/html/id_rsa"
-# SSH_IDENTITY_PASSPHRASE=""
+# SSH_HOST_NAME=
+# SSH_PORT=22
+# SSH_REMOTE_PATH=
+# SSH_USER=
+# SSH_PASSWORD=
+# SSH_IDENTITY_FILE=/var/www/html/id_rsa
+# SSH_IDENTITY_PASSPHRASE=
 ```
 
 **Example:**
 
 ```env
 ########### SSH/SFTP STORAGE
-SSH_HOST_NAME="185.119.22.54"
-SSH_PORT="22"
-SSH_REMOTE_PATH="/backups/"
-SSH_USER="root"
-SSH_PASSWORD="NotSoStrongP@ssword"
-# SSH_IDENTITY_FILE="/var/www/html/id_rsa"
-# SSH_IDENTITY_PASSPHRASE=""
+SSH_HOST_NAME=185.119.22.54
+SSH_PORT=22
+SSH_REMOTE_PATH=/backups/
+SSH_USER=root
+SSH_PASSWORD=NotSoStrongP@ssword
+# SSH_IDENTITY_FILE=/var/www/html/id_rsa
+# SSH_IDENTITY_PASSPHRASE=
 ```
 
 > 🔗 For more destination types and examples, see [Backups Documentation](/docs/panel/backups/#destinations)
@@ -11373,9 +11947,9 @@ You can customize all templates that are displayed to users, from [OpenAdmin > D
 - [Default Landing Page](/docs/admin/domains/file_templates/#default-page)
 - [Suspended Website Template](/docs/admin/domains/file_templates/#suspended-website)
 - [Suspended User Template](/docs/admin/domains/file_templates/#suspended-user)
-- [Apache VirtualHost Template](/docs/admin/domains/file_templates/#apache-virtualhost)
-- [Nginx VirtualHost Template](/docs/admin/domains/file_templates/#nginx-virtualhost)
-- [OpenResty VirtualHost Template](/docs/admin/domains/file_templates/#openresty-virtualhost)
+- [Apache VirtualHost Template](/docs/admin/domains/vhost_templates/#apache-virtualhost)
+- [Nginx VirtualHost Template](/docs/admin/domains/vhost_templates/#nginx-virtualhost)
+- [OpenResty VirtualHost Template](/docs/admin/domains/vhost_templates/#openresty-virtualhost)
 
 ## Create OpenPanel Module
 
@@ -11866,9 +12440,22 @@ This is the same single-click whole-account backup OpenPanel's own self-service 
 
 `POST /api/domains/suspend/{domain}`
 
+Suspends the domain as an Administrator, so the user can't unsuspend or change it. The JSON body is optional:
+
+```json
+{
+  "template": "dmca",
+  "comment": "Complaint #4821"
+}
+```
+
+`template` is a [suspension reason](/docs/admin/domains/file_templates/#suspension-reasons) file name without `.html`, leave it out or send `default` for the Suspended Website page. An unknown template returns `400`. `comment` is shown to the user.
+
 ### Unsuspend Domain
 
 `POST /api/domains/unsuspend/{domain}`
+
+Unsuspends the domain, also when the user suspended it.
 
 ### Delete Domain
 
@@ -12011,7 +12598,18 @@ Checks reachability of a slave node via `rndc` first, falling back to SSH.
 `GET /api/domains/file-templates`
 `POST /api/domains/file-templates`
 
-Default templates used for new domains: `default_page`, `suspended_user`, `suspended_website`, `docker_nginx_domain`, `docker_openresty_domain`, `docker_apache_domain`, `docker_varnish`, `docker_caddy`. Send only the keys you want to update.
+HTML pages for domains: `default_page`, `suspended_user`, `suspended_website`. Send only the keys you want to update.
+
+### VirtualHost Templates
+
+`GET /api/domains/vhost-templates`
+`POST /api/domains/vhost-templates`
+
+Configuration templates used for new domains: `docker_nginx_domain`, `docker_openresty_domain`, `docker_apache_domain`, `docker_varnish`, `docker_caddy`. Send only the keys you want to update.
+
+:::note
+Before 2.0.16 the VirtualHost keys were read and saved through `/api/domains/file-templates`, which now ignores them.
+:::
 
 ---
 
@@ -12806,13 +13404,14 @@ Starts `opencli update --force` in the background.
 ```json
 {
   "cpu": "90",
-  "webhook_url": "https://example.com/hook",
+  "webhook_url": ["https://example.com/hook", "https://discord.com/api/webhooks/XXXX/YYYY"],
+  "email": "admin@example.com, ops@example.com",
   "update": "on",
   "ssh_whitelist": "1.2.3.4/32\n5.6.7.0/24"
 }
 ```
 
-Supports numeric thresholds (`load`, `cpu`, `ram`, `du`, `swap`, `max_total_conn`, `max_conn_per_ip`), `webhook_url`, `email`, SMTP fields (`mail_server`, `mail_port`, `mail_use_tls`, `mail_use_ssl`, `mail_debug`, `mail_username`, `mail_password`, `mail_default_sender`), the `services` toggle, boolean event toggles (`update`, `attack`, `limit`, `login`, `ssh`, `reboot`, `dns`, plus the `ACTIONS` section like `admin_create`, `user_delete`, `domains_ssl`, etc — pass `"on"`/`"off"`), and `ssh_whitelist` (newline-separated IPs/CIDRs).
+Supports numeric thresholds (`load`, `cpu`, `ram`, `du`, `swap`, `max_total_conn`, `max_conn_per_ip`), `webhook_url` (a list of URLs or one space-separated string, returns 400 if any URL isn't http/https), `email` (comma-separated for multiple addresses), SMTP fields (`mail_server`, `mail_port`, `mail_use_tls`, `mail_use_ssl`, `mail_debug`, `mail_username`, `mail_password`, `mail_default_sender`), the `services` toggle, boolean event toggles (`update`, `attack`, `limit`, `login`, `ssh`, `reboot`, `dns`, plus the `ACTIONS` section like `admin_create`, `user_delete`, `domains_ssl`, etc — pass `"on"`/`"off"`), and `ssh_whitelist` (newline-separated IPs/CIDRs).
 
 ---
 
@@ -19298,8 +19897,9 @@ Manually editing these files can break the panel or be overwritten during update
 |---|---|---|
 | `/etc/openpanel/caddy/Caddyfile` (mounted as `/etc/caddy/Caddyfile` in container) | Caddyfile | Main reverse-proxy config for all websites |
 | `/etc/openpanel/caddy/domains/<domain>.conf` | Caddyfile snippet | Per-domain vhost config, incl. WAF toggles |
-| `/etc/openpanel/caddy/suspended_domains/<domain>.conf` | Caddyfile snippet | Vhost for suspended domains |
+| `/etc/openpanel/caddy/suspended_domains/<domain>.conf` | Caddyfile snippet | Original vhost of a suspended domain, put back on unsuspend |
 | `/etc/openpanel/caddy/templates/*.conf`, `*.html`, `wp.rules` | templates | Domain, suspended-user/domain, WordPress vhost templates |
+| `/etc/openpanel/caddy/templates/suspended/<reason>.html` | HTML | [Suspension reason](/docs/admin/domains/file_templates/#suspension-reasons) pages, first line holds the reason name |
 | `/etc/openpanel/caddy/redirects.conf` | Caddyfile snippet | Global HTTP redirects (webmail, OpenAdmin port) |
 | `/etc/openpanel/caddy/coraza_rules.conf`, `check.conf` | Coraza rules | WAF rule set |
 | `/etc/openpanel/caddy/coreruleset/rules/*.conf[.disabled]` | OWASP CRS | WAF (Coraza) core rule set |
@@ -19748,6 +20348,7 @@ Examples:
   opencli admin notifications update reboot yes
   opencli admin notifications update load 10
   opencli admin notifications update webhook_url https://discord.com/api/webhooks/XXXX/YYYYYYY
+  opencli admin notifications update webhook_url "https://discord.com/api/webhooks/XXXX/YYYYYYY https://hooks.slack.com/services/XXX"
 ```
 
 
@@ -20105,9 +20706,9 @@ Any option from `notifications.ini` can be read or updated. The main options are
 | `ram`         | Notify when RAM usage (%) is above this value.                     | `85`    |
 | `du`          | Notify when disk usage (%) is above this value.                    | `85`    |
 | `swap`        | Notify when SWAP usage (%) is above this value.                    | `85`    |
-| `webhook_url` | Also send notifications to this webhook (e.g. Discord).            | empty   |
+| `webhook_url` | Also send notifications to these webhooks (e.g. Discord), multiple URLs are separated by spaces. | empty   |
 
-The `[ACTIONS]` section of the file has a `yes`/`no` option for each OpenCLI action that sends a notification, for example `user_create`, `domains_add` or `admin_api`.
+The `[ACTIONS]` section of the file has a `yes`/`no` option for each OpenCLI action that sends a notification, for example `user_create`, `domains_add`, `admin_api` or `docker_backup` (sent when `opencli docker-backup` fails).
 
 
 ### Port
@@ -20500,12 +21101,12 @@ Set maximum number of lines (table rows) to display **when user selects *show_al
 domain_log_max_for_show_all=10000
 ```
 
-### acccess_logs_per_page
+### access_logs_per_page
 
 Set number of lines to show per page from the domains activity log.
 
 ```bash
-acccess_logs_per_page=1000
+access_logs_per_page=1000
 ```
 
 ### resource_usage_items_per_page
@@ -20714,7 +21315,7 @@ Updated permit_subdomain_sharing to yes
 </details>
 
 ### `email`
-Administrator email address used for notifications. Also set as `LF_ALERT_TO` in the CSF configuration.
+Administrator email address used for notifications. Multiple addresses can be separated by commas, every address gets the notifications and daily usage reports. Only the first address is set as `LF_ALERT_TO` in the CSF configuration and used as the contact in DNS zone SOA records.
 
 **Check current value**:
 ```bash
@@ -20743,6 +21344,11 @@ opencli config update email admin@example.com
 Updated email to admin@example.com
 ```
 </details>
+
+**Set multiple addresses**:
+```bash
+opencli config update email "admin@example.com,ops@example.com"
+```
 
 ### `password_strength`
 Minimum password strength (`1`-`100`) for all password fields in OpenPanel: account, FTP, emails, databases. Default is `50`.
@@ -22666,6 +23272,35 @@ opencli docker-backup
 ```
 </details>
 
+- `--parallel=N` - number of users backed up at the same time. Default is one per 4 CPU cores, at least 1 and at most the number of users.
+
+```bash
+opencli docker-backup --parallel=4
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-backup --parallel=4
+2026-09-24 02:00:01 : === Backup started at 2026-09-24 02:00:01 ===
+2026-09-24 02:00:01 : Fetching list of active users...
+2026-09-24 02:00:01 : Found 2 active users to process
+2026-09-24 02:00:01 : Running up to 2 user backups in parallel
+2026-09-24 02:00:01 : Processing user: stefan (1/2)
+2026-09-24 02:00:01 : Processing user: demo (2/2)
+...
+2026-09-24 02:00:45 : Successfully processed all 2 users
+2026-09-24 02:00:45 : === Backup finished at 2026-09-24 02:00:45 | Total time: 44s ===
+```
+</details>
+
+To skip a user, create `/home/<context>/backup.off`. Everything is logged to `/var/log/openpanel/admin/docker-backup.log`.
+
+Before backing up a user, a running `mysql`, `mariadb` or `postgres` container that was created before the `backup_meta` volume was added to the user's `docker-compose.yml` is recreated once (`Recreating mysql for context: stefan to add the backup_meta volume`), so its dumps get listed in the archive's `backup/00-meta/` folder.
+
+If the backup fails for any user, or the list of active users can't be read from the database, a critical **Backup failed** notification is added in OpenAdmin with the failed usernames and the log path. Set `docker_backup=no` in `/etc/openpanel/openadmin/config/notifications.ini` (or turn off *Backup failed* under OpenAdmin > Settings > Notifications) to disable it.
+
 ### logs
 
 View logs sizes for user and system containers.
@@ -22860,6 +23495,8 @@ Domain example.com added successfully
 ```
 </details>
 
+The domain's mail folder and DNS zone are also mounted read-only into the user's `backup` service (`backup/emails/<domain>` and `backup/dns/<domain>.zone` in the user's `docker-compose.yml`), so both end up in their backups. If the user runs backups on their own schedule and the backup container is running, it's recreated to pick up the new mounts.
+
 ### Custom Docroot
 
 To add a domain name with custom docroot:
@@ -22992,13 +23629,34 @@ Domain suspended successfully.
 ```
 </details>
 
+By default the suspension counts as the user's own, the same as suspending from OpenPanel. Add `--by=admin` to lock the domain: the user can't unsuspend it, and OpenPanel refuses any change to the domain until an Administrator unsuspends it. Suspending a domain the user already suspended with `--by=admin` turns it into an admin suspension.
+
+Show a [suspension reason](/docs/admin/domains/file_templates/#suspension-reasons) page, by its file name in `/etc/openpanel/caddy/templates/suspended/` without `.html`:
+
+```bash
+opencli domains-suspend <DOMAIN_NAME> --by=admin --template=<REASON> [--comment="<COMMENT>"]
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-suspend example.com --by=admin --template=dmca --comment="Complaint #4821"
+Domain suspended successfully.
+```
+</details>
+
+The comment is saved on one line, line breaks and other control characters are removed.
+
 ## Unsuspend
 
 Unsuspend a domain name:
 
 ```bash
-opencli domains-unsuspend <DOMAIN_NAME>
+opencli domains-unsuspend <DOMAIN_NAME> [--by=admin]
 ```
+
+A domain suspended with `--by=admin` can only be unsuspended with `--by=admin`, otherwise the command fails with `ERROR: Domain example.com was suspended by the administrator and can only be unsuspended by them.`
 
 <details>
   <summary>Example output</summary>
@@ -23199,6 +23857,8 @@ opencli domains-delete <DOMAIN_NAME> [--debug]
 Domain example.com deleted successfully
 ```
 </details>
+
+The domain's mail and DNS zone mounts are removed from the user's `backup` service again, and its link in the user's mail volume is deleted (the other domains keep theirs).
 
 ## SSL
 
@@ -24039,7 +24699,7 @@ Owner of 'example.com': stefan | docroot: /var/www/html/example.com
 
 ## Cloudflare
 
-Restrict access to Cloudflare-only IPs for domains or check the current configuration status.
+Restrict access to Cloudflare-only IPs for domains or check the current configuration status. Besides Cloudflare ranges, the OpenPanel API IPs (screenshots, temporary links) and the server's own IPs are also allowed, so requests the server makes to its own sites (wp-cron, loopback) keep working.
 
 To check status for a domain:
 
@@ -24105,6 +24765,11 @@ Retrieved 15 IPv4 Cloudflare ranges:
   ...
 Retrieved 7 IPv6 Cloudflare ranges:
   ...
+Allowing OpenPanel API IPs:
+  185.119.90.100
+Allowing server IPs:
+  192.168.1.8
+  203.0.113.10
 Updated: /etc/openpanel/caddy/templates/cloudflare.only
 Reloading Caddy to apply the setting...
 SUCCESS: Caddy reloaded successfully.
@@ -25955,11 +26620,11 @@ opencli ftp-list
 ```bash
 # opencli ftp-list
 FTP sub-users for 'stefan':
-backup@example.com | /var/www/html/example.com
-dev@example.com | /var/www/html/example.com/dev
+backup@example.com | /var/www/html/example.com | 2048M
+dev@example.com | /var/www/html/example.com/dev | unlimited
 
 FTP sub-users for 'demo':
-upload@demo.net | /var/www/html/demo.net
+upload@demo.net | /var/www/html/demo.net | unlimited
 ```
 </details>
 
@@ -25975,33 +26640,47 @@ opencli ftp-list <OPENPANEL_USERNAME>
 ```bash
 # opencli ftp-list stefan
 FTP sub-users for 'stefan':
-backup@example.com | /var/www/html/example.com
-dev@example.com | /var/www/html/example.com/dev
+backup@example.com | /var/www/html/example.com | 2048M
+dev@example.com | /var/www/html/example.com/dev | unlimited
 ```
 </details>
 
-Add `--json` to either command for JSON output.
+The last column is the account's disk quota, see [Quota](#quota).
+
+Add `--json` to either command for JSON output. `quota_mb` is `0` for unlimited accounts, `used_kb` is the disk usage from the last quota check and is empty for accounts without a quota.
 
 <details>
   <summary>Example output</summary>
 
 ```bash
 # opencli ftp-list stefan --json
-[{"openpanel_user":"stefan","username":"backup@example.com","password":"$6$rounds=656000$...","directory":"/var/www/html/example.com","uid":"1001","gid":"1001"}]
+[{"openpanel_user":"stefan","username":"backup@example.com","password":"$6$rounds=656000$...","directory":"/var/www/html/example.com","uid":"1001","gid":"1001","quota_mb":"2048","used_kb":"524288"}]
 ```
 </details>
 
 ## Add
 Create FTP sub-user for openpanel user:
 ```bash
-opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--debug]
+opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--quota=<MB>] [--debug]
 ```
+
+`--quota` sets a disk quota right away, in MB (`500`) or with a unit (`500M`, `2G`), see [Quota](#quota).
 
 <details>
   <summary>Example output</summary>
 
 ```bash
 # opencli ftp-add backup@example.com 'StrongPass1' /var/www/html/example.com stefan
+Success: FTP user 'backup@example.com' created successfully (UID: 1001, GID: 1001).
+```
+</details>
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli ftp-add backup@example.com 'StrongPass1' /var/www/html/example.com stefan --quota=2G
+    FTP quota for user 'backup@example.com' set to 2G.
 Success: FTP user 'backup@example.com' created successfully (UID: 1001, GID: 1001).
 ```
 </details>
@@ -26035,6 +26714,43 @@ opencli ftp-path <username> <path> <openpanel_username> [--debug]
 Success: FTP path for user 'backup@example.com' changed successfully.
 ```
 </details>
+
+## Quota
+Show the disk quota and usage of an FTP sub-user:
+```bash
+opencli ftp-quota <username> <openpanel_username>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli ftp-quota backup@example.com stefan
+FTP user 'backup@example.com' quota: 2G, used: 512M
+```
+</details>
+
+Set or remove the disk quota:
+```bash
+opencli ftp-quota <username> <quota> <openpanel_username> [--debug]
+```
+
+`<quota>` is in MB (`500`) or with a unit (`500M`, `2G`). `0` or `unlimited` removes the quota.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli ftp-quota backup@example.com 2G stefan
+Success: FTP quota for user 'backup@example.com' set to 2G.
+# opencli ftp-quota backup@example.com unlimited stefan
+Success: Quota removed for FTP user 'backup@example.com'.
+```
+</details>
+
+The quota is the size of the account's folder (everything under its path, also files uploaded by other means). The FTP service checks it when it starts and then every 60 seconds. Once the folder is over the quota, uploads and new folders are refused and open sessions of that account are closed, deleting and downloading files still works. Uploads are allowed again on the next check after the folder is back under the quota. `opencli ftp-quota` runs a check right away.
+
+Quotas are stored as the 6th field in `/etc/openpanel/ftp/users/<openpanel_username>/users.list`, and the usage from the last check in `quota.usage` next to it.
 
 ## Delete
 Delete FTP sub-user for openpanel user:
@@ -26099,10 +26815,19 @@ Wed Sep 24 10:31:02 2026 [pid 413] [backup@example.com] OK UPLOAD: Client "203.0
 </details>
 
 ## Users
-Recreate list of all ftp users *(internal helper, not available as an `opencli` command)*:
+Recreate the list of all FTP users in `/etc/openpanel/ftp/all.users`, used by OpenAdmin *(internal helper, not listed in `opencli --help`)*:
 ```bash
-bash /usr/local/opencli/ftp/users.sh
+opencli ftp-users
 ```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli ftp-users
+backup@example.com|$6$...|/home/stefan/docker-data/volumes/stefan_html_data/_data/example.com|1001|1001|2048 upload@demo.net|$6$...|/home/demo/docker-data/volumes/demo_html_data/_data/demo.net|1002|1002
+```
+</details>
 
 ---
 
@@ -26595,7 +27320,7 @@ Usage: opencli domains-stats [USERNAME] [--debug]
 ------------------------
 opencli domains-suspend
 Description: Suspend a domain name
-Usage: opencli domains-suspend <DOMAIN-NAME> [--comment="<COMMENT>"]
+Usage: opencli domains-suspend <DOMAIN-NAME> [--comment="<COMMENT>"] [--by=admin|user] [--template=<NAME>]
 ------------------------
 opencli domains-test
 Description: Test a website speed through every layer (DNS, Caddy/WAF, Varnish, webserver, PHP, database), check limits and settings, and show the biggest issue with a fix.
@@ -26603,7 +27328,7 @@ Usage: opencli domains-test <DOMAIN_NAME>[/SUBFOLDER] [RUNS]
 ------------------------
 opencli domains-unsuspend
 Description: Unsuspend a domain name
-Usage: opencli domains-unsuspend <DOMAIN-NAME>
+Usage: opencli domains-unsuspend <DOMAIN-NAME> [--by=admin|user]
 ------------------------
 opencli domains-update_ns
 Description: Change nameservers for a single or all dns zones.
@@ -26671,7 +27396,7 @@ Usage: opencli files-purge_trash [--user USERNAME] [--force] [--dry-run]
 ------------------------
 opencli ftp-add
 Description: Create FTP sub-user for openpanel user.
-Usage: opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--debug]
+Usage: opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--quota=<MB>] [--debug]
 ------------------------
 opencli ftp-connections
 Description: Display all active FTP connection or for particular OpenPanel user.
@@ -26696,6 +27421,10 @@ Usage: opencli ftp-password <username> <new_password> <openpanel_username> [--de
 opencli ftp-path
 Description: Change FTP path for a user.
 Usage: opencli ftp-path <username> <path> <openpanel_username> [--debug]
+------------------------
+opencli ftp-quota
+Description: Show or set the disk quota for an FTP sub-user.
+Usage: opencli ftp-quota <username> [<quota>] <openpanel_username> [--debug]
 ------------------------
 opencli imunify
 Description: Install and manage ImunifyAV service.
@@ -26859,7 +27588,7 @@ Usage: opencli version
 ------------------------
 opencli waf
 Description: Manage CorazaWAF
-Usage: opencli waf <status|enable|disable|domain|plugins|tags|ids|update|stats|count> [options]
+Usage: opencli waf <status|enable|disable|domain|user|plugins|tags|ids|update|stats|count> [options]
 ------------------------
 opencli websites-all
 Description: Lists all websites currently hosted on the server.
@@ -27645,7 +28374,7 @@ Checking services:
 
 - **Alerts** need admin attention. They are logged as unread with a *critical* or *warning* severity and sent by email/webhook. Service alerts say what failed, what Sentinel tried, which command to check it with, and include the last log lines. If the same alert is detected again while it's still unread, its count and last seen time are updated instead of adding a new notification or sending another email. Disk, load, RAM and SSH login checks are skipped entirely while their alert is unread, so no new crashlog is generated either. This only lasts 24 hours from when the alert was first reported: after that, an unread alert no longer blocks new ones, so a new notification (and crashlog for load) is logged and emailed again.
 - **Info** entries are for things Sentinel already fixed on its own, like restarting a stopped container. They are logged as already read for history and are not emailed. If the same thing happens again within 24 hours of the first entry, that entry's count, last seen time and message are updated instead of adding a new row, so a container that keeps crashing shows up once.
-- All alerts from one run are sent as **one email and one webhook**. With a single alert the subject is its title, with more it's *N notifications from Sentinel on &lt;hostname&gt;* and the body lists them all. In the email each notification is shown with its severity.
+- All alerts from one run are sent as **one email and one webhook**. If several email addresses or webhook URLs are set, each of them gets it. With a single alert the subject is its title, with more it's *N notifications from Sentinel on &lt;hostname&gt;* and the body lists them all. In the email each notification is shown with its severity.
 - The webhook is sent as JSON with a `text` field for Slack and a `content` field for Discord, which is cut to 2000 characters since Discord rejects longer messages.
 
 Load, CPU and RAM only alert after they stay over the threshold for **2 checks in a row** (about 10 minutes with the default cron), so short spikes don't trigger alerts. CPU usage is measured over 1 second.
@@ -27661,7 +28390,7 @@ Load, CPU and RAM only alert after they stay over the threshold for **2 checks i
 ```
 </details>
 
-OOM kills are read from the kernel log with `journalctl -k`, at most once an hour, covering everything since the previous check (the last hour on the first run after a reboot). Both kills inside a container's memory limit and system-wide out of memory kills are counted, and the alert lists them per system service and per user.
+OOM kills are read from the kernel log with `journalctl -k`, at most once an hour, covering everything since the previous check (the last hour on the first run after a reboot). Both kills inside a container's memory limit and system-wide out of memory kills are counted, and the alert lists each killed process with its user, PID, container name (or short ID if the container no longer exists), memory used, time and whether it hit the container's memory limit or the server ran out of memory (at most 10, the rest are counted). Kills inside a user's rootless containers are matched to that user by the cgroup path, since the kernel reports them with a subuid.
 
 <details>
   <summary>Example output</summary>
@@ -27670,6 +28399,8 @@ OOM kills are read from the kernel log with `journalctl -k`, at most once an hou
 # opencli sentinel
 ...
 [✘] 2 user process(es) killed by OOM since 2026-10-02 14:05
+    - user stefan: php-fpm8.3 (pid 4321, container php-fpm-8.3, 512 MB) at 2026-10-02 14:31, container memory limit
+    - user stefan: php-fpm8.3 (pid 4388, container php-fpm-8.3, 498 MB) at 2026-10-02 14:47, container memory limit
 ...
 ```
 </details>
@@ -27927,6 +28658,19 @@ Recalculating disk and inodes usage for all users on 203.0.113.20 ...
 ```
 </details>
 
+If the destination is this same server (its IP, hostname or `localhost`), the migration stops before anything is copied:
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli server-migrate -h 198.51.100.10 --user root --password 'DestinationPass'
+Migration started, log file: /var/log/openpanel/admin/migrations/198.51.100.10_2026-10-12_10-00-00.log
+PID: 12345
+FATAL ERROR: 198.51.100.10 is this server. Set the IP of the destination server.
+```
+</details>
+
 All available flags:
 ```bash
 opencli server-migrate -h <remote_host> -u <remote_user> [--password <password>] [--force] [--exclude-home] [--exclude-logs] [--exclude-csf] [--exclude-mail] [--exclude-bind] [--exclude-openpanel] [--exclude-mysql] [--exclude-stack] [--exclude-postupdate] [--exclude-users] [--exclude-contexts]
@@ -27935,7 +28679,7 @@ opencli server-migrate -h <remote_host> -u <remote_user> [--password <password>]
 - `-h`, `--host` - destination server IP.
 - `-u`, `--user` - SSH user on the destination server.
 - `--password` - SSH password for the destination server.
-- `--force` - skip checking if the destination server already has users.
+- `--force` - skip checking if the destination server already has users. It doesn't skip the check that the destination isn't this same server.
 - `--exclude-csf` - don't sync `/etc/csf/` firewall configuration.
 - `--exclude-contexts` - don't set up rootless Podman for users on the destination server.
 - `--exclude-*` - skip syncing that part of the data (home directories, logs, mail, DNS zones, OpenPanel configuration, MySQL, root docker stack, post-update scripts, users).
@@ -28648,7 +29392,7 @@ Optional flags:
 - `--send-email` - send an email with login credentials to the user's email address.
 - `--private-note=<NOTE>` - save a private note for this user (visible only in OpenAdmin).
 - `--reseller=<RESELLER_USERNAME>` - assign a reseller as the owner of this user.
-- `--webserver=<TYPE>` - webserver to use: `nginx`, `apache`, `openresty`, `openlitespeed` or `litespeed`, optionally prefixed with `varnish+` (e.g. `varnish+nginx`). Defaults to the plan/server setting.
+- `--webserver=<TYPE>` - webserver to use, one of the webservers defined in the default `docker-compose.yml` template (by default `nginx`, `apache`, `openresty` or `openlitespeed`), optionally prefixed with `varnish+` (e.g. `varnish+nginx`). A webserver not in the template is ignored with a warning and the default is used.
 - `--sql=<mysql|mariadb>` - database type to use.
 - `--no-sentinel` - don't send the *user_create* notification.
 - `--skip-images` - don't pull container images for the new user.
@@ -28939,6 +29683,8 @@ To reset the password for a OpenPanel user, you can use the `user-password` comm
 ```bash
 opencli user-password <USERNAME> <NEW_PASSWORD>
 ```
+
+Changing the password also logs the user out of all active sessions, revokes all of their MCP tokens, and invalidates any API tokens issued before the change.
 
 <details>
   <summary>Example output</summary>
@@ -29599,6 +30345,8 @@ Response body inspection is turned off (`SecResponseBodyAccess Off` in `/etc/ope
 
 This also disables OWASP CRS rulesets for stacks OpenPanel doesn't use or rarely hosts, by renaming them to `.conf.disabled`: `REQUEST-944-APPLICATION-ATTACK-JAVA`, `RESPONSE-952-DATA-LEAKAGES-JAVA`, `RESPONSE-954-DATA-LEAKAGES-IIS` and `RESPONSE-956-DATA-LEAKAGES-RUBY`. They can be re-enabled from OpenAdmin > Security > CorazaWAF.
 
+WAF is turned on for all existing domains, except domains of users that have it turned off with [`opencli waf user USERNAME disable`](#user).
+
 It also downloads the official OWASP CRS rule exclusion plugins for WordPress, Drupal, Nextcloud, DokuWiki, phpBB, XenForo and phpMyAdmin into `/etc/openpanel/caddy/coreruleset-plugins/`. Users can turn these on per domain as *App profiles* in OpenPanel > WAF, so the app's normal requests are not blocked as false positives.
 
 ```bash
@@ -29761,6 +30509,64 @@ opencli waf domain <DOMAIN_NAME> plugins
 Protection level for domain example.com: standard
 App profiles active for domain example.com:
  - wordpress
+```
+</details>
+
+## User
+
+Users can have CorazaWAF turned off for all their domains, including domains they add later. Turning it off creates `/home/<CONTEXT>/waf.disabled`, and `opencli domains-add` sets `SecRuleEngine Off` for new domains of that user while the file exists.
+
+### Status
+Check if CorazaWAF is used for new domains of a user and show the status of each of their domains:
+
+```bash
+opencli waf user <USERNAME>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf user stefan
+CorazaWAF is enabled for new domains of user stefan
+SecRuleEngine is set to On for domain example.com
+SecRuleEngine is set to Off for domain example.net
+```
+</details>
+
+### Enable
+Enable CorazaWAF for all current and new domains of a user (sets `SecRuleEngine On`, monitor only domains too). If the `waf` module is not enabled, only the user's `waf.disabled` file is removed and existing domains are left as they are:
+
+```bash
+opencli waf user <USERNAME> enable
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf user stefan enable
+- SecRuleEngine On is now set for domain example.com
+- SecRuleEngine On is now set for domain example.net
+CorazaWAF is now enabled for all current and new domains of user stefan
+```
+</details>
+
+### Disable
+Disable CorazaWAF for all current and new domains of a user:
+
+```bash
+opencli waf user <USERNAME> disable
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli waf user stefan disable
+- SecRuleEngine Off is now set for domain example.com
+- SecRuleEngine Off is now set for domain example.net
+CorazaWAF is now disabled for all current and new domains of user stefan
 ```
 </details>
 
@@ -39189,7 +39995,7 @@ Released on Oct 01. 2026
 
 // File: changelog/2.0.14
 
-Not yet released.
+Released on October 15, 2026
 
 ### 💡 New
 - New `opencli user-report <USERNAME|--all>`: health report for a user with everything the interface warns about (disk, containers, PHP, SSL, DNS, WAF, databases, emails, cron jobs, security and more), with `--section` to run only some parts and `--json` to save it to `/home/<context>/user_report_status.json`, or for `--all` to `/etc/openpanel/openpanel/user_report_status.json`.
@@ -39234,20 +40040,65 @@ Not yet released.
 
 // File: changelog/2.0.15
 
-Not yet released.
+Released on October 15, 2026.
 
 ### 💡 New
+- Git is now available in OpenPanel: deploy websites from GitHub, GitLab, Bitbucket or repositories pushed to the server. [Docs](/docs/panel/applications/git)
 - OpenAdmin > Security > Web Firewall (Coraza) is split into *Overview*, *Rules*, *Domains* and *Logs* tabs. [Docs](/docs/admin/security/waf/)
-  - *Overview*: domains per WAF mode, recently blocked requests, the installed OWASP CRS version with *Check for updates* and *Update rules* (only shown when updates are available), app profiles with the number of domains using each and *Re-download*, and the most attacked domains and most triggered rules.
-  - *Rules*: rule IDs and tags can be disabled on all domains, saved to `RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf` so CRS updates keep them.
-  - *Domains*: every domain with its owner, mode, protection level and disabled rules. Change the mode (Protect, Monitor only, Off) and disabled rules and tags of one domain, or the mode and a disabled rule for all domains of a user.
-  - *Logs*: blocked, would block and flagged requests for the whole server, a user or a domain, with the most hit domains, rules triggered (with *Disable for domain/user* and *Disable server-wide*), top IP addresses and latest requests, and *Clear logs*.
+- FTP accounts can have a disk quota, set when creating the account, from *Change Quota* or with bulk actions on *OpenPanel > FTP Accounts*, and from *OpenAdmin > Services > FTP*. Once an account's folder is over the quota, uploads are blocked until space is freed. [Docs](/docs/panel/files/FTP#change-quota)
+- New *AI Assistant* module: users click **AI** in the top bar to open a chat on any page and ask how to do things in the panel. Answers are based on the OpenPanel documentation, the user's plan and the page they are on. It can also look things up and make changes in the user's account: changes run only after the user approves them, actions that delete or overwrite data always ask, and everything it does is written to the activity log. Enable it on *OpenAdmin > Settings > Modules*, then set what it can do (answer only, look up, or make changes), the provider (OpenRouter, OpenAI, Anthropic or any OpenAI-compatible API such as Ollama), API key, model and monthly request limit per user on *OpenAdmin > Settings > OpenPanel > AI Assistant*, where usage per user is also shown. [Docs](/docs/panel/dashboard/dashboard#ai-assistant)
+- `opencli ftp-quota` shows or sets the disk quota of an FTP account, and `opencli ftp-add` has a new `--quota` flag. `opencli ftp-list` shows each account's quota. [Docs](/docs/articles/opencli/ftp#quota)
 
 ### 💅 Polish
-- OpenAdmin > Documentation: images in the docs panel are shown at full width again.
+- New and deleted FTP accounts show up on *OpenAdmin > Services > FTP* right away instead of after the next `opencli ftp-users` run.
+- *OpenPanel > FTP Accounts* has a *Show Columns* menu like *Domains*, with UID and GID hidden by default, and the row actions are now icons with tooltips like on *MySQL*.
+- OpenAdmin now shows recommendations across its pages, based on the server and the current settings: auto update policy, default webserver/database/Varnish/PHP version and autostart services, service CPU/RAM limits, nameservers, password reset without SMTP, file manager and MySQL import sizes, trash purge, password and session security, missing PHP versions, locales for where users log in from, SSH port and authentication, swap size, high resource usage, broken cron schedules, processes hogging resources, other open terminal sessions, WAF and basic auth, email services and license due date.
+- *OpenAdmin > Settings > Notifications* recommends Website traffic limits from Sentinel's recorded connection peaks, which Services to monitor, and IPs for the Login Whitelist from earlier OpenAdmin logins. User actions are grouped with *All on* / *All off* buttons. [Docs](/docs/admin/settings/notifications)
+- *OpenAdmin > Settings > Notifications > Resource Usage* recommends threshold values based on the server's CPU cores, RAM, disk and swap, and warns when a value is set too low. [Docs](/docs/admin/settings/notifications#resource-usage)
+- Multiple email addresses and webhooks endpoints can now be set on *OpenAdmin > Settings > Notifications*, each webhook has a *Test* button. [Docs](/docs/admin/settings/notifications#webhook)
 
 ### 🐛 Bug Fixes
+- `POST /api/domains` without a `docroot` failed with "Invalid docroot", it now defaults to `/var/www/html/<domain>` like the *Add Domain* form.
+- OpenAdmin > Services > FTP showed no accounts when an OpenPanel user had more than one FTP account, after `opencli ftp-users` ran, because it joined the accounts without a separator.
+- `opencli server-migrate` now refuses to run when the destination is the same server, even with `--force`, instead of taking down and re-importing the source's own stack and database.
+- `opencli server-migrate` now replaces only the exact old server IP in DNS zones and configuration files, so records like `11.2.3.45` are no longer changed when the old IP is `1.2.3.4`.
+- [Installing n8n produces an invalid per-user nginx.conf + a single user's Nginx crash loop takes down global Caddy for all users #1193](https://github.com/stefanpejcic/OpenPanel/issues/1193)
+- Max total connections and Max connections per IP above 100 were ignored by Sentinel, which always used its defaults of 5000 and 500.
 - `chown: invalid user: ‘testinguser:testinguser’` error on `opencli domains-docroot`.
+- OpenAdmin reported an email as sent when the SMTP server rejected it after receiving the message.
+- `opencli admin notifications update webhook_url` broke URLs that contain `&` or `|`.
+- `opencli domains-cloudflare` now also allows the server's own IPs, so wp-cron and other loopback requests to Cloudflare-only domains no longer get a 403.
+
+---
+
+// File: changelog/2.0.16
+
+Not yet released.
+
+### 🐛 Bug Fixes
+- [Bug handling suspended domains: user can delete domain and add it again to remove a suspension #1198](https://github.com/stefanpejcic/OpenPanel/issues/1198)
+- `opencli sentinel` OOM alerts now list the killed processes with user, PID, container, memory and time instead of only a count, and kills inside users' rootless containers are no longer left out of the details.
+- Fixed several bugs with `opencli docker-backup` script.
+- `opencli domains-unsuspend` now removes the domain's saved copy from `suspended_domains/`, before it stayed there and `opencli domains-suspend` refused to suspend the domain again ("Domain is already suspended."). `domains-suspend` now checks the live Caddy file, and the update removes copies left behind for domains that aren't suspended.
+- Restoring a database from Backups > Restore now streams the dump into the database container instead of loading it into memory, so large dumps, triggers, procedures and PostgreSQL `COPY` data restore correctly.
+- A comment given to `opencli domains-suspend` could add lines to the domain's Caddy file, line breaks and control characters are now removed from it.
+- The Suspended Website editor on OpenAdmin > Domains > Domain Templates saved to `/etc/openpanel/nginx/suspended_website.html`, which isn't used, it now edits `/etc/openpanel/caddy/templates/suspended_domain.html` that Caddy serves.
+- Suspending and then unsuspending an account reactivated its domains that were suspended on their own, they now stay suspended.
+- `opencli domains-unsuspend` on a domain of a suspended account deleted the saved copy of its original vhost, and `opencli domains-suspend` overwrote it, both now refuse until the account is unsuspended.
+
+### 💡 New
+- `opencli waf user USERNAME enable|disable` turns CorazaWAF on or off for all current and new domains of a user, and `opencli waf user USERNAME` shows the user's WAF status.
+- Backups > Restore is redesigned: it opens with backup stats and a tile per type (Everything, Website Files, Databases, Emails, Domains, Cron Jobs), and each type lists its own backups so you can restore just what you need. The Databases tab lists each database once with an older-backup picker and restores several at a time, and any restore that brings back cron jobs now restarts the cron container so they take effect.
+- [Domains suspended by the Administrator are locked for the user #1166](https://github.com/stefanpejcic/OpenPanel/discussions/1166): OpenPanel shows **Suspended by Admin** with the reason and refuses to unsuspend, delete or change the domain, its VirtualHosts or its DNS zone. Users can still suspend and unsuspend their own domains. See [Suspend a domain](/docs/admin/domains/domains/#suspend-a-domain).
+- [Suspension reasons](/docs/admin/domains/file_templates/#suspension-reasons): pick a reason and an optional comment when suspending a domain in OpenAdmin, from the bulk actions or the API. Visitors see the reason's page and the user sees its name. Reasons are managed on OpenAdmin > Domains > Domain Templates, with Copyright / DMCA Violation, Overdue Payment / Billing and Phishing / Security Violation included.
+- `opencli domains-suspend` has new `--by=admin|user` and `--template=<reason>` flags, and `opencli domains-unsuspend` has `--by=admin|user`.
+
+### 💅 Polish
+- `opencli waf enable` no longer turns WAF back on for domains of users that have it turned off with `opencli waf user USERNAME disable`.
+- For accounts with admin-configured backups, the Backups page now opens Restore & Download directly since there is nothing to configure.
+- Downloading a backup from Backups > Restore now streams it straight from the destination instead of saving a temporary copy first.
+- The VirtualHost, Varnish and Caddy templates moved from OpenAdmin > Domains > Domain Templates to their own [VirtualHost Templates](/docs/admin/domains/vhost_templates/) tab at `/domains/vhost-templates`, and to the new `/api/domains/vhost-templates` API endpoint. `/api/domains/file-templates` now only handles `default_page`, `suspended_user` and `suspended_website`.
+- The Git column on OpenAdmin > Websites is now shown by default.
 
 ---
 
@@ -39439,17 +40290,21 @@ Released on 17. September 2026.
 # Changelog
 
 ### Upcoming version
+
 | Version| Release date | 
 |---|---|
 |__[2.0.15](/docs/changelog/2.0.15)__| October 30, 2026 |
+|__[2.0.16](/docs/changelog/2.0.16)__| October 30, 2026 |
+|__[1.7.67](/docs/changelog/1.7.67)__|  |
 
 ### Latest
+
 | Version| Release date | 
 |---|---|
-|__[2.0.14](/docs/changelog/2.0.14)__| October 09, 2026 |
-
+|__[2.0.14](/docs/changelog/2.0.14)__| October 15, 2026 |
 
 ### Previous versions
+
 | Version| Release date | 
 |---|---|
 |__[2.0.13](/docs/changelog/2.0.13)__| October 01, 2026 |
@@ -42087,8 +42942,10 @@ GET /api/backups/list
 ```
 
 ```json
-[{"backup_file": "myuser-2026-01-15T12-00-00.tar.gz", "types": ["html", "mysql", "crons"], "databases": ["wp_db"], "has_files": true, "has_crons": true}]
+[{"backup_file": "myuser-2026-01-15T12-00-00.tar.gz", "types": ["crons", "html", "mail", "mysql", "vhosts"], "databases": ["wp_db"], "has_files": true, "has_crons": true, "size": 48303368, "database_sizes": {"wp_db": 4504538}, "database_engines": {"wp_db": "mysql"}, "lists": ["files", "mail", "vhosts", "dns"]}]
 ```
+
+`size` is the archive size in bytes as reported by the destination, `database_sizes` the uncompressed dump size of each database and `database_engines` whether it's a `mysql` or `postgres` database. `lists` says which single items (`files`, `mail`, `vhosts`, `dns`) can be picked from the backup. `database_sizes` is missing for archives made before 2.0.16 on an SSH/SFTP destination.
 
 Add `?status=1` to get reindex progress instead of the list:
 
@@ -42114,13 +42971,20 @@ POST /api/backups/reindex
 
 ### Restore from a backup
 
-`restore_target` is `all` (files + databases), `database` (a single database — set `database` to its name), or `files` (files only).
+`restore_target` is `all` (files + databases), `database` (a single database — set `database` to its name), `files` (all files, no databases), one part of the archive on its own: `html` (website files), `mail` (emails), `vhosts` (domains), `dns` (DNS zones) or `crons` (cron jobs), or single items listed in `items`: `paths` (website files or folders, relative to the docroot volume), `mailboxes` (`domain/user`), `domains` (restores the domain's configuration and DNS zone, deleted domains are added back first) or `dns_zones` (domain names, the zone only).
 
 ```bash
 POST /api/backups/restore
 Content-Type: application/json
 
 {"backup_file": "myuser-2026-01-15T12-00-00.tar.gz", "restore_target": "all", "database": ""}
+```
+
+```bash
+POST /api/backups/restore
+Content-Type: application/json
+
+{"backup_file": "myuser-2026-01-15T12-00-00.tar.gz", "restore_target": "mailboxes", "items": ["example.com/info"]}
 ```
 
 ```json
@@ -44887,7 +45751,7 @@ The **Websites** item in the OpenPanel sidebar opens the Site Manager, with tabs
 
 # Sites
 
-The **Site Manager** (`/sites`) lists every website on your account in one place — static sites, WordPress installs, Node.js/Python/Ruby/Java applications, and sites created via other installers (Drupal, Joomla, OpenCart, etc.) — grouped by type.
+The **Site Manager** (`/sites`) lists every website on your account in one place — static sites, WordPress installs, Node.js/Python/Ruby/Java applications, domains pointed to a [Docker container](/docs/panel/containers/#pointing-a-domain-to-a-container), and sites created via other installers (Drupal, Joomla, OpenCart, etc.) — grouped by type.
 
 To create a new site, click **+ New Website**, which opens the [Auto Installer](/docs/panel/applications/autoinstaller/).
 
@@ -44907,6 +45771,8 @@ Each row shows:
   - **Clone** – Copies the site's files and database to another domain.
   - **Backups** – Jumps to the site's backup tab.
   - **Delete** – Removes the site.
+
+  For **Docker Containers** sites, **Manage** opens the container's **Edit** page and **Delete** deletes the container, which also removes its reverse proxy from the domain.
 
 ![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list.png#gh-light-mode-only)
 ![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list_dark.png#gh-dark-mode-only)
@@ -45269,6 +46135,15 @@ Create a clone:
 ![Clone tab with the destination location and database for the copy](/img/openpanel-screenshots/applications/wordpress-clone.png#gh-light-mode-only)
 ![Clone tab with the destination location and database for the copy](/img/openpanel-screenshots/applications/wordpress-clone_dark.png#gh-dark-mode-only)
 
+### Git
+
+When the Git module is enabled, the **Git** tab lists the repositories that deploy to this website and lets you add one with the website's folder already filled in. A typical WordPress setup keeps a custom theme or plugin in Git and deploys it into `wp-content/themes/<theme>` or `wp-content/plugins/<plugin>`, with a deploy action that activates it with WP-CLI. WordPress core, uploads and other plugins are left alone.
+
+![Git tab in the Site Manager with a theme repository and a remote repository, their deploy buttons, clone URL and webhook URL](/img/openpanel-screenshots/applications/git-tab.png#gh-light-mode-only)
+![Git tab in the Site Manager with a theme repository and a remote repository, their deploy buttons, clone URL and webhook URL](/img/openpanel-screenshots/applications/git-tab_dark.png#gh-dark-mode-only)
+
+See [Git](/docs/panel/applications/git) for pushing, webhooks and deploy actions.
+
 ### Remove
 
 Want to stop managing a site in WP Manager (without deleting it)?
@@ -45323,6 +46198,26 @@ For an application to appear on the Autoinstaller page, the corresponding module
 - [Website Builder](/docs/panel/applications/builder)
 
 `*` Indicates that the feature is available only in Enterprise editon.
+
+## Docker Applications
+
+If your account has the **Docker** feature enabled, the Auto Installer also shows a **Docker Applications** section with ready-made templates for popular self-hosted apps:
+
+| Application | Image | Port |
+|---|---|---|
+| Uptime Kuma | `louislam/uptime-kuma:2` | 3001 |
+| n8n | `n8nio/n8n:latest` | 5678 |
+| Gitea | `gitea/gitea:latest` | 3000 |
+| Vaultwarden | `vaultwarden/server:latest` | 80 |
+| Memos | `neosmemo/memos:stable` | 5230 |
+
+Clicking **Install** opens the [Add a container](/docs/panel/containers/#adding-new-services) form already filled in with the image, limits, networks, a data volume and the environment variables the app needs. Pick a domain in the **Domain** step, change anything else you like, and click **Create container**. The app is then reachable on that domain and listed in [Site Manager](/docs/panel/applications/sites/).
+
+The list of templates is loaded from [applications.yml](https://github.com/stefanpejcic/openpanel-configuration/blob/main/docker/templates/applications.yml) in the OpenPanel configuration repository and cached for 24 hours. If GitHub can't be reached, the copy on the server at `/etc/openpanel/docker/templates/applications.yml` is used.
+
+:::tip
+Some apps finish their setup on first visit, for example Uptime Kuma and n8n ask you to create the admin account, and Gitea shows its installation page.
+:::
 
 ---
 
@@ -46706,6 +47601,153 @@ Shows the n8n container log - startup, database migrations and errors from workf
 
 ---
 
+// File: panel/applications/git
+
+# Git
+
+Deploy websites from Git repositories. Clone a repository from GitHub, GitLab, Bitbucket or any other Git server, or create a repository on the server and push to it from your computer. OpenPanel checks out the selected branch into a folder of your website on every deploy.
+
+![Git page with the repositories table showing each repository, its website, deployment mode, latest commit and last deploy](/img/openpanel-screenshots/applications/git-list.png#gh-light-mode-only)
+![Git page with the repositories table showing each repository, its website, deployment mode, latest commit and last deploy](/img/openpanel-screenshots/applications/git-list_dark.png#gh-dark-mode-only)
+
+Go to **OpenPanel > Websites > Git** to manage all repositories of your account. The same repositories are also listed on the [Git tab](#git-tab-in-the-site-manager) of each website in the Site Manager.
+
+:::info
+The Git page is available only when your hosting provider has enabled the Git module for your plan.
+:::
+
+## How it works
+
+Every repository is stored on the server outside of your websites, so the `.git` folder never ends up in a public directory. When a repository is deployed, OpenPanel:
+
+1. checks out the latest commit of the selected branch into the deploy directory,
+2. removes files that were deleted from the repository since the previous deploy,
+3. leaves files that were never part of the repository alone, for example WordPress uploads or a `.env` file,
+4. sets the owner of the deployed files to your account,
+5. runs the [deploy actions](#deploy-actions), if any are set.
+
+## Add a repository
+
+Click **Add Repository** and choose where the repository comes from.
+
+![Add Repository form with the remote and local source options, repository URL, name, branch, website, deploy directory, deployment mode and deploy actions](/img/openpanel-screenshots/applications/git-add.png#gh-light-mode-only)
+![Add Repository form with the remote and local source options, repository URL, name, branch, website, deploy directory, deployment mode and deploy actions](/img/openpanel-screenshots/applications/git-add_dark.png#gh-dark-mode-only)
+
+| Field | Description |
+|---|---|
+| **Source** | *Remote Git hosting* clones an existing repository. *Local repository* creates an empty repository on the server that you push to. |
+| **Repository URL** | Remote only. An `https://` URL, or an SSH URL like `git@github.com:user/repo.git`. |
+| **Username** / **Password or access token** | Remote HTTPS repositories only, and only for private ones. Use a personal access token instead of your account password. |
+| **Repository name** | Optional. Taken from the URL for remote repositories, or from the domain name for local ones. |
+| **Branch** | The branch that gets deployed. Remote repositories use their default branch when this is empty, local ones use `main`. |
+| **Website** | The domain the repository deploys to. |
+| **Deploy to directory** | The folder the files are checked out into. Defaults to the domain's document root and can be any folder under `/var/www/html/`, for example `/var/www/html/example.com/wp-content/themes/my-theme`. |
+| **Deployment mode** | See [Deployment modes](#deployment-modes). |
+| **Enable additional deploy actions** | See [Deploy actions](#deploy-actions). |
+
+Click **Create**. A remote repository is cloned right away and, in automatic mode, deployed. A local repository starts empty and shows its push credentials once.
+
+### Private repositories over SSH
+
+When you enter an SSH URL, the form shows the SSH public key of your account. Add it to the repository as a *deploy key* (read-only access is enough) on GitHub, GitLab or Bitbucket before you click **Create**. The same key is used for all SSH repositories of your account.
+
+### Pushing to a local repository
+
+A local repository is reached over HTTPS through the panel. After you create it, OpenPanel shows the **Username** (your panel username), a **Password** for this repository and the **Clone URL**. Copy the password right away, it is not shown again.
+
+```bash
+git remote add origin https://OPENPANEL_URL:2083/git-http/USERNAME/REPOSITORY.git
+git push -u origin main
+```
+
+Git asks for the username and password on the first push. To get a new password, open the repository's **Settings** and click **New push password**, then click it again to confirm. The old password stops working right away.
+
+## Deployment modes
+
+| Mode | What happens |
+|---|---|
+| **Automatic** | Every push to a local repository and every pull of a remote repository is deployed right away. |
+| **Manual** | Pushes and pulls only update the repository. Nothing reaches the website until you click **Deploy**. |
+| **No deployment** | The repository is only stored on the server, there is no Deploy button. |
+
+The table shows a **deployed** badge next to the latest commit when it is live, and **not deployed** when the repository has newer commits than the website.
+
+## Deploy actions
+
+Deploy actions are shell commands that run after every deploy, for example to install dependencies, run database migrations or clear a cache. Enable **Enable additional deploy actions**, pick the container to **Run in** (like for [cron jobs](/docs/panel/cronjobs)) and enter one command per line. The commands start in the deploy directory.
+
+```bash
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+```
+
+The output of the last deploy is shown in the repository's **Settings**. If a command fails, the files stay deployed and the repository gets an **Error** badge.
+
+## Webhooks
+
+Every remote repository has a **Webhook URL** in its **Settings**. Add it as a push webhook in GitHub, GitLab or Bitbucket, and OpenPanel pulls the repository every time you push there. In automatic mode the changes are also deployed.
+
+## Manage repositories
+
+![Show Columns menu with switches for each column of the repositories table](/img/openpanel-screenshots/applications/git-columns.png#gh-light-mode-only)
+![Show Columns menu with switches for each column of the repositories table](/img/openpanel-screenshots/applications/git-columns_dark.png#gh-dark-mode-only)
+
+Use the search box to filter repositories by name, domain or URL, **Show Columns** to pick the columns (the *Branch* column is hidden by default), and the arrows next to a column name to sort the table.
+
+The icons in the **Actions** column are:
+
+- **Pull Updates** (remote repositories): fetches all branches from the remote.
+- **Deploy**: deploys the latest commit of the selected branch.
+- **Commit log**: opens the [commit log](#commit-log).
+- **Settings**: opens the [settings](#settings) under the row.
+- **Remove**: opens the [remove](#remove) confirmation under the row.
+
+### Settings
+
+![Settings row of a local repository with its clone URL, branch, deploy directory, deployment mode, deploy actions and the output of the last deploy](/img/openpanel-screenshots/applications/git-settings.png#gh-light-mode-only)
+![Settings row of a local repository with its clone URL, branch, deploy directory, deployment mode, deploy actions and the output of the last deploy](/img/openpanel-screenshots/applications/git-settings_dark.png#gh-dark-mode-only)
+
+The settings show the **Clone URL** (local repositories) or **Webhook URL** (remote repositories) with a copy button, and let you change the branch, deploy directory, deployment mode, deploy actions and, for private HTTPS repositories, the username and access token. Leave the token empty to keep the saved one. Below the form you'll see the output of the last pull or deploy.
+
+### Commit log
+
+![Commit log of a repository with each commit, its message, author and date, and the deployed commit marked](/img/openpanel-screenshots/applications/git-log.png#gh-light-mode-only)
+![Commit log of a repository with each commit, its message, author and date, and the deployed commit marked](/img/openpanel-screenshots/applications/git-log_dark.png#gh-dark-mode-only)
+
+The commit log lists the last 100 commits of the selected branch with their author and date, and marks the commit that is currently deployed. Use the search box to find a commit by its hash, message or author.
+
+### Bulk actions
+
+![Repositories selected with the bulk actions bar showing Pull Updates, Deploy, Change deployment mode and Remove](/img/openpanel-screenshots/applications/git-bulk.png#gh-light-mode-only)
+![Repositories selected with the bulk actions bar showing Pull Updates, Deploy, Change deployment mode and Remove](/img/openpanel-screenshots/applications/git-bulk_dark.png#gh-dark-mode-only)
+
+Select repositories with the checkboxes to **Pull Updates**, **Deploy**, **Change deployment mode** or **Remove** them all at once. Repositories that don't support an action (pulling a local repository, deploying one with *No deployment*) are skipped.
+
+### Remove
+
+![Remove confirmation under a repository row with Cancel and Remove buttons](/img/openpanel-screenshots/applications/git-remove.png#gh-light-mode-only)
+![Remove confirmation under a repository row with Cancel and Remove buttons](/img/openpanel-screenshots/applications/git-remove_dark.png#gh-dark-mode-only)
+
+Removing a repository deletes it and its history from the server. Files that were already deployed to the website stay in place.
+
+## Git tab in the Site Manager
+
+![Git tab in the Site Manager with a theme repository and a remote repository, their deploy buttons, clone URL and webhook URL](/img/openpanel-screenshots/applications/git-tab.png#gh-light-mode-only)
+![Git tab in the Site Manager with a theme repository and a remote repository, their deploy buttons, clone URL and webhook URL](/img/openpanel-screenshots/applications/git-tab_dark.png#gh-dark-mode-only)
+
+Every website in the [Site Manager](/docs/panel/applications/sites) has a **Git** tab that lists the repositories deploying to its domain. From there you can add a repository with the website's folder already filled in, pull, deploy and copy the clone or webhook URL.
+
+For a WordPress site, a common setup is a repository for your theme or plugin that deploys into `wp-content/themes/<theme>` or `wp-content/plugins/<plugin>`, with a deploy action that runs WP-CLI:
+
+```bash
+php /usr/local/bin/wp theme activate my-theme --path=/var/www/html/example.com --allow-root
+php /usr/local/bin/wp cache flush --path=/var/www/html/example.com --allow-root
+```
+
+WordPress core, uploads and other plugins are not touched by the deploy.
+
+---
+
 // File: panel/backups/backups
 
 # Backups
@@ -46718,8 +47760,12 @@ As a result, administrators have fewer tasks to manage, and users gain greater c
 ![Backups page with the three setup steps: connect a destination, configure settings, and set limits](/img/openpanel-screenshots/files/backups-page.png#gh-light-mode-only)
 ![Backups page with the three setup steps: connect a destination, configure settings, and set limits](/img/openpanel-screenshots/files/backups-page_dark.png#gh-dark-mode-only)
 
+:::note Attribution
+User backups are powered by [offen/docker-volume-backup](https://github.com/offen/docker-volume-backup). Large parts of the configuration reference on this page (destinations, encryption, rotation, schedule, compression, names, exclude and notifications) are adapted from its [documentation](https://offen.github.io/docker-volume-backup/reference/), Copyright © offen.software and contributors, licensed under the [Mozilla Public License 2.0](https://github.com/offen/docker-volume-backup/blob/main/LICENSE). See [Credits & License](#credits--license) below.
+:::
+
 :::info Admin Configured mode
-If your administrator runs backups centrally for all users (**Admin Configured** mode, see [User Backups](/docs/admin/backups/user/)), the **Destinations** and **Settings** pages below aren't available to you - the destination and its credentials are managed by the administrator. You can still use **List Backups** and **Restore Logs** to browse and restore your own backups.
+If your administrator runs backups centrally for all users (**Admin Configured** mode, see [User Backups](/docs/admin/backups/user/)), the **Destinations** and **Settings** pages below aren't available to you - the destination and its credentials are managed by the administrator. You can still browse and restore your own backups, and the **Backups** page takes you straight to [Restore & Download](#restore--download).
 :::
 
 ## Destinations
@@ -46872,6 +47918,10 @@ By default, everything will be backed up. In case you need to backup only a spec
 | **PostgreSQL Databases**    |  Backups only PostgreSQL databases. |
 | **Cron Jobs**    |  Backups only the `crons.ini` file. |
 
+Databases are not copied from their live data directories. Right before the archive is created, every MySQL/MariaDB database is dumped with `mysqldump`/`mariadb-dump` (`--single-transaction --routines --triggers --events`) and every PostgreSQL database with `pg_dump`, into `backup/mysql/<database>.sql` and `backup/postgres/<database>.sql`. If any database fails to dump, the whole backup run fails so it doesn't go unnoticed. The names of the dumped databases are also written to a small `backup/00-meta/` folder that is always the first thing in the archive, so the panel can index a backup without downloading it.
+
+Emails and DNS zones are backed up too. Each domain's mailboxes are mounted into the backup at `backup/emails/<domain>/` (the older `backup/mail/` folder only holds links to them) and each domain's DNS zone at `backup/dns/<domain>.zone`. The `backup/00-meta/` folder also lists the website files, mailboxes, domains and DNS zones in the backup, so single items can be restored without downloading the whole archive.
+
 
 ## Schedule
 
@@ -46912,6 +47962,8 @@ Options here are available byt disabled by default and need to be manually enabl
 ## Exclude
 
 `BACKUP_EXCLUDE_REGEXP` - When a value is given, all files in `BACKUP_SOURCES` whose full path matches the regular expression will be excluded from the archive. Regular Expressions can be used as from [the Go standard library](https://pkg.go.dev/regexp). Example: `\.log$`.
+
+The default is `\.(log|tar\.gz)$`, which skips log files and `.tar.gz` archives, such as the full account backups that `opencli user-backup` stores in `_backups/`.
 
 ## Notifications
 
@@ -47146,20 +48198,69 @@ backup
 
 ## Restore & Download
 
-The **Restore & Download** page (`/backups/list`) lets you browse the backup files that already exist on your configured destination, restore them back onto your account, or download them to your computer. This currently works only for the **SSH/SFTP** destination.
+The **Restore & Download** page (`/backups/list`) lets you browse the backup files that already exist on your configured destination, restore them back onto your account, or download them to your computer. It works with every destination: SSH/SFTP, S3, WebDAV, Azure Blob Storage and Dropbox.
 
-![Restore & Download page with the backup search and the Reindex Destination button](/img/openpanel-screenshots/files/backups_list-list.png#gh-light-mode-only)
-![Restore & Download page with the backup search and the Reindex Destination button](/img/openpanel-screenshots/files/backups_list-list_dark.png#gh-dark-mode-only)
+![Restore & Download overview with backup totals, a tile per type of data and the restore queue and logs](/img/openpanel-screenshots/files/backups_list-list.png#gh-light-mode-only)
+![Restore & Download overview with backup totals, a tile per type of data and the restore queue and logs](/img/openpanel-screenshots/files/backups_list-list_dark.png#gh-dark-mode-only)
 
-1. Click **Reindex Destination** to connect to the remote destination and list the available backup archives. Reindexing runs in the background and the page updates automatically once it finishes.
-2. Each indexed backup shows its filename, detected contents (`html`, `vhosts`, `mail`, `mysql`, `postgres`, `crons`) and the databases found inside it.
-3. Click **Restore** on a backup to open the restore modal, then choose what to restore:
-   - **Everything** – restores files and all databases from the archive.
-   - **Specific database only** – restores a single database selected from the archive (only shown when the archive contains databases).
-   - **Files only (no databases)** – restores website files, vhosts, mail and cron jobs without touching any database.
+Click **Reindex Destination** to connect to the remote destination and list the available backup archives. Reindexing runs in the background and the page updates automatically once it finishes. Only the `backup/00-meta/` folder at the start of each archive is read, and archives that were already indexed are not read again. Older archives without that folder are still listed in full (on SSH/SFTP with `tar -tzf` on the remote server, on other destinations by reading the whole archive).
 
-   Restoring overwrites existing data and cannot be undone.
-4. Click **Download** on a backup to fetch the archive from the destination and download it to your browser.
+The page opens with an overview: the number of backups, the latest backup, their total size and the last restore, followed by a tile for each type of data you can restore. Click a tile to see its backups, newest first, each with the date it was taken (shown in your browser's time zone) and its size. The tabs at the top switch between types, **Overview** goes back to the tiles, and the **Search** box above each list filters it.
+
+:::info Backups made before 2.0.16
+Older backups don't list their emails and domains, so the **Emails** and **Domains** tabs don't show them: restore those from the **Everything** tab. **Choose files** is also unavailable for them (the button is greyed out with *This backup was made before single items could be restored.*), but you can still restore all website files from them.
+:::
+
+### Everything, Website Files and Cron Jobs
+
+![Everything tab listing backups with their contents and size, one selected with the Download and Restore buttons](/img/openpanel-screenshots/files/backups_list-everything.png#gh-light-mode-only)
+![Everything tab listing backups with their contents and size, one selected with the Download and Restore buttons](/img/openpanel-screenshots/files/backups_list-everything_dark.png#gh-dark-mode-only)
+
+These tabs list whole backups. Select one and the bar at the bottom shows **Download** and **Restore**.
+
+- **Everything** – every backup, with a **Contents** column showing what is in it (website files, databases, emails, domains and cron jobs, with how many of each). Restores everything in it: website files, databases, emails, domains with their DNS zones and cron jobs.
+- **Website Files** and **Cron Jobs** – the backups that contain that part. Restores only that part of the selected backup; restoring cron jobs also restarts the cron container.
+
+### Choosing single files
+
+![Choose files dialog browsing a website files backup with a folder ticked for restore](/img/openpanel-screenshots/files/backups_list-files.png#gh-light-mode-only)
+![Choose files dialog browsing a website files backup with a folder ticked for restore](/img/openpanel-screenshots/files/backups_list-files_dark.png#gh-dark-mode-only)
+
+On **Website Files**, select a backup and click **Choose files** to browse it folder by folder. Tick single files or whole folders and click **Restore selected**, or click the download icon next to a file to download just that file. Only the part of the archive up to the last picked item is read from the destination.
+
+### Databases, Emails and Domains
+
+![Domains tab with two domains selected, each tagged with VirtualHost, PHP version and DNS zone and a dropdown to pick the backup](/img/openpanel-screenshots/files/backups_list-domains.png#gh-light-mode-only)
+![Domains tab with two domains selected, each tagged with VirtualHost, PHP version and DNS zone and a dropdown to pick the backup](/img/openpanel-screenshots/files/backups_list-domains_dark.png#gh-dark-mode-only)
+
+These tabs list every database, email account and domain found in your backups, once each, with the size (and message count for email accounts) and how many backups contain it. The newest backup is used unless you pick another one from the dropdown, and you can select several to restore them together.
+
+- Restoring a domain brings back its webserver configuration (**+ VirtualHost**), the PHP version it uses (**+ PHP version**, that PHP is started and set for the domain) and, when the backup has it, its DNS zone (**+ DNS zone**), then restarts your webserver and reloads the zone with a new serial number.
+- A domain you deleted from your account is marked **Will be added** and is added back first.
+- Suspended domains are marked **Suspended** and can't be restored until they are unsuspended.
+- Email accounts can only be restored for domains on your account. An email account whose domain is gone is marked **Restore the domain first**.
+
+### Restoring
+
+![Restore Summary dialog listing the selected databases and the Restore Selected Items button](/img/openpanel-screenshots/files/backups_list-summary.png#gh-light-mode-only)
+![Restore Summary dialog listing the selected databases and the Restore Selected Items button](/img/openpanel-screenshots/files/backups_list-summary_dark.png#gh-dark-mode-only)
+
+Select a backup (or databases, email accounts, domains or files) and click **Restore**. The **Restore Summary** lists the items that will be restored; click **Restore Selected Items** to add them to the queue. Restores run in the background, one at a time per account, so you can close the page while they run. Each database is dropped, recreated and its dump is piped into the `mysql`/`mariadb` or `psql` client inside your database container.
+
+:::danger
+Restoring overwrites existing data and cannot be undone.
+:::
+
+### Queue and logs
+
+![Logs tab with the latest restores, the backup each came from, how long it took and whether it worked](/img/openpanel-screenshots/files/backups_list-logs.png#gh-light-mode-only)
+![Logs tab with the latest restores, the backup each came from, how long it took and whether it worked](/img/openpanel-screenshots/files/backups_list-logs_dark.png#gh-dark-mode-only)
+
+Under **Restore activity** on the overview (or the tabs at the top), **Queue** shows what is waiting or being restored and **Logs** shows your latest 100 restores: what was restored, from which backup, when it finished, how long it took and whether it worked, with the result or the error. The summary at the top shows when the last restore finished, or how many are in the queue. A restore that was running when the panel restarted is logged as failed, the ones still waiting in the queue continue.
+
+### Downloading
+
+Select a backup and click **Download** to stream the archive from the destination straight to your browser. On **Databases**, **Emails** and **Domains**, **Download** gives you only what you selected: a single database as its `.sql` dump, anything else as a `.tar.gz` with just those items (one per backup you picked from).
 
 ## Troubleshooting
 
@@ -47168,6 +48269,13 @@ Error *error copying archive: ssh.(*sshStorage).Copy: error creating file: file 
 ```
 time=2025-07-22T11:21:05.117Z level=ERROR msg="Fatal error running command: file does not exist" error="main.(*command).runAsCommand: error running script: main.runScript.func4: error running script: main.(*script).copyArchive: error copying archive: ssh.(*sshStorage).Copy: error creating file: file does not exist"
 ```
+
+## Credits & License
+
+The backup functionality in OpenPanel uses [offen/docker-volume-backup](https://github.com/offen/docker-volume-backup) by [offen.software](https://www.offen.software/). Thank you to its authors and contributors.
+
+- Setting descriptions in the [Destinations](#destinations), [Encryption](#encryption), [Rotation](#rotation), [Source](#source), [Schedule](#schedule), [Compression](#compression), [Names](#names), [Exclude](#exclude) and [Notifications](#notifications) sections are adapted from the [docker-volume-backup configuration reference](https://offen.github.io/docker-volume-backup/reference/) and [how-to guides](https://offen.github.io/docker-volume-backup/how-tos/), Copyright © offen.software and contributors. That content is licensed under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/), and the source is available at [github.com/offen/docker-volume-backup](https://github.com/offen/docker-volume-backup).
+- Notification service URL formats and options are adapted from the [shoutrrr documentation](https://containrrr.dev/shoutrrr/), Copyright © containrrr contributors, licensed under the [MIT License](https://github.com/containrrr/shoutrrr/blob/main/LICENSE).
 
 ---
 
@@ -47767,11 +48875,14 @@ Click **New Service** on the Containers page to run any Docker image next to you
 
 4. **Storage (optional)**
    - **Add volume** – Pick one of your Docker volumes, enter the path it's mounted at inside the container, and optionally mark it **Read-only**.
+   - **+ New volume** – The last option in the volume list. It switches the row to a name field so you can create a new volume for this container, for example `uptimekuma_data`. Names are 3 to 64 lowercase letters, digits or `_`, starting with a letter. The volume is created when you save, and it keeps its data if the container is deleted later.
    - **Give access to the Docker socket** – Only for tools that manage containers, like Portainer or Watchtower. The container can then control all your other containers. Unchecked by default.
 
-5. **Environment variables (optional)** – Add a key and value per row, or click **Paste as text** to paste them as `KEY: value` lines, one per line.
+5. **Environment variables (optional)** – Add a key and value per row, or click **Paste as text** to paste them as `KEY: value` lines, one per line. `{domain}` in a value is replaced with the domain chosen in the next step (or `localhost` if none), for example `WEBHOOK_URL: https://{domain}/`.
 
-6. **Health check (optional)** – A docker compose `healthcheck` block. Click **Insert example** to get one that fits the image, for example:
+6. **Domain (optional)** – Pick one of your domains to make the app reachable from outside, and enter the **Container port** the app listens on inside the container, for example `3001` for Uptime Kuma. The web server then proxies the whole domain to the container, WebSockets included, so you don't have to edit any web server config yourself. See [Pointing a domain to a container](#pointing-a-domain-to-a-container).
+
+7. **Health check (optional)** – A docker compose `healthcheck` block. Click **Insert example** to get one that fits the image, for example:
     ```yaml
     test: ["CMD", "redis-cli", "ping"]
     interval: 30s
@@ -47785,12 +48896,14 @@ Click **Create container** and the progress of each step is shown on the page:
 1. **Validating container details** – The name, image, limits and networks are checked.
 2. **Saving container to docker-compose.yml** – The service is added to your `docker-compose.yml` and its limits are saved to `.env`.
 3. **Downloading image** – The image is pulled, so starting the container later is quick.
-4. **Container created** – You're taken back to the Containers page.
+4. **Starting container** – Only when a domain is set.
+5. **Pointing the domain to the container** – Only when a domain is set, the reverse proxy is added to the domain and the web server is restarted.
+6. **Container created** – You're taken back to the Containers page.
 
 If the details are invalid the step turns red with the reason, and **Back to the form** returns you to the form with everything still filled in. If only the image download fails, the container is already saved, and the error from the registry is shown so you can fix the image from its **Edit** page.
 
 :::info
-The new container isn't started automatically. Start it from the Containers page when you're ready.
+Without a domain the new container isn't started automatically. Start it from the Containers page when you're ready. With a domain it's started right away, since the domain needs it running.
 :::
 
 Each service gets an **uppercase prefix** for its environment variable keys, and its CPU, memory and process limits are stored as variables in `.env`. For example, a service named `nginx` gets:
@@ -47800,6 +48913,45 @@ Each service gets an **uppercase prefix** for its environment variable keys, and
   NGINX_RAM
   NGINX_PIDS
   ```
+
+## Pointing a Domain to a Container
+
+When a domain is chosen in the **Domain** step of the form, OpenPanel wires it up for you:
+
+- The container joins the `www` network, so the web server can reach it by its name.
+- A reverse proxy from the domain to `name:port` is added to the domain's Apache, Nginx, OpenResty or OpenLiteSpeed configuration, with WebSocket support, and the web server is restarted.
+- The domain is added to [Site Manager](/docs/panel/applications/sites/) as a **Docker Containers** site. Its **Manage** button opens the container's **Edit** page, and **Delete** deletes the container.
+
+All requests to the domain go to the container, so any website files on that domain are no longer served. A domain can't be used if it already points to another container, has a NodeJS, Python, Ruby, Java or n8n application at its root, or has sites in subfolders.
+
+The **Edit** page of the container shows which domain and port it's reachable on. A domain can only be set when the container is created.
+
+When the container is deleted, from its **Delete** button, [bulk actions](#bulk-actions) or Site Manager, the reverse proxy is removed from **every** domain that points to it, not only the one chosen in the form, so no domain is left proxying to a container that no longer exists. Its Site Manager entry is removed too. Volumes created for the container are kept.
+
+## Templates
+
+The **Add a container** form can be filled in from a link, so an app can be set up in one click. The [Auto Installer](/docs/panel/applications/autoinstaller/#docker-applications) uses this for its **Docker Applications**, and you can make your own links:
+
+```
+/containers/new?image=louislam/uptime-kuma:2&name=uptimekuma&cpu=0.5&ram=0.5&volume=uptimekuma_data:/app/data&port=3001
+```
+
+| Parameter | Fills in | Example |
+|---|---|---|
+| `image` | Docker image | `louislam/uptime-kuma:2` |
+| `name` or `service_name` | Name | `uptimekuma` |
+| `cpu` | CPU cores | `0.5` |
+| `ram` | Memory, a plain number is GB | `1`, `512M` |
+| `pids` | Max processes | `300` |
+| `network` | Networks, repeat it or separate with commas | `www,db` |
+| `volume` | A volume as `name:/path` or `name:/path:ro`, repeat for more. Names that don't exist yet become new volumes | `uptimekuma_data:/app/data` |
+| `env` | An environment variable as `KEY=value`, repeat for more | `TZ=UTC` |
+| `socket` | Ticks **Give access to the Docker socket** | `1` |
+| `healthcheck` | Health check YAML | |
+| `domain` | Domain | `example.com` |
+| `port` | Container port | `3001` |
+
+Remember to URL-encode the values, for example `{domain}` in an `env` value becomes `%7Bdomain%7D`. Everything can still be changed on the form before clicking **Create container**.
 
 ---
 
@@ -48032,6 +49184,51 @@ Click the magnifying glass icon in the top-right corner of the header to open th
 
 ![Search box opened from the magnifying glass icon in the header, with results for mysql](/img/openpanel-screenshots/dashboard/dashboard-search.png#gh-light-mode-only)
 ![Search box opened from the magnifying glass icon in the header, with results for mysql](/img/openpanel-screenshots/dashboard/dashboard-search_dark.png#gh-dark-mode-only)
+
+## AI Assistant
+
+When the AI Assistant is enabled by your hosting provider, an **AI** button is shown in the top-right corner of the header, next to the search icon. Click it to open the assistant on the right side of the page. It's available on every page, so you can keep it open while you follow its steps.
+
+![AI button in the page header, next to the search icon and the favorites star](/img/openpanel-screenshots/dashboard/dashboard-ai-button.png#gh-light-mode-only)
+![AI button in the page header, next to the search icon and the favorites star](/img/openpanel-screenshots/dashboard/dashboard-ai-button_dark.png#gh-dark-mode-only)
+
+Ask a question in your own words, for example *How do I add a new domain?* or *Why does my website show a 502 error?*, and press **Enter** to send it. Use **Shift + Enter** for a new line. When the chat is empty, a few example questions are shown that you can click.
+
+The assistant answers using the panel documentation and knows which features are available on your plan and which page you are on, so you can also ask *What can I do on this page?*.
+
+![AI Assistant open on the right side of the dashboard, answering how to point a domain to the server and listing the account domains](/img/openpanel-screenshots/dashboard/dashboard-ai-window.png#gh-light-mode-only)
+![AI Assistant open on the right side of the dashboard, answering how to point a domain to the server and listing the account domains](/img/openpanel-screenshots/dashboard/dashboard-ai-window_dark.png#gh-dark-mode-only)
+
+Depending on what your hosting provider allows, the assistant can also look things up in your account, like your domains, websites, email accounts or disk usage, and make changes for you, like adding a domain or creating an email account. Ask for it in your own words, for example *Which domains do I have?* or *Create info@example.com with a 2 GB quota*. Click **Info** to see what it can do on your account.
+
+Looking things up happens right away. Before the assistant changes anything, it shows a card with the action and the exact values it will use:
+
+- **Approve**: runs the action once.
+- **Always allow**: runs the action and doesn't ask again for the same kind of action, for example adding a domain.
+- **Decline**: skips it, and the assistant won't try it again unless you ask.
+
+![AI Assistant asking for approval to create an email account, with the request details and Approve, Always allow and Decline buttons](/img/openpanel-screenshots/dashboard/dashboard-ai-confirm.png#gh-light-mode-only)
+![AI Assistant asking for approval to create an email account, with the request details and Approve, Always allow and Decline buttons](/img/openpanel-screenshots/dashboard/dashboard-ai-confirm_dark.png#gh-dark-mode-only)
+
+Actions that delete or overwrite data, like removing a domain, deleting files or changing a password, are marked **Destructive** and always ask, even if you allowed a similar action before. The assistant also asks again for every change after it has read files or logs while answering the same question, because those can contain text written by others.
+
+![Destructive action card in the AI Assistant for removing a domain, with only Approve and Decline buttons](/img/openpanel-screenshots/dashboard/dashboard-ai-destructive.png#gh-light-mode-only)
+![Destructive action card in the AI Assistant for removing a domain, with only Approve and Decline buttons](/img/openpanel-screenshots/dashboard/dashboard-ai-destructive_dark.png#gh-dark-mode-only)
+
+Everything the assistant looks up or changes is recorded in your [Activity log](/docs/panel/security/account_activity/), together with whether you approved it.
+
+AI can make mistakes, so check the details on each card before you approve it.
+
+Buttons at the top of the assistant:
+
+- **Info**: shows what the assistant can do, how many questions you've asked this month, and the actions you've set to **Always allow**. Click **Remove** next to an action to have the assistant ask again. Your hosting provider can set a monthly limit.
+- **New chat**: clears the conversation and starts over.
+- **Close**: hides the assistant. You can also press **Esc**.
+
+![AI Assistant info panel with what the assistant can do, questions used this month and the always allowed actions with Remove buttons](/img/openpanel-screenshots/dashboard/dashboard-ai-info.png#gh-light-mode-only)
+![AI Assistant info panel with what the assistant can do, questions used this month and the always allowed actions with Remove buttons](/img/openpanel-screenshots/dashboard/dashboard-ai-info_dark.png#gh-dark-mode-only)
+
+The conversation is kept in your browser while the tab is open, so it stays when you move between pages and is cleared when you close the tab.
 
 ## Getting Started Tour
 
@@ -48683,6 +49880,12 @@ To suspend a domain:
 ![Suspend domain confirmation with an optional reason field and the Confirm Suspend button](/img/openpanel-screenshots/domains/suspend-form.png#gh-light-mode-only)
 ![Suspend domain confirmation with an optional reason field and the Confirm Suspend button](/img/openpanel-screenshots/domains/suspend-form_dark.png#gh-dark-mode-only)
 
+## Suspended by the Administrator
+
+The Administrator can also suspend a domain, for example after a copyright complaint or an overdue payment. The domain's status then shows **Suspended by Admin** with the reason below it, and the Administrator's comment if there is one. Visitors see the page for that reason.
+
+While a domain is suspended by the Administrator it is locked: the **Actions** menu only says *Suspended by the administrator, contact support to make changes.*, and unsuspending, deleting, or changing the domain's docroot, VirtualHosts, redirect, SSL, Cloudflare setting or DNS zone is refused, also through the API and bulk actions. Contact support to have it unsuspended.
+
 ---
 
 // File: panel/domains/unsuspend
@@ -48692,6 +49895,10 @@ To suspend a domain:
 To restore access to a suspended website, you can unsuspend the domain from the **Domains** page.
 
 Unsuspending a domain will remove the *Suspended Website* page and restore the original website content, making it publicly accessible again. All other services - such as email and FTP - will continue to function as they did during suspension.
+
+:::info
+Only domains you suspended yourself can be unsuspended. A domain marked **Suspended by Admin** can only be unsuspended by the Administrator, see [Suspended by the Administrator](/docs/panel/domains/suspend/#suspended-by-the-administrator).
+:::
 
 To unsuspend a domain:
 
@@ -49447,8 +50654,8 @@ To empty the Trash, click on the **Delete All** button. All names are crossed ou
 
 OpenPanel accounts can create FTP sub-users that share the FTP service with all other FTP users on the server. Connect using the server IP address and port `21`.
 
-![FTP Accounts page with the FTP server and port, and a table of accounts with their path and configuration downloads](/img/openpanel-screenshots/files/ftp-list.png#gh-light-mode-only)
-![FTP Accounts page with the FTP server and port, and a table of accounts with their path and configuration downloads](/img/openpanel-screenshots/files/ftp-list_dark.png#gh-dark-mode-only)
+![FTP Accounts page with the FTP server and port, and a table of accounts with their path, quota and configuration downloads](/img/openpanel-screenshots/files/ftp-list.png#gh-light-mode-only)
+![FTP Accounts page with the FTP server and port, and a table of accounts with their path, quota and configuration downloads](/img/openpanel-screenshots/files/ftp-list_dark.png#gh-dark-mode-only)
 
 :::info
 FTP is available in the [OpenPanel Enterprise](/enterprise/) edition. Administrator setup guide: [How to setup FTP in OpenPanel](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/)
@@ -49471,6 +50678,7 @@ Go to **OpenPanel > Files > FTP Accounts** to see all FTP accounts, the director
    | **Domain** | Select one of your domains |
    | **Password** | Password for the FTP account |
    | **Path (folder)** | Directory the account is restricted to: must start with `/var/www/html/` |
+   | **Disk quota** | Optional, the most the folder can hold in MB or GB. Leave empty for no limit |
 
 3. Click **Create Account** to create the user.
 
@@ -49483,7 +50691,7 @@ FTP usernames may only contain letters, numbers, and the characters `-`, `_`, `@
 
 ## Change Password
 
-1. Go to **OpenPanel > Files > FTP Accounts** and click **Change Password** next to the account.
+1. Go to **OpenPanel > Files > FTP Accounts** and click the key icon (**Change Password**) next to the account.
 2. Enter the new password, confirm it, and click **Update**.
 
 ![Change FTP password form with a new password field](/img/openpanel-screenshots/files/ftp_password-form.png#gh-light-mode-only)
@@ -49495,30 +50703,44 @@ FTP passwords must be 8-30 characters long and contain at least one uppercase le
 
 ## Change Path
 
-1. Go to **OpenPanel > Files > FTP Accounts** and click **Change Path** next to the account.
+1. Go to **OpenPanel > Files > FTP Accounts** and click the pencil icon (**Change Path**) next to the account.
 2. Enter the new directory path and click **Update**. The path must start with `/var/www/html/`.
 
 ![Change FTP path form with the folder field](/img/openpanel-screenshots/files/ftp_path-form.png#gh-light-mode-only)
 ![Change FTP path form with the folder field](/img/openpanel-screenshots/files/ftp_path-form_dark.png#gh-dark-mode-only)
 
+## Change Quota
+
+A disk quota limits how big the account's folder can grow. The **Quota** column on the FTP accounts page shows the space used and the quota, or **Unlimited**.
+
+1. Go to **OpenPanel > Files > FTP Accounts** and click the disk icon (**Change Quota**) next to the account.
+2. Enter the quota, pick **MB** or **GB**, and click **Update**. Leave the field empty or enter `0` to remove the quota.
+
+![Change FTP quota form with the current quota and usage, and the quota field with a MB/GB unit](/img/openpanel-screenshots/files/ftp_quota-form.png#gh-light-mode-only)
+![Change FTP quota form with the current quota and usage, and the quota field with a MB/GB unit](/img/openpanel-screenshots/files/ftp_quota-form_dark.png#gh-dark-mode-only)
+
+The quota counts everything in the account's folder, also files added from the File Manager or by your website. Usage is checked every minute. Once the folder is over the quota the account is marked **Over quota**, uploads are refused and open FTP sessions of that account are closed. Downloading and deleting files still works, so the account can free up space, and uploads work again within a minute after the folder is back under the quota.
+
 ## Delete User
 
-Go to **OpenPanel > Files > FTP Accounts** and click **Delete** next to the account. The button turns into **Confirm** with a 5-second countdown; click it again before the countdown ends to delete the account.
+Go to **OpenPanel > Files > FTP Accounts** and click the trash icon (**Delete**) next to the account. The icon turns into **Confirm** with a 5-second countdown; click it again before the countdown ends to delete the account.
 
-![Delete button of an FTP account turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/files/ftp_actions-delete.png#gh-light-mode-only)
-![Delete button of an FTP account turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/files/ftp_actions-delete_dark.png#gh-dark-mode-only)
+![Delete icon of an FTP account turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/files/ftp_actions-delete.png#gh-light-mode-only)
+![Delete icon of an FTP account turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/files/ftp_actions-delete_dark.png#gh-dark-mode-only)
 
 ## Bulk Actions
 
 Tick the checkbox of one or more accounts, or the checkbox in the table header to select every account shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
-![Two FTP accounts selected with the bulk actions bar offering Change password, Change path and Delete](/img/openpanel-screenshots/files/ftp-bulk.png#gh-light-mode-only)
-![Two FTP accounts selected with the bulk actions bar offering Change password, Change path and Delete](/img/openpanel-screenshots/files/ftp-bulk_dark.png#gh-dark-mode-only)
+![Two FTP accounts selected with the bulk actions bar offering Change password, Change path, Change quota, Remove quota and Delete](/img/openpanel-screenshots/files/ftp-bulk.png#gh-light-mode-only)
+![Two FTP accounts selected with the bulk actions bar offering Change password, Change path, Change quota, Remove quota and Delete](/img/openpanel-screenshots/files/ftp-bulk_dark.png#gh-dark-mode-only)
 
 | Action | What it does |
 |---|---|
 | **Change password** | Sets the same new password on the selected accounts. |
 | **Change path** | Sets the home folder of the selected accounts, inside `/var/www/html/`. |
+| **Change quota** | Sets the same disk quota on the selected accounts, e.g. `500M` or `2G`. |
+| **Remove quota** | Removes the disk quota from the selected accounts. |
 | **Delete** | Deletes the selected accounts. Their files are kept. |
 
 Click an action, confirm it, and it runs on the selected accounts one after another. When it's done the page reloads with a notice listing the accounts it worked for, or which ones failed and why.
@@ -52353,6 +53575,46 @@ By default, 1,000 results are shown per page. This limit is configurable by the 
 
 ---
 
+// File: panel/statistics/error_logs
+
+# Error Logs
+
+The **Error Logs** page is available in your OpenPanel dashboard only if the **Error Logs** module is enabled on the server and your hosting plan includes it.
+
+It shows errors for all of your websites in one place, so you don't have to know which service or container to check.
+
+Errors are collected from:
+
+* **PHP**: warnings, notices, deprecations, fatal errors (with the stack trace) and messages written with `error_log()`, from every PHP version you use
+* **Web server**: errors and warnings from Apache, Nginx, OpenResty, OpenLiteSpeed or LiteSpeed. With OpenLiteSpeed or LiteSpeed, PHP runs inside the web server, so PHP errors are listed under that service instead of a PHP version.
+* **Database**: errors and warnings from MySQL, MariaDB or PostgreSQL
+* **HTTP 5xx responses**: requests to your domains that ended with a 500, 502, 503 or 504 response
+
+Each entry shows the time (in your browser's timezone), the severity, the service it came from, the domain it belongs to and the message. Click a row to see the full message.
+
+## Filtering
+
+* **Domain**: show only errors for one of your domains. A PHP error is matched to a domain by the path of the file that caused it.
+* **Service**: show only one source, for example a single PHP version.
+* **Severity**: show everything, only warnings and errors, or only errors.
+* **Time range**: the last hour, 6 hours, 24 hours (default), 7 days, 30 days, or a custom range.
+* **Search**: show only entries whose message contains the text, for example `Fatal error`, `wp-content` or `502`.
+
+The newest 500 entries are shown. If there are more, narrow the filters to see the rest.
+
+## Sharing errors with support
+
+* **Copy** puts the entries you ticked on your clipboard, or all visible entries if none are ticked.
+* **Download** saves all entries that match the current filters as a `.txt` file.
+
+Both give one line per entry with the time in UTC, severity, service, domain and message, ready to paste into a support ticket.
+
+:::info
+Applications that write their own log files are not shown here. For example, WordPress with `WP_DEBUG_LOG` enabled writes to `wp-content/debug.log`, which you can open from the File Manager.
+:::
+
+---
+
 // File: panel/webserver/webserver_settings
 
 # WebServer Settings
@@ -52426,7 +53688,7 @@ Each web server is shown as a card with a short description of what it's best fo
 | **OpenLiteSpeed** | WordPress websites, but only one PHP version. |
 | **OpenResty** | Nginx core bundled with Lua scripting for custom logic. |
 
-The web server you're using now is marked **Current**. Only web servers available on your account are listed.
+The web server you're using now is marked **Current**. Only web servers defined in your account's `docker-compose.yml` are listed, so your hosting provider may offer fewer than the four above.
 
 ## Requirements
 
