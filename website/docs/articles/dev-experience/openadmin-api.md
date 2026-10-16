@@ -1075,6 +1075,18 @@ Restricted to the Super Administrator. Changes the actual root SSH password on t
 
 Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user` (with `new_username`), `reset_password` (with `new_password`), `disable_2fa`, `disable_passkeys`.
 
+### Reseller tokens
+
+A reseller's API token can call these endpoints, each limited to the reseller's own users, their domains and the emails on those domains, the same way the [pages resellers can use](/docs/admin/accounts/resellers#pages-resellers-can-use) are:
+
+- `GET /api/domains`, `POST /api/domains/new`, `GET/POST /api/domains/{domain}/dns`, `GET/POST /api/domains/docroot/{domain}` and `POST /api/domains/{suspend|unsuspend|delete}/{domain}`
+- `GET/POST/DELETE /api/emails/accounts` and `GET/POST /api/emails/queue` (`scope: "all"` only acts on the reseller's visible messages)
+- `GET/POST /api/import/openpanel`, `POST /api/import/upload`, `GET /api/import/backup-files` and `GET /api/import/logs/account/{log}`
+- `GET /api/server/crons` (read only)
+- `GET/POST /api/settings/locales` (installing and updating only)
+
+Anything outside their scope returns `403`.
+
 ### Resellers
 
 `GET /api/settings/resellers`
@@ -1314,15 +1326,25 @@ Runs `opencli report --public --non-interactive` and returns the generated repor
 
 ## Import & Transfer
 
-### Import from cPanel / CyberPanel Backup
+### Import from cPanel / CyberPanel / OpenPanel Backup
 
-`GET /api/import/{panel_type}` — list import job statuses (`{panel_type}` is `cpanel` or `cyberpanel`)
+`GET /api/import/{panel_type}` — list import job statuses (`{panel_type}` is `cpanel`, `cyberpanel` or `openpanel`)
 `POST /api/import/{panel_type}` — start an import in the background
 
 **Request Body:**
 
 ```json
 { "path": "/root/backup-user.tar.gz", "plan_name": "default_plan_apache" }
+```
+
+For `openpanel` only `path` is needed, the plan comes from the backup. Resellers can only use `openpanel` with a backup they uploaded, see [Imports by resellers](/docs/admin/backups/cpanel#imports-by-resellers).
+
+### Upload a Backup
+
+`POST /api/import/upload` — `multipart/form-data` with the `.tar.gz` in a `file` field, saved to `/home/reseller_imports/<username>/`. The response has the `path` to pass to `POST /api/import/openpanel`.
+
+```bash
+curl -X POST https://SERVER:2087/api/import/upload -H "Authorization: Bearer TOKEN_HERE" -F "file=@alice_2026-10-16_10-00-00.tar.gz"
 ```
 
 ### View Import Log
@@ -1333,7 +1355,7 @@ Runs `opencli report --public --non-interactive` and returns the generated repor
 
 `GET /api/import/backup-files`
 
-Scans `/`, `/home`, and `/root` for `backup-*.tar.gz` files.
+Scans `/`, `/home`, and `/root` for `backup-*.tar.gz` files, plus your uploads. For a reseller it only lists their own uploads.
 
 ### OpenPanel-to-OpenPanel Transfers
 

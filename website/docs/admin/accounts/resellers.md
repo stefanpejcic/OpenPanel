@@ -94,4 +94,25 @@ When a Reseller logs in, they see a **Reseller Account** page (`/account`) inste
 
 Resellers also have their own **Two-Factor Authentication** and **Passkeys** pages under Security, scoped to their own login only.
 
+## Pages resellers can use
+
+Besides their users, [User Packages](/docs/admin/plans/hosting_plans), the Feature Manager and their own account, resellers can open these OpenAdmin pages. Each one only shows the users a reseller owns, those users' domains and the emails on those domains:
+
+| Page | What resellers can do |
+|---|---|
+| **Domains > Domains** | List, add, suspend, unsuspend and delete their users' domains, change PHP version, WAF, HSTS, Cloudflare and DNS for them, and use the bulk actions. The SSL, VirtualHost, Caddy and config file editors stay with administrators. |
+| **Domains > DNS Zone Editor** | Edit the DNS zones of their users' domains. |
+| **Domains > Rate Limiting** | Set default, custom or no rate limits for their users' domains. The server default can only be changed by administrators. |
+| **Emails > Accounts** | Change password, quota and send/receive restrictions of email accounts on their users' domains, delete them and open webmail. |
+| **Emails > Queue** | See queued messages sent from their users' domains or sent only to their users, and retry or delete them. Retry all and Delete all only act on those messages. |
+| **Backups > Import Account** | Upload and restore OpenPanel backups as their own users, within their limits, and see the logs of their own imports. See [Imports by resellers](/docs/admin/backups/cpanel#imports-by-resellers). |
+| **Services > FTP** | See FTP accounts on their users' domains and set their quota. The Configuration tab isn't shown. |
+| **Security > Web Firewall (Coraza)** | The Domains and Logs tabs for their users' domains, including per domain and per user WAF rules. The overview and server wide rules stay with administrators. |
+| **Security > ImunifyAV** | A list of their users with the last scan and infected files. **Scan** queues a scan of the user's files and **Open** opens ImunifyAV logged in as that user, so only that user's files are shown. Installing ImunifyAV is up to the administrator. |
+| **Server > Resource Usage** | View server load, memory, CPU, disk and network usage, without the links to the process manager or the Drop Cache buttons. |
+| **Server > Scheduled Actions** | View the system jobs and their schedule, read only. |
+| **Settings > Locales** | Install and update locales. Setting the default locale and deleting locales stays with administrators. |
+
+The same rules apply to the API endpoints behind these pages when they're called with a reseller's token, see the [OpenAdmin API](/docs/articles/dev-experience/openadmin-api/).
+
 Business guide: [How to offer reseller hosting with OpenPanel](/docs/articles/hosting-business/reseller-hosting/)

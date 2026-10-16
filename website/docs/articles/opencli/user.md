@@ -316,8 +316,10 @@ opencli user-backup --account <USER> [--output <DIR>] [--quiet]
 To restore a user account from a `.tar.gz` backup created with `user-backup`:
 
 ```bash
-opencli user-restore --file <ARCHIVE> [--force] [--new-username=<NAME>] [--temp-dir=<PATH>] [--quiet]
+opencli user-restore --file <ARCHIVE> [--force] [--new-username=<NAME>] [--reseller=<NAME>] [--temp-dir=<PATH>] [--quiet]
 ```
+
+`--reseller=<NAME>` restores the account for a reseller: it's refused when the reseller has reached their account or disk limit, when the plan from the backup doesn't exist or isn't assigned to the reseller, or together with `--force`. The restored account is owned by the reseller.
 
 <details>
   <summary>Example output</summary>
