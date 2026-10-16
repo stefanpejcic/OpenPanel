@@ -709,6 +709,66 @@ export const pages = {
       { name: 'service', alt: 'Service stopped card with the Email me switch and a Learn more link', prepare: markCard('Service stopped'), crop: { from: '[data-shot=card]', pad: 12 } },
       { name: 'disk', alt: 'Disk space running out card with the Email me switch and a Learn more link', prepare: markCard('Disk space running out'), crop: { from: '[data-shot=card]', pad: 12 } },
       { name: 'mailbox', alt: 'Mailbox almost full card with the Email me switch and a Learn more link', prepare: markCard('Mailbox almost full'), crop: { from: '[data-shot=card]', pad: 12 } },
+      // new in 2.0.16, shot on a test server with PANEL_URL until the demo has them
+      { name: 'wp-vulnerability', alt: 'Vulnerable WordPress site card with the Email me switch and a Learn more link', prepare: markCard('Vulnerable WordPress site'), crop: { from: '[data-shot=card]', pad: 12 } },
+      { name: 'visitors-blocked', alt: 'Visitors blocked by rate limit card with the Email me switch and a Learn more link', prepare: markCard('Visitors blocked by rate limit'), crop: { from: '[data-shot=card]', pad: 12 } },
+      { name: 'daily-summary', alt: 'Daily summary card with the Email me switch and a Learn more link', prepare: markCard('Daily summary'), crop: { from: '[data-shot=card]', pad: 12 } },
+      { name: 'error-report', alt: 'Daily error report card with the Email me switch and a Learn more link', prepare: markCard('Daily error report'), crop: { from: '[data-shot=card]', pad: 12 } },
+    ],
+  },
+  // Error Logs and Daily Summary are new in 2.0.16, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs statistics/error_logs statistics/daily_summary statistics/daily_summary-toast applications/wordpress-errors
+  'statistics/error_logs': {
+    url: '/error-logs?from=2026-10-15&to=2026-10-15&tz=0',
+    // one row per service and severity reads better than 98 rows of the same 502
+    before: async page => {
+      await page.evaluate(() => {
+        const seen = new Set();
+        document.querySelectorAll('#errorLogsTable tbody tr').forEach(tr => {
+          const key = tr.children[2].textContent.trim() + '|' + tr.children[3].textContent.trim();
+          if (seen.has(key) || seen.size >= 8) tr.remove(); else seen.add(key);
+        });
+      });
+    },
+    shots: [
+      { name: 'page', alt: 'Error Logs page with the website, service, severity, search and date filters above a table of errors with their time, severity, service, website and message', crop: 'content' },
+      { name: 'filters', alt: 'Error Logs filters: website with subfolder sites, service, severity, search, the date range picker and the Apply and Reset buttons', crop: { from: '#errorLogsFilters', pad: 12 } },
+      bulkShot('#errorLogsTable', 2, 'Two errors selected with the bulk actions bar offering Copy and Download'),
+    ],
+  },
+  'statistics/daily_summary': {
+    url: '/summary/2026-10-16',
+    shots: [
+      { name: 'page', alt: 'Daily Summary with the day in one sentence, requests, unique IPs, bandwidth, error pages and firewall blocks, the problems found with a button to fix each one, and the All good list', crop: 'content', viewportHeight: 1000 },
+      { name: 'websites', alt: 'Websites card listing each website by requests with its unique IPs, bandwidth, 404s and firewall blocks', prepare: markCard('Websites'), crop: { from: '[data-shot=card]', pad: 12 } },
+      { name: 'usage', alt: 'Resource Usage card with disk space, files and folders, CPU and memory at the busiest hour as bars, next to the panel logins with country flags, then the changes made to the account', prepare: async page => { await page.evaluate(() => { const h = [...document.querySelectorAll('main h2')].find(e => e.textContent.trim() === 'Resource Usage'); h.parentElement.parentElement.setAttribute('data-shot', 'section'); }); }, crop: { from: '[data-shot=section]', pad: 12 } },
+    ],
+  },
+  'statistics/daily_summary-toast': {
+    as: 'statistics/daily_summary',
+    url: '/dashboard',
+    shots: [
+      {
+        name: 'toast',
+        alt: 'Dashboard toast saying yesterday\'s summary found something to check, with the number of items that need attention and worth a look and a View summary button',
+        // the toast shows once per summary, so forget that it was shown
+        prepare: async page => {
+          await page.evaluate(() => localStorage.removeItem('summary_toast_date'));
+          await page.reload();
+          await page.waitForSelector('#toast-container > *:visible', { timeout: 10000 });
+          await page.evaluate(() => document.getElementById('toast-container').setAttribute('data-keep', ''));
+          await page.waitForTimeout(600);
+        },
+        crop: { from: '#toast-container > *:visible', pad: 12, clamp: false },
+      },
+    ],
+  },
+  'applications/wordpress-errors': {
+    as: 'applications/wordpress',
+    url: '/website?domain=wp.tests.openpanel.org',
+    prepare: async page => { await page.waitForTimeout(2500); },
+    shots: [
+      { name: 'debugging', alt: 'Debugging tab with the latest errors of the site at the top, then the toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES', prepare: all(tab('Debugging'), async page => { await page.waitForTimeout(3000); }), crop: { from: 'main', to: '[data-shot=tabs]', fromTop: true, pad: 16 } },
+      { name: 'debugging-errors', alt: 'Error Logs section of the Debugging tab listing the site\'s latest errors with their severity, time and service, with View Logs and Refresh links', prepare: all(tab('Debugging'), async page => { await page.waitForTimeout(3000); }, markSection('Error Logs')), crop: { from: '[data-shot=section]', pad: 16 } },
     ],
   },
   // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs account/favorites

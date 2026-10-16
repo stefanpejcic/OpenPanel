@@ -1,12 +1,22 @@
-name: Test
+name: OpenPanel Tests
 
 on:
   push:
     branches: [main]
+    paths:
+      - "openpanel/**"
+      - ".github/workflows/openpanel-test.yml"
   pull_request:
+    paths:
+      - "openpanel/**"
+      - ".github/workflows/openpanel-test.yml"
 
 permissions:
   contents: read
+
+defaults:
+  run:
+    working-directory: openpanel
 
 jobs:
   test-changed:
@@ -20,7 +30,9 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.25.0"
+          go-version: "stable"
+          check-latest: true
+          cache-dependency-path: openpanel/go.sum
 
       - name: Find changed packages
         id: changed
@@ -35,7 +47,7 @@ jobs:
             base=$(git rev-list --max-parents=0 HEAD)
           fi
 
-          files=$(git diff --name-only "$base" "${{ github.sha }}" -- '*.go')
+          files=$(git diff --relative --name-only "$base" "${{ github.sha }}" -- '*.go')
           if [ -z "$files" ]; then
             echo "packages=" >> "$GITHUB_OUTPUT"
             exit 0
@@ -61,7 +73,27 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.25.0"
+          go-version: "stable"
+          check-latest: true
+          cache-dependency-path: openpanel/go.sum
 
       - name: Build
         run: go build ./...
+
+  govulncheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+          check-latest: true
+          cache-dependency-path: openpanel/go.sum
+
+      - name: Run govulncheck
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...

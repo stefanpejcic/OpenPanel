@@ -7,7 +7,7 @@ sidebar_position: 4
 To help new users get their account ready quickly, OpenPanel can show a guided setup wizard the first time you log in.
 
 :::info
-The Onboarding wizard must be enabled by the Administrator. If it's enabled and you don't see it, it's because your account already has a domain or a database — it's only offered before you've started using the account.
+The Onboarding wizard must be enabled by the Administrator. Steps for things you've already set up are left out: the Webserver step is skipped once you have a domain, Database once you have a database, Backups once a backup destination is configured, and the 2FA option once 2FA is enabled.
 :::
 
 ## When it appears

@@ -273,7 +273,22 @@ func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, _ := os.ReadFile(path)
+	active := ActiveBackupTarget(userContext)
+
+	if r.URL.Query().Get("output") == "json" {
+		web.WriteJSON(w, http.StatusOK, map[string]any{"active": active, "targets": sectionOrder})
+		return
+	}
+
+	renderBackupDestinationsPage(a, w, r, active)
+}
+
+// ActiveBackupTarget is the one destination with uncommented keys in backup.env, or "" when none or several are
+func ActiveBackupTarget(userContext string) string {
+	content, err := os.ReadFile(envFilePath(userContext))
+	if err != nil {
+		return ""
+	}
 	uncommentedKeys := map[string]bool{}
 	for _, line := range strings.Split(string(content), "\n") {
 		line = strings.TrimSpace(line)
@@ -293,17 +308,10 @@ func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	active := ""
 	if len(matched) == 1 {
-		active = matched[0]
+		return matched[0]
 	}
-
-	if r.URL.Query().Get("output") == "json" {
-		web.WriteJSON(w, http.StatusOK, map[string]any{"active": active, "targets": sectionOrder})
-		return
-	}
-
-	renderBackupDestinationsPage(a, w, r, active)
+	return ""
 }
 
 func belongsToOtherSection(target, key string) bool {

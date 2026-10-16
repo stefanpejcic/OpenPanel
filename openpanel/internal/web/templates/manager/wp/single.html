@@ -1420,6 +1420,7 @@
             <div class="grid grid-cols-1 gap-10 md:grid-cols-3"
                 x-data="{
                     loading: false, loaded: false, failed: false, entries: [], total: 0,
+                    labels: { critical: {{toJSON (.T.Get "Critical")}}, error: {{toJSON (.T.Get "Error")}}, warning: {{toJSON (.T.Get "Warning")}}, notice: {{toJSON (.T.Get "Notice")}}, info: {{toJSON (.T.Get "Info")}} },
                     load() {
                         this.loading = true; this.failed = false;
                         fetch('/error-logs?' + new URLSearchParams({ domain: {{toJSON .CurrentDomain}}, exact: 1, limit: 10, format: 'json' }))
@@ -1457,7 +1458,7 @@
                                             'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': e.level === 'warning',
                                             'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300': e.level === 'notice',
                                             'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300': e.level === 'info'
-                                        }" x-text="e.level"></span>
+                                        }" x-text="labels[e.level] || e.level"></span>
                                     <span x-text="when(e.time)"></span>
                                     <span x-text="e.service"></span>
                                 </div>

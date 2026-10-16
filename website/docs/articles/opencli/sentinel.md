@@ -127,9 +127,31 @@ john: starting required container mysql
 ```
 </details>
 
+### Rate limits
+
+When **Visitors blocked by rate limit** is turned on in **OpenAdmin > Settings > Notifications** (`ratelimit=yes` in `/etc/openpanel/openadmin/config/notifications.ini`, off by default), Sentinel checks every 6 hours whether visitors got *429 Too Many Requests* from the [request rate limits](/docs/admin/domains/ratelimit/). It reads the last 6 hours of every domain's access log with `opencli domains-ratelimit stats --all --hours 6 --json`.
+
+If any domain had blocked requests, a *Rate limit reached on N domain(s)* warning lists up to 10 domains with how many requests were blocked and the IP blocked the most. Each domain's owner who turned on **Visitors blocked by rate limit** on their [Notifications](/docs/panel/account/notifications/#visitors-blocked-by-rate-limit) page also gets an email about their own domains.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+[!] Rate limits blocked visitors on 2 domain(s) in the last 6h.
+stefan: notified about rate limited domains.
+...
+# opencli sentinel
+...
+[✔] Rate limit check skipped (last run 1h 12m ago).
+...
+```
+</details>
+
 ### Timeouts
 
-So a hung `podman` command can't stop monitoring, every podman call Sentinel makes has a timeout, each check in the parallel part (logins, disk, load, RAM, CPU, SWAP, DNS, user containers) is stopped after 10 minutes, and the whole run is stopped after 15 minutes. A stopped check sends a *Sentinel checks did not finish* alert listing which checks hung, and a stopped run sends a critical *Sentinel checks timed out!* alert. Both are resolved on the next run that finishes in time. If a previous run is still going, the new one exits with *Error: Another instance is already running.*
+So a hung `podman` command can't stop monitoring, every podman call Sentinel makes has a timeout, each check in the parallel part (logins, disk, load, RAM, CPU, SWAP, DNS, user containers, rate limits) is stopped after 10 minutes, and the whole run is stopped after 15 minutes. A stopped check sends a *Sentinel checks did not finish* alert listing which checks hung, and a stopped run sends a critical *Sentinel checks timed out!* alert. Both are resolved on the next run that finishes in time. If a previous run is still going, the new one exits with *Error: Another instance is already running.*
 
 <details>
   <summary>Example output</summary>

@@ -137,3 +137,17 @@ Uninstall complete.
 ```
 </details>
 
+## Scan notifications
+
+After ImunifyAV is installed, every malware scan it starts and finishes is reported by `opencli imunify notify`, which runs on its own when ImunifyAV writes a scan event. Each scan is one notification in OpenAdmin, sent by email and webhook when it finishes, with the number of files checked and up to 5 malicious files. To turn these off, disable **ImunifyAV scan started/finished** under User Actions in **OpenAdmin > Settings > Notifications**.
+
+When a finished scan of a user's home folder found malware, that user also gets a **Malware found** email listing up to 20 infected files, if they have [Malware found](/docs/panel/account/notifications/#malware-found) turned on.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli imunify notify
+stefan notified by email about 2 malicious file(s).
+```
+</details>

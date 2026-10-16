@@ -52,6 +52,7 @@ var notificationDefs = []notificationDef{
 	{Key: "notify_email_ratelimit", Default: "1", Title: "Hourly email limit reached", Description: "Get an email when your account reaches its limit of emails sent per hour and new emails are rejected.", Group: "Usage", Anchor: "hourly-email-limit-reached"},
 	{Key: "notify_service_failed", Default: "1", Title: "Service stopped", Description: "Get an email when a service like MySQL or PHP stopped or ran out of memory and had to be restarted.", Group: "Usage", Anchor: "service-stopped"},
 	{Key: "notify_ratelimit", Default: "0", Title: "Visitors blocked by rate limit", Description: "Get an email when visitors to one of your domains were blocked for sending too many requests per minute.", Group: "Usage", Anchor: "visitors-blocked-by-rate-limit"},
+	{Key: "notify_daily_summary", Default: "0", Title: "Daily summary", Description: "Get one email each morning with what needs your attention on your account and websites, and the day's traffic, logins and changes.", Group: "Usage", Anchor: "daily-summary", Feature: "summary"},
 	{Key: "notify_error_logs", Default: "0", Title: "Daily error report", Description: "Get one email a day with the errors found in your websites' logs in the last 24 hours, the same ones shown on the Error Logs page.", Group: "Usage", Anchor: "daily-error-report", Feature: "error_logs"},
 }
 

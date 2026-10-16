@@ -99,4 +99,4 @@ If you need a condition that isn't one of the wizard's existing `opts` flags, ca
 
 ## Testing
 
-The wizard only shows automatically to a user with no domains and no databases yet, on their first login. To see your changes without creating a throwaway account, delete the onboarding marker file for a test user and reload the dashboard - see [resetting onboarding for a user](/docs/admin/settings/openpanel/#onboarding).
+The wizard only shows automatically until the user finishes or dismisses it. To see your changes without creating a throwaway account, delete the onboarding marker file for a test user and reload the dashboard - see [resetting onboarding for a user](/docs/admin/settings/openpanel/#onboarding).

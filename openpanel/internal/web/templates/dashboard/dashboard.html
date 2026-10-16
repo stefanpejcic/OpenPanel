@@ -168,6 +168,28 @@
 
 {{template "onboarding" .}}
 
+{{if and .UserAllowed.summary (not .OnboardingShow)}}
+<script>
+// once a day, tell the user when yesterday's summary found something
+document.addEventListener('DOMContentLoaded', function() {
+    let shown = null;
+    try { shown = localStorage.getItem('summary_toast_date'); } catch (e) {}
+    fetch('/summary/latest.json', { credentials: 'same-origin' })
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
+            if (!d || !d.found || d.date === shown || (d.attention + d.look) === 0) return;
+            try { localStorage.setItem('summary_toast_date', d.date); } catch (e) {}
+            const parts = [];
+            if (d.attention) parts.push({{.T.Get "Needs your attention"}} + ': ' + d.attention);
+            if (d.look) parts.push({{.T.Get "Worth a look"}} + ': ' + d.look);
+            const msg = {{.T.Get "Yesterday's summary found something to check."}} + '<br>' + parts.join(' · ');
+            setTimeout(() => showToast(msg, d.attention ? 'warning' : 'info', true, { label: {{.T.Get "View summary"}}, href: d.url }), 800);
+        })
+        .catch(() => {});
+});
+</script>
+{{end}}
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const sortableContainer = document.getElementById('dashboard-sortable-area');

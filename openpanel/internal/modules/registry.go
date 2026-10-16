@@ -58,6 +58,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/serverinfo"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/services"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/sofawiki"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/summary"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/tinyfilemanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/tinyphotogallery"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/trash"
@@ -161,6 +162,7 @@ var configured = map[string]Registrar{
 	"mediawiki":  func(mux *http.ServeMux, a *appctx.App) { mediawiki.Register(mux, a); mediawiki.RegisterAPI(mux, a) },
 	"goaccess":   func(mux *http.ServeMux, a *appctx.App) { goaccess.Register(mux, a); goaccess.RegisterAPI(mux, a) },
 	"error_logs": func(mux *http.ServeMux, a *appctx.App) { errorlogs.Register(mux, a); errorlogs.RegisterAPI(mux, a) },
+	"summary":    summary.Register,
 	"php": func(mux *http.ServeMux, a *appctx.App) {
 		php.Register(mux, a)
 		php.RegisterOptionsAPI(mux, a)

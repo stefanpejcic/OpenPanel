@@ -11081,19 +11081,16 @@ paths:
   /api/error-logs:
     get:
       summary: List PHP, webserver, database and HTTP 5xx errors.
-      description: Newest first, from every PHP version, the active webserver and database, and 5xx responses
-        in the domain access logs. range is 1h, 6h, 24h (default), 7d, 30d or custom with from/to as RFC3339.
-        level is warning or error, service is a name from the returned sources, limit is 1-5000 (default
-        500).
+      description: Newest first, from every PHP version, the active web server and database, application
+        containers and 5xx responses in the domain access logs. from and to are days (YYYY-MM-DD, with
+        tz as the UTC offset in minutes) or RFC3339 times, without them the newest entries are returned.
+        domain is a domain or a subfolder site like example.com/blog and includes its subfolder sites
+        unless exact=1. level is warning or error, service is a name from the returned sources, limit
+        is 1-5000 (default 500).
       operationId: error_logs
       tags:
       - Error Logs
       parameters:
-      - name: range
-        in: query
-        required: false
-        schema:
-          type: string
       - name: from
         in: query
         required: false
@@ -11104,7 +11101,17 @@ paths:
         required: false
         schema:
           type: string
+      - name: tz
+        in: query
+        required: false
+        schema:
+          type: string
       - name: domain
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: exact
         in: query
         required: false
         schema:

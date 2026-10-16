@@ -932,6 +932,85 @@ Both files are replaced in one step when the report is done, they never contain 
 ```
 </details>
 
+### Daily Summary
+
+Command: `opencli user-daily_summary` saves a day's summary for every user with the [Daily Summary](/docs/admin/settings/modules/#daily-summary) module, shown on their [Statistics > Daily Summary](/docs/panel/statistics/daily_summary/) page, and emails it to users who turned on **Daily summary** on their Notifications page. It runs every day at 06:15 for the previous day, and each user gets a summary by email at most once. Saved summaries are kept for 90 days.
+
+```bash
+opencli user-daily_summary <USERNAME|--all> [--date YYYY-MM-DD] [--dry-run]
+```
+
+- `--date` builds the summary of that day instead of yesterday.
+- `--dry-run` prints the email instead of saving and sending it.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-daily_summary --all
+Checking stefan
+  Summary for 2026-10-15: 2 need attention, 3 worth a look, saved.
+  stefan notified by email.
+Checking john
+  john doesn't have the Summary module.
+
+# opencli user-daily_summary stefan --date 2026-10-15 --dry-run
+  Summary for 2026-10-15: 1 need attention, 1 worth a look.
+  Subject: ⚠ 1 thing needs your attention – 15 Oct summary for stefan
+  Hi stefan,
+
+  Here's how your account did on Thursday, 15 October. Your 2 websites handled 5,452 requests from 1,448 visitors, 12% more than the day before. 1 thing needs your attention.
+
+  NEEDS YOUR ATTENTION
+
+  1. blog.example.com has 3 known security holes
+     They're in Astra and Contact Form 7. An update usually fixes them.
+     → Update WordPress and its plugins: https://server.example.com:2083/website?domain=blog.example.com
+
+  WORTH A LOOK
+
+  • Your disk is 86% full
+     You're using 8.6 GB of 10.0 GB.
+     → See what uses the space: https://server.example.com:2083/disk-usage/
+  ...
+  See the full summary: https://server.example.com:2083/summary/2026-10-15
+```
+</details>
+
+### Error Report
+
+Command: `opencli user-error_report` emails users the errors and critical errors found in their websites' logs in the last 24 hours, the same ones shown on the [Error Logs](/docs/panel/statistics/error_logs/) page. Only users with the Error Logs feature who turned on **Daily error report** on their Notifications page get it, at most once a day and only when there were errors. It runs every day at 07:30.
+
+```bash
+opencli user-error_report <USERNAME|--all> [--dry-run]
+```
+
+`--dry-run` prints the email instead of sending it.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-error_report --all
+Checking stefan
+  stefan notified by email about 3 error(s).
+Checking john
+  john has the daily error report turned off.
+
+# opencli user-error_report stefan --dry-run
+  To: stefan@example.com
+  Subject: Daily error report for account stefan
+  In the last 24 hours, 2 error(s) were found in the logs of account stefan.
+
+  By website:
+  - example.com: 2
+
+  Latest errors:
+  - 2026-10-15 19:49 UTC [critical] php-fpm-8.3 (example.com): Fatal error: Uncaught Error: Call to undefined function nonexistent_fn() in /var/www/html/example.com/index.php:3
+  - 2026-10-15 19:42 UTC [critical] php-fpm-8.3 (example.com): Fatal error: Uncaught Error: Call to undefined function nonexistent_fn() in /var/www/html/example.com/index.php:5
+```
+</details>
+
 ### Block IP
 
 Prevent specific IP addresses or CIDR ranges from accessing any user websites:

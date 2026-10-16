@@ -96,11 +96,12 @@ func TestSidebarSections(t *testing.T) {
 
 func TestEachPageBelongsToOneArea(t *testing.T) {
 	allowed := map[string]bool{"domains": true, "goaccess": true, "domain_logs": true, "edit_vhost": true, "webserver_conf": true,
-		"docker": true, "terminal": true, "mysql": true, "change_db": true, "change_ws": true, "usage": true, "error_logs": true}
+		"docker": true, "terminal": true, "mysql": true, "change_db": true, "change_ws": true, "usage": true, "error_logs": true, "summary": true}
 	cases := map[string]string{
 		"/domains/stats":        "Statistics",
 		"/domains/log":          "Statistics",
 		"/error-logs":           "Statistics",
+		"/summary/2026-10-15":   "Statistics",
 		"/domains/vhosts":       "Web Server Config",
 		"/domains/ssl":          "Domains",
 		"/containers/mysql":     "MySQL",

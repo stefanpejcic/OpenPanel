@@ -210,6 +210,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		Sections:              buildDashboardSections(t, userAllowed, upsellAllowed, menuStyle, dashboardAppKeys),
 		TourShow:              d.TourShow,
 		OnboardingShow:        d.OnboardingShow,
+		OnboardingSkip:        d.OnboardingSkip,
 		BackupsAdminManaged:   d.BackupsAdminManaged,
 		CustomMessage:         template.HTML(d.CustomMessage), //nolint:gosec // matches Jinja's `custom_message|safe`: admin-authored HTML from a local file, not user input
 		CustomSectionTitle:    d.CustomSectionTitle,
@@ -416,7 +417,16 @@ type DashboardData struct {
 	FTPCount              int
 	TourShow              bool
 	OnboardingShow        bool
+	OnboardingSkip        OnboardingSkip
 	BackupsAdminManaged   bool
+}
+
+// OnboardingSkip marks wizard steps the account has already set up, so the wizard leaves them out
+type OnboardingSkip struct {
+	Webserver bool
+	Database  bool
+	Backups   bool
+	Twofa     bool
 }
 
 type UserWebsite struct {
@@ -519,13 +529,19 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 	if a.Config.Get("onboarding", "") == "yes" {
 		onboardingDoneFile := fmt.Sprintf("/home/%s/onboarding.completed", userContext)
 		if _, err := os.Stat(onboardingDoneFile); os.IsNotExist(err) {
-			// demo accounts are reset/reused, so an existing domain or database doesn't mean this viewer has been onboarded - keep offering onboarding there regardless of usage
-			if !a.DemoMode && (len(userDomains) > 0 || d.DBUsage > 0) {
-				_ = os.WriteFile(onboardingDoneFile, nil, 0o644)
-			} else {
-				d.OnboardingShow = true
-				// admin owns the backup destination, so skip that wizard step
-				d.BackupsAdminManaged = userAllowed["backups"] && web.BackupsAdminManaged(userContext)
+			d.OnboardingShow = true
+			// admin owns the backup destination, so skip that wizard step
+			d.BackupsAdminManaged = userAllowed["backups"] && web.BackupsAdminManaged(userContext)
+			// demo accounts are reset/reused, so keep every step there regardless of what's already set up
+			if !a.DemoMode {
+				d.OnboardingSkip.Webserver = len(userDomains) > 0
+				d.OnboardingSkip.Database = d.DBUsage > 0
+				d.OnboardingSkip.Backups = userAllowed["backups"] && web.BackupDestinationConfigured(userContext)
+				if userAllowed["twofa"] {
+					if status, err := a.Get2FAStatusForUser(ctx, userID); err == nil {
+						d.OnboardingSkip.Twofa = status.Enabled
+					}
+				}
 			}
 		}
 	}

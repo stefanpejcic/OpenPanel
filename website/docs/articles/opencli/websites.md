@@ -265,8 +265,11 @@ opencli websites-vulnerability --all
    [+] Vulnerabilities detected and saved.
 
 Summary: 2 Sites, 5 Plugins, 3 Themes in 00:00:14
+[+] stefan notified by email about 2 new finding(s).
 ```
 </details>
+
+With `--all`, which runs every two days from cron, each website owner gets one email listing the new findings on their WordPress websites, if they have **Vulnerable WordPress site** turned on in [Notifications](/docs/panel/account/notifications/#vulnerable-wordpress-site). A finding is new when the website's previous scan didn't have it, so the same vulnerability isn't emailed again. Scanning a single website doesn't send emails.
 
 ### PageSpeed
 

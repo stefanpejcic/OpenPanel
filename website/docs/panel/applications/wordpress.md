@@ -305,8 +305,13 @@ Toggle WordPress’s built-in debugging tools (WP_DEBUG, WP_DEBUG_LOG, etc.) dir
 These are great for testing or development sites — not recommended for production.
 For details, check [Debugging in WordPress](https://wordpress.org/documentation/article/debugging-in-wordpress/) for more information on these options.
 
-![Debugging tab with toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES](/img/openpanel-screenshots/applications/wordpress-debugging.png#gh-light-mode-only)
-![Debugging tab with toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES](/img/openpanel-screenshots/applications/wordpress-debugging_dark.png#gh-dark-mode-only)
+![Debugging tab with the latest errors of the site at the top, then the toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES](/img/openpanel-screenshots/applications/wordpress-debugging.png#gh-light-mode-only)
+![Debugging tab with the latest errors of the site at the top, then the toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES](/img/openpanel-screenshots/applications/wordpress-debugging_dark.png#gh-dark-mode-only)
+
+When your hosting plan includes [Error Logs](/docs/panel/statistics/error_logs/), the tab starts with the site's 10 newest errors: PHP, web server and HTTP 5xx errors of this site only, not of other sites in its subfolders. Click an error to see the whole message, **Refresh** to load them again, and **View Logs** to open the Error Logs page filtered to this site.
+
+![Error Logs section of the Debugging tab listing the site's latest errors with their severity, time and service, with View Logs and Refresh links](/img/openpanel-screenshots/applications/wordpress-debugging-errors.png#gh-light-mode-only)
+![Error Logs section of the Debugging tab listing the site's latest errors with their severity, time and service, with View Logs and Refresh links](/img/openpanel-screenshots/applications/wordpress-debugging-errors_dark.png#gh-dark-mode-only)
 
 ### Backups
 

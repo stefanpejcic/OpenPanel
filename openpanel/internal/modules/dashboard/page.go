@@ -28,6 +28,7 @@ type DashboardPageData struct {
 	Sections       []Section
 	TourShow       bool
 	OnboardingShow bool
+	OnboardingSkip OnboardingSkip
 
 	BackupsAdminManaged bool
 

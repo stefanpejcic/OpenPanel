@@ -109,7 +109,9 @@ Each alert is sent once per certificate, and all affected domains of the account
 
 ### Malware found
 
-Sends an email when the scheduled malware scan finds infected files and moves them to quarantine. The email lists up to 20 files with the malware signature found in each, and points to the **Malware Scanner > Quarantine** page to delete or restore them.
+Sends an email when a malware scan finds infected files on the account:
+- the scheduled ClamAV scan moves them to quarantine. The email lists up to 20 files with the malware signature found in each, and points to the **Malware Scanner > Quarantine** page to delete or restore them.
+- when your provider uses ImunifyAV, a finished scan that found malware in your account lists up to 20 of the files. ImunifyAV doesn't quarantine them, so remove or clean them, or ask your provider for help.
 
 Scans you start yourself from the Malware Scanner page don't send an email, since you see the results right away.
 
@@ -118,9 +120,20 @@ Scans you start yourself from the Malware Scanner page don't send an email, sinc
 
 ![Malware found email listing two quarantined files with their malware signatures, when the scan ran and what to do next](/img/openpanel-screenshots/account/notifications-email-malware.png)
 
+![Malware found email from an ImunifyAV scan listing two infected files and what to do next](/img/openpanel-screenshots/account/notifications-email-malware-imunify.png)
+
+### Vulnerable WordPress site
+
+Sends an email when WordPress, a plugin or a theme on one of your WordPress websites has a known security vulnerability. The server checks every WordPress site every two days, and the email lists each new finding with the website, the plugin or theme and the vulnerable versions. A vulnerability already reported in an earlier email isn't sent again. This option only shows up when your hosting plan includes WordPress.
+
+![Vulnerable WordPress site card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-wp-vulnerability.png#gh-light-mode-only)
+![Vulnerable WordPress site card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-wp-vulnerability_dark.png#gh-dark-mode-only)
+
+![Vulnerable WordPress email listing two Contact Form 7 vulnerabilities on blog.example.com and an Astra theme vulnerability, with tips to update](/img/openpanel-screenshots/account/notifications-email-wp-vulnerability.png)
+
 ### Email me if this alert gets turned off
 
-Every security alert except **SSL certificate problem** and **Malware found** has this option, and it's on by default. When it's on and someone turns the alert itself off, an email is sent listing the alerts that were turned off. This way nobody can quietly turn off your login or password alerts before doing something with your account.
+Every security alert except **SSL certificate problem**, **Malware found** and **Vulnerable WordPress site** has this option, and it's on by default. When it's on and someone turns the alert itself off, an email is sent listing the alerts that were turned off. This way nobody can quietly turn off your login or password alerts before doing something with your account.
 
 To really stop an alert, turn off this option first, save, and then turn off the alert.
 
@@ -146,7 +159,9 @@ Once the limit is reached, websites and email can stop working. Delete files you
 Sends an email when one of your email accounts uses 90% of its quota, showing a usage bar for each account that is almost full.
 
 ![Mailbox almost full card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-mailbox.png#gh-light-mode-only)
-![Mailbox almost full card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-mailbox_dark.png#gh-dark-mode-only) It's sent once per email account, and again only after usage drops below 90% and reaches it again.
+![Mailbox almost full card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-mailbox_dark.png#gh-dark-mode-only)
+
+It's sent once per email account, and again only after usage drops below 90% and reaches it again.
 
 When a mailbox is full, new emails to it are rejected. Delete old emails or raise the quota on the [Email Accounts](/docs/panel/emails/) page.
 
@@ -175,6 +190,39 @@ The email is sent at most once a day.
 ![Service stopped card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-service_dark.png#gh-dark-mode-only)
 
 ![Services restarted email listing MySQL that ran out of memory and PHP, both restarted, with tips for services that keep stopping](/img/openpanel-screenshots/account/notifications-email-service.png)
+
+### Visitors blocked by rate limit
+
+Sends an email when visitors to one of your domains got **429 Too Many Requests** because they sent more requests per minute than the domain's rate limit allows. For each domain it lists how many requests were blocked out of all requests, and the IP that was blocked the most. One IP with most of the blocks is usually a bot or a scraper. If real visitors are being blocked, ask your provider to raise the limit.
+
+It's off by default, and only sent when your provider turned on the rate limit check in OpenAdmin. Blocks are checked every 6 hours.
+
+![Visitors blocked by rate limit card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-visitors-blocked.png#gh-light-mode-only)
+![Visitors blocked by rate limit card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-visitors-blocked_dark.png#gh-dark-mode-only)
+
+![Visitors blocked by rate limit email listing two domains with how many requests were blocked and the IP blocked the most](/img/openpanel-screenshots/account/notifications-email-visitors-blocked.png)
+
+### Daily summary
+
+Sends one email every morning with the previous day's [Daily Summary](/docs/panel/statistics/daily_summary/): what needs your attention first, each with a link to the page that fixes it, then what's worth a look, what's all good, and the day's traffic, logins and account changes. The subject says how many things need your attention.
+
+It's off by default, and only shows up when your hosting plan includes the Daily Summary page.
+
+![Daily summary card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-daily-summary.png#gh-light-mode-only)
+![Daily summary card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-daily-summary_dark.png#gh-dark-mode-only)
+
+![Daily summary email with disk, files, CPU and memory bars, one thing that needs attention, two worth a look, the all good list, the websites, logins and changes, and a link to the full summary](/img/openpanel-screenshots/account/notifications-email-daily-summary.png)
+
+### Daily error report
+
+Sends one email a day with the errors and critical errors found in your websites' logs in the last 24 hours: how many per website, and the 20 newest with their time, service and first line of the message. It's not sent on days without errors. For the full messages and stack traces, open the [Error Logs](/docs/panel/statistics/error_logs/) page.
+
+It's off by default, and only shows up when your hosting plan includes the Error Logs page.
+
+![Daily error report card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-error-report.png#gh-light-mode-only)
+![Daily error report card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-error-report_dark.png#gh-dark-mode-only)
+
+![Daily error report email with the number of errors per website and the latest errors with their time, severity and service](/img/openpanel-screenshots/account/notifications-email-error-report.png)
 
 ### Upgrade offer
 

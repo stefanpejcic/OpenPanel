@@ -22,6 +22,7 @@ func AdminManagedBackups(userContext string) bool {
 
 func init() {
 	web.BackupsAdminManaged = AdminManagedBackups
+	web.BackupDestinationConfigured = func(userContext string) bool { return ActiveBackupTarget(userContext) != "" }
 }
 
 // respondBackupsAdminManaged is what handleBackupSettings/handleBackupTarget return instead of their normal view/update when AdminManagedBackups is true, for both the HTML page and the JSON API

@@ -1159,16 +1159,33 @@ Customize options:
 
 ## Error Logs
 
-The **`error_logs`** module lets users see PHP, webserver, database and HTTP 5xx errors for all of their websites on a single page, without opening individual containers.
+The **`error_logs`** module lets users see PHP, web server, database, application and HTTP 5xx errors for all of their websites on a single page, without opening individual containers.
 
 When enabled:
 * Users can access the [**Statistics > Error Logs** page](/docs/panel/statistics/error_logs/).
+* WordPress sites show their latest errors on the Debugging tab of the site manager.
+* Users can turn on the **Daily error report** email on the [Notifications](/docs/panel/account/notifications/#daily-error-report) page, sent by the `opencli user-error_report --all` cron job at 07:30.
 * The same data is available from the `/api/error-logs` API endpoint.
 
 When disabled:
-* Users can not access the *Statistics > Error Logs* page.
+* Users can not access the *Statistics > Error Logs* page and get no error report emails.
 
-Errors are read live from the user's PHP-FPM, webserver and database containers (for OpenLiteSpeed and LiteSpeed, from `/usr/local/lsws/logs/error.log` inside the container) and from the Caddy domain access logs (5xx responses only), so nothing extra runs in the background.
+Errors are read live from the user's PHP-FPM, web server, database and application containers (for OpenLiteSpeed and LiteSpeed, from `/usr/local/lsws/logs/error.log` inside the container) and from the Caddy domain access logs (5xx responses only), so nothing extra runs in the background.
+
+
+## Daily Summary
+
+The **`summary`** module saves a summary of each day for every user: what needs their attention first, with a link to the page that fixes it, then the day's traffic, logins and account changes.
+
+When enabled:
+* The `opencli user-daily_summary --all` cron job saves the previous day's summary for each user at 06:15, kept for 90 days.
+* Users can access the [**Statistics > Daily Summary** page](/docs/panel/statistics/daily_summary/).
+* Users can turn on the **Daily summary** email on the [Notifications](/docs/panel/account/notifications/#daily-summary) page.
+
+When disabled:
+* No summaries are saved, and users can not access the *Statistics > Daily Summary* page.
+
+The checks in a summary follow the user's features, for example vulnerable plugins are only checked when the user has WordPress, and backups are left out when you [manage backups](/docs/admin/backups/user/) for the user.
 
 
 ## Docroot

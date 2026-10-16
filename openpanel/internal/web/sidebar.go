@@ -126,7 +126,7 @@ func isContainersPath(path string) bool {
 }
 
 func isStatsPath(path string) bool {
-	return hasAnyPrefix(path, "/server/usage", "/disk-usage", "/inodes-explorer", "/domains/stats", "/domains/log", "/error-logs")
+	return hasAnyPrefix(path, "/server/usage", "/disk-usage", "/inodes-explorer", "/domains/stats", "/domains/log", "/error-logs", "/summary")
 }
 
 func isProcessesPath(path string) bool {
@@ -158,6 +158,9 @@ type TabContext struct {
 
 // BackupsAdminManaged is set by the backups module, which owns the admin-managed marker but can't be imported here.
 var BackupsAdminManaged = func(userContext string) bool { return false }
+
+// BackupDestinationConfigured is set by the backups module too, true once backup.env has an active destination
+var BackupDestinationConfigured = func(userContext string) bool { return false }
 
 // navArea is one feature area: a sidebar link plus the tabs across its pages. The link goes to the area's first reachable tab.
 type navArea struct {
@@ -350,6 +353,7 @@ var sidebarAreas = []navArea{
 			tabs = g.add(tabs, "usage", "/server/usage", "Resource Usage", strings.HasPrefix(path, "/server/usage"), "")
 			tabs = g.add(tabs, "disk_usage", "/disk-usage/", "Disk Usage", strings.HasPrefix(path, "/disk-usage"), "")
 			tabs = g.add(tabs, "inodes", "/inodes-explorer/", "Inode Usage", strings.HasPrefix(path, "/inodes-explorer"), "")
+			tabs = g.add(tabs, "summary", "/summary", "Daily Summary", strings.HasPrefix(path, "/summary"), "")
 			tabs = g.add(tabs, "goaccess", "/domains/stats", "Visitor Statistics", strings.HasPrefix(path, "/domains/stats"), "")
 			tabs = g.add(tabs, "domain_logs", "/domains/log", "Access Logs", strings.HasPrefix(path, "/domains/log"), "")
 			tabs = g.add(tabs, "error_logs", "/error-logs", "Error Logs", strings.HasPrefix(path, "/error-logs"), "")

@@ -94,7 +94,7 @@ QUERY_PARAMS = {
     ("GET", "/api/file-manager/view-file/{filename}"): ["path_param"],
     ("GET", "/api/account/activity"): ["page", "search", "show_all"],
     ("GET", "/api/search/{what}"): ["q", "folder", "ext"],
-    ("GET", "/api/error-logs"): ["range", "from", "to", "domain", "service", "level", "q", "limit"],
+    ("GET", "/api/error-logs"): ["from", "to", "tz", "domain", "exact", "service", "level", "q", "limit"],
 }
 
 # File-download responses, keyed by (method, openapi_path) -> content type.
@@ -197,10 +197,12 @@ OPERATION_EXTRAS = {
         "errors": {"400": "Invalid PHP version.", "404": "PHP version not installed."},
     },
     ("GET", "/api/error-logs"): {
-        "description": "Newest first, from every PHP version, the active webserver and database, and 5xx responses in "
-                       "the domain access logs. range is 1h, 6h, 24h (default), 7d, 30d or custom with from/to as "
-                       "RFC3339. level is warning or error, service is a name from the returned sources, limit is "
-                       "1-5000 (default 500).",
+        "description": "Newest first, from every PHP version, the active web server and database, application containers "
+                       "and 5xx responses in the domain access logs. from and to are days (YYYY-MM-DD, with tz as the "
+                       "UTC offset in minutes) or RFC3339 times, without them the newest entries are returned. domain is "
+                       "a domain or a subfolder site like example.com/blog and includes its subfolder sites unless exact=1. "
+                       "level is warning or error, service is a name from the returned sources, limit is 1-5000 "
+                       "(default 500).",
         "errors": {"400": "Unknown service.", "403": "You do not own this domain."},
     },
     ("GET", "/api/malware-scanner/logs"): {

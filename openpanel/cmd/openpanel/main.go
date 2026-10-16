@@ -25,6 +25,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/backups"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/errorlogs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/git"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/summary"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -63,6 +64,10 @@ func main() {
 	// opencli's daily error report reads a user's errors through this, so it uses the same parsing as the Error Logs page
 	if len(os.Args) > 1 && os.Args[1] == "error-logs-digest" {
 		os.Exit(errorlogs.RunDigestCLI(context.Background(), a, os.Args[2:], os.Stdout))
+	}
+	// opencli's daily summary builds, saves and emails each account's day through this
+	if len(os.Args) > 1 && os.Args[1] == "daily-summary" {
+		os.Exit(summary.RunCLI(context.Background(), a, os.Args[2:], os.Stdout))
 	}
 
 	configureLogging(a)
@@ -110,13 +115,14 @@ func main() {
 
 	modules.RegisterAll(mux, a)
 
-	// block_blacklisted_user_agents isn't ported yet, not needed for any route we have so far
 	var handler http.Handler = mux
 	handler = auth.CheckLicense(a, func(w http.ResponseWriter, r *http.Request) {
 		renderLicenseError(a, w, r)
 	})(handler)
 	handler = auth.LoadUser(a)(handler)
 	handler = exemptAPIFromCSRF(csrfMiddleware, handler)
+	// outermost, a blocked bot gets nothing else, not even the login page
+	handler = auth.BlockUseragents()(handler)
 
 	listenAddr := envOrDefault("LISTEN_ADDR", defaultListenAddr)
 	srv := &http.Server{

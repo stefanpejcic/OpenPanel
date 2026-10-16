@@ -191,3 +191,11 @@ func subsiteFor(domain, uri string, sites []Site) string {
 func inTarget(entryDomain, target string) bool {
 	return target == "" || entryDomain == target || strings.HasPrefix(entryDomain, target+"/")
 }
+
+// LoadSites is loadSites for other modules, the daily summary splits traffic by site with it
+func LoadSites(ctx context.Context, a *appctx.App, userID int) []Site {
+	return loadSites(ctx, a, userID)
+}
+
+// SubsiteFor is subsiteFor for other modules
+func SubsiteFor(domain, uri string, sites []Site) string { return subsiteFor(domain, uri, sites) }

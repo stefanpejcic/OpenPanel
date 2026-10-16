@@ -330,6 +330,10 @@ opencli user-check
 Description: Performs comprehensive security checks on user files, rootless Podman instance and containers.
 Usage: opencli user-check <USERNAME>
 ------------------------
+opencli user-daily_summary
+Description: Save yesterday's summary for users with the Summary module and email it to those who turned it on.
+Usage: opencli user-daily_summary <USERNAME> [--date YYYY-MM-DD] [--dry-run] OR opencli user-daily_summary --all [--date YYYY-MM-DD] [--dry-run]
+------------------------
 opencli user-delete
 Description: Delete user account and permanently remove all their data.
 Usage: opencli user-delete <username> [-y]
@@ -337,6 +341,10 @@ Usage: opencli user-delete <username> [-y]
 opencli user-email
 Description: Change email for user
 Usage: opencli user-email <USERNAME> <NEW_EMAIL>
+------------------------
+opencli user-error_report
+Description: Email users the errors found in their websites' logs in the last 24 hours.
+Usage: opencli user-error_report <USERNAME> [--dry-run] OR opencli user-error_report --all [--dry-run]
 ------------------------
 opencli user-ip
 Description: Assign or remove dedicated IP to a user.

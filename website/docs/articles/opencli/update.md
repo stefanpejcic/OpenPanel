@@ -40,6 +40,8 @@ opencli update
 ...
 ---- Cleaning up previous images ----
 ---- Updating installed locales ----
+[INFO] Updated locale: de-de
+[INFO] Updated locale: sr-rs
 ---- [✔] Locales updated: 2, failed: 0 ----
 ---- Updating OpenAdmin modules ----
 ---- Updating OpenAdmin ----
@@ -100,6 +102,8 @@ opencli update --force
 ...
 ---- Cleaning up previous images ----
 ---- Updating installed locales ----
+[INFO] Updated locale: de-de
+[INFO] Updated locale: sr-rs
 ---- [✔] Locales updated: 2, failed: 0 ----
 ---- Updating OpenAdmin modules ----
 ---- Updating OpenAdmin ----
@@ -169,13 +173,16 @@ Update only translation files *(locale files from [stefanpejcic/openpanel-transl
 opencli update --translations
 ```
 
+Each locale download is tried up to 3 times with a 60 second limit per try, a locale that can't be downloaded is counted as failed and keeps its current file, and the update continues.
+
 <details>
   <summary>Example output</summary>
 
 ```bash
 # opencli update --translations
 Updating installed locales
-Compiling updated .mo files
+[INFO] Updated locale: de-de
+[INFO] Updated locale: sr-rs
 [✔] Locales updated: 2, failed: 0
 [INFO] Restarting OpenPanel service
 [INFO] [✔] Translations updated and OpenPanel restarted
@@ -222,6 +229,8 @@ opencli update --modules
 Updating OpenAdmin modules
 ```
 </details>
+
+If the file can't be downloaded or isn't valid JSON, the current `features.json` is kept.
 
 ## Templates
 
