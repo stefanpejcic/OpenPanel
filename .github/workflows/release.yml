@@ -48,7 +48,7 @@ jobs:
           GOARCH: ${{ matrix.arch }}
           CGO_ENABLED: 0
         working-directory: openpanel
-        run: go build -buildvcs=false -trimpath -buildmode=pie -ldflags="-s -w" -o openpanel-${{ matrix.arch }} ./cmd/openpanel
+        run: go build -buildvcs=false -trimpath -ldflags="-s -w" -o openpanel-${{ matrix.arch }} ./cmd/openpanel
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
