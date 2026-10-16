@@ -35,22 +35,30 @@ Tip: give reseller plans a clear name prefix (e.g. `R-Starter`, `R-Business`) so
 
 ---
 
-## Step 2: Create a Reseller
+## Step 2: Create Reseller Packages
+
+Go to **OpenAdmin → Hosting Plans → Reseller Packages** and create one package per reseller tier you sell (see [Pricing Reseller Hosting](#pricing-reseller-hosting) below), each with:
+
+- **Max Accounts** - how many client accounts resellers on it can create,
+- **Max Disk Usage** - their total disk allowance across all clients,
+- **User Packages** - which plans they may assign.
+
+See [Reseller Packages](/docs/admin/plans/reseller_packages/).
+
+---
+
+## Step 3: Create a Reseller
 
 1. Go to **OpenAdmin → Accounts → Resellers**.
-2. Click **Create New**, enter a username and password, and click **Create**.
-3. Open the reseller's menu → **Edit Plans & Limits** and set:
-   - **Max Accounts** - how many client accounts they can create,
-   - **Max Disk Usage** - their total disk allowance across all clients,
-   - **Hosting Plans** - which plans they may assign.
+2. Click **Create New**, enter a username and password, pick a **Reseller Package** and click **Create**.
 
-See [Resellers](/docs/admin/accounts/resellers/).
+To give one reseller different limits, open their menu → **Edit Plans & Limits** and change them there. See [Resellers](/docs/admin/accounts/resellers/).
 
 The reseller logs in at your OpenAdmin address (e.g. `https://panel.yourhost.com:2087`) and manages their users from **Accounts → Users**.
 
 ---
 
-## Step 3: Reseller Branding
+## Step 4: Reseller Branding
 
 Resellers can set their own **logo** from their **Reseller Account** page - it's shown instead of your logo in their clients' OpenPanel. Combined with custom nameservers on their own domain, their clients see the reseller's brand.
 
@@ -58,9 +66,9 @@ For your own company branding, see [White-label OpenPanel](/docs/articles/hostin
 
 ---
 
-## Step 4: Automate It with Billing
+## Step 5: Automate It with Billing
 
-Sell reseller packages through your billing system, so resellers are created and suspended automatically when they pay (or don't). OpenPanel integrates with [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/), [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/), [Blesta](/docs/articles/extensions/openpanel-and-blesta/), [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/) and [WISECP](/docs/articles/extensions/openpanel-and-wisecp/).
+Sell reseller packages through your billing system, so resellers are created and suspended automatically when they pay (or don't). The [OpenAdmin API](/docs/articles/dev-experience/openadmin-api/#resellers) creates a reseller on a package with `{"action":"create", ..., "plan":"<package>"}` and upgrades or downgrades it with `change_plan`. OpenPanel integrates with [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/), [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/), [Blesta](/docs/articles/extensions/openpanel-and-blesta/), [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/) and [WISECP](/docs/articles/extensions/openpanel-and-wisecp/).
 
 Resellers who run their own billing system can use the same modules to automate *their* client accounts.
 
@@ -70,7 +78,7 @@ Resellers who run their own billing system can use the same modules to automate 
 
 From **Accounts → Resellers** you can see each reseller's account usage (e.g. `12/20`), disk usage and plans, and:
 
-- **Edit Plans & Limits** - upgrade or downgrade a reseller package,
+- **Edit Plans & Limits** - move the reseller to another reseller package to upgrade or downgrade them, or set custom limits,
 - **Suspend / Unsuspend** - e.g. for unpaid invoices,
 - **Rename**, **Change Password**, remove **2FA / Passkeys** if a reseller is locked out,
 - **Delete** the reseller.

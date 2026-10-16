@@ -24,7 +24,7 @@ The interface displays a table of existing reseller users with the following col
 ![Resellers page listing reseller accounts with their status, security, activity, limits and actions](/img/openadmin-screenshots/accounts/resellers-list_dark.png#gh-dark-mode-only)
 
 - **Username**  
-  The unique identifier of the reseller user.
+  The unique identifier of the reseller user, with the name of their [Reseller Package](/docs/admin/plans/reseller_packages) below it when they're on one.
 
 - **Status**  
   Indicates whether the reseller account is active or suspended.
@@ -48,7 +48,7 @@ Click the arrows next to a column name to sort the table by that column.
 
 Each row also has an Edit menu with the available actions:
 
-- **Edit Plans & Limits** - set the reseller's Max Accounts, Max Disk Usage (in blocks), and the hosting plans they're allowed to assign to their users.
+- **Edit Plans & Limits** - move the reseller to another [Reseller Package](/docs/admin/plans/reseller_packages) with **Apply Package**, or set their Max Accounts, Max Disk Usage (in blocks), and the hosting plans they're allowed to assign to their users by hand. Limits set by hand are replaced when the reseller's package is edited or another package is applied.
 - **Rename** - change the reseller's username.
 - **Change Password** - set a new password for the reseller.
 - **Activity Log** - open the reseller's [Activity Log](/docs/admin/accounts/activity).
@@ -56,13 +56,13 @@ Each row also has an Edit menu with the available actions:
 - **Suspend** / **Unsuspend** - temporarily disable the reseller's access.
 - **Delete** - permanently remove the reseller account.
 
-To create a new reseller, click **Create New**, set a username and password, and click **Create**.
+To create a new reseller, click **Create New**, set a username and password, optionally pick a **Reseller Package**, and click **Create**. The package's limits are applied to the new reseller. Without a package, or before any packages exist, the reseller gets the default limits from `/etc/openpanel/openadmin/config/reseller_template.json`.
 
 Resellers can be turned off for the whole server with the **Disable Resellers** button next to **Create New**, and turned back on with **Enable Resellers**. While reseller accounts exist the **Disable Resellers** button is greyed out, hover it to see how many reseller accounts have to be deleted first.
 
 ---
 
-Reseller users have access only to the features and account management tools assigned to them by the root administrator. They cannot exceed the limits defined in their reseller settings (Max Accounts, Max Disk Usage, and the Hosting Plans made available to them).
+Reseller users have access only to the features and account management tools assigned to them by the root administrator. They cannot exceed the limits defined in their reseller settings (Max Accounts, Max Disk Usage, and the Hosting Plans made available to them), see [How limits are enforced](/docs/admin/plans/reseller_packages#how-limits-are-enforced).
 
 ---
 

@@ -13,9 +13,9 @@ Commands:
   log                                           Display the last 25 lines of the OpenAdmin error log.
   logs                                          Display live logs for all OpenAdmin services.
   list                                          List all current admin users.
-  new <user> <pass> [--reseller|--super]        Add a new user, optionally as a reseller or super admin.
+  new <user> <pass> [--reseller|--super] [--plan=<name>] Add a new user, optionally as a reseller (on a reseller plan) or super admin.
   password <user> <pass>                        Reset the password for the specified admin user.
-  update <user> --allowed_plans=[] --max_accounts=<int> --max_disk_blocks=1000000 --logo_url=<url> Assign plans, limits, and branding for reseller.
+  update <user> --plan=<name> --allowed_plans=[] --max_accounts=<int> --max_disk_blocks=1000000 --logo_url=<url> Assign a reseller plan, limits, and branding for reseller.
   rename <old> <new>                            Change the admin username.
   suspend <user>                                Suspend admin user.
   unsuspend <user>                              Unsuspend admin user.
@@ -37,6 +37,8 @@ Examples:
   opencli admin list
   opencli admin new stefan SuperStrong1
   opencli admin new stefan SuperStrong1 --reseller
+  opencli admin new stefan SuperStrong1 --reseller --plan=reseller_basic
+  opencli admin update stefan --plan=reseller_pro
   opencli admin new stefan SuperStrong1 --super
   opencli admin password stefan SuperStrong2
   opencli admin rename stefan pejcic
@@ -162,6 +164,22 @@ Reseller user 'reseller1' created.
 ```
 </details>
 
+To create the reseller on a [Reseller Package](/docs/admin/plans/reseller_packages) add `--plan=<package>`:
+
+```bash
+opencli admin new <username> <password> --reseller --plan=<package>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin new reseller1 SuperStrong1 --reseller --plan=reseller_basic
+Reseller user 'reseller1' created.
+Reseller reseller1 updated successfully.
+```
+</details>
+
 ### Create Super Admin
 
 To create the super admin account (the `admin` role). Only one super admin can exist:
@@ -187,6 +205,12 @@ To set allowed plans, limits and logo for a reseller account. Only the flags tha
 opencli admin update <username> --allowed_plans=<id1,id2> --max_accounts=<NUMBER> --max_disk_blocks=<NUMBER> --logo_url=<URL>
 ```
 
+To move the reseller to a [Reseller Package](/docs/admin/plans/reseller_packages) pass `--plan=<package>`. It sets Max Accounts, Max Disk Usage and allowed plans from the package, other flags passed together with it take precedence over the package's values. Moving to a package with fewer accounts or less disk than the reseller already uses is refused:
+
+```bash
+opencli admin update <username> --plan=<package>
+```
+
 
 <details>
   <summary>Example output</summary>
@@ -194,6 +218,9 @@ opencli admin update <username> --allowed_plans=<id1,id2> --max_accounts=<NUMBER
 ```bash
 # opencli admin update reseller1 --allowed_plans=1,2 --max_accounts=10
 Reseller reseller1 updated successfully.
+
+# opencli admin update reseller1 --plan=reseller_small
+Error: Reseller 'reseller1' has 12 accounts, plan 'reseller_small' allows only 10. Remove accounts first.
 ```
 </details>
 

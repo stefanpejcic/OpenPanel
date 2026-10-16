@@ -38,6 +38,10 @@ const DEMO_NAMES = {
   bulkadmin2: 'billing_admin',
   bulkres1: 'webagency',
   bulkres2: 'hostpro',
+  // reseller package fixtures on the test server
+  tstreseller29428: 'webagency',
+  tstreseller59185: 'hostpro',
+  probaproba: 'designstudio',
   bulkplan1: 'Starter plan',
   bulkplan2: 'Business plan',
   'Bulk test': 'Small sites',
@@ -789,6 +793,19 @@ export const pages = {
     shots: [
       { name: 'list', alt: 'Resellers page listing reseller accounts with their status, plans, limits and actions', crop: 'content' },
       bulkShot('#exiting_users', ['bulkres1', 'bulkres2'], 'Two resellers selected with the bulk actions bar offering Suspend, Unsuspend and Delete'),
+      { name: 'package', url: '/resellers/update/tstreseller29428', alt: 'Edit Plans & Limits page of a reseller with the Reseller Package picker and the Apply Package button above the custom limits', crop: { from: 'main', to: '#max_disk_blocks ~ small', fromTop: true, pad: 24 } },
+    ],
+  },
+  // reseller packages are new in 2.0.16, the test server has reseller_starter and reseller_business with one reseller on reseller_starter
+  // ADMIN_URL=https://host:2087 node shoot.mjs --admin plans/reseller_packages_server accounts/resellers_server:list,package
+  'plans/reseller_packages_server': {
+    as: 'plans/reseller_packages',
+    url: '/plans/resellers',
+    shots: [
+      { name: 'list', alt: 'Reseller Packages page listing packages with their max accounts, max disk, number of user packages and resellers on each', crop: 'content' },
+      { name: 'menu', alt: 'Edit menu of a reseller package with the Edit and Delete options', prepare: click('main button#rp-reseller_business', 600), crop: { from: 'main table thead', to: '#dropdown-rp-reseller_business', pad: 12, right: true } },
+      { name: 'new', alt: 'Create New reseller package form with name, description, max accounts, max disk usage and the user packages resellers can assign', prepare: all(click('main a:has-text("Create New")', 500), fill({ '#rp_name': 'reseller_pro', '#rp_description': '60 accounts, 400 GB', '#rp_max_accounts': '60', '#rp_max_disk_gb': '400' }), click('main button[role=checkbox]', 200)), crop: { from: 'main', to: 'main form button[type=submit]', fromTop: true, pad: 24 } },
+      { name: 'edit', url: '/plans/resellers/reseller_starter', alt: 'Edit page of a reseller package listing the resellers on it, with its limits and allowed user packages', crop: 'content' },
     ],
   },
   'plans/hosting_plans_server': {

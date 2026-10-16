@@ -87,6 +87,8 @@ Some endpoints below are destructive or high-privilege (rebooting the server, ch
 }
 ```
 
+To create the account for a reseller add `"reseller": "<reseller>"`, the reseller's [limits](/docs/admin/plans/reseller_packages#how-limits-are-enforced) are checked. Accounts created with a reseller's own token always belong to that reseller.
+
 **Response:**
 
 ```json
@@ -246,6 +248,29 @@ This is the same single-click whole-account backup OpenPanel's own self-service 
 ### Delete Plan
 
 `DELETE /api/plans/{plan_id}`
+
+### Reseller Packages
+
+`GET /api/plans/resellers`
+`POST /api/plans/resellers`
+
+Lists, creates, updates and deletes [Reseller Packages](/docs/admin/plans/reseller_packages). Administrators only.
+
+**Request Body (create or update):**
+
+```json
+{ "action": "create", "name": "reseller_basic", "description": "10 accounts, 50 GB", "max_accounts": 10, "max_disk_blocks": 51200000, "allowed_plans": [1, 2] }
+```
+
+`max_disk_blocks` is in blocks, 1 GB is `1024000`. `0` means unlimited for both limits. `update` replaces all fields of the package and applies it to every reseller on it.
+
+**Request Body (delete):**
+
+```json
+{ "action": "delete", "name": "reseller_basic" }
+```
+
+Deleting is refused while resellers are on the package.
 
 ---
 
@@ -1058,8 +1083,18 @@ Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user` (with `
 **Request Body (create):**
 
 ```json
-{ "action": "create", "username": "reseller1", "password": "secret123" }
+{ "action": "create", "username": "reseller1", "password": "secret123", "plan": "reseller_basic" }
 ```
+
+`plan` is optional, it creates the reseller on that [Reseller Package](/docs/admin/plans/reseller_packages). Creating is refused while resellers are disabled.
+
+**Request Body (move to another reseller package):**
+
+```json
+{ "action": "change_plan", "username": "reseller1", "plan": "reseller_pro" }
+```
+
+Moving to a package with fewer accounts or less disk than the reseller already uses is refused.
 
 **Request Body (update limits):**
 
@@ -1067,7 +1102,7 @@ Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user` (with `
 { "action": "update", "username": "reseller1", "allowed_plans": "1,2", "max_accounts": "10", "max_disk_blocks": "1000" }
 ```
 
-Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user`, `reset_password`, `disable_2fa`, `disable_passkeys`. A reseller token can only manage its own account and is restricted to `reset_password`.
+Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user`, `reset_password`, `disable_2fa`, `disable_passkeys`. A reseller token can only manage its own account and is restricted to `reset_password`. The list (`GET`) includes each reseller's `reseller_plan`.
 
 ### Resellers Enabled Toggle
 

@@ -67,6 +67,7 @@ Manually editing these files can break the panel or be overwritten during update
 | `/etc/openpanel/openadmin/config/quick_start.dismissed`, `tour.skip` | flag file | Onboarding/tour dismissal flags |
 | `/etc/openpanel/openadmin/ssh_whitelist.conf` | text | SSH login IP whitelist |
 | `/etc/openpanel/openadmin/resellers/<name>.json` | JSON | Per-reseller configuration (allowed plans, etc.) |
+| `/etc/openpanel/openadmin/reseller_plans/<name>.json` | JSON | [Reseller Packages](/docs/admin/plans/reseller_packages) |
 | `/etc/openpanel/openadmin/usage_stats.json` | JSON | Usage/telemetry state |
 | `/etc/openpanel/openadmin/service/openadmin.service` | systemd unit | Installed as the `admin` systemd service |
 | `/usr/local/admin/custom.css` | CSS | Custom OpenAdmin UI override |
