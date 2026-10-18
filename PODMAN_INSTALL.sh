@@ -547,7 +547,9 @@ podman_setup() {
 
     if command -v pasta &>/dev/null; then
         mkdir -p /etc/containers/containers.conf.d
-        printf '[network]\ndefault_rootless_network_cmd = "pasta"\n' > /etc/containers/containers.conf.d/99-openpanel-net.conf
+        # pasta copies the host IP into the rootless netns by default, so containers can't reach this server via its public IP
+        # (SMTP 587 from websites, WP loopback/cron to their own domain) - a private address routes it to the host like slirp4netns
+        printf '[network]\ndefault_rootless_network_cmd = "pasta"\npasta_options = ["-a", "10.0.2.100", "-n", "24", "-g", "10.0.2.2"]\n' > /etc/containers/containers.conf.d/99-openpanel-net.conf
     fi
 
     mkdir -p /var/lib/containers/storage /run/containers/storage "$SHARED_STORE"
