@@ -798,20 +798,20 @@ EOF
 #!/bin/bash
 # CSF flushes iptables on reload; netavark's container rules get wiped.
 podman network reload --all
-for iface in /sys/class/net/podman[0-9]*; do
-  [ -e "$iface" ] || continue
-  i="${iface##*/}"
-  iptables -I INPUT   -i "$i" -j ACCEPT
-  iptables -I OUTPUT  -o "$i" -j ACCEPT
-  iptables -I FORWARD -i "$i" -j ACCEPT
-  iptables -I FORWARD -o "$i" -j ACCEPT
+# podman+ also matches bridges created after this runs (at boot CSF starts before the containers);
+# -C first so repeated reloads don't stack duplicate rules
+for rule in "INPUT -i podman+" "OUTPUT -o podman+" "FORWARD -i podman+" "FORWARD -o podman+"; do
+  # shellcheck disable=SC2086
+  iptables -C $rule -j ACCEPT 2>/dev/null || iptables -I $rule -j ACCEPT
 done
 EOF
 
     chmod +x /usr/local/csf/bin/csfpre.sh /usr/local/csf/bin/csfpost.sh
 
     # netavark bridge is podman0; cni-podman0 kept for CNI fallback
-    sed -i -e 's/TESTING = "1"/TESTING = "0"/' -e 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' -e 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "podman0,podman1,podman2,podman3"/' /etc/csf/csf.conf
+    # FASTSTART=0: at boot FASTSTART restores the iptables snapshot from shutdown (stale netavark rules for the old
+    # container IPs) and skips csfpre/csfpost, which broke container -> own-IP:587 until a manual `csf -r`
+    sed -i -e 's/TESTING = "1"/TESTING = "0"/' -e 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' -e 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "podman0,podman1,podman2,podman3"/' -e 's/FASTSTART = "1"/FASTSTART = "0"/' /etc/csf/csf.conf
     cp "${ETC_DIR}csf/csf.blocklists" /etc/csf/csf.blocklists
 
     local email; email=$(grep -E "^e-mail=" "$CONFIG_FILE" | cut -d= -f2 || true)
