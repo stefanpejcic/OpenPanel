@@ -96,15 +96,17 @@ Resellers also have their own **Two-Factor Authentication** and **Passkeys** pag
 
 ## Pages resellers can use
 
-Besides their users, [User Packages](/docs/admin/plans/hosting_plans), the Feature Manager and their own account, resellers can open these OpenAdmin pages. Each one only shows the users a reseller owns, those users' domains and the emails on those domains:
+Besides their users, [User Packages](/docs/admin/plans/hosting_plans), the Feature Manager and their own account, resellers can open these OpenAdmin pages. Each one only shows the users a reseller owns, those users' domains, databases and the emails on those domains:
 
 | Page | What resellers can do |
 |---|---|
 | **Domains > Domains** | List, add, suspend, unsuspend and delete their users' domains, change PHP version, WAF, HSTS, Cloudflare and DNS for them, and use the bulk actions. The SSL, VirtualHost, Caddy and config file editors stay with administrators. |
 | **Domains > DNS Zone Editor** | Edit the DNS zones of their users' domains. |
 | **Domains > Rate Limiting** | Set default, custom or no rate limits for their users' domains. The server default can only be changed by administrators. |
-| **Emails > Accounts** | Change password, quota and send/receive restrictions of email accounts on their users' domains, delete them and open webmail. |
+| **Databases** | See the MySQL, MariaDB, PostgreSQL and MongoDB databases of their users, and export, import or open them in phpMyAdmin. See [MySQL Databases](/docs/admin/databases/mysql). |
+| **Emails > Accounts** | Add email accounts on their users' domains, change their password, quota and send/receive restrictions, delete them and open webmail. |
 | **Emails > Queue** | See queued messages sent from their users' domains or sent only to their users, and retry or delete them. Retry all and Delete all only act on those messages. |
+| **Emails > Email Deliverability** | See the DKIM, SPF and DMARC status of their users' domains. See [Email Deliverability](/docs/admin/emails/deliverability). |
 | **Backups > Import Account** | Upload and restore OpenPanel backups as their own users, within their limits, and see the logs of their own imports. See [Imports by resellers](/docs/admin/backups/cpanel#imports-by-resellers). |
 | **Services > FTP** | See FTP accounts on their users' domains and set their quota. The Configuration tab isn't shown. |
 | **Security > Web Firewall (Coraza)** | The Domains and Logs tabs for their users' domains, including per domain and per user WAF rules. The overview and server wide rules stay with administrators. |

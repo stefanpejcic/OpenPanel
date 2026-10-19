@@ -415,7 +415,7 @@ All Tests Passed!
 
 #### Options
 
-Any option from `notifications.ini` can be read or updated. The main options are:
+Any option from `notifications.ini` can be read or updated, `update` only changes options that are already in the file, so add a missing one to the file first. The main options are:
 
 | Option        | Description                                                        | Default |
 |---------------|--------------------------------------------------------------------|---------|
@@ -433,6 +433,9 @@ Any option from `notifications.ini` can be read or updated. The main options are
 | `du`          | Notify when disk usage (%) is above this value.                    | `85`    |
 | `swap`        | Notify when SWAP usage (%) is above this value.                    | `85`    |
 | `webhook_url` | Also send notifications to these webhooks (e.g. Discord), multiple URLs are separated by spaces. | empty   |
+| `ratelimit`   | Notify when visitors were blocked by the request rate limits, checked every 6 hours. | `no` |
+| `max_total_conn` | Notify when total connections to ports 80/443 are above this value. | `5000` |
+| `max_conn_per_ip` | Notify when one IP has more connections to port 80 or 443 than this value. | `200` |
 
 The `[ACTIONS]` section of the file has a `yes`/`no` option for each OpenCLI action that sends a notification, for example `user_create`, `domains_add`, `admin_api` or `docker_backup` (sent when `opencli docker-backup` fails).
 

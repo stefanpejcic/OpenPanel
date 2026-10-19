@@ -21,6 +21,8 @@ const DEMO_NAMES = {
   'ftpdemo@static.test.rs': 'ftpuser@example.com',
   'static-custom-root': 'example.com',
   'example.test.rs': 'example.com',
+  'proba.com': 'example.org',
+  varnish2: 'lucas',
   'sfdddfdf@': 'support@',
   'shop.test.rs': 'shop.example.com',
   'ols.test.rs': 'store.example.com',
@@ -134,6 +136,34 @@ const dlRows = async page => {
     if (footer) footer.innerHTML = `Showing <span class="font-medium text-gray-900 dark:text-gray-50">${left}</span> of ${left}`;
   });
   await page.waitForTimeout(300);
+};
+
+// the test server has one throwaway database, show a few realistic ones instead
+const dbRows = async page => {
+  await page.evaluate(() => {
+    const tbody = document.querySelector('#databases_table tbody');
+    const first = tbody && tbody.querySelector('tr:has(td + td)');
+    if (!first) return;
+    const set = (row, name, tables, size) => {
+      const cells = row.querySelectorAll('td');
+      const old = cells[0].textContent.trim();
+      cells[0].textContent = name;
+      cells[3].textContent = tables;
+      cells[4].textContent = size;
+      row.querySelectorAll('[title]').forEach(el => el.title = el.title.split(old).join(name));
+    };
+    const extra = [['shop', '58', '41.3 MB'], ['crm', '24', '6.8 MB']];
+    for (const [name, tables, size] of extra) set(tbody.appendChild(first.cloneNode(true)), name, tables, size);
+    set(first, 'wp_blog', '12', '3.2 MB');
+    const h2 = document.querySelector('main h2');
+    if (h2) h2.innerHTML = '<b>3</b> databases across <b>1</b> user, <b>51.3 MB</b> in total.';
+  });
+};
+
+// wait for the DNS checks to come back over ajax
+const deliverabilityRows = async page => {
+  await page.waitForSelector('#deliverability_table tbody tr.group', { timeout: 30000 }).catch(() => {});
+  await page.waitForTimeout(500);
 };
 
 export const globalPrepare = all(rename(DEMO_NAMES, 'body'), maskIPs('main'), hideNotices, maskSecrets);
@@ -951,12 +981,63 @@ export const pages = {
       bulkShot('#tour-locales-table', ['de-de', 'es-es'], 'Two locales selected with the bulk actions bar offering Install, Update and Delete', { rows: 6 }),
     ],
   },
+  // Databases and Email Deliverability are new in 2.0.17, shot on the test server:
+  // ADMIN_URL=https://host:2087 node shoot.mjs --admin databases/mysql_server databases/postgresql_server databases/mongodb_server emails/deliverability_server emails/emails_server:add
+  'databases/mysql_server': {
+    as: 'databases/mysql',
+    url: '/databases',
+    shots: [
+      { name: 'list', alt: 'Databases page on the MySQL tab listing every database with its owner, MySQL or MariaDB type, number of tables, size and the Terminal, phpMyAdmin, Export and Import actions', prepare: dbRows, crop: { from: 'main', to: '#databases_table tbody tr:last-of-type', fromTop: true, pad: 16 } },
+      {
+        name: 'export',
+        alt: 'Export menu of a database with SQL and Gzip downloads',
+        prepare: all(dbRows, click('#databases_table tbody tr:first-of-type button:has-text("Export")', 300)),
+        crop: { from: '#databases_table thead', to: '#databases_table form[action="/databases/export"]:visible', pad: 12, right: true },
+      },
+      {
+        name: 'import',
+        alt: 'Import dialog of a database with the file picker for a .sql or .sql.gz dump and the Import button',
+        prepare: all(dbRows, click('#databases_table tbody tr:first-of-type button:has-text("Import")', 300), rename({ sdffdsd: 'wp_blog' }, 'body')),
+        viewportHeight: 900,
+        crop: { from: 'div[x-show="imp.open"] > div', pad: 16, clamp: false },
+      },
+    ],
+  },
+  'databases/postgresql_server': {
+    as: 'databases/postgresql',
+    url: '/databases/postgresql',
+    shots: [{ name: 'list', alt: 'Databases page on the PostgreSQL tab with the Refresh button and the table of PostgreSQL databases from running services', crop: 'content' }],
+  },
+  'databases/mongodb_server': {
+    as: 'databases/mongodb',
+    url: '/databases/mongodb',
+    shots: [{ name: 'list', alt: 'Databases page on the MongoDB tab with the Refresh button and the table of MongoDB databases from running services', crop: 'content' }],
+  },
+  'emails/deliverability_server': {
+    as: 'emails/deliverability',
+    url: '/emails/deliverability',
+    shots: [
+      { name: 'list', alt: 'Email Deliverability page with the number of domains that need DNS changes and the DKIM, SPF, DMARC and overall status of every domain', prepare: deliverabilityRows, crop: { from: 'main', to: '#deliverability_table tbody tr:last-of-type', fromTop: true, pad: 16 } },
+      {
+        name: 'details',
+        alt: 'Details of a domain with the current and expected DKIM, SPF and DMARC records',
+        prepare: all(deliverabilityRows, click('#deliverability_table tbody tr.group td:first-child', 400)),
+        crop: { from: '#deliverability_table thead', to: '#deliverability_table tbody tr.group:nth-of-type(4)', pad: 8 },
+      },
+    ],
+  },
   'emails/emails_server': {
     as: 'emails/emails',
     url: '/emails/accounts',
     shots: [
       { name: 'list', alt: 'Emails page listing email accounts with their quota usage, webmail button and actions menu', prepare: async page => { await page.waitForTimeout(1500); }, crop: 'content' },
       bulkShot('#email_accounts_table', ['info@example.test.rs', 'sales@example.test.rs'], 'Two email accounts selected with the bulk actions bar offering Change password, Set quota, Remove quota, Restrict sending, Restrict receiving, Allow sending, Allow receiving and Delete', { wait: 1500 }),
+      {
+        name: 'add',
+        alt: 'Add Email form with the username, a domain picked from the existing domains, its owner, the password with Generate and Show, the storage quota and Send welcome email',
+        prepare: all(click('main a:has-text("Add Email")', 400), async page => { await page.locator('main form[action="/emails/new"] select[name=domain]').selectOption({ index: 1 }); }, fill({ '#new_email_username': 'info', '#new_email_password': 'Xk7pQ2vLm9TzR4wd' }), click('main form[action="/emails/new"] button:has-text("Show")', 200)),
+        crop: { from: 'main', to: 'main form[action="/emails/new"] button[type=submit]', fromTop: true, pad: 20 },
+      },
     ],
   },
   'advanced/crons_server': {

@@ -27,6 +27,20 @@ The table includes the following information:
 
 A search box is also available to filter the list by email address.
 
+## Add an Email Account
+
+Click **Add Email** in the top right to open the form:
+
+- **Email**: the part before the @, and the domain picked from the domains on the server. The domain's owner is shown below it.
+- **Password**: type one, or click **Generate** for a random one and **Show** to see it.
+- **Storage quota**: the mailbox size in KiB, MiB, GiB or TiB, 0 for unlimited.
+- **Send welcome email**: sends the new mailbox a welcome message.
+
+![Add Email form with the username, a domain picked from the existing domains, its owner, the password with Generate and Show, the storage quota and Send welcome email](/img/openadmin-screenshots/emails/emails-add.png#gh-light-mode-only)
+![Add Email form with the username, a domain picked from the existing domains, its owner, the password with Generate and Show, the storage quota and Send welcome email](/img/openadmin-screenshots/emails/emails-add_dark.png#gh-dark-mode-only)
+
+Click **Add Email** to create it. The account is created the same way as when the user adds it in OpenPanel, with `opencli email-setup email add`, and the quota is set right after. The mail server has to be running.
+
 ## Bulk Actions
 
 Tick the checkbox of one or more email accounts, or the checkbox in the table header to select all email accounts shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:

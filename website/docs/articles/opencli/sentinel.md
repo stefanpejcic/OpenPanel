@@ -39,10 +39,11 @@ Checking logins, resources, and DNS...
 [✔] No SWAP configured.
 [✔] All nameservers resolve to local IPs.
 [✔] No dead user containers found (checked in 2s).
+[✔] Mail queue 0 < threshold 500
 --------------------------------------------------------------------------------
 All Tests Passed!
 --------------------------------------------------------------------------------
-18 PASS  0 WARN  0 FAIL
+19 PASS  0 WARN  0 FAIL
 --------------------------------------------------------------------------------
 ```
 </details>
@@ -149,9 +150,90 @@ stefan: notified about rate limited domains.
 ```
 </details>
 
+### Disk cleanup
+
+When disk usage on `/` is over the `du` threshold, Sentinel tries to free space on its own, safest step first, and stops as soon as the disk is back under the threshold:
+
+1. Vacuum the systemd journal to 500MB (`journalctl --vacuum-size=500M`).
+2. Clear the package manager cache (`apt-get clean`, `dnf clean all` or `yum clean all`).
+3. Delete old logs: crashlogs and reports in `/var/log/openpanel/admin/` older than 7 days, update logs in `/var/log/openpanel/updates/` older than 30 days, rotated archives in `/var/log` (`*.gz`, `*.1`, `*.old`, not `wtmp`/`btmp`) older than 7 days, and Sentinel/OpenCLI temp files in `/tmp` older than a day.
+4. Shrink every log in `/var/log` that uses more than 1GB to its last 100MB, in place so Caddy and other services keep writing to it. The journal, `lastlog`, `wtmp` and `btmp` are skipped.
+5. Prune unused podman data older than 24 hours for the server and every user, and remove images from the shared image store `/var/lib/containers/shared-storage` that no container of root or any user uses and that weren't pulled in the last 24 hours. If a container list can't be read, no images are removed.
+6. Empty the Trash of every user, same as *Empty Trash* in the File Manager (`/home/USERNAME/.local/share/Trash`, the `.trash_restore` list is kept but emptied). Trash folders that are symlinks are skipped. This is last because it's the only step that deletes user data.
+
+The *Running out of Disk Space!* alert then says how much each step freed, where the disk is now, which logs were shrunk, which images were removed and whose Trash was emptied, e.g. *Disk was 91%, Sentinel freed 3.1GB and it is now at 82% (threshold 85%). Cleaned up systemd journal: 1.2GB, package cache: 300MB, old and rotated logs: 1.6GB. Stopped once the disk was under the threshold.* If the disk is still over the threshold after every step, it also suggests `du -xh / --max-depth=2 | sort -rh | head` to find what is using the space. The cleanup runs at most once every 24 hours, until then only the alert is sent.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+[!] Disk was 91%, sentinel freed 3.1GB, disk is now at 82%. Cleaned up systemd journal: 1.2GB, package cache: 300MB, old and rotated logs: 1.6GB. Stopped once the disk was under the threshold.
+...
+# opencli sentinel
+...
+[✘] Disk was 93% > threshold 85%, cleanup freed 1.1GB and it is still at 92%. Cleaned up systemd journal: 200MB, package cache: 0B, old and rotated logs: 100MB, logs over 1GB: 0B, unused podman data and images: 300MB, users' Trash: 512MB. Removed 1 unused image(s) from the shared store: docker.io/library/redis:7.4. Emptied the Trash of 1 user(s): stefan (512MB).
+...
+```
+</details>
+
+### Top users
+
+High load, CPU and RAM alerts name the 3 users using the most CPU (or RAM for the RAM alert), read from each user's `user-UID.slice` cgroup, e.g. *Top users: stefan (45% CPU, 1.2GB RAM, 3% IO wait), pejcic (12% CPU, 800MB RAM, 0% IO wait).* CPU is the share of all server cores over one second and IO wait is the `some avg10` value from the slice's `io.pressure`. Each user is already capped by their plan's CPU and RAM limits on that slice, so Sentinel only reports them and doesn't throttle anyone.
+
+### Blocking abusive IPs
+
+An IP with more than `max_conn_per_ip` connections to port 80 or 443 is blocked with `csf -td` for 60 minutes, and CSF unblocks it on its own after that. If CSF isn't installed, the alert says the IP was not blocked. Sentinel never blocks IPv6 addresses, IPs in the SSH whitelist from OpenAdmin > Settings > Notifications, private ranges, the server's own IPs, IPs in `/etc/csf/csf.allow` or `/etc/csf/csf.ignore`, or Cloudflare ranges (read from `trusted_proxies` in the Caddyfile). The *High traffic from* alert says for every IP whether it was blocked, and if not, why.
+
+On a possible SYN flood, Sentinel also turns on SYN cookies (`net.ipv4.tcp_syncookies=1`) if they're off, until the next reboot, and says so in the *Possible SYN flood* alert.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+Checking traffic:
+[✘] High connections from 203.0.113.5 on port 443: 812
+    [→] blocked for 60 min
+    [→] Domain hit: example.com
+[✘] High connections from 104.16.5.5 on port 443: 640
+    [→] not blocked: Cloudflare
+    [→] Domain hit: example.com
+...
+# opencli sentinel
+...
+[✘] Possible SYN flood on :443 — 1500 in SYN_RECV
+    [→] Sentinel turned on SYN cookies (net.ipv4.tcp_syncookies=1) until the next reboot.
+...
+```
+</details>
+
+### Mail queue
+
+Sentinel checks the queue of the `openadmin_mailserver` container on every run. When more than 500 emails are waiting, not counting ones on hold, a *Large mail queue!* alert lists the 5 senders with the most queued emails and the OpenPanel user each one belongs to. A sudden big queue from one mailbox usually means its password was stolen or a website form is abused by spammers.
+
+Sentinel also puts all queued emails of the top sender on hold if it has at least 250 queued and belongs to a local account. Bounces and relayed mail are never held. Held emails are not delivered until you release them with `opencli email-server unhold ALL` (or one `QUEUE_ID`), or delete them with `opencli email-server delete QUEUE_ID`, see them with `opencli email-server queue`. Once the queue is back under the threshold, the alert is marked as resolved.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+[✔] Mail queue 3 < threshold 500
+...
+# opencli sentinel
+...
+[✘] Mail queue 650 > threshold 500. Sentinel put 600 email(s) from info@example.com on hold. Review them with: opencli email-server queue, then release them all with: opencli email-server unhold ALL or delete one with: opencli email-server delete QUEUE_ID.
+...
+```
+</details>
+
 ### Timeouts
 
-So a hung `podman` command can't stop monitoring, every podman call Sentinel makes has a timeout, each check in the parallel part (logins, disk, load, RAM, CPU, SWAP, DNS, user containers, rate limits) is stopped after 10 minutes, and the whole run is stopped after 15 minutes. A stopped check sends a *Sentinel checks did not finish* alert listing which checks hung, and a stopped run sends a critical *Sentinel checks timed out!* alert. Both are resolved on the next run that finishes in time. If a previous run is still going, the new one exits with *Error: Another instance is already running.*
+So a hung `podman` command can't stop monitoring, every podman call Sentinel makes has a timeout, each check in the parallel part (logins, disk, load, RAM, CPU, SWAP, DNS, user containers, rate limits, mail queue) is stopped after 10 minutes, and the whole run is stopped after 15 minutes. A stopped check sends a *Sentinel checks did not finish* alert listing which checks hung, and a stopped run sends a critical *Sentinel checks timed out!* alert. Both are resolved on the next run that finishes in time. If a previous run is still going, the new one exits with *Error: Another instance is already running.*
 
 <details>
   <summary>Example output</summary>

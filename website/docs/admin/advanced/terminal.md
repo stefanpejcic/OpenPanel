@@ -16,6 +16,12 @@ Other sessions already open on the server are shown next to the page description
 ![Web Terminal with a root shell on the server and the shell dropdown](/img/openadmin-screenshots/advanced/terminal-page.png#gh-light-mode-only)
 ![Web Terminal with a root shell on the server and the shell dropdown](/img/openadmin-screenshots/advanced/terminal-page_dark.png#gh-dark-mode-only)
 
+## Open with a command
+
+Add `?cmd=` to the terminal address to type a command as soon as the shell is ready, for example `/terminal?cmd=uptime` or `/terminal/john/mariadb?cmd=mariadb%20wp_blog`. The [Terminal action on the Databases page](/docs/admin/databases/mysql#terminal) uses it to open a database client.
+
+The command is run right away only when you came from a link inside OpenAdmin. When the link comes from anywhere else, like an email or chat, the command is typed but not run, and the terminal asks you to check it and press Enter.
+
 :::info 
 The web terminal is available to Super Admin and Admin (staff) logins. Reseller logins will see a 403 error on this page.
 
