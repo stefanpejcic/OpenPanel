@@ -58,3 +58,7 @@
 	path = integrations/wisecp
 	url = https://github.com/stefanpejcic/openpanel-wisecp-module
 	branch = main
+[submodule "mobile"]
+	path = mobile
+	url = https://github.com/stefanpejcic/openpanel-mobile-app
+	branch = main
