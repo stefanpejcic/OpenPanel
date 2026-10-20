@@ -13,6 +13,7 @@ const (
 	defaultName      = "AI Assistant"
 	defaultMaxTokens = 2048
 	defaultLimit     = 100
+	defaultDocsChars = 14000
 )
 
 // Settings is the [AI] section of openpanel.config
@@ -24,6 +25,7 @@ type Settings struct {
 	Name         string
 	Instructions string
 	DocsURL      string
+	DocsChars    int // documentation sent with each question, the prompt is what makes CPU-only models slow
 	MonthlyLimit int // requests per user per month, 0 is unlimited
 	MaxTokens    int
 	BrandName    string
@@ -39,6 +41,7 @@ func LoadSettings(cfg config.Config) Settings {
 		Name:         strings.TrimSpace(unquote(cfg.Get("ai_name", ""))),
 		Instructions: strings.TrimSpace(unquote(cfg.Get("ai_instructions", ""))),
 		DocsURL:      strings.TrimSpace(unquote(cfg.Get("ai_docs_url", ""))),
+		DocsChars:    atoiDefault(cfg.Get("ai_docs_chars", ""), defaultDocsChars),
 		MonthlyLimit: atoiDefault(cfg.Get("ai_monthly_limit", ""), defaultLimit),
 		MaxTokens:    atoiDefault(cfg.Get("ai_max_tokens", ""), defaultMaxTokens),
 		BrandName:    strings.TrimSpace(unquote(cfg.Get("brand_name", ""))),
@@ -55,6 +58,9 @@ func LoadSettings(cfg config.Config) Settings {
 	}
 	if s.DocsURL == "" {
 		s.DocsURL = defaultDocsURL
+	}
+	if s.DocsChars <= 0 {
+		s.DocsChars = defaultDocsChars
 	}
 	if s.MaxTokens <= 0 {
 		s.MaxTokens = defaultMaxTokens

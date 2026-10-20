@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -24,8 +25,11 @@ const (
 	docsMaxAge     = 24 * time.Hour
 	docsRetryAfter = 10 * time.Minute
 	chunkMaxChars  = 3500
-	contextBudget  = 14000
-	maxChunks      = 6
+	maxChunks      = 4
+	// the page the user is on only breaks ties, its words used to outrank the question ("add domain" asked on the dashboard got the dashboard docs)
+	hintWeight = 0.25
+	// chunks scoring below this share of the best match are noise the model mixes into its answer
+	minRelScore = 0.5
 )
 
 var docsCachePath = filepath.Join(os.TempDir(), "openpanel-ai-docs.txt")
@@ -226,6 +230,8 @@ func splitLong(text string, max int) []string {
 	return parts
 }
 
+var hostnameRE = regexp.MustCompile(`(?i)\b[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}\b`)
+
 var stopwords = map[string]bool{
 	"the": true, "and": true, "for": true, "how": true, "can": true, "you": true, "your": true, "are": true,
 	"what": true, "with": true, "this": true, "that": true, "from": true, "have": true, "not": true, "but": true,
@@ -260,14 +266,18 @@ func stem(w string) string {
 	return w
 }
 
-// search ranks chunks by bm25 and returns the best ones that fit in the context budget
-func (idx *docIndex) search(query string) []chunk {
+// search ranks chunks by bm25 and returns the best ones that fit in budget characters, the same query always gives the same chunks so the provider's prompt cache keeps working
+func (idx *docIndex) search(query, hint string, budget int) []chunk {
 	if idx == nil || len(idx.chunks) == 0 {
 		return nil
 	}
-	qterms := map[string]bool{}
-	for _, t := range tokenize(query) {
-		qterms[t] = true
+	qterms := map[string]float64{}
+	for _, t := range tokenize(hint) {
+		qterms[t] = hintWeight
+	}
+	// the user's own domain names say nothing about the topic, and their tld ("rs") is a rare word that pulls in random articles
+	for _, t := range tokenize(hostnameRE.ReplaceAllString(query, " ")) {
+		qterms[t] = 1
 	}
 	if len(qterms) == 0 {
 		return nil
@@ -282,14 +292,14 @@ func (idx *docIndex) search(query string) []chunk {
 	var results []scored
 	for i, c := range idx.chunks {
 		score := 0.0
-		for t := range qterms {
+		for t, w := range qterms {
 			tf := float64(c.terms[t])
 			if tf == 0 {
 				continue
 			}
 			df := float64(idx.df[t])
 			idf := math.Log(1 + (n-df+0.5)/(df+0.5))
-			score += idf * tf * (k1 + 1) / (tf + k1*(1-b+b*float64(c.size)/idx.avgLen))
+			score += w * idf * tf * (k1 + 1) / (tf + k1*(1-b+b*float64(c.size)/idx.avgLen))
 		}
 		// panel/ pages describe the ui the user is looking at, articles are more general
 		if strings.HasPrefix(c.Path, "panel/") {
@@ -299,13 +309,16 @@ func (idx *docIndex) search(query string) []chunk {
 			results = append(results, scored{i, score})
 		}
 	}
-	sort.Slice(results, func(a, b int) bool { return results[a].score > results[b].score })
+	sort.SliceStable(results, func(a, b int) bool { return results[a].score > results[b].score })
 
 	var picked []chunk
 	used := 0
 	for _, r := range results {
+		if r.score < results[0].score*minRelScore {
+			break
+		}
 		c := idx.chunks[r.i]
-		if used+len(c.Text) > contextBudget {
+		if used+len(c.Text) > budget {
 			continue
 		}
 		picked = append(picked, c)

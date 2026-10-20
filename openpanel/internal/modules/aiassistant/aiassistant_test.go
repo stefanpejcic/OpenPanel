@@ -59,15 +59,15 @@ func TestSearchFindsRelevantChunk(t *testing.T) {
 		t.Fatalf("chunks = %d, want 3 (domain intro, DNS heading, mailbox)", len(idx.chunks))
 	}
 
-	res := idx.search("how do I create an email mailbox")
+	res := idx.search("how do I create an email mailbox", "", defaultDocsChars)
 	if len(res) == 0 || res[0].Path != "articles/email/mailbox" {
 		t.Fatalf("top result = %+v, want articles/email/mailbox", res)
 	}
-	res = idx.search("adding domains")
+	res = idx.search("adding domains", "", defaultDocsChars)
 	if len(res) == 0 || res[0].Path != "panel/domains/add" {
 		t.Fatalf("top result = %+v, want panel/domains/add", res)
 	}
-	if res := idx.search("the and"); res != nil {
+	if res := idx.search("the and", "", defaultDocsChars); res != nil {
 		t.Errorf("stopword-only query returned %d results", len(res))
 	}
 }
@@ -103,7 +103,7 @@ func TestLoadSettingsDefaults(t *testing.T) {
 	if s.Provider != "openrouter" || s.Model != "openrouter/auto" || s.BaseURL != "https://openrouter.ai/api/v1" {
 		t.Errorf("defaults = %+v", s)
 	}
-	if s.MonthlyLimit != defaultLimit || s.MaxTokens != defaultMaxTokens || s.Name != defaultName {
+	if s.MonthlyLimit != defaultLimit || s.MaxTokens != defaultMaxTokens || s.Name != defaultName || s.DocsChars != defaultDocsChars {
 		t.Errorf("defaults = %+v", s)
 	}
 	if s.Configured() {
@@ -116,6 +116,9 @@ func TestLoadSettingsDefaults(t *testing.T) {
 	}
 	if s := LoadSettings(config.Config{"ai_provider": "anthropic", "ai_api_key": `"k"`}); s.Model != "claude-opus-5-5" || s.APIKey != "k" || !s.Configured() {
 		t.Errorf("anthropic = %+v", s)
+	}
+	if s := LoadSettings(config.Config{"ai_docs_chars": "5000"}); s.DocsChars != 5000 {
+		t.Errorf("ai_docs_chars = %d, want 5000", s.DocsChars)
 	}
 }
 
@@ -162,10 +165,82 @@ func TestTakeRequestEnforcesLimit(t *testing.T) {
 
 func TestSystemPrompt(t *testing.T) {
 	s := LoadSettings(config.Config{"brand_name": "AcmeHost", "ai_instructions": "Support email is help@acme.test"})
-	p := buildSystemPrompt(s, "Pro", []string{"wordpress", "dns"}, []string{"Domains"}, "/domains", "Domains", []chunk{{Path: "panel/domains/add", Title: "Add Domain", Text: "Click Add domain."}})
-	for _, want := range []string{"AcmeHost", "help@acme.test", "Hosting plan: Pro", "dns, wordpress", "/domains (Domains)", "Click Add domain."} {
+	p := buildSystemPrompt(s, "Pro", []string{"wordpress", "dns"}, []string{"Domains"}, "/domains", "Domains")
+	for _, want := range []string{"AcmeHost", "help@acme.test", "Hosting plan: Pro", "dns, wordpress", "/domains (Domains)"} {
 		if !strings.Contains(p, want) {
 			t.Errorf("system prompt missing %q", want)
+		}
+	}
+}
+
+func TestWithDocsKeepsHistoryStableForPromptCache(t *testing.T) {
+	idx := buildIndex(filterDocs(sampleDocs))
+	first := withDocs([]message{{Role: "user", Content: "how do I add domains"}}, idx, defaultDocsChars, "/domains", "Domains")
+	if len(first) != 1 || !strings.Contains(first[0].Text, "click Add domain") || !strings.HasSuffix(first[0].Text, "Question: how do I add domains") {
+		t.Fatalf("first turn = %q", first[0].Text)
+	}
+
+	// the follow-up must repeat the first turn byte for byte, and not resend an excerpt the chat already has
+	next := withDocs([]message{
+		{Role: "user", Content: "how do I add domains"},
+		{Role: "assistant", Content: "Go to Domains."},
+		{Role: "user", Content: "and the domain DNS nameservers?"},
+	}, idx, defaultDocsChars, "/domains", "Domains")
+	if len(next) != 3 || next[0].Text != first[0].Text || next[1].Text != "Go to Domains." {
+		t.Fatalf("history changed: %+v", next)
+	}
+	if strings.Count(next[0].Text+next[2].Text, "Point the nameservers") != 1 {
+		t.Errorf("an excerpt was sent twice or not at all: %q", next[2].Text)
+	}
+	if !strings.HasSuffix(next[2].Text, "and the domain DNS nameservers?") {
+		t.Errorf("last turn = %q", next[2].Text)
+	}
+
+	if got := withDocs([]message{{Role: "user", Content: "the and"}}, idx, defaultDocsChars, "", ""); got[0].Text != "the and" {
+		t.Errorf("question without matching docs changed: %q", got[0].Text)
+	}
+}
+
+func TestSearchPageOnlyBreaksTies(t *testing.T) {
+	idx := buildIndex(filterDocs(sampleDocs))
+	// asked on the email page, the question's words must still win
+	if res := idx.search("adding domains", "emails Emails mailbox", defaultDocsChars); len(res) == 0 || res[0].Path != "panel/domains/add" {
+		t.Fatalf("top result = %+v, want panel/domains/add", res)
+	}
+	// a vague question falls back to the page
+	if res := idx.search("how do I use this", "emails mailbox", defaultDocsChars); len(res) == 0 || res[0].Path != "articles/email/mailbox" {
+		t.Fatalf("vague question top result = %+v, want articles/email/mailbox", res)
+	}
+}
+
+func TestWithDocsFollowUpUsesPreviousQuestion(t *testing.T) {
+	idx := buildIndex(filterDocs(sampleDocs))
+	conv := withDocs([]message{
+		{Role: "user", Content: "how do I set dns nameservers"},
+		{Role: "assistant", Content: "Point them to the server."},
+		{Role: "user", Content: "please create one for me"},
+	}, idx, defaultDocsChars, "", "")
+	// "create" alone matches the mailbox article, the previous question must keep the follow-up on dns
+	if strings.Contains(conv[2].Text, "New email account") {
+		t.Errorf("follow-up drifted to the mailbox docs: %q", conv[2].Text)
+	}
+}
+
+func TestSearchIgnoresDomainNames(t *testing.T) {
+	idx := buildIndex(filterDocs(sampleDocs))
+	if res := idx.search("add domain example.rs", "", defaultDocsChars); len(res) == 0 || res[0].Path != "panel/domains/add" {
+		t.Fatalf("top result = %+v, want panel/domains/add", res)
+	}
+	if res := idx.search("mailbox.example.com", "", defaultDocsChars); res != nil {
+		t.Errorf("a bare domain name matched %d chunks", len(res))
+	}
+}
+
+func TestSearchRespectsBudget(t *testing.T) {
+	idx := buildIndex(filterDocs(sampleDocs))
+	for _, c := range idx.search("domains dns nameservers mailbox", "", 70) {
+		if len(c.Text) > 70 {
+			t.Errorf("chunk of %d chars over a 70 char budget", len(c.Text))
 		}
 	}
 }

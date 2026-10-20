@@ -130,18 +130,12 @@ func handleChat(a *appctx.App, mux http.Handler, w http.ResponseWriter, r *http.
 		features[f] = true
 	}
 	plan, _ := injected["hosting_plan_name"].(string)
-	question := msgs[len(msgs)-1].Content
-	// the page the user is on helps with vague questions like "how do I use this"
-	query := question + " " + strings.ReplaceAll(req.Page.Path, "/", " ") + " " + req.Page.Title
-	excerpts := docs.get(r.Context(), s.DocsURL).search(query)
 
 	ag := &agent{
 		a: a, routes: mux, s: s, userID: userID, username: username, ip: reqip.ClientIP(r), features: features,
-		system: buildSystemPrompt(s, plan, allowed, groupsFor(features, s.Actions), req.Page.Path, req.Page.Title, excerpts),
+		system: buildSystemPrompt(s, plan, allowed, groupsFor(features, s.Actions), req.Page.Path, req.Page.Title),
 	}
-	for _, m := range msgs {
-		ag.conv = append(ag.conv, turnMsg{Role: m.Role, Text: m.Content})
-	}
+	ag.conv = withDocs(msgs, docs.get(r.Context(), s.DocsURL), s.DocsChars, req.Page.Path, req.Page.Title)
 	ag.emit = ndjson(w)
 	finish(ag, r.Context(), u.Requests, func(ctx context.Context) error { return ag.run(ctx) })
 }
@@ -244,16 +238,56 @@ func cleanMessages(in []message) ([]message, error) {
 	return out, nil
 }
 
+// withDocs puts each question's documentation excerpts in front of it. Earlier questions get the same excerpts again
+// (the search is deterministic), so the conversation stays the prefix the provider already processed and its prompt
+// cache is reused, and an excerpt already sent earlier in the chat isn't repeated.
+const followUpChunks = 2
+
+func withDocs(msgs []message, idx *docIndex, budget int, pagePath, pageTitle string) []turnMsg {
+	// the page the user is on helps with vague questions like "how do I use this"
+	page := " " + strings.ReplaceAll(pagePath, "/", " ") + " " + pageTitle
+	sent := map[string]bool{}
+	var conv []turnMsg
+	prev := ""
+	for _, m := range msgs {
+		text := m.Content
+		if m.Role == "user" {
+			var b strings.Builder
+			// a follow-up like "please do it for me" has no topic words, the previous question supplies them
+			found := idx.search(prev+m.Content, page, budget)
+			// on a follow-up only the best matches count, otherwise once they've been sent the slots fill up with weaker unrelated pages
+			if prev != "" && len(found) > followUpChunks {
+				found = found[:followUpChunks]
+			}
+			for _, c := range found {
+				key := c.Path + "\x00" + c.Text
+				if sent[key] {
+					continue
+				}
+				sent[key] = true
+				fmt.Fprintf(&b, "<doc path=%q title=%q>\n%s\n</doc>\n\n", c.Path, c.Title, c.Text)
+			}
+			if b.Len() > 0 {
+				text = "Documentation excerpts for this question:\n\n" + b.String() + "Question: " + m.Content
+			}
+			prev = m.Content + " "
+		}
+		conv = append(conv, turnMsg{Role: m.Role, Text: text})
+	}
+	return conv
+}
+
 func safeUsername(u string) bool {
 	return u != "" && !strings.ContainsAny(u, "/\\") && u != "." && u != ".."
 }
 
-func buildSystemPrompt(s Settings, plan string, allowed, groups []string, pagePath, pageTitle string, excerpts []chunk) string {
+func buildSystemPrompt(s Settings, plan string, allowed, groups []string, pagePath, pageTitle string) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "You are %s, the assistant built into the %s hosting control panel. ", s.Name, s.BrandName)
 	b.WriteString("You help a hosting customer use their control panel: websites, domains, DNS, email, databases, files, backups, cron jobs, applications and account settings.\n\n")
 	b.WriteString("Rules:\n")
-	b.WriteString("- Answer from the documentation excerpts below. If they don't cover the question, say so briefly and give your best general guidance, clearly marked as general.\n")
+	b.WriteString("- Answer from the documentation excerpts (<doc> tags) sent with the user's questions. If they don't cover the question, say so briefly and give your best general guidance, clearly marked as general.\n")
+	b.WriteString("- Only describe buttons, fields, options and steps that appear in the excerpts. Never add options or steps that aren't there, even if other control panels have them.\n")
 	b.WriteString("- The user is a customer without root or SSH access to the server. Never suggest opencli, OpenAdmin, or server-wide changes; for those, tell them to contact their hosting provider.\n")
 	b.WriteString("- Only suggest features from the list of features on their plan. If something isn't on it, say their plan doesn't include it and suggest contacting their hosting provider.\n")
 	fmt.Fprintf(&b, "- Call the panel %s. Don't link to external websites; refer to pages by their menu names instead.\n", s.BrandName)
@@ -263,7 +297,7 @@ func buildSystemPrompt(s Settings, plan string, allowed, groups []string, pagePa
 
 	switch s.Actions {
 	case modeOff:
-		b.WriteString("- You can't see the account's data and can't make changes. Explain the steps and which page in the panel to use.\n")
+		b.WriteString("- You can't see the account's data and can't make changes. Explain the steps and which page in the panel to use. If they ask you to do something for them, say in one sentence that you can't make changes, then give the steps for that same task only.\n")
 	default:
 		b.WriteString("\nActions:\n")
 		if s.Actions == modeRead {
@@ -298,13 +332,6 @@ func buildSystemPrompt(s Settings, plan string, allowed, groups []string, pagePa
 			fmt.Fprintf(&b, " (%s)", pageTitle)
 		}
 		b.WriteString("\n")
-	}
-
-	if len(excerpts) > 0 {
-		b.WriteString("\nDocumentation excerpts:\n")
-		for _, c := range excerpts {
-			fmt.Fprintf(&b, "\n<doc path=%q title=%q>\n%s\n</doc>\n", c.Path, c.Title, c.Text)
-		}
 	}
 	return b.String()
 }

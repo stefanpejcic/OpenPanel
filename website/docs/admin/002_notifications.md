@@ -23,6 +23,8 @@ Each notification has a severity: **Critical** (e.g. a service is down and Senti
 
 Use the filters next to the search box to show only unread or resolved notifications, a single severity, or a single category (Service, Resources, Security, DNS, Traffic, System, Update, Action).
 
+Notifications are shown 100 per page, newest first, with **Previous** and **Next** below the table.
+
 Notifications that need attention are shown as unread. When Sentinel detects the same issue again while it's still unread, the notification shows how many times it was detected and when it was last seen, instead of adding a new one. Once the issue is gone, Sentinel marks it as read and shows a **Resolved after …** badge. Things Sentinel fixed on its own, like restarting a stopped container, are added as already-read Info entries for history and are not emailed. See [opencli sentinel](/docs/articles/opencli/sentinel) for details.
 
 Under the page title, **Last check** shows when [`opencli sentinel`](/docs/articles/opencli/sentinel) last completed its checks (it runs from cron every 5 minutes). The line turns amber if Sentinel hasn't run in over 15 minutes, which usually means its cron job is disabled or failing.
@@ -33,7 +35,7 @@ To manage notification settings, click the **Edit Settings** button on the Notif
 
 ## Bulk Actions
 
-Tick the checkbox of one or more notifications, or the checkbox in the table header to select all notifications shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+Tick the checkbox of one or more notifications, or the checkbox in the table header to select all notifications on the current page. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
 ![Two notifications selected with the bulk actions bar offering Mark as read and Delete](/img/openadmin-screenshots/002_notifications-bulk.png#gh-light-mode-only)
 ![Two notifications selected with the bulk actions bar offering Mark as read and Delete](/img/openadmin-screenshots/002_notifications-bulk_dark.png#gh-dark-mode-only)
