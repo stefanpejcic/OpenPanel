@@ -83,12 +83,12 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | Ubuntu | 24 | 2026-10-20 07:52 UTC | ✅ Pass | 2m19s | **recommended for AMD CPU** |
 | Ubuntu | 26 | 2026-10-20 07:43 UTC | ✅ Pass | 3m11s |  |
 | Debian | 12 | 2026-10-20 08:00 UTC | ❌ Fail | 1m25s |  |
-| Debian | 13 | 2026-10-19 08:05 UTC | ✅ Pass | 2m13s |  |
+| Debian | 13 | 2026-10-20 08:04 UTC | ✅ Pass | 2m9s |  |
 | AlmaLinux | 9.7 | 2026-09-07 11:46 UTC | ✅ Pass | 1m42s | **recommended for ARM CPU** |
 | AlmaLinux | 10 | 2026-10-20 07:00 UTC | ✅ Pass | 9m36s |  |
 | OracleLinux | 10 | |  |  |  |
 | RockyLinux | 9.6 | | | |  |
-| RockyLinux | 10 | 2026-10-19 08:13 UTC | ❌ Fail |  |  |
+| RockyLinux | 10 | 2026-10-20 08:12 UTC | ❌ Fail |  |  |
 | CentOS | 9.5 | | | |  |
 | CentOS | 10 | 2026-10-20 07:29 UTC | ✅ Pass | 8m46s |  |
 
