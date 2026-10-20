@@ -82,9 +82,18 @@
             btn.setAttribute('aria-expanded', 'false');
         }
 
-        more.addEventListener('mouseenter', open);
+        // hover opens it first, so the click that follows must keep it open instead of toggling it shut
+        let hoverOpened = false;
+        more.addEventListener('mouseenter', () => {
+            if (!more.classList.contains('is-open')) hoverOpened = true;
+            open();
+        });
         more.addEventListener('mouseleave', () => { closeTimer = setTimeout(close, 150); });
-        btn.addEventListener('click', () => (more.classList.contains('is-open') ? close() : open()));
+        btn.addEventListener('click', () => {
+            if (more.classList.contains('is-open') && !hoverOpened) close();
+            else open();
+            hoverOpened = false;
+        });
         document.addEventListener('click', e => { if (!more.contains(e.target)) close(); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
 

@@ -132,7 +132,7 @@
                             <a href="#" onclick="handleLoginClick({{toJSON $site.SiteName}})" class="btn btn-primary" type="button"> {{$.T.Get "Login as Admin"}} <i class="bi bi-box-arrow-in-right"></i></a>
                             <a class="btn btn-secondary mx-2" href="/website?domain={{$site.SiteName}}">{{$.T.Get "Manage"}}</a>
 
-<button id="dropdownHoverButton-{{$i}}" data-dropdown-toggle="dropdownHover-{{$i}}" data-dropdown-trigger="hover" class="" type="button"><i class="bi bi-x-lg"></i>
+<button id="dropdownHoverButton-{{$i}}" data-dropdown-toggle="dropdownHover-{{$i}}" class="" type="button"><i class="bi bi-x-lg"></i>
 </button>
 
                             <!-- Dropdown menu -->
@@ -180,7 +180,7 @@
                     />
                 </a>
 
-                <button id="dropdownHoverButton-{{$i}}" data-dropdown-toggle="dropdownHover-{{$i}}" data-dropdown-trigger="hover" type="button" class="flex items-center justify-center transition-all w-8 h-8 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 absolute top-1.5 right-1.5"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                <button id="dropdownHoverButton-{{$i}}" data-dropdown-toggle="dropdownHover-{{$i}}" type="button" class="flex items-center justify-center transition-all w-8 h-8 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 absolute top-1.5 right-1.5"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button>
 
                 <div id="dropdownHover-{{$i}}" class="z-10 text-left hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
                     <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownHoverButton-{{$i}}">

@@ -61,6 +61,10 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if execErr != nil {
 			web.Flash(a, w, r, "error", web.Tr(a, r, "Error fetching databases: %(error)s", "error", execErr.Error()))
 		} else {
+			// it answered, so it's up even if the healthcheck still says starting
+			if status.Health == "starting" {
+				status.Health = "healthy"
+			}
 			assignedSQL := `
 				SELECT
 					d.datname AS database,

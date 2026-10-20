@@ -216,6 +216,9 @@ function confirmDelete(button) {
 
     button.classList.remove('btn-danger');
     button.classList.add('btn-dark');
+    // the label is what screen readers announce, so it has to say Confirm too
+    button.dataset.label = button.getAttribute('aria-label');
+    button.setAttribute('aria-label', i18n.confirm);
     button.innerHTML = '<i class="bi bi-trash3-fill"></i> ' + i18n.confirm + ' <span class="btn-indicator btn-indicator-mini bg-danger">' + countdown + '</span>';
 
     var intervalId = setInterval(function () {
@@ -241,6 +244,7 @@ function revertButton(button) {
     button.classList.remove('btn-dark');
     button.classList.add('btn-danger');
     button.innerHTML = '<i class="bi bi-trash3"></i>';
+    if (button.dataset.label) button.setAttribute('aria-label', button.dataset.label);
     button.setAttribute('onclick', 'confirmDelete(this);');
 }
 </script>

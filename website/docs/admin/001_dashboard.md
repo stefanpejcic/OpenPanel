@@ -15,6 +15,7 @@ Below the welcome message, quick action buttons open the most common tasks: **Cr
 
 The dashboard page contains widgets:
 
+- **Daily Summary** widget: Displays yesterday's traffic and issues for all accounts combined. Shown only when the [Daily Summary module](/docs/admin/settings/modules/#daily-summary) is enabled.
 - **User Activity** widget: Displays real-time combined activity log of all OpenPanel users.
 - **Latest News** widget: Displays blog articles from the OpenPanel blog.
 - **System Information** widget: Displays Information about your server configuration: Hostname, IPv4 address, OS, OpenPanel version, Server Time, Kernel, CPU type, Uptime, Number of Running Processes and available Package Updates.
@@ -36,6 +37,21 @@ Hovering over each metric provides detailed information:
 
 ![Resource usage bar in the top-right corner of OpenAdmin with the load tooltip open](/img/openadmin-screenshots/001_dashboard-sse.png#gh-light-mode-only)
 ![Resource usage bar in the top-right corner of OpenAdmin with the load tooltip open](/img/openadmin-screenshots/001_dashboard-sse_dark.png#gh-dark-mode-only)
+
+## Daily Summary
+
+The **Daily Summary** widget adds up the [daily summaries](/docs/panel/statistics/daily_summary/) of all OpenPanel accounts for the most recent day that has them (up to 7 days back). Resellers see only their own accounts.
+
+It shows:
+
+- **Requests** (with the change from the day before), **Visitors**, **Data sent**, **Server errors** and **WAF blocks**
+- **Needs attention**: issues found on user accounts, each with a link to the user
+- **Busiest websites**: the top 5 websites by number of requests
+
+The widget is shown only when:
+
+- the **`summary`** module is enabled on [**Settings > Modules**](/docs/admin/settings/modules/#daily-summary), and
+- at least one user has the **summary** feature in their [feature set](/docs/admin/plans/feature-manager/) and already has a saved summary (they are saved each day at 06:15 for the previous day).
 
 ## User Activity
 

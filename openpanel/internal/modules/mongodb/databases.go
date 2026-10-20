@@ -55,6 +55,10 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if listErr != nil {
 			web.Flash(a, w, r, "error", web.Tr(a, r, "Error fetching databases: %(error)s", "error", listErr.Error()))
 		} else {
+			// it answered, so it's up even if the 60s healthcheck still says starting
+			if status.Health == "starting" {
+				status.Health = "healthy"
+			}
 			for _, d := range dbs {
 				databaseInfo = append(databaseInfo, DatabaseRow{Database: d.Name, SizeDisplay: formatSize(d.SizeBytes), IsSystem: mongomanager.IsSystemDatabase(d.Name)})
 			}

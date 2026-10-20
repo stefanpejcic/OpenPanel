@@ -196,10 +196,10 @@ func handleChangeMySQLUserPassword(a *appctx.App, w http.ResponseWriter, r *http
 
 	switch {
 	case dbUser == "":
-		web.FlashRedirect(a, w, r, "error", "User name is required.", "/mysql/change_user_password")
+		web.FlashRedirect(a, w, r, "error", "User name is required.", "/mysql/users")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/mysql/change_user_password")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/mysql/users")
 		return
 	case isRestrictedUser(dbUser):
 		web.FlashRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/mysql/users")
@@ -208,7 +208,7 @@ func handleChangeMySQLUserPassword(a *appctx.App, w http.ResponseWriter, r *http
 		web.FlashRedirect(a, w, r, "error", "Invalid host format.", "/mysql/users")
 		return
 	case !validators.IsPasswordStrongEnough(newPassword, validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)):
-		web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/mysql/change_user_password")
+		web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/mysql/password/"+dbUser)
 		return
 	}
 

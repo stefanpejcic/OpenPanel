@@ -191,16 +191,16 @@ func handleChangePostgresUserPassword(a *appctx.App, w http.ResponseWriter, r *h
 
 	switch {
 	case dbUser == "":
-		web.FlashRedirect(a, w, r, "error", "User name is required.", "/postgresql/change_user_password")
+		web.FlashRedirect(a, w, r, "error", "User name is required.", "/postgresql/users")
 		return
 	case !validators.IsValidIdentifier(dbUser):
-		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/postgresql/change_user_password")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/postgresql/users")
 		return
 	case isRestrictedUser(dbUser):
 		web.FlashRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/postgresql/users")
 		return
 	case !validators.IsPasswordStrongEnough(newPassword, validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)):
-		web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/postgresql/change_user_password")
+		web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/postgresql/password/"+dbUser)
 		return
 	}
 
